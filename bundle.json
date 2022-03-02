@@ -1,0 +1,97 @@
+{
+  "name": "@ohos/customization_enterprise_device_management",
+  "version": "",
+  "description": "EDM（Enterprise Device Management）提供系统级别的管理功能API，支持企业MDM应用对设备的管控",
+  "homePage": "https://gitee.com/openharmony",
+  "license": "Apache V2",
+  "repository": "https://gitee.com/openharmony/customization_enterprise_device_management",
+  "domain": "os",
+  "language": "",
+  "publishAs": "code-segment",
+  "private": false,
+  "scripts": {},
+  "tags": [
+    "base"
+  ],
+  "keywords": [
+    "customization",
+    "edm",
+    "standard"
+  ],
+  "envs": [],
+  "dirs": [],
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "contributors": [
+    {
+      "name": "",
+      "email": "",
+      "url": ""
+    }
+  ],
+  "segment": {
+    "destPath": "base/customization/enterprise_device_management"
+  },
+  "component": {
+    "name": "enterprise_device_management",
+    "subsystem": "customization",
+    "syscap": [],
+    "features": [],
+    "adapted_system_type": [
+      "standard"
+    ],
+    "rom": "",
+    "ram": "",
+    "deps": {
+      "components": [
+        "ability_runtime",
+        "appexecfwk_standard",
+        "bundle_framework",
+        "hiviewdfx_hilog_native",
+        "ipc",
+        "napi",
+        "permission_standard",
+        "safwk",
+        "samgr_standard",
+        "startup_l2",
+        "time_native",
+        "utils_base"
+      ],
+      "third_party": [
+        "jsoncpp"
+      ]
+    },
+    "build": {
+      "sub_component": [
+        "//base/customization/enterprise_device_management/interfaces/kits:enterprisedevicemanager",
+        "//base/customization/enterprise_device_management/services/edm:edmservice",
+        "//base/customization/enterprise_device_management/interfaces/innerkits:edmservice_kits",
+        "//base/customization/enterprise_device_management/services/edm_plugin:device_settings_plugin",
+        "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
+        "//base/customization/enterprise_device_management/etc/init:edm.cfg",
+        "//base/customization/enterprise_device_management/tools/edm:tools_edm"
+      ],
+      "inner_kits": [
+        {
+          "header": {
+            "header_base": "//base/customization/enterprise_device_management/interfaces/innerkits/include",
+            "header_files": [
+              "enterprise_device_mgr_proxy.h",
+              "policy_info.h",
+              "ent_info.h",
+              "ienterprise_device_mgr.h",
+              "device_settings_mgr.h"
+            ]
+          },
+          "name": "//base/customization/enterprise_device_management/interfaces/innerkits:edmservice_kits"
+        }
+      ],
+      "test": [
+        "//base/customization/enterprise_device_management/services/edm/test:unittest"
+      ]
+    }
+  }
+}

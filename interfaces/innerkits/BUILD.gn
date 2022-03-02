@@ -1,0 +1,62 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
+ROOT = "$SUBSYSTEM_DIR/interfaces/innerkits"
+SRC_PATH = "$ROOT/src"
+INCLUDE_PATH = "$ROOT/include"
+
+config("edmservice_kits_config") {
+  include_dirs = [
+    "//utils/native/base/include",
+    "include",
+    "$SUBSYSTEM_DIR/common/native/include",
+  ]
+}
+
+ohos_shared_library("edmservice_kits") {
+  public_configs = [ ":edmservice_kits_config" ]
+
+  sources = [
+    "$INCLUDE_PATH/device_settings_mgr.h",
+    "$INCLUDE_PATH/ent_info.h",
+    "$INCLUDE_PATH/enterprise_device_mgr_proxy.h",
+    "$SRC_PATH/device_settings_mgr.cpp",
+    "$SRC_PATH/ent_info.cpp",
+    "$SRC_PATH/enterprise_device_mgr_proxy.cpp",
+  ]
+
+  external_deps = [
+    "ability_runtime:intent",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "ipc:ipc_core",
+    "os_account_standard:libaccountkits",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
+
+  deps = [ "//utils/native/base:utils" ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

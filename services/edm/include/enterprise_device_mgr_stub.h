@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef EDM_ENTERPRISE_DEVICE_MGR_STUB_H
+#define EDM_ENTERPRISE_DEVICE_MGR_STUB_H
+#include <map>
+#include "func_code_utils.h"
+#include "edm_log.h"
+#include "ienterprise_device_mgr.h"
+#include "iremote_stub.h"
+
+namespace OHOS {
+namespace EDM {
+class EnterpriseDeviceMgrStub : public IRemoteStub<IEnterpriseDeviceMgr> {
+public:
+    EnterpriseDeviceMgrStub();
+    ~EnterpriseDeviceMgrStub();
+    int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+private:
+    using EnterpriseDeviceManagerFunc = int32_t (EnterpriseDeviceMgrStub::*)(MessageParcel &data, MessageParcel &reply);
+    std::map<uint32_t, EnterpriseDeviceManagerFunc> memberFuncMap_;
+    void AddCallFuncMap();
+    ErrCode ActiveAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode DeactiveAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode DeactiveSuperAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    ErrCode GetReqEdmPermissionsInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode GetActiveAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode IsSuperAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode IsAdminActiveInner(MessageParcel &data, MessageParcel &reply);
+};
+} // namespace EDM
+} // namespace OHOS
+#endif // EDM_ENTERPRISE_DEVICE_MGR_STUB_H
