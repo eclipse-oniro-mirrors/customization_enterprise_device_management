@@ -1,19 +1,14 @@
-# 企业设备管理组件介绍<a name="ZH-CN_TOPIC_0000001232012425"></a>
+# 企业设备管理组件介绍
 
--   [简介](#section11333318500)
--   [目录](#section145135295018)
--   [说明](#section1413462511513)
--   [相关仓](#section898171518525)
-
-## 简介<a name="section11333318500"></a>
+## 简介
 
 **企业设备管理组件**为企业环境下的应用提供系统级别的管理功能API。
 
 企业设备管理组件架构如下图所示：
 
-![](figure\EnterpriseDeviceManagement.PNG)
+![](figure\enterprise_device_management.png)
 
-## 目录<a name="section145135295018"></a>
+## 目录
 
 企业设备管理组件源代码目录结构如下所示：
 
@@ -29,11 +24,11 @@
 ```
 ````
 
-## 说明<a name="section1413462511513"></a>
+## 说明
 
 设备管理组件提供了企业设备管理应用开发模板，支持设备管理应用激活、安全策略设置、系统配置和管理。
 
-## 相关仓<a name="section898171518525"></a>
+## 相关仓
 
 [admin_provisioning](https://gitee.com/openharmony/applications_admin_provisioning)
 
