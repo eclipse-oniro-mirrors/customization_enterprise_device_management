@@ -2,11 +2,13 @@
 
 ## 简介
 
-**企业设备管理组件**为企业环境下的应用提供系统级别的管理功能API。
+企业设备管理组件为企业环境下的应用提供系统级别的管理功能API。
 
-企业设备管理组件架构如下图所示：
+## 系统架构
 
-![](figure/enterprise_device_management.png)
+**图 1**  企业设备管理组件架构图 
+
+![](figure\enterprise_device_management.png)
 
 ## 目录
 
