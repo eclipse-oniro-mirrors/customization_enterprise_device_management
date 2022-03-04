@@ -8,7 +8,7 @@
 
 **图 1**  企业设备管理组件架构图 
 
-![](figure\enterprise_device_management.png)
+![](figure/enterprise_device_management.png)
 
 ## 目录
 
