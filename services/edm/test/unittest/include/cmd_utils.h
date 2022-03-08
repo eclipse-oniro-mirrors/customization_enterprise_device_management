@@ -25,7 +25,7 @@ class CmdUtils {
 public:
     static void ExecCmdSync(const std::string &cmd);
 };
-}
-}
-}
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS
 #endif // EDM_TEST_CMD_UTILS_H

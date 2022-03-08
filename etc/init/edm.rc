@@ -1,5 +1,0 @@
-service edm /system/bin/sa_main /system/profile/edm.xml
-    class edm
-    user edm
-    group system shell
-    seclabel u:r:edm:s0

@@ -48,7 +48,9 @@ ErrCode IPlugin::MergePolicyData(const std::string &adminName, std::string &merg
 {
     std::shared_ptr<PolicyManager> ptr = PolicyManager::GetInstance();
     AdminValueItemsMap map;
-    ptr->GetAdminByPolicyName(policyName_, map);
+    if (ptr != nullptr) {
+        ptr->GetAdminByPolicyName(policyName_, map);
+    }
     return ERR_OK;
 }
 

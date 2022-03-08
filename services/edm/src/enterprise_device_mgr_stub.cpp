@@ -53,7 +53,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
 {
     std::u16string descriptor = GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    HiLog::Info(LABEL, "EnterpriseDeviceMgrStub code %{public}d", code);
+    EDMLOGI(LABEL, "EnterpriseDeviceMgrStub code %{public}u", code);
     if (descriptor != remoteDescriptor) {
         EDMLOGE("EnterpriseDeviceMgrStub code %{public}d client and service descriptors are inconsistent", code);
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
@@ -167,7 +167,7 @@ ErrCode EnterpriseDeviceMgrStub::GetActiveAdminInner(MessageParcel &data, Messag
     uint32_t type = AdminType::UNKNOWN;
     if (!data.ReadUint32(type)) {
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
-        EDMLOGE("EnterpriseDeviceMgrStub:GetActiveAdminInner read type fail %{public}d", type);
+        EDMLOGE("EnterpriseDeviceMgrStub:GetActiveAdminInner read type fail %{public}u", type);
         return ERR_EDM_PARAM_ERROR;
     }
     std::vector<std::string> activeAdminList;

@@ -135,7 +135,7 @@ private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceSettingsManager> deviceSettingsManager_;
 };
-}
-}
+} // namespace EDM
+} // namespace OHOS
 
 #endif /* ENTERPRISE_DEVICE_MGR_ADDON_H */
