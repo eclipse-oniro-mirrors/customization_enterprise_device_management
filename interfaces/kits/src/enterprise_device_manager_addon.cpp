@@ -386,8 +386,10 @@ void EnterpriseDeviceManagerAddon::NativeSetDateTime(napi_env env, void *data)
         EDMLOGE("can not get DeviceSettingsManager");
         return;
     }
-    asyncCallbackInfo->ret =
-        deviceSettingsManager_->SetDateTime(asyncCallbackInfo->elementName, asyncCallbackInfo->time);
+    bool success = deviceSettingsManager_->SetDateTime(asyncCallbackInfo->elementName, asyncCallbackInfo->time);
+    asyncCallbackInfo->ret = ERR_OK;
+    asyncCallbackInfo->boolRet = success;
+    EDMLOGD("NativeSetDateTime asyncCallbackInfo->boolRet %{public}d", asyncCallbackInfo->boolRet);
 }
 
 void EnterpriseDeviceManagerAddon::NativeSetEnterpriseInfo(napi_env env, void *data)

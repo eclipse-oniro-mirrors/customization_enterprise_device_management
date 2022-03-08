@@ -104,7 +104,6 @@ ErrCode EnterpriseDeviceMgrStub::ActiveAdminInner(MessageParcel &data, MessagePa
 ErrCode EnterpriseDeviceMgrStub::DeactiveAdminInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
-    EDMLOGD("DeactiveAdminInner bundleName: %{public}s", admin->GetBundleName().c_str());
     if (!admin) {
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
