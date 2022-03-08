@@ -23,7 +23,6 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace EDM {
-constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD001E00, "EDM" };
 
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub()
 {
@@ -53,7 +52,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
 {
     std::u16string descriptor = GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    EDMLOGI(LABEL, "EnterpriseDeviceMgrStub code %{public}u", code);
+    EDMLOGI("EnterpriseDeviceMgrStub code %{public}u", code);
     if (descriptor != remoteDescriptor) {
         EDMLOGE("EnterpriseDeviceMgrStub code %{public}d client and service descriptors are inconsistent", code);
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
