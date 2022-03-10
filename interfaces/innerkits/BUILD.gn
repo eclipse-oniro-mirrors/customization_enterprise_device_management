@@ -39,8 +39,8 @@ ohos_shared_library("edmservice_kits") {
   ]
 
   external_deps = [
-    "ability_runtime:intent",
     "ability_base:want",
+    "ability_runtime:intent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "ipc:ipc_core",

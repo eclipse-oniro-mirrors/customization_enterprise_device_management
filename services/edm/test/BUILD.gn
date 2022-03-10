@@ -53,18 +53,18 @@ ohos_unittest("EdmServicesUnitTest") {
   deps = [
     "$EDM_ROOT/:edmservice",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
     "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "ability_base:want",
-    "enterprise_device_management:edmservice_kits",
   ]
 
   if (is_standard_system) {
