@@ -23,6 +23,7 @@ edm_plugin_shared_library("device_settings_plugin") {
 
   include_dirs = [
     "//third_party/node/src",
+    "//foundation/multimedia/image_standard/interfaces/innerkits/include",
   ]
   deps = [
     "//utils/native/base:utils",
