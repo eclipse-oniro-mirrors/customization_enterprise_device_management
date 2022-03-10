@@ -38,7 +38,7 @@
   "component": {
     "name": "enterprise_device_management",
     "subsystem": "customization",
-    "syscap": [],
+    "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
     "features": [],
     "adapted_system_type": [
       "standard"
