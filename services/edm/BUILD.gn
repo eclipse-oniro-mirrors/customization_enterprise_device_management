@@ -54,6 +54,8 @@ ohos_shared_library("edmservice") {
   ]
   public_configs = [ ":edm_config" ]
 
+  defines = []
+
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
     print("defines _ARM64_")
