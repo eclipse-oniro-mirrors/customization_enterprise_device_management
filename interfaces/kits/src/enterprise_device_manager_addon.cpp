@@ -537,11 +537,10 @@ napi_value EnterpriseDeviceManagerAddon::ParseInt(napi_env env, int32_t &param, 
 {
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    EDMLOGE("ParseInt param=%{public}d.", valuetype);
+    EDMLOGD("ParseInt param=%{public}d.", valuetype);
     NAPI_ASSERT(env, valuetype == napi_number, "Wrong argument type. int32 expected.");
     int32_t value = 0;
     napi_get_value_int32(env, args, &value);
-    EDMLOGE("ParseInt param=%{public}d.", value);
     param = value;
     // create result code
     napi_value result = nullptr;
@@ -554,11 +553,10 @@ napi_value EnterpriseDeviceManagerAddon::ParseLong(napi_env env, int64_t &param,
 {
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    EDMLOGE("ParseLong param=%{public}d.", valuetype);
+    EDMLOGD("ParseLong param=%{public}d.", valuetype);
     NAPI_ASSERT(env, valuetype == napi_number, "Wrong argument type. int64 expected.");
     int64_t value = 0;
     napi_get_value_int64(env, args, &value);
-    EDMLOGE("ParseLong param= %{public}lld", value);
     param = value;
     // create result code
     napi_value result = nullptr;
@@ -740,14 +738,8 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             },
             (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_get_null(env, &ret));
-        if (ret == nullptr) {
-            if (asyncCallbackInfo != nullptr) {
-                delete asyncCallbackInfo;
-                asyncCallbackInfo = nullptr;
-            }
-        }
+        delete asyncCallbackInfo;
+        asyncCallbackInfo = nullptr;
         napi_value result;
         NAPI_CALL(env, napi_create_int32(env, NAPI_RETURN_ONE, &result));
         return result;
@@ -776,15 +768,8 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             },
             (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_get_null(env, &ret));
-        if (ret == nullptr) {
-            if (asyncCallbackInfo != nullptr) {
-                delete asyncCallbackInfo;
-                asyncCallbackInfo = nullptr;
-            }
-        }
+        delete asyncCallbackInfo;
+        asyncCallbackInfo = nullptr;
         return promise;
     }
 }

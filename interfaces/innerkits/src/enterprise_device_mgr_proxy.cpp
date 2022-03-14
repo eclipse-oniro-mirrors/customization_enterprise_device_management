@@ -39,7 +39,7 @@ std::shared_ptr<EnterpriseDeviceMgrProxy> EnterpriseDeviceMgrProxy::GetInstance(
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<EnterpriseDeviceMgrProxy> temp(new EnterpriseDeviceMgrProxy);
+            std::shared_ptr<EnterpriseDeviceMgrProxy> temp = std::make_shared<EnterpriseDeviceMgrProxy>();
             instance_ = temp;
         }
     }
