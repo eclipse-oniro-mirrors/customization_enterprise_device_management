@@ -35,7 +35,7 @@ void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePl
 
 ErrCode SetDateTimePlugin::OnSetPolicy(int64_t &data)
 {
-    EDMLOGD("SetDateTimePlugin OnSetPolicy%{public}lld", data);
+    EDMLOGD("SetDateTimePlugin OnSetPolicy");
     MiscServices::TimeServiceClient::GetInstance()->SetTime(data);
     return ERR_OK;
 }
