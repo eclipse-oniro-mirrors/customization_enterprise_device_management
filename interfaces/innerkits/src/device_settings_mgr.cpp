@@ -33,7 +33,7 @@ std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::GetDeviceSettingsM
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<DeviceSettingsManager> temp(new DeviceSettingsManager);
+            std::shared_ptr<DeviceSettingsManager> temp = std::make_shared<DeviceSettingsManager>();
             instance_ = temp;
         }
     }
