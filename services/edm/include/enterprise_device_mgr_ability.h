@@ -16,9 +16,9 @@
 #ifndef EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 #define EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 
+#include <bundle_mgr_interface.h>
 #include <string>
 #include "admin_manager.h"
-#include <bundle_mgr_interface.h>
 #include "enterprise_device_mgr_stub.h"
 #include "hilog/log.h"
 #include "plugin_manager.h"

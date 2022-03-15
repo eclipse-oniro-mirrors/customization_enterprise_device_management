@@ -14,7 +14,6 @@
  */
 
 #include "enterprise_device_mgr_stub.h"
-#include <string>
 #include "admin.h"
 #include "ent_info.h"
 #include "string_ex.h"
@@ -23,7 +22,6 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace EDM {
-
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub()
 {
     AddCallFuncMap();
@@ -135,7 +133,7 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
-        EDMLOGW("HandleDevicePolicyInner: ReadParcelable<Intent> failed");
+        EDMLOGW("HandleDevicePolicyInner: ReadParcelable failed");
         return ERR_EDM_PARAM_ERROR;
     }
     ErrCode errCode = HandleDevicePolicy(code, *admin, data);

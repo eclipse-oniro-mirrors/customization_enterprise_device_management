@@ -62,7 +62,7 @@ HWTEST_F(PolicySerializerTest, BOOL, TestSize.Level1)
 
 
     boolValue = false;
-    vector<bool> policyValues{ false, true, false, false, true };
+    vector<bool> policyValues { false, true, false, false, true };
     ASSERT_TRUE(serializer->MergePolicy(policyValues, boolValue));
     ASSERT_EQ(boolValue, true);
 
@@ -103,7 +103,7 @@ HWTEST_F(PolicySerializerTest, STRING, TestSize.Level1)
     ASSERT_TRUE(messageParcel2.ReadString16(value16));
     ASSERT_TRUE(value16 == u"s二");
 
-    vector<string> policyValues{ "v1", "v2", "v3" };
+    vector<string> policyValues { "v1", "v2", "v3" };
     ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
     ASSERT_TRUE(value == "v3");
 }
@@ -145,11 +145,11 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     messageParcel2.ReadString16Vector(&value16);
     ASSERT_TRUE(value16.size() == 3);
 
-    vector<vector<string>> policyValues{{ "v1",   "v2",   "v3" },
-                                        { "vv1",  "vv2",  "vv3" },
-                                        { "vvv1", "vvv2", "vvv3" },
-                                        { "v1",   "v2",   "v3" },
-                                        { "vv1",  "vv2",  "vv3" }};
+    vector<vector<string>> policyValues {{ "v1",   "v2",   "v3" },
+                                         { "vv1",  "vv2",  "vv3" },
+                                         { "vvv1", "vvv2", "vvv3" },
+                                         { "v1",   "v2",   "v3" },
+                                         { "vv1",  "vv2",  "vv3" }};
     ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
     ASSERT_TRUE(value.size() == 9);
 }
@@ -268,7 +268,7 @@ HWTEST_F(PolicySerializerTest, ArrayMapStringMergePolicy, TestSize.Level1)
 {
     auto serializer = ArrayMapSerializer::GetInstance();
     vector<map<string, string>> value;
-    vector<vector<map<string, string>>> policyValues{
+    vector<vector<map<string, string>>> policyValues {
         {
             {
                 { "id", "1" },
@@ -389,7 +389,7 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_002, TestSize.Level1)
         { "k4", "v4" },
     };
     value = {};
-    vector<map<string, string>> policyValues{ value1, value2, value3 };
+    vector<map<string, string>> policyValues { value1, value2, value3 };
     ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
     ASSERT_TRUE(value3 == value);
 }

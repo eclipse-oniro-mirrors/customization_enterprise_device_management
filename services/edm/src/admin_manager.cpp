@@ -352,7 +352,9 @@ void AdminManager::WriteJsonAdmin(const std::string &filePath)
     ofs.flush();
     ofs.close();
     double time2 = clock();
-    EDMLOGD("WriteJsonAdmin spend time %{public}f", (time2 - time1) / CLOCKS_PER_SEC);
+    if (time1 != 0 && time2 != 0) {
+        EDMLOGD("WriteJsonAdmin spend time %{public}f", (time2 - time1) / CLOCKS_PER_SEC);
+    }
 }
 
 // write admin to file
