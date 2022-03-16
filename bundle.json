@@ -83,7 +83,7 @@
               "policy_info.h",
               "ent_info.h",
               "ienterprise_device_mgr.h",
-              "device_settings_mgr.h"
+              "device_settings_manager.h"
             ]
           },
           "name": "//base/customization/enterprise_device_management/interfaces/innerkits:edmservice_kits"

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "device_settings_mgr.h"
+#include "device_settings_manager.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"

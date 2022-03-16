@@ -14,7 +14,6 @@
  */
 
 #include "ent_info.h"
-#include <algorithm>
 #include "edm_log.h"
 #include "string_ex.h"
 

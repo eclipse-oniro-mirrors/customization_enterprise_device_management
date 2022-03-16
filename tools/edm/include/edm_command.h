@@ -34,10 +34,10 @@ const std::string HELP_MSG = "usage: edm <command> <options>\n"
                              "  deactivate-super-admin    deactivate a super admin with options\n";
 }  // namespace
 
-class EnterpriseDeviceManagerShellCommand : public ShellCommand {
+class EdmCommand : public ShellCommand {
 public:
-    EnterpriseDeviceManagerShellCommand(int argc, char *argv[]);
-    ~EnterpriseDeviceManagerShellCommand() override
+    EdmCommand(int argc, char *argv[]);
+    ~EdmCommand() override
     {}
 
 private:

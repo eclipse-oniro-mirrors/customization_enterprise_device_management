@@ -14,7 +14,6 @@
  */
 
 #include "cmd_utils.h"
-#include <dlfcn.h>
 
 namespace OHOS {
 namespace EDM {
