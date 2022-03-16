@@ -18,7 +18,6 @@
 #include <dlfcn.h>
 #include <map>
 #include <memory>
-#include <mutex>
 #include "iplugin.h"
 
 namespace OHOS {

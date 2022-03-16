@@ -14,14 +14,9 @@
  */
 
 #include "func_code_utils.h"
-#include <algorithm>
-#include <bitset>
 #include <edm_log.h>
-#include <iostream>
 #include <sstream>
 #include <string_ex.h>
-#include <utility>
-#include <vector>
 
 namespace OHOS {
 namespace EDM {

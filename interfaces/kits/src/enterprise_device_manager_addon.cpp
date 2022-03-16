@@ -738,8 +738,6 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             },
             (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
         napi_value result;
         NAPI_CALL(env, napi_create_int32(env, NAPI_RETURN_ONE, &result));
         return result;
@@ -768,8 +766,6 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             },
             (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
         return promise;
     }
 }

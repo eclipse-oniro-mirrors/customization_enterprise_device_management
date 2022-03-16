@@ -17,7 +17,7 @@
 #define ENTERPRISE_DEVICE_MGR_ADDON_H
 
 #include "admin_type.h"
-#include "device_settings_mgr.h"
+#include "device_settings_manager.h"
 #include "edm_errors.h"
 #include "element_name.h"
 #include "ent_info.h"
