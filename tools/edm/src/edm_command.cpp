@@ -15,10 +15,8 @@
 
 #include "edm_command.h"
 
-#include <cstring>
 #include <iostream>
 #include <string_ex.h>
-#include <vector>
 
 #include "element_name.h"
 
@@ -33,27 +31,27 @@ constexpr size_t ARGS_SIZE_THREE = 3;
 
 constexpr int32_t DEFAULT_USER_ID = 100;
 
-EnterpriseDeviceManagerShellCommand::EnterpriseDeviceManagerShellCommand(int argc, char *argv[])
+EdmCommand::EdmCommand(int argc, char *argv[])
     : ShellCommand(argc, argv, TOOL_NAME)
 {}
 
-ErrCode EnterpriseDeviceManagerShellCommand::CreateCommandMap()
+ErrCode EdmCommand::CreateCommandMap()
 {
     commandMap_ = {
-        { "help", std::bind(&EnterpriseDeviceManagerShellCommand::RunAsHelpCommand, this) },
-        { "activate-admin", std::bind(&EnterpriseDeviceManagerShellCommand::RunAsActivateAdminCommand, this) },
+        { "help", std::bind(&EdmCommand::RunAsHelpCommand, this) },
+        { "activate-admin", std::bind(&EdmCommand::RunAsActivateAdminCommand, this) },
         { "activate-super-admin",
-        std::bind(&EnterpriseDeviceManagerShellCommand::RunAsActivateSuperAdminCommand, this) },
+        std::bind(&EdmCommand::RunAsActivateSuperAdminCommand, this) },
         { "deactivate-admin",
-        std::bind(&EnterpriseDeviceManagerShellCommand::RunDeactivateNormalAdminCommand, this) },
+        std::bind(&EdmCommand::RunDeactivateNormalAdminCommand, this) },
         { "deactivate-super-admin",
-        std::bind(&EnterpriseDeviceManagerShellCommand::RunDeactivateSuperAdminCommand, this) },
+        std::bind(&EdmCommand::RunDeactivateSuperAdminCommand, this) },
     };
 
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::CreateMessageMap()
+ErrCode EdmCommand::CreateMessageMap()
 {
     messageMap_ = { //  error + message
         {
@@ -89,7 +87,7 @@ ErrCode EnterpriseDeviceManagerShellCommand::CreateMessageMap()
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::init()
+ErrCode EdmCommand::init()
 {
     ErrCode result = ERR_OK;
 
@@ -104,24 +102,24 @@ ErrCode EnterpriseDeviceManagerShellCommand::init()
     return result;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunAsHelpCommand()
+ErrCode EdmCommand::RunAsHelpCommand()
 {
     resultReceiver_.append(HELP_MSG);
 
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunAsActivateAdminCommand()
+ErrCode EdmCommand::RunAsActivateAdminCommand()
 {
     return RunAsActivateCommand(AdminType::NORMAL);
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunAsActivateSuperAdminCommand()
+ErrCode EdmCommand::RunAsActivateSuperAdminCommand()
 {
     return RunAsActivateCommand(AdminType::ENT);
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunAsActivateCommand(AdminType type)
+ErrCode EdmCommand::RunAsActivateCommand(AdminType type)
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {
@@ -144,7 +142,7 @@ ErrCode EnterpriseDeviceManagerShellCommand::RunAsActivateCommand(AdminType type
     return result;
 }
 
-std::vector<std::string> EnterpriseDeviceManagerShellCommand::split(const std::string &str, const std::string &pattern)
+std::vector<std::string> EdmCommand::split(const std::string &str, const std::string &pattern)
 {
     std::vector<std::string> res;
     if (str == "") {
@@ -162,7 +160,7 @@ std::vector<std::string> EnterpriseDeviceManagerShellCommand::split(const std::s
     return res;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunDeactivateNormalAdminCommand()
+ErrCode EdmCommand::RunDeactivateNormalAdminCommand()
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {
@@ -188,7 +186,7 @@ ErrCode EnterpriseDeviceManagerShellCommand::RunDeactivateNormalAdminCommand()
     return result;
 }
 
-ErrCode EnterpriseDeviceManagerShellCommand::RunDeactivateSuperAdminCommand()
+ErrCode EdmCommand::RunDeactivateSuperAdminCommand()
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {

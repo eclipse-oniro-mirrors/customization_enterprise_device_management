@@ -30,10 +30,10 @@ ohos_shared_library("edmservice_kits") {
   public_configs = [ ":edmservice_kits_config" ]
 
   sources = [
-    "$INCLUDE_PATH/device_settings_mgr.h",
+    "$INCLUDE_PATH/device_settings_manager.h",
     "$INCLUDE_PATH/ent_info.h",
     "$INCLUDE_PATH/enterprise_device_mgr_proxy.h",
-    "$SRC_PATH/device_settings_mgr.cpp",
+    "$SRC_PATH/device_settings_manager.cpp",
     "$SRC_PATH/ent_info.cpp",
     "$SRC_PATH/enterprise_device_mgr_proxy.cpp",
   ]

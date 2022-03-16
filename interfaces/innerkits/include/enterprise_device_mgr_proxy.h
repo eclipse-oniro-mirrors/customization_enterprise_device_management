@@ -15,13 +15,13 @@
 
 #ifndef EDM_ENTERPRISE_DEVICE_MANAGER_H
 #define EDM_ENTERPRISE_DEVICE_MANAGER_H
-#include "ienterprise_device_mgr.h"
 #include <message_parcel.h>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
+#include "ienterprise_device_mgr.h"
 
 namespace OHOS {
 namespace EDM {

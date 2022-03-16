@@ -19,7 +19,7 @@
 
 int main(int argc, char *argv[])
 {
-    OHOS::EDM::EnterpriseDeviceManagerShellCommand cmd(argc, argv);
+    OHOS::EDM::EdmCommand cmd(argc, argv);
     std::cout << cmd.ExecCommand();
     return 0;
 }

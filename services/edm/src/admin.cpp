@@ -14,7 +14,6 @@
  */
 
 #include "admin.h"
-#include <algorithm>
 
 #include "edm_log.h"
 #include "ent_info.h"
