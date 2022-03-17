@@ -8,7 +8,7 @@ The Enterprise Device Management component provides the management application d
 
 **Figure 1** Architecture of the Enterprise Device Management component
 
-![](figure/enterprise_device_management.png)
+![](figure/en_enterprise_device_management.png)
 
 In the architecture of the Enterprise Device Management component:
 
