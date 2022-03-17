@@ -16,7 +16,6 @@
 #ifndef EDM_FUNC_CODE_H
 #define EDM_FUNC_CODE_H
 
-#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
