@@ -62,6 +62,7 @@ private:
         std::vector<std::string> &permissionList, int32_t userId);
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type);
+    bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
