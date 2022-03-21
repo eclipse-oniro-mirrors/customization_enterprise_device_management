@@ -24,6 +24,7 @@
 #include <system_ability.h>
 #include <system_ability_definition.h>
 
+#include "accesstoken_kit.h"
 #include "bundle_mgr_proxy.h"
 #include "edm_log.h"
 #include "parameters.h"
@@ -156,11 +157,31 @@ sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
 
 ErrCode EnterpriseDeviceMgrAbility::CheckPermission()
 {
-    if (IsHdb() || system::GetBoolParameter("ro.config.pass_edm_permission", false)) {
+    if (IsHdb() || VerifyCallingPermission("ohos.permission.MANAGE_ADMIN")) {
         EDMLOGW("check permission success, IsHdb: %{public}d", IsHdb());
         return ERR_OK;
     }
     return ERR_EDM_PERMISSION_ERROR;
+}
+
+bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &permissionName)
+{
+    EDMLOGD("VerifyCallingPermission permission %{public}s", permissionName.c_str());
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    EDMLOGD("callerToken : %{public}u", callerToken);
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EDMLOGD("caller tokenType is native, verify success");
+        return true;
+    }
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
+    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+        EDMLOGE("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
+        return false;
+    }
+    EDMLOGD("verify AccessToken success");
+    return true;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type)

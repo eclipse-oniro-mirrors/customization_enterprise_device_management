@@ -65,6 +65,7 @@ ohos_shared_library("edmservice") {
     "ability_base:want",
     "ability_runtime:app_manager",
     "ability_runtime:intent",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "enterprise_device_management:edmservice_kits",
