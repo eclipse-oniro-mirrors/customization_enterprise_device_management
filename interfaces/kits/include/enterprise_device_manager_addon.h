@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ENTERPRISE_DEVICE_MGR_ADDON_H
-#define ENTERPRISE_DEVICE_MGR_ADDON_H
+#ifndef INTERFACES_KITS_INCLUDE_ENTERPRISE_DEVICE_MANAGER_ADDON_H_
+#define INTERFACES_KITS_INCLUDE_ENTERPRISE_DEVICE_MANAGER_ADDON_H_
 
 #include "admin_type.h"
 #include "device_settings_manager.h"
@@ -138,4 +138,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif /* ENTERPRISE_DEVICE_MGR_ADDON_H */
+#endif // INTERFACES_KITS_INCLUDE_ENTERPRISE_DEVICE_MANAGER_ADDON_H_

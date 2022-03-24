@@ -90,4 +90,3 @@ HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_FUNC_CODE_UTILS_H
-#define EDM_FUNC_CODE_UTILS_H
+#ifndef SERVICES_EDM_INCLUDE_UTILS_FUNCCODE_UTILS_H_
+#define SERVICES_EDM_INCLUDE_UTILS_FUNCCODE_UTILS_H_
 
 #include <map>
 #include <string>
@@ -61,4 +61,4 @@ public:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_FUNC_CODE_UTILS_H
+#endif // SERVICES_EDM_INCLUDE_UTILS_FUNCCODE_UTILS_H_

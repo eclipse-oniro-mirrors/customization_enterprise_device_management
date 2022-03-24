@@ -48,6 +48,7 @@
     "deps": {
       "components": [
         "ability_runtime",
+        "access_token",
         "appexecfwk_standard",
         "bundle_framework",
         "hiviewdfx_hilog_native",

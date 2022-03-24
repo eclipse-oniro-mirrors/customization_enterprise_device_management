@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ENTERPRISE_DEVICE_MGR_STUB_H
-#define EDM_ENTERPRISE_DEVICE_MGR_STUB_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H_
+#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H_
 #include <map>
 #include "func_code_utils.h"
 #include "edm_log.h"
@@ -47,4 +47,4 @@ private:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_ENTERPRISE_DEVICE_MGR_STUB_H
+#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H_

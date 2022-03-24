@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ADMIN_MANAGER_H
-#define EDM_ADMIN_MANAGER_H
+#ifndef SERVICES_EDM_INCLUDE_ADMIN_MANAGER_H_
+#define SERVICES_EDM_INCLUDE_ADMIN_MANAGER_H_
 
 #include <map>
 #include <memory>
@@ -45,6 +45,7 @@ public:
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo);
     virtual ~AdminManager();
+    
 private:
     AdminManager();
     void SaveAdmin();
@@ -60,4 +61,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ADMIN_MANAGER_H
+#endif // SERVICES_EDM_INCLUDE_ADMIN_MANAGER_H_

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_EDM_LOG_H
-#define EDM_EDM_LOG_H
+#ifndef COMMON_NATIVE_INCLUDE_EDM_LOG_H_
+#define COMMON_NATIVE_INCLUDE_EDM_LOG_H_
 
 #include "errors.h"
 #include "hilog/log.h"
@@ -44,4 +44,4 @@ static constexpr OHOS::HiviewDFX::HiLogLabel EDM_LABEL = { LOG_CORE, LOG_DOMAIN_
 #endif
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_EDM_LOG_H
+#endif // COMMON_NATIVE_INCLUDE_EDM_LOG_H_

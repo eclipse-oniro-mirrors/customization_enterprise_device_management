@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ENTINFO_H
-#define EDM_ENTINFO_H
+#ifndef INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_
+#define INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_
 
 #include <string>
-#include "parcel_macro.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace EDM {
@@ -35,4 +35,4 @@ struct EntInfo : public Parcelable {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ENTINFO_H
+#endif // INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_

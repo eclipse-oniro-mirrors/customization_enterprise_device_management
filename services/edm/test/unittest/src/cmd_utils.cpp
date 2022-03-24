@@ -26,6 +26,6 @@ void CmdUtils::ExecCmdSync(const std::string &cmd)
         fp = nullptr;
     }
 }
-}
-}
-}
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS

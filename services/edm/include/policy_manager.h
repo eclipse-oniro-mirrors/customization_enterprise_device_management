@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_POLICY_MANAGER_H
-#define EDM_POLICY_MANAGER_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_POLICY_MANAGER_H_
+#define SERVICES_EDM_INCLUDE_EDM_POLICY_MANAGER_H_
 
 #include <memory>
 #include <mutex>
@@ -178,4 +178,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_POLICY_MANAGER_H
+#endif // SERVICES_EDM_INCLUDE_EDM_POLICY_MANAGER_H_

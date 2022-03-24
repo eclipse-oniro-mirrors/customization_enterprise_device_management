@@ -109,5 +109,5 @@ std::string ShellCommand::GetMessageFromCode(const int32_t code) const
     EDMLOGI("result = %{public}s", result.c_str());
     return result;
 }
-}  // namespace EDM
-}  // namespace OHOS
+} // namespace EDM
+} // namespace OHOS

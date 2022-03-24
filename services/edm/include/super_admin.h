@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_SUPER_ADMIN_H
-#define EDM_SUPER_ADMIN_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H_
+#define SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H_
 
 #include "admin.h"
 
@@ -27,4 +27,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_SUPER_ADMIN_H
+#endif // SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H_

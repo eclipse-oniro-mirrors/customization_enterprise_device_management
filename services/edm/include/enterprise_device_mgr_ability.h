@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
-#define EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H_
+#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H_
 
 #include <bundle_mgr_interface.h>
 #include <string>
@@ -47,6 +47,7 @@ public:
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
     bool IsSuperAdmin(std::string &bundleName) override;
     bool IsAdminActive(AppExecFwk::ElementName &admin) override;
+
 protected:
     void OnDump() override;
     void OnStart() override;
@@ -73,4 +74,4 @@ private:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
+#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H_

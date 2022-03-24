@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ENTERPRISE_DEVICE_MANAGER_H
-#define EDM_ENTERPRISE_DEVICE_MANAGER_H
+#ifndef INTERFACES_INNERKITS_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H_
+#define INTERFACES_INNERKITS_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H_
 #include <message_parcel.h>
 #include <map>
 #include <memory>
@@ -61,4 +61,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ENTERPRISE_DEVICE_MANAGER_H
+#endif // INTERFACES_INNERKITS_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H_

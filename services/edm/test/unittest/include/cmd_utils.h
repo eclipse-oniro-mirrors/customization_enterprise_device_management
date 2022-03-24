@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TEST_CMD_UTILS_H
-#define EDM_TEST_CMD_UTILS_H
+#ifndef EDM_UNIT_TEST_CMD_UTILS_H_
+#define EDM_UNIT_TEST_CMD_UTILS_H_
 
 #include <string>
 
@@ -28,4 +28,4 @@ public:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_TEST_CMD_UTILS_H
+#endif // EDM_UNIT_TEST_CMD_UTILS_H_

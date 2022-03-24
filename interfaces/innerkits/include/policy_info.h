@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_POLICY_INFO_H
-#define EDM_POLICY_INFO_H
+#ifndef INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_
+#define INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_
 
 #include <algorithm>
 #include <string>
@@ -32,4 +32,4 @@ enum {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_POLICY_INFO_H
+#endif // INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_

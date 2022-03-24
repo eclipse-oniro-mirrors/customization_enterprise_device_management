@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_PLUGIN_MANAGER_H
-#define EDM_PLUGIN_MANAGER_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_PLUGIN_MANAGER_H_
+#define SERVICES_EDM_INCLUDE_EDM_PLUGIN_MANAGER_H_
 #include <dlfcn.h>
 #include <map>
 #include <memory>
@@ -45,4 +45,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_PLUGIN_MANAGER_H
+#endif // SERVICES_EDM_INCLUDE_EDM_PLUGIN_MANAGER_H_

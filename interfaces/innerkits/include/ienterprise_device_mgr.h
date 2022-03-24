@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ENTERPRISE_DEVICE_MGR_H
-#define EDM_ENTERPRISE_DEVICE_MGR_H
+#ifndef INTERFACES_INNERKITS_INCLUDE_IENTERPRISE_DEVICE_MGR_H_
+#define INTERFACES_INNERKITS_INCLUDE_IENTERPRISE_DEVICE_MGR_H_
 #include <string>
 #include "admin_type.h"
 #include "ent_info.h"
@@ -55,4 +55,4 @@ public:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_ENTERPRISE_DEVICE_MGR_H
+#endif // INTERFACES_INNERKITS_INCLUDE_IENTERPRISE_DEVICE_MGR_H_

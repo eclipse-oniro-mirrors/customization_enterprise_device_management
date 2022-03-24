@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H
-#define EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H
+#ifndef EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
+#define EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
 
 #include <map>
 #include <string>
@@ -54,6 +54,6 @@ protected:
 
     std::string resultReceiver_ = "";
 };
-}  // namespace EDM
-}  // namespace OHOS
-#endif  // EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H
+} // namespace EDM
+} // namespace OHOS
+#endif // EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
