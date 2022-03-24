@@ -84,7 +84,7 @@ bool MapStringSerializer::GetPolicy(MessageParcel &data, std::map<std::string, s
     for (const std::u16string &value : values16) {
         values.push_back(Str16ToStr8(value));
     }
-    for (unsigned long i = 0; i < keys.size(); ++i) {
+    for (uint64_t i = 0; i < keys.size(); ++i) {
         result.insert(std::make_pair(keys.at(i), values.at(i)));
     }
     return true;

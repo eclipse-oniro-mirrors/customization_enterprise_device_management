@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TEST_IPLUGIN_TEMPLATE_TEST_H
-#define EDM_TEST_IPLUGIN_TEMPLATE_TEST_H
+#ifndef EDM_UNIT_TEST_IPLUGIN_TEMPLATE_TEST_H_
+#define EDM_UNIT_TEST_IPLUGIN_TEMPLATE_TEST_H_
 
 #include <gtest/gtest.h>
 #include <map>
@@ -336,4 +336,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_TEST_IPLUGIN_TEMPLATE_TEST_H
+#endif // EDM_UNIT_TEST_IPLUGIN_TEMPLATE_TEST_H_

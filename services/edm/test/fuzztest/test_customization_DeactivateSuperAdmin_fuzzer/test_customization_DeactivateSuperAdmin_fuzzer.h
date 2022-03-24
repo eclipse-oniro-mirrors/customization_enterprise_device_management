@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef TEST_FUZZTEST_ENTINFO_FUZZER_H
-#define TEST_FUZZTEST_ENTINFO_FUZZER_H
+#ifndef TEST_FUZZTEST_ENTINFO_FUZZER_H_
+#define TEST_FUZZTEST_ENTINFO_FUZZER_H_
 
 #define FUZZ_PROJECT_NAME "DeactivateSuperAdmin_fuzzer"
 
-#endif
+#endif // TEST_FUZZTEST_ENTINFO_FUZZER_H_

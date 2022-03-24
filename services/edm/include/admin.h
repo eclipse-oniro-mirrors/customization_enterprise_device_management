@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ADMIN_H
-#define EDM_ADMIN_H
+#ifndef SERVICES_EDM_INCLUDE_ADMIN_H_
+#define SERVICES_EDM_INCLUDE_ADMIN_H_
 
 #include <string>
 #include <vector>
@@ -44,4 +44,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ADMIN_H
+#endif // SERVICES_EDM_INCLUDE_ADMIN_H_

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_MAP_STRING_SERIALIZER_H
-#define EDM_MAP_STRING_SERIALIZER_H
+#ifndef SERVICES_EDM_INCLUDE_UTILS_MAP_STRING_SERIALIZER_H_
+#define SERVICES_EDM_INCLUDE_UTILS_MAP_STRING_SERIALIZER_H_
 
 #include "ipolicy_serializer.h"
 #include "singleton.h"
@@ -41,4 +41,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_MAP_STRING_SERIALIZER_H
+#endif // SERVICES_EDM_INCLUDE_UTILS_MAP_STRING_SERIALIZER_H_

@@ -56,5 +56,5 @@ bool DeviceSettingsManager::SetDateTime(AppExecFwk::ElementName &admin, int64_t 
     proxy->HandleDevicePolicy(funcCode, data);
     return true;
 }
-}
-}
+} // namespace EDM
+} // namespace OHOS

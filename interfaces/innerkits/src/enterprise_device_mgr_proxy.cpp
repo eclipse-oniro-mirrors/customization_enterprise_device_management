@@ -354,7 +354,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(int policyCode, std::map<std::str
         values.push_back(Str16ToStr8(value));
     }
     policyData.clear();
-    for (unsigned long i = 0; i < keys.size(); ++i) {
+    for (uint64_t i = 0; i < keys.size(); ++i) {
         policyData.insert(std::make_pair(keys.at(i), values.at(i)));
     }
     return true;

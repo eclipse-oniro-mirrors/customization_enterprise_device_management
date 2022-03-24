@@ -16,6 +16,7 @@
 #include "ent_info.h"
 #include "edm_log.h"
 #include "string_ex.h"
+#include "parcel_macro.h"
 
 namespace OHOS {
 namespace EDM {
@@ -59,5 +60,5 @@ bool EntInfo::ReadFromParcel(Parcel &parcel)
     description = Str16ToStr8(parcel.ReadString16());
     return true;
 }
-}
-}
+} // namespace EDM
+} // namespace OHOS

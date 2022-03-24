@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
-#define EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
+#ifndef EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_
+#define EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_
 
 #include "shell_command.h"
 #include "enterprise_device_mgr_proxy.h"
@@ -54,7 +54,7 @@ private:
 
     std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxy_;
 };
-}  // namespace EDM
-}  // namespace OHOS
+} // namespace EDM
+} // namespace OHOS
 
-#endif  // EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
+#endif // EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_

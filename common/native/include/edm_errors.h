@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ERRORS_H
-#define EDM_ERRORS_H
+#ifndef COMMON_NATIVE_INCLUDE_EDM_ERRORS_H_
+#define COMMON_NATIVE_INCLUDE_EDM_ERRORS_H_
 
 #include "errors.h"
 
@@ -83,4 +83,4 @@ enum {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ERRORS_H
+#endif // COMMON_NATIVE_INCLUDE_EDM_ERRORS_H_

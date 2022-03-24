@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_ADMIN_TYPE_H
-#define EDM_ADMIN_TYPE_H
+#ifndef COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H_
+#define COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H_
 
 namespace OHOS {
 namespace EDM {
@@ -26,4 +26,4 @@ enum AdminType {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_ADMIN_TYPE_H
+#endif // COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H_

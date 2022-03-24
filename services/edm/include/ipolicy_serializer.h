@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_POLICY_SERIALIZER_H
-#define EDM_POLICY_SERIALIZER_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_
+#define SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_
 
 #include <algorithm>
 #include <message_parcel.h>
@@ -89,7 +89,7 @@ public:
  * @tparam DT policy data type in vector.
  * @tparam T_ARRAY policy data type,like vector<string>,vector<map>...
  */
-template<typename DT, typename T_ARRAY=std::vector<DT>>
+template<typename DT, typename T_ARRAY = std::vector<DT>>
 class ArraySerializer : public IPolicySerializer<T_ARRAY> {
 public:
     virtual bool Deserialize(const std::string &jsonString, T_ARRAY &dataObj) override;
@@ -214,4 +214,4 @@ bool ArraySerializer<DT, T_ARRAY>::MergePolicy(std::vector<T_ARRAY> &data, T_ARR
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_POLICY_SERIALIZER_H
+#endif // EDM_POLICY_SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_SERIALIZER_H

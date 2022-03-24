@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_PARCEL_MACRO_H
-#define EDM_PARCEL_MACRO_H
+#ifndef COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_
+#define COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_
 #include "edm_log.h"
 #include "parcel.h"
 
@@ -31,10 +31,10 @@ namespace EDM {
 #define WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(type, parcel, data)        \
     do {                                                                 \
         if (!(parcel).Write##type(data)) {                               \
-            EDMLOGW("fail to write %{public}s type into parcel", #type); \
+            EDMLOGE("fail to write %{public}s type into parcel", #type); \
             return false;                                                \
         }                                                                \
     } while (0)
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_PARCEL_MACRO_H
+#endif // COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_

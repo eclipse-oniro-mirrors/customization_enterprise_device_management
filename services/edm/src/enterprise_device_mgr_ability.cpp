@@ -125,7 +125,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
         bundleInfoName.c_str(), userId);
     ret = bundleManager->GetBundleInfo(bundleInfoName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION,
         bundleInfo, userId);
-    if (ret == false) {
+    if (!ret) {
         EDMLOGW("GetAllPermissionsByAdmin: GetBundleInfo failed %{public}d", ret);
         return ERR_EDM_PARAM_ERROR;
     }
@@ -522,7 +522,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteParcelable(&entInfo);
-    EDMLOGD("EnterpriseDeviceMgrAbility：：GetEnterpriseInfo: entInfo->enterpriseName %{public}s, "
+    EDMLOGD("EnterpriseDeviceMgrAbility::GetEnterpriseInfo: entInfo->enterpriseName %{public}s, "
         "entInfo->description:%{public}s",
         entInfo.enterpriseName.c_str(), entInfo.description.c_str());
     return ERR_OK;
