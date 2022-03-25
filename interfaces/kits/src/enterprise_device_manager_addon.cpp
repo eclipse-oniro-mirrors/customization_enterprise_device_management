@@ -86,7 +86,7 @@ void EnterpriseDeviceManagerAddon::NativeActivateAdmin(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncActivateAdminCallbackInfo *asyncCallbackInfo = (AsyncActivateAdminCallbackInfo *)data;
+    AsyncActivateAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncActivateAdminCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -102,7 +102,7 @@ void EnterpriseDeviceManagerAddon::NativeBoolCallbackComplete(napi_env env, napi
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
     if (asyncCallbackInfo->deferred != nullptr) {
         EDMLOGD("asyncCallbackInfo->deferred != nullptr");
         napi_value result = nullptr;
@@ -173,7 +173,7 @@ void EnterpriseDeviceManagerAddon::NativeDeactivateAdmin(napi_env env, void *dat
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDeactivateAdminCallbackInfo *asyncCallbackInfo = (AsyncDeactivateAdminCallbackInfo *)data;
+    AsyncDeactivateAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncDeactivateAdminCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -213,7 +213,8 @@ void EnterpriseDeviceManagerAddon::NativeDeactivateSuperAdmin(napi_env env, void
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDeactivateSuperAdminCallbackInfo *asyncCallbackInfo = (AsyncDeactivateSuperAdminCallbackInfo *)data;
+    AsyncDeactivateSuperAdminCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncDeactivateSuperAdminCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -260,7 +261,7 @@ void EnterpriseDeviceManagerAddon::NativeGetEnterpriseInfo(napi_env env, void *d
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncGetEnterpriseInfoCallbackInfo *asyncCallbackInfo = (AsyncGetEnterpriseInfoCallbackInfo *)data;
+    AsyncGetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetEnterpriseInfoCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -275,7 +276,7 @@ void EnterpriseDeviceManagerAddon::NativeGetEnterpriseInfoComplete(napi_env env,
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncGetEnterpriseInfoCallbackInfo *asyncCallbackInfo = (AsyncGetEnterpriseInfoCallbackInfo *)data;
+    AsyncGetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetEnterpriseInfoCallbackInfo *>(data);
 
     napi_value result[2] = { 0 };
     if (asyncCallbackInfo->ret == ERR_OK) {
@@ -380,7 +381,7 @@ void EnterpriseDeviceManagerAddon::NativeSetDateTime(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetDateTimeCallbackInfo *asyncCallbackInfo = (AsyncSetDateTimeCallbackInfo *)data;
+    AsyncSetDateTimeCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetDateTimeCallbackInfo *>(data);
     auto deviceSettingsManager_ = DeviceSettingsManager::GetDeviceSettingsManager();
     if (deviceSettingsManager_ == nullptr) {
         EDMLOGE("can not get DeviceSettingsManager");
@@ -399,7 +400,7 @@ void EnterpriseDeviceManagerAddon::NativeSetEnterpriseInfo(napi_env env, void *d
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetEnterpriseInfoCallbackInfo *asyncCallbackInfo = (AsyncSetEnterpriseInfoCallbackInfo *)data;
+    AsyncSetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetEnterpriseInfoCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -466,7 +467,7 @@ void EnterpriseDeviceManagerAddon::NativeIsSuperAdmin(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIsSuperAdminCallbackInfo *asyncCallbackInfo = (AsyncIsSuperAdminCallbackInfo *)data;
+    AsyncIsSuperAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsSuperAdminCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -483,7 +484,7 @@ void EnterpriseDeviceManagerAddon::NativeIsAdminActive(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIsAdminActiveCallbackInfo *asyncCallbackInfo = (AsyncIsAdminActiveCallbackInfo *)data;
+    AsyncIsAdminActiveCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsAdminActiveCallbackInfo *>(data);
     auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy_ == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -519,7 +520,8 @@ napi_value EnterpriseDeviceManagerAddon::HandleAsyncWork(napi_env env, AsyncCall
     napi_value resource = CreateUndefined(env);
     napi_value resourceName = nullptr;
     napi_create_string_utf8(env, workName.data(), NAPI_AUTO_LENGTH, &resourceName);
-    napi_create_async_work(env, resource, resourceName, execute, complete, (void *)context, &context->asyncWork);
+    napi_create_async_work(env, resource, resourceName, execute, complete,
+        static_cast<void *>(context), &context->asyncWork);
     napi_queue_async_work(env, context->asyncWork);
     return result;
 }
@@ -528,7 +530,7 @@ napi_value EnterpriseDeviceManagerAddon::CreateErrorMessage(napi_env env, std::s
 {
     napi_value result = nullptr;
     napi_value message = nullptr;
-    napi_create_string_utf8(env, (char *)msg.data(), msg.size(), &message);
+    napi_create_string_utf8(env, static_cast<char *>(msg.data()), msg.size(), &message);
     napi_create_error(env, nullptr, message, &result);
     return result;
 }
@@ -717,7 +719,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             env, nullptr, resourceName, [](napi_env env, void *data) {},
             [](napi_env env, napi_status status, void *data) {
                 AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
-                    (AsyncGetDeviceSettingsManagerCallbackInfo *)data;
+                    static_cast<AsyncGetDeviceSettingsManagerCallbackInfo *>(data);
                 napi_value result[ARGS_SIZE_TWO] = { 0 };
                 napi_value callback = 0;
                 napi_value undefined = 0;
@@ -736,7 +738,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
                 delete asyncCallbackInfo;
                 asyncCallbackInfo = nullptr;
             },
-            (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
+            static_cast<void *>(asyncCallbackInfo), &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
         napi_value result;
         NAPI_CALL(env, napi_create_int32(env, NAPI_RETURN_ONE, &result));
@@ -754,7 +756,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
             [](napi_env env, napi_status status, void *data) {
                 EDMLOGI("begin load DeviceSettingsManager");
                 AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
-                    (AsyncGetDeviceSettingsManagerCallbackInfo *)data;
+                    static_cast<AsyncGetDeviceSettingsManagerCallbackInfo *>(data);
                 napi_value result;
                 napi_value m_classDeviceSettingsManager = nullptr;
                 napi_get_reference_value(env, g_classDeviceSettingsManager, &m_classDeviceSettingsManager);
@@ -764,7 +766,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
                 delete asyncCallbackInfo;
                 asyncCallbackInfo = nullptr;
             },
-            (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
+            static_cast<void *>(asyncCallbackInfo), &asyncCallbackInfo->asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
         return promise;
     }
@@ -805,7 +807,7 @@ static napi_module g_edmServiceModule = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = EnterpriseDeviceManagerAddon::Init,
-    .nm_modname = "edm.enterpriseDeviceManager",
+    .nm_modname = "enterpriseDeviceManager",
     .nm_priv = ((void *)0),
     .reserved = { 0 },
 };
