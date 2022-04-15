@@ -21,7 +21,7 @@ template("edm_plugin_shared_library") {
       "//utils/native/base/include",
       "//utils/system/safwk/native/include",
       "//base/customization/enterprise_device_management/services/edm/include",
-      "//base/customization/enterprise_device_management/interfaces/innerkits/include",
+      "//base/customization/enterprise_device_management/interfaces/inner_api/include",
       "//base/customization/enterprise_device_management/services/edm/include/utils",
       "//base/customization/enterprise_device_management/services/edm_plugin/include",
       "//utils/native/base:utils_config",

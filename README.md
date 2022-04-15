@@ -27,7 +27,7 @@ The code directory structure of the enterprise device manager is as follows:
 ├── common                   # Common code
 ├── etc                      # Process configuration files
 ├── interfaces               # Edm Kit code
-│   └── innerkits            # Subsystem interfaces
+│   └── inner_api            # Subsystem interfaces
 │   └── kits                 # Developer interfaces
 ├── profile                  # System service configuration files
 └── services                 # Implementation code of the enterprise device management services

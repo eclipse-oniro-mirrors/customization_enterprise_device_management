@@ -28,7 +28,7 @@
 ├── common                   # 公共代码
 ├── etc                      # 组件包含的进程的配置文件
 ├── interfaces               # EdmKits代码
-│   └── innerkits            # 子系统接口
+│   └── inner_api            # 子系统接口
 │   └── kits                 # 开发者接口
 ├── profile                  # 组件包含的系统服务的配置文件
 └── services                 # 企业设备管理服务实现

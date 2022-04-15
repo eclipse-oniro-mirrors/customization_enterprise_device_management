@@ -13,23 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_
-#define INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_
-
-#include <algorithm>
-#include <string>
+#ifndef INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
+#define INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
+#include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-enum {
-    SET_DATETIME = 1001,
-};
+class DeviceSettingsManager {
+public:
+    DeviceSettingsManager();
+    ~DeviceSettingsManager();
+    static std::shared_ptr<DeviceSettingsManager> GetDeviceSettingsManager();
+    bool SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
 
-#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
-    POLICY_NAME = (#ENUM_CODE); \
-    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
-} while (0)
+private:
+    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
+    static std::shared_ptr<DeviceSettingsManager> instance_;
+    static std::mutex mutexLock_;
+};
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNERKITS_INCLUDE_POLICY_INFO_H_
+#endif // INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
