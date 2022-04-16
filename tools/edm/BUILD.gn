@@ -19,7 +19,7 @@ config("tools_edm_config") {
   include_dirs = [
     "include",
     "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
     "//utils/system/safwk/native/include",
   ]
 }

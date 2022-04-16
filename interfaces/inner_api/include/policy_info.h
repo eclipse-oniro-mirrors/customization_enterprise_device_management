@@ -13,26 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_
-#define INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_
+#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_
+#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_
 
+#include <algorithm>
 #include <string>
-#include "parcel.h"
 
 namespace OHOS {
 namespace EDM {
-struct EntInfo : public Parcelable {
-    EntInfo(const std::string &enterpriseName, const std::string &description);
-    EntInfo();
-    ~EntInfo();
-
-    std::string enterpriseName;
-    std::string description;
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static EntInfo *Unmarshalling(Parcel &parcel);
+enum {
+    SET_DATETIME = 1001,
 };
+
+#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
+    POLICY_NAME = (#ENUM_CODE); \
+    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
+} while (0)
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNERKITS_INCLUDE_ENT_INFO_H_
+#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_

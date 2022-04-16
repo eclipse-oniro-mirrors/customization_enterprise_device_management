@@ -20,7 +20,7 @@ ohos_shared_library("enterprisedevicemanager") {
     "//base/customization/enterprise_device_management/interfaces/kits/include",
     "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
   sources = [ "src/enterprise_device_manager_addon.cpp" ]

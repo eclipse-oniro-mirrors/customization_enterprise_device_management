@@ -69,7 +69,7 @@
       "sub_component": [
         "//base/customization/enterprise_device_management/interfaces/kits:enterprisedevicemanager",
         "//base/customization/enterprise_device_management/services/edm:edmservice",
-        "//base/customization/enterprise_device_management/interfaces/innerkits:edmservice_kits",
+        "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits",
         "//base/customization/enterprise_device_management/services/edm_plugin:device_settings_plugin",
         "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
         "//base/customization/enterprise_device_management/etc/init:edm.cfg",
@@ -78,7 +78,7 @@
       "inner_kits": [
         {
           "header": {
-            "header_base": "//base/customization/enterprise_device_management/interfaces/innerkits/include",
+            "header_base": "//base/customization/enterprise_device_management/interfaces/inner_api/include",
             "header_files": [
               "enterprise_device_mgr_proxy.h",
               "policy_info.h",
@@ -87,7 +87,7 @@
               "device_settings_manager.h"
             ]
           },
-          "name": "//base/customization/enterprise_device_management/interfaces/innerkits:edmservice_kits"
+          "name": "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits"
         }
       ],
       "test": [

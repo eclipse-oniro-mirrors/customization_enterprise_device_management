@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNERKITS_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
-#define INTERFACES_INNERKITS_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
-#include "enterprise_device_mgr_proxy.h"
+#ifndef INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_
+#define INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_
+
+#include <string>
+#include "parcel.h"
 
 namespace OHOS {
 namespace EDM {
-class DeviceSettingsManager {
-public:
-    DeviceSettingsManager();
-    ~DeviceSettingsManager();
-    static std::shared_ptr<DeviceSettingsManager> GetDeviceSettingsManager();
-    bool SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
+struct EntInfo : public Parcelable {
+    EntInfo(const std::string &enterpriseName, const std::string &description);
+    EntInfo();
+    ~EntInfo();
 
-private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
-    static std::shared_ptr<DeviceSettingsManager> instance_;
-    static std::mutex mutexLock_;
+    std::string enterpriseName;
+    std::string description;
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static EntInfo *Unmarshalling(Parcel &parcel);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNERKITS_INCLUDE_DEVICE_SETTINGS_MANAGER_H_
+#endif // INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_

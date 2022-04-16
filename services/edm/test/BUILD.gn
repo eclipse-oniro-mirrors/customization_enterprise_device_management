@@ -34,7 +34,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "//utils/native/base:utils_config",
     JSONCPP_INCLUDE_DIR,
     "./unittest/include",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
