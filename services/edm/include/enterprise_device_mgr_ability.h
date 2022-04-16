@@ -54,7 +54,7 @@ protected:
     void OnStop() override;
 
 private:
-    bool IsHdb();
+    bool IsHdc();
     ErrCode CheckPermission();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
