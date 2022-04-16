@@ -32,10 +32,6 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr int ROOT_UID = 0;
-constexpr int PER_USER_RANGE = 100000;
-constexpr int SYSTEM_UID = 1000;
-
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(EnterpriseDeviceMgrAbility::GetInstance().GetRefPtr());
 
@@ -157,8 +153,8 @@ sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
 
 ErrCode EnterpriseDeviceMgrAbility::CheckPermission()
 {
-    if (IsHdb() || VerifyCallingPermission("ohos.permission.MANAGE_ADMIN")) {
-        EDMLOGW("check permission success, IsHdb: %{public}d", IsHdb());
+    if (VerifyCallingPermission("ohos.permission.MANAGE_ADMIN")) {
+        EDMLOGD("check permission success");
         return ERR_OK;
     }
     return ERR_EDM_PERMISSION_ERROR;
@@ -341,23 +337,38 @@ ErrCode EnterpriseDeviceMgrAbility::DeactiveAdmin(AppExecFwk::ElementName &admin
     return RemoveAdmin(admin.GetBundleName());
 }
 
+bool EnterpriseDeviceMgrAbility::IsHdc()
+{
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    EDMLOGD("callerToken : %{public}u", callerToken);
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    EDMLOGD("native process name = %{public}s", nativeTokenInfo.processName.c_str());
+    if (nativeTokenInfo.processName == "hdcd") {
+        return true;
+    }
+    return false;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(std::string &bundleName)
 {
-    if (!IsHdb()) {
-        // super admin can be removed by itself
-        int uid = GetCallingUid();
-        auto bundleManager = GetBundleMgr();
-        std::string callingBundleName;
-        if (!bundleManager->GetNameForUid(uid, callingBundleName)) {
-            EDMLOGD("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
-            return ERR_EDM_PERMISSION_ERROR;
-        }
-        if (bundleName != callingBundleName) {
-            EDMLOGD("CheckCallingUid failed: only the app %{public}s can remove itself.", callingBundleName.c_str());
-            return ERR_EDM_PERMISSION_ERROR;
-        }
+    if (IsHdc()) {
+        return ERR_OK;
     }
-    return ERR_OK;
+
+    // super admin can be removed by itself
+    int uid = GetCallingUid();
+    auto bundleManager = GetBundleMgr();
+    std::string callingBundleName;
+    if (!bundleManager->GetNameForUid(uid, callingBundleName)) {
+        EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
+        return ERR_EDM_PERMISSION_ERROR;
+    }
+    if (bundleName == callingBundleName) {
+        return ERR_OK;
+    }
+    EDMLOGW("CheckCallingUid failed: only the app %{public}s can remove itself.", callingBundleName.c_str());
+    return ERR_EDM_PERMISSION_ERROR;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::DeactiveSuperAdmin(std::string &bundleName)
@@ -504,12 +515,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetActiveAdmin(AdminType type, std::vector<s
         EDMLOGD("GetActiveAdmin: %{public}s", activeAdmin.c_str());
     }
     return ERR_OK;
-}
-
-bool EnterpriseDeviceMgrAbility::IsHdb()
-{
-    auto uid = GetCallingUid();
-    return uid == ROOT_UID || uid % PER_USER_RANGE == SYSTEM_UID;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply)

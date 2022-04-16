@@ -30,7 +30,6 @@ ohos_fuzztest("test_customization_EntInfo_fuzzer") {
     "include/utils",
     "//utils/native/base:utils_config",
     JSONCPP_INCLUDE_DIR,
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/bundlemgr",
     "$SUBSYSTEM_DIR/common/native/include",
   ]
 

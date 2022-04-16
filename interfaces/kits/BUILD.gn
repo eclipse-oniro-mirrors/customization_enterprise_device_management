@@ -17,9 +17,9 @@ SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 
 ohos_shared_library("enterprisedevicemanager") {
   include_dirs = [
-    "//base/customization/enterprise_device_management/interfaces/kits/include",
     "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 

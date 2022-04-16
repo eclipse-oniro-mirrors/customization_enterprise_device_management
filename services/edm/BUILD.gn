@@ -26,7 +26,6 @@ config("edm_config") {
     "include/utils",
     "//utils/native/base:utils_config",
     JSONCPP_INCLUDE_DIR,
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/bundlemgr",
     "$SUBSYSTEM_DIR/common/native/include",
   ]
 }

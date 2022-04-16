@@ -21,10 +21,7 @@ PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 edm_plugin_shared_library("device_settings_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
-  include_dirs = [
-    "//third_party/node/src",
-    "//foundation/multimedia/image_standard/interfaces/innerkits/include",
-  ]
+  include_dirs = [ "//third_party/node/src" ]
   deps = [ "//utils/native/base:utils" ]
   external_deps = [
     "ability_base:want",
