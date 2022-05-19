@@ -22,8 +22,8 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string EDM_POLICY_JSON_FILE = "/data/system/device_policies.json";
-const std::string EDM_POLICY_JSON_FILE_BAK = "/data/system/device_policies.json.bak";
+const std::string EDM_POLICY_JSON_FILE = "/data/edm/device_policies.json";
+const std::string EDM_POLICY_JSON_FILE_BAK = "/data/edm/device_policies.json.bak";
 constexpr unsigned int INVALID_INDEX = -1;
 
 std::shared_ptr<PolicyManager> PolicyManager::instance_;
