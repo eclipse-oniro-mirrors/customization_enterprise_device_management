@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string EDM_ADMIN_JSON_FILE = "/data/system/admin_policies.json";
+const std::string EDM_ADMIN_JSON_FILE = "/data/edm/admin_policies.json";
 std::shared_ptr<AdminManager> AdminManager::instance_;
 std::mutex AdminManager::mutexLock_;
 
