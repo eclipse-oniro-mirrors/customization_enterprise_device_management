@@ -24,7 +24,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int HUGE_ADMIN_SIZE = 100;
-const std::string TEAR_DOWN_CMD = "rm /data/system/admin_policies.json";
+const std::string TEAR_DOWN_CMD = "rm /data/edm/admin_policies.json";
 
 void AdminManagerTest::SetUp()
 {
