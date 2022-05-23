@@ -29,7 +29,7 @@ using PolicyItemsMap = std::unordered_map<std::string, std::string>;     /* Poli
 using AdminValueItemsMap = std::unordered_map<std::string, std::string>; /* AdminName and PolicyValue pair */
 
 /*
- * This class is used to load and store /data/system/device_policies.json file.
+ * This class is used to load and store /data/edm/device_policies.json file.
  * provide the Get and Set api to operate on json file, the read and write json
  * file depend on jsoncpp library
  */
