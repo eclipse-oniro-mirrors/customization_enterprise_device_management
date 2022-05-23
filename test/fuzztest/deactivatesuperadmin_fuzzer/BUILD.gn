@@ -15,13 +15,17 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-module_output_path = "developertest/enterprise_device_management"
+module_output_path = "customization/enterprise_device_management"
 
 SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 
-ohos_fuzztest("test_customization_DeactivateSuperAdmin_fuzzer") {
+##############################fuzztest##########################################
+ohos_fuzztest("DeactivateSuperAdminFuzzTest") {
   module_out_path = module_output_path
+
+  fuzz_config_file =
+      "//base/customization/enterprise_device_management/test/fuzztest/deactivatesuperadmin_fuzzer"
 
   include_dirs = [
     "//utils/native/base/include",
@@ -38,7 +42,7 @@ ohos_fuzztest("test_customization_DeactivateSuperAdmin_fuzzer") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "test_customization_DeactivateSuperAdmin_fuzzer.cpp" ]
+  sources = [ "deactivatesuperadmin_fuzzer.cpp" ]
 
   deps = [ "//utils/native/base:utils" ]
   external_deps = [

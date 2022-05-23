@@ -91,7 +91,8 @@
         }
       ],
       "test": [
-        "//base/customization/enterprise_device_management/services/edm/test:unittest"
+        "//base/customization/enterprise_device_management/test/unittest:unittest",
+        "//base/customization/enterprise_device_management/test/fuzztest:fuzztest"
       ]
     }
   }

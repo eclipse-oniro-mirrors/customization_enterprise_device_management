@@ -17,7 +17,7 @@ group("fuzztest") {
 
   deps += [
     # deps file
-    "test_customization_DeactivateSuperAdmin_fuzzer:test_customization_DeactivateSuperAdmin_fuzzer",
-    "test_customization_EntInfo_fuzzer:test_customization_EntInfo_fuzzer",
+    "deactivatesuperadmin_fuzzer:DeactivateSuperAdminFuzzTest",
+    "entinfo_fuzzer:EntInfoFuzzTest"
   ]
 }

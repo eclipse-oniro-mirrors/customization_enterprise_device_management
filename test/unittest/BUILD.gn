@@ -11,47 +11,79 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#####################hydra-fuzz###################
-import("//build/config/features.gni")
-import("//build/ohos.gni")
 import("//build/test.gni")
-module_output_path = "developertest/enterprise_device_management"
 
 SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
+module_output_path = "enterprise_device_management/services"
+EDM_ROOT = "$SUBSYSTEM_DIR/services/edm"
 JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 
-##############################fuzztest##########################################
-ohos_fuzztest("test_customization_EntInfo_fuzzer") {
+config("module_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "$SUBSYSTEM_DIR/test" ]
+}
+
+ohos_unittest("EdmServicesUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
     "//utils/native/base/include",
-    "include",
-    "include/utils",
+    "//utils/system/safwk/native/include",
+    "$EDM_ROOT/include",
+    "$EDM_ROOT/include/utils",
     "//utils/native/base:utils_config",
     JSONCPP_INCLUDE_DIR,
-    "$SUBSYSTEM_DIR/common/native/include",
+    "./include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
+  sources = [
+    "./src/admin_manager_test.cpp",
+    "./src/cmd_utils.cpp",
+    "./src/iplugin_template_test.cpp",
+    "./src/permission_manager_test.cpp",
+    "./src/plugin_manager_test.cpp",
+    "./src/policy_manager_test.cpp",
+    "./src/policy_serializer_test.cpp",
+    "./src/utils_test.cpp",
   ]
-  sources = [ "test_customization_EntInfo_fuzzer.cpp" ]
 
-  deps = [ "//utils/native/base:utils" ]
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "$EDM_ROOT/:edmservice",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
 
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
+
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+
+  deps += [
+    # deps file
+    ":EdmServicesUnitTest",
+  ]
 }

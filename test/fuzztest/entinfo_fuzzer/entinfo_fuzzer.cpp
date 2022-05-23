@@ -18,7 +18,7 @@
 
 #include "ent_info.h"
 #include "parcel.h"
-#include "test_customization_EntInfo_fuzzer.h"
+#include "entinfo_fuzzer.h"
 
 using namespace OHOS::EDM;
 namespace OHOS {
