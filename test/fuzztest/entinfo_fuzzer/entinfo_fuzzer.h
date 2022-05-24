@@ -15,6 +15,6 @@
 #ifndef TEST_FUZZTEST_ENTINFO_FUZZER_H_
 #define TEST_FUZZTEST_ENTINFO_FUZZER_H_
 
-#define FUZZ_PROJECT_NAME "DeactivateSuperAdmin_fuzzer"
+#define FUZZ_PROJECT_NAME "entinfo_fuzzer"
 
 #endif // TEST_FUZZTEST_ENTINFO_FUZZER_H_

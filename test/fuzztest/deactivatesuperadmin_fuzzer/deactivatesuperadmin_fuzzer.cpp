@@ -18,7 +18,7 @@
 
 #include "enterprise_device_mgr_proxy.h"
 #include "parcel.h"
-#include "test_customization_DeactivateSuperAdmin_fuzzer.h"
+#include "deactivatesuperadmin_fuzzer.h"
 
 using namespace OHOS::EDM;
 namespace OHOS {
