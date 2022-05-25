@@ -213,9 +213,8 @@ ErrCode EnterpriseDeviceMgrStub::IsAdminActiveInner(MessageParcel &data, Message
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
-    EDMLOGD("GetEnterpriseInfoInner bundleName:: %{public}s : abilityName : %{public}s ",
-            admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
-    bool ret = IsAdminActive(*admin);
+    int32_t userId = data.ReadInt32();
+    bool ret = IsAdminActive(*admin, userId);
     reply.WriteInt32(ret);
     return ERR_OK;
 }

@@ -39,7 +39,7 @@ public:
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     bool IsSuperAdmin(std::string bundleName);
-    bool IsAdminActive(AppExecFwk::ElementName &admin);
+    bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId);
     bool HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
 
     void GetActiveSuperAdmin(std::string &activeAdmin);

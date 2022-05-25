@@ -66,6 +66,7 @@ ohos_shared_library("edmservice") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "os_account:libaccountkits",
