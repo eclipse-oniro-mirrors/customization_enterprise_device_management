@@ -62,9 +62,10 @@ private:
     ErrCode CheckPermission();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
-    ErrCode RemoveAdmin(const std::string &adminName);
+    ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode GetAllPermissionsByAdmin(const std::string& bundleInfoName,
         std::vector<std::string> &permissionList, int32_t userId);
+    int32_t GetCurrentUserId(void);
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);

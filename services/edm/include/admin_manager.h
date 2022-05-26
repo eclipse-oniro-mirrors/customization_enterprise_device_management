@@ -18,6 +18,7 @@
 
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include "admin.h"
 #include "ent_info.h"
 #include "edm_permission.h"
@@ -30,31 +31,33 @@ class AdminManager : public std::enable_shared_from_this<AdminManager> {
 public:
     static std::shared_ptr<AdminManager> GetInstance();
     ErrCode GetReqPermission(const std::vector<std::string> &permissions, std::vector<EdmPermission> &edmPermissions);
-    void GetAllAdmin(std::vector<std::shared_ptr<Admin>> &allAdmin);
-    std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName);
-    ErrCode DeleteAdmin(const std::string &packageName);
-    ErrCode UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const std::vector<std::string> &permissions);
+    void GetAllAdmin(std::vector<std::shared_ptr<Admin>> &allAdmin, int32_t userId);
+    std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
+    ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
+    ErrCode UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
+        int32_t userId);
     ErrCode GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
         AdminType type);
-    bool IsSuperAdminExist();
-    void GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList);
+    bool IsSuperAdminExist(int32_t userId);
+    void GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     void RestoreAdminFromFile();
     ErrCode SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
-        std::vector<std::string> &permissions);
-    ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo);
-    ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo);
+        std::vector<std::string> &permissions, int32_t userId);
+    ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
+    ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     virtual ~AdminManager();
     
 private:
     AdminManager();
-    void SaveAdmin();
-    void ReadJsonAdminType(Json::Value &admin);
-    void ReadJsonAdmin(const std::string &filePath);
+    bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
+    void SaveAdmin(int32_t userId);
+    void ReadJsonAdminType(Json::Value &admin, std::vector<std::shared_ptr<Admin>> &adminVector);
+    void ReadJsonAdmin(const std::string &filePath, int32_t userId);
     void WriteJsonAdminType(std::shared_ptr<Admin> &activeAdmin, Json::Value &tree);
-    void WriteJsonAdmin(const std::string &filePath);
+    void WriteJsonAdmin(const std::string &filePath, int32_t userId);
 
-    std::vector<std::shared_ptr<Admin>> admins_;
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins_;
     static std::mutex mutexLock_;
     static std::shared_ptr<AdminManager> instance_;
 };
