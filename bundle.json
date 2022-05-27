@@ -54,6 +54,7 @@
         "hiviewdfx_hilog_native",
         "ipc",
         "napi",
+        "os_account",
         "permission_standard",
         "safwk",
         "samgr_standard",

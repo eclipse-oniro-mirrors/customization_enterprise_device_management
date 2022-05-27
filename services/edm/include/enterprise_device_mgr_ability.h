@@ -65,7 +65,7 @@ private:
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode GetAllPermissionsByAdmin(const std::string& bundleInfoName,
         std::vector<std::string> &permissionList, int32_t userId);
-    int32_t GetCurrentUserId(void);
+    int32_t GetCurrentUserId();
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);

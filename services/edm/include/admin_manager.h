@@ -31,14 +31,14 @@ class AdminManager : public std::enable_shared_from_this<AdminManager> {
 public:
     static std::shared_ptr<AdminManager> GetInstance();
     ErrCode GetReqPermission(const std::vector<std::string> &permissions, std::vector<EdmPermission> &edmPermissions);
-    void GetAllAdmin(std::vector<std::shared_ptr<Admin>> &allAdmin, int32_t userId);
+    bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
     ErrCode UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
         int32_t userId);
     ErrCode GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
         AdminType type);
-    bool IsSuperAdminExist(int32_t userId);
+    bool IsSuperAdminExist();
     void GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     void RestoreAdminFromFile();
@@ -50,7 +50,6 @@ public:
     
 private:
     AdminManager();
-    bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
     void SaveAdmin(int32_t userId);
     void ReadJsonAdminType(Json::Value &admin, std::vector<std::shared_ptr<Admin>> &adminVector);
     void ReadJsonAdmin(const std::string &filePath, int32_t userId);

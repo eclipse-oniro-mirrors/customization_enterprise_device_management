@@ -18,16 +18,14 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
-#include "edm_log.h"
 #include "directory_ex.h"
+#include "edm_log.h"
 #include "permission_manager.h"
 #include "super_admin.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string EDM_ADMIN_DOT = ".";
-const std::string EDM_ADMIN_HEAD = "admin";
-constexpr std::string::size_type EDM_ADMIN_POS = 25;
 const std::string EDM_ADMIN_BASE = "/data/edm/";
 const std::string EDM_ADMIN_JSON_FILE = "admin_policies_";
 const std::string EDM_ADMIN_JSON_EXT = ".json";
@@ -70,7 +68,7 @@ bool AdminManager::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<
     userAdmin.clear();
     auto iter = admins_.find(userId);
     if (iter == admins_.end()) {
-        EDMLOGW("GetAdminByUserId:get userId Admin failed. userId= %{public}d,", userId);
+        EDMLOGW("GetAdminByUserId::get userId Admin failed. userId = %{public}d", userId);
         return false;
     }
     userAdmin = iter->second;
@@ -96,15 +94,15 @@ ErrCode AdminManager::SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInf
 
     bool ret = GetAdminByUserId(userId, admin);
     std::shared_ptr<Admin> adminItem = GetAdminByPkgName(abilityInfo.bundleName, userId);
-    if (role == NORMAL) {
+    if (role == AdminType::NORMAL) {
         admin.emplace_back(std::make_shared<Admin>());
     } else {
         admin.emplace_back(std::make_shared<SuperAdmin>());
     }
-    if (ret == false) {
+    if (!ret) {
         admins_.insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(userId, admin));
         adminItem = admin.back();
-    } else if (ret == true && adminItem == nullptr) {
+    } else if (ret && !adminItem) {
         admins_[userId] = admin;
         adminItem = admin.back();
     }
@@ -117,45 +115,21 @@ ErrCode AdminManager::SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInf
     return ERR_OK;
 }
 
-void AdminManager::GetAllAdmin(std::vector<std::shared_ptr<Admin>> &allAdmin, int32_t userId)
-{
-    allAdmin.clear();
-    auto iter = admins_.find(userId);
-    if (iter == admins_.end()) {
-        EDMLOGW("GetAllAdmin:get allAdmin failed. userId= %{public}d,", userId);
-        return;
-    }
-    allAdmin = iter->second;
-    if (userId == DEFAULT_USER_ID) {
-        return;
-    }
-    // query admin under userId 100
-    iter = admins_.find(DEFAULT_USER_ID);
-    if (iter == admins_.end()) {
-        return;
-    }
-    for (auto &item : (iter->second)) {
-        if (item->adminInfo_.adminType_ == AdminType::ENT) {
-            allAdmin.emplace_back(item);
-            return;
-        }
-    }
-}
-
 std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packageName, int32_t userId)
 {
-    auto iter = admins_.find(userId);
-    if (iter == admins_.end()) {
-        EDMLOGW("GetAdminByPkgName:get userId Admin failed. userId= %{public}d,", userId);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(userId, userAdmin);
+    if (!ret) {
+        EDMLOGW("GetAdminByPkgName::get userId Admin failed. userId = %{public}d", userId);
         return nullptr;
     }
-    for (auto &item : (iter->second)) {
+    for (auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             return item;
         }
     }
-    EDMLOGD("GetAdminByPkgName:get admin failed. admin size= %{public}u, packageName= %{public}s",
-        (uint32_t)(iter->second).size(), packageName.c_str());
+    EDMLOGD("GetAdminByPkgName::get admin failed. admin size = %{public}u, packageName = %{public}s",
+        (uint32_t)userAdmin.size(), packageName.c_str());
     return nullptr;
 }
 
@@ -164,7 +138,7 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     ErrCode retCode = ERR_EDM_UNKNOWN_ADMIN;
     auto iterMap = admins_.find(userId);
     if (iterMap == admins_.end()) {
-        EDMLOGW("DeleteAdmin:get userId Admin failed. userId= %{public}d,", userId);
+        EDMLOGW("DeleteAdmin::get userId Admin failed. userId = %{public}d", userId);
         return retCode;
     }
 
@@ -191,14 +165,14 @@ ErrCode AdminManager::GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo,
     AdminType type)
 {
     if (permissions.empty()) {
-        EDMLOGW("GetGrantedPermission: permissions is empty");
+        EDMLOGW("GetGrantedPermission::permissions is empty");
         return ERR_OK;
     }
     // filtering out non-edm permissions
     std::vector<AdminPermission> reqPermission;
     PermissionManager::GetInstance()->GetReqPermission(permissions, reqPermission);
     if (reqPermission.empty()) {
-        EDMLOGW("GetGrantedPermission: edm permission is empty");
+        EDMLOGW("GetGrantedPermission::edm permission is empty");
         return ERR_OK;
     }
 
@@ -219,14 +193,14 @@ ErrCode AdminManager::UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const st
 {
     auto adminItem = GetAdminByPkgName(abilityInfo.bundleName, userId);
     if (adminItem == nullptr) {
-        EDMLOGW("UpdateAdmin: get null admin, never get here");
+        EDMLOGW("UpdateAdmin::get null admin, never get here");
         return ERR_EDM_UNKNOWN_ADMIN;
     }
 
     std::vector<std::string> combinePermission = permissions;
     ErrCode ret = GetGrantedPermission(abilityInfo, combinePermission, adminItem->adminInfo_.adminType_);
     if (ret != ERR_OK) {
-        EDMLOGW("UpdateAdmin: GetGrantedPermission failed");
+        EDMLOGW("UpdateAdmin::GetGrantedPermission failed");
         return ret;
     }
 
@@ -238,18 +212,15 @@ ErrCode AdminManager::UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const st
 }
 
 // success is returned as long as there is a super administrator
-bool AdminManager::IsSuperAdminExist(int32_t userId)
+bool AdminManager::IsSuperAdminExist()
 {
-    if (userId != DEFAULT_USER_ID) {
-        EDMLOGW("IsSuperAdminExist:get super Admin failed. userId= %{public}d,", userId);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    if (!ret) {
+        EDMLOGD("IsSuperAdminExist::not find super Admin");
         return false;
     }
-    auto iterMap = admins_.find(userId);
-    if (iterMap == admins_.end()) {
-        EDMLOGW("IsSuperAdminExist:not find super Admin. userId= %{public}d,", userId);
-        return false;
-    }
-    return std::any_of((iterMap->second).begin(), (iterMap->second).end(),
+    return std::any_of(userAdmin.begin(), userAdmin.end(),
         [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
 }
 
@@ -260,19 +231,20 @@ bool AdminManager::IsSuperAdminExist(int32_t userId)
 void AdminManager::GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId)
 {
     packageNameList.clear();
-    auto iterMap = admins_.find(userId);
-    if (iterMap == admins_.end()) {
-        EDMLOGW("GetActiveAdmin:not find active Admin. userId= %{public}d,", userId);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(userId, userAdmin);
+    if (!ret) {
+        EDMLOGW("GetActiveAdmin::not find active Admin. userId = %{public}d", userId);
         return;
     }
     EDMLOGD("AdminManager:GetActiveAdmin adminType: %{public}d , admin size: %{public}zu", role,
-        (iterMap->second).size());
+        userAdmin.size());
     if (role >= AdminType::UNKNOWN || role < AdminType::NORMAL) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
         return;
     }
 
-    for (auto &item : (iterMap->second)) {
+    for (auto &item : userAdmin) {
         if (item->adminInfo_.adminType_ == role) {
             std::string adminName = item->adminInfo_.packageName_ + "/" + item->adminInfo_.className_;
             packageNameList.push_back(adminName);
@@ -282,12 +254,13 @@ void AdminManager::GetActiveAdmin(AdminType role, std::vector<std::string> &pack
 
 ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId)
 {
-    auto iterMap = admins_.find(userId);
-    if (iterMap == admins_.end()) {
-        EDMLOGW("GetEntInfo:not find Admin. userId= %{public}d,", userId);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(userId, userAdmin);
+    if (!ret) {
+        EDMLOGW("GetEntInfo::not find Admin. userId = %{public}d", userId);
         return ERR_EDM_UNKNOWN_ADMIN;
     }
-    for (auto &item : (iterMap->second)) {
+    for (auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             entInfo = item->adminInfo_.entInfo_;
             return ERR_OK;
@@ -298,12 +271,13 @@ ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInf
 
 ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId)
 {
-    auto iterMap = admins_.find(userId);
-    if (iterMap == admins_.end()) {
-        EDMLOGW("SetEntInfo:not find Admin. userId= %{public}d,", userId);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(userId, userAdmin);
+    if (!ret) {
+        EDMLOGW("SetEntInfo::not find Admin. userId = %{public}d", userId);
         return ERR_EDM_UNKNOWN_ADMIN;
     }
-    for (auto &item : (iterMap->second)) {
+    for (auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             item->adminInfo_.entInfo_ = entInfo;
             SaveAdmin(userId);
@@ -360,7 +334,7 @@ void AdminManager::ReadJsonAdmin(const std::string &filePath, int32_t userId)
     JSONCPP_STRING errs;
     Json::Value root, lang;
     Json::CharReaderBuilder readerBuilder;
-    std::vector<std::shared_ptr<Admin>> admin;
+    std::vector<std::shared_ptr<Admin>> adminVector;
 
     if (!is.is_open()) {
         EDMLOGE("ReadJsonAdmin open admin policies file failed!");
@@ -369,23 +343,23 @@ void AdminManager::ReadJsonAdmin(const std::string &filePath, int32_t userId)
     bool res = parseFromStream(readerBuilder, is, &root, &errs);
     if (!res || !errs.empty()) {
         // no data, return
-        EDMLOGW("AdminManager:read admin policies file is :%{public}d , is not empty: %{public}d", res, errs.empty());
+        EDMLOGW("AdminManager::read admin policies file = %{public}d , is not empty = %{public}d", res, errs.empty());
         is.close();
         return;
     }
     is.close();
 
     lang = root["admin"];
-    EDMLOGD("AdminManager: size of %{public}u", lang.size());
+    EDMLOGD("AdminManager::size = %{public}u", lang.size());
 
-    for (auto temp : lang) {
-        ReadJsonAdminType(temp, admin);
+    for (auto &temp : lang) {
+        ReadJsonAdminType(temp, adminVector);
     }
     // not empty
-    if (admin.empty() == false) {
-        admins_.insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(userId, admin));
+    if (!(adminVector.empty())) {
+        admins_.insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(userId, adminVector));
     }
-    EDMLOGI("AdminManager: ReadJsonAdmin empty of %{public}d", admin.empty());
+    EDMLOGI("AdminManager::ReadJsonAdmin empty = %{public}d", adminVector.empty());
 }
 
 // read admin from file
@@ -395,11 +369,15 @@ void AdminManager::RestoreAdminFromFile()
     OHOS::GetDirFiles(EDM_ADMIN_BASE, paths);
     for (size_t i = 0; i < paths.size(); i++) {
         std::string::size_type pos = paths[i].find(EDM_ADMIN_DOT);
-        std::string::size_type posHead = paths[i].find(EDM_ADMIN_HEAD);
+        std::string::size_type posHead = paths[i].find(EDM_ADMIN_JSON_FILE);
         if (pos == std::string::npos || posHead == std::string::npos) {
             continue;
         }
-        std::string user = paths[i].substr(EDM_ADMIN_POS, (pos - EDM_ADMIN_POS));
+        int32_t start = (EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE).length();
+        std::string user = paths[i].substr(start, (pos - start));
+        if (!std::all_of(user.begin(), user.end(), ::isdigit)) {
+            continue;
+        }
         // Indicates 0 user, and other user ID is 100
         if ((std::stoi(user)) < DEFAULT_USER_ID) {
             continue;
@@ -409,7 +387,7 @@ void AdminManager::RestoreAdminFromFile()
         // admin information storage location
         ReadJsonAdmin(path, (std::stoi(user)));
     }
-    EDMLOGD("RestoreAdminFromFile success! size=%{public}lu", paths.size());
+    EDMLOGD("RestoreAdminFromFile success! size = %{public}zu", paths.size());
 }
 
 void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &activeAdmin, Json::Value &tree)
@@ -436,7 +414,7 @@ void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
 
     auto iterMap = admins_.find(userId);
     if (iterMap == admins_.end()) {
-        EDMLOGW("WriteJsonAdmin:not find Admin. userId= %{public}d,", userId);
+        EDMLOGW("WriteJsonAdmin::not find Admin. userId = %{public}d", userId);
         return;
     }
     EDMLOGD("WriteJsonAdmin start!  size = %{public}u  empty = %{public}d", (uint32_t)(iterMap->second).size(),
@@ -471,7 +449,7 @@ void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
         admins_.erase(iterMap);
         // delete current userId file
         bool delFlag = OHOS::RemoveFile(filePath);
-        EDMLOGD("WriteJsonAdmin delete userId=%{public}d map value;delFlag=%{public}d",
+        EDMLOGD("WriteJsonAdmin delete userId = %{public}d map value; delFlag = %{public}d",
             userId, delFlag);
     }
 }
