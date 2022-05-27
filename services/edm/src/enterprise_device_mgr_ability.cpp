@@ -44,7 +44,8 @@ std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
 constexpr int32_t DEFAULT_USER_ID = 100;
-EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
+EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
+    const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
     EnterpriseDeviceMgrAbility &listener) : EventFwk::CommonEventSubscriber(subscribeInfo), listener_(listener) {}
 
 void EnterpriseDeviceEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)

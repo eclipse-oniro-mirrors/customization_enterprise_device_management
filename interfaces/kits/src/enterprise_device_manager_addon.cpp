@@ -80,7 +80,6 @@ napi_value EnterpriseDeviceManagerAddon::ActivateAdmin(napi_env env, napi_callba
     }
     EDMLOGI("checkActivateAdminParamType ok");
 
-    OHOS::AppExecFwk::ElementName elementName;
     if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter want error");
     }
@@ -96,8 +95,12 @@ napi_value EnterpriseDeviceManagerAddon::ActivateAdmin(napi_env env, napi_callba
     if (!ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO])) {
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter admin type error");
     }
-    if (hasUserId && !ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE])) {
-        return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+    if (hasUserId) {
+        if (!ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE])) {
+            return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+        }
+    } else {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
         napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
@@ -117,9 +120,7 @@ void EnterpriseDeviceManagerAddon::NativeActivateAdmin(napi_env env, void *data)
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    if (asyncCallbackInfo->userId == 0) {
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
-    }
+
     asyncCallbackInfo->ret = proxy_->ActivateAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
         static_cast<AdminType>(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
 }
@@ -175,7 +176,7 @@ bool EnterpriseDeviceManagerAddon::checkActivateAdminParamType(napi_env env, siz
         MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
 }
 
-napi_value EnterpriseDeviceManagerAddon::ThrowNapiError(napi_env env, const uint32_t errCode, const char * errMessage)
+napi_value EnterpriseDeviceManagerAddon::ThrowNapiError(napi_env env, uint32_t errCode, const char* errMessage)
 {
     napi_throw_error(env, std::to_string(errCode).c_str(), errMessage);
     return nullptr;
@@ -277,7 +278,6 @@ napi_value EnterpriseDeviceManagerAddon::DeactivateAdmin(napi_env env, napi_call
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter type error");
     }
 
-    OHOS::AppExecFwk::ElementName elementName;
     if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter want error");
     }
@@ -286,8 +286,12 @@ napi_value EnterpriseDeviceManagerAddon::DeactivateAdmin(napi_env env, napi_call
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (hasUserId && !ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE])) {
-        return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+    if (hasUserId) {
+        if (!ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE])) {
+            return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+        }
+    } else {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
         napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
@@ -310,9 +314,6 @@ void EnterpriseDeviceManagerAddon::NativeDeactivateAdmin(napi_env env, void *dat
         return;
     }
 
-    if (asyncCallbackInfo->userId == 0) {
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
-    }
     asyncCallbackInfo->ret = proxy_->DeactivateAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
 }
 
@@ -372,7 +373,6 @@ napi_value EnterpriseDeviceManagerAddon::GetEnterpriseInfo(napi_env env, napi_ca
     }
     NAPI_ASSERT(env, matchFlag, "parameter type error");
     auto asyncCallbackInfo = (std::make_unique<AsyncGetEnterpriseInfoCallbackInfo>()).release();
-    OHOS::AppExecFwk::ElementName elementName;
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     NAPI_ASSERT(env, ret, "element name param error");
     EDMLOGD("ActiveAdmin: asyncCallbackInfo->elementName.bundlename %{public}s, "
@@ -457,7 +457,6 @@ napi_value EnterpriseDeviceManagerAddon::SetEnterpriseInfo(napi_env env, napi_ca
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
     }
     NAPI_ASSERT(env, matchFlag, "parameter type error");
-    OHOS::AppExecFwk::ElementName elementName;
     auto asyncCallbackInfo = (std::make_unique<AsyncSetEnterpriseInfoCallbackInfo>()).release();
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     NAPI_ASSERT(env, ret, "element name param error");
@@ -490,7 +489,6 @@ napi_value EnterpriseDeviceManagerAddon::SetDateTime(napi_env env, napi_callback
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
     }
     NAPI_ASSERT(env, matchFlag, "parameter type error");
-    OHOS::AppExecFwk::ElementName elementName;
     auto asyncCallbackInfo = (std::make_unique<AsyncSetDateTimeCallbackInfo>()).release();
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     NAPI_ASSERT(env, ret, "element name param error");
@@ -583,7 +581,6 @@ napi_value EnterpriseDeviceManagerAddon::IsAdminAppActive(napi_env env, napi_cal
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter type error");
     }
 
-    OHOS::AppExecFwk::ElementName elementName;
     if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
         return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter want error");
     }
@@ -593,8 +590,12 @@ napi_value EnterpriseDeviceManagerAddon::IsAdminAppActive(napi_env env, napi_cal
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
 
-    if (hasUserId && !ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE])) {
-        return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+    if (hasUserId) {
+        if (!ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE])) {
+            return ThrowNapiError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error");
+        }
+    } else {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
         napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
@@ -634,9 +635,6 @@ void EnterpriseDeviceManagerAddon::NativeIsAdminActive(napi_env env, void *data)
         return;
     }
     asyncCallbackInfo->ret = ERR_OK;
-    if (asyncCallbackInfo->userId == 0) {
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
-    }
     asyncCallbackInfo->boolRet = proxy_->IsAdminActive(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
 }
 
@@ -672,8 +670,7 @@ napi_value EnterpriseDeviceManagerAddon::HandleAsyncWork(napi_env env, AsyncCall
     return result;
 }
 
-napi_value EnterpriseDeviceManagerAddon::CreateErrorMessage(napi_env env, const uint32_t errorCode,
-    std::string errMessage)
+napi_value EnterpriseDeviceManagerAddon::CreateErrorMessage(napi_env env, uint32_t errorCode, std::string errMessage)
 {
     napi_value result = nullptr;
     napi_value message = nullptr;

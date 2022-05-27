@@ -131,7 +131,7 @@ public:
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
     static napi_value ParseString(napi_env env, std::string &param, napi_value args);
-    static napi_value CreateErrorMessage(napi_env env, const uint32_t errorCode, std::string errMessage);
+    static napi_value CreateErrorMessage(napi_env env, uint32_t errorCode, std::string errMessage);
     static bool ParseElementName(napi_env env, OHOS::AppExecFwk::ElementName &elementName, napi_value args);
     static napi_value ParseStringArray(napi_env env, std::vector<std::string> &hapFiles, napi_value args);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
@@ -143,7 +143,7 @@ public:
     static napi_value DeviceSettingsManagerConstructor(napi_env env, napi_callback_info info);
 
 private:
-    static napi_value ThrowNapiError(napi_env env, const uint32_t errCode, const char * errMessage);
+    static napi_value ThrowNapiError(napi_env env, uint32_t errCode, const char* errMessage);
     static std::pair<uint32_t, std::string> GetMessageFromReturncode(uint32_t returnCode);
     static bool checkActivateAdminParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);

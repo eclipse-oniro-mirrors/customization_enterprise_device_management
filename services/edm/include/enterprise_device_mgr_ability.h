@@ -81,13 +81,13 @@ private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
 };
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
-  public:
-      EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
-          EnterpriseDeviceMgrAbility &listener);
-      ~EnterpriseDeviceEventSubscriber() override = default;
+public:
+    EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
+        EnterpriseDeviceMgrAbility &listener);
+    ~EnterpriseDeviceEventSubscriber() override = default;
 
-      void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
-  private:
+    void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
+private:
       EnterpriseDeviceMgrAbility &listener_;
 };
 } // namespace EDM
