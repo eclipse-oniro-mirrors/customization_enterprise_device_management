@@ -35,19 +35,23 @@ struct AsyncCallbackInfo {
     napi_async_work asyncWork;
     napi_deferred deferred;
     napi_ref callback = 0;
-    int32_t ret;
+    uint32_t ret;
     bool boolRet = true;
     int32_t err = 0;
+    uint32_t errCode = 0;
+    std::string errMessage;
 };
 
 struct AsyncActivateAdminCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     EntInfo entInfo;
     int32_t adminType = 0;
+    int32_t userId = 0;
 };
 
 struct AsyncDeactivateAdminCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
+    int32_t userId = 0;
 };
 
 struct AsyncDeactivateSuperAdminCallbackInfo : AsyncCallbackInfo {
@@ -75,6 +79,7 @@ struct AsyncIsSuperAdminCallbackInfo : AsyncCallbackInfo {
 
 struct AsyncIsAdminActiveCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
+    int32_t userId = 0;
 };
 
 struct AsyncGetDeviceSettingsManagerCallbackInfo : AsyncCallbackInfo {
@@ -82,6 +87,12 @@ struct AsyncGetDeviceSettingsManagerCallbackInfo : AsyncCallbackInfo {
     napi_async_work asyncWork;
     napi_deferred deferred;
     napi_ref callback = 0;
+};
+
+class EdmReturnErrCode {
+public:
+    static const uint32_t PARAM_ERROR = 15200401;
+    static const uint32_t PERMISSION_DENIED = 15200201;
 };
 
 class EnterpriseDeviceManagerAddon {
@@ -120,7 +131,7 @@ public:
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
     static napi_value ParseString(napi_env env, std::string &param, napi_value args);
-    static napi_value CreateErrorMessage(napi_env env, std::string msg);
+    static napi_value CreateErrorMessage(napi_env env, uint32_t errorCode, std::string errMessage);
     static bool ParseElementName(napi_env env, OHOS::AppExecFwk::ElementName &elementName, napi_value args);
     static napi_value ParseStringArray(napi_env env, std::vector<std::string> &hapFiles, napi_value args);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
@@ -132,6 +143,13 @@ public:
     static napi_value DeviceSettingsManagerConstructor(napi_env env, napi_callback_info info);
 
 private:
+    static napi_value ThrowNapiError(napi_env env, uint32_t errCode, const char* errMessage);
+    static std::pair<uint32_t, std::string> GetMessageFromReturncode(uint32_t returnCode);
+    static bool checkActivateAdminParamType(napi_env env, size_t argc,
+        napi_value* argv, bool &hasCallback, bool &hasUserId);
+    static bool checkAdminWithUserIdParamType(napi_env env, size_t argc,
+        napi_value* argv, bool &hasCallback, bool &hasUserId);
+    static std::map<uint32_t, std::pair<uint32_t, std::string>> errMessageMap;
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceSettingsManager> deviceSettingsManager_;
 };

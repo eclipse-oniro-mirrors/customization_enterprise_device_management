@@ -40,7 +40,7 @@ public:
     virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;
     virtual ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) = 0;
     virtual bool IsSuperAdmin(std::string &bundleName) = 0;
-    virtual bool IsAdminActive(AppExecFwk::ElementName &admin) = 0;
+    virtual bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     enum {
         ADD_DEVICE_ADMIN = 1,
         REMOVE_DEVICE_ADMIN = 2,

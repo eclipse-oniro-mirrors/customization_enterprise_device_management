@@ -237,7 +237,7 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::IsAdminActive(AppExecFwk::ElementName &admin)
+bool EnterpriseDeviceMgrProxy::IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminActive");
     sptr<IRemoteObject> remote = GetRemoteObject();
@@ -249,6 +249,7 @@ bool EnterpriseDeviceMgrProxy::IsAdminActive(AppExecFwk::ElementName &admin)
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
+    data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_ADMIN_ACTIVE, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminActive send request fail. %{public}d", res);

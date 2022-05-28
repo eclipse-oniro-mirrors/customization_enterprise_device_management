@@ -23,6 +23,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int HUGE_ADMIN_SIZE = 100;
 const std::string TEAR_DOWN_CMD = "rm /data/edm/admin_policies.json";
 
@@ -36,10 +37,10 @@ void AdminManagerTest::SetUp()
 
 void AdminManagerTest::TearDown()
 {
-    std::vector<std::shared_ptr<Admin>> allAdmin;
-    adminMgr_->GetAllAdmin(allAdmin);
-    for (const auto &admin : allAdmin) {
-        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    for (const auto &admin : userAdmin) {
+        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID);
     }
     adminMgr_.reset();
     adminMgr_ = nullptr;
@@ -121,14 +122,14 @@ HWTEST_F(AdminManagerTest, TestGetGrantedPermission, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestGetAllAdmin
- * @tc.desc: Test AdminManager::GetAllAdmin function.
+ * @tc.name: TestGetAdminByUserId
+ * @tc.desc: Test AdminManager::GetAdminByUserId function.
  * @tc.type: FUNC
  */
-HWTEST_F(AdminManagerTest, TestGetAllAdmin, TestSize.Level1)
+HWTEST_F(AdminManagerTest, TestGetAdminByUserId, TestSize.Level1)
 {
     ErrCode res;
-    std::vector<std::shared_ptr<Admin>> allAdmin;
+    std::vector<std::shared_ptr<Admin>> userAdmin;
     std::vector<std::string> permissions;
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
@@ -139,20 +140,20 @@ HWTEST_F(AdminManagerTest, TestGetAllAdmin, TestSize.Level1)
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    adminMgr_->GetAllAdmin(allAdmin);
-    ASSERT_TRUE(allAdmin.size() == 1);
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == 1);
 
     abilityInfo.bundleName = "com.edm.test.demo1";
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
-    adminMgr_->GetAllAdmin(allAdmin);
-    ASSERT_TRUE(allAdmin.size() == 2);
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == 2);
 }
 
 /**
@@ -174,7 +175,7 @@ HWTEST_F(AdminManagerTest, TestGetAdminByPkgName, TestSize.Level1)
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     abilityInfo.bundleName = "com.edm.test.demo1";
@@ -185,14 +186,14 @@ HWTEST_F(AdminManagerTest, TestGetAdminByPkgName, TestSize.Level1)
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     std::shared_ptr<Admin> admin;
-    admin = adminMgr_->GetAdminByPkgName("com.edm.test.demo");
+    admin = adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 
-    admin = adminMgr_->GetAdminByPkgName("com.edm.test.demo1");
+    admin = adminMgr_->GetAdminByPkgName("com.edm.test.demo1", DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 }
 
@@ -204,7 +205,7 @@ HWTEST_F(AdminManagerTest, TestGetAdminByPkgName, TestSize.Level1)
 HWTEST_F(AdminManagerTest, TestDeleteAdmin, TestSize.Level1)
 {
     ErrCode res;
-    std::vector<std::shared_ptr<Admin>> allAdmin;
+    std::vector<std::shared_ptr<Admin>> userAdmin;
     std::vector<std::string> permissions;
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
@@ -215,25 +216,25 @@ HWTEST_F(AdminManagerTest, TestDeleteAdmin, TestSize.Level1)
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     abilityInfo.bundleName = "com.edm.test.demo1";
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
-    res = adminMgr_->DeleteAdmin("com.edm.test.demo");
+    res = adminMgr_->DeleteAdmin("com.edm.test.demo", DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    adminMgr_->GetAllAdmin(allAdmin);
-    ASSERT_TRUE(allAdmin.size() == 1);
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == 1);
 
-    res = adminMgr_->DeleteAdmin("com.edm.test.demo1");
+    res = adminMgr_->DeleteAdmin("com.edm.test.demo1", DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    adminMgr_->GetAllAdmin(allAdmin);
-    ASSERT_TRUE(allAdmin.empty());
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.empty());
 }
 
 /**
@@ -256,39 +257,39 @@ HWTEST_F(AdminManagerTest, TestSetAdminValue, TestSize.Level1)
 
     abilityInfo.bundleName = bundleName + "1";
     permissions = {};
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 
     abilityInfo.bundleName = bundleName + "2";
     permissions = { "ohos.permission.EDM_TEST_ENT_PERMISSION" };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res != ERR_OK);
-    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin == nullptr);
 
     abilityInfo.bundleName = bundleName + "3";
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION_FAIL", "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 
     abilityInfo.bundleName = bundleName + "4";
     permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 
     abilityInfo.bundleName = bundleName + "5";
     permissions = { "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EDM_TEST_PERMISSION" };
-    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
+    res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
 }
 
@@ -315,14 +316,14 @@ HWTEST_F(AdminManagerTest, TestSetAdminValueHuge, TestSize.Level1)
         permissions = {
             "ohos.permission.EDM_TEST_PERMISSION"
         };
-        res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+        res = adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
         ASSERT_TRUE(res == ERR_OK);
-        admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName);
+        admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
         ASSERT_TRUE(admin != nullptr);
     }
-    std::vector<std::shared_ptr<Admin>> allAdmins;
-    adminMgr_->GetAllAdmin(allAdmins);
-    ASSERT_TRUE(allAdmins.size() == HUGE_ADMIN_SIZE);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == HUGE_ADMIN_SIZE);
 }
 
 /**
@@ -347,21 +348,21 @@ HWTEST_F(AdminManagerTest, TestUpdateAdmin, TestSize.Level1)
     };
     res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
-    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
-    std::vector<std::shared_ptr<Admin>> allAdmins;
-    adminMgr_->GetAllAdmin(allAdmins);
-    ASSERT_TRUE(allAdmins.size() == 1);
-    ASSERT_TRUE(allAdmins.at(0)->adminInfo_.permission_.size() == 1);
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == 1);
+    ASSERT_TRUE(userAdmin.at(0)->adminInfo_.permission_.size() == 1);
 
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION_FAIL", "ohos.permission.EDM_TEST_PERMISSION",
         "ohos.permission.EDM_TEST_ENT_PERMISSION"
     };
-    res = adminMgr_->UpdateAdmin(abilityInfo, permissions);
+    res = adminMgr_->UpdateAdmin(abilityInfo, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    adminMgr_->GetAllAdmin(allAdmins);
-    ASSERT_TRUE(allAdmins.size() == 1);
-    ASSERT_TRUE(allAdmins.at(0)->adminInfo_.permission_.size() == 2);
+    adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    ASSERT_TRUE(userAdmin.size() == 1);
+    ASSERT_TRUE(userAdmin.at(0)->adminInfo_.permission_.size() == 2);
 }
 
 /**
@@ -380,9 +381,9 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
 
     std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_ENT_PERMISSION" };
-    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions);
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
-    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions);
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(!adminMgr_->IsSuperAdminExist());
 }
 } // namespace TEST

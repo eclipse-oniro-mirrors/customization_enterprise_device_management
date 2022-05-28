@@ -19,6 +19,7 @@
 #include <bundle_mgr_interface.h>
 #include <string>
 #include "admin_manager.h"
+#include "common_event_subscriber.h"
 #include "enterprise_device_mgr_stub.h"
 #include "hilog/log.h"
 #include "plugin_manager.h"
@@ -45,32 +46,49 @@ public:
     ErrCode GetActiveAdmin(AdminType type, std::vector<std::string> &activeAdminList) override;
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
+    void OnUserRemoved(int userIdToRemove);
     bool IsSuperAdmin(std::string &bundleName) override;
-    bool IsAdminActive(AppExecFwk::ElementName &admin) override;
+    bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId) override;
 
 protected:
     void OnDump() override;
     void OnStart() override;
     void OnStop() override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
 private:
     bool IsHdc();
     ErrCode CheckPermission();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
-    ErrCode RemoveAdmin(const std::string &adminName);
+    ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode GetAllPermissionsByAdmin(const std::string& bundleInfoName,
         std::vector<std::string> &permissionList, int32_t userId);
+    int32_t GetCurrentUserId();
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
-    ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type);
+    ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
+    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
+        EnterpriseDeviceMgrAbility &listener);
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<AdminManager> adminMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;
+    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
+};
+class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
+public:
+    EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
+        EnterpriseDeviceMgrAbility &listener);
+    ~EnterpriseDeviceEventSubscriber() override = default;
+
+    void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
+private:
+      EnterpriseDeviceMgrAbility &listener_;
 };
 } // namespace EDM
 } // namespace OHOS
