@@ -18,11 +18,11 @@
 
 #include "enterprise_device_mgr_proxy.h"
 #include "parcel.h"
-#include "deactivatesuperadmin_fuzzer.h"
+#include "disablesuperadmin_fuzzer.h"
 
 using namespace OHOS::EDM;
 namespace OHOS {
-    bool fuzzDeactivateSuperAdmin(const uint8_t* data, size_t size)
+    bool fuzzDisableSuperAdmin(const uint8_t* data, size_t size)
     {
         if (size != 1) {
             return false;
@@ -33,7 +33,7 @@ namespace OHOS {
             return false;
         }
 
-        enterpriseDeviceManager->DeactivateSuperAdmin(reinterpret_cast<const char*>(data));
+        enterpriseDeviceManager->DisableSuperAdmin(reinterpret_cast<const char*>(data));
         return true;
     }
 }
@@ -42,6 +42,6 @@ namespace OHOS {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     // Run your code on data.
-    OHOS::fuzzDeactivateSuperAdmin(data, size);
+    OHOS::fuzzDisableSuperAdmin(data, size);
     return 0;
 }

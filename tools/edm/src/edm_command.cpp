@@ -39,13 +39,13 @@ ErrCode EdmCommand::CreateCommandMap()
 {
     commandMap_ = {
         { "help", std::bind(&EdmCommand::RunAsHelpCommand, this) },
-        { "activate-admin", std::bind(&EdmCommand::RunAsActivateAdminCommand, this) },
-        { "activate-super-admin",
-        std::bind(&EdmCommand::RunAsActivateSuperAdminCommand, this) },
-        { "deactivate-admin",
-        std::bind(&EdmCommand::RunDeactivateNormalAdminCommand, this) },
-        { "deactivate-super-admin",
-        std::bind(&EdmCommand::RunDeactivateSuperAdminCommand, this) },
+        { "enable-admin", std::bind(&EdmCommand::RunAsEnableAdminCommand, this) },
+        { "enable-super-admin",
+        std::bind(&EdmCommand::RunAsEnableSuperAdminCommand, this) },
+        { "disable-admin",
+        std::bind(&EdmCommand::RunDisableNormalAdminCommand, this) },
+        { "disable-super-admin",
+        std::bind(&EdmCommand::RunDisableSuperAdminCommand, this) },
     };
 
     return ERR_OK;
@@ -72,7 +72,7 @@ ErrCode EdmCommand::CreateMessageMap()
         },
         {
             ERR_EDM_DEL_ADMIN_FAILED,
-            "error: deactive admin internal error.",
+            "error: disable admin internal error.",
         },
         {
             ERR_EDM_GET_PLUGIN_MGR_FAILED,
@@ -109,17 +109,17 @@ ErrCode EdmCommand::RunAsHelpCommand()
     return ERR_OK;
 }
 
-ErrCode EdmCommand::RunAsActivateAdminCommand()
+ErrCode EdmCommand::RunAsEnableAdminCommand()
 {
-    return RunAsActivateCommand(AdminType::NORMAL);
+    return RunAsEnableCommand(AdminType::NORMAL);
 }
 
-ErrCode EdmCommand::RunAsActivateSuperAdminCommand()
+ErrCode EdmCommand::RunAsEnableSuperAdminCommand()
 {
-    return RunAsActivateCommand(AdminType::ENT);
+    return RunAsEnableCommand(AdminType::ENT);
 }
 
-ErrCode EdmCommand::RunAsActivateCommand(AdminType type)
+ErrCode EdmCommand::RunAsEnableCommand(AdminType type)
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {
@@ -135,7 +135,7 @@ ErrCode EdmCommand::RunAsActivateCommand(AdminType type)
     elementName.SetElementBundleName(&elementName, elementNameStr[ARR_INDEX_ZERO].c_str());
     elementName.SetElementAbilityName(&elementName, elementNameStr[ARR_INDEX_ONE].c_str());
     EntInfo info;
-    ErrCode result = enterpriseDeviceMgrProxy_->ActivateAdmin(elementName, info, type, DEFAULT_USER_ID);
+    ErrCode result = enterpriseDeviceMgrProxy_->EnableAdmin(elementName, info, type, DEFAULT_USER_ID);
     if (result != ERR_OK) {
         resultReceiver_.append(GetMessageFromCode(result));
     }
@@ -160,7 +160,7 @@ std::vector<std::string> EdmCommand::split(const std::string &str, const std::st
     return res;
 }
 
-ErrCode EdmCommand::RunDeactivateNormalAdminCommand()
+ErrCode EdmCommand::RunDisableNormalAdminCommand()
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {
@@ -179,14 +179,14 @@ ErrCode EdmCommand::RunDeactivateNormalAdminCommand()
     OHOS::AppExecFwk::ElementName elementName;
     elementName.SetElementBundleName(&elementName, elementNameStr[ARR_INDEX_ZERO].c_str());
     elementName.SetElementAbilityName(&elementName, elementNameStr[ARR_INDEX_ONE].c_str());
-    ErrCode result = enterpriseDeviceMgrProxy_->DeactivateAdmin(elementName, DEFAULT_USER_ID);
+    ErrCode result = enterpriseDeviceMgrProxy_->DisableAdmin(elementName, DEFAULT_USER_ID);
     if (result != ERR_OK) {
         resultReceiver_.append(GetMessageFromCode(result));
     }
     return result;
 }
 
-ErrCode EdmCommand::RunDeactivateSuperAdminCommand()
+ErrCode EdmCommand::RunDisableSuperAdminCommand()
 {
     std::cout << "argc = " << argc_ << std::endl;
     if (argc_ != ARGS_SIZE_THREE) {
@@ -202,7 +202,7 @@ ErrCode EdmCommand::RunDeactivateSuperAdminCommand()
         resultReceiver_.append(GetMessageFromCode(ERR_EDM_PARAM_ERROR));
         return ERR_EDM_PARAM_ERROR;
     }
-    ErrCode result = enterpriseDeviceMgrProxy_->DeactivateSuperAdmin(elementNameStr[ARR_INDEX_ZERO]);
+    ErrCode result = enterpriseDeviceMgrProxy_->DisableSuperAdmin(elementNameStr[ARR_INDEX_ZERO]);
     if (result != ERR_OK) {
         resultReceiver_.append(GetMessageFromCode(result));
     }

@@ -55,10 +55,10 @@ void EnterpriseDeviceMgrProxy::DestroyInstance()
     }
 }
 
-ErrCode EnterpriseDeviceMgrProxy::ActivateAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
+ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrProxy::ActivateAdmin");
+    EDMLOGD("EnterpriseDeviceMgrProxy::EnableAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return ERR_EDM_SERVICE_NOT_READY;
@@ -73,20 +73,20 @@ ErrCode EnterpriseDeviceMgrProxy::ActivateAdmin(AppExecFwk::ElementName &admin, 
     data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::ADD_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:ActivateAdmin send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:EnableAdmin send request fail. %{public}d", res);
         return ERR_EDM_SERVICE_NOT_READY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:ActiveAdmin get result code fail. %{public}d", resCode);
+        EDMLOGW("EnterpriseDeviceMgrProxy:EnableAdmin get result code fail. %{public}d", resCode);
         return resCode;
     }
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::DeactivateAdmin(AppExecFwk::ElementName &admin, int32_t userId)
+ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrProxy::DeactivateAdmin");
+    EDMLOGD("EnterpriseDeviceMgrProxy::DisableAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return ERR_EDM_SERVICE_NOT_READY;
@@ -99,20 +99,20 @@ ErrCode EnterpriseDeviceMgrProxy::DeactivateAdmin(AppExecFwk::ElementName &admin
     data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:DeactivateAdmin send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:DisableAdmin send request fail. %{public}d", res);
         return ERR_EDM_SERVICE_NOT_READY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:DeactivateAdmin get result code fail. %{public}d", resCode);
+        EDMLOGW("EnterpriseDeviceMgrProxy:DisableAdmin get result code fail. %{public}d", resCode);
         return resCode;
     }
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::DeactivateSuperAdmin(std::string bundleName)
+ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
 {
-    EDMLOGD("EnterpriseDeviceMgrProxy::DeactivateSuperAdmin");
+    EDMLOGD("EnterpriseDeviceMgrProxy::DisableSuperAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return ERR_EDM_SERVICE_NOT_READY;
@@ -124,20 +124,20 @@ ErrCode EnterpriseDeviceMgrProxy::DeactivateSuperAdmin(std::string bundleName)
     data.WriteString(bundleName);
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_SUPER_ADMIN, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:DeactivateSuperAdmin send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:DisableSuperAdmin send request fail. %{public}d", res);
         return ERR_EDM_SERVICE_NOT_READY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:DeactivateSuperAdmin get result code fail. %{public}d", resCode);
+        EDMLOGW("EnterpriseDeviceMgrProxy:DisableSuperAdmin get result code fail. %{public}d", resCode);
         return resCode;
     }
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::GetActiveAdmin(AdminType type, std::vector<std::u16string> &activeAdminList)
+ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<std::u16string> &enabledAdminList)
 {
-    EDMLOGD("EnterpriseDeviceMgrProxy::GetActiveAdmin");
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetEnabledAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return ERR_EDM_SERVICE_NOT_READY;
@@ -147,17 +147,17 @@ ErrCode EnterpriseDeviceMgrProxy::GetActiveAdmin(AdminType type, std::vector<std
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteUint32(type);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ACTIVE_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENABLED_ADMIN, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetActiveAdmin send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
         return ERR_EDM_SERVICE_NOT_READY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetActiveAdmin get result code fail. %{public}d", resCode);
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmin get result code fail. %{public}d", resCode);
         return resCode;
     }
-    reply.ReadString16Vector(&activeAdminList);
+    reply.ReadString16Vector(&enabledAdminList);
     return ERR_OK;
 }
 
@@ -237,9 +237,9 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId)
+bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminActive");
+    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return ERR_EDM_SERVICE_NOT_READY;
@@ -250,14 +250,14 @@ bool EnterpriseDeviceMgrProxy::IsAdminActive(AppExecFwk::ElementName &admin, int
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteInt32(userId);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_ADMIN_ACTIVE, data, reply, option);
+    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_ADMIN_ENABLED, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminActive send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminEnabled send request fail. %{public}d", res);
         return false;
     }
     bool ret = false;
     reply.ReadBool(ret);
-    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminActive ret %{public}d", ret);
+    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled ret %{public}d", ret);
     return ret;
 }
 
@@ -388,25 +388,25 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &reply)
     return blRes;
 }
 
-void EnterpriseDeviceMgrProxy::GetActiveAdmins(std::vector<std::string> &activeAdminList)
+void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::vector<std::string> &enabledAdminList)
 {
-    GetActiveAdmins(AdminType::NORMAL, activeAdminList);
+    GetEnabledAdmins(AdminType::NORMAL, enabledAdminList);
 }
 
-void EnterpriseDeviceMgrProxy::GetActiveSuperAdmin(std::string &activeAdmin)
+void EnterpriseDeviceMgrProxy::GetEnabledSuperAdmin(std::string &enabledAdmin)
 {
-    std::vector<std::string> activeAdminList;
-    GetActiveAdmins(AdminType::ENT, activeAdminList);
-    if (!activeAdminList.empty()) {
-        activeAdmin = activeAdminList[0];
+    std::vector<std::string> enabledAdminList;
+    GetEnabledAdmins(AdminType::ENT, enabledAdminList);
+    if (!enabledAdminList.empty()) {
+        enabledAdmin = enabledAdminList[0];
     }
 }
 
 bool EnterpriseDeviceMgrProxy::IsSuperAdminExist()
 {
-    std::vector<std::string> activeAdminList;
-    GetActiveAdmins(AdminType::ENT, activeAdminList);
-    return !activeAdminList.empty();
+    std::vector<std::string> enabledAdminList;
+    GetEnabledAdmins(AdminType::ENT, enabledAdminList);
+    return !enabledAdminList.empty();
 }
 
 sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetRemoteObject()
@@ -425,7 +425,7 @@ sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetRemoteObject()
     return remote;
 }
 
-void EnterpriseDeviceMgrProxy::GetActiveAdmins(std::uint32_t type, std::vector<std::string> &activeAdminList)
+void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList)
 {
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
@@ -438,18 +438,18 @@ void EnterpriseDeviceMgrProxy::GetActiveAdmins(std::uint32_t type, std::vector<s
     data.WriteUint32(type);
     ErrCode res = remote->SendRequest(GET_ENABLE_ADMIN, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetActiveAdmins send request fail.");
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmins send request fail.");
         return;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetActiveAdmins get result code fail.");
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmins get result code fail.");
         return;
     }
     std::vector<std::u16string> readArray;
     reply.ReadString16Vector(&readArray);
     for (const std::u16string &item : readArray) {
-        activeAdminList.push_back(Str16ToStr8(item));
+        enabledAdminList.push_back(Str16ToStr8(item));
     }
 }
 } // namespace EDM

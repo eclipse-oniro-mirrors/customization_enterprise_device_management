@@ -17,7 +17,7 @@ group("fuzztest") {
 
   deps += [
     # deps file
-    "deactivatesuperadmin_fuzzer:DeactivateSuperAdminFuzzTest",
-    "entinfo_fuzzer:EntInfoFuzzTest"
+    "disablesuperadmin_fuzzer:DisableSuperAdminFuzzTest",
+    "entinfo_fuzzer:EntInfoFuzzTest",
   ]
 }

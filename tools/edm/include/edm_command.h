@@ -28,10 +28,10 @@ const std::string TOOL_NAME = "edm";
 const std::string HELP_MSG = "usage: edm <command> <options>\n"
                              "These are common edm commands list:\n"
                              "  help                      list available commands\n"
-                             "  activate-admin            activate a admin with options\n"
-                             "  activate-super-admin      activate a super admin with options\n"
-                             "  deactivate-admin          deactivate a admin with options\n"
-                             "  deactivate-super-admin    deactivate a super admin with options\n";
+                             "  enable-admin            enable a admin with options\n"
+                             "  enable-super-admin      enable a super admin with options\n"
+                             "  disable-admin          disable a admin with options\n"
+                             "  disable-super-admin    disable a super admin with options\n";
 }  // namespace
 
 class EdmCommand : public ShellCommand {
@@ -45,11 +45,11 @@ private:
     ErrCode CreateMessageMap() override;
     ErrCode init() override;
     ErrCode RunAsHelpCommand();
-    ErrCode RunAsActivateCommand(AdminType type);
-    ErrCode RunAsActivateAdminCommand();
-    ErrCode RunAsActivateSuperAdminCommand();
-    ErrCode RunDeactivateNormalAdminCommand();
-    ErrCode RunDeactivateSuperAdminCommand();
+    ErrCode RunAsEnableCommand(AdminType type);
+    ErrCode RunAsEnableAdminCommand();
+    ErrCode RunAsEnableSuperAdminCommand();
+    ErrCode RunDisableNormalAdminCommand();
+    ErrCode RunDisableSuperAdminCommand();
     std::vector<std::string> split(const std::string &str, const std::string &pattern);
 
     std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxy_;

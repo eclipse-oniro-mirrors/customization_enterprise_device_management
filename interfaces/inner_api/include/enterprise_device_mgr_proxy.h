@@ -32,19 +32,19 @@ public:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> GetInstance();
     static void DestroyInstance();
 
-    ErrCode ActivateAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
-    ErrCode DeactivateAdmin(AppExecFwk::ElementName &admin, int32_t userId);
-    ErrCode DeactivateSuperAdmin(std::string bundleName);
-    ErrCode GetActiveAdmin(AdminType type, std::vector<std::u16string> &activeAdminList);
+    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
+    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
+    ErrCode DisableSuperAdmin(std::string bundleName);
+    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::u16string> &enabledAdminList);
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     bool IsSuperAdmin(std::string bundleName);
-    bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId);
+    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId);
     bool HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
 
-    void GetActiveSuperAdmin(std::string &activeAdmin);
+    void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
-    void GetActiveAdmins(std::vector<std::string> &activeAdminList);
+    void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
     bool IsPolicyDisable(int policyCode, bool &isDisabled);
     bool GetPolicyValue(int policyCode, std::string &policyData);
     bool GetPolicyArray(int policyCode, std::vector<std::string> &policyData);
@@ -54,7 +54,7 @@ private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
 
-    void GetActiveAdmins(std::uint32_t type, std::vector<std::string> &activeAdminList);
+    void GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList);
     sptr<IRemoteObject> GetRemoteObject();
     bool GetPolicy(int policyCode, MessageParcel &reply);
 };

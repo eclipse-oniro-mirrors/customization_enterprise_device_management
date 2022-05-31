@@ -35,14 +35,14 @@ EnterpriseDeviceMgrStub::~EnterpriseDeviceMgrStub()
 
 void EnterpriseDeviceMgrStub::AddCallFuncMap()
 {
-    memberFuncMap_[ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::ActiveAdminInner;
-    memberFuncMap_[REMOVE_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::DeactiveAdminInner;
-    memberFuncMap_[REMOVE_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::DeactiveSuperAdminInner;
-    memberFuncMap_[GET_ACTIVE_ADMIN] = &EnterpriseDeviceMgrStub::GetActiveAdminInner;
+    memberFuncMap_[ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::EnableAdminInner;
+    memberFuncMap_[REMOVE_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::DisableAdminInner;
+    memberFuncMap_[REMOVE_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::DisableSuperAdminInner;
+    memberFuncMap_[GET_ENABLED_ADMIN] = &EnterpriseDeviceMgrStub::GetEnabledAdminInner;
     memberFuncMap_[GET_ENT_INFO] = &EnterpriseDeviceMgrStub::GetEnterpriseInfoInner;
     memberFuncMap_[SET_ENT_INFO] =  &EnterpriseDeviceMgrStub::SetEnterpriseInfoInner;
     memberFuncMap_[IS_SUPER_ADMIN] =  &EnterpriseDeviceMgrStub::IsSuperAdminInner;
-    memberFuncMap_[IS_ADMIN_ACTIVE] =  &EnterpriseDeviceMgrStub::IsAdminActiveInner;
+    memberFuncMap_[IS_ADMIN_ENABLED] =  &EnterpriseDeviceMgrStub::IsAdminEnabledInner;
 }
 
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -81,24 +81,24 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-ErrCode EnterpriseDeviceMgrStub::ActiveAdminInner(MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
-    EDMLOGD("ActiveAdminInner bundleName:: %{public}s : abilityName : %{public}s ", admin->GetBundleName().c_str(),
+    EDMLOGD("EnableAdminInner bundleName:: %{public}s : abilityName : %{public}s ", admin->GetBundleName().c_str(),
         admin->GetAbilityName().c_str());
     std::unique_ptr<EntInfo> entInfo(data.ReadParcelable<EntInfo>());
     uint32_t type = data.ReadUint32();
     int32_t userId = data.ReadInt32();
-    ErrCode retCode = ActiveAdmin(*admin, *entInfo, AdminType(type), userId);
+    ErrCode retCode = EnableAdmin(*admin, *entInfo, AdminType(type), userId);
     reply.WriteInt32(retCode);
     return (retCode != ERR_OK) ? ERR_EDM_ADD_ADMIN_FAILED : ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrStub::DeactiveAdminInner(MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::DisableAdminInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
@@ -106,9 +106,9 @@ ErrCode EnterpriseDeviceMgrStub::DeactiveAdminInner(MessageParcel &data, Message
         return ERR_EDM_PARAM_ERROR;
     }
     int32_t userId = data.ReadInt32();
-    ErrCode retCode = DeactiveAdmin(*admin, userId);
+    ErrCode retCode = DisableAdmin(*admin, userId);
     if (retCode != ERR_OK) {
-        EDMLOGW("DeactiveAdminInner failed: %{public}d", retCode);
+        EDMLOGW("DisableAdminInner failed: %{public}d", retCode);
         reply.WriteInt32(ERR_EDM_DEL_ADMIN_FAILED);
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
@@ -116,11 +116,11 @@ ErrCode EnterpriseDeviceMgrStub::DeactiveAdminInner(MessageParcel &data, Message
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrStub::DeactiveSuperAdminInner(MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string bundleName = data.ReadString();
-    EDMLOGD("DeactiveSuperAdminInner bundleName:: %{public}s :", bundleName.c_str());
-    ErrCode retCode = DeactiveSuperAdmin(bundleName);
+    EDMLOGD("DisableSuperAdminInner bundleName:: %{public}s :", bundleName.c_str());
+    ErrCode retCode = DisableSuperAdmin(bundleName);
     if (retCode != ERR_OK) {
         reply.WriteInt32(ERR_EDM_DEL_SUPER_ADMIN_FAILED);
         return ERR_EDM_DEL_SUPER_ADMIN_FAILED;
@@ -158,25 +158,25 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
     return retCode;
 }
 
-ErrCode EnterpriseDeviceMgrStub::GetActiveAdminInner(MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply)
 {
-    EDMLOGD("EnterpriseDeviceMgrStub:GetActiveAdmin");
+    EDMLOGD("EnterpriseDeviceMgrStub:GetEnabledAdmin");
     uint32_t type = AdminType::UNKNOWN;
     if (!data.ReadUint32(type)) {
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
-        EDMLOGE("EnterpriseDeviceMgrStub:GetActiveAdminInner read type fail %{public}u", type);
+        EDMLOGE("EnterpriseDeviceMgrStub:GetEnabledAdminInner read type fail %{public}u", type);
         return ERR_EDM_PARAM_ERROR;
     }
-    std::vector<std::string> activeAdminList;
-    ErrCode res = GetActiveAdmin((AdminType)type, activeAdminList);
+    std::vector<std::string> enabledAdminList;
+    ErrCode res = GetEnabledAdmin((AdminType)type, enabledAdminList);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrStub:GetActiveAdmin failed:%{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrStub:GetEnabledAdmin failed:%{public}d", res);
         reply.WriteInt32(res);
         return res;
     }
     reply.WriteInt32(ERR_OK);
     std::vector<std::u16string> writeArray;
-    ArrayPolicyUtils::StringToU16String(activeAdminList, writeArray);
+    ArrayPolicyUtils::StringToU16String(enabledAdminList, writeArray);
     reply.WriteString16Vector(writeArray);
     return ERR_OK;
 }
@@ -205,16 +205,16 @@ ErrCode EnterpriseDeviceMgrStub::IsSuperAdminInner(MessageParcel &data, MessageP
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrStub::IsAdminActiveInner(MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::IsAdminEnabledInner(MessageParcel &data, MessageParcel &reply)
 {
-    EDMLOGD("EnterpriseDeviceMgrStub:IsAdminActive");
+    EDMLOGD("EnterpriseDeviceMgrStub:IsAdminEnabled");
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(ERR_EDM_PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
     int32_t userId = data.ReadInt32();
-    bool ret = IsAdminActive(*admin, userId);
+    bool ret = IsAdminEnabled(*admin, userId);
     reply.WriteInt32(ret);
     return ERR_OK;
 }

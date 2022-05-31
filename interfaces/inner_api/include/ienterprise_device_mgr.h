@@ -30,27 +30,27 @@ namespace EDM {
 class IEnterpriseDeviceMgr : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.edm.IEnterpriseDeviceMgr");
-    virtual ErrCode ActiveAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
+    virtual ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
         int32_t userId) = 0;
-    virtual ErrCode DeactiveAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
-    virtual ErrCode DeactiveSuperAdmin(std::string &bundleName) = 0;
+    virtual ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
+    virtual ErrCode DisableSuperAdmin(std::string &bundleName) = 0;
     virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, AppExecFwk::ElementName *admin, MessageParcel &reply) = 0;
-    virtual ErrCode GetActiveAdmin(AdminType type, std::vector<std::string> &activeAdminList) = 0;
+    virtual ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) = 0;
     virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;
     virtual ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) = 0;
     virtual bool IsSuperAdmin(std::string &bundleName) = 0;
-    virtual bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId) = 0;
+    virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     enum {
         ADD_DEVICE_ADMIN = 1,
         REMOVE_DEVICE_ADMIN = 2,
         GET_PERMISSION_REQUEST = 3,
         REMOVE_SUPER_ADMIN = 4,
-        GET_ACTIVE_ADMIN = 5,
+        GET_ENABLED_ADMIN = 5,
         GET_ENT_INFO = 6,
         SET_ENT_INFO = 7,
         IS_SUPER_ADMIN = 8,
-        IS_ADMIN_ACTIVE = 9,
+        IS_ADMIN_ENABLED = 9,
     };
 };
 } // namespace EDM
