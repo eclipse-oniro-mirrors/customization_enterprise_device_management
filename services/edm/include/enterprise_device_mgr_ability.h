@@ -37,18 +37,18 @@ public:
     ~EnterpriseDeviceMgrAbility();
     static sptr<EnterpriseDeviceMgrAbility> GetInstance();
 
-    ErrCode ActiveAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
+    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
         int32_t userId) override;
-    ErrCode DeactiveAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
-    ErrCode DeactiveSuperAdmin(std::string &bundleName) override;
+    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
+    ErrCode DisableSuperAdmin(std::string &bundleName) override;
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data) override;
     ErrCode GetDevicePolicy(uint32_t code, AppExecFwk::ElementName *admin, MessageParcel &reply) override;
-    ErrCode GetActiveAdmin(AdminType type, std::vector<std::string> &activeAdminList) override;
+    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
     void OnUserRemoved(int userIdToRemove);
     bool IsSuperAdmin(std::string &bundleName) override;
-    bool IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId) override;
+    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
 
 protected:
     void OnDump() override;
@@ -67,7 +67,7 @@ private:
         std::vector<std::string> &permissionList, int32_t userId);
     int32_t GetCurrentUserId();
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
-    ErrCode VerifyActiveAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(

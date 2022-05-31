@@ -42,19 +42,19 @@ struct AsyncCallbackInfo {
     std::string errMessage;
 };
 
-struct AsyncActivateAdminCallbackInfo : AsyncCallbackInfo {
+struct AsyncEnableAdminCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     EntInfo entInfo;
     int32_t adminType = 0;
     int32_t userId = 0;
 };
 
-struct AsyncDeactivateAdminCallbackInfo : AsyncCallbackInfo {
+struct AsyncDisableAdminCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     int32_t userId = 0;
 };
 
-struct AsyncDeactivateSuperAdminCallbackInfo : AsyncCallbackInfo {
+struct AsyncDisableSuperAdminCallbackInfo : AsyncCallbackInfo {
     std::string bundleName;
 };
 
@@ -77,7 +77,7 @@ struct AsyncIsSuperAdminCallbackInfo : AsyncCallbackInfo {
     std::string bundleName;
 };
 
-struct AsyncIsAdminActiveCallbackInfo : AsyncCallbackInfo {
+struct AsyncIsAdminEnabledCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     int32_t userId = 0;
 };
@@ -102,13 +102,13 @@ public:
     static thread_local napi_ref g_classDeviceSettingsManager;
 
     static napi_value Init(napi_env env, napi_value exports);
-    static napi_value ActivateAdmin(napi_env env, napi_callback_info info);
-    static napi_value DeactivateAdmin(napi_env env, napi_callback_info info);
-    static napi_value DeactivateSuperAdmin(napi_env env, napi_callback_info info);
+    static napi_value EnableAdmin(napi_env env, napi_callback_info info);
+    static napi_value DisableAdmin(napi_env env, napi_callback_info info);
+    static napi_value DisableSuperAdmin(napi_env env, napi_callback_info info);
     static napi_value GetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value SetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value IsSuperAdmin(napi_env env, napi_callback_info info);
-    static napi_value IsAdminAppActive(napi_env env, napi_callback_info info);
+    static napi_value isAdminEnabled(napi_env env, napi_callback_info info);
     static napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, std::string workName,
         napi_async_execute_callback execute, napi_async_complete_callback complete);
     static napi_value CreateAdminTypeObject(napi_env env);
@@ -116,13 +116,13 @@ public:
     static napi_value GetDeviceSettingsManager(napi_env env, napi_callback_info info);
     static napi_value SetDateTime(napi_env env, napi_callback_info info);
 
-    static void NativeActivateAdmin(napi_env env, void *data);
-    static void NativeDeactivateSuperAdmin(napi_env env, void *data);
-    static void NativeDeactivateAdmin(napi_env env, void *data);
+    static void NativeEnableAdmin(napi_env env, void *data);
+    static void NativeDisableSuperAdmin(napi_env env, void *data);
+    static void NativeDisableAdmin(napi_env env, void *data);
     static void NativeGetEnterpriseInfo(napi_env env, void *data);
     static void NativeSetEnterpriseInfo(napi_env env, void *data);
     static void NativeIsSuperAdmin(napi_env env, void *data);
-    static void NativeIsAdminActive(napi_env env, void *data);
+    static void NativeIsAdminEnabled(napi_env env, void *data);
     static void NativeSetDateTime(napi_env env, void *data);
 
     static void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
@@ -145,7 +145,7 @@ public:
 private:
     static napi_value ThrowNapiError(napi_env env, uint32_t errCode, const char* errMessage);
     static std::pair<uint32_t, std::string> GetMessageFromReturncode(uint32_t returnCode);
-    static bool checkActivateAdminParamType(napi_env env, size_t argc,
+    static bool checkEnableAdminParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static bool checkAdminWithUserIdParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);

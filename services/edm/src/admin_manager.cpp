@@ -228,16 +228,16 @@ bool AdminManager::IsSuperAdminExist()
  * There are different administrator types according to the input parameters.
  * Returns a list of package names
  */
-void AdminManager::GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId)
+void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId)
 {
     packageNameList.clear();
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(userId, userAdmin);
     if (!ret) {
-        EDMLOGW("GetActiveAdmin::not find active Admin. userId = %{public}d", userId);
+        EDMLOGW("GetEnabledAdmin::not find enabled Admin. userId = %{public}d", userId);
         return;
     }
-    EDMLOGD("AdminManager:GetActiveAdmin adminType: %{public}d , admin size: %{public}zu", role,
+    EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role,
         userAdmin.size());
     if (role >= AdminType::UNKNOWN || role < AdminType::NORMAL) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
@@ -304,28 +304,28 @@ void FindPackageAndClass(const std::string &name, std::string &packageName, std:
 void AdminManager::ReadJsonAdminType(Json::Value &admin,
     std::vector<std::shared_ptr<Admin>> &adminVector)
 {
-    std::shared_ptr<Admin> activeAdmin;
+    std::shared_ptr<Admin> enabledAdmin;
     if (admin["adminType"].asUInt() == AdminType::NORMAL) {
-        activeAdmin = std::make_shared<Admin>();
+        enabledAdmin = std::make_shared<Admin>();
     } else if (admin["adminType"].asUInt() == AdminType::ENT) {
-        activeAdmin = std::make_shared<SuperAdmin>();
+        enabledAdmin = std::make_shared<SuperAdmin>();
     } else {
         EDMLOGD("admin type is error!");
         return;
     }
 
-    FindPackageAndClass(admin["name"].asString(), activeAdmin->adminInfo_.packageName_,
-        activeAdmin->adminInfo_.className_);
-    activeAdmin->adminInfo_.adminType_ = static_cast<AdminType>(admin["adminType"].asUInt());
-    activeAdmin->adminInfo_.entInfo_.enterpriseName = admin["enterpriseInfo"]["enterpriseName"].asString(); // object
-    activeAdmin->adminInfo_.entInfo_.description = admin["enterpriseInfo"]["declaration"].asString();
+    FindPackageAndClass(admin["name"].asString(), enabledAdmin->adminInfo_.packageName_,
+        enabledAdmin->adminInfo_.className_);
+    enabledAdmin->adminInfo_.adminType_ = static_cast<AdminType>(admin["adminType"].asUInt());
+    enabledAdmin->adminInfo_.entInfo_.enterpriseName = admin["enterpriseInfo"]["enterpriseName"].asString(); // object
+    enabledAdmin->adminInfo_.entInfo_.description = admin["enterpriseInfo"]["declaration"].asString();
     unsigned int adminSize = admin["permission"].size();
     for (unsigned int i = 0; i < adminSize; i++) {
-        activeAdmin->adminInfo_.permission_.push_back(admin["permission"][i].asString()); // array
+        enabledAdmin->adminInfo_.permission_.push_back(admin["permission"][i].asString()); // array
     }
 
     // read admin and store it in vector container
-    adminVector.push_back(activeAdmin);
+    adminVector.push_back(enabledAdmin);
 }
 
 void AdminManager::ReadJsonAdmin(const std::string &filePath, int32_t userId)
@@ -390,19 +390,19 @@ void AdminManager::RestoreAdminFromFile()
     EDMLOGD("RestoreAdminFromFile success! size = %{public}zu", paths.size());
 }
 
-void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &activeAdmin, Json::Value &tree)
+void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json::Value &tree)
 {
     Json::Value entTree;
     Json::Value permissionTree;
 
-    tree["name"] = activeAdmin->adminInfo_.packageName_ + "/" + activeAdmin->adminInfo_.className_;
-    tree["adminType"] = activeAdmin->adminInfo_.adminType_;
+    tree["name"] = enabledAdmin->adminInfo_.packageName_ + "/" + enabledAdmin->adminInfo_.className_;
+    tree["adminType"] = enabledAdmin->adminInfo_.adminType_;
 
-    entTree["enterpriseName"] = activeAdmin->adminInfo_.entInfo_.enterpriseName;
-    entTree["declaration"] = activeAdmin->adminInfo_.entInfo_.description;
+    entTree["enterpriseName"] = enabledAdmin->adminInfo_.entInfo_.enterpriseName;
+    entTree["declaration"] = enabledAdmin->adminInfo_.entInfo_.description;
     tree["enterpriseInfo"] = entTree;
 
-    for (auto &it : activeAdmin->adminInfo_.permission_) {
+    for (auto &it : enabledAdmin->adminInfo_.permission_) {
         permissionTree.append(it);
     }
     tree["permission"] = permissionTree;

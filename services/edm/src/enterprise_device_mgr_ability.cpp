@@ -243,19 +243,19 @@ bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &perm
     return true;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::VerifyActiveAdminCondition(AppExecFwk::ElementName &admin,
+ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin,
     AdminType type, int32_t userId)
 {
     std::shared_ptr<Admin> existAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
         if (existAdmin == nullptr || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
-            EDMLOGW("ActiveAdmin: There is another super admin active.");
+            EDMLOGW("EnableAdmin: There is another super admin enabled.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
     }
 
     if (type == AdminType::ENT && userId != DEFAULT_USER_ID) {
-        EDMLOGW("ActiveAdmin: Super admin can only be enabled in default user.");
+        EDMLOGW("EnableAdmin: Super admin can only be enabled in default user.");
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
@@ -263,28 +263,28 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyActiveAdminCondition(AppExecFwk::Eleme
         return ERR_OK;
     }
 
-    /* An application can't active twice with different ability name */
+    /* An application can't be enabled twice with different ability name */
     if (existAdmin->adminInfo_.className_ != admin.GetAbilityName()) {
-        EDMLOGW("ActiveAdmin: There is another admin ability active with the same package name.");
+        EDMLOGW("EnableAdmin: There is another admin ability enabled with the same package name.");
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
-    /* An existed super admin can't be reactive to normal */
+    /* An existed super admin can't be enabled to normal */
     if ((existAdmin->adminInfo_.adminType_ == AdminType::ENT) && (type == AdminType::NORMAL)) {
-        EDMLOGW("ActiveAdmin: The admin is super, can't be reactive to normal.");
+        EDMLOGW("EnableAdmin: The admin is super, can't be enabled to normal.");
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::ActiveAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
+ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrAbility::ActiveAdmin user id = %{public}d", userId);
+    EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     int32_t ret = CheckPermission();
     if (ret != ERR_OK) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::ActiveAdmin check permission failed, ret: %{public}d", ret);
+        EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed, ret: %{public}d", ret);
         return ERR_EDM_PERMISSION_ERROR;
     }
     std::vector<AppExecFwk::AbilityInfo> abilityInfo;
@@ -297,12 +297,12 @@ ErrCode EnterpriseDeviceMgrAbility::ActiveAdmin(AppExecFwk::ElementName &admin, 
     want.SetElement(admin);
     if (!bundleManager->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
         userId, abilityInfo)) {
-        EDMLOGW("ActiveAdmin: GetAbilityInfoByName failed %{public}d", ret);
+        EDMLOGW("EnableAdmin: GetAbilityInfoByName failed %{public}d", ret);
         return ERR_EDM_BMS_ERROR;
     }
-    ret = VerifyActiveAdminCondition(admin, type, userId);
+    ret = VerifyEnableAdminCondition(admin, type, userId);
     if (FAILED(ret)) {
-        EDMLOGW("ActiveAdmin: VerifyActiveAdminCondition failed.");
+        EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
@@ -310,18 +310,18 @@ ErrCode EnterpriseDeviceMgrAbility::ActiveAdmin(AppExecFwk::ElementName &admin, 
     std::vector<std::string> permissionList;
     ret = GetAllPermissionsByAdmin(admin.GetBundleName(), permissionList, userId);
     if (FAILED(ret)) {
-        EDMLOGW("ActiveAdmin: GetAllPermissionsByAdmin failed %{public}d", ret);
+        EDMLOGW("EnableAdmin: GetAllPermissionsByAdmin failed %{public}d", ret);
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
     /* Filter permissions with AdminType, such as NORMAL can't request super permission */
     ret = adminMgr_->GetGrantedPermission(abilityInfo.at(0), permissionList, type);
     if (ret != ERR_OK) {
-        EDMLOGW("ActiveAdmin: GetGrantedPermission failed %{public}d", ret);
+        EDMLOGW("EnableAdmin: GetGrantedPermission failed %{public}d", ret);
         // permission verify, should throw exception if failed
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
-    EDMLOGI("ActiveAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
+    EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
     return adminMgr_->SetAdminValue(abilityInfo.at(0), entInfo, type, permissionList, userId);
 }
@@ -385,13 +385,13 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::DeactiveAdmin(AppExecFwk::ElementName &admin, int32_t userId)
+ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
-    EDMLOGW("EnterpriseDeviceMgrAbility::DeactiveAdmin user id = %{public}d", userId);
+    EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     int32_t checkRet = CheckPermission();
     if (checkRet != ERR_OK) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::DeactiveAdmin check permission failed, ret: %{public}d", checkRet);
+        EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed, ret: %{public}d", checkRet);
         return ERR_EDM_PERMISSION_ERROR;
     }
 
@@ -400,7 +400,7 @@ ErrCode EnterpriseDeviceMgrAbility::DeactiveAdmin(AppExecFwk::ElementName &admin
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
     if (adminPtr->adminInfo_.adminType_ != AdminType::NORMAL) {
-        EDMLOGW("DeactiveAdmin: only remove normal admin.");
+        EDMLOGW("DisableAdmin: only remove normal admin.");
         return ERR_EDM_PERMISSION_ERROR;
     }
 
@@ -441,7 +441,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(std::string &bundleName)
     return ERR_EDM_PERMISSION_ERROR;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::DeactiveSuperAdmin(std::string &bundleName)
+ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(std::string &bundleName)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
@@ -449,12 +449,12 @@ ErrCode EnterpriseDeviceMgrAbility::DeactiveSuperAdmin(std::string &bundleName)
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
     if (admin->adminInfo_.adminType_ != AdminType::ENT) {
-        EDMLOGW("DeactiveSuperAdmin: only remove super admin.");
+        EDMLOGW("DisableSuperAdmin: only remove super admin.");
         return ERR_EDM_PERMISSION_ERROR;
     }
     int32_t checkRet = CheckCallingUid(admin->adminInfo_.packageName_);
     if (checkRet != ERR_OK) {
-        EDMLOGW("DeactiveSuperAdmin: CheckCallingUid failed: %{public}d", checkRet);
+        EDMLOGW("DisableSuperAdmin: CheckCallingUid failed: %{public}d", checkRet);
         return ERR_EDM_PERMISSION_ERROR;
     }
 
@@ -476,12 +476,12 @@ bool EnterpriseDeviceMgrAbility::IsSuperAdmin(std::string &bundleName)
     return false;
 }
 
-bool EnterpriseDeviceMgrAbility::IsAdminActive(AppExecFwk::ElementName &admin, int32_t userId)
+bool EnterpriseDeviceMgrAbility::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> existAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (existAdmin != nullptr) {
-        EDMLOGD("IsAdminActive: get admin successed");
+        EDMLOGD("IsAdminEnabled: get admin successed");
         return true;
     }
     return false;
@@ -566,17 +566,17 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetActiveAdmin(AdminType type, std::vector<std::string> &activeAdminList)
+ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     std::vector<std::string> superList;
     std::vector<std::string> normalList;
     switch (type) {
         case AdminType::NORMAL:
-            adminMgr_->GetActiveAdmin(AdminType::NORMAL, normalList, GetCurrentUserId());
-            adminMgr_->GetActiveAdmin(AdminType::ENT, superList, DEFAULT_USER_ID);
+            adminMgr_->GetEnabledAdmin(AdminType::NORMAL, normalList, GetCurrentUserId());
+            adminMgr_->GetEnabledAdmin(AdminType::ENT, superList, DEFAULT_USER_ID);
             break;
         case AdminType::ENT:
-            adminMgr_->GetActiveAdmin(AdminType::ENT, superList, DEFAULT_USER_ID);
+            adminMgr_->GetEnabledAdmin(AdminType::ENT, superList, DEFAULT_USER_ID);
             break;
         case AdminType::UNKNOWN:
             break;
@@ -584,13 +584,13 @@ ErrCode EnterpriseDeviceMgrAbility::GetActiveAdmin(AdminType type, std::vector<s
             return ERR_EDM_PARAM_ERROR;
     }
     if (!superList.empty()) {
-        activeAdminList.insert(activeAdminList.begin(), superList.begin(), superList.end());
+        enabledAdminList.insert(enabledAdminList.begin(), superList.begin(), superList.end());
     }
     if (!normalList.empty()) {
-        activeAdminList.insert(activeAdminList.begin(), normalList.begin(), normalList.end());
+        enabledAdminList.insert(enabledAdminList.begin(), normalList.begin(), normalList.end());
     }
-    for (const auto &activeAdmin : activeAdminList) {
-        EDMLOGD("GetActiveAdmin: %{public}s", activeAdmin.c_str());
+    for (const auto &enabledAdmin : enabledAdminList) {
+        EDMLOGD("GetEnabledAdmin: %{public}s", enabledAdmin.c_str());
     }
     return ERR_OK;
 }

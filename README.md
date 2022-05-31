@@ -35,7 +35,7 @@ The code directory structure of the enterprise device manager is as follows:
 ````
 ## Usage
 
-The enterprise device manager provides a template for developing enterprise device management applications. This template makes it easier to activate device management applications, set security policies, and conduct system configuration and management.
+The enterprise device manager provides a template for developing enterprise device management applications. This template makes it easier to enable device management applications, set security policies, and conduct system configuration and management.
 
 ## Repositories Involved
 

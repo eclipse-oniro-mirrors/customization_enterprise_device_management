@@ -39,7 +39,7 @@ public:
     ErrCode GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
         AdminType type);
     bool IsSuperAdminExist();
-    void GetActiveAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
+    void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     void RestoreAdminFromFile();
     ErrCode SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
@@ -53,7 +53,7 @@ private:
     void SaveAdmin(int32_t userId);
     void ReadJsonAdminType(Json::Value &admin, std::vector<std::shared_ptr<Admin>> &adminVector);
     void ReadJsonAdmin(const std::string &filePath, int32_t userId);
-    void WriteJsonAdminType(std::shared_ptr<Admin> &activeAdmin, Json::Value &tree);
+    void WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json::Value &tree);
     void WriteJsonAdmin(const std::string &filePath, int32_t userId);
 
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins_;

@@ -33,17 +33,17 @@ private:
     using EnterpriseDeviceManagerFunc = int32_t (EnterpriseDeviceMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, EnterpriseDeviceManagerFunc> memberFuncMap_;
     void AddCallFuncMap();
-    ErrCode ActiveAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode DeactiveAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode DeactiveSuperAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode EnableAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode DisableAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
     ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
     ErrCode GetReqEdmPermissionsInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetActiveAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
     ErrCode IsSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode IsAdminActiveInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode IsAdminEnabledInner(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS
