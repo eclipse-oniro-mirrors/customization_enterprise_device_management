@@ -718,7 +718,7 @@ bool EnterpriseDeviceManagerAddon::ParseEnterpriseInfo(napi_env env, EntInfo &en
 {
     napi_status status;
     napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, args, &valueType));
+    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
     if (valueType != napi_object) {
         EDMLOGE("param type mismatch!");
         return false;
@@ -760,7 +760,7 @@ bool EnterpriseDeviceManagerAddon::ParseElementName(napi_env env, AppExecFwk::El
 {
     napi_status status;
     napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, args, &valueType));
+    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
     if (valueType != napi_object) {
         EDMLOGE("param type mismatch!");
         return false;
