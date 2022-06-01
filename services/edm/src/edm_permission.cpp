@@ -66,7 +66,10 @@ bool EdmPermission::Marshalling(Parcel &parcel) const
 
 EdmPermission *EdmPermission::Unmarshalling(Parcel &parcel)
 {
-    auto *permission = new EdmPermission();
+    auto *permission = new (std::nothrow) EdmPermission();
+    if (permission == nullptr) {
+        return nullptr;
+    }
     permission->ReadFromParcel(parcel);
     return permission;
 }

@@ -35,7 +35,7 @@ protected:
     virtual void TearDown();
 
 protected:
-    std::shared_ptr<AdminManager> adminMgr_;
+    AdminManager* adminMgr_;
 };
 } // namespace TEST
 } // namespace EDM
