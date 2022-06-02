@@ -465,7 +465,7 @@ template<class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, std::string &policyData)
 {
     AdminValueItemsMap adminValues;
-    PolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    PolicyManager::GetInstance().GetAdminByPolicyName(GetPolicyName(), adminValues);
     EDMLOGD("IPluginTemplate::MergePolicyData %{public}s value size %{public}d.",
         GetPolicyName().c_str(), (uint32_t)adminValues.size());
     if (adminValues.empty()) {
@@ -671,7 +671,7 @@ template<class CT, class DT>
 bool IPluginTemplate<CT, DT>::GetMergePolicyData(DT &policyData)
 {
     AdminValueItemsMap adminValues;
-    PolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    PolicyManager::GetInstance().GetAdminByPolicyName(GetPolicyName(), adminValues);
     if (adminValues.empty()) {
         return true;
     }

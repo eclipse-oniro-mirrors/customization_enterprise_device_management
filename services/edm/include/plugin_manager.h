@@ -24,7 +24,11 @@ namespace OHOS {
 namespace EDM {
 class PluginManager : public std::enable_shared_from_this<PluginManager> {
 public:
-    static std::shared_ptr<PluginManager> GetInstance();
+    static PluginManager &GetInstance()
+    {
+        static PluginManager instance;
+        return instance;
+    }
     std::shared_ptr<IPlugin> GetPluginByFuncCode(std::uint32_t funcCode);
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
     bool AddPlugin(std::shared_ptr<IPlugin> plugin);
@@ -36,8 +40,6 @@ private:
     std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
     std::map<std::string, std::shared_ptr<IPlugin>> pluginsName_;
     std::vector<void *> pluginHandles_;
-    static std::mutex mutexLock_;
-    static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     void LoadPlugin();
     void LoadPlugin(const std::string &pluginPath);

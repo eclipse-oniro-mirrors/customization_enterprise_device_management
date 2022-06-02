@@ -31,7 +31,7 @@ void AdminManagerTest::SetUp()
 {
     PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
     PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
-    adminMgr_ = AdminManager::GetInstance();
+    adminMgr_ = &AdminManager::GetInstance();
     adminMgr_->Init();
 }
 
@@ -42,7 +42,6 @@ void AdminManagerTest::TearDown()
     for (const auto &admin : userAdmin) {
         adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID);
     }
-    adminMgr_.reset();
     adminMgr_ = nullptr;
     PermissionManager::DestroyInstance();
 

@@ -43,7 +43,7 @@ constexpr int32_t NAPI_RETURN_ZERO = 0;
 constexpr int32_t NAPI_RETURN_ONE = 1;
 }
 
-std::map<uint32_t, std::pair<uint32_t, std::string>> EnterpriseDeviceManagerAddon::errMessageMap = {
+std::map<OHOS::ErrCode, std::pair<int32_t, std::string>> EnterpriseDeviceManagerAddon::errMessageMap = {
     {
         ERR_EDM_PERMISSION_ERROR, std::make_pair(EdmReturnErrCode::PERMISSION_DENIED, "permission denied")
     },
@@ -125,7 +125,7 @@ void EnterpriseDeviceManagerAddon::NativeEnableAdmin(napi_env env, void *data)
         static_cast<AdminType>(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
 }
 
-std::pair<uint32_t, std::string> EnterpriseDeviceManagerAddon::GetMessageFromReturncode(uint32_t returnCode)
+std::pair<int32_t, std::string> EnterpriseDeviceManagerAddon::GetMessageFromReturncode(ErrCode returnCode)
 {
     auto iter = errMessageMap.find(returnCode);
     if (iter != errMessageMap.end()) {
@@ -176,7 +176,7 @@ bool EnterpriseDeviceManagerAddon::checkEnableAdminParamType(napi_env env, size_
         MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
 }
 
-napi_value EnterpriseDeviceManagerAddon::ThrowNapiError(napi_env env, uint32_t errCode, const char* errMessage)
+napi_value EnterpriseDeviceManagerAddon::ThrowNapiError(napi_env env, ErrCode errCode, const char* errMessage)
 {
     napi_throw_error(env, std::to_string(errCode).c_str(), errMessage);
     return nullptr;
@@ -670,7 +670,7 @@ napi_value EnterpriseDeviceManagerAddon::HandleAsyncWork(napi_env env, AsyncCall
     return result;
 }
 
-napi_value EnterpriseDeviceManagerAddon::CreateErrorMessage(napi_env env, uint32_t errorCode, std::string errMessage)
+napi_value EnterpriseDeviceManagerAddon::CreateErrorMessage(napi_env env, ErrCode errorCode, std::string errMessage)
 {
     napi_value result = nullptr;
     napi_value message = nullptr;
@@ -845,11 +845,12 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
     EDMLOGD("GetDeviceSettingsManager argc = [%{public}zu]", argc);
 
-    AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo = new AsyncGetDeviceSettingsManagerCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr
-    };
+    AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
+        new (std::nothrow) AsyncGetDeviceSettingsManagerCallbackInfo {
+            .env = env,
+            .asyncWork = nullptr,
+            .deferred = nullptr
+        };
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }

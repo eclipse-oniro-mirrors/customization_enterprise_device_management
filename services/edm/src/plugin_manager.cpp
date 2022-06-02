@@ -27,9 +27,6 @@
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<PluginManager> PluginManager::instance_;
-std::mutex PluginManager::mutexLock_;
-
 PluginManager::PluginManager()
 {
     EDMLOGD("PluginManager::PluginManager.");
@@ -47,17 +44,6 @@ PluginManager::~PluginManager()
         dlclose(handle);
     }
     pluginHandles_.clear();
-}
-
-std::shared_ptr<PluginManager> PluginManager::GetInstance()
-{
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> autoLock(mutexLock_);
-        if (instance_ == nullptr) {
-            instance_.reset(new PluginManager());
-        }
-    }
-    return instance_;
 }
 
 std::shared_ptr<IPlugin> PluginManager::GetPluginByFuncCode(std::uint32_t funcCode)

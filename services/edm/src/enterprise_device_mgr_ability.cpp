@@ -93,7 +93,7 @@ sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::GetInstance()
         std::lock_guard<std::mutex> autoLock(mutexLock_);
         if (instance_ == nullptr) {
             EDMLOGD("EnterpriseDeviceMgrAbility:GetInstance instance = new EnterpriseDeviceMgrAbility()");
-            instance_ = new EnterpriseDeviceMgrAbility();
+            instance_ = new (std::nothrow) EnterpriseDeviceMgrAbility();
         }
     }
     return instance_;
@@ -107,18 +107,6 @@ EnterpriseDeviceMgrAbility::EnterpriseDeviceMgrAbility() : SystemAbility(ENTERPR
 EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
 {
     instance_ = nullptr;
-
-    if (adminMgr_) {
-        adminMgr_.reset();
-    }
-
-    if (pluginMgr_) {
-        pluginMgr_.reset();
-    }
-
-    if (policyMgr_) {
-        policyMgr_.reset();
-    }
     EDMLOGD("instance is destroyed");
 }
 
@@ -135,19 +123,19 @@ void EnterpriseDeviceMgrAbility::OnStart()
         registerToService_ = true;
     }
     if (!adminMgr_) {
-        adminMgr_ = AdminManager::GetInstance();
+        adminMgr_ = &AdminManager::GetInstance();
     }
     EDMLOGD("create adminMgr_ success");
     adminMgr_->Init();
 
     if (!policyMgr_) {
-        policyMgr_ = PolicyManager::GetInstance();
+        policyMgr_ = &PolicyManager::GetInstance();
     }
     EDMLOGD("create policyMgr_ success");
     policyMgr_->Init();
 
     if (!pluginMgr_) {
-        pluginMgr_ = PluginManager::GetInstance();
+        pluginMgr_ = &PluginManager::GetInstance();
     }
     EDMLOGD("create pluginMgr_ success");
     pluginMgr_->Init();
@@ -210,7 +198,7 @@ sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     OHOS::sptr<OHOS::IRemoteObject> remoteObject =
         systemAbilityManager->GetSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    sptr<AppExecFwk::IBundleMgr> proxy(new (std::nothrow) AppExecFwk::BundleMgrProxy(remoteObject));
     return proxy;
 }
 

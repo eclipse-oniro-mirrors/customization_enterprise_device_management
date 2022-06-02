@@ -46,11 +46,8 @@ std::uint32_t IPlugin::GetCode()
 
 ErrCode IPlugin::MergePolicyData(const std::string &adminName, std::string &mergeJsonData)
 {
-    std::shared_ptr<PolicyManager> ptr = PolicyManager::GetInstance();
     AdminValueItemsMap map;
-    if (ptr != nullptr) {
-        ptr->GetAdminByPolicyName(policyName_, map);
-    }
+    PolicyManager::GetInstance().GetAdminByPolicyName(policyName_, map);
     return ERR_OK;
 }
 
