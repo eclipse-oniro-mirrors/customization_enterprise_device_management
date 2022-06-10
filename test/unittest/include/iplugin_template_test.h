@@ -326,6 +326,12 @@ public:
 } // namespace PLUGIN
 
 class PluginTemplateTest : public testing::Test {
+protected:
+    // Tears down the test fixture.
+    virtual void TearDown()
+    {
+        PluginManager::GetInstance().reset();
+    }
 };
 } // namespace TEST
 } // namespace EDM

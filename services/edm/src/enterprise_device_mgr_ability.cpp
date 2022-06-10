@@ -107,6 +107,18 @@ EnterpriseDeviceMgrAbility::EnterpriseDeviceMgrAbility() : SystemAbility(ENTERPR
 EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
 {
     instance_ = nullptr;
+
+    if (adminMgr_) {
+        adminMgr_.reset();
+    }
+
+    if (pluginMgr_) {
+        pluginMgr_.reset();
+    }
+
+    if (policyMgr_) {
+        policyMgr_.reset();
+    }
     EDMLOGD("instance is destroyed");
 }
 
@@ -123,19 +135,19 @@ void EnterpriseDeviceMgrAbility::OnStart()
         registerToService_ = true;
     }
     if (!adminMgr_) {
-        adminMgr_ = &AdminManager::GetInstance();
+        adminMgr_ = AdminManager::GetInstance();
     }
     EDMLOGD("create adminMgr_ success");
     adminMgr_->Init();
 
     if (!policyMgr_) {
-        policyMgr_ = &PolicyManager::GetInstance();
+        policyMgr_ = PolicyManager::GetInstance();
     }
     EDMLOGD("create policyMgr_ success");
     policyMgr_->Init();
 
     if (!pluginMgr_) {
-        pluginMgr_ = &PluginManager::GetInstance();
+        pluginMgr_ = PluginManager::GetInstance();
     }
     EDMLOGD("create pluginMgr_ success");
     pluginMgr_->Init();

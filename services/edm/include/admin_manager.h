@@ -29,11 +29,7 @@ namespace OHOS {
 namespace EDM {
 class AdminManager : public std::enable_shared_from_this<AdminManager> {
 public:
-    static AdminManager &GetInstance()
-    {
-        static AdminManager instance;
-        return instance;
-    }
+    static std::shared_ptr<AdminManager> GetInstance();
     ErrCode GetReqPermission(const std::vector<std::string> &permissions, std::vector<EdmPermission> &edmPermissions);
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
@@ -61,6 +57,8 @@ private:
     void WriteJsonAdmin(const std::string &filePath, int32_t userId);
 
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins_;
+    static std::mutex mutexLock_;
+    static std::shared_ptr<AdminManager> instance_;
 };
 } // namespace EDM
 } // namespace OHOS

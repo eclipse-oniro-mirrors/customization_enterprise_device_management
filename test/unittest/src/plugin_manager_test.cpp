@@ -32,10 +32,24 @@ namespace EDM {
 namespace TEST {
 void PluginManagerTest::SetUp()
 {
-    PluginManager::GetInstance().AddPlugin(std::make_shared<TestPlugin>());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<TestPlugin>());
 }
 
-void PluginManagerTest::TearDown() {}
+void PluginManagerTest::TearDown()
+{
+    PluginManager::GetInstance().reset();
+}
+
+/**
+ * @tc.name: TestGetInstance
+ * @tc.desc: Test PluginManager GetInstance func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetInstance, TestSize.Level1)
+{
+    ASSERT_TRUE(PluginManager::GetInstance() != nullptr);
+    ASSERT_TRUE(PluginManager::GetInstance().get() != nullptr);
+}
 
 /**
  * @tc.name: TestGetPluginByFuncCode
@@ -44,11 +58,11 @@ void PluginManagerTest::TearDown() {}
  */
 HWTEST_F(PluginManagerTest, TestGetPluginByFuncCode, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance().GetPluginByFuncCode(
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(
         POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, 0));
     ASSERT_TRUE(plugin != nullptr);
     ASSERT_TRUE(plugin->GetPolicyName() == "TestPlugin");
-    ASSERT_TRUE(PluginManager::GetInstance().GetPluginByFuncCode(
+    ASSERT_TRUE(PluginManager::GetInstance()->GetPluginByFuncCode(
         POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, 100000)) == nullptr);
 }
 
@@ -59,10 +73,10 @@ HWTEST_F(PluginManagerTest, TestGetPluginByFuncCode, TestSize.Level1)
  */
 HWTEST_F(PluginManagerTest, TestGetPluginByPolicyName, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance().GetPluginByPolicyName("TestPlugin");
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName("TestPlugin");
     ASSERT_TRUE(plugin != nullptr);
     ASSERT_TRUE(plugin->GetCode() == 0);
-    ASSERT_TRUE(PluginManager::GetInstance().GetPluginByPolicyName("XXXXExamplePlugin") == nullptr);
+    ASSERT_TRUE(PluginManager::GetInstance()->GetPluginByPolicyName("XXXXExamplePlugin") == nullptr);
 }
 } // namespace TEST
 } // namespace EDM

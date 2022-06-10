@@ -74,9 +74,9 @@ private:
         EnterpriseDeviceMgrAbility &listener);
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
-    PolicyManager* policyMgr_;
-    AdminManager* adminMgr_;
-    PluginManager* pluginMgr_;
+    std::shared_ptr<PolicyManager> policyMgr_;
+    std::shared_ptr<AdminManager> adminMgr_;
+    std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
 };

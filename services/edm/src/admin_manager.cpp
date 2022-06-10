@@ -30,6 +30,19 @@ const std::string EDM_ADMIN_BASE = "/data/edm/";
 const std::string EDM_ADMIN_JSON_FILE = "admin_policies_";
 const std::string EDM_ADMIN_JSON_EXT = ".json";
 constexpr int32_t DEFAULT_USER_ID = 100;
+std::shared_ptr<AdminManager> AdminManager::instance_;
+std::mutex AdminManager::mutexLock_;
+
+std::shared_ptr<AdminManager> AdminManager::GetInstance()
+{
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> autoLock(mutexLock_);
+        if (instance_ == nullptr) {
+            instance_.reset(new (std::nothrow) AdminManager());
+        }
+    }
+    return instance_;
+}
 
 AdminManager::AdminManager()
 {
@@ -360,7 +373,7 @@ void AdminManager::RestoreAdminFromFile()
         if (pos == std::string::npos || posHead == std::string::npos) {
             continue;
         }
-        uint32_t start = (EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE).length();
+        int32_t start = (EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE).length();
         std::string user = paths[i].substr(start, (pos - start));
         if (!std::all_of(user.begin(), user.end(), ::isdigit)) {
             continue;

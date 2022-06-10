@@ -38,13 +38,9 @@ public:
     /*
      * The static function used to get singleton instance of PolicyManager.
      *
-     * @return return thr preference of PolicyManager
+     * @return return thr shared pointer of PolicyManager
      */
-    static PolicyManager &GetInstance()
-    {
-        static PolicyManager instance;
-        return instance;
-    }
+    static std::shared_ptr<PolicyManager> GetInstance();
 
     /*
      * This function is used to get all policy items of an admin, an admin represent an EDM application

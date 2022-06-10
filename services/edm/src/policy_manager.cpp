@@ -26,6 +26,9 @@ const std::string EDM_POLICY_JSON_FILE = "/data/edm/device_policies.json";
 const std::string EDM_POLICY_JSON_FILE_BAK = "/data/edm/device_policies.json.bak";
 constexpr unsigned int INVALID_INDEX = -1;
 
+std::shared_ptr<PolicyManager> PolicyManager::instance_;
+std::mutex PolicyManager::mutexLock_;
+
 PolicyManager::PolicyManager()
 {
     EDMLOGD("PolicyManager::PolicyManager\n");
@@ -553,6 +556,17 @@ void PolicyManager::CreateEmptyJsonFile()
 void PolicyManager::Init()
 {
     LoadPolicy();
+}
+
+std::shared_ptr<PolicyManager> PolicyManager::GetInstance()
+{
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(mutexLock_);
+        if (instance_ == nullptr) {
+            instance_.reset(new (std::nothrow) PolicyManager());
+        }
+    }
+    return instance_;
 }
 } // namespace EDM
 } // namespace OHOS
