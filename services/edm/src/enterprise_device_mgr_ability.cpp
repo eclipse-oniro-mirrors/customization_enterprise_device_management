@@ -246,6 +246,13 @@ bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &perm
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin,
     AdminType type, int32_t userId)
 {
+    if (adminMgr_->IsSuperAdmin(admin.GetBundleName())) {
+        if (type != AdminType::ENT || userId != DEFAULT_USER_ID) {
+            EDMLOGW("EnableAdmin: an exist super admin can't be enabled twice with different role or user id.");
+            return ERR_EDM_ADD_ADMIN_FAILED;
+        }
+    }
+
     std::shared_ptr<Admin> existAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
         if (existAdmin == nullptr || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {

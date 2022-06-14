@@ -224,6 +224,16 @@ bool AdminManager::IsSuperAdminExist()
         [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
 }
 
+bool AdminManager::IsSuperAdmin(const std::string &bundleName)
+{
+    std::shared_ptr<Admin> superAdmin;
+    superAdmin = GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
+    if (superAdmin == nullptr) {
+        return false;
+    }
+    return superAdmin->adminInfo_.adminType_ == AdminType::ENT;
+}
+
 /*
  * There are different administrator types according to the input parameters.
  * Returns a list of package names
