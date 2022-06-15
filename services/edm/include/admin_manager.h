@@ -39,6 +39,7 @@ public:
     ErrCode GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
         AdminType type);
     bool IsSuperAdminExist();
+    bool IsSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     void RestoreAdminFromFile();
