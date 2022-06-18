@@ -19,7 +19,6 @@
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 #include <message_parcel.h>
-#include <permission/permission_kit.h>
 #include <string_ex.h>
 #include <system_ability.h>
 #include <system_ability_definition.h>
