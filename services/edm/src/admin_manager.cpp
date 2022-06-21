@@ -383,7 +383,7 @@ void AdminManager::RestoreAdminFromFile()
         if (pos == std::string::npos || posHead == std::string::npos) {
             continue;
         }
-        int32_t start = (EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE).length();
+        size_t start = (EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE).length();
         std::string user = paths[i].substr(start, (pos - start));
         if (!std::all_of(user.begin(), user.end(), ::isdigit)) {
             continue;
