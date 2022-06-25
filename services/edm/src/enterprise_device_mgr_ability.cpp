@@ -28,6 +28,8 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "edm_log.h"
+#include "enterprise_admin_conn_manager.h"
+#include "enterprise_admin_connection.h"
 #include "matching_skills.h"
 #include "os_account_manager.h"
 #include "parameters.h"
@@ -293,7 +295,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed, ret: %{public}d", ret);
         return ERR_EDM_PERMISSION_ERROR;
     }
-    std::vector<AppExecFwk::AbilityInfo> abilityInfo;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     auto bundleManager = GetBundleMgr();
     if (!bundleManager) {
         EDMLOGW("can not get iBundleMgr");
@@ -301,9 +303,9 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     }
     AAFwk::Want want;
     want.SetElement(admin);
-    if (!bundleManager->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
-        userId, abilityInfo)) {
-        EDMLOGW("EnableAdmin: GetAbilityInfoByName failed %{public}d", ret);
+    if (!bundleManager->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo)) {
+        EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed %{public}d", ret);
         return ERR_EDM_BMS_ERROR;
     }
     ret = VerifyEnableAdminCondition(admin, type, userId);
@@ -329,7 +331,12 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
 
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
-    return adminMgr_->SetAdminValue(abilityInfo.at(0), entInfo, type, permissionList, userId);
+    ret = adminMgr_->SetAdminValue(abilityInfo.at(0), entInfo, type, permissionList, userId);
+    if (ret == ERR_OK) {
+        DelayedSingleton<EnterpriseAdminConnManager>::GetInstance()->ConnectAbility(admin.GetBundleName(),
+            admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
+    }
+    return ret;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(std::string adminName, std::string policyName,
@@ -410,7 +417,12 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
         return ERR_EDM_PERMISSION_ERROR;
     }
 
-    return RemoveAdmin(admin.GetBundleName(), userId);
+    ErrCode ret = RemoveAdmin(admin.GetBundleName(), userId);
+    if (ret == ERR_OK) {
+        DelayedSingleton<EnterpriseAdminConnManager>::GetInstance()->ConnectAbility(admin.GetBundleName(),
+            admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
+    }
+    return ret;
 }
 
 bool EnterpriseDeviceMgrAbility::IsHdc()
@@ -464,7 +476,13 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(std::string &bundleName)
         return ERR_EDM_PERMISSION_ERROR;
     }
 
-    return RemoveAdmin(bundleName, DEFAULT_USER_ID);
+    ErrCode ret = RemoveAdmin(bundleName, DEFAULT_USER_ID);
+    EDMLOGW("OnAdminDisabled: RemoveAdmin(bundleName, DEFAULT_USER_ID) %{public}d", ret);
+    if (ret == ERR_OK) {
+        DelayedSingleton<EnterpriseAdminConnManager>::GetInstance()->ConnectAbility(admin->adminInfo_.packageName_,
+            admin->adminInfo_.className_, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, DEFAULT_USER_ID);
+    }
+    return ret;
 }
 
 bool EnterpriseDeviceMgrAbility::IsSuperAdmin(std::string &bundleName)

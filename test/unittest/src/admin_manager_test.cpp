@@ -81,9 +81,9 @@ HWTEST_F(AdminManagerTest, TestGetGrantedPermission, TestSize.Level1)
 {
     ErrCode res;
     std::vector<std::string> permissions;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in china";
@@ -131,9 +131,9 @@ HWTEST_F(AdminManagerTest, TestGetAdminByUserId, TestSize.Level1)
     ErrCode res;
     std::vector<std::shared_ptr<Admin>> userAdmin;
     std::vector<std::string> permissions;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -166,9 +166,9 @@ HWTEST_F(AdminManagerTest, TestGetAdminByPkgName, TestSize.Level1)
     ErrCode res;
     std::vector<std::shared_ptr<Admin>> allAdmin;
     std::vector<std::string> permissions;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -179,7 +179,7 @@ HWTEST_F(AdminManagerTest, TestGetAdminByPkgName, TestSize.Level1)
     ASSERT_TRUE(res == ERR_OK);
 
     abilityInfo.bundleName = "com.edm.test.demo1";
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
 
@@ -207,9 +207,9 @@ HWTEST_F(AdminManagerTest, TestDeleteAdmin, TestSize.Level1)
     ErrCode res;
     std::vector<std::shared_ptr<Admin>> userAdmin;
     std::vector<std::string> permissions;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -247,9 +247,9 @@ HWTEST_F(AdminManagerTest, TestSetAdminValue, TestSize.Level1)
     std::shared_ptr<Admin> admin;
     std::string bundleName = "com.edm.test.demo";
     ErrCode res;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -303,9 +303,9 @@ HWTEST_F(AdminManagerTest, TestSetAdminValueHuge, TestSize.Level1)
     std::shared_ptr<Admin> admin;
     std::string bundleName = "com.edm.test.demo";
     ErrCode res;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -336,9 +336,9 @@ HWTEST_F(AdminManagerTest, TestUpdateAdmin, TestSize.Level1)
     std::string bundleName = "com.edm.test.demo";
 
     ErrCode res;
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -373,9 +373,9 @@ HWTEST_F(AdminManagerTest, TestUpdateAdmin, TestSize.Level1)
 HWTEST_F(AdminManagerTest, TestIsSuperAdmin, TestSize.Level1)
 {
     std::string bundleName = "com.edm.test.demo";
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
@@ -393,9 +393,9 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdmin, TestSize.Level1)
 HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
 {
     std::string bundleName = "com.edm.test.demo";
-    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.className = "testDemo";
+    abilityInfo.name = "testDemo";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";

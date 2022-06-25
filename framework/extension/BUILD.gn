@@ -1,0 +1,102 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+aafwk_path = "//foundation/ability/ability_runtime"
+
+SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
+ROOT = "${SUBSYSTEM_DIR}/framework/extension"
+SRC_PATH = "${ROOT}/src"
+
+config("enterprise_admin_config") {
+  include_dirs = [
+    "${aafwk_path}/frameworks/native/ability/native/",
+    "//foundation/arkui/napi/native_engine",
+    "${SUBSYSTEM_DIR}/common/native/include",
+    "//utils/native/base:utils_config",
+    "//utils/native/base/include",
+  ]
+}
+
+config("enterprise_admin_public_config") {
+  include_dirs = [ "include" ]
+}
+
+ohos_shared_library("enterprise_admin_extension") {
+  sources = [
+    "$SRC_PATH/enterprise_admin_extension.cpp",
+    "$SRC_PATH/enterprise_admin_extension_context.cpp",
+    "$SRC_PATH/enterprise_admin_stub.cpp",
+    "$SRC_PATH/enterprise_admin_stub_impl.cpp",
+    "$SRC_PATH/js_enterprise_admin_extension.cpp",
+    "$SRC_PATH/js_enterprise_admin_extension_context.cpp",
+  ]
+
+  configs = [ ":enterprise_admin_config" ]
+
+  public_configs = [ ":enterprise_admin_public_config" ]
+
+  deps = [
+    "${aafwk_path}/frameworks/native/ability:ability_context_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
+    "//foundation/arkui/napi:ace_napi",
+    "//third_party/jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_shared_library("enterprise_admin_extension_module") {
+  include_dirs = [
+    "include",
+    "${aafwk_path}/frameworks/native/ability/native/include",
+    "${aafwk_path}/frameworks/native/ability/native/include/ability_runtime",
+  ]
+
+  sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
+
+  deps = [
+    ":enterprise_admin_extension",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:runtime",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

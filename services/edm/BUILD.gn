@@ -27,14 +27,19 @@ config("edm_config") {
     "//utils/native/base:utils_config",
     JSONCPP_INCLUDE_DIR,
     "$SUBSYSTEM_DIR/common/native/include",
+    "$SUBSYSTEM_DIR/framework/extension/include",
   ]
 }
 
 ohos_shared_library("edmservice") {
   sources = [
+    "$EDM_SRC_PATH/ability_manager_death_recipient.cpp",
     "$EDM_SRC_PATH/admin.cpp",
     "$EDM_SRC_PATH/admin_manager.cpp",
     "$EDM_SRC_PATH/edm_permission.cpp",
+    "$EDM_SRC_PATH/enterprise_admin_conn_manager.cpp",
+    "$EDM_SRC_PATH/enterprise_admin_connection.cpp",
+    "$EDM_SRC_PATH/enterprise_admin_proxy.cpp",
     "$EDM_SRC_PATH/enterprise_device_mgr_ability.cpp",
     "$EDM_SRC_PATH/enterprise_device_mgr_stub.cpp",
     "$EDM_SRC_PATH/iplugin.cpp",
@@ -62,6 +67,7 @@ ohos_shared_library("edmservice") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",

@@ -16,8 +16,6 @@
 #include "plugin_manager_test.h"
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
-#include "enterprise_device_mgr_proxy.h"
-#include "enterprise_device_mgr_ability.h"
 #include "func_code_utils.h"
 #include "plugin_manager.h"
 #include "string_ex.h"
