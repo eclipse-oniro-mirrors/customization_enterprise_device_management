@@ -75,7 +75,7 @@ bool AdminManager::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<
     return true;
 }
 
-ErrCode AdminManager::SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
+ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
     std::vector<std::string> &permissions, int32_t userId)
 {
     std::vector<AdminPermission> reqPermission;
@@ -161,8 +161,8 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
-ErrCode AdminManager::GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
-    AdminType type)
+ErrCode AdminManager::GetGrantedPermission(AppExecFwk::ExtensionAbilityInfo& abilityInfo,
+    std::vector<std::string>& permissions, AdminType type)
 {
     if (permissions.empty()) {
         EDMLOGW("GetGrantedPermission::permissions is empty");
@@ -188,8 +188,8 @@ ErrCode AdminManager::GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo,
     return ERR_OK;
 }
 
-ErrCode AdminManager::UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
-    int32_t userId)
+ErrCode AdminManager::UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo,
+    const std::vector<std::string> &permissions, int32_t userId)
 {
     auto adminItem = GetAdminByPkgName(abilityInfo.bundleName, userId);
     if (adminItem == nullptr) {
@@ -206,7 +206,7 @@ ErrCode AdminManager::UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const st
 
     adminItem->adminInfo_.permission_ = combinePermission;
     adminItem->adminInfo_.packageName_ = abilityInfo.bundleName;
-    adminItem->adminInfo_.className_ = abilityInfo.className;
+    adminItem->adminInfo_.className_ = abilityInfo.name;
     SaveAdmin(userId);
     return ERR_OK;
 }

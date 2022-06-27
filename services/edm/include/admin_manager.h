@@ -34,16 +34,16 @@ public:
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
-    ErrCode UpdateAdmin(AppExecFwk::AbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
+    ErrCode UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
         int32_t userId);
-    ErrCode GetGrantedPermission(AppExecFwk::AbilityInfo &abilityInfo, std::vector<std::string> &permissions,
+    ErrCode GetGrantedPermission(AppExecFwk::ExtensionAbilityInfo &abilityInfo, std::vector<std::string> &permissions,
         AdminType type);
     bool IsSuperAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     void RestoreAdminFromFile();
-    ErrCode SetAdminValue(AppExecFwk::AbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
+    ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);

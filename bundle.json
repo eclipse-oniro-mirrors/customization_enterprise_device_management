@@ -47,6 +47,7 @@
     "ram": "",
     "deps": {
       "components": [
+        "ability_base",
         "ability_runtime",
         "access_token",
         "appexecfwk_standard",
@@ -73,7 +74,11 @@
         "//base/customization/enterprise_device_management/services/edm_plugin:device_settings_plugin",
         "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
         "//base/customization/enterprise_device_management/etc/init:edm.cfg",
-        "//base/customization/enterprise_device_management/tools/edm:tools_edm"
+        "//base/customization/enterprise_device_management/tools/edm:tools_edm",
+        "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension",
+        "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension:enterpriseadminextensionability_napi",
+        "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension_context:enterpriseadminextensioncontext_napi",
+        "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension_module"
       ],
       "inner_kits": [
         {
