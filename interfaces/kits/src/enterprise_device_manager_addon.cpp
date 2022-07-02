@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 #include "enterprise_device_manager_addon.h"
+
 #include "edm_log.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "hisysevent_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -63,6 +65,7 @@ thread_local napi_ref EnterpriseDeviceManagerAddon::g_classDeviceSettingsManager
 napi_value EnterpriseDeviceManagerAddon::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
+    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "enableAdmin", "");
     size_t argc = ARGS_SIZE_FIVE;
     napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -262,6 +265,7 @@ bool EnterpriseDeviceManagerAddon::checkAdminWithUserIdParamType(napi_env env, s
 napi_value EnterpriseDeviceManagerAddon::DisableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisableAdmin called");
+    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableAdmin", "");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
