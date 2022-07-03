@@ -43,6 +43,9 @@
     "adapted_system_type": [
       "standard"
     ],
+    "hisysevent_config": [
+      "//base/customization/enterprise_device_management/common/native/src/hisysevent.yaml"
+    ],
     "rom": "",
     "ram": "",
     "deps": {

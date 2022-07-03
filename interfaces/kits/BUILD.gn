@@ -23,7 +23,10 @@ ohos_shared_library("enterprisedevicemanager") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
-  sources = [ "src/enterprise_device_manager_addon.cpp" ]
+  sources = [
+    "$SUBSYSTEM_DIR/common/native/src/hisysevent_adapter.cpp",
+    "src/enterprise_device_manager_addon.cpp",
+  ]
 
   deps = [ "//utils/native/base:utils" ]
 
@@ -31,6 +34,7 @@ ohos_shared_library("enterprisedevicemanager") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "enterprise_device_management:edmservice_kits",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
