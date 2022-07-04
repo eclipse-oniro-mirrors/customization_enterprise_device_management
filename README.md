@@ -40,5 +40,3 @@ The enterprise device manager provides a template for developing enterprise devi
 ## Repositories Involved
 
 [admin_provisioning](https://gitee.com/openharmony/applications_admin_provisioning)
-
-[appexecfwk_standard](https://gitee.com/openharmony/appexecfwk_standard)

@@ -42,6 +42,3 @@
 ## 相关仓
 
 [admin_provisioning](https://gitee.com/openharmony/applications_admin_provisioning)
-
-[appexecfwk_standard](https://gitee.com/openharmony/appexecfwk_standard)
-
