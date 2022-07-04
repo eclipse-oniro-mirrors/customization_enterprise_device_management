@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace EDM {
 using namespace OHOS::HiviewDFX;
-const std::string DOMAIN_STR = std::string(HiSysEvent::Domain::GLOBAL);
+const std::string DOMAIN_STR = std::string(HiSysEvent::Domain::CUSTOMIZATION_EDM);
 
 void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
 {
