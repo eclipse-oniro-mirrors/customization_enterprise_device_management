@@ -32,7 +32,6 @@
 #include "enterprise_admin_connection.h"
 #include "matching_skills.h"
 #include "os_account_manager.h"
-#include "parameters.h"
 #include "plugin_manager.h"
 
 namespace OHOS {
