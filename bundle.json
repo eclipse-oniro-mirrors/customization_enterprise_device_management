@@ -54,16 +54,19 @@
         "ability_runtime",
         "access_token",
         "bundle_framework",
+        "common",
         "common_event_service",
         "hisysevent_native",
         "hiviewdfx_hilog_native",
         "ipc",
+        "jsoncpp",
         "napi",
         "os_account",
         "safwk",
         "samgr_standard",
         "startup_l2",
-        "time_native"
+        "time_native",
+        "utils_base"
       ],
       "third_party": [
         "jsoncpp"
