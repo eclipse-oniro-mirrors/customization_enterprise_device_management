@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_
-#define COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_
+#ifndef COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H
+#define COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H
 #include "edm_log.h"
 #include "parcel.h"
 
@@ -37,4 +37,4 @@ namespace EDM {
     } while (0)
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H_
+#endif // COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
-#define EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
+#ifndef EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H
+#define EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H
 
 #include <map>
 #include <string>
@@ -56,4 +56,4 @@ protected:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H_
+#endif // EDM_TOOLS_EDM_INCLUDE_SHELL_COMMAND_H

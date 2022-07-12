@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_
-#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_
+#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
 
 #include <algorithm>
 #include <string>
@@ -32,4 +32,4 @@ enum {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H_
+#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
