@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H_
-#define COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H_
+#ifndef COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
+#define COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
 
 #include <string>
 
@@ -27,4 +27,4 @@ enum class ReportType {
 void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo);
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H_
+#endif // COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H

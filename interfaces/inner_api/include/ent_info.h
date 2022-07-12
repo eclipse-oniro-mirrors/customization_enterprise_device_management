@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_
-#define INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_
+#ifndef INTERFACES_INNER_API_INCLUDE_ENT_INFO_H
+#define INTERFACES_INNER_API_INCLUDE_ENT_INFO_H
 
 #include <string>
 #include "parcel.h"
@@ -35,4 +35,4 @@ struct EntInfo : public Parcelable {
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_INCLUDE_ENT_INFO_H_
+#endif // INTERFACES_INNER_API_INCLUDE_ENT_INFO_H

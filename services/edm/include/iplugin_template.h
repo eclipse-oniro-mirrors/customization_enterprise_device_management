@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H_
-#define SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H_
+#ifndef SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H
+#define SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H
 
 #include <functional>
 #include "edm_log.h"
@@ -799,4 +799,4 @@ void PluginSingleton<CT, DT>::DestroyPlugin()
 }
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H_
+#endif // SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H
