@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_PERMISSION_H_
-#define SERVICES_EDM_INCLUDE_EDM_PERMISSION_H_
+#ifndef SERVICES_EDM_INCLUDE_EDM_PERMISSION_H
+#define SERVICES_EDM_INCLUDE_EDM_PERMISSION_H
 
 #include <string>
 #include "admin_type.h"
@@ -51,4 +51,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_EDM_PERMISSION_H_
+#endif // SERVICES_EDM_INCLUDE_EDM_PERMISSION_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_
-#define EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_
+#ifndef EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
+#define EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
 
 #include "shell_command.h"
 #include "enterprise_device_mgr_proxy.h"
@@ -57,4 +57,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H_
+#endif // EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H

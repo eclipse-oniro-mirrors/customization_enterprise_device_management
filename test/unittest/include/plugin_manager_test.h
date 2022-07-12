@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H_
-#define EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H_
+#ifndef EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H
+#define EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
 #include <iremote_object.h>
@@ -71,4 +71,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H_
+#endif // EDM_UNIT_TEST_PLUGIN_MANAGER_TEST_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H_
-#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H_
+#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H
+#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H
 
 #include "ability_connect_callback_stub.h"
 #include "enterprise_admin_proxy.h"
@@ -51,4 +51,4 @@ private:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H_
+#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONNECTION_H

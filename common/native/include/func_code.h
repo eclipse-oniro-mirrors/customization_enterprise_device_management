@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H_
-#define COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H_
+#ifndef COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H
+#define COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H
 
 #include <map>
 #include <string>
@@ -56,4 +56,4 @@ enum class FuncOperateType {
 #define POLICY_FUNC_CODE(OPERATE_TYPE, POLICY) CREATE_FUNC_CODE(1, OPERATE_TYPE, POLICY)
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H_
+#endif // COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H
