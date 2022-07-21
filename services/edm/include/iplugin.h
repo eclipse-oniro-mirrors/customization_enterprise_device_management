@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H_
-#define SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H_
+#ifndef SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H
+#define SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H
 
 #include <iostream>
 #include <map>
@@ -68,4 +68,4 @@ protected:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H_
+#endif // SERVICES_EDM_INCLUDE_EDM_IPLUGIN_H

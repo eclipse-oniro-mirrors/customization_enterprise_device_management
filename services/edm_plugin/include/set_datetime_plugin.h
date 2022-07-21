@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H_
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H_
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
 
 #include "long_serializer.h"
 #include "iplugin_template.h"
@@ -30,4 +30,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H_
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H

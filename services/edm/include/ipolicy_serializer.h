@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_
-#define SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_
+#ifndef SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H
+#define SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H
 
 #include <algorithm>
 #include <message_parcel.h>
@@ -214,4 +214,4 @@ bool ArraySerializer<DT, T_ARRAY>::MergePolicy(std::vector<T_ARRAY> &data, T_ARR
 } // namespace EDM
 } // namespace OHOS
 
-#endif // EDM_POLICY_SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H_SERIALIZER_H
+#endif // SERVICES_EDM_INCLUDE_EDM_IPOLICY_SERIALIZER_H

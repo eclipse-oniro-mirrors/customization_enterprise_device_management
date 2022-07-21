@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H_
-#define SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H_
+#ifndef SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H
+#define SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H
 
 #include "ipolicy_serializer.h"
 #include "singleton.h"
@@ -35,4 +35,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H_
+#endif // SERVICES_EDM_INCLUDE_UTILS_ARRAY_MAP_SERIALIZER_H
