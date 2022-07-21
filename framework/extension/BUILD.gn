@@ -24,8 +24,8 @@ config("enterprise_admin_config") {
     "${aafwk_path}/frameworks/native/ability/native/",
     "//foundation/arkui/napi/native_engine",
     "${SUBSYSTEM_DIR}/common/native/include",
-    "//utils/native/base:utils_config",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base:utils_config",
+    "//commonlibrary/c_utils/base/include",
   ]
 }
 
@@ -53,7 +53,6 @@ ohos_shared_library("enterprise_admin_extension") {
     "${aafwk_path}/frameworks/native/appkit:app_context",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/jsoncpp",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -62,6 +61,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -85,7 +85,6 @@ ohos_shared_library("enterprise_admin_extension_module") {
   deps = [
     ":enterprise_admin_extension",
     "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -93,6 +92,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 

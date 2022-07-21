@@ -21,10 +21,10 @@ JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "include",
     "include/utils",
-    "//utils/native/base:utils_config",
+    "//commonlibrary/c_utils/base:utils_config",
     JSONCPP_INCLUDE_DIR,
     "$SUBSYSTEM_DIR/common/native/include",
     "$SUBSYSTEM_DIR/framework/extension/include",
@@ -72,6 +72,7 @@ ohos_shared_library("edmservice") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
@@ -87,10 +88,7 @@ ohos_shared_library("edmservice") {
     external_deps += [ "hilog:libhilog" ]
   }
 
-  deps = [
-    "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
