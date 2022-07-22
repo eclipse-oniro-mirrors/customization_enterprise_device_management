@@ -63,7 +63,7 @@
         "napi",
         "os_account",
         "safwk",
-        "samgr_standard",
+        "samgr",
         "time_native",
         "utils_base"
       ],

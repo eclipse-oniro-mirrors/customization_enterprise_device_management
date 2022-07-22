@@ -65,7 +65,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   if (is_standard_system) {
