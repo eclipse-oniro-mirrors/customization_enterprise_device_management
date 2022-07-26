@@ -64,7 +64,7 @@
         "os_account",
         "safwk",
         "samgr_standard",
-        "time_native",
+        "time_service",
         "utils_base"
       ],
       "third_party": [
