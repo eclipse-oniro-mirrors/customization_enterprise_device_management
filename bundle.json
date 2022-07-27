@@ -65,7 +65,7 @@
         "os_account",
         "safwk",
         "samgr",
-        "time_service",
+        "time_service"
       ],
       "third_party": [
         "jsoncpp"
