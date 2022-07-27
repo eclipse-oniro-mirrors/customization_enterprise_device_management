@@ -28,11 +28,10 @@ ohos_shared_library("enterprisedevicemanager") {
     "src/enterprise_device_manager_addon.cpp",
   ]
 
-  deps = [ "//utils/native/base:utils" ]
-
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "enterprise_device_management:edmservice_kits",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
