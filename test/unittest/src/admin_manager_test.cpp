@@ -25,7 +25,7 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int HUGE_ADMIN_SIZE = 100;
-const std::string TEAR_DOWN_CMD = "rm /data/edm/admin_policies.json";
+const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies.json";
 
 void AdminManagerTest::SetUp()
 {
