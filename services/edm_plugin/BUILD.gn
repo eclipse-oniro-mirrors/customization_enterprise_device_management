@@ -22,11 +22,11 @@ edm_plugin_shared_library("device_settings_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
   include_dirs = [ "//third_party/node/src" ]
-  deps = [ "//utils/native/base:utils" ]
   external_deps = [
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "time_service:time_service",
