@@ -216,7 +216,7 @@ sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
 
 ErrCode EnterpriseDeviceMgrAbility::CheckPermission()
 {
-    if (VerifyCallingPermission("ohos.permission.MANAGE_ADMIN")) {
+    if (VerifyCallingPermission("ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN")) {
         EDMLOGD("check permission success");
         return ERR_OK;
     }
