@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace EDM {
 const std::string EDM_ADMIN_DOT = ".";
-const std::string EDM_ADMIN_BASE = "/data/edm/";
+const std::string EDM_ADMIN_BASE = "/data/service/el1/public/edm/";
 const std::string EDM_ADMIN_JSON_FILE = "admin_policies_";
 const std::string EDM_ADMIN_JSON_EXT = ".json";
 constexpr int32_t DEFAULT_USER_ID = 100;

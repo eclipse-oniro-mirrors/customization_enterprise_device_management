@@ -30,7 +30,7 @@ const std::string TEST_ADMIN_NAME1 = "com.edm.test.demo1";
 const std::string TEST_BOOL_POLICY_NAME = "testBoolPolicy";
 const std::string TEST_STRING_POLICY_NAME = "testStringPolicy";
 constexpr int HUGE_POLICY_SIZE = 65537;
-const std::string TEAR_DOWN_CMD = "rm /data/edm/device_policies.json";
+const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies.json";
 
 class PolicyManagerTest : public testing::Test {
 public:
