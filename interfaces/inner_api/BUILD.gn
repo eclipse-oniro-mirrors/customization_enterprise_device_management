@@ -46,7 +46,7 @@ ohos_shared_library("edmservice_kits") {
     "ipc:ipc_core",
     "os_account:libaccountkits",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   if (is_standard_system) {

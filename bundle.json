@@ -64,7 +64,7 @@
         "napi",
         "os_account",
         "safwk",
-        "samgr_standard",
+        "samgr",
         "time_service"
       ],
       "third_party": [
