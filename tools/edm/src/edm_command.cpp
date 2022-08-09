@@ -44,8 +44,6 @@ ErrCode EdmCommand::CreateCommandMap()
         std::bind(&EdmCommand::RunAsEnableSuperAdminCommand, this) },
         { "disable-admin",
         std::bind(&EdmCommand::RunDisableNormalAdminCommand, this) },
-        { "disable-super-admin",
-        std::bind(&EdmCommand::RunDisableSuperAdminCommand, this) },
     };
 
     return ERR_OK;
@@ -180,29 +178,6 @@ ErrCode EdmCommand::RunDisableNormalAdminCommand()
     elementName.SetElementBundleName(&elementName, elementNameStr[ARR_INDEX_ZERO].c_str());
     elementName.SetElementAbilityName(&elementName, elementNameStr[ARR_INDEX_ONE].c_str());
     ErrCode result = enterpriseDeviceMgrProxy_->DisableAdmin(elementName, DEFAULT_USER_ID);
-    if (result != ERR_OK) {
-        resultReceiver_.append(GetMessageFromCode(result));
-    }
-    return result;
-}
-
-ErrCode EdmCommand::RunDisableSuperAdminCommand()
-{
-    std::cout << "argc = " << argc_ << std::endl;
-    if (argc_ != ARGS_SIZE_THREE) {
-        resultReceiver_.append(GetMessageFromCode(ERR_EDM_PARAM_ERROR));
-        return ERR_EDM_PARAM_ERROR;
-    }
-    for (int i = 0; i < argc_; ++i) {
-        std::cout << "argv[" << i << "] = " << argv_[i] << std::endl;
-    }
-    std::vector<std::string> elementNameStr = split(argv_[ARR_INDEX_TWO], "/");
-    std::cout << "elementNameStr.size() = " << elementNameStr.size() << std::endl;
-    if (elementNameStr.size() != ARGS_SIZE_TWO) {
-        resultReceiver_.append(GetMessageFromCode(ERR_EDM_PARAM_ERROR));
-        return ERR_EDM_PARAM_ERROR;
-    }
-    ErrCode result = enterpriseDeviceMgrProxy_->DisableSuperAdmin(elementNameStr[ARR_INDEX_ZERO]);
     if (result != ERR_OK) {
         resultReceiver_.append(GetMessageFromCode(result));
     }

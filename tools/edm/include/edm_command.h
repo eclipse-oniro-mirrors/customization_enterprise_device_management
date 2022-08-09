@@ -30,8 +30,7 @@ const std::string HELP_MSG = "usage: edm <command> <options>\n"
                              "  help                      list available commands\n"
                              "  enable-admin            enable a admin with options\n"
                              "  enable-super-admin      enable a super admin with options\n"
-                             "  disable-admin          disable a admin with options\n"
-                             "  disable-super-admin    disable a super admin with options\n";
+                             "  disable-admin          disable a admin with options\n";
 }  // namespace
 
 class EdmCommand : public ShellCommand {
@@ -49,7 +48,6 @@ private:
     ErrCode RunAsEnableAdminCommand();
     ErrCode RunAsEnableSuperAdminCommand();
     ErrCode RunDisableNormalAdminCommand();
-    ErrCode RunDisableSuperAdminCommand();
     std::vector<std::string> split(const std::string &str, const std::string &pattern);
 
     std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxy_;
