@@ -44,6 +44,7 @@ std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
 constexpr int32_t DEFAULT_USER_ID = 100;
+const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
     const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
     EnterpriseDeviceMgrAbility &listener) : EventFwk::CommonEventSubscriber(subscribeInfo), listener_(listener) {}
@@ -214,33 +215,17 @@ sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
     return proxy;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::CheckPermission()
-{
-    if (VerifyCallingPermission("ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN")) {
-        EDMLOGD("check permission success");
-        return ERR_OK;
-    }
-    return ERR_EDM_PERMISSION_ERROR;
-}
-
 bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &permissionName)
 {
     EDMLOGD("VerifyCallingPermission permission %{public}s", permissionName.c_str());
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    EDMLOGD("callerToken : %{public}u", callerToken);
-    Security::AccessToken::ATokenTypeEnum tokenType =
-        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        EDMLOGD("caller tokenType is native, verify success");
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
+    if (ret == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        EDMLOGI("permission %{public}s: PERMISSION_GRANTED", permissionName.c_str());
         return true;
     }
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
-        EDMLOGE("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
-        return false;
-    }
-    EDMLOGD("verify AccessToken success");
-    return true;
+    EDMLOGW("verify AccessToken failed");
+    return false;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin,
@@ -289,9 +274,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    int32_t ret = CheckPermission();
-    if (ret != ERR_OK) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed, ret: %{public}d", ret);
+    if (!IsHdc() && !VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed");
         return ERR_EDM_PERMISSION_ERROR;
     }
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
@@ -304,10 +288,10 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     want.SetElement(admin);
     if (!bundleManager->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
         AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo)) {
-        EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed %{public}d", ret);
+        EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed");
         return ERR_EDM_BMS_ERROR;
     }
-    ret = VerifyEnableAdminCondition(admin, type, userId);
+    ErrCode ret = VerifyEnableAdminCondition(admin, type, userId);
     if (FAILED(ret)) {
         EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return ERR_EDM_ADD_ADMIN_FAILED;
@@ -401,9 +385,8 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
 {
     EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    int32_t checkRet = CheckPermission();
-    if (checkRet != ERR_OK) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed, ret: %{public}d", checkRet);
+    if (!IsHdc() && !VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed");
         return ERR_EDM_PERMISSION_ERROR;
     }
 
@@ -427,11 +410,10 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
 bool EnterpriseDeviceMgrAbility::IsHdc()
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    EDMLOGD("callerToken : %{public}u", callerToken);
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
-    EDMLOGD("native process name = %{public}s", nativeTokenInfo.processName.c_str());
-    if (nativeTokenInfo.processName == "hdcd") {
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+        EDMLOGI("caller tokenType is shell, verify success");
         return true;
     }
     return false;
@@ -439,10 +421,6 @@ bool EnterpriseDeviceMgrAbility::IsHdc()
 
 ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(std::string &bundleName)
 {
-    if (IsHdc()) {
-        return ERR_OK;
-    }
-
     // super admin can be removed by itself
     int uid = GetCallingUid();
     auto bundleManager = GetBundleMgr();

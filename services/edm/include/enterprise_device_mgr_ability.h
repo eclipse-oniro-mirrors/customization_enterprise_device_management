@@ -59,7 +59,6 @@ protected:
 
 private:
     bool IsHdc();
-    ErrCode CheckPermission();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
