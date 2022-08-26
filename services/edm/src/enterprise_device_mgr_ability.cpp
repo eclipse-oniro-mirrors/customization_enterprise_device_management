@@ -511,7 +511,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     }
     EDMLOGD("HandleDevicePolicy: plugin info:%{public}d , %{public}s , %{public}s", plugin->GetCode(),
         plugin->GetPolicyName().c_str(), plugin->GetPermission().c_str());
-    if (!deviceAdmin->CheckPermission(plugin->GetPermission())) {
+    if (!deviceAdmin->CheckPermission(plugin->GetPermission()) || !VerifyCallingPermission(plugin->GetPermission())) {
         EDMLOGW("HandleDevicePolicy: check permission failed");
         return ERR_EDM_PERMISSION_ERROR;
     }
