@@ -33,7 +33,8 @@ namespace OHOS {
             return false;
         }
 
-        enterpriseDeviceManager->DisableSuperAdmin(reinterpret_cast<const char*>(data));
+        std::string bundleName(reinterpret_cast<const char*>(data), size);
+        enterpriseDeviceManager->DisableSuperAdmin(bundleName);
         return true;
     }
 }
