@@ -18,9 +18,7 @@ ROOT = "${SUBSYSTEM_DIR}/framework/extension"
 SRC_PATH = "${ROOT}/src"
 
 config("enterprise_admin_config") {
-  include_dirs = [
-    "${SUBSYSTEM_DIR}/common/native/include",
-  ]
+  include_dirs = [ "${SUBSYSTEM_DIR}/common/native/include" ]
 }
 
 config("enterprise_admin_public_config") {
@@ -56,15 +54,11 @@ ohos_shared_library("enterprise_admin_extension") {
 }
 
 ohos_shared_library("enterprise_admin_extension_module") {
-  include_dirs = [
-    "include",
-  ]
+  include_dirs = [ "include" ]
 
   sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
 
-  deps = [
-    ":enterprise_admin_extension",
-  ]
+  deps = [ ":enterprise_admin_extension" ]
 
   external_deps = [
     "ability_runtime:abilitykit_native",
