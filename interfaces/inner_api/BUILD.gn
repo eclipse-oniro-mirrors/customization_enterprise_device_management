@@ -20,7 +20,6 @@ INCLUDE_PATH = "$ROOT/include"
 
 config("edmservice_kits_config") {
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "include",
     "$SUBSYSTEM_DIR/common/native/include",
   ]
@@ -40,12 +39,8 @@ ohos_shared_library("edmservice_kits") {
 
   external_deps = [
     "ability_base:want",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ipc:ipc_core",
-    "os_account:libaccountkits",
-    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 

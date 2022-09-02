@@ -13,19 +13,13 @@
 
 import("//build/ohos.gni")
 
-aafwk_path = "//foundation/ability/ability_runtime"
-
 SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 ROOT = "${SUBSYSTEM_DIR}/framework/extension"
 SRC_PATH = "${ROOT}/src"
 
 config("enterprise_admin_config") {
   include_dirs = [
-    "${aafwk_path}/frameworks/native/ability/native/",
-    "//foundation/arkui/napi/native_engine",
     "${SUBSYSTEM_DIR}/common/native/include",
-    "//commonlibrary/c_utils/base:utils_config",
-    "//commonlibrary/c_utils/base/include",
   ]
 }
 
@@ -47,26 +41,14 @@ ohos_shared_library("enterprise_admin_extension") {
 
   public_configs = [ ":enterprise_admin_public_config" ]
 
-  deps = [
-    "${aafwk_path}/frameworks/native/ability:ability_context_native",
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:app_context",
-    "//foundation/arkui/napi:ace_napi",
-    "//third_party/jsoncpp",
-  ]
-
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "napi:ace_napi",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "customization"
@@ -76,24 +58,17 @@ ohos_shared_library("enterprise_admin_extension") {
 ohos_shared_library("enterprise_admin_extension_module") {
   include_dirs = [
     "include",
-    "${aafwk_path}/frameworks/native/ability/native/include",
-    "${aafwk_path}/frameworks/native/ability/native/include/ability_runtime",
   ]
 
   sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
 
   deps = [
     ":enterprise_admin_extension",
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
   ]
 
   external_deps = [
-    "ability_base:base",
-    "ability_base:want",
-    "ability_base:zuri",
+    "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
   ]
 
   relative_install_dir = "extensionability/"
