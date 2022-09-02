@@ -35,9 +35,7 @@ template("edm_plugin_shared_library") {
     if (!defined(deps)) {
       deps = []
     }
-    deps += [
-      "//base/customization/enterprise_device_management/services/edm:edmservice",
-    ]
+    deps += [ "//base/customization/enterprise_device_management/services/edm:edmservice" ]
 
     if (defined(invoker.deps)) {
       deps += invoker.deps
