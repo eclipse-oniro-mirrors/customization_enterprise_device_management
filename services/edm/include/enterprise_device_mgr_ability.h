@@ -51,9 +51,9 @@ public:
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
 
 protected:
-    void OnDump() override;
     void OnStart() override;
     void OnStop() override;
+    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
