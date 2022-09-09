@@ -23,11 +23,8 @@ edm_plugin_shared_library("device_settings_plugin") {
 
   include_dirs = [ "//third_party/node/src" ]
   external_deps = [
-    "ability_base:want",
     "ability_runtime:wantagent_innerkits",
-    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "time_service:time_service",
   ]

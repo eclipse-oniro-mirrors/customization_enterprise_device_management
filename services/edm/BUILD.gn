@@ -21,10 +21,8 @@ JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "include",
     "include/utils",
-    "//commonlibrary/c_utils/base:utils_config",
     JSONCPP_INCLUDE_DIR,
     "$SUBSYSTEM_DIR/common/native/include",
     "$SUBSYSTEM_DIR/framework/extension/include",
@@ -68,7 +66,6 @@ ohos_shared_library("edmservice") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -76,7 +73,6 @@ ohos_shared_library("edmservice") {
     "common_event_service:cesfwk_innerkits",
     "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
-    "os_account:libaccountkits",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
