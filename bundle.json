@@ -39,7 +39,9 @@
     "name": "enterprise_device_management",
     "subsystem": "customization",
     "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
-    "features": [],
+    "features": [
+      "enterprise_device_management_feature_coverage = false"
+    ],
     "adapted_system_type": [
       "standard"
     ],

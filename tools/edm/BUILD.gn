@@ -31,7 +31,10 @@ ohos_source_set("tools_edm_source_set") {
     "src/shell_command.cpp",
   ]
 
-  public_configs = [ ":tools_edm_config" ]
+  public_configs = [
+    ":tools_edm_config",
+    "//base/customization/enterprise_device_management/common/config:coverage_flags"
+  ]
 
   cflags = []
   if (target_cpu == "arm") {
