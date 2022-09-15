@@ -51,7 +51,7 @@ ohos_unittest("EdmServicesUnitTest") {
 
   configs = [
     ":module_private_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
   ]
 
   deps = [

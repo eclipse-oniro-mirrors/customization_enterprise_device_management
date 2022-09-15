@@ -56,7 +56,7 @@ ohos_shared_library("edmservice") {
   ]
   public_configs = [
     ":edm_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
   ]
 
   defines = []

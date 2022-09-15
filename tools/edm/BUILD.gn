@@ -33,7 +33,7 @@ ohos_source_set("tools_edm_source_set") {
 
   public_configs = [
     ":tools_edm_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
   ]
 
   cflags = []

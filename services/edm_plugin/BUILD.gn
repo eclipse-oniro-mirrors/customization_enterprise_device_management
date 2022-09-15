@@ -21,9 +21,7 @@ PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 edm_plugin_shared_library("device_settings_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
-  configs = [
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
-  ]
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
 
   include_dirs = [ "//third_party/node/src" ]
   external_deps = [

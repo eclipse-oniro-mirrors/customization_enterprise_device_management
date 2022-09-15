@@ -28,9 +28,7 @@ ohos_shared_library("enterprisedevicemanager") {
     "src/enterprise_device_manager_addon.cpp",
   ]
 
-  configs = [
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
-  ]
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
 
   external_deps = [
     "ability_base:want",

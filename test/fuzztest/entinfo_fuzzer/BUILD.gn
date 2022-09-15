@@ -42,9 +42,7 @@ ohos_fuzztest("EntInfoFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  configs = [
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
-  ]
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
   sources = [ "entinfo_fuzzer.cpp" ]
 
   external_deps = [
