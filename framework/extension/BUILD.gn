@@ -37,7 +37,7 @@ ohos_shared_library("enterprise_admin_extension") {
 
   configs = [
     ":enterprise_admin_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags"
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
   ]
 
   public_configs = [ ":enterprise_admin_public_config" ]
