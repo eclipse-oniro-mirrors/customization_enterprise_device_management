@@ -49,7 +49,10 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/utils_test.cpp",
   ]
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    ":module_private_config",
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+  ]
 
   deps = [
     "$EDM_ROOT/:edmservice",

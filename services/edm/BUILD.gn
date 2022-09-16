@@ -54,7 +54,10 @@ ohos_shared_library("edmservice") {
     "$EDM_SRC_PATH/utils/map_string_serializer.cpp",
     "$EDM_SRC_PATH/utils/string_serializer.cpp",
   ]
-  public_configs = [ ":edm_config" ]
+  public_configs = [
+    ":edm_config",
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+  ]
 
   defines = []
 

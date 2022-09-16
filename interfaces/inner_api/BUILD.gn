@@ -37,6 +37,8 @@ ohos_shared_library("edmservice_kits") {
     "$SRC_PATH/enterprise_device_mgr_proxy.cpp",
   ]
 
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",

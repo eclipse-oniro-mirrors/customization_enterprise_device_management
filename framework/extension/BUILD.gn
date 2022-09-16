@@ -35,7 +35,10 @@ ohos_shared_library("enterprise_admin_extension") {
     "$SRC_PATH/js_enterprise_admin_extension_context.cpp",
   ]
 
-  configs = [ ":enterprise_admin_config" ]
+  configs = [
+    ":enterprise_admin_config",
+    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+  ]
 
   public_configs = [ ":enterprise_admin_public_config" ]
 
@@ -58,6 +61,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
 
   sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
 
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
   deps = [ ":enterprise_admin_extension" ]
 
   external_deps = [
