@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 import("plugin.gni")
 
-SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 PLUGIN_ROOT = "$SUBSYSTEM_DIR/services/edm_plugin"
 PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 

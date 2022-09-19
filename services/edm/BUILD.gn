@@ -11,12 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
-
-SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
-EDM_SA_ROOT = "$SUBSYSTEM_DIR/services/edm"
-EDM_SRC_PATH = "$EDM_SA_ROOT/src"
-JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 
 config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
@@ -74,7 +70,6 @@ ohos_shared_library("edmservice") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
@@ -87,7 +82,10 @@ ohos_shared_library("edmservice") {
     external_deps += [ "hilog:libhilog" ]
   }
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "$EDM_INNERKITS_PATH:edmservice_kits",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   subsystem_name = "customization"
   part_name = "enterprise_device_management"

@@ -11,12 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 module_output_path = "enterprise_device_management/services"
-EDM_ROOT = "$SUBSYSTEM_DIR/services/edm"
-JSONCPP_INCLUDE_DIR = "//third_party/jsoncpp/include"
 
 config("module_private_config") {
   visibility = [ ":*" ]
@@ -29,8 +27,8 @@ ohos_unittest("EdmServicesUnitTest") {
   include_dirs = [
     "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
-    "$EDM_ROOT/include",
-    "$EDM_ROOT/include/utils",
+    "$EDM_SA_ROOT/include",
+    "$EDM_SA_ROOT/include/utils",
     "//commonlibrary/c_utils/base:utils_config",
     JSONCPP_INCLUDE_DIR,
     "./include",
@@ -55,7 +53,8 @@ ohos_unittest("EdmServicesUnitTest") {
   ]
 
   deps = [
-    "$EDM_ROOT/:edmservice",
+    "$EDM_INNERKITS_PATH:edmservice_kits",
+    "$EDM_SA_ROOT:edmservice",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -66,7 +65,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "enterprise_device_management:edmservice_kits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
