@@ -18,6 +18,7 @@
 #include <ctime>
 #include <fstream>
 #include <unistd.h>
+#include "directory_ex.h"
 #include "edm_log.h"
 
 namespace OHOS {
@@ -195,6 +196,9 @@ void PolicyManager::SavePolicy()
     ofs.close();
     double time2 = clock();
     std::rename(EDM_POLICY_JSON_FILE_BAK.c_str(), EDM_POLICY_JSON_FILE.c_str());
+    if (!ChangeModeFile(EDM_POLICY_JSON_FILE, S_IRUSR | S_IWUSR)) {
+        EDMLOGW("PolicyManager::ChangeModeFile failed");
+    }
     double time3 = clock();
     EDMLOGI("SavePolicy spend time %{public}f, %{public}f", (time2 - time1) / CLOCKS_PER_SEC,
         (time3 - time2) / CLOCKS_PER_SEC);
