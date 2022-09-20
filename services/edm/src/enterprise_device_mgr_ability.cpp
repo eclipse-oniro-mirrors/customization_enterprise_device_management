@@ -451,7 +451,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(std::string &bundleName)
     int uid = GetCallingUid();
     auto bundleManager = GetBundleMgr();
     std::string callingBundleName;
-    if (!bundleManager->GetNameForUid(uid, callingBundleName)) {
+    if (bundleManager->GetNameForUid(uid, callingBundleName) != ERR_OK) {
         EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
         return ERR_EDM_PERMISSION_ERROR;
     }
