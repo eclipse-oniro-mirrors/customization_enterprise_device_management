@@ -87,17 +87,10 @@ ErrCode EdmCommand::CreateMessageMap()
 
 ErrCode EdmCommand::init()
 {
-    ErrCode result = ERR_OK;
-
     if (!enterpriseDeviceMgrProxy_) {
         enterpriseDeviceMgrProxy_ = EnterpriseDeviceMgrProxy::GetInstance();
     }
-
-    if (!enterpriseDeviceMgrProxy_) {
-        result = OHOS::ERR_INVALID_VALUE;
-    }
-
-    return result;
+    return ERR_OK;
 }
 
 ErrCode EdmCommand::RunAsHelpCommand()
