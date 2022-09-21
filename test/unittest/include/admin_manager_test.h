@@ -29,10 +29,10 @@ public:
 
 protected:
     // Sets up the test fixture.
-    virtual void SetUp();
+    void SetUp() override;
 
     // Tears down the test fixture.
-    virtual void TearDown();
+    void TearDown() override;
 
 protected:
     std::shared_ptr<AdminManager> adminMgr_;

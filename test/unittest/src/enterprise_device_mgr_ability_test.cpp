@@ -31,10 +31,10 @@ constexpr int32_t DEFAULT_USER_ID = 100;
 class EnterpriseDeviceMgrAbilityTest : public testing::Test {
 protected:
     // Sets up the test fixture.
-    virtual void SetUp() override;
+    void SetUp() override;
 
     // Tears down the test fixture.
-    virtual void TearDown() override;
+    void TearDown() override;
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
 };
 

@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    virtual void TearDown() override
+    void TearDown() override
     {
         PolicyManager::GetInstance()->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "", "");
         PolicyManager::GetInstance()->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "", "");
