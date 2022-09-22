@@ -26,10 +26,10 @@ namespace TEST {
 class PermissionManagerTest : public testing::Test {
 protected:
     // Sets up the test fixture.
-    virtual void SetUp() override;
+    void SetUp() override;
 
     // Tears down the test fixture.
-    virtual void TearDown() override;
+    void TearDown() override;
 };
 
 void PermissionManagerTest::SetUp()
