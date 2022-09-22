@@ -317,7 +317,6 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(int policyCode, std::vector<std::s
         return false;
     }
     policyData.clear();
-    std::vector<std::string> readVector;
     if (!readVector16.empty()) {
         for (const auto &str16 : readVector16) {
             policyData.push_back(Str16ToStr8(str16));

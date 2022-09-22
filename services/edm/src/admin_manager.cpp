@@ -455,6 +455,9 @@ void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
     if (time1 != 0 && time2 != 0) {
         EDMLOGD("WriteJsonAdmin spend time %{public}f", (time2 - time1) / CLOCKS_PER_SEC);
     }
+    if (!ChangeModeFile(filePath, S_IRUSR | S_IWUSR)) {
+        EDMLOGW("AdminManager::ChangeModeFile failed");
+    }
     if ((iterMap->second).empty()) {
         admins_.erase(iterMap);
         // delete current userId file
