@@ -123,7 +123,33 @@ EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
     EDMLOGD("instance is destroyed");
 }
 
-void EnterpriseDeviceMgrAbility::OnDump() {}
+int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::Dump");
+    if (fd < 0) {
+        EDMLOGE("Dump fd invalid");
+        return ERR_EDM_DUMP_FAILED;
+    }
+    std::string result;
+    result.append("Ohos enterprise device manager service: \n");
+    std::vector<std::string> enabledAdminList;
+    GetEnabledAdmin(AdminType::NORMAL, enabledAdminList);
+    if (enabledAdminList.empty()) {
+        result.append("There is no admin enabled\n");
+    } else {
+        result.append("Enabled admin exist :\n");
+        for (const auto &enabledAdmin : enabledAdminList) {
+            result.append(enabledAdmin.c_str());
+            result.append("\n");
+        }
+    }
+    int32_t ret = dprintf(fd, "%s", result.c_str());
+    if (ret < 0) {
+        EDMLOGE("dprintf to dump fd failed");
+        return ERR_EDM_DUMP_FAILED;
+    }
+    return ERR_OK;
+}
 
 void EnterpriseDeviceMgrAbility::OnStart()
 {
