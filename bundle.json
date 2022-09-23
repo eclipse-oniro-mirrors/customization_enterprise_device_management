@@ -39,7 +39,9 @@
     "name": "enterprise_device_management",
     "subsystem": "customization",
     "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
-    "features": [],
+    "features": [
+      "enterprise_device_management_feature_coverage = false"
+    ],
     "adapted_system_type": [
       "standard"
     ],
@@ -84,21 +86,6 @@
         "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension:enterpriseadminextensionability_napi",
         "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension_context:enterpriseadminextensioncontext_napi",
         "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension_module"
-      ],
-      "inner_kits": [
-        {
-          "header": {
-            "header_base": "//base/customization/enterprise_device_management/interfaces/inner_api/include",
-            "header_files": [
-              "enterprise_device_mgr_proxy.h",
-              "policy_info.h",
-              "ent_info.h",
-              "ienterprise_device_mgr.h",
-              "device_settings_manager.h"
-            ]
-          },
-          "name": "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits"
-        }
       ],
       "test": [
         "//base/customization/enterprise_device_management/test/unittest:unittest",
