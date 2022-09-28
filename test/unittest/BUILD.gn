@@ -38,20 +38,20 @@ ohos_unittest("EdmServicesUnitTest") {
   sources = [
     "./src/admin_manager_test.cpp",
     "./src/cmd_utils.cpp",
+    "./src/device_settings_manager_test.cpp",
+    "./src/edm_permission_test.cpp",
+    "./src/ent_info_test.cpp",
+    "./src/enterprise_admin_conn_manager_test.cpp",
+    "./src/enterprise_admin_connection_test.cpp",
     "./src/enterprise_device_mgr_ability_test.cpp",
+    "./src/enterprise_device_mgr_proxy_test.cpp",
     "./src/iplugin_template_test.cpp",
+    "./src/iplugin_test.cpp",
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
     "./src/policy_manager_test.cpp",
     "./src/policy_serializer_test.cpp",
     "./src/utils_test.cpp",
-    "./src/device_settings_manager_test.cpp",
-    "./src/ent_info_test.cpp",
-    "./src/enterprise_device_mgr_proxy_test.cpp",
-    "./src/enterprise_admin_connection_test.cpp",
-    "./src/enterprise_admin_conn_manager_test.cpp",
-    "./src/edm_permission_test.cpp",
-    "./src/iplugin_test.cpp",
   ]
 
   configs = [
@@ -62,8 +62,8 @@ ohos_unittest("EdmServicesUnitTest") {
   deps = [
     "$EDM_INNERKITS_PATH:edmservice_kits",
     "$EDM_SA_ROOT:edmservice",
-    "//third_party/googletest:gtest_main",
     "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
 
