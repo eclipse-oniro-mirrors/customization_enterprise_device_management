@@ -39,6 +39,7 @@ void EntInfoTest::SetUp()
 {
     entInfoTest = std::make_shared<EntInfo>(NAME, DESCRIPTION);
 }
+
 void EntInfoTest::TearDown()
 {
     if (entInfoTest) {
@@ -54,8 +55,7 @@ void EntInfoTest::TearDown()
 HWTEST_F(EntInfoTest, TestMarshalling, TestSize.Level1)
 {
     Parcel parcel;
-    bool ret;
-    ret = entInfoTest->Marshalling(parcel);
+    bool ret = entInfoTest->Marshalling(parcel);
     EXPECT_TRUE(ret);
 
     EntInfo entinfo;

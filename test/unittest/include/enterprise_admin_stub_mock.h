@@ -26,11 +26,9 @@ namespace OHOS {
 namespace EDM {
 class EnterpriseAdminStubMock : public IRemoteStub<IEnterpriseAdmin> {
 public:
-    EnterpriseAdminStubMock() : code_(0)
-    {}
+    EnterpriseAdminStubMock() : code_(0) {}
 
-    virtual ~EnterpriseAdminStubMock()
-    {}
+    virtual ~EnterpriseAdminStubMock() {}
 
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
 
@@ -40,11 +38,9 @@ public:
         return 0;
     }
 
-    void OnAdminEnabled() override
-    {}
+    void OnAdminEnabled() override {}
 
-    void OnAdminDisabled() override
-    {}
+    void OnAdminDisabled() override {}
 
     uint32_t code_ = 0;
 };

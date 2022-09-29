@@ -17,11 +17,11 @@
 #include <string>
 #include <vector>
 #include "cmd_utils.h"
+#include "func_code.h"
+#include "policy_info.h"
 #define private public
 #include "enterprise_admin_conn_manager.h"
 #undef private
-#include "func_code.h"
-#include "policy_info.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -43,8 +43,12 @@ void EnterpriseAdminConnManagerTest::SetUp()
 {
     enterpriseAdminConnManagerTest = std::make_shared<EnterpriseAdminConnManager>();
 }
+
 void EnterpriseAdminConnManagerTest::TearDown()
 {
+    if (enterpriseAdminConnManagerTest) {
+        enterpriseAdminConnManagerTest.reset();
+    }
 }
 
 /**
@@ -54,8 +58,8 @@ void EnterpriseAdminConnManagerTest::TearDown()
  */
 HWTEST_F(EnterpriseAdminConnManagerTest, TestConnectAbility, TestSize.Level1)
 {
-    std::string bundleName = "com.edm.test.demo";
-    std::string abilityName = "com.edm.test.demo.Ability";
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
 
     bool ret = enterpriseAdminConnManagerTest->ConnectAbility(
         bundleName, abilityName, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);

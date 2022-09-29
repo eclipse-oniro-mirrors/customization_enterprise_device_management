@@ -25,11 +25,9 @@ namespace OHOS {
 namespace EDM {
 class IPluginMock : public IPlugin {
 public:
-    IPluginMock()
-    {}
+    IPluginMock() {}
 
-    virtual ~IPluginMock()
-    {}
+    virtual ~IPluginMock() {}
 
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
         bool &isChanged) override
@@ -37,16 +35,14 @@ public:
         return 0;
     }
 
-    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged) override
-    {}
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged) override {}
 
     ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData) override
     {
         return 0;
     }
 
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData) override
-    {}
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData) override {}
 
     void MockSetPolicyName(std::string policyName)
     {

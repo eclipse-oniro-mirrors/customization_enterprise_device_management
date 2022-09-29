@@ -37,6 +37,7 @@ void DeviceSettingsManagerTest::SetUp()
 {
     deviceSettingsManager = DeviceSettingsManager::GetDeviceSettingsManager();
 }
+
 void DeviceSettingsManagerTest::TearDown()
 {
     if (deviceSettingsManager) {
@@ -51,12 +52,11 @@ void DeviceSettingsManagerTest::TearDown()
  */
 HWTEST_F(DeviceSettingsManagerTest, TestSetDateTime, TestSize.Level1)
 {
-    bool ret;
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     int64_t time = 1674365400000;
-    ret = deviceSettingsManager->SetDateTime(admin, time);
+    bool ret = deviceSettingsManager->SetDateTime(admin, time);
     EXPECT_TRUE(ret);
 }
 } // namespace TEST

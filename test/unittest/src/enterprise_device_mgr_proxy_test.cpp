@@ -40,6 +40,7 @@ void EnterpriseDeviceMgrProxyTest::SetUp()
 {
     enterpriseDeviceMgrProxyTest = EnterpriseDeviceMgrProxy::GetInstance();
 }
+
 void EnterpriseDeviceMgrProxyTest::TearDown()
 {
     EnterpriseDeviceMgrProxy::DestroyInstance();
@@ -58,8 +59,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
 
     EntInfo entInfo("test", "this is test");
 
-    ErrCode errVal;
-    errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
     EXPECT_TRUE(errVal != ERR_OK);
 
     errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(admin, entInfo);
@@ -105,8 +105,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableSuperAdmin, TestSize.Level1)
 
     EntInfo entInfo("test", "this is test");
 
-    ErrCode errVal;
-    errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USERID);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USERID);
     EXPECT_TRUE(errVal != ERR_OK);
 
     bool ret = enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo");

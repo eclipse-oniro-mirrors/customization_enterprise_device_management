@@ -29,17 +29,10 @@ namespace EDM {
 namespace TEST {
 class IPluginTest : public testing::Test {
 protected:
-    void SetUp() override;
+    void SetUp() override {}
 
-    void TearDown() override;
+    void TearDown() override {}
 };
-
-void IPluginTest::SetUp()
-{
-}
-void IPluginTest::TearDown()
-{
-}
 
 /**
  * @tc.name: TestIsGlobalPolicy

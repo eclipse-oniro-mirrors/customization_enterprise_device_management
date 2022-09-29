@@ -33,7 +33,7 @@ class EnterpriseAdminConnectionTest : public testing::Test {
 protected:
     void SetUp() override;
 
-    void TearDown() override;
+    void TearDown() override {}
 
     std::shared_ptr<EnterpriseAdminConnection> enterpriseAdminConnectionTest {nullptr};
     sptr<EnterpriseAdminStubMock> remoteObject {nullptr};
@@ -42,9 +42,6 @@ protected:
 void EnterpriseAdminConnectionTest::SetUp()
 {
     remoteObject = new (std::nothrow) EnterpriseAdminStubMock();
-}
-void EnterpriseAdminConnectionTest::TearDown()
-{
 }
 
 /**

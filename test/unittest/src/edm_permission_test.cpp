@@ -29,17 +29,10 @@ namespace EDM {
 namespace TEST {
 class EdmPermissionTest : public testing::Test {
 protected:
-    void SetUp() override;
+    void SetUp() override {}
 
-    void TearDown() override;
+    void TearDown() override {}
 };
-
-void EdmPermissionTest::SetUp()
-{
-}
-void EdmPermissionTest::TearDown()
-{
-}
 
 /**
  * @tc.name: TestEdmPermissionEqual
