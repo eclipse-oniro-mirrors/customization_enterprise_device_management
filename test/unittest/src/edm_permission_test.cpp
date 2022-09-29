@@ -63,6 +63,7 @@ HWTEST_F(EdmPermissionTest, TestMarshalling, TestSize.Level1)
     Parcel parcel;
     permission1.Marshalling(parcel);
     EdmPermission *permission2 = permission1.Unmarshalling(parcel);
+    EXPECT_TRUE(permission2 != nullptr);
     EXPECT_TRUE(permission1 == *permission2);
     if (permission2) {
         delete permission2;
