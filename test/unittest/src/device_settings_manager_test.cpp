@@ -56,8 +56,8 @@ HWTEST_F(DeviceSettingsManagerTest, TestSetDateTime, TestSize.Level1)
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     int64_t time = 1674365400000;
-    bool ret = deviceSettingsManager->SetDateTime(admin, time);
-    EXPECT_TRUE(ret);
+    int32_t ret = deviceSettingsManager->SetDateTime(admin, time);
+    EXPECT_TRUE(ret != ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

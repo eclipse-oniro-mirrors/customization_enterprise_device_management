@@ -61,7 +61,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     EDMLOGD("EnterpriseDeviceMgrProxy::EnableAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -74,7 +74,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::ADD_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:EnableAdmin send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -89,7 +89,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -100,7 +100,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableAdmin send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -115,7 +115,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableSuperAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -125,7 +125,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_SUPER_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableSuperAdmin send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -140,7 +140,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnabledAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -150,7 +150,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENABLED_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -166,7 +166,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnterpriseInfo");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -176,7 +176,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnterpriseInfo send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -193,7 +193,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     EDMLOGD("EnterpriseDeviceMgrProxy::SetEnterpriseInfo");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -204,7 +204,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::SET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);
-        return ERR_EDM_SERVICE_NOT_READY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
@@ -219,7 +219,7 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return false;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -242,7 +242,7 @@ bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, in
     EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return ERR_EDM_SERVICE_NOT_READY;
+        return false;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -273,12 +273,12 @@ bool EnterpriseDeviceMgrProxy::IsPolicyDisable(int policyCode, bool &isDisabled)
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
+int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicy");
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel reply;
     MessageOption option;
@@ -286,14 +286,11 @@ bool EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessagePar
     ErrCode res = remote->SendRequest(policyCode, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicy send request fail. %{public}d", res);
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::int32_t requestRes = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(requestRes) && (requestRes == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:HandleDevicePolicy return fail. %{public}d", requestRes);
-    }
-    return blRes;
+    int32_t ret = ERR_OK;
+    reply.ReadInt32(ret);
+    return ret;
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicyValue(int policyCode, std::string &policyData)

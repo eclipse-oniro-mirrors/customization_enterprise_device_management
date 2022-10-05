@@ -56,16 +56,6 @@ public:
         const sptr<IRemoteObject>& token) override;
 
     static EnterpriseAdminExtension* Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime);
-
-    /**
-     * @brief The OnAdminEnabled callback.
-     */
-    virtual void OnAdminEnabled();
-
-    /**
-     * @brief The OnAdminDisabled callback.
-     */
-    virtual void OnAdminDisabled();
 };
 }  // namespace EDM
 }  // namespace OHOS
