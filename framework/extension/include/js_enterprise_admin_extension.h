@@ -53,9 +53,9 @@ public:
 
     void OnStop() override;
 
-    void OnAdminEnabled() override;
+    void OnAdminEnabled();
 
-    void OnAdminDisabled() override;
+    void OnAdminDisabled();
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue** argv, size_t argc);
 

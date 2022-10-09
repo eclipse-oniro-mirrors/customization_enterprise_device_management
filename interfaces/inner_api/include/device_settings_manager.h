@@ -24,7 +24,7 @@ public:
     DeviceSettingsManager();
     ~DeviceSettingsManager();
     static std::shared_ptr<DeviceSettingsManager> GetDeviceSettingsManager();
-    bool SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
+    int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
 
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;

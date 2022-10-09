@@ -28,6 +28,20 @@ enum {
     // Reserved 0x04 ~ 0x0f for new modules, Event related modules start from 0x10
 };
 
+namespace EdmReturnErrCode {
+    constexpr uint32_t PARAM_ERROR = 401;
+    constexpr uint32_t PERMISSION_DENIED = 201;
+    constexpr uint32_t INTERFACE_UNSUPPORTED = 801;
+
+    constexpr uint32_t ADMIN_INACTIVE = 9200001;
+    constexpr uint32_t ADMIN_EDM_PERMISSION_DENIED = 9200002;
+    constexpr uint32_t COMPONENT_INVALID = 9200003;
+    constexpr uint32_t ENABLE_ADMIN_FAILED = 9200004;
+    constexpr uint32_t DISABLE_ADMIN_FAILED = 9200005;
+    constexpr uint32_t UID_INVALID = 9200006;
+    constexpr uint32_t SYSTEM_ABNORMALLY = 9200007;
+};
+
 // Error code for SERVICE: 0x2000000,value:33554432
 constexpr ErrCode EDM_SERVICE_ERR_OFFSET = ErrCodeOffset(SUBSYS_CUSTOMIZATION, EDM_MODULE_EDMSERVICE);
 enum {

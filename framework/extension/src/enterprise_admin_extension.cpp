@@ -61,9 +61,5 @@ std::shared_ptr<EnterpriseAdminExtensionContext> EnterpriseAdminExtension::Creat
     }
     return context;
 }
-
-void EnterpriseAdminExtension::OnAdminEnabled() {}
-
-void EnterpriseAdminExtension::OnAdminDisabled() {}
 } // namespace EDM
 } // namespace OHOS

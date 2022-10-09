@@ -89,12 +89,6 @@ struct AsyncGetDeviceSettingsManagerCallbackInfo : AsyncCallbackInfo {
     napi_ref callback = 0;
 };
 
-class EdmReturnErrCode {
-public:
-    static const int32_t PARAM_ERROR = 15200401;
-    static const int32_t PERMISSION_DENIED = 15200201;
-};
-
 class EnterpriseDeviceManagerAddon {
 public:
     EnterpriseDeviceManagerAddon();
@@ -125,31 +119,37 @@ public:
     static void NativeIsAdminEnabled(napi_env env, void *data);
     static void NativeSetDateTime(napi_env env, void *data);
 
+    static void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
     static void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
     static void NativeGetEnterpriseInfoComplete(napi_env env, napi_status status, void *data);
 
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
     static napi_value ParseString(napi_env env, std::string &param, napi_value args);
-    static napi_value CreateErrorMessage(napi_env env, ErrCode errorCode, std::string errMessage);
     static bool ParseElementName(napi_env env, OHOS::AppExecFwk::ElementName &elementName, napi_value args);
     static napi_value ParseStringArray(napi_env env, std::vector<std::string> &hapFiles, napi_value args);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
-    static napi_value CreateUndefined(napi_env env);
     static napi_value ParseInt(napi_env env, int32_t &param, napi_value args);
     static napi_value ParseLong(napi_env env, int64_t &param, napi_value args);
 
     static napi_value DeviceSettingsManagerConstructor(napi_env env, napi_callback_info info);
-
 private:
-    static napi_value ThrowNapiError(napi_env env, ErrCode errCode, const char* errMessage);
+    static napi_value CreateError(napi_env env, ErrCode errorCode);
+    static napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage);
     static std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
     static bool checkEnableAdminParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static bool checkAdminWithUserIdParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
-    static std::map<ErrCode, std::pair<int32_t, std::string>> errMessageMap;
+    static inline napi_value AssertAndThrowParamError(napi_env env, bool assertion, const std::string &errMessage)
+    {
+        if (!assertion) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, errMessage));
+        }
+        return nullptr;
+    }
+    static std::map<int32_t, std::string> errMessageMap;
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceSettingsManager> deviceSettingsManager_;
 };

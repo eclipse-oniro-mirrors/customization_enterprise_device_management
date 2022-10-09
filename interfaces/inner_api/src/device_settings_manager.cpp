@@ -40,21 +40,20 @@ std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::GetDeviceSettingsM
     return instance_;
 }
 
-bool DeviceSettingsManager::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
+int32_t DeviceSettingsManager::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
 {
     EDMLOGD("DeviceSettingsManager::SetDateTime");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteInt64(time);
-    proxy->HandleDevicePolicy(funcCode, data);
-    return true;
+    return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS
