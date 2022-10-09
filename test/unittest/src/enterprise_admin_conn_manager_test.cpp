@@ -20,7 +20,7 @@
 #include "func_code.h"
 #include "policy_info.h"
 #define private public
-#include "enterprise_admin_conn_manager.h"
+#include "enterprise_conn_manager.h"
 #undef private
 
 using namespace testing::ext;
@@ -30,24 +30,24 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int32_t DEFAULT_USERID = 100;
-class EnterpriseAdminConnManagerTest : public testing::Test {
+class EnterpriseConnManagerTest : public testing::Test {
 protected:
     void SetUp() override;
 
     void TearDown() override;
 
-    std::shared_ptr<EnterpriseAdminConnManager> enterpriseAdminConnManagerTest {nullptr};
+    std::shared_ptr<EnterpriseConnManager> enterpriseConnManagerTest {nullptr};
 };
 
-void EnterpriseAdminConnManagerTest::SetUp()
+void EnterpriseConnManagerTest::SetUp()
 {
-    enterpriseAdminConnManagerTest = std::make_shared<EnterpriseAdminConnManager>();
+    enterpriseConnManagerTest = std::make_shared<EnterpriseConnManager>();
 }
 
-void EnterpriseAdminConnManagerTest::TearDown()
+void EnterpriseConnManagerTest::TearDown()
 {
-    if (enterpriseAdminConnManagerTest) {
-        enterpriseAdminConnManagerTest.reset();
+    if (enterpriseConnManagerTest) {
+        enterpriseConnManagerTest.reset();
     }
 }
 
@@ -56,17 +56,20 @@ void EnterpriseAdminConnManagerTest::TearDown()
  * @tc.desc: Test ConnectAbility func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseAdminConnManagerTest, TestConnectAbility, TestSize.Level1)
+HWTEST_F(EnterpriseConnManagerTest, TestConnectAbility, TestSize.Level1)
 {
     std::string bundleName{"com.edm.test.demo"};
     std::string abilityName{"com.edm.test.demo.Ability"};
-
-    bool ret = enterpriseAdminConnManagerTest->ConnectAbility(
-        bundleName, abilityName, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
+    bool ret = manager->ConnectAbility(connection);
     EXPECT_TRUE(!ret);
 
-    enterpriseAdminConnManagerTest->Clear();
-    EXPECT_TRUE(enterpriseAdminConnManagerTest->abilityMgr_ == nullptr);
+    enterpriseConnManagerTest->Clear();
+    EXPECT_TRUE(enterpriseConnManagerTest->abilityMgr_ == nullptr);
 }
 } // namespace TEST
 } // namespace EDM

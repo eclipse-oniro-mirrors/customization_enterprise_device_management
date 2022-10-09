@@ -37,5 +37,25 @@ void EnterpriseAdminStubImpl::OnAdminDisabled()
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
+
+void EnterpriseAdminStubImpl::OnBundleAdded(const std::string &bundleName)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnBundleAdded(bundleName);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
+void EnterpriseAdminStubImpl::OnBundleRemoved(const std::string &bundleName)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnBundleRemoved(bundleName);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
 } // namespace EDM
 } // namespace OHOS

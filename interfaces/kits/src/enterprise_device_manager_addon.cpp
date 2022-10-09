@@ -24,9 +24,6 @@
 using namespace OHOS::EDM;
 
 namespace {
-constexpr int32_t NAPI_TYPE_NOMAL = 0;
-constexpr int32_t NAPI_TYPE_SUPER = 1;
-
 constexpr int32_t ARR_INDEX_ZERO = 0;
 constexpr int32_t ARR_INDEX_ONE = 1;
 constexpr int32_t ARR_INDEX_TWO = 2;
@@ -76,6 +73,9 @@ std::map<int32_t, std::string> EnterpriseDeviceManagerAddon::errMessageMap = {
     {
         EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED,
         "the administrator application does not have permission to manage the device."
+    },
+    {
+        EdmReturnErrCode::MANAGED_EVENTS_INVALID, "the specified managed event is is invalid."
     }
 };
 
@@ -711,6 +711,69 @@ void EnterpriseDeviceManagerAddon::NativeIsAdminEnabled(napi_env env, void *data
     asyncCallbackInfo->boolRet = proxy_->IsAdminEnabled(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
 }
 
+napi_value EnterpriseDeviceManagerAddon::SubscribeManagedEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SubscribeManagedEvent called");
+    return HandleManagedEvent(env, info, true);
+}
+
+napi_value EnterpriseDeviceManagerAddon::UnsubscribeManagedEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UnsubscribeManagedEvent called");
+    return HandleManagedEvent(env, info, false);
+}
+
+napi_value EnterpriseDeviceManagerAddon::HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    AssertAndThrowParamError(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+		MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
+    }
+    AssertAndThrowParamError(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncSubscribeManagedEventCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncSubscribeManagedEventCallbackInfo> callbackPtr {asyncCallbackInfo};
+    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
+    AssertAndThrowParamError(env, ret, "element name param error");
+    ret = ParseManagedEvent(env, asyncCallbackInfo->managedEvent, argv[ARR_INDEX_ONE]);
+    AssertAndThrowParamError(env, ret, "managed event param error");
+    if (argc > ARGS_SIZE_TWO) {
+        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    asyncCallbackInfo->subscribe = subscribe;
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SubscribeManagedEvent",
+        NativeSubscribeManagedEvent, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void EnterpriseDeviceManagerAddon::NativeSubscribeManagedEvent(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeSubscribeManagedEvent called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncSubscribeManagedEventCallbackInfo *asyncCallbakInfo =
+        static_cast<AsyncSubscribeManagedEventCallbackInfo *>(data);
+    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy_ == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return;
+    }
+    asyncCallbakInfo->ret = proxy_->HandleManagedEvent(asyncCallbakInfo->elementName,
+        asyncCallbakInfo->managedEvent, asyncCallbakInfo->subscribe);
+}
+
 bool EnterpriseDeviceManagerAddon::MatchValueType(napi_env env, napi_value value, napi_valuetype targetType)
 {
     napi_valuetype valueType = napi_undefined;
@@ -855,6 +918,27 @@ bool EnterpriseDeviceManagerAddon::ParseElementName(napi_env env, AppExecFwk::El
     return true;
 }
 
+bool EnterpriseDeviceManagerAddon::ParseManagedEvent(napi_env env,
+    std::vector<uint32_t> &managedEvent, napi_value args)
+{
+    uint32_t len;
+    if (napi_get_array_length(env, args, &len) != napi_ok) {
+        return false;
+    }
+    for (uint32_t i = 0; i < len; i++) {
+        napi_value event;
+        if (napi_get_element(env, args, i, &event) != napi_ok) {
+            return false;
+        }
+        uint32_t value = 0;
+        if (napi_get_value_uint32(env, event, &value) != napi_ok) {
+            return false;
+        }
+        managedEvent.push_back(value);
+    }
+    return true;
+}
+
 std::string EnterpriseDeviceManagerAddon::GetStringFromNAPI(napi_env env, napi_value value)
 {
     std::string result;
@@ -876,11 +960,23 @@ std::string EnterpriseDeviceManagerAddon::GetStringFromNAPI(napi_env env, napi_v
 void EnterpriseDeviceManagerAddon::CreateAdminTypeObject(napi_env env, napi_value value)
 {
     napi_value nNomal;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, NAPI_TYPE_NOMAL, &nNomal));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, AdminType::NORMAL, &nNomal));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_NORMAL", nNomal));
     napi_value nSuper;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, NAPI_TYPE_SUPER, &nSuper));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, AdminType::ENT, &nSuper));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_SUPER", nSuper));
+}
+
+void EnterpriseDeviceManagerAddon::CreateManagedEventObject(napi_env env, napi_value value)
+{
+    napi_value nBundleAdded;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), &nBundleAdded));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_BUNDLE_ADDED", nBundleAdded));
+    napi_value nBundleRemoved;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED), &nBundleRemoved));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_BUNDLE_REMOVED", nBundleRemoved));
 }
 
 napi_value EnterpriseDeviceManagerAddon::ParseString(napi_env env, std::string &param, napi_value args)
@@ -913,7 +1009,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
     EDMLOGD("GetDeviceSettingsManager argc = [%{public}zu]", argc);
     if (argc == ARGS_SIZE_ONE) {
-        AssertAndThrowParamError(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
+        AssertAndThrowParamError(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_function), "parameter type error");
     }
     AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
         new (std::nothrow) AsyncGetDeviceSettingsManagerCallbackInfo {
@@ -999,6 +1095,10 @@ napi_value EnterpriseDeviceManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nAdminType));
     CreateAdminTypeObject(env, nAdminType);
 
+    napi_value nManagedEvent = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nManagedEvent));
+    CreateManagedEventObject(env, nManagedEvent);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("enableAdmin", EnableAdmin),
         DECLARE_NAPI_FUNCTION("disableAdmin", DisableAdmin),
@@ -1008,8 +1108,11 @@ napi_value EnterpriseDeviceManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setEnterpriseInfo", SetEnterpriseInfo),
         DECLARE_NAPI_FUNCTION("isSuperAdmin", IsSuperAdmin),
         DECLARE_NAPI_FUNCTION("getDeviceSettingsManager", GetDeviceSettingsManager),
+        DECLARE_NAPI_FUNCTION("subscribeManagedEvent", SubscribeManagedEvent),
+        DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
+        DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
 

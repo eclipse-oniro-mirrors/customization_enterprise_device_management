@@ -20,6 +20,12 @@ class EnterpriseAdminExtensionAbility {
     onAdminDisabled() {
         console.log('onAdminDisabled');
     }
+    onBundleAdded(bundleName) {
+        console.log('EnterpriseAdminExtensionAbility->OnBundleAdded:' + bundleName);
+    }
+    onBundleRemoved(bundleName) {
+        console.log('EnterpriseAdminExtensionAbility->OnBundleRemoved:' + bundleName);
+    }
 }
 
 export default EnterpriseAdminExtensionAbility

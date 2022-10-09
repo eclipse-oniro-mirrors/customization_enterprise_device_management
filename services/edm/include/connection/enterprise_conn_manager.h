@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONN_MANAGER_H
-#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONN_MANAGER_H
+#ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONN_MANAGER_H
+#define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONN_MANAGER_H
 
 #include <map>
 #include <string>
@@ -23,15 +23,19 @@
 #include "ability_manager_death_recipient.h"
 #include "ability_manager_interface.h"
 #include "enterprise_admin_connection.h"
+#include "enterprise_bundle_connection.h"
 #include "errors.h"
+#include "ienterprise_connection.h"
 #include "singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class EnterpriseAdminConnManager : public DelayedSingleton<EnterpriseAdminConnManager> {
+class EnterpriseConnManager : public DelayedSingleton<EnterpriseConnManager> {
 public:
-    bool ConnectAbility(const std::string& bundleName, const std::string& abilityName, uint32_t code,
-        int32_t userId);
+    sptr<IEnterpriseConnection> CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId);
+    sptr<IEnterpriseConnection> CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const std::string &bundleName);
+    bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 
     void Clear();
 private:
@@ -45,4 +49,4 @@ private:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_CONN_MANAGER_H
+#endif // SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONN_MANAGER_H

@@ -39,6 +39,10 @@ public:
      * @brief The OnAdminDisabled callback.
      */
     void OnAdminDisabled() override;
+
+    void OnBundleAdded(const std::string &bundleName) override;
+
+    void OnBundleRemoved(const std::string &bundleName) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

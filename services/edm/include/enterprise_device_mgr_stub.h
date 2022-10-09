@@ -44,6 +44,9 @@ private:
     ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
     ErrCode IsSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode IsAdminEnabledInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
 };
 } // namespace EDM
 } // namespace OHOS

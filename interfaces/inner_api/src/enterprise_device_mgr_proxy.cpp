@@ -214,6 +214,34 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementName &admin,
+    const std::vector<uint32_t> &events, bool subscribe)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SubscribeManagedEvent: %{public}d", subscribe);
+    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(events);
+    uint32_t policyCode = IEnterpriseDeviceMgr::SUBSCRIBE_MANAGED_EVENT;
+    if (!subscribe) {
+        policyCode = IEnterpriseDeviceMgr::UNSUBSCRIBE_MANAGED_EVENT;
+    }
+    ErrCode res = remote->SendRequest(policyCode, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:SubscribeManagedEvent send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t retCode;
+    reply.ReadInt32(retCode);
+    return retCode;
+}
+
 bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");
