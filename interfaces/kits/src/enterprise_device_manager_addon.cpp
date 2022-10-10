@@ -33,6 +33,7 @@ constexpr int32_t ARR_INDEX_TWO = 2;
 constexpr int32_t ARR_INDEX_THREE = 3;
 constexpr int32_t ARR_INDEX_FOUR = 4;
 
+constexpr size_t ARGS_SIZE_ZERO = 0;
 constexpr size_t ARGS_SIZE_ONE = 1;
 constexpr size_t ARGS_SIZE_TWO = 2;
 constexpr size_t ARGS_SIZE_THREE = 3;
@@ -99,14 +100,14 @@ napi_value EnterpriseDeviceManagerAddon::EnableAdmin(napi_env env, napi_callback
         return nullptr;
     }
     std::unique_ptr<AsyncEnableAdminCallbackInfo> callbackPtr {asyncCallbackInfo};
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_THREE, "Parameter count error");
-    AssertAndThrowParamError(env, checkEnableAdminParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, checkEnableAdminParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
-    AssertAndThrowParamError(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
-    AssertAndThrowParamError(env, ParseEnterpriseInfo(env, asyncCallbackInfo->entInfo, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseEnterpriseInfo(env, asyncCallbackInfo->entInfo, argv[ARR_INDEX_ONE]),
         "Parameter enterprise info error");
-    AssertAndThrowParamError(env, ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO]),
         "Parameter admin type error");
 
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
@@ -115,7 +116,7 @@ napi_value EnterpriseDeviceManagerAddon::EnableAdmin(napi_env env, napi_callback
         asyncCallbackInfo->elementName.GetAbilityName().c_str(),
         asyncCallbackInfo->adminType);
     if (hasUserId) {
-        AssertAndThrowParamError(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE]),
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE]),
             "Parameter user id error");
     } else {
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
@@ -318,10 +319,10 @@ napi_value EnterpriseDeviceManagerAddon::DisableAdmin(napi_env env, napi_callbac
         return nullptr;
     }
     std::unique_ptr<AsyncDisableAdminCallbackInfo> callbackPtr {asyncCallbackInfo};
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
-    AssertAndThrowParamError(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
-    AssertAndThrowParamError(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
 
     EDMLOGD("DisableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
@@ -329,7 +330,7 @@ napi_value EnterpriseDeviceManagerAddon::DisableAdmin(napi_env env, napi_callbac
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (hasUserId) {
-        AssertAndThrowParamError(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
     } else {
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
@@ -368,18 +369,19 @@ napi_value EnterpriseDeviceManagerAddon::DisableSuperAdmin(napi_env env, napi_ca
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
 
     auto asyncCallbackInfo = new (std::nothrow) AsyncDisableSuperAdminCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncDisableSuperAdminCallbackInfo> callbackPtr {asyncCallbackInfo};
-    ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]);
-    if (argc == ARGS_SIZE_TWO) {
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]),
+        "parameter bundle name error");
+    if (argc > ARGS_SIZE_ONE) {
         bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
         napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
-        AssertAndThrowParamError(env, matchFlag, "parameter type error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     }
 
     EDMLOGD("DisableSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",
@@ -415,24 +417,24 @@ napi_value EnterpriseDeviceManagerAddon::GetEnterpriseInfo(napi_env env, napi_ca
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc == ARGS_SIZE_TWO) {
+    if (argc > ARGS_SIZE_ONE) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
     }
-    AssertAndThrowParamError(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncGetEnterpriseInfoCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncGetEnterpriseInfoCallbackInfo> callbackPtr {asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    AssertAndThrowParamError(env, ret, "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
     EDMLOGD("EnableAdmin: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc == ARGS_SIZE_TWO) {
+    if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("GetEnterpriseInfo by callback");
         napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
@@ -469,27 +471,28 @@ void EnterpriseDeviceManagerAddon::NativeGetEnterpriseInfoComplete(napi_env env,
 
     napi_value result[2] = { 0 };
     if (asyncCallbackInfo->ret == ERR_OK) {
-        napi_create_uint32(env, 0, &result[0]);
-        napi_create_object(env, &result[1]);
-        ConvertEnterpriseInfo(env, result[1], asyncCallbackInfo->entInfo);
+        napi_get_null(env, &result[ARR_INDEX_ZERO]);
+        napi_create_object(env, &result[ARR_INDEX_ONE]);
+        ConvertEnterpriseInfo(env, result[ARR_INDEX_ONE], asyncCallbackInfo->entInfo);
         EDMLOGD("NativeGetEnterpriseInfoComplete::asyncCallbackInfo->entInfo->enterpriseName %{public}s, "
             "asyncCallbackInfo->entInfo->description:%{public}s",
             asyncCallbackInfo->entInfo.enterpriseName.c_str(), asyncCallbackInfo->entInfo.description.c_str());
     } else {
-        napi_create_int32(env, 1, &result[0]);
-        napi_get_undefined(env, &result[1]);
+        result[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+        napi_get_null(env, &result[ARR_INDEX_ONE]);
     }
     if (asyncCallbackInfo->deferred) {
         if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result[1]);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result[ARR_INDEX_ONE]);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, result[0]);
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, result[ARR_INDEX_ZERO]);
         }
     } else {
         napi_value callback = nullptr;
         napi_value placeHolder = nullptr;
         napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, sizeof(result) / sizeof(result[0]), result, &placeHolder);
+        napi_call_function(env, nullptr, callback, sizeof(result) / sizeof(result[ARR_INDEX_ZERO]),
+            result, &placeHolder);
         napi_delete_reference(env, asyncCallbackInfo->callback);
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
@@ -505,27 +508,27 @@ napi_value EnterpriseDeviceManagerAddon::SetEnterpriseInfo(napi_env env, napi_ca
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     bool matchFlag =
         MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    if (argc == ARGS_SIZE_THREE) {
+    if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
     }
-    AssertAndThrowParamError(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncSetEnterpriseInfoCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncSetEnterpriseInfoCallbackInfo> callbackPtr {asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    AssertAndThrowParamError(env, ret, "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
     ret = ParseEnterpriseInfo(env, asyncCallbackInfo->entInfo, argv[ARR_INDEX_ONE]);
-    AssertAndThrowParamError(env, ret, "enterprise info param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "enterprise info param error");
     EDMLOGD("SetEnterpriseInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc == ARGS_SIZE_THREE) {
+    if (argc > ARGS_SIZE_TWO) {
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
 
@@ -543,27 +546,27 @@ napi_value EnterpriseDeviceManagerAddon::SetDateTime(napi_env env, napi_callback
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag =
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    if (argc == ARGS_SIZE_THREE) {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
+    if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
     }
-    AssertAndThrowParamError(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncSetDateTimeCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncSetDateTimeCallbackInfo> callbackPtr {asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    AssertAndThrowParamError(env, ret, "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
     EDMLOGD("SetDateTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     ret = ParseLong(env, asyncCallbackInfo->time, argv[ARR_INDEX_ONE]);
-    AssertAndThrowParamError(env, ret, "time param error");
-    if (argc == ARGS_SIZE_THREE) {
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "time param error");
+    if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetDateTime argc == ARGS_SIZE_THREE");
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
@@ -615,18 +618,19 @@ napi_value EnterpriseDeviceManagerAddon::IsSuperAdmin(napi_env env, napi_callbac
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncIsSuperAdminCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncIsSuperAdminCallbackInfo> callbackPtr {asyncCallbackInfo};
-    ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]),
+        "parameter bundle name error");
     EDMLOGD("IsSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",
         asyncCallbackInfo->bundleName.c_str());
-    if (argc == ARGS_SIZE_TWO) {
+    if (argc > ARGS_SIZE_ONE) {
         bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-        AssertAndThrowParamError(env, matchFlag, "parameter type error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
         napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
 
@@ -651,10 +655,10 @@ napi_value EnterpriseDeviceManagerAddon::isAdminEnabled(napi_env env, napi_callb
         return nullptr;
     }
     std::unique_ptr<AsyncIsAdminEnabledCallbackInfo> callbackPtr {asyncCallbackInfo};
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
-    AssertAndThrowParamError(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
-    AssertAndThrowParamError(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
     EDMLOGD("isAdminEnabled::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
@@ -662,7 +666,7 @@ napi_value EnterpriseDeviceManagerAddon::isAdminEnabled(napi_env env, napi_callb
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
 
     if (hasUserId) {
-        AssertAndThrowParamError(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
     } else {
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
@@ -755,58 +759,52 @@ napi_value EnterpriseDeviceManagerAddon::CreateError(napi_env env, int32_t error
     return result;
 }
 
-napi_value EnterpriseDeviceManagerAddon::ParseInt(napi_env env, int32_t &param, napi_value args)
+bool EnterpriseDeviceManagerAddon::ParseInt(napi_env env, int32_t &param, napi_value args)
 {
-    napi_valuetype valuetype = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    EDMLOGD("ParseInt param=%{public}d.", valuetype);
-    AssertAndThrowParamError(env, valuetype == napi_number, "Wrong argument type. int32 expected.");
-    int32_t value = 0;
-    napi_get_value_int32(env, args, &value);
-    param = value;
-    // create result code
-    napi_value result = nullptr;
-    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
-    AssertAndThrowParamError(env, status == napi_ok, "napi_create_int32 error!");
-    return result;
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, args, &valueType)!= napi_ok ||
+        valueType != napi_number || napi_get_value_int32(env, args, &param) != napi_ok) {
+        EDMLOGE("Wrong argument type. int32 expected.");
+        return false;
+    }
+    return true;
 }
 
-napi_value EnterpriseDeviceManagerAddon::ParseLong(napi_env env, int64_t &param, napi_value args)
+bool EnterpriseDeviceManagerAddon::ParseLong(napi_env env, int64_t &param, napi_value args)
 {
-    napi_valuetype valuetype = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    EDMLOGD("ParseLong param=%{public}d.", valuetype);
-    AssertAndThrowParamError(env, valuetype == napi_number, "Wrong argument type. int64 expected.");
-    int64_t value = 0;
-    napi_get_value_int64(env, args, &value);
-    param = value;
-    // create result code
-    napi_value result = nullptr;
-    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
-    AssertAndThrowParamError(env, status == napi_ok, "napi_create_int32 error!");
-    return result;
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, args, &valueType)!= napi_ok ||
+        valueType != napi_number || napi_get_value_int64(env, args, &param) != napi_ok) {
+        EDMLOGE("Wrong argument type. int64 expected.");
+        return false;
+    }
+    return true;
 }
 
 bool EnterpriseDeviceManagerAddon::ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args)
 {
     napi_valuetype valueType;
-    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
-    if (valueType != napi_object) {
-        EDMLOGE("param type mismatch!");
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_object) {
+        EDMLOGE("Parameter enterprise info error");
         return false;
     }
     std::string name;
     std::string description;
     napi_value prop = nullptr;
     EDMLOGD("ParseEnterpriseInfo name");
-    napi_get_named_property(env, args, "name", &prop);
-    name = GetStringFromNAPI(env, prop);
+    if (napi_get_named_property(env, args, "name", &prop) != napi_ok || !GetStringFromNAPI(env, prop, name)) {
+         EDMLOGE("ParseEnterpriseInfo name param error");
+         return false;
+    }
     EDMLOGD("ParseEnterpriseInfo name %{public}s ", name.c_str());
 
     EDMLOGD("ParseEnterpriseInfo description");
     prop = nullptr;
-    napi_get_named_property(env, args, "description", &prop);
-    description = GetStringFromNAPI(env, prop);
+    if (napi_get_named_property(env, args, "description", &prop) != napi_ok ||
+        !GetStringFromNAPI(env, prop, description)) {
+         EDMLOGE("ParseEnterpriseInfo description param error");
+         return false;
+    }
     EDMLOGD("ParseEnterpriseInfo description %{public}s", description.c_str());
 
     enterpriseInfo.enterpriseName = name;
@@ -833,44 +831,49 @@ bool EnterpriseDeviceManagerAddon::ParseElementName(napi_env env, AppExecFwk::El
     napi_valuetype valueType;
     NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
     if (valueType != napi_object) {
-        EDMLOGE("param type mismatch!");
+        EDMLOGE("Parameter element valueType error");
         return false;
     }
     std::string bundleName;
     std::string abilityName;
     napi_value prop = nullptr;
-    EDMLOGD("ParseElementName name");
-    napi_get_named_property(env, args, "bundleName", &prop);
-    bundleName = GetStringFromNAPI(env, prop);
-    EDMLOGD("ParseElementName name %{public}s ", bundleName.c_str());
+    if (napi_get_named_property(env, args, "bundleName", &prop) != napi_ok ||
+        !GetStringFromNAPI(env, prop, bundleName)) {
+        EDMLOGE("Parameter element bundleName error");
+        return false;
+    }
+    EDMLOGD("ParseElementName bundleName %{public}s ", bundleName.c_str());
 
-    EDMLOGD("ParseElementName description");
     prop = nullptr;
-    napi_get_named_property(env, args, "abilityName", &prop);
-    abilityName = GetStringFromNAPI(env, prop);
-    EDMLOGD("ParseElementName description %{public}s", abilityName.c_str());
+    if (napi_get_named_property(env, args, "abilityName", &prop) != napi_ok ||
+        !GetStringFromNAPI(env, prop, abilityName)) {
+        EDMLOGE("Parameter abilityname error");
+        return false;
+    }
+    EDMLOGD("ParseElementName abilityname %{public}s", abilityName.c_str());
 
     elementName.SetBundleName(bundleName);
     elementName.SetAbilityName(abilityName);
     return true;
 }
 
-std::string EnterpriseDeviceManagerAddon::GetStringFromNAPI(napi_env env, napi_value value)
+bool EnterpriseDeviceManagerAddon::GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr)
 {
     std::string result;
     size_t size = 0;
 
     if (napi_get_value_string_utf8(env, value, nullptr, NAPI_RETURN_ZERO, &size) != napi_ok) {
         EDMLOGE("can not get string size");
-        return "";
+        return false;
     }
     result.reserve(size + NAPI_RETURN_ONE);
     result.resize(size);
     if (napi_get_value_string_utf8(env, value, result.data(), (size + NAPI_RETURN_ONE), &size) != napi_ok) {
         EDMLOGE("can not get string value");
-        return "";
+        return false;
     }
-    return result;
+    resultStr = result;
+    return true;
 }
 
 void EnterpriseDeviceManagerAddon::CreateAdminTypeObject(napi_env env, napi_value value)
@@ -883,19 +886,16 @@ void EnterpriseDeviceManagerAddon::CreateAdminTypeObject(napi_env env, napi_valu
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_SUPER", nSuper));
 }
 
-napi_value EnterpriseDeviceManagerAddon::ParseString(napi_env env, std::string &param, napi_value args)
+bool EnterpriseDeviceManagerAddon::ParseString(napi_env env, std::string &param, napi_value args)
 {
-    napi_status status;
     napi_valuetype valuetype;
-    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    AssertAndThrowParamError(env, valuetype == napi_string, "Wrong argument type. String expected.");
-    param = GetStringFromNAPI(env, args);
+    if (napi_typeof(env, args, &valuetype) != napi_ok || valuetype != napi_string ||
+        !GetStringFromNAPI(env, args, param)) {
+        EDMLOGE("can not get string value");
+        return false;
+    }
     EDMLOGD("ParseString param = %{public}s.", param.c_str());
-    // create result code
-    napi_value result;
-    status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
-    AssertAndThrowParamError(env, status == napi_ok, "napi_create_int32 error!");
-    return result;
+    return true;
 }
 
 napi_value EnterpriseDeviceManagerAddon::DeviceSettingsManagerConstructor(napi_env env, napi_callback_info info)
@@ -912,8 +912,9 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
     EDMLOGD("GetDeviceSettingsManager argc = [%{public}zu]", argc);
-    if (argc == ARGS_SIZE_ONE) {
-        AssertAndThrowParamError(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_function), "parameter type error");
+    if (argc > ARGS_SIZE_ZERO) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_function),
+            "parameter type error");
     }
     AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
         new (std::nothrow) AsyncGetDeviceSettingsManagerCallbackInfo {
@@ -929,7 +930,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
         EDMLOGD("GetDeviceSettingsManager asyncCallback.");
         napi_valuetype valuetype = napi_undefined;
         NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_ZERO], &valuetype));
-        AssertAndThrowParamError(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        ASSERT_AND_THROW_PARAM_ERROR(env, valuetype == napi_function, "Wrong argument type. Function expected.");
         napi_create_reference(env, argv[ARR_INDEX_ZERO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
