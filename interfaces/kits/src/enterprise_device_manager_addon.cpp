@@ -913,7 +913,7 @@ napi_value EnterpriseDeviceManagerAddon::GetDeviceSettingsManager(napi_env env, 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
     EDMLOGD("GetDeviceSettingsManager argc = [%{public}zu]", argc);
     if (argc == ARGS_SIZE_ONE) {
-        AssertAndThrowParamError(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
+        AssertAndThrowParamError(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_function), "parameter type error");
     }
     AsyncGetDeviceSettingsManagerCallbackInfo *asyncCallbackInfo =
         new (std::nothrow) AsyncGetDeviceSettingsManagerCallbackInfo {
