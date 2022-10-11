@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_PROXY_H
-#define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_PROXY_H
+#ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_PROXY_H
+#define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_PROXY_H
 
 #include <iremote_proxy.h>
 
@@ -29,19 +29,17 @@ public:
 
     virtual ~EnterpriseAdminProxy() {}
 
-    /**
-     * @brief The OnAdminEnabled callback.
-     */
     void OnAdminEnabled() override;
 
-    /**
-     * @brief The OnAdminDisabled callback.
-     */
     void OnAdminDisabled() override;
+
+    void OnBundleAdded(const std::string &bundleName) override;
+
+    void OnBundleRemoved(const std::string &bundleName) override;
 private:
-    void SendRequest(uint32_t code);
+    void SendRequest(uint32_t code, MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_ADMIN_PROXY_H
+#endif // SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_PROXY_H
 

@@ -40,6 +40,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t DISABLE_ADMIN_FAILED = 9200005;
     constexpr uint32_t UID_INVALID = 9200006;
     constexpr uint32_t SYSTEM_ABNORMALLY = 9200007;
+    constexpr uint32_t MANAGED_EVENTS_INVALID = 9200008;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

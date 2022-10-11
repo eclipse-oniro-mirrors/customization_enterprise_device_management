@@ -146,6 +146,22 @@ void JsEnterpriseAdminExtension::OnAdminDisabled()
     CallObjectMethod("onAdminDisabled", nullptr, JS_NAPI_ARGC_ZERO);
 }
 
+void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
+{
+    HILOG_INFO("JsEnterpriseAdminExtension::OnBundleAdded");
+    auto& engine = jsRuntime_.GetNativeEngine();
+    NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+    CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_ONE);
+}
+
+void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
+{
+    HILOG_INFO("JsEnterpriseAdminExtension::OnBundleRemoved");
+    auto& engine = jsRuntime_.GetNativeEngine();
+    NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+    CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
+}
+
 NativeValue* JsEnterpriseAdminExtension::CallObjectMethod(const char* name, NativeValue** argv, size_t argc)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::CallObjectMethod(%{public}s), begin", name);

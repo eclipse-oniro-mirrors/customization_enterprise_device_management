@@ -56,6 +56,10 @@ public:
     void OnAdminEnabled();
 
     void OnAdminDisabled();
+
+    void OnBundleAdded(const std::string &bundleName);
+
+    void OnBundleRemoved(const std::string &bundleName);
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue** argv, size_t argc);
 

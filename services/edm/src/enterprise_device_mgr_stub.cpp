@@ -43,6 +43,8 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
     memberFuncMap_[SET_ENT_INFO] =  &EnterpriseDeviceMgrStub::SetEnterpriseInfoInner;
     memberFuncMap_[IS_SUPER_ADMIN] =  &EnterpriseDeviceMgrStub::IsSuperAdminInner;
     memberFuncMap_[IS_ADMIN_ENABLED] =  &EnterpriseDeviceMgrStub::IsAdminEnabledInner;
+    memberFuncMap_[SUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::SubscribeManagedEventInner;
+    memberFuncMap_[UNSUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
 }
 
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -223,6 +225,37 @@ ErrCode EnterpriseDeviceMgrStub::SetEnterpriseInfoInner(MessageParcel &data, Mes
     ErrCode ret = SetEnterpriseInfo(*admin, *entInfo);
     reply.WriteInt32(ret);
     return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:SubscribeManagedEventInner");
+    return SubscribeManagedEventInner(data, reply, true);
+}
+
+ErrCode EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:UnsubscribeManagedEventInner");
+    return SubscribeManagedEventInner(data, reply, false);
+}
+
+ErrCode EnterpriseDeviceMgrStub::SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe)
+{
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::vector<uint32_t> events;
+    data.ReadUInt32Vector(&events);
+    ErrCode code;
+    if (subscribe) {
+        code = SubscribeManagedEvent(*admin, events);
+    } else {
+        code = UnsubscribeManagedEvent(*admin, events);
+    }
+    reply.WriteInt32(code);
+    return code;
 }
 } // namespace EDM
 } // namespace OHOS

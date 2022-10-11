@@ -25,6 +25,7 @@
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "system_ability.h"
+#include "enterprise_admin_proxy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,6 +33,7 @@ class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDevice
     DECLARE_SYSTEM_ABILITY(EnterpriseDeviceMgrAbility);
 
 public:
+    using CommonEventCallbackFunc = void (EnterpriseDeviceMgrAbility::*)(const EventFwk::CommonEventData &data);
     EnterpriseDeviceMgrAbility();
     DISALLOW_COPY_AND_MOVE(EnterpriseDeviceMgrAbility);
     ~EnterpriseDeviceMgrAbility();
@@ -46,9 +48,11 @@ public:
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
-    void OnUserRemoved(int userIdToRemove);
+    ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
+    ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
     bool IsSuperAdmin(std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
+    std::unordered_map<std::string, CommonEventCallbackFunc> commonEventFuncMap_;
 
 protected:
     void OnStart() override;
@@ -59,6 +63,7 @@ protected:
 
 private:
     bool IsHdc();
+    void AddCommonEventFuncMap();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
@@ -67,10 +72,17 @@ private:
     int32_t GetCurrentUserId();
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin,
+        const std::vector<uint32_t> &events, bool subscribe);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
+    void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
+    void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
+    void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
+    void OnCommonEventPackageAddedOrRemoved(const EventFwk::CommonEventData &data, ManagedEvent event);
+    bool CheckManagedEvent(uint32_t event);
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;

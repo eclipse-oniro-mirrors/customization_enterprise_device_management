@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "enterprise_admin_conn_manager.h"
+
+#include "enterprise_conn_manager.h"
 
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
@@ -27,10 +28,26 @@ using namespace OHOS::AAFwk;
 
 namespace OHOS {
 namespace EDM {
-bool EnterpriseAdminConnManager::ConnectAbility(const std::string& bundleName, const std::string& abilityName,
-    uint32_t code, int32_t userId)
+sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
+    uint32_t code, uint32_t userId)
 {
-    EDMLOGI("enter, target bundle = %{public}s", bundleName.c_str());
+    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId));
+    return connection;
+}
+
+sptr<IEnterpriseConnection> EnterpriseConnManager::CreateBundleConnection(const AAFwk::Want &want,
+    uint32_t code, uint32_t userId, const std::string &bundleName)
+{
+    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseBundleConnection(want,
+        code, userId, bundleName));
+    return connection;
+}
+
+bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
+{
+    if (connection == nullptr) {
+        return false;
+    }
     std::lock_guard<std::mutex> lock(mutex_);
 
     if (!GetAbilityMgrProxy()) {
@@ -38,10 +55,7 @@ bool EnterpriseAdminConnManager::ConnectAbility(const std::string& bundleName, c
         return -1;
     }
 
-    sptr<EnterpriseAdminConnection> connection(new (std::nothrow) EnterpriseAdminConnection(code));
-    Want want;
-    want.SetElementName(bundleName, abilityName);
-    int32_t ret = abilityMgr_->ConnectAbility(want, connection, nullptr, userId);
+    int32_t ret = abilityMgr_->ConnectAbility(connection->GetWant(), connection, nullptr, connection->GetUserId());
     EDMLOGI("ConnectAbility over.");
     if (ret != ERR_OK) {
         EDMLOGE("connect failed");
@@ -50,7 +64,7 @@ bool EnterpriseAdminConnManager::ConnectAbility(const std::string& bundleName, c
     return true;
 }
 
-bool EnterpriseAdminConnManager::GetAbilityMgrProxy()
+bool EnterpriseConnManager::GetAbilityMgrProxy()
 {
     EDMLOGI("GetAbilityMgrProxy enter");
     if (abilityMgr_ == nullptr) {
@@ -85,7 +99,7 @@ bool EnterpriseAdminConnManager::GetAbilityMgrProxy()
     return true;
 }
 
-void EnterpriseAdminConnManager::Clear()
+void EnterpriseConnManager::Clear()
 {
     EDMLOGI("enter");
     std::lock_guard<std::mutex> lock(mutex_);

@@ -75,6 +75,23 @@ bool AdminManager::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<
     return true;
 }
 
+void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins)
+{
+    for (const auto &adminItem : admins_) {
+        std::vector<std::shared_ptr<Admin>> subAdmin;
+        for (const auto &it : adminItem.second) {
+            std::vector<ManagedEvent> events = it->adminInfo_.managedEvents_;
+            if (std::find(events.begin(), events.end(), event) != events.end()) {
+                subAdmin.push_back(it);
+            }
+        }
+        if (subAdmin.size() > 0) {
+            subscribeAdmins[adminItem.first] = subAdmin;
+        }
+    }
+}
+
 ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
     std::vector<std::string> &permissions, int32_t userId)
 {
@@ -297,6 +314,42 @@ ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInf
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
+ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
+    std::shared_ptr<Admin> &admin, int32_t userId)
+{
+    size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
+    for (auto &event : events) {
+        std::vector<ManagedEvent> managedEvents = admin->adminInfo_.managedEvents_;
+        ManagedEvent subEvent = static_cast<ManagedEvent>(event);
+        if (std::find(managedEvents.begin(), managedEvents.end(), subEvent) == managedEvents.end()) {
+            admin->adminInfo_.managedEvents_.push_back(subEvent);
+        }
+    }
+    if (admin->adminInfo_.managedEvents_.size() > eventsNumber) {
+        SaveAdmin(userId);
+    }
+    return ERR_OK;
+}
+
+ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
+    std::shared_ptr<Admin> &admin, int32_t userId)
+{
+    size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
+    for (auto &event : events) {
+        auto iter = admin->adminInfo_.managedEvents_.begin();
+        while (iter != admin->adminInfo_.managedEvents_.end()) {
+            if (*iter == static_cast<ManagedEvent>(event)) {
+                iter = admin->adminInfo_.managedEvents_.erase(iter);
+            } else {
+                ++iter;
+            }
+        }
+    }
+    if (admin->adminInfo_.managedEvents_.size() < eventsNumber) {
+        SaveAdmin(userId);
+    }
+    return ERR_OK;
+}
 // init
 void AdminManager::Init()
 {
@@ -329,9 +382,14 @@ void AdminManager::ReadJsonAdminType(Json::Value &admin,
     enabledAdmin->adminInfo_.adminType_ = static_cast<AdminType>(admin["adminType"].asUInt());
     enabledAdmin->adminInfo_.entInfo_.enterpriseName = admin["enterpriseInfo"]["enterpriseName"].asString(); // object
     enabledAdmin->adminInfo_.entInfo_.description = admin["enterpriseInfo"]["declaration"].asString();
-    unsigned int adminSize = admin["permission"].size();
-    for (unsigned int i = 0; i < adminSize; i++) {
+    uint32_t adminSize = admin["permission"].size();
+    for (uint32_t i = 0; i < adminSize; i++) {
         enabledAdmin->adminInfo_.permission_.push_back(admin["permission"][i].asString()); // array
+    }
+    uint32_t eventsSize = admin["subscribeEvents"].size();
+    for (uint32_t i = 0; i < eventsSize; i++) {
+        enabledAdmin->adminInfo_.managedEvents_.push_back(
+            static_cast<ManagedEvent>(admin["subscribeEvents"][i].asUInt()));
     }
 
     // read admin and store it in vector container
@@ -404,6 +462,7 @@ void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json
 {
     Json::Value entTree;
     Json::Value permissionTree;
+    Json::Value eventsTree;
 
     tree["name"] = enabledAdmin->adminInfo_.packageName_ + "/" + enabledAdmin->adminInfo_.className_;
     tree["adminType"] = enabledAdmin->adminInfo_.adminType_;
@@ -416,6 +475,11 @@ void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json
         permissionTree.append(it);
     }
     tree["permission"] = permissionTree;
+
+    for (auto &it : enabledAdmin->adminInfo_.managedEvents_) {
+        eventsTree.append(static_cast<uint32_t>(it));
+    }
+    tree["subscribeEvents"] = eventsTree;
 }
 
 void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
