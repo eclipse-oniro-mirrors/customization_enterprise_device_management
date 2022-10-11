@@ -42,6 +42,10 @@ public:
 
     void OnAdminDisabled() override {}
 
+    void OnBundleAdded(const std::string &bundleName) override {}
+
+    void OnBundleRemoved(const std::string &bundleName) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

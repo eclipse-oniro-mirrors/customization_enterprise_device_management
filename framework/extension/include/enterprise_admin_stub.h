@@ -46,6 +46,10 @@ private:
 
     void OnAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
 
+    void OnBundleAddedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply);
+
     using EnterpriseAdminFunc = void (EnterpriseAdminStub::*)(MessageParcel& data, MessageParcel& reply);
 
     std::map<uint32_t, EnterpriseAdminFunc> memberFuncMap_;

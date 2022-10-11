@@ -23,6 +23,7 @@
 #include "ent_info.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "ienterprise_device_mgr.h"
+#include "managed_event.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
@@ -89,6 +90,12 @@ struct AsyncGetDeviceSettingsManagerCallbackInfo : AsyncCallbackInfo {
     napi_ref callback = 0;
 };
 
+struct AsyncSubscribeManagedEventCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::vector<uint32_t> managedEvent;
+    bool subscribe = true;
+};
+
 class EnterpriseDeviceManagerAddon {
 public:
     EnterpriseDeviceManagerAddon();
@@ -109,6 +116,8 @@ public:
     static std::string GetStringFromNAPI(napi_env env, napi_value value);
     static napi_value GetDeviceSettingsManager(napi_env env, napi_callback_info info);
     static napi_value SetDateTime(napi_env env, napi_callback_info info);
+    static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);
+    static napi_value UnsubscribeManagedEvent(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -118,6 +127,7 @@ public:
     static void NativeIsSuperAdmin(napi_env env, void *data);
     static void NativeIsAdminEnabled(napi_env env, void *data);
     static void NativeSetDateTime(napi_env env, void *data);
+    static void NativeSubscribeManagedEvent(napi_env env, void *data);
 
     static void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
     static void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
@@ -125,11 +135,13 @@ public:
 
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
+    static bool ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args);
     static napi_value ParseString(napi_env env, std::string &param, napi_value args);
     static bool ParseElementName(napi_env env, OHOS::AppExecFwk::ElementName &elementName, napi_value args);
     static napi_value ParseStringArray(napi_env env, std::vector<std::string> &hapFiles, napi_value args);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
+    static void CreateManagedEventObject(napi_env env, napi_value value);
     static napi_value ParseInt(napi_env env, int32_t &param, napi_value args);
     static napi_value ParseLong(napi_env env, int64_t &param, napi_value args);
 
@@ -142,6 +154,7 @@ private:
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static bool checkAdminWithUserIdParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
+    static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
     static inline napi_value AssertAndThrowParamError(napi_env env, bool assertion, const std::string &errMessage)
     {
         if (!assertion) {

@@ -22,6 +22,7 @@
 #include "admin_type.h"
 #include "edm_errors.h"
 #include "ent_info.h"
+#include "managed_event.h"
 #include "parcel_macro.h"
 
 namespace OHOS {
@@ -32,6 +33,7 @@ struct AdminInfo {
     std::string className_;
     EntInfo entInfo_;
     std::vector<std::string> permission_;
+    std::vector<ManagedEvent> managedEvents_;
 };
 
 class Admin {

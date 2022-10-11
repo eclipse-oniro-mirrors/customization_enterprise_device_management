@@ -32,6 +32,8 @@ public:
     static std::shared_ptr<AdminManager> GetInstance();
     ErrCode GetReqPermission(const std::vector<std::string> &permissions, std::vector<EdmPermission> &edmPermissions);
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
+    void GetAdminBySubscribeEvent(ManagedEvent event,
+        std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
     ErrCode UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
@@ -47,6 +49,8 @@ public:
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
+    ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
+    ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
     virtual ~AdminManager();
     
 private:

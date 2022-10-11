@@ -15,7 +15,7 @@
 
 #include "ability_manager_death_recipient.h"
 #include "edm_log.h"
-#include "enterprise_admin_conn_manager.h"
+#include "enterprise_conn_manager.h"
 #include "singleton.h"
 
 namespace OHOS {
@@ -35,7 +35,7 @@ void AbilityManagerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& wptrD
         return;
     }
 
-    DelayedSingleton<EnterpriseAdminConnManager>::GetInstance()->Clear();
+    DelayedSingleton<EnterpriseConnManager>::GetInstance()->Clear();
 }
 }  // namespace EDM
 }  // namespace OHOS

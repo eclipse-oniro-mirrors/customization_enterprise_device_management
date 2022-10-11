@@ -14,19 +14,22 @@
  */
 
 #include "enterprise_admin_connection.h"
-#include "enterprise_admin_conn_manager.h"
+#include "enterprise_conn_manager.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace EDM {
-EnterpriseAdminConnection::EnterpriseAdminConnection(uint32_t code) : code_(code) {}
-EnterpriseAdminConnection::~EnterpriseAdminConnection() = default;
+EnterpriseAdminConnection::~EnterpriseAdminConnection() {}
 
 void EnterpriseAdminConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
     HILOG_INFO("EnterpriseAdminConnection OnAbilityConnectDone");
     proxy_ = (new (std::nothrow) EnterpriseAdminProxy(remoteObject));
+    if (proxy_ == nullptr) {
+        HILOG_INFO("EnterpriseAdminConnection get enterpriseAdminProxy failed.");
+        return;
+    }
     switch (code_) {
         case IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED:
             proxy_->OnAdminEnabled();

@@ -33,6 +33,8 @@ void EnterpriseAdminStub::AddCallFuncMap()
 {
     memberFuncMap_[COMMAND_ON_ADMIN_ENABLED] = &EnterpriseAdminStub::OnAdminEnabledInner;
     memberFuncMap_[COMMAND_ON_ADMIN_DISABLED] = &EnterpriseAdminStub::OnAdminDisabledInner;
+    memberFuncMap_[COMMAND_ON_BUNDLE_ADDED] = &EnterpriseAdminStub::OnBundleAddedInner;
+    memberFuncMap_[COMMAND_ON_BUNDLE_REMOVED] = &EnterpriseAdminStub::OnBundleRemovedInner;
 }
 
 void EnterpriseAdminStub::OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply)
@@ -45,6 +47,20 @@ void EnterpriseAdminStub::OnAdminDisabledInner(MessageParcel& data, MessageParce
 {
     EDMLOGI("EnterpriseAdminStub::OnAdminDisabled");
     OnAdminDisabled();
+}
+
+void EnterpriseAdminStub::OnBundleAddedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnBundleAdded");
+    std::string bundleName = data.ReadString();
+    OnBundleAdded(bundleName);
+}
+
+void EnterpriseAdminStub::OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnBundleRemoved");
+    std::string bundleName = data.ReadString();
+    OnBundleRemoved(bundleName);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

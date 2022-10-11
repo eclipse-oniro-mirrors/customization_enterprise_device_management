@@ -24,19 +24,28 @@ namespace EDM {
 class IEnterpriseAdmin : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.EDM.IEnterpriseAdmin");
-    /**
-     * @brief The OnAdminEnabled callback.
-     */
+
     virtual void OnAdminEnabled() = 0;
 
-    /**
-     * @brief The OnAdminDisabled callback.
-     */
     virtual void OnAdminDisabled() = 0;
+
+    /**
+     * Called when a new application package has been installed on the device.
+     * @param bundleName Indicates the name of the bundle whose state has been installed.
+     */
+    virtual void OnBundleAdded(const std::string &bundleName) = 0;
+
+    /**
+     * Called when a new application package has been Removed on the device.
+     * @param bundleName Indicates the name of the bundle whose state has been Removed.
+     */
+    virtual void OnBundleRemoved(const std::string &bundleName) = 0;
 
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
-        COMMAND_ON_ADMIN_DISABLED = 2
+        COMMAND_ON_ADMIN_DISABLED = 2,
+        COMMAND_ON_BUNDLE_ADDED = 3,
+        COMMAND_ON_BUNDLE_REMOVED = 4
     };
 };
 } // namespace EDM

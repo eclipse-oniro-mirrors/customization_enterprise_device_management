@@ -39,6 +39,10 @@ public:
     virtual ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) = 0;
     virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;
     virtual ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) = 0;
+    virtual ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
+        const std::vector<uint32_t> &events) = 0;
+    virtual ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
+        const std::vector<uint32_t> &events) = 0;
     virtual bool IsSuperAdmin(std::string &bundleName) = 0;
     virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     enum {
@@ -51,6 +55,8 @@ public:
         SET_ENT_INFO = 7,
         IS_SUPER_ADMIN = 8,
         IS_ADMIN_ENABLED = 9,
+        SUBSCRIBE_MANAGED_EVENT = 10,
+        UNSUBSCRIBE_MANAGED_EVENT = 11,
     };
 };
 } // namespace EDM
