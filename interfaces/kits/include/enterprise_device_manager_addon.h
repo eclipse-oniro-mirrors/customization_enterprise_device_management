@@ -113,7 +113,7 @@ public:
     static napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, std::string workName,
         napi_async_execute_callback execute, napi_async_complete_callback complete);
     static napi_value CreateAdminTypeObject(napi_env env);
-    static std::string GetStringFromNAPI(napi_env env, napi_value value);
+    static bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
     static napi_value GetDeviceSettingsManager(napi_env env, napi_callback_info info);
     static napi_value SetDateTime(napi_env env, napi_callback_info info);
     static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);
@@ -135,15 +135,15 @@ public:
 
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
+
+    static bool ParseString(napi_env env, std::string &param, napi_value args);
     static bool ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args);
-    static napi_value ParseString(napi_env env, std::string &param, napi_value args);
     static bool ParseElementName(napi_env env, OHOS::AppExecFwk::ElementName &elementName, napi_value args);
-    static napi_value ParseStringArray(napi_env env, std::vector<std::string> &hapFiles, napi_value args);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
+    static bool ParseInt(napi_env env, int32_t &param, napi_value args);
+    static bool ParseLong(napi_env env, int64_t &param, napi_value args);
     static void CreateManagedEventObject(napi_env env, napi_value value);
-    static napi_value ParseInt(napi_env env, int32_t &param, napi_value args);
-    static napi_value ParseLong(napi_env env, int64_t &param, napi_value args);
 
     static napi_value DeviceSettingsManagerConstructor(napi_env env, napi_callback_info info);
 private:
@@ -155,13 +155,15 @@ private:
     static bool checkAdminWithUserIdParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
-    static inline napi_value AssertAndThrowParamError(napi_env env, bool assertion, const std::string &errMessage)
-    {
-        if (!assertion) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, errMessage));
-        }
-        return nullptr;
-    }
+    #define ASSERT_AND_THROW_PARAM_ERROR(env, assertion, message)               \
+    do {                                                                       \
+        if (!(assertion)) {                                                    \
+            napi_throw((env), CreateError((env), (EdmReturnErrCode::PARAM_ERROR), (message)));          \
+            napi_value ret = nullptr;                                      \
+            return ret;                                                    \
+        }                                                                    \
+    } while (0)
+
     static std::map<int32_t, std::string> errMessageMap;
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceSettingsManager> deviceSettingsManager_;

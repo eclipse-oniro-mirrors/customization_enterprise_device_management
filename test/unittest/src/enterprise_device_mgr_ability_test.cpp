@@ -75,7 +75,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicy, TestSize.Level1
     edmMgr_->pluginMgr_ = PluginManager::GetInstance();
     edmMgr_->pluginMgr_->AddPlugin(std::make_shared<TestPlugin>());
     res = edmMgr_->HandleDevicePolicy(code, elementName, data);
-    ASSERT_TRUE(res == ERR_EDM_PERMISSION_ERROR);
+    ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
     testAdmin.adminInfo_.permission_.clear();
     adminPtr = std::make_shared<Admin>(testAdmin);
@@ -85,7 +85,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicy, TestSize.Level1
     edmMgr_->adminMgr_->admins_
         .insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
     res = edmMgr_->HandleDevicePolicy(code, elementName, data);
-    ASSERT_TRUE(res == ERR_EDM_PERMISSION_ERROR);
+    ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
 }
 } // namespace TEST
 } // namespace EDM
