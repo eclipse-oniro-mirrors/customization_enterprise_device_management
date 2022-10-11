@@ -856,8 +856,8 @@ bool EnterpriseDeviceManagerAddon::ParseEnterpriseInfo(napi_env env, EntInfo &en
     napi_value prop = nullptr;
     EDMLOGD("ParseEnterpriseInfo name");
     if (napi_get_named_property(env, args, "name", &prop) != napi_ok || !GetStringFromNAPI(env, prop, name)) {
-         EDMLOGE("ParseEnterpriseInfo name param error");
-         return false;
+        EDMLOGE("ParseEnterpriseInfo name param error");
+        return false;
     }
     EDMLOGD("ParseEnterpriseInfo name %{public}s ", name.c_str());
 
