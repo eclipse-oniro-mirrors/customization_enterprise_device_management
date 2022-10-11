@@ -734,22 +734,22 @@ napi_value EnterpriseDeviceManagerAddon::HandleManagedEvent(napi_env env, napi_c
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    AssertAndThrowParamError(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
 		MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
     if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
     }
-    AssertAndThrowParamError(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncSubscribeManagedEventCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncSubscribeManagedEventCallbackInfo> callbackPtr {asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    AssertAndThrowParamError(env, ret, "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
     ret = ParseManagedEvent(env, asyncCallbackInfo->managedEvent, argv[ARR_INDEX_ONE]);
-    AssertAndThrowParamError(env, ret, "managed event param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "managed event param error");
     if (argc > ARGS_SIZE_TWO) {
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
