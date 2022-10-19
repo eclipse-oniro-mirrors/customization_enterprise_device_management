@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "ability_handler.h"
 #include "enterprise_admin_extension.h"
 #include "enterprise_admin_stub_impl.h"
 #include "js_enterprise_admin_extension_context.h"
@@ -137,29 +138,41 @@ void JsEnterpriseAdminExtension::OnDisconnect(const AAFwk::Want& want)
 void JsEnterpriseAdminExtension::OnAdminEnabled()
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnAdminEnabled");
-    CallObjectMethod("onAdminEnabled", nullptr, JS_NAPI_ARGC_ZERO);
+    auto task = [this]() {
+        CallObjectMethod("onAdminEnabled", nullptr, JS_NAPI_ARGC_ZERO);
+    };
+    handler_->PostTask(task);
 }
 
 void JsEnterpriseAdminExtension::OnAdminDisabled()
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnAdminDisabled");
-    CallObjectMethod("onAdminDisabled", nullptr, JS_NAPI_ARGC_ZERO);
+    auto task = [this]() {
+        CallObjectMethod("onAdminDisabled", nullptr, JS_NAPI_ARGC_ZERO);
+    };
+    handler_->PostTask(task);
 }
 
 void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnBundleAdded");
-    auto& engine = jsRuntime_.GetNativeEngine();
-    NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
-    CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_ONE);
+    auto task = [bundleName, this]() {
+        auto& engine = jsRuntime_.GetNativeEngine();
+        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
 }
 
 void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnBundleRemoved");
-    auto& engine = jsRuntime_.GetNativeEngine();
-    NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
-    CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
+    auto task = [bundleName, this]() {
+        auto& engine = jsRuntime_.GetNativeEngine();
+        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
 }
 
 NativeValue* JsEnterpriseAdminExtension::CallObjectMethod(const char* name, NativeValue** argv, size_t argc)
