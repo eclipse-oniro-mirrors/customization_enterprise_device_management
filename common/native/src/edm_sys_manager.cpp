@@ -21,7 +21,7 @@ namespace OHOS {
 namespace EDM {
 sptr<IRemoteObject> EdmSysManager::GetRemoteObjectOfSystemAbility(int32_t systemAbilityId)
 {
-    EDMLOGE("EdmSysMgrManager GetRemoteObjectOfSystemAbility start");
+    EDMLOGD("EdmSysMgrManager GetRemoteObjectOfSystemAbility start");
 
     auto sysAbilityMgr = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sysAbilityMgr == nullptr) {
