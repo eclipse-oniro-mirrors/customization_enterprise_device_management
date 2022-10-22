@@ -79,9 +79,8 @@ ohos_unittest("EdmDeviceMgrAbilityUnitTest") {
 
 group("unittest") {
   testonly = true
-  deps = []
 
-  deps += [
+  deps = [
     # deps file
     ":EdmDeviceMgrAbilityUnitTest",
   ]

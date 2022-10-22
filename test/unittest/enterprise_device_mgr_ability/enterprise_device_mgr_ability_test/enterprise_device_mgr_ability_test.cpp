@@ -115,7 +115,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestBMSQueryExtensionAbilityInfos, Test
     EXPECT_TRUE(res == EdmReturnErrCode::COMPONENT_INVALID);
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == false);
+    EXPECT_TRUE(!isEnable);
 }
 
 /**
@@ -136,7 +136,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin22, TestSize.Level1)
     EXPECT_TRUE(res == ERR_OK);
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == false);
+    EXPECT_TRUE(!isEnable);
 
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res != ERR_OK);
@@ -166,7 +166,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin2, TestSize.Level1)
     EXPECT_TRUE(res == ERR_OK);
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
@@ -190,7 +190,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin33, TestSize.Level1)
     EXPECT_TRUE(res == ERR_OK);
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == false);
+    EXPECT_TRUE(!isEnable);
 
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res != ERR_OK);
@@ -220,7 +220,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin3, TestSize.Level1)
     EXPECT_TRUE(res == ERR_OK);
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
@@ -243,14 +243,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin4, TestSize.Level1)
 
     std::vector<std::string> enabledAdminList;
     edmMgr_->GetEnabledAdmin(AdminType::NORMAL, enabledAdminList); // normal admin not empty
-    EXPECT_TRUE(enabledAdminList.empty() == false);
+    EXPECT_FALSE(enabledAdminList.empty());
 
     bool isEnable = edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     std::string bundleName{"com.edm.test.permission.empty"};
     isEnable = edmMgr_->IsSuperAdmin(bundleName);
-    EXPECT_TRUE(isEnable == false);
+    EXPECT_TRUE(!isEnable);
 
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
@@ -276,7 +276,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin22, TestSize.Level
 
     std::string bundleName{"com.edm.test.demo22"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName); // admin is null
-    EXPECT_TRUE(isEnable == false);
+    EXPECT_TRUE(!isEnable);
 
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res != ERR_OK);
@@ -310,7 +310,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
 
     std::string bundleName{"com.edm.test.demo"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = TestDump(); // not empty
     EXPECT_TRUE(res == ERR_OK);
@@ -356,7 +356,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin, TestSize.Level1)
 
     std::string bundleName{"com.edm.test.demo"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = edmMgr_->DisableSuperAdmin(bundleName); // FAILS
     EXPECT_TRUE(res != ERR_OK);
@@ -383,7 +383,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcSuc, TestSize.L
 
     std::string bundleName{"com.edm.test.demo.ipc.suc"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
@@ -406,7 +406,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcFail, TestSize.
 
     std::string bundleName{"com.edm.test.demo.ipc.fail"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName);
-    EXPECT_TRUE(isEnable == true);
+    EXPECT_TRUE(isEnable);
 
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res != ERR_OK);
@@ -447,15 +447,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfo, TestSize.Level1)
 
     std::vector<std::string> enabledAdminList;
     edmMgr_->GetEnabledAdmin(AdminType::NORMAL, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == false);
+    EXPECT_FALSE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     edmMgr_->GetEnabledAdmin(AdminType::ENT, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == false);
+    EXPECT_FALSE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     edmMgr_->GetEnabledAdmin(AdminType::UNKNOWN, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == true);
+    EXPECT_TRUE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     res = edmMgr_->GetEnabledAdmin(static_cast<AdminType>(ADMIN_TYPE_MAX), enabledAdminList);
@@ -491,15 +491,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoNoSame, TestSize.L
 
     std::vector<std::string> enabledAdminList;
     edmMgr_->GetEnabledAdmin(AdminType::NORMAL, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == false);
+    EXPECT_FALSE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     edmMgr_->GetEnabledAdmin(AdminType::ENT, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == false);
+    EXPECT_FALSE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     edmMgr_->GetEnabledAdmin(AdminType::UNKNOWN, enabledAdminList);
-    EXPECT_TRUE(enabledAdminList.empty() == true);
+    EXPECT_TRUE(enabledAdminList.empty());
 
     enabledAdminList.clear();
     res = edmMgr_->GetEnabledAdmin(static_cast<AdminType>(ADMIN_TYPE_MAX), enabledAdminList);

@@ -44,7 +44,7 @@ private:
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 };
 
