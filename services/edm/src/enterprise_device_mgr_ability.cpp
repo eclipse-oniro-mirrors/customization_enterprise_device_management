@@ -28,6 +28,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "edm_log.h"
+#include "edm_sys_manager.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
@@ -287,11 +288,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
 
 sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
 {
-    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
-        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    OHOS::sptr<OHOS::IRemoteObject> remoteObject =
-        systemAbilityManager->GetSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy(new (std::nothrow) AppExecFwk::BundleMgrProxy(remoteObject));
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     return proxy;
 }
 

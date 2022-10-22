@@ -51,6 +51,7 @@ ohos_shared_library("edmservice") {
     "$EDM_SRC_PATH/utils/long_serializer.cpp",
     "$EDM_SRC_PATH/utils/map_string_serializer.cpp",
     "$EDM_SRC_PATH/utils/string_serializer.cpp",
+    "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
   ]
   public_configs = [
     ":edm_config",
