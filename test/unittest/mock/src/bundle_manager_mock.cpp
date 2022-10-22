@@ -51,7 +51,6 @@ ErrCode BundleMgrProxy::GetNameForUid(const int uid, std::string &name)
         name = bundleNameMock_;
     } else if (bundleNameMock_ == "com.edm.test.demo.ipc.fail") {
         return ERR_FAIL_NAMEFORUID;
-    } else {
     }
     return ERR_OK;
 }
@@ -135,7 +134,6 @@ ErrCode BundleMgrService::GetNameForUid(const int uid, std::string &name)
         name = bundleNameMock_;
     } else if (bundleNameMock_ == "com.edm.test.demo.ipc.fail") {
         return ERR_FAIL_NAMEFORUID;
-    } else {
     }
     return ERR_OK;
 }

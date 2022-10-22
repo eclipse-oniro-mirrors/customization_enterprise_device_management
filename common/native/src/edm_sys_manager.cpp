@@ -28,14 +28,7 @@ sptr<IRemoteObject> EdmSysManager::GetRemoteObjectOfSystemAbility(int32_t system
         EDMLOGE("EdmSysMgrManager GetRemoteObjectOfSystemAbility get system ability manager fail.");
         return nullptr;
     }
-
-    auto object = sysAbilityMgr->GetSystemAbility(systemAbilityId);
-    if (object == nullptr) {
-        EDMLOGE("EdmSysMgrManager GetRemoteObjectOfSystemAbility get system ability fail.");
-        return nullptr;
-    }
-
-    return object;
+    return sysAbilityMgr->GetSystemAbility(systemAbilityId);
 }
 } // namespace EDM
 } // namespace OHOS
