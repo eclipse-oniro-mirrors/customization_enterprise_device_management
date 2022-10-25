@@ -58,6 +58,8 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 }
 
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
+const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
+const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
     const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
     EnterpriseDeviceMgrAbility &listener) : EventFwk::CommonEventSubscriber(subscribeInfo), listener_(listener) {}
@@ -523,6 +525,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(std::string &bundleName)
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(std::string &bundleName)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::DisableSuperAdmin check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
     if (admin == nullptr) {
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
@@ -530,10 +536,6 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(std::string &bundleName)
     if (admin->adminInfo_.adminType_ != AdminType::ENT) {
         EDMLOGW("DisableSuperAdmin: only remove super admin.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-    if (FAILED(CheckCallingUid(admin->adminInfo_.packageName_))) {
-        EDMLOGW("DisableSuperAdmin: CheckCallingUid failed");
-        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     if (FAILED(RemoveAdmin(bundleName, DEFAULT_USER_ID))) {
         EDMLOGW("DisableSuperAdmin: RemoveAdmin(bundleName, DEFAULT_USER_ID) failed");
@@ -706,6 +708,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    if (!VerifyCallingPermission(PERMISSION_SET_ENTERPRISE_INFO)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::SetEnterpriseInfo: check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     int32_t userId = GetCurrentUserId();
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (adminItem == nullptr) {
@@ -736,8 +742,8 @@ ErrCode EnterpriseDeviceMgrAbility::HandleManagedEvent(const AppExecFwk::Element
     const std::vector<uint32_t> &events, bool subscribe)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
-        EDMLOGW("SubscribeManagedEvent: check permission failed");
+    if (!VerifyCallingPermission(PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::HandleManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     int32_t userId = GetCurrentUserId();
