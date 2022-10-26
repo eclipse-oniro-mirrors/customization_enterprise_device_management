@@ -20,6 +20,7 @@
 #include "admin_type.h"
 #include "edm_errors.h"
 #include "edm_log.h"
+#include "edm_sys_manager.h"
 #include "func_code.h"
 #include "system_ability_definition.h"
 
@@ -436,16 +437,7 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdminExist()
 sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetRemoteObject()
 {
     std::lock_guard<std::mutex> lock(mutexLock_);
-    sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!samgr) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetRemoteObject get system ability manager fail.");
-        return nullptr;
-    }
-    sptr<IRemoteObject> remote = samgr->GetSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    if (!remote) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetRemoteObject get system ability fail.");
-        return nullptr;
-    }
+    sptr<IRemoteObject> remote = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     return remote;
 }
 
