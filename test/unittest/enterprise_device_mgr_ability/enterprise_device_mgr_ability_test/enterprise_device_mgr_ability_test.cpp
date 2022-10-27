@@ -41,6 +41,9 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t ADMIN_TYPE_MAX = 999;
+constexpr int32_t ERROR_USER_ID_REMOVE = 0;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 3;
+constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
@@ -569,6 +572,251 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoNoSame, TestSize.L
     // the same edmMgr_->adminMgr_ two super admin
     res = edmMgr_->adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnReceiveEvent
+ * @tc.desc: Test OnReceiveEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnReceiveEvent, TestSize.Level1)
+{
+    EnterpriseDeviceMgrAbility listener;
+    edmMgr_->CreateEnterpriseDeviceEventSubscriber(listener);
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<EnterpriseDeviceEventSubscriber> edmEventSubscriber =
+        std::make_shared<EnterpriseDeviceEventSubscriber>(info, *edmMgr_);
+    size_t mapSize = edmMgr_->commonEventFuncMap_.size();
+    EXPECT_TRUE(mapSize == COMMON_EVENT_FUNC_MAP_SIZE);
+
+    EventFwk::CommonEventData data;
+    std::string action = "usual.event.ERROR_EVENT";
+    AAFwk::Want want;
+    want.SetAction(action);
+    data.SetWant(want);
+    edmEventSubscriber->OnReceiveEvent(data);
+    auto func = edmMgr_->commonEventFuncMap_.find(action);
+    EXPECT_TRUE(func == edmMgr_->commonEventFuncMap_.end());
+
+    edmMgr_->commonEventFuncMap_[action] = nullptr;
+    edmEventSubscriber->OnReceiveEvent(data);
+    func = edmMgr_->commonEventFuncMap_.find(action);
+    EXPECT_TRUE(func != edmMgr_->commonEventFuncMap_.end());
+}
+
+/**
+ * @tc.name: TestOnCommonEventUserRemoved
+ * @tc.desc: Test OnCommonEventUserRemoved func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.Level1)
+{
+    EnterpriseDeviceMgrAbility listener;
+    edmMgr_->CreateEnterpriseDeviceEventSubscriber(listener);
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<EnterpriseDeviceEventSubscriber> edmEventSubscriber =
+        std::make_shared<EnterpriseDeviceEventSubscriber>(info, *edmMgr_);
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
+    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    abilityInfo.bundleName = "com.edm.test.demo1";
+    abilityInfo.name = "testDemo1";
+    entInfo.enterpriseName = "company1";
+    entInfo.description = "technology company in wuhan";
+    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, ERROR_USER_ID_REMOVE);
+
+    EventFwk::CommonEventData data;
+    std::string action = "usual.event.USER_REMOVED";
+    AAFwk::Want want;
+    want.SetAction(action);
+    data.SetWant(want);
+    data.SetCode(ERROR_USER_ID_REMOVE);
+    edmEventSubscriber->OnReceiveEvent(data);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool isExist = edmMgr_->adminMgr_->GetAdminByUserId(ERROR_USER_ID_REMOVE, userAdmin);
+    EXPECT_TRUE(isExist);
+
+    data.SetCode(DEFAULT_USER_ID);
+    edmMgr_->OnCommonEventUserRemoved(data);
+    isExist = edmMgr_->adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    EXPECT_TRUE(!isExist);
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageAdded
+ * @tc.desc: Test OnCommonEventPackageAdded and OnCommonEventPackageRemoved func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize.Level1)
+{
+    EnterpriseDeviceMgrAbility listener;
+    edmMgr_->CreateEnterpriseDeviceEventSubscriber(listener);
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<EnterpriseDeviceEventSubscriber> edmEventSubscriber =
+        std::make_shared<EnterpriseDeviceEventSubscriber>(info, *edmMgr_);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName("com.edm.test.demo", "com.edm.test.demo.MainAbility");
+    want.SetAction("usual.event.PACKAGE_ADDED");
+    data.SetWant(want);
+    edmEventSubscriber->OnReceiveEvent(data);
+
+    want.SetAction("usual.event.PACKAGE_REMOVED");
+    data.SetWant(want);
+    edmEventSubscriber->OnReceiveEvent(data);
+  
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
+    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    abilityInfo.bundleName = "com.edm.test.demo1";
+    abilityInfo.name = "testDemo1";
+    entInfo.enterpriseName = "company1";
+    entInfo.description = "technology company in wuhan1";
+    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> adminItem = edmMgr_->adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
+    const std::vector<uint32_t> events = {static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED),
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED)};
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, adminItem, DEFAULT_USER_ID);
+
+    std::string action = "usual.event.PACKAGE_ADDED";
+    want.SetAction(action);
+    want.SetElementName("com.edm.test.added", "com.edm.test.demo.MainAbility");
+    data.SetWant(want);
+    edmEventSubscriber->OnReceiveEvent(data);
+    auto func = edmMgr_->commonEventFuncMap_.find(action);
+    EXPECT_TRUE(func != edmMgr_->commonEventFuncMap_.end());
+
+    action = "usual.event.PACKAGE_REMOVED";
+    want.SetAction(action);
+    want.SetElementName("com.edm.test.removed", "com.edm.test.demo.MainAbility");
+    data.SetWant(want);
+    edmEventSubscriber->OnReceiveEvent(data);
+    func = edmMgr_->commonEventFuncMap_.find(action);
+    EXPECT_TRUE(func != edmMgr_->commonEventFuncMap_.end());
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEvent
+ * @tc.desc: Test SubscribeManagedEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEvent, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    std::vector<uint32_t> event;
+    ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+
+    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(), ""};
+    NativeTokenGet(perms, 1);
+    res = edmMgr_->SubscribeManagedEvent(admin, event);
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+
+    perms[1] = PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str();
+    NativeTokenGet(perms, 2);
+    res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->SubscribeManagedEvent(admin, event);
+    EXPECT_TRUE(res == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
+
+    event.push_back(INVALID_MANAGED_EVENT_TEST);
+    res = edmMgr_->SubscribeManagedEvent(admin, event);
+    EXPECT_TRUE(res == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
+
+    std::vector<uint32_t> events = {0, 1};
+    res = edmMgr_->SubscribeManagedEvent(admin, events);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    NativeTokenGet(nullptr, 0);
+}
+
+/**
+ * @tc.name: TestUnsubscribeManagedEvent
+ * @tc.desc: Test UnsubscribeManagedEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEvent, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    NativeTokenGet(perms, 2);
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    std::vector<uint32_t> events = {0, 1};
+    res = edmMgr_->UnsubscribeManagedEvent(admin, events);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    NativeTokenGet(nullptr, 0);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEvent
+ * @tc.desc: Test SubscribeManagedEvent ipc fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventIpcFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.fail");
+    admin.SetAbilityName("com.edm.test.demo.ipc.fail.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    std::vector<uint32_t> event;
+    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    NativeTokenGet(perms, 2);
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->SubscribeManagedEvent(admin, event);
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    NativeTokenGet(nullptr, 0);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInner
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInner, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode code = edmMgr_->SubscribeManagedEventInner(data, reply, true);
+    EXPECT_TRUE(code == EdmReturnErrCode::PARAM_ERROR);
+    code = edmMgr_->SubscribeManagedEventInner(data, reply, false);
+    EXPECT_TRUE(code == EdmReturnErrCode::PARAM_ERROR);
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    data.WriteParcelable(&admin);
+    code = edmMgr_->SubscribeManagedEventInner(data, reply, true);
+    EXPECT_TRUE(code != ERR_OK);
+    admin.SetBundleName("com.edm.test.demo1");
+    data.WriteParcelable(&admin);
+    code = edmMgr_->SubscribeManagedEventInner(data, reply, false);
+    EXPECT_TRUE(code != ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

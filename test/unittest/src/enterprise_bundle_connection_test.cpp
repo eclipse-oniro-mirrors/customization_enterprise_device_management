@@ -17,11 +17,11 @@
 #include <string>
 #include <vector>
 #include "cmd_utils.h"
-#include "enterprise_admin_connection.h"
 #include "enterprise_admin_stub_mock.h"
+#include "enterprise_bundle_connection.h"
 #include "func_code.h"
+#include "managed_event.h"
 #include "policy_info.h"
-
 using namespace testing::ext;
 using namespace testing;
 
@@ -30,27 +30,27 @@ namespace EDM {
 namespace TEST {
 constexpr uint32_t COMMAND_ON_ADMIN_CODE = 3;
 constexpr int32_t DEFAULT_USER_ID = 100;
-class EnterpriseAdminConnectionTest : public testing::Test {
+class EnterpriseBundleConnectionTest : public testing::Test {
 protected:
     void SetUp() override;
 
     void TearDown() override {}
 
-    std::shared_ptr<EnterpriseAdminConnection> enterpriseAdminConnectionTest {nullptr};
+    std::shared_ptr<EnterpriseBundleConnection> enterpriseBundleConnectionTest {nullptr};
     sptr<EnterpriseAdminStubMock> remoteObject {nullptr};
 };
 
-void EnterpriseAdminConnectionTest::SetUp()
+void EnterpriseBundleConnectionTest::SetUp()
 {
     remoteObject = new (std::nothrow) EnterpriseAdminStubMock();
 }
 
 /**
  * @tc.name: TestOnAbilityConnectDone01
- * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.desc: Test EnterpriseBundleConnection::OnAbilityConnectDone func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone01, TestSize.Level1)
+HWTEST_F(EnterpriseBundleConnectionTest, TestOnAbilityConnectDone01, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
@@ -58,24 +58,23 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone01, TestSize.Lev
     AAFwk::Want connectWant;
     connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
     int32_t resultCode = 0;
-    enterpriseAdminConnectionTest =
-        std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID);
+    enterpriseBundleConnectionTest =
+        std::make_shared<EnterpriseBundleConnection>(connectWant,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), DEFAULT_USER_ID, "com.edm.test.add");
     EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
-    enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
-    enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
-
-    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED);
+    enterpriseBundleConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseBundleConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED);
 }
 
 /**
  * @tc.name: TestOnAbilityConnectDone02
- * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.desc: Test EnterpriseBundleConnection::OnAbilityConnectDone func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone02, TestSize.Level1)
+HWTEST_F(EnterpriseBundleConnectionTest, TestOnAbilityConnectDone02, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
@@ -83,25 +82,24 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone02, TestSize.Lev
     AAFwk::Want connectWant;
     connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
     int32_t resultCode = 0;
-    enterpriseAdminConnectionTest =
-        std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, DEFAULT_USER_ID);
+    enterpriseBundleConnectionTest =
+        std::make_shared<EnterpriseBundleConnection>(connectWant,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED), DEFAULT_USER_ID, "com.edm.test.remove");
     EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
-    enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
-    enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
-
-    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED);
+    enterpriseBundleConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseBundleConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED);
 }
 
 
 /**
  * @tc.name: TestOnAbilityConnectDone03
- * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.desc: Test EnterpriseBundleConnection::OnAbilityConnectDone func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone03, TestSize.Level1)
+HWTEST_F(EnterpriseBundleConnectionTest, TestOnAbilityConnectDone03, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
@@ -109,12 +107,11 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone03, TestSize.Lev
     AAFwk::Want connectWant;
     connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
     int32_t resultCode = 0;
-    enterpriseAdminConnectionTest = std::make_shared<EnterpriseAdminConnection>(connectWant,
-        COMMAND_ON_ADMIN_CODE, DEFAULT_USER_ID);
-    enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
-    enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
-
-    EXPECT_TRUE(remoteObject->code_ != IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED);
+    enterpriseBundleConnectionTest = std::make_shared<EnterpriseBundleConnection>(connectWant,
+        COMMAND_ON_ADMIN_CODE, DEFAULT_USER_ID, "com.edm.test.err");
+    enterpriseBundleConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseBundleConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+    EXPECT_TRUE(remoteObject->code_ != IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED);
 }
 } // namespace TEST
 } // namespace EDM

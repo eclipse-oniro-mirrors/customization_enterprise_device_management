@@ -18,6 +18,7 @@
 #include <vector>
 #include "cmd_utils.h"
 #include "func_code.h"
+#include "managed_event.h"
 #include "policy_info.h"
 #define private public
 #include "enterprise_conn_manager.h"
@@ -52,11 +53,11 @@ void EnterpriseConnManagerTest::TearDown()
 }
 
 /**
- * @tc.name: TestConnectAbility
- * @tc.desc: Test ConnectAbility func.
+ * @tc.name: TestAdminConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateAdminConnection func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseConnManagerTest, TestConnectAbility, TestSize.Level1)
+HWTEST_F(EnterpriseConnManagerTest, TestAdminConnectAbility, TestSize.Level1)
 {
     std::string bundleName{"com.edm.test.demo"};
     std::string abilityName{"com.edm.test.demo.Ability"};
@@ -66,6 +67,30 @@ HWTEST_F(EnterpriseConnManagerTest, TestConnectAbility, TestSize.Level1)
     sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
     bool ret = manager->ConnectAbility(connection);
+    EXPECT_TRUE(!ret);
+
+    enterpriseConnManagerTest->Clear();
+    EXPECT_TRUE(enterpriseConnManagerTest->abilityMgr_ == nullptr);
+}
+
+/**
+ * @tc.name: TestBundleConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateBundleConnection func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseConnManagerTest, TestBundleConnectAbility, TestSize.Level1)
+{
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection = manager->CreateBundleConnection(connectWant,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), DEFAULT_USERID, "com.edm.test.bundle");
+    bool ret = manager->ConnectAbility(connection);
+    EXPECT_TRUE(!ret);
+
+    ret = manager->ConnectAbility(nullptr);
     EXPECT_TRUE(!ret);
 
     enterpriseConnManagerTest->Clear();
