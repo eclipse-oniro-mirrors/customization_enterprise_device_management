@@ -18,10 +18,9 @@ module_output_path = "enterprise_device_management/services"
 
 config("module_private_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "$SUBSYSTEM_DIR/test" ]
 }
 
-ohos_unittest("EdmServicesUnitTest") {
+ohos_unittest("EdmDeviceMgrAbilityUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -31,27 +30,16 @@ ohos_unittest("EdmServicesUnitTest") {
     "$EDM_SA_ROOT/include/utils",
     "//commonlibrary/c_utils/base:utils_config",
     JSONCPP_INCLUDE_DIR,
-    "./include",
+    "$SUBSYSTEM_DIR/test/unittest/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
+    "$SUBSYSTEM_DIR/test/unittest/mock/include",
   ]
 
   sources = [
-    "./src/admin_manager_test.cpp",
-    "./src/cmd_utils.cpp",
-    "./src/device_settings_manager_test.cpp",
-    "./src/edm_permission_test.cpp",
-    "./src/ent_info_test.cpp",
-    "./src/enterprise_admin_conn_manager_test.cpp",
-    "./src/enterprise_admin_connection_test.cpp",
-    "./src/enterprise_device_mgr_ability_test.cpp",
-    "./src/enterprise_device_mgr_proxy_test.cpp",
-    "./src/iplugin_template_test.cpp",
-    "./src/iplugin_test.cpp",
-    "./src/permission_manager_test.cpp",
-    "./src/plugin_manager_test.cpp",
-    "./src/policy_manager_test.cpp",
-    "./src/policy_serializer_test.cpp",
-    "./src/utils_test.cpp",
+    "$SUBSYSTEM_DIR/test/unittest/mock/src/bundle_manager_mock.cpp",
+    "$SUBSYSTEM_DIR/test/unittest/mock/src/edm_sys_manager_mock.cpp",
+    "$SUBSYSTEM_DIR/test/unittest/src/cmd_utils.cpp",
+    "./enterprise_device_mgr_ability_test/enterprise_device_mgr_ability_test.cpp",
   ]
 
   configs = [
@@ -91,11 +79,9 @@ ohos_unittest("EdmServicesUnitTest") {
 
 group("unittest") {
   testonly = true
-  deps = []
 
-  deps += [
+  deps = [
     # deps file
-    ":EdmServicesUnitTest",
-    "enterprise_device_mgr_ability:unittest",
+    ":EdmDeviceMgrAbilityUnitTest",
   ]
 }
