@@ -24,6 +24,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr int32_t TEST_USER_ID = 101;
 constexpr int HUGE_ADMIN_SIZE = 100;
 const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies.json";
 
@@ -405,6 +406,95 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
     permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     ASSERT_TRUE(!adminMgr_->IsSuperAdminExist());
+}
+
+/**
+ * @tc.name: TestGetAdminBySubscribeEvent
+ * @tc.desc: Test AdminManager::GetAdminBySubscribeEvent function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetAdminBySubscribeEvent, TestSize.Level1)
+{
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    abilityInfo.bundleName = "com.edm.test.demo1";
+    abilityInfo.name = "testDemo1";
+    entInfo.enterpriseName = "company1";
+    entInfo.description = "technology company in wuhan1";
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    abilityInfo.bundleName = "com.edm.test.demo2";
+    abilityInfo.name = "testDemo2";
+    entInfo.enterpriseName = "company2";
+    entInfo.description = "technology company in wuhan2";
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, TEST_USER_ID);
+
+    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
+    const std::vector<uint32_t> events = {0, 1};
+    adminMgr_->SaveSubscribeEvents(events, adminItem, DEFAULT_USER_ID);
+    const std::vector<uint32_t> events1 = {1};
+    std::shared_ptr<Admin> adminItem1 = adminMgr_->GetAdminByPkgName("com.edm.test.demo2", TEST_USER_ID);
+    adminMgr_->SaveSubscribeEvents(events1, adminItem1, TEST_USER_ID);
+
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subscribeAdmins;
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::BUNDLE_ADDED, subscribeAdmins);
+    ASSERT_TRUE(subscribeAdmins[DEFAULT_USER_ID].size() == 1);
+    ASSERT_TRUE(subscribeAdmins.find(TEST_USER_ID) == subscribeAdmins.end());
+}
+
+/**
+ * @tc.name: TestSaveSubscribeEvents
+ * @tc.desc: Test AdminManager::SaveSubscribeEvents function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
+{
+    std::shared_ptr<Admin> admin = std::make_shared<Admin>();
+    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
+    std::vector<uint32_t> events = {0};
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    ErrCode ret = adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    events.push_back(1);
+    ret = adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveSubscribeEvents
+ * @tc.desc: Test AdminManager::RemoveSubscribeEvents function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestRemoveSubscribeEvents, TestSize.Level1)
+{
+    std::shared_ptr<Admin> admin = std::make_shared<Admin>();
+    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
+    std::vector<uint32_t> events = {1};
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    ErrCode ret = adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    events.push_back(0);
+    ret = adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
