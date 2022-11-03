@@ -140,7 +140,7 @@ std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packag
         EDMLOGW("GetAdminByPkgName::get userId Admin failed. userId = %{public}d", userId);
         return nullptr;
     }
-    for (auto &item : userAdmin) {
+    for (const auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             return item;
         }
@@ -271,7 +271,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
         return;
     }
 
-    for (auto &item : userAdmin) {
+    for (const auto &item : userAdmin) {
         if (item->adminInfo_.adminType_ == role) {
             std::string adminName = item->adminInfo_.packageName_ + "/" + item->adminInfo_.className_;
             packageNameList.push_back(adminName);
@@ -287,7 +287,7 @@ ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInf
         EDMLOGW("GetEntInfo::not find Admin. userId = %{public}d", userId);
         return ERR_EDM_UNKNOWN_ADMIN;
     }
-    for (auto &item : userAdmin) {
+    for (const auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             entInfo = item->adminInfo_.entInfo_;
             return ERR_OK;
