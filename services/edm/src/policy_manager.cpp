@@ -59,7 +59,7 @@ bool PolicyManager::ParsePolicyItems(const Json::Value &items, PolicyItemsMap &i
 
 bool PolicyManager::ParseAdminList(const std::string &adminName, const PolicyItemsMap &itemsMap)
 {
-    for (auto &iter : itemsMap) {
+    for (const auto &iter : itemsMap) {
         std::string policyName = iter.first;
         std::string policyValue = iter.second;
         auto it = policyAdmins_.find(policyName);
