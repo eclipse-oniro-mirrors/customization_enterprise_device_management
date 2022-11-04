@@ -447,7 +447,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     EDMLOGD("RemoveAdmin %{public}s, user id = %{public}d", adminName.c_str(), userId);
     std::unordered_map<std::string, std::string> policyItems;
     policyMgr_->GetAllPolicyByAdmin(adminName, policyItems);
-    for (auto &policyItem : policyItems) {
+    for (const auto &policyItem : policyItems) {
         std::string policyItemName = policyItem.first;
         std::string policyItemValue = policyItem.second;
         EDMLOGD("RemoveAdmin: RemoveAdminItem policyName:%{public}s,policyValue:%{public}s", policyItemName.c_str(),
