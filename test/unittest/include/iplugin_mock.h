@@ -48,6 +48,11 @@ public:
     {
         policyName_ = policyName;
     }
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply)
+    {
+        return 0;
+    }
 };
 } // namespace EDM
 } // namespace OHOS

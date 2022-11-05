@@ -48,7 +48,7 @@ ohos_shared_library("enterpriseadminextensioncontext_napi") {
 
   external_deps = [ "napi:ace_napi" ]
 
-  relative_install_dir = "module"
+  relative_install_dir = "module/enterprise"
   part_name = "enterprise_device_management"
   subsystem_name = "customization"
 }

@@ -34,19 +34,21 @@ namespace EDM {
 template<class CT, class DT>
 class IPluginTemplate : public IPlugin {
 public:
-    virtual ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
         bool &isChanged) override;
 
-    virtual ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
+    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
 
-    virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
         bool isGlobalChanged) override;
 
-    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData) override;
 
-    virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData) override;
 
-    virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
+    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) override;
 
     /*
      * Sets the handle of the policy processing object.
@@ -370,6 +372,13 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     ErrCode res = entry->second.handlePolicy_(data, policyData, isChanged, type);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
+}
+
+template<class CT, class DT>
+ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+{
+    EDMLOGI("IPluginTemplate::OnGetPolicy");
+    return instance_->OnGetPolicy(policyData, reply);
 }
 
 template<class CT, class DT>
@@ -760,6 +769,8 @@ public:
      */
     static std::shared_ptr<IPlugin> GetPlugin();
 
+    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply);
+
     static void DestroyPlugin();
 
 private:
@@ -786,6 +797,13 @@ std::shared_ptr<IPlugin> PluginSingleton<CT, DT>::GetPlugin()
         }
     }
     return pluginInstance_;
+}
+
+template<typename CT, typename DT>
+ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+{
+    EDMLOGI("PluginSingleton::OnGetPolicy");
+    return ERR_OK;
 }
 
 template<typename CT, typename DT>

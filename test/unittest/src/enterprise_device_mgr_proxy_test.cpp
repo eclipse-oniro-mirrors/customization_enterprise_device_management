@@ -84,7 +84,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
 
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     bool isDisabled;
-    enterpriseDeviceMgrProxyTest->IsPolicyDisable(funcCode, isDisabled);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
     EXPECT_FALSE(isDisabled);
 
 

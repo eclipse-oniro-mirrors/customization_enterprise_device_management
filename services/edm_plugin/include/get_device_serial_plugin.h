@@ -13,23 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
-#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_SERIAL_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_SERIAL_PLUGIN_H
 
-#include <algorithm>
-#include <string>
+#include "string_serializer.h"
+#include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
-enum {
-    SET_DATETIME = 1001,
-};
+class GetDeviceSerialPlugin : public PluginSingleton<GetDeviceSerialPlugin, std::string> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr) override;
 
-#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
-    POLICY_NAME = (#ENUM_CODE); \
-    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
-} while (0)
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) override;
+};
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_SERIAL_PLUGIN_H

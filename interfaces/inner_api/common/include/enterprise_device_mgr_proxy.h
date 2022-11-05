@@ -47,18 +47,18 @@ public:
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
-    bool IsPolicyDisable(int policyCode, bool &isDisabled);
-    bool GetPolicyValue(int policyCode, std::string &policyData);
-    bool GetPolicyArray(int policyCode, std::vector<std::string> &policyData);
-    bool GetPolicyConfig(int policyCode, std::map<std::string, std::string> &policyData);
-
+    bool IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled);
+    bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData);
+    bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData);
+    bool GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string,
+        std::string> &policyData);
+    bool GetPolicy(AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
 
     void GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList);
     sptr<IRemoteObject> GetRemoteObject();
-    bool GetPolicy(int policyCode, MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS
