@@ -13,25 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H
-#define INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H
+#ifndef INTERFACES_INNER_API_DATETIME_MANAGER_INCLUDE_DATETIME_MANAGER_PROXY_H
+#define INTERFACES_INNER_API_DATETIME_MANAGER_INCLUDE_DATETIME_MANAGER_PROXY_H
 #include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-class DeviceSettingsManager {
+class DatetimeManagerProxy {
 public:
-    DeviceSettingsManager();
-    ~DeviceSettingsManager();
-    static std::shared_ptr<DeviceSettingsManager> GetDeviceSettingsManager();
+    DatetimeManagerProxy();
+    ~DatetimeManagerProxy();
+    static std::shared_ptr<DatetimeManagerProxy> GetDatetimeManagerProxy();
     int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
 
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
-    static std::shared_ptr<DeviceSettingsManager> instance_;
+    static std::shared_ptr<DatetimeManagerProxy> instance_;
     static std::mutex mutexLock_;
 };
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_INNER_API_INCLUDE_DEVICE_SETTINGS_MANAGER_H
+#endif // INTERFACES_INNER_API_DATETIME_MANAGER_INCLUDE_DATETIME_MANAGER_PROXY_H

@@ -13,47 +13,51 @@
  * limitations under the License.
  */
 
-#include "device_settings_manager.h"
+#include "device_info_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::instance_ = nullptr;
-std::mutex DeviceSettingsManager::mutexLock_;
+std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::instance_ = nullptr;
+std::mutex DeviceInfoProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
-DeviceSettingsManager::DeviceSettingsManager() {}
+DeviceInfoProxy::DeviceInfoProxy() {}
 
-DeviceSettingsManager::~DeviceSettingsManager() {}
+DeviceInfoProxy::~DeviceInfoProxy() {}
 
-std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::GetDeviceSettingsManager()
+std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<DeviceSettingsManager> temp = std::make_shared<DeviceSettingsManager>();
+            std::shared_ptr<DeviceInfoProxy> temp = std::make_shared<DeviceInfoProxy>();
             instance_ = temp;
         }
     }
     return instance_;
 }
 
-int32_t DeviceSettingsManager::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
+int32_t DeviceInfoProxy::GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &serial)
 {
-    EDMLOGD("DeviceSettingsManager::SetDateTime");
+    EDMLOGD("DeviceInfoProxy::GetDeviceSerial");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteParcelable(&admin);
-    data.WriteInt64(time);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    MessageParcel reply;
+    proxy->GetPolicy(&admin, GET_DEVICE_SERIAL, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(serial);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

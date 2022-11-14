@@ -59,6 +59,11 @@ public:
         return IPlugin::WritePolicyToParcel(policyData, reply);
     }
 
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply)
+    {
+        return ERR_OK;
+    }
+
     ~TestPlugin() override = default;
 };
 

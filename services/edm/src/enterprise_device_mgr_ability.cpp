@@ -643,20 +643,30 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("GetDevicePolicy: get plugin failed");
-        reply.WriteInt32(ERR_EDM_GET_PLUGIN_MGR_FAILED);
-        return ERR_EDM_GET_PLUGIN_MGR_FAILED;
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    if (admin != nullptr) {
+        std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
+        if (deviceAdmin == nullptr) {
+            EDMLOGW("HandleDevicePolicy: get admin failed");
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+        if (!deviceAdmin->CheckPermission(plugin->GetPermission())) {
+            EDMLOGW("GetDevicePolicy: admin check permission failed %{public}s", plugin->GetPermission().c_str());
+            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        }
+    }
+    if (!VerifyCallingPermission(plugin->GetPermission())) {
+        EDMLOGW("GetDevicePolicy: VerifyCallingPermission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
     std::string adminName = (admin == nullptr) ? "" : admin->GetBundleName();
-    if (policyMgr_->GetPolicy(adminName, policyName, policyValue) != ERR_OK) {
-        EDMLOGW("GetDevicePolicy: get policy failed");
-        reply.WriteInt32(ERR_EDM_POLICY_NOT_FIND);
-    } else {
-        reply.WriteInt32(ERR_OK);
-        plugin->WritePolicyToParcel(policyValue, reply);
+    if (plugin->NeedSavePolicy()) {
+        policyMgr_->GetPolicy(adminName, policyName, policyValue);
     }
-
+    plugin->OnGetPolicy(policyValue, reply);
     return ERR_OK;
 }
 

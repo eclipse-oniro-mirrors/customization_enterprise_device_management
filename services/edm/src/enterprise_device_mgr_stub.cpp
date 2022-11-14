@@ -138,16 +138,13 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
 ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     AppExecFwk::ElementName *admin = nullptr;
-    if (data.ReadInt32() != ERR_OK) {
-        admin = AppExecFwk::ElementName::Unmarshalling(data);
+    if (data.ReadInt32() == 0) {
+        admin = data.ReadParcelable<AppExecFwk::ElementName>();
     } else {
         admin = nullptr;
     }
-    if (admin != nullptr) {
-        EDMLOGD("GetDevicePolicyInner bundleName:: %{public}s : abilityName : %{public}s code : %{public}x",
-            admin->GetBundleName().c_str(), admin->GetAbilityName().c_str(), code);
-    }
     ErrCode retCode = GetDevicePolicy(code, admin, reply);
+    reply.WriteInt32(retCode);
     delete admin;
     return retCode;
 }

@@ -18,7 +18,7 @@ import("plugin.gni")
 PLUGIN_ROOT = "$SUBSYSTEM_DIR/services/edm_plugin"
 PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 
-edm_plugin_shared_library("device_settings_plugin") {
+edm_plugin_shared_library("datetime_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
   configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
@@ -29,5 +29,18 @@ edm_plugin_shared_library("device_settings_plugin") {
     "c_utils:utils",
     "ipc:ipc_core",
     "time_service:time_client",
+  ]
+}
+
+edm_plugin_shared_library("device_serial_plugin") {
+  sources = [ "$PLUGIN_SRC_PATH/get_device_serial_plugin.cpp" ]
+
+  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+
+  include_dirs = [ "//base/startup/init/interfaces/innerkits/syspara" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
   ]
 }

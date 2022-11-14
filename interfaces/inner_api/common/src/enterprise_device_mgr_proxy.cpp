@@ -290,10 +290,10 @@ bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, in
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::IsPolicyDisable(int policyCode, bool &isDisabled)
+bool EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
 {
     MessageParcel reply;
-    if (!GetPolicy(policyCode, reply)) {
+    if (!GetPolicy(admin, policyCode, reply)) {
         isDisabled = false;
         return false;
     } else {
@@ -322,20 +322,21 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyValue(int policyCode, std::string &policyData)
+bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData)
 {
     MessageParcel reply;
-    if (!GetPolicy(policyCode, reply)) {
+    if (!GetPolicy(admin, policyCode, reply)) {
         return false;
     }
     policyData = Str16ToStr8(reply.ReadString16());
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyArray(int policyCode, std::vector<std::string> &policyData)
+bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode,
+    std::vector<std::string> &policyData)
 {
     MessageParcel reply;
-    if (!GetPolicy(policyCode, reply)) {
+    if (!GetPolicy(admin, policyCode, reply)) {
         return false;
     }
     std::vector<std::u16string> readVector16;
@@ -351,10 +352,11 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(int policyCode, std::vector<std::s
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyConfig(int policyCode, std::map<std::string, std::string> &policyData)
+bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode,
+    std::map<std::string, std::string> &policyData)
 {
     MessageParcel reply;
-    if (!GetPolicy(policyCode, reply)) {
+    if (!GetPolicy(admin, policyCode, reply)) {
         return false;
     }
     std::vector<std::u16string> keys16;
@@ -386,7 +388,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(int policyCode, std::map<std::str
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &reply)
+bool EnterpriseDeviceMgrProxy::GetPolicy(AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply)
 {
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy invalid policyCode:%{public}d", policyCode);
@@ -400,17 +402,18 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &reply)
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     MessageOption option;
+    if (admin != nullptr) {
+        data.WriteInt32(0);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(1);
+    }
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy send request fail.");
         return false;
     }
-    std::int32_t requestRes = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(requestRes) && (requestRes == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", requestRes);
-    }
-    return blRes;
+    return true;
 }
 
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::vector<std::string> &enabledAdminList)

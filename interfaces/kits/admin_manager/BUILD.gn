@@ -14,43 +14,36 @@
 import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 
-SRC_PATH = "$EDM_INNERKITS_PATH/"
-
-config("edmservice_kits_config") {
+ohos_shared_library("adminmanager") {
   include_dirs = [
-    "common/include",
-    "device_info/include",
-    "datetime_manager/include",
+    "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/admin_manager/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
-}
-
-ohos_shared_library("edmservice_kits") {
-  public_configs = [ ":edmservice_kits_config" ]
 
   sources = [
-    "$SRC_PATH/common/src/ent_info.cpp",
-    "$SRC_PATH/common/src/enterprise_device_mgr_proxy.cpp",
-    "$SRC_PATH/datetime_manager/src/datetime_manager_proxy.cpp",
-    "$SRC_PATH/device_info/src/device_info_proxy.cpp",
-    "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
+    "$SUBSYSTEM_DIR/common/native/src/hisysevent_adapter.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_common.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_error.cpp",
+    "src/admin_manager_addon.cpp",
   ]
 
   configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
 
+  deps = [ "$EDM_INNERKITS_PATH:edmservice_kits" ]
+
   external_deps = [
     "ability_base:want",
-    "c_utils:utils",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "samgr:samgr_proxy",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
   ]
 
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
-
+  relative_install_dir = "module/enterprise"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
