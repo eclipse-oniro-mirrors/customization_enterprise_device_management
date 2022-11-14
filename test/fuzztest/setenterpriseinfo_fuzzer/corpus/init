@@ -11,16 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("fuzztest") {
-  testonly = true
-  deps = []
-
-  deps += [
-    # deps file
-    "disablesuperadmin_fuzzer:DisableSuperAdminFuzzTest",
-    "entinfo_fuzzer:EntInfoFuzzTest",
-    "isadminenabled_fuzzer:IsAdminEnabledFuzzTest",
-    "issuperadmin_fuzzer:IsSuperAdminFuzzTest",
-    "setenterpriseinfo_fuzzer:SetEnterpriseInfoFuzzTest",
-  ]
-}
+FUZZ
