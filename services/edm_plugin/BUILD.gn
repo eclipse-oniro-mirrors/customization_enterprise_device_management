@@ -32,8 +32,12 @@ edm_plugin_shared_library("datetime_manager_plugin") {
   ]
 }
 
-edm_plugin_shared_library("device_serial_plugin") {
-  sources = [ "$PLUGIN_SRC_PATH/get_device_serial_plugin.cpp" ]
+edm_plugin_shared_library("device_info_plugin") {
+  sources = [
+    "$PLUGIN_SRC_PATH/get_device_name_plugin.cpp",
+    "$PLUGIN_SRC_PATH/get_device_serial_plugin.cpp",
+    "$PLUGIN_SRC_PATH/get_display_version_plugin.cpp",
+  ]
 
   configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
 
