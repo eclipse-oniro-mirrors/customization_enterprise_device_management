@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define private public
 #include "admin_manager_test.h"
+#undef private
 #include <vector>
 #include "admin_manager.h"
 #include "cmd_utils.h"
@@ -43,8 +45,8 @@ void AdminManagerTest::TearDown()
     for (const auto &admin : userAdmin) {
         adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID);
     }
+    adminMgr_->instance_.reset();
     adminMgr_.reset();
-    adminMgr_ = nullptr;
     PermissionManager::DestroyInstance();
 
     CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);

@@ -36,7 +36,7 @@
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-bool g_visit = false;
+static bool g_visit = false;
 namespace PLUGIN {
 #ifndef ARRAY_TEST_PLUGIN
 #define ARRAY_TEST_PLUGIN
@@ -194,6 +194,7 @@ class HandlePolicyBiFunctionPlg : public PluginSingleton<HandlePolicyBiFunctionP
 public:
     ErrCode SetFunction(std::string &data, std::string &currentData)
     {
+        std::string errStr{"ErrorData"};
         currentData = data;
         return ERR_OK;
     }
@@ -321,6 +322,55 @@ public:
         ptr->InitAttribute(policyCode, "AdminRemoveDoneBiBiConsumerPlg", "ohos.permission.EDM_TEST_PERMISSION");
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnAdminRemoveDoneListener(&AdminRemoveDoneBiBiConsumerPlg::RemoveAdminDone);
+    }
+};
+
+class HandlePolicyJsonBiFunctionPlg : public PluginSingleton<HandlePolicyJsonBiFunctionPlg, Json::Value> {
+public:
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData)
+    {
+        currentData = data;
+        return ERR_OK;
+    }
+
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData)
+    {
+        currentData = Json::nullValue;
+        return ERR_OK;
+    }
+
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyJsonBiFunctionPlg, Json::Value>> ptr) override
+    {
+        int policyCode = 30;
+        ptr->InitAttribute(policyCode, "HandlePolicyJsonBiFunctionPlg", "ohos.permission.EDM_TEST_PERMISSION");
+        ptr->SetSerializer(JsonSerializer::GetInstance());
+        ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::SetFunction, FuncOperateType::SET);
+        ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
+    }
+};
+
+class HandlePolicyBiFunctionUnsavePlg : public PluginSingleton<HandlePolicyBiFunctionUnsavePlg, Json::Value> {
+public:
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData)
+    {
+        currentData = data;
+        return ERR_OK;
+    }
+
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData)
+    {
+        currentData = Json::nullValue;
+        return ERR_OK;
+    }
+
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionUnsavePlg, Json::Value>> ptr) override
+    {
+        int policyCode = 31;
+        ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionUnsavePlg",
+            "ohos.permission.EDM_TEST_PERMISSION", false, true);
+        ptr->SetSerializer(JsonSerializer::GetInstance());
+        ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::SetFunction, FuncOperateType::SET);
+        ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::RemoveFunction, FuncOperateType::REMOVE);
     }
 };
 } // namespace PLUGIN
