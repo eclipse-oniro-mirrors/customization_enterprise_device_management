@@ -149,7 +149,7 @@ void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
     delete asyncCallbackInfo;
 }
 
-napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, std::string workName,
+napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete)
 {
     napi_value result = nullptr;

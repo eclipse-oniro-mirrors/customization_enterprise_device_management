@@ -231,8 +231,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     bool isDisabled = false;
-    bool ret = enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
-    EXPECT_TRUE(ret);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
@@ -248,8 +247,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableFail, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    bool ret = enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
-    EXPECT_TRUE(!ret);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
@@ -261,8 +259,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableFail, TestSize.Level1)
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableFuncCodeFail, TestSize.Level1)
 {
     bool isDisabled = false;
-    bool ret = enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, FUNC_CODE_ERR, isDisabled);
-    EXPECT_TRUE(!ret);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, FUNC_CODE_ERR, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
@@ -425,7 +422,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigReplyFail, TestSize.Le
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
     bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
-    EXPECT_TRUE(!ret);
+    EXPECT_FALSE(ret);
 }
 
 /**
@@ -441,7 +438,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigEnableAdminNotEqual, T
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin));
     bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
-    EXPECT_TRUE(!ret);
+    EXPECT_FALSE(ret);
 }
 
 /**
