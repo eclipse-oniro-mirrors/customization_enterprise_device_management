@@ -765,11 +765,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleManagedEvent(const AppExecFwk::Element
     if (iter != std::end(events)) {
         return EdmReturnErrCode::MANAGED_EVENTS_INVALID;
     }
-    ErrCode code;
     if (subscribe) {
-        code = adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
+        adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
     } else {
-        code = adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
+        adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
     }
     return ERR_OK;
 }
