@@ -314,7 +314,7 @@ ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInf
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
-ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
+void AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
     std::shared_ptr<Admin> &admin, int32_t userId)
 {
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
@@ -328,10 +328,9 @@ ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
     if (admin->adminInfo_.managedEvents_.size() > eventsNumber) {
         SaveAdmin(userId);
     }
-    return ERR_OK;
 }
 
-ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
+void AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
     std::shared_ptr<Admin> &admin, int32_t userId)
 {
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
@@ -348,7 +347,6 @@ ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
     if (admin->adminInfo_.managedEvents_.size() < eventsNumber) {
         SaveAdmin(userId);
     }
-    return ERR_OK;
 }
 // init
 void AdminManager::Init()

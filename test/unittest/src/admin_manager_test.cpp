@@ -467,11 +467,11 @@ HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    ErrCode ret = adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(1);
-    ret = adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() > 1);
 }
 
 /**
@@ -492,11 +492,11 @@ HWTEST_F(AdminManagerTest, TestRemoveSubscribeEvents, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    ErrCode ret = adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(0);
-    ret = adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin->adminInfo_.managedEvents_.empty());
 }
 } // namespace TEST
 } // namespace EDM
