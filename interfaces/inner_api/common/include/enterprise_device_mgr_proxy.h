@@ -47,7 +47,7 @@ public:
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
-    bool IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled);
+    void IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled);
     bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData);
     bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData);
     bool GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string,

@@ -63,7 +63,7 @@ bool ParseInt(napi_env env, int32_t &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
-napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, std::string workName,
+napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
 void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);

@@ -290,16 +290,17 @@ bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, in
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
+void EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
 {
     MessageParcel reply;
+    int32_t ret = ERR_INVALID_VALUE;
     if (!GetPolicy(admin, policyCode, reply)) {
         isDisabled = false;
-        return false;
-    } else {
+    } else if (reply.ReadInt32(ret) && (ret == ERR_OK)) {
         isDisabled = reply.ReadBool();
+    } else {
+        isDisabled = false;
     }
-    return true;
 }
 
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
@@ -325,11 +326,17 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
 bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData)
 {
     MessageParcel reply;
+    int32_t ret = ERR_INVALID_VALUE;
     if (!GetPolicy(admin, policyCode, reply)) {
+        policyData = "";
         return false;
+    } else if (reply.ReadInt32(ret) && (ret == ERR_OK)) {
+        policyData = Str16ToStr8(reply.ReadString16());
+        return true;
+    } else {
+        policyData = "";
     }
-    policyData = Str16ToStr8(reply.ReadString16());
-    return true;
+    return false;
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode,
@@ -337,6 +344,10 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, in
 {
     MessageParcel reply;
     if (!GetPolicy(admin, policyCode, reply)) {
+        return false;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
         return false;
     }
     std::vector<std::u16string> readVector16;
@@ -357,6 +368,10 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, i
 {
     MessageParcel reply;
     if (!GetPolicy(admin, policyCode, reply)) {
+        return false;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
         return false;
     }
     std::vector<std::u16string> keys16;

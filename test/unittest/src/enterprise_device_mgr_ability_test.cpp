@@ -318,7 +318,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest001, TestSize.Le
     AppExecFwk::ElementName *elementName = nullptr;
     MessageParcel reply;
     ErrCode res = edmMgr_->GetDevicePolicy(code, elementName, reply);
-    ASSERT_TRUE(res == ERR_EDM_GET_PLUGIN_MGR_FAILED);
+    ASSERT_TRUE(res == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
 /**
@@ -338,13 +338,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest002, TestSize.Le
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, elementName, reply);
-    ASSERT_TRUE(res == ERR_OK);
-
-    PolicyItemsMap map;
-    map.insert(std::pair<std::string, std::string>(ARRAY_MAP_TESTPLG_POLICYNAME, "TestValue"));
-    edmMgr_->policyMgr_->adminPolicies_.insert(std::pair<std::string, PolicyItemsMap>(ADMIN_PACKAGENAME, map));
-    res = edmMgr_->GetDevicePolicy(code, elementName, reply);
-    ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM
