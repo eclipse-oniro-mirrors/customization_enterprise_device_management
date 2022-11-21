@@ -34,19 +34,19 @@ namespace EDM {
 template<class CT, class DT>
 class IPluginTemplate : public IPlugin {
 public:
-    virtual ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
         bool &isChanged) override;
 
-    virtual ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
+    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
 
-    virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
         bool isGlobalChanged) override;
 
-    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData) override;
 
-    virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData) override;
 
-    virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
+    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
 
     /*
      * Sets the handle of the policy processing object.

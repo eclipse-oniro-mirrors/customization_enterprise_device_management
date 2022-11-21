@@ -195,6 +195,9 @@ public:
     ErrCode SetFunction(std::string &data, std::string &currentData)
     {
         std::string errStr{"ErrorData"};
+        if (data == errStr) {
+            return ERR_EDM_OPERATE_JSON;
+        }
         currentData = data;
         return ERR_OK;
     }

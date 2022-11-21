@@ -14,17 +14,19 @@
 import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 
-ohos_shared_library("enterprisedevicemanager") {
+ohos_shared_library("datetimemanager") {
   include_dirs = [
     "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/interfaces/kits/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/datetime_manager/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/common/native/src/hisysevent_adapter.cpp",
-    "src/enterprise_device_manager_addon.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_common.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_error.cpp",
+    "src/datetime_manager_addon.cpp",
   ]
 
   configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
@@ -40,7 +42,7 @@ ohos_shared_library("enterprisedevicemanager") {
     "os_account:os_account_innerkits",
   ]
 
-  relative_install_dir = "module"
+  relative_install_dir = "module/enterprise"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

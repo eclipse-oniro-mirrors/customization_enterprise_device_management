@@ -13,36 +13,36 @@
  * limitations under the License.
  */
 
-#include "device_settings_manager.h"
+#include "datetime_manager_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::instance_ = nullptr;
-std::mutex DeviceSettingsManager::mutexLock_;
+std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::instance_ = nullptr;
+std::mutex DatetimeManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
-DeviceSettingsManager::DeviceSettingsManager() {}
+DatetimeManagerProxy::DatetimeManagerProxy() {}
 
-DeviceSettingsManager::~DeviceSettingsManager() {}
+DatetimeManagerProxy::~DatetimeManagerProxy() {}
 
-std::shared_ptr<DeviceSettingsManager> DeviceSettingsManager::GetDeviceSettingsManager()
+std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::GetDatetimeManagerProxy()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<DeviceSettingsManager> temp = std::make_shared<DeviceSettingsManager>();
+            std::shared_ptr<DatetimeManagerProxy> temp = std::make_shared<DatetimeManagerProxy>();
             instance_ = temp;
         }
     }
     return instance_;
 }
 
-int32_t DeviceSettingsManager::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
+int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
 {
-    EDMLOGD("DeviceSettingsManager::SetDateTime");
+    EDMLOGD("DatetimeManagerProxy::SetDateTime");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");

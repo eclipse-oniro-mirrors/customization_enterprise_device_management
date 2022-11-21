@@ -77,7 +77,7 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
     }
     HILOG_INFO("JsEnterpriseAdminExtension::Init CreateJsEnterpriseAdminExtensionContext.");
     NativeValue* contextObj = CreateJsEnterpriseAdminExtensionContext(engine, context);
-    auto shellContextRef = jsRuntime_.LoadSystemModule("application.EnterpriseAdminExtensionContext",
+    auto shellContextRef = jsRuntime_.LoadSystemModule("enterprise.EnterpriseAdminExtensionContext",
         &contextObj, JS_NAPI_ARGC_ONE);
     contextObj = shellContextRef->Get();
     HILOG_INFO("JsEnterpriseAdminExtension::Init Bind.");
