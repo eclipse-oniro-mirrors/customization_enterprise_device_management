@@ -18,7 +18,7 @@ import("plugin.gni")
 PLUGIN_ROOT = "$SUBSYSTEM_DIR/services/edm_plugin"
 PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 
-edm_plugin_shared_library("device_settings_plugin") {
+edm_plugin_shared_library("datetime_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
   configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]

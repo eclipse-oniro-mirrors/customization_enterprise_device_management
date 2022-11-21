@@ -20,18 +20,18 @@ extern const char _binary_enterprise_admin_extension_ability_js_end[];
 extern const char _binary_enterprise_admin_extension_ability_abc_start[];
 extern const char _binary_enterprise_admin_extension_ability_abc_end[];
 
-extern "C" __attribute__((constructor)) void NAPI_EnterpriseAdminExtensionAbility_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_enterprise_EnterpriseAdminExtensionAbility_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "EnterpriseAdminExtensionAbility",
-        .fileName = "libenterpriseadminextensionability_napi.so/enterprise_admin_extension_ability.js",
+        .name = "enterprise.EnterpriseAdminExtensionAbility",
+        .fileName = "enterprise/libenterpriseadminextensionability_napi.so/enterprise_admin_extension_ability.js",
     };
 
     moduleManager->Register(&newModuleInfo);
 }
 
-extern "C" __attribute__((visibility("default"))) void NAPI_EnterpriseAdminExtensionAbility_GetJSCode(
+extern "C" __attribute__((visibility("default"))) void NAPI_enterprise_EnterpriseAdminExtensionAbility_GetJSCode(
     const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
@@ -45,7 +45,7 @@ extern "C" __attribute__((visibility("default"))) void NAPI_EnterpriseAdminExten
 }
 
 // EnterpriseAdminExtention JS register
-extern "C" __attribute__((visibility("default"))) void NAPI_EnterpriseAdminExtensionAbility_GetABCCode(
+extern "C" __attribute__((visibility("default"))) void NAPI_enterprise_EnterpriseAdminExtensionAbility_GetABCCode(
     const char **buf, int *buflen)
 {
     if (buf != nullptr) {
