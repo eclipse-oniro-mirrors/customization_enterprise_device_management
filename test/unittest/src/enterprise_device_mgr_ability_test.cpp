@@ -48,7 +48,7 @@ const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
 const std::string HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME = "HandlePolicyBiFunctionPlg";
 const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies.json";
 
-void NativeTokenGet(const char* perms[], int size) 
+void NativeTokenGet(const char* perms[], int size)
 {
     uint64_t tokenId;
     NativeTokenInfoParams infoInstance = {
@@ -88,7 +88,7 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
 }
 
 // Give testAdmin and plugin_ Initial value
-void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy() 
+void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
 {
     Admin testAdmin;
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
