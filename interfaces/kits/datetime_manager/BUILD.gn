@@ -39,7 +39,6 @@ ohos_shared_library("datetimemanager") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "os_account:os_account_innerkits",
   ]
 
   relative_install_dir = "module/enterprise"

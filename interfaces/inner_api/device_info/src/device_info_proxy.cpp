@@ -16,7 +16,6 @@
 #include "device_info_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -40,23 +39,23 @@ std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
     return instance_;
 }
 
-int32_t DeviceInfoProxy::GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &serial)
+int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode)
 {
-    EDMLOGD("DeviceInfoProxy::GetDeviceSerial");
+    EDMLOGD("DeviceInfoProxy::GetDeviceInfo %{pubilc}d", policyCode);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel reply;
-    proxy->GetPolicy(&admin, GET_DEVICE_SERIAL, reply);
+    proxy->GetPolicy(&admin, policyCode, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    reply.ReadString(serial);
+    reply.ReadString(info);
     return ERR_OK;
 }
 } // namespace EDM

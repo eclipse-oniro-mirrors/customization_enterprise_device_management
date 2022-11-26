@@ -13,31 +13,31 @@
  * limitations under the License.
  */
 
-#include "get_device_serial_plugin.h"
-#include "string_serializer.h"
+#include "get_display_version_plugin.h"
+#include "parameter.h"
 #include "plugin_manager.h"
 #include "policy_info.h"
-#include "parameter.h"
+#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDisplayVersionPlugin::GetPlugin());
 
-void GetDeviceSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr)
+void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr)
 {
-    EDMLOGD("GetDeviceSerialPlugin InitPlugin...");
+    EDMLOGD("GetDisplayVersionPlugin InitPlugin...");
     std::string policyName;
-    POLICY_CODE_TO_NAME(GET_DEVICE_SERIAL, policyName);
-    ptr->InitAttribute(GET_DEVICE_SERIAL, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", false);
+    POLICY_CODE_TO_NAME(GET_DISPLAY_VERSION, policyName);
+    ptr->InitAttribute(GET_DISPLAY_VERSION, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetDeviceSerialPlugin::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+ErrCode GetDisplayVersionPlugin::OnGetPolicy(std::string &policyData, MessageParcel &reply)
 {
-    EDMLOGI("GetDeviceSerialPlugin OnGetPolicy.");
-    std::string serial = GetSerial();
+    EDMLOGI("GetDisplayVersionPlugin OnGetPolicy.");
+    std::string version = GetDisplayVersion();
     reply.WriteInt32(ERR_OK);
-    reply.WriteString(serial);
+    reply.WriteString(version);
     return ERR_OK;
 }
 } // namespace EDM

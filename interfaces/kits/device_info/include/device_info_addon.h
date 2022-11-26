@@ -27,8 +27,9 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncGetDeviceSerialCallbackInfo : AsyncCallbackInfo {
+struct AsyncGetDeviceInfoCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
+    int policyCode = 0;
 };
 
 class DeviceInfoAddon {
@@ -40,7 +41,10 @@ public:
 private:
     static napi_value GetDatetimeManagerProxy(napi_env env, napi_callback_info info);
     static napi_value GetDeviceSerial(napi_env env, napi_callback_info info);
-    static void NativeGetDeviceSerial(napi_env env, void *data);
+    static napi_value GetDisplayVersion(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceName(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceInfo(napi_env env, napi_callback_info info, int code);
+    static void NativeGetDeviceInfo(napi_env env, void *data);
     static std::shared_ptr<DeviceInfoProxy> deviceInfoProxy_;
 };
 } // namespace EDM

@@ -144,7 +144,6 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
         admin = nullptr;
     }
     ErrCode retCode = GetDevicePolicy(code, admin, reply);
-    reply.WriteInt32(retCode);
     delete admin;
     return retCode;
 }

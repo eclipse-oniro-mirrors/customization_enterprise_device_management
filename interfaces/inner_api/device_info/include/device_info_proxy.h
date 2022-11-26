@@ -24,8 +24,7 @@ public:
     DeviceInfoProxy();
     ~DeviceInfoProxy();
     static std::shared_ptr<DeviceInfoProxy> GetDeviceInfoProxy();
-    int32_t GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &serial);
-
+    int32_t GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceInfoProxy> instance_;
