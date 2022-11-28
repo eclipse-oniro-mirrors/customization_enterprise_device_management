@@ -649,7 +649,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
     if (admin != nullptr) {
         std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
         if (deviceAdmin == nullptr) {
-            EDMLOGW("HandleDevicePolicy: get admin failed");
+            EDMLOGW("GetDevicePolicy: get admin failed");
             reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
             return EdmReturnErrCode::ADMIN_INACTIVE;
         }

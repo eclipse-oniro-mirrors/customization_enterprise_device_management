@@ -299,6 +299,23 @@ HWTEST_F(PluginTemplateTest, TestAdminRemoveDone, TestSize.Level1)
         ASSERT_TRUE(g_visit);
     }
 }
+
+/**
+ * @tc.name: TestOnGetPolicy
+ * @tc.desc: Test PluginTemplate OnGetPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
+{
+    int policyCode = 30;
+    MessageParcel reply;
+    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin());
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, policyCode);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    std::string policyData{"TestData"};
+    ErrCode ret = plugin->OnGetPolicy(policyData, reply);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
