@@ -324,21 +324,106 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest001, TestSize.Le
 /**
  * @tc.name: GetDevicePolicyFuncTest002
  * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
- * @tc.desc: Test policyMgr_->GetPolicy(adminName, policyName, policyValue)
+ * @tc.desc: Test if admin == nullptr
  * @tc.type: FUNC
  * @tc.require: issueI5PBT1
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest002, TestSize.Level1)
 {
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    AppExecFwk::ElementName *elementName = &admin;
     MessageParcel reply;
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, elementName, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, nullptr, reply);
+    ASSERT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: GetDevicePolicyFuncTest003
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
+ * @tc.desc: Test if admin != nullptr && deviceAdmin == nullptr
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest003, TestSize.Level1)
+{
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.test.demoFail");
+    MessageParcel reply;
+    ErrCode res = edmMgr_->GetDevicePolicy(code, &admin, reply);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetDevicePolicyFuncTest004
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
+ * @tc.desc: Test if admin != nullptr && (deviceAdmin->CheckPermission fail)
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest004, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permission_ = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel reply;
+    ErrCode res = edmMgr_->GetDevicePolicy(code, &admin, reply);
+    ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: GetDevicePolicyFuncTest005
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
+ * @tc.desc: Test if admin != nullptr && (if (!VerifyCallingPermission(plugin->GetPermission())))
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest005, TestSize.Level1)
+{
+    Admin testAdmin;
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
+    testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
+    std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
+    edmMgr_->adminMgr_->admins_.
+        insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    plugin_->permission_ = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel reply;
+    ErrCode res = edmMgr_->GetDevicePolicy(code, &admin, reply);
+    ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: GetDevicePolicyFuncTest006
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
+ * @tc.desc: Test if (plugin->NeedSavePolicy())
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
+    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel reply;
+    ErrCode res = edmMgr_->GetDevicePolicy(code, &admin, reply);
+    ASSERT_TRUE(res == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

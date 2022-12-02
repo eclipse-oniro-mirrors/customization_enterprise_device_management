@@ -37,6 +37,10 @@ public:
     int HandleDevicePolicyFuncTest008(void);
     int GetDevicePolicyFuncTest001(void);
     int GetDevicePolicyFuncTest002(void);
+    int GetDevicePolicyFuncTest003(void);
+    int GetDevicePolicyFuncTest004(void);
+    int GetDevicePolicyFuncTest005(void);
+    int GetDevicePolicyFuncTest006(void);
 protected:
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<IPlugin> plugin_;
