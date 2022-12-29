@@ -77,7 +77,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
         EDMLOGE("EnterpriseDeviceMgrProxy:EnableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:EnableAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -103,7 +103,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:DisableAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -128,7 +128,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableSuperAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:DisableSuperAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -153,7 +153,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -179,7 +179,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
@@ -207,7 +207,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
@@ -243,9 +243,10 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     return retCode;
 }
 
-bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
+ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName, bool &result)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");
+    result = false;
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return false;
@@ -258,17 +259,22 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName)
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_SUPER_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:IsSuperAdmin send request fail. %{public}d", res);
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    bool ret = false;
-    reply.ReadBool(ret);
-    EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin ret %{public}d", ret);
-    return ret;
+    int32_t resCode = ERR_OK;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    reply.ReadBool(result);
+    EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin ret %{public}d", result);
+    return ERR_OK;
 }
 
-bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId)
+ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled");
+    result = false;
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
         return false;
@@ -282,12 +288,16 @@ bool EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, in
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_ADMIN_ENABLED, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminEnabled send request fail. %{public}d", res);
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    bool ret = false;
-    reply.ReadBool(ret);
-    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled ret %{public}d", ret);
-    return ret;
+    int32_t resCode = ERR_OK;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    reply.ReadBool(result);
+    EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled ret %{public}d", result);
+    return ERR_OK;
 }
 
 void EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
@@ -475,7 +485,7 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::uint32_t type, std::vector<
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmins send request fail.");
         return;
     }
-    int32_t resCode;
+    int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmins get result code fail.");
         return;

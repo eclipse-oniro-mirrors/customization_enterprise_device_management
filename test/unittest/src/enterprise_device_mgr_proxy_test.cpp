@@ -70,7 +70,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
     EXPECT_TRUE(entInfo1.enterpriseName.size() == 0);
     EXPECT_TRUE(entInfo1.description.size() == 0);
 
-    bool ret = enterpriseDeviceMgrProxyTest->IsAdminEnabled(admin, DEFAULT_USERID);
+    bool ret = false;
+    enterpriseDeviceMgrProxyTest->IsAdminEnabled(admin, DEFAULT_USERID, ret);
     EXPECT_FALSE(ret);
 
 
@@ -108,7 +109,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableSuperAdmin, TestSize.Level1)
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USERID);
     EXPECT_TRUE(errVal != ERR_OK);
 
-    bool ret = enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo");
+    bool ret = false;
+    enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo", ret);
     EXPECT_FALSE(ret);
 
     std::string enabledAdmin;

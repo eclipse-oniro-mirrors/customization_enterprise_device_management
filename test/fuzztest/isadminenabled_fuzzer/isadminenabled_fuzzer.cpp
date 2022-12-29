@@ -39,7 +39,8 @@ bool FuzzIsAdminEnabled(const uint8_t* data, size_t size)
     admin.SetBundleName(name);
     admin.SetAbilityName(name);
     int32_t userId = static_cast<int32_t>((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]);
-    enterpriseDeviceManager->IsAdminEnabled(admin, userId);
+    bool retValue = false;
+    enterpriseDeviceManager->IsAdminEnabled(admin, userId, retValue);
     return true;
 }
 }

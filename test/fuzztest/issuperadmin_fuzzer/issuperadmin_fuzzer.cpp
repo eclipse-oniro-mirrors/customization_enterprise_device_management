@@ -34,7 +34,8 @@ bool FuzzIsSuperAdmin(const uint8_t* data, size_t size)
     }
 
     std::string bundleName(reinterpret_cast<const char*>(data), size);
-    enterpriseDeviceManager->IsSuperAdmin(bundleName);
+    bool retValue = false;
+    enterpriseDeviceManager->IsSuperAdmin(bundleName, retValue);
     return true;
 }
 }

@@ -40,8 +40,8 @@ public:
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin,
         const std::vector<uint32_t> &events, bool subscribe);
-    bool IsSuperAdmin(std::string bundleName);
-    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId);
+    ErrCode IsSuperAdmin(std::string bundleName, bool &result);
+    ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
