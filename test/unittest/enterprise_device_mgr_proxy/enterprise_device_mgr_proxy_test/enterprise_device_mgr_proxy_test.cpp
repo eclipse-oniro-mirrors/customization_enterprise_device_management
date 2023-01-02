@@ -185,7 +185,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsAdminEnabledFail, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    bool ret = enterpriseDeviceMgrProxyTest->IsAdminEnabled(admin, DEFAULT_USERID);
+    bool ret = false;
+    enterpriseDeviceMgrProxyTest->IsAdminEnabled(admin, DEFAULT_USERID, ret);
     EXPECT_FALSE(ret);
 }
 
@@ -467,7 +468,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminReturnFail, TestSize.Leve
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    bool ret = enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo");
+    bool ret = false;
+    enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo", ret);
     EXPECT_FALSE(ret);
 }
 

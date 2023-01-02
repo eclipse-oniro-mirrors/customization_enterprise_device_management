@@ -497,8 +497,7 @@ void AdminManager::NativeIsSuperAdmin(napi_env env, void *data)
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = ERR_OK;
-    asyncCallbackInfo->boolRet = proxy_->IsSuperAdmin(asyncCallbackInfo->bundleName);
+    asyncCallbackInfo->ret = proxy_->IsSuperAdmin(asyncCallbackInfo->bundleName, asyncCallbackInfo->boolRet);
 }
 
 void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
@@ -514,8 +513,8 @@ void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = ERR_OK;
-    asyncCallbackInfo->boolRet = proxy_->IsAdminEnabled(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
+    asyncCallbackInfo->ret = proxy_->IsAdminEnabled(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->userId, asyncCallbackInfo->boolRet);
 }
 
 napi_value AdminManager::SubscribeManagedEvent(napi_env env, napi_callback_info info)

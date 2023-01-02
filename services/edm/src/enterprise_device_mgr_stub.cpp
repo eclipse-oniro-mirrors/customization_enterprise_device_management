@@ -14,9 +14,14 @@
  */
 
 #include "enterprise_device_mgr_stub.h"
+
+#include <ipc_skeleton.h>
+
+#include "accesstoken_kit.h"
 #include "admin.h"
 #include "ent_info.h"
 #include "string_ex.h"
+#include "tokenid_kit.h"
 
 using namespace OHOS::HiviewDFX;
 
@@ -50,6 +55,16 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
+    bool isSystemApp =
+        Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE
+        && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+        EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
+        return EdmReturnErrCode::SYSTEM_API_DENIED;
+    }
     std::u16string descriptor = GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     EDMLOGI("EnterpriseDeviceMgrStub code %{public}u", code);
@@ -191,7 +206,8 @@ ErrCode EnterpriseDeviceMgrStub::IsSuperAdminInner(MessageParcel &data, MessageP
     std::string bundleName = data.ReadString();
     EDMLOGD("IsSuperAdminInner bundleName:: %{public}s :", bundleName.c_str());
     bool ret = IsSuperAdmin(bundleName);
-    reply.WriteInt32(ret);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(ret);
     return ERR_OK;
 }
 
@@ -205,7 +221,8 @@ ErrCode EnterpriseDeviceMgrStub::IsAdminEnabledInner(MessageParcel &data, Messag
     }
     int32_t userId = data.ReadInt32();
     bool ret = IsAdminEnabled(*admin, userId);
-    reply.WriteInt32(ret);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(ret);
     return ERR_OK;
 }
 

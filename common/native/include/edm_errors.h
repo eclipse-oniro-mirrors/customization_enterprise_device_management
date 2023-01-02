@@ -31,6 +31,7 @@ enum {
 namespace EdmReturnErrCode {
     constexpr uint32_t PARAM_ERROR = 401;
     constexpr uint32_t PERMISSION_DENIED = 201;
+    constexpr uint32_t SYSTEM_API_DENIED = 202;
     constexpr uint32_t INTERFACE_UNSUPPORTED = 801;
 
     constexpr uint32_t ADMIN_INACTIVE = 9200001;
