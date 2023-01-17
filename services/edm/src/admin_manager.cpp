@@ -398,7 +398,8 @@ void AdminManager::ReadJsonAdmin(const std::string &filePath, int32_t userId)
 {
     std::ifstream is(filePath);
     JSONCPP_STRING errs;
-    Json::Value root, lang;
+    Json::Value root;
+    Json::Value lang;
     Json::CharReaderBuilder readerBuilder;
     std::vector<std::shared_ptr<Admin>> adminVector;
 
@@ -482,7 +483,9 @@ void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json
 
 void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
 {
-    Json::Value root, tree, temp;
+    Json::Value root;
+    Json::Value tree;
+    Json::Value temp;
 
     auto iterMap = admins_.find(userId);
     if (iterMap == admins_.end()) {
