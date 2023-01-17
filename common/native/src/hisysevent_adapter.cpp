@@ -20,17 +20,15 @@
 namespace OHOS {
 namespace EDM {
 using namespace OHOS::HiviewDFX;
-const std::string DOMAIN_STR = std::string(HiSysEvent::Domain::CUSTOMIZATION_EDM);
-
 void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
 {
     int ret;
     if (reportType == ReportType::EDM_FUNC_FAILED) {
-        ret = HiSysEvent::Write(DOMAIN_STR, "EDM_FUNC_FAILED", HiSysEvent::EventType::FAULT, "APINAME", apiName,
-            "MSG", msgInfo);
+        ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_FAILED", HiSysEvent::EventType::FAULT,
+            "APINAME", apiName, "MSG", msgInfo);
     } else {
-        ret =
-            HiSysEvent::Write(DOMAIN_STR, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC, "APINAME", apiName);
+        ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
+            "APINAME", apiName);
     }
 
     if (ret != 0) {
