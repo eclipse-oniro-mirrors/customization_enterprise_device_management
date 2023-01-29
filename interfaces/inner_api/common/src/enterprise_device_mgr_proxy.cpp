@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -136,7 +136,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<std::u16string> &enabledAdminList)
+ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnabledAdmin");
     sptr<IRemoteObject> remote = GetRemoteObject();
@@ -158,7 +158,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmin get result code fail. %{public}d", resCode);
         return resCode;
     }
-    reply.ReadString16Vector(&enabledAdminList);
+    reply.ReadStringVector(&enabledAdminList);
     return ERR_OK;
 }
 

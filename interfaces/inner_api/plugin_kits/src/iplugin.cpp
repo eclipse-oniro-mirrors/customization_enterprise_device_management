@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 #include "iplugin.h"
 #include <string_ex.h>
-#include "policy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -46,11 +45,6 @@ std::uint32_t IPlugin::GetCode()
 
 ErrCode IPlugin::MergePolicyData(const std::string &adminName, std::string &mergeJsonData)
 {
-    std::shared_ptr<PolicyManager> ptr = PolicyManager::GetInstance();
-    AdminValueItemsMap map;
-    if (ptr != nullptr) {
-        ptr->GetAdminByPolicyName(policyName_, map);
-    }
     return ERR_OK;
 }
 

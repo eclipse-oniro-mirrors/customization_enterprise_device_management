@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,9 +18,9 @@ template("edm_plugin_shared_library") {
     forward_variables_from(invoker, "*")
 
     include_dirs += [
-      "//base/customization/enterprise_device_management/services/edm/include",
       "//base/customization/enterprise_device_management/interfaces/inner_api/common/include",
-      "//base/customization/enterprise_device_management/services/edm/include/utils",
+      "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits/include",
+      "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits/include/utils",
       "//base/customization/enterprise_device_management/services/edm_plugin/include",
       "//third_party/jsoncpp/include",
     ]
@@ -35,7 +35,8 @@ template("edm_plugin_shared_library") {
     if (!defined(deps)) {
       deps = []
     }
-    deps += [ "//base/customization/enterprise_device_management/services/edm:edmservice" ]
+
+    deps += [ "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits" ]
 
     if (defined(invoker.deps)) {
       deps += invoker.deps

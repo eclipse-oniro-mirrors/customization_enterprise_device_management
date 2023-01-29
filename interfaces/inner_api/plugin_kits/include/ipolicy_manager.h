@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_IPOLICY_MANAGER_H
+#define SERVICES_EDM_INCLUDE_EDM_IPOLICY_MANAGER_H
 
-#include "long_serializer.h"
-#include "iplugin_template.h"
-#include "iplugin_manager.h"
+#include <string>
+#include <unordered_map>
+#include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
-class SetDateTimePlugin : public PluginSingleton<SetDateTimePlugin, int64_t> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr) override;
+using AdminValueItemsMap = std::unordered_map<std::string, std::string>;
 
-    ErrCode OnSetPolicy(int64_t &data);
+class IPolicyManager {
+public:
+    static IPolicyManager *GetInstance();
+    virtual ErrCode GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems)
+    {
+        return ERR_OK;
+    }
+    virtual ~IPolicyManager() {}
+
+protected:
+    static IPolicyManager* policyManagerInstance_;
 };
+
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
+#endif // SERVICES_EDM_INCLUDE_EDM_IPOLICY_MANAGER_H

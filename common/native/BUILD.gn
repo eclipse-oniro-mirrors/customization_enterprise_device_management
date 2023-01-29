@@ -1,0 +1,55 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/customization/enterprise_device_management/edm.gni")
+import("//build/ohos.gni")
+
+config("edm_commom_all_dependent_configs") {
+  include_dirs = [
+    "$EDM_INNERKITS_PATH/plugin_kits/include",
+    "$SUBSYSTEM_DIR/common/native/include",
+  ]
+}
+
+ohos_shared_library("edm_commom") {
+  include_dirs = [
+    "$SUBSYSTEM_DIR/common/native/include",
+    "include",
+    "$EDM_INNERKITS_PATH/plugin_kits/include",
+    "include/connection",
+    JSONCPP_INCLUDE_DIR,
+    "$SUBSYSTEM_DIR/framework/extension/include",
+  ]
+
+  sources = [
+    "$SUBSYSTEM_DIR/common/native/src/edm_data_ability_utils.cpp",
+    "$SUBSYSTEM_DIR/common/native/src/edm_permission.cpp",
+    "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
+  ]
+
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
+
+  all_dependent_configs = [ ":edm_commom_all_dependent_configs" ]
+  deps = []
+
+  external_deps = [
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "c_utils:utils",
+    "data_share:datashare_consumer",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

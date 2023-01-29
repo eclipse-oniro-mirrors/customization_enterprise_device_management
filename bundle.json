@@ -87,7 +87,9 @@
           "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension:enterpriseadminextensionability_napi",
           "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension_context:enterpriseadminextensioncontext_napi",
           "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension_module",
-          "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits"
+          "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits",
+          "//base/customization/enterprise_device_management/common/native:edm_commom",
+          "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits"
         ],
         "service_group":[
           "//base/customization/enterprise_device_management/services/edm:edmservice",
@@ -97,6 +99,29 @@
           "//base/customization/enterprise_device_management/etc/init:edm.cfg"
         ]
       },
+      "inner_kits": [
+        {
+          "header": {
+            "header_base":"//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits/include",
+            "header_files": [
+              "iplugin.h",
+              "iplugin_manager.h",
+              "ipolicy_manager.h",
+              "iplugin_template.h",
+              "ipolicy_serializer.h",
+              "utils/array_map_serializer.h",
+              "utils/array_string_serializer.h",
+              "utils/bool_serializer.h",
+              "utils/func_code_utils.h",
+              "utils/json_serializer.h",
+              "utils/long_serializer.h",
+              "utils/map_string_serializer.h",
+              "utils/string_serializer.h"
+            ]
+          },
+          "name": "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits"
+        }
+     ],
       "test": [
         "//base/customization/enterprise_device_management/test/unittest:unittest",
         "//base/customization/enterprise_device_management/test/fuzztest:fuzztest"

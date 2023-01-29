@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  */
 
 #include "iplugin_template_test.h"
-
+#include "policy_manager.h"
 using namespace testing::ext;
 
 namespace OHOS {
@@ -315,6 +315,16 @@ HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
     std::string policyData{"TestData"};
     ErrCode ret = plugin->OnGetPolicy(policyData, reply);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+void PluginTemplateTest::SetUp()
+{
+    PolicyManager::GetInstance();
+}
+
+void PluginTemplateTest::TearDown()
+{
+    PluginManager::GetInstance().reset();
 }
 } // namespace TEST
 } // namespace EDM

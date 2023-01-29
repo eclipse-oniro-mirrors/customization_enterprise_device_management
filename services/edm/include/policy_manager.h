@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include "edm_errors.h"
 #include "json/json.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -33,7 +34,7 @@ using AdminValueItemsMap = std::unordered_map<std::string, std::string>; /* Admi
  * provide the Get and Set api to operate on json file, the read and write json
  * file depend on jsoncpp library
  */
-class PolicyManager : public std::enable_shared_from_this<PolicyManager> {
+class PolicyManager : public std::enable_shared_from_this<PolicyManager>, IPolicyManager {
 public:
     /*
      * The static function used to get singleton instance of PolicyManager.
