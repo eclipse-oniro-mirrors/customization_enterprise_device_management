@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,13 +15,12 @@
 
 #include "set_datetime_plugin.h"
 #include "long_serializer.h"
-#include "plugin_manager.h"
 #include "policy_info.h"
 #include "time_service_client.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
 
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {

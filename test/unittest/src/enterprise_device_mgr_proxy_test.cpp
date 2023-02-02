@@ -79,7 +79,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
     enterpriseDeviceMgrProxyTest->GetEnabledAdmins(enabledAdminList);
     EXPECT_TRUE(enabledAdminList.empty());
 
-    std::vector<std::u16string> enabledAdminList1;
+    std::vector<std::string> enabledAdminList1;
     enterpriseDeviceMgrProxyTest->GetEnabledAdmin(AdminType::NORMAL, enabledAdminList1);
     EXPECT_TRUE(enabledAdminList1.empty());
 

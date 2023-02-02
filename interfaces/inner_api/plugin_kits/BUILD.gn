@@ -1,0 +1,59 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/customization/enterprise_device_management/edm.gni")
+import("//build/ohos.gni")
+
+config("plugin_kits_config") {
+  include_dirs = [
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
+    "$SUBSYSTEM_DIR/common/native/include",
+    JSONCPP_INCLUDE_DIR,
+  ]
+}
+
+ohos_shared_library("plugin_kits") {
+  sources = [
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/iplugin.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/iplugin_manager.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/ipolicy_manager.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/array_map_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/array_string_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/bool_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/func_code_utils.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/json_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/long_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/map_string_serializer.cpp",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/string_serializer.cpp",
+  ]
+
+  all_dependent_configs = [ ":plugin_kits_config" ]
+
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
+
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

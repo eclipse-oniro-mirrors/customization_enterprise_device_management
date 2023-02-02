@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H
 #include <map>
-#include "func_code_utils.h"
 #include "edm_log.h"
+#include "func_code.h"
 #include "ienterprise_device_mgr.h"
 #include "iremote_stub.h"
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -35,6 +35,8 @@ ohos_unittest("EdmServicesUnitTest") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/common/native/include",
     "$SUBSYSTEM_DIR/services/edm_plugin/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
   ]
 
   sources = [
@@ -67,6 +69,8 @@ ohos_unittest("EdmServicesUnitTest") {
   deps = [
     "$EDM_INNERKITS_PATH:edmservice_kits",
     "$EDM_SA_ROOT:edmservice",
+    "$SUBSYSTEM_DIR/common/native:edm_commom",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits:plugin_kits",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",

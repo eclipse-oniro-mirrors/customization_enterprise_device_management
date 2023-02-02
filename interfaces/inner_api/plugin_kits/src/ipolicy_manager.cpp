@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
-
-#include "long_serializer.h"
-#include "iplugin_template.h"
-#include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class SetDateTimePlugin : public PluginSingleton<SetDateTimePlugin, int64_t> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr) override;
+IPolicyManager* IPolicyManager::policyManagerInstance_ = nullptr;
 
-    ErrCode OnSetPolicy(int64_t &data);
-};
+IPolicyManager *IPolicyManager::GetInstance()
+{
+    if (policyManagerInstance_ == nullptr) {
+        policyManagerInstance_ = new (std::nothrow) IPolicyManager();
+    }
+    return policyManagerInstance_;
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H

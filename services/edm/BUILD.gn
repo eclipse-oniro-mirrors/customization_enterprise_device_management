@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,7 +18,8 @@ config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
   include_dirs = [
     "include",
-    "include/utils",
+    "$EDM_INNERKITS_PATH/plugin_kits/include",
+    "$EDM_INNERKITS_PATH/plugin_kits/include/utils",
     "include/connection",
     JSONCPP_INCLUDE_DIR,
     "$SUBSYSTEM_DIR/common/native/include",
@@ -35,28 +36,16 @@ ohos_shared_library("edmservice") {
     "$EDM_SRC_PATH/connection/enterprise_admin_proxy.cpp",
     "$EDM_SRC_PATH/connection/enterprise_bundle_connection.cpp",
     "$EDM_SRC_PATH/connection/enterprise_conn_manager.cpp",
-    "$EDM_SRC_PATH/edm_permission.cpp",
     "$EDM_SRC_PATH/enterprise_device_mgr_ability.cpp",
     "$EDM_SRC_PATH/enterprise_device_mgr_stub.cpp",
-    "$EDM_SRC_PATH/iplugin.cpp",
     "$EDM_SRC_PATH/permission_manager.cpp",
     "$EDM_SRC_PATH/plugin_manager.cpp",
     "$EDM_SRC_PATH/policy_manager.cpp",
     "$EDM_SRC_PATH/super_admin.cpp",
-    "$EDM_SRC_PATH/utils/array_map_serializer.cpp",
-    "$EDM_SRC_PATH/utils/array_string_serializer.cpp",
-    "$EDM_SRC_PATH/utils/bool_serializer.cpp",
-    "$EDM_SRC_PATH/utils/func_code_utils.cpp",
-    "$EDM_SRC_PATH/utils/json_serializer.cpp",
-    "$EDM_SRC_PATH/utils/long_serializer.cpp",
-    "$EDM_SRC_PATH/utils/map_string_serializer.cpp",
-    "$EDM_SRC_PATH/utils/string_serializer.cpp",
-    "$SUBSYSTEM_DIR/common/native/src/edm_data_ability_utils.cpp",
-    "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
   ]
   public_configs = [
     ":edm_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+    "$SUBSYSTEM_DIR/common/config:coverage_flags",
   ]
 
   defines = []
@@ -68,7 +57,6 @@ ohos_shared_library("edmservice") {
 
   external_deps = [
     "ability_base:want",
-    "ability_base:zuri",
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
@@ -76,7 +64,6 @@ ohos_shared_library("edmservice") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "data_share:datashare_consumer",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
@@ -91,6 +78,8 @@ ohos_shared_library("edmservice") {
 
   deps = [
     "$EDM_INNERKITS_PATH:edmservice_kits",
+    "$EDM_INNERKITS_PATH/plugin_kits:plugin_kits",
+    "$SUBSYSTEM_DIR/common/native:edm_commom",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,10 +19,11 @@
 #include <map>
 #include <memory>
 #include "iplugin.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class PluginManager : public std::enable_shared_from_this<PluginManager> {
+class PluginManager : public std::enable_shared_from_this<PluginManager>, IPluginManager {
 public:
     static std::shared_ptr<PluginManager> GetInstance();
     std::shared_ptr<IPlugin> GetPluginByFuncCode(std::uint32_t funcCode);

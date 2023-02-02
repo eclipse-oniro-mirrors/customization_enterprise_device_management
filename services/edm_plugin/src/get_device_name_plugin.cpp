@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 #include "edm_data_ability_utils.h"
 #include "get_device_name_plugin.h"
 #include "parameter.h"
-#include "plugin_manager.h"
 #include "policy_info.h"
 #include "string_serializer.h"
 
@@ -26,7 +25,7 @@ const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 const std::string PREDICATES_STRING = "settings.general.device_name";
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
 
 void GetDeviceNamePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceNamePlugin, std::string>> ptr)
 {

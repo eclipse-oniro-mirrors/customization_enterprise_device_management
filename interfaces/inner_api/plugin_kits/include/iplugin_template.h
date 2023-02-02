@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,10 +17,13 @@
 #define SERVICES_EDM_INCLUDE_EDM_IPLUGIN_TEMPLATE_H
 
 #include <functional>
+#include <memory>
+#include <unordered_map>
 #include "edm_log.h"
+#include "func_code_utils.h"
 #include "iplugin.h"
+#include "ipolicy_manager.h"
 #include "ipolicy_serializer.h"
-#include "policy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -469,12 +472,12 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
     };
     handlePolicyFuncMap_.insert(std::make_pair(type, HandlePolicyFunc(handle, listener)));
 }
-
+using AdminValueItemsMap = std::unordered_map<std::string, std::string>;
 template<class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, std::string &policyData)
 {
     AdminValueItemsMap adminValues;
-    PolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
     EDMLOGD("IPluginTemplate::MergePolicyData %{public}s value size %{public}d.",
         GetPolicyName().c_str(), (uint32_t)adminValues.size());
     if (adminValues.empty()) {
@@ -680,7 +683,7 @@ template<class CT, class DT>
 bool IPluginTemplate<CT, DT>::GetMergePolicyData(DT &policyData)
 {
     AdminValueItemsMap adminValues;
-    PolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
     if (adminValues.empty()) {
         return true;
     }

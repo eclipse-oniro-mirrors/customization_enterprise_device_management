@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,13 +15,12 @@
 
 #include "get_device_serial_plugin.h"
 #include "string_serializer.h"
-#include "plugin_manager.h"
-#include "policy_info.h"
 #include "parameter.h"
+#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
 
 void GetDeviceSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr)
 {

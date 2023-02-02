@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include <string_ex.h>
 #include <unistd.h>
 #include "edm_log.h"
+#include "func_code_utils.h"
 #include "permission_manager.h"
 
 namespace OHOS {
@@ -57,6 +58,8 @@ std::shared_ptr<PluginManager> PluginManager::GetInstance()
             instance_.reset(new (std::nothrow) PluginManager());
         }
     }
+
+    IPluginManager::pluginManagerInstance_ = instance_.get();
     return instance_;
 }
 

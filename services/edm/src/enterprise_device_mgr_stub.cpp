@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -180,9 +180,7 @@ ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, Messa
         return res;
     }
     reply.WriteInt32(ERR_OK);
-    std::vector<std::u16string> writeArray;
-    ArrayPolicyUtils::StringToU16String(enabledAdminList, writeArray);
-    reply.WriteString16Vector(writeArray);
+    reply.WriteStringVector(enabledAdminList);
     return ERR_OK;
 }
 
