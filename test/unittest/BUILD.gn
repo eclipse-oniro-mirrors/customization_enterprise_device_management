@@ -21,6 +21,81 @@ config("module_private_config") {
   include_dirs = [ "$SUBSYSTEM_DIR/test" ]
 }
 
+config("edm_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "$EDM_SA_ROOT/include",
+    "$EDM_INNERKITS_PATH/plugin_kits/include",
+    "$EDM_INNERKITS_PATH/plugin_kits/include/utils",
+    "$EDM_SA_ROOT/include/connection",
+    JSONCPP_INCLUDE_DIR,
+    "$SUBSYSTEM_DIR/common/native/include",
+    "$SUBSYSTEM_DIR/framework/extension/include",
+  ]
+}
+
+ohos_static_library("edmservice_static") {
+  testonly = true
+  sources = [
+    "$EDM_SRC_PATH/ability_manager_death_recipient.cpp",
+    "$EDM_SRC_PATH/admin.cpp",
+    "$EDM_SRC_PATH/admin_manager.cpp",
+    "$EDM_SRC_PATH/connection/enterprise_admin_connection.cpp",
+    "$EDM_SRC_PATH/connection/enterprise_admin_proxy.cpp",
+    "$EDM_SRC_PATH/connection/enterprise_bundle_connection.cpp",
+    "$EDM_SRC_PATH/connection/enterprise_conn_manager.cpp",
+    "$EDM_SRC_PATH/enterprise_device_mgr_ability.cpp",
+    "$EDM_SRC_PATH/enterprise_device_mgr_stub.cpp",
+    "$EDM_SRC_PATH/permission_manager.cpp",
+    "$EDM_SRC_PATH/plugin_manager.cpp",
+    "$EDM_SRC_PATH/policy_manager.cpp",
+    "$EDM_SRC_PATH/super_admin.cpp",
+  ]
+
+  public_configs = [
+    ":edm_config",
+    "$SUBSYSTEM_DIR/common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
+  }
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "ipc:ipc_core",
+    "os_account:os_account_innerkits",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
+
+  deps = [
+    "$EDM_INNERKITS_PATH:edmservice_kits",
+    "$EDM_INNERKITS_PATH/plugin_kits:plugin_kits",
+    "$SUBSYSTEM_DIR/common/native:edm_commom",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
 ohos_unittest("EdmServicesUnitTest") {
   module_out_path = module_output_path
 
@@ -67,8 +142,8 @@ ohos_unittest("EdmServicesUnitTest") {
   ]
 
   deps = [
+    ":edmservice_static",
     "$EDM_INNERKITS_PATH:edmservice_kits",
-    "$EDM_SA_ROOT:edmservice",
     "$SUBSYSTEM_DIR/common/native:edm_commom",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits:plugin_kits",
     "//third_party/googletest:gmock_main",

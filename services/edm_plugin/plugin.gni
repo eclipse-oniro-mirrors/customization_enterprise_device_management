@@ -32,6 +32,8 @@ template("edm_plugin_shared_library") {
       public_configs += invoker.public_configs
     }
 
+    configs += [ "//build/config/gcc:symbol_visibility_hidden" ]
+
     if (!defined(deps)) {
       deps = []
     }

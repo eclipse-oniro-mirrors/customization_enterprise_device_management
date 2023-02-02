@@ -83,6 +83,8 @@ ohos_shared_library("edmservice") {
     "//third_party/jsoncpp:jsoncpp",
   ]
 
+  shlib_type = "sa"
+
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

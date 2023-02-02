@@ -40,6 +40,8 @@ ohos_shared_library("enterprise_admin_extension") {
     "//base/customization/enterprise_device_management/common/config:coverage_flags",
   ]
 
+  version_script = "libenterprise_admin_extension.map"
+
   public_configs = [ ":enterprise_admin_public_config" ]
 
   external_deps = [
@@ -61,7 +63,10 @@ ohos_shared_library("enterprise_admin_extension_module") {
 
   sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [
+    "$SUBSYSTEM_DIR/common/config:coverage_flags",
+    "//build/config/gcc:symbol_visibility_hidden",
+  ]
   deps = [ ":enterprise_admin_extension" ]
 
   external_deps = [ "ability_runtime:abilitykit_native" ]
