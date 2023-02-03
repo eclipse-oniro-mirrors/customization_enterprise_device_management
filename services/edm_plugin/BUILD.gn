@@ -28,6 +28,6 @@ edm_plugin_shared_library("datetime_manager_plugin") {
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "ipc:ipc_core",
-    "time_service:time_service",
+    "time_service:time_client",
   ]
 }
