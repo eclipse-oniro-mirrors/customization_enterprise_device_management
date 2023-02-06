@@ -39,17 +39,16 @@ protected:
  */
 HWTEST_F(GetDeviceNamePluginTest, TestOnPolicy, TestSize.Level1)
 {
-    EdmDataAbilityUtils utils;
     std::shared_ptr<IPlugin> plugin = GetDeviceNamePlugin::GetPlugin();
     std::string policyValue{"TestString"};
     MessageParcel reply;
-    utils.SetResult("test Failed");
+    EdmDataAbilityUtils::SetResult("test Failed");
     ErrCode code = plugin->OnGetPolicy(policyValue, reply);
     EXPECT_TRUE(code != ERR_OK);
-    utils.SetResult("test value nullptr");
+    EdmDataAbilityUtils::SetResult("test value nullptr");
     code = plugin->OnGetPolicy(policyValue, reply);
     EXPECT_TRUE(code == ERR_OK);
-    utils.SetResult("test success");
+    EdmDataAbilityUtils::SetResult("test success");
     code = plugin->OnGetPolicy(policyValue, reply);
     EXPECT_TRUE(code == ERR_OK);
 }

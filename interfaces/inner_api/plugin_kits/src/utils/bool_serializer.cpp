@@ -56,13 +56,7 @@ bool BoolSerializer::WritePolicy(MessageParcel &reply, bool &result)
 
 bool BoolSerializer::MergePolicy(std::vector<bool> &data, bool &result)
 {
-    for (bool item : data) {
-        if (item) {
-            result = true;
-            return true;
-        }
-    }
-    result = false;
+    result = std::any_of(data.begin(), data.end(), [](bool it) { return it; });
     return true;
 }
 } // namespace EDM
