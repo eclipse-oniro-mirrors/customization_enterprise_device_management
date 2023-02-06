@@ -38,6 +38,8 @@ ohos_shared_library("plugin_kits") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/src/utils/string_serializer.cpp",
   ]
 
+  version_script = "libplugin_kits.map"
+
   all_dependent_configs = [ ":plugin_kits_config" ]
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
