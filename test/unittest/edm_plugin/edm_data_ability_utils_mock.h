@@ -26,8 +26,7 @@ namespace EDM {
 class EdmDataAbilityUtils {
 public:
     static ErrCode GetStringFromDataShare(const std::string &dataBaseUri, const std::string &key, std::string &value);
-
-    void SetResult(const std::string &result);
+    static void SetResult(const std::string &result);
 private:
     static std::string result_;
 };
