@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,9 +27,9 @@
 
 namespace OHOS {
 namespace EDM {
-static constexpr int64_t UPDATER_SA_INIT_TIME = 1000 * 1000;
+static constexpr int64_t UPDATER_SA_INIT_TIME = 2000 * 2000;
 static constexpr int64_t SLEEP_TIME = 500 * 1000;
-static constexpr int32_t RETRY_TIMES = 10;
+static constexpr int32_t RETRY_TIMES = 20;
 static constexpr int32_t RESET_FACTORY_CODE = 18;
 
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
@@ -50,7 +50,7 @@ ErrCode ResetFactoryPlugin::OnSetPolicy()
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     auto remoteObject = samgr->GetSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID);
     if (remoteObject == nullptr) {
-        if (TryLoadUpdaterSa()) {
+        if (!TryLoadUpdaterSa()) {
             EDMLOGE("TryLoadUpdaterSa failed");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -103,12 +103,10 @@ bool ResetFactoryPlugin::CheckUpdaterSaLoaded()
 {
     int32_t retry = RETRY_TIMES;
     EDMLOGI("Waiting for CheckUpdaterSaLoaded");
-    while (retry--)
-    {
+    while (retry--) {
         usleep(SLEEP_TIME);
         LoadUpdaterSaStatus loadUpdaterSaStatus = loadUpdaterSaStatus_;
-        if (loadUpdaterSaStatus != LoadUpdaterSaStatus::WAIT_RESULT)
-        {
+        if (loadUpdaterSaStatus != LoadUpdaterSaStatus::WAIT_RESULT) {
             bool isUpdaterSaLoaded = loadUpdaterSaStatus == LoadUpdaterSaStatus::SUCCESS;
             EDMLOGI("found OnLoad result: %{public}s", isUpdaterSaLoaded ? "succeed" : "failed");
             return isUpdaterSaLoaded;
@@ -126,20 +124,17 @@ void ResetFactoryPlugin::WaitUpdaterSaInit()
 bool ResetFactoryPlugin::LoadUpdaterSa()
 {
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr)
-    {
+    if (samgr == nullptr) {
         EDMLOGE("GetSystemAbilityManager samgr object null!");
         return false;
     }
     int32_t result = samgr->LoadSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID, this);
-    if (result != ERR_OK)
-    {
+    if (result != ERR_OK) {
         EDMLOGE("systemAbilityId: %{public}d, load failed, result code: %{public}d", UPDATE_DISTRIBUTED_SERVICE_ID,
                 result);
         return false;
     }
-    if (!CheckUpdaterSaLoaded())
-    {
+    if (!CheckUpdaterSaLoaded()) {
         EDMLOGE("systemAbilityId: %{public}d, CheckUpdaterSaLoaded failed", UPDATE_DISTRIBUTED_SERVICE_ID);
         return false;
     }

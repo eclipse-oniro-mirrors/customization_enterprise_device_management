@@ -82,6 +82,7 @@
         "fwk_group":[
           "//base/customization/enterprise_device_management/interfaces/kits/admin_manager:adminmanager",
           "//base/customization/enterprise_device_management/interfaces/kits/datetime_manager:datetimemanager",
+          "//base/customization/enterprise_device_management/interfaces/kits/device_control:devicecontrol",
           "//base/customization/enterprise_device_management/interfaces/kits/device_info:deviceinfo",
           "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension",
           "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension:enterpriseadminextensionability_napi",
@@ -95,6 +96,7 @@
           "//base/customization/enterprise_device_management/services/edm:edmservice",
           "//base/customization/enterprise_device_management/services/edm_plugin:datetime_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:device_info_plugin",
+          "//base/customization/enterprise_device_management/services/edm_plugin:device_control_plugin",
           "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
           "//base/customization/enterprise_device_management/etc/init:edm.cfg"
         ]

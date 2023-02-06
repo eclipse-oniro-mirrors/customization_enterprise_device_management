@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,8 +23,7 @@
 
 namespace OHOS {
 namespace EDM {
-enum class LoadUpdaterSaStatus
-{
+enum class LoadUpdaterSaStatus {
     WAIT_RESULT = 0,
     SUCCESS,
     FAIL,
@@ -36,12 +35,13 @@ public:
     void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject) override;
     void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
     ErrCode OnSetPolicy();
-    bool TryLoadUpdaterSa();
+
 private:
     void InitStatus();
     void WaitUpdaterSaInit();
     bool CheckUpdaterSaLoaded();
     bool LoadUpdaterSa();
+    bool TryLoadUpdaterSa();
 
     LoadUpdaterSaStatus loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
 };

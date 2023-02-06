@@ -21,7 +21,7 @@ PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 edm_plugin_shared_library("datetime_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   include_dirs = [
     "//third_party/node/src",
@@ -41,7 +41,7 @@ edm_plugin_shared_library("device_info_plugin") {
     "$PLUGIN_SRC_PATH/get_display_version_plugin.cpp",
   ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
@@ -49,5 +49,19 @@ edm_plugin_shared_library("device_info_plugin") {
   external_deps = [
     "c_utils:utils",
     "init:libbegetutil",
+  ]
+}
+
+edm_plugin_shared_library("device_control_plugin") {
+  sources = [ "$PLUGIN_SRC_PATH/reset_factory_plugin.cpp" ]
+
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
+
+  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 }
