@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
-#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#ifndef EDM_UNIT_TEST_DEVICE_CONTROL_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_DEVICE_CONTROL_PLUGIN_TEST_H
 
-#include <algorithm>
-#include <string>
+#include <gtest/gtest.h>
+#include "iplugin_manager.h"
+#include "reset_factory_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-enum {
-    SET_DATETIME = 1001,
-    GET_DEVICE_SERIAL = 1002,
-    GET_DISPLAY_VERSION = 1003,
-    GET_DEVICE_NAME = 1004,
-    RESET_FACTORY = 1005,
-};
+namespace TEST {
+class DeviceControlPluginTest : public testing::Test {
+protected:
+    // Sets up the test fixture.
+    void SetUp() override;
 
-#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
-    POLICY_NAME = (#ENUM_CODE); \
-    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
-} while (0)
+    // Tears down the test fixture.
+    void TearDown() override;
+
+    std::shared_ptr<IPlugin> plugin_;
+};
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#endif // EDM_UNIT_TEST_DEVICE_CONTROL_PLUGIN_TEST_H
