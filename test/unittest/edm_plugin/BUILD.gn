@@ -41,7 +41,7 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
 
   configs = [
     ":module_private_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+    "$SUBSYSTEM_DIR/common/config:coverage_flags",
   ]
 
   deps = [
@@ -78,15 +78,16 @@ ohos_static_library("edm_all_plugin_static") {
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_display_version_plugin.cpp",
   ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
   include_dirs = [
     "$EDM_SA_ROOT/include",
     "$EDM_SA_ROOT/include/utils",
     JSONCPP_INCLUDE_DIR,
+    "$SUBSYSTEM_DIR/common/native/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/common/include",
-    "$SUBSYSTEM_DIR/services/edm_plugin/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
+    "$SUBSYSTEM_DIR/services/edm_plugin/include",
   ]
 
   deps = [

@@ -292,7 +292,7 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
     }
     int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
+        EDMLOGW("EnterpriseDeviceMgrProxy:IsAdminEnabled get result code fail. %{public}d", resCode);
         return resCode;
     }
     reply.ReadBool(result);
