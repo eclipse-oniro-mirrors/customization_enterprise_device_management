@@ -35,7 +35,8 @@ static const AdminPermission ADMIN_PERMISSIONS[] = {
     { "ohos.permission.EDM_TEST_PERMISSION", AdminType::NORMAL },
     { "ohos.permission.EDM_TEST_ENT_PERMISSION", AdminType::ENT },
     { "ohos.permission.ENTERPRISE_SET_DATETIME", AdminType::ENT },
-    { "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", AdminType::ENT }
+    { "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", AdminType::ENT },
+    { "ohos.permission.ENTERPRISE_RESET_DEVICE", AdminType::ENT },
 };
 
 class PermissionManager : public DelayedSingleton<PermissionManager> {
