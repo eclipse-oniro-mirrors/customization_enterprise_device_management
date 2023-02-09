@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +52,7 @@ public:
     void SaveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
     void RemoveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
     virtual ~AdminManager();
-    
+
 private:
     AdminManager();
     void SaveAdmin(int32_t userId);
