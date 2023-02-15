@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,28 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
-#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
 
-#include <algorithm>
-#include <string>
+#include "bool_serializer.h"
+#include "iplugin_template.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-enum {
-    SET_DATETIME = 1001,
-    GET_DEVICE_SERIAL = 1002,
-    GET_DISPLAY_VERSION = 1003,
-    GET_DEVICE_NAME = 1004,
-    RESET_FACTORY = 1005,
-    DISALLOW_ADD_LOCAL_ACCOUNT = 1006
-};
+class DisallowAddLocalAccountPlugin : public PluginSingleton<DisallowAddLocalAccountPlugin, bool> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr) override;
 
-#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
-    POLICY_NAME = (#ENUM_CODE); \
-    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
-} while (0)
+    ErrCode OnSetPolicy(bool &data);
+};
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H

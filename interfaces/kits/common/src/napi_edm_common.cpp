@@ -86,6 +86,17 @@ bool ParseInt(napi_env env, int32_t &param, napi_value args)
     return true;
 }
 
+bool ParseBool(napi_env env, bool &param, napi_value args)
+{
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, args, &valueType)!= napi_ok ||
+        valueType != napi_boolean || napi_get_value_bool(env, args, &param) != napi_ok) {
+        EDMLOGE("Wrong argument type. bool expected.");
+        return false;
+    }
+    return true;
+}
+
 bool ParseString(napi_env env, std::string &param, napi_value args)
 {
     napi_valuetype valuetype;
