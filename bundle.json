@@ -80,6 +80,7 @@
           "//base/customization/enterprise_device_management/tools/edm:tools_edm"
         ],
         "fwk_group":[
+          "//base/customization/enterprise_device_management/interfaces/kits/account_manager:accountmanager",
           "//base/customization/enterprise_device_management/interfaces/kits/admin_manager:adminmanager",
           "//base/customization/enterprise_device_management/interfaces/kits/datetime_manager:datetimemanager",
           "//base/customization/enterprise_device_management/interfaces/kits/device_control:devicecontrol",
@@ -94,6 +95,7 @@
         ],
         "service_group":[
           "//base/customization/enterprise_device_management/services/edm:edmservice",
+          "//base/customization/enterprise_device_management/services/edm_plugin:account_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:datetime_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:device_info_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:device_control_plugin",
