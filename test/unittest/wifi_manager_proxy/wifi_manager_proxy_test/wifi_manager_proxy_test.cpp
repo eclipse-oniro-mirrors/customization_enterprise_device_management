@@ -66,10 +66,11 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveSuc, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool isActive = false;
     int32_t ret = wifiManagerProxy->IsWifiActive(admin, isActive);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isActive);
 }
 
 /**
@@ -84,6 +85,7 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveFail, TestSize.Level1)
     bool isActive = false;
     int32_t ret = wifiManagerProxy->IsWifiActive(admin, isActive);
     ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_FALSE(isActive);
 }
 } // namespace TEST
 } // namespace EDM

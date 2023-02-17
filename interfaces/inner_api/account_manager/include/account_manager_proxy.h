@@ -13,25 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
-#define INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
+#ifndef INTERFACES_INNER_API_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_PROXY_H
+#define INTERFACES_INNER_API_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-class WifiManagerProxy {
+class AccountManagerProxy {
 public:
-    WifiManagerProxy();
-    ~WifiManagerProxy();
-    static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
-    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
+    AccountManagerProxy();
+    ~AccountManagerProxy();
+    static std::shared_ptr<AccountManagerProxy> GetAccountManagerProxy();
+    int32_t DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow);
+
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
-    static std::shared_ptr<WifiManagerProxy> instance_;
+    static std::shared_ptr<AccountManagerProxy> instance_;
     static std::mutex mutexLock_;
 };
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
+#endif // INTERFACES_INNER_API_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_PROXY_H

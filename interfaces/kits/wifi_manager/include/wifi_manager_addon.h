@@ -32,7 +32,7 @@ struct AsyncIsWifiActiveCallbackInfo : AsyncCallbackInfo {
 
 class WifiManagerAddon {
 public:
-    WifiManagerAddon();
+    WifiManagerAddon() = default;
     ~WifiManagerAddon() = default;
 
     static napi_value Init(napi_env env, napi_value exports);

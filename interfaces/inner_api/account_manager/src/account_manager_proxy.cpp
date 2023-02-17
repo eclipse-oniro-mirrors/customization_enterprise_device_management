@@ -13,51 +13,47 @@
  * limitations under the License.
  */
 
-#include "wifi_manager_proxy.h"
+#include "account_manager_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<WifiManagerProxy> WifiManagerProxy::instance_ = nullptr;
-std::mutex WifiManagerProxy::mutexLock_;
+std::shared_ptr<AccountManagerProxy> AccountManagerProxy::instance_ = nullptr;
+std::mutex AccountManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
-WifiManagerProxy::WifiManagerProxy() {}
+AccountManagerProxy::AccountManagerProxy() {}
 
-WifiManagerProxy::~WifiManagerProxy() {}
+AccountManagerProxy::~AccountManagerProxy() {}
 
-std::shared_ptr<WifiManagerProxy> WifiManagerProxy::GetWifiManagerProxy()
+std::shared_ptr<AccountManagerProxy> AccountManagerProxy::GetAccountManagerProxy()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<WifiManagerProxy> temp = std::make_shared<WifiManagerProxy>();
+            std::shared_ptr<AccountManagerProxy> temp = std::make_shared<AccountManagerProxy>();
             instance_ = temp;
         }
     }
     return instance_;
 }
 
-int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, bool &result)
+int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow)
 {
-    EDMLOGD("WifiManagerProxy::IsWifiActive");
+    EDMLOGD("AccountManagerProxy::DisallowAddLocalAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    MessageParcel reply;
-    proxy->GetPolicy(&admin, IS_WIFI_ACTIVE, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    reply.ReadBool(result);
-    return ERR_OK;
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_ADD_LOCAL_ACCOUNT);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isDisallow);
+    return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS

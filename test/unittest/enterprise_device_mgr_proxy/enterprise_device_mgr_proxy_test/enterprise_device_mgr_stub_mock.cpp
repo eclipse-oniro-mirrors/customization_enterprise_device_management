@@ -62,5 +62,15 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy(uint32_t code, Messa
     reply.WriteString("testString");
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(true);
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -13,25 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
-#define INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
 
-#include "enterprise_device_mgr_proxy.h"
+#include "bool_serializer.h"
+#include "iplugin_template.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class WifiManagerProxy {
+class DisallowAddLocalAccountPlugin : public PluginSingleton<DisallowAddLocalAccountPlugin, bool> {
 public:
-    WifiManagerProxy();
-    ~WifiManagerProxy();
-    static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
-    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
-private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
-    static std::shared_ptr<WifiManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr) override;
+
+    ErrCode OnSetPolicy(bool &data);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H

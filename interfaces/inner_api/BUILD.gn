@@ -21,6 +21,7 @@ config("edmservice_kits_config") {
     "common/include",
     "device_control/include",
     "device_info/include",
+    "account_manager/include",
     "datetime_manager/include",
     "wifi_manager/include",
     "$SUBSYSTEM_DIR/common/native/include",
@@ -31,6 +32,7 @@ ohos_shared_library("edmservice_kits") {
   public_configs = [ ":edmservice_kits_config" ]
 
   sources = [
+    "$SRC_PATH/account_manager/src/account_manager_proxy.cpp",
     "$SRC_PATH/common/src/ent_info.cpp",
     "$SRC_PATH/common/src/enterprise_device_mgr_proxy.cpp",
     "$SRC_PATH/datetime_manager/src/datetime_manager_proxy.cpp",

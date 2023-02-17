@@ -21,8 +21,6 @@ PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 edm_plugin_shared_library("datetime_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
-  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
-
   include_dirs = [
     "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
@@ -34,14 +32,23 @@ edm_plugin_shared_library("datetime_manager_plugin") {
   ]
 }
 
+edm_plugin_shared_library("account_manager_plugin") {
+  sources = [ "$PLUGIN_SRC_PATH/disallow_add_local_account_plugin.cpp" ]
+
+  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
+  external_deps = [
+    "ability_runtime:wantagent_innerkits",
+    "c_utils:utils",
+    "os_account:os_account_innerkits",
+  ]
+}
+
 edm_plugin_shared_library("device_info_plugin") {
   sources = [
     "$PLUGIN_SRC_PATH/get_device_name_plugin.cpp",
     "$PLUGIN_SRC_PATH/get_device_serial_plugin.cpp",
     "$PLUGIN_SRC_PATH/get_display_version_plugin.cpp",
   ]
-
-  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
@@ -54,8 +61,6 @@ edm_plugin_shared_library("device_info_plugin") {
 
 edm_plugin_shared_library("device_control_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/reset_factory_plugin.cpp" ]
-
-  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
 
@@ -70,8 +75,6 @@ edm_plugin_shared_library("wifi_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/is_wifi_active_plugin.cpp" ]
 
   include_dirs = [ "$WIFI_INTERFACE_PATH/kits/c/" ]
-
-  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   external_deps = [
     "c_utils:utils",
