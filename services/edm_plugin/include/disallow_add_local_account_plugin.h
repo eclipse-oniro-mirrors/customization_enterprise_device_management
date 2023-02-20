@@ -27,6 +27,10 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr) override;
 
     ErrCode OnSetPolicy(bool &data);
+
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data);
+private:
+    ErrCode SetGlobalOsAccountConstraints(bool data);
 };
 } // namespace EDM
 } // namespace OHOS
