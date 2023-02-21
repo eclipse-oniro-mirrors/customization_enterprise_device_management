@@ -188,5 +188,6 @@ group("unittest") {
     "edm_plugin:unittest",
     "enterprise_device_mgr_ability:unittest",
     "enterprise_device_mgr_proxy:unittest",
+    "wifi_manager_proxy:unittest",
   ]
 }

@@ -38,6 +38,7 @@ static const AdminPermission ADMIN_PERMISSIONS[] = {
     { "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", AdminType::ENT },
     { "ohos.permission.ENTERPRISE_RESET_DEVICE", AdminType::ENT },
     { "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", AdminType::ENT },
+    { "ohos.permission.ENTERPRISE_SET_WIFI", AdminType::ENT }
 };
 
 class PermissionManager : public DelayedSingleton<PermissionManager> {

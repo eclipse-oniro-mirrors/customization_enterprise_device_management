@@ -70,3 +70,14 @@ edm_plugin_shared_library("device_control_plugin") {
     "samgr:samgr_proxy",
   ]
 }
+
+edm_plugin_shared_library("wifi_manager_plugin") {
+  sources = [ "$PLUGIN_SRC_PATH/is_wifi_active_plugin.cpp" ]
+
+  include_dirs = [ "$WIFI_INTERFACE_PATH/kits/c/" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "wifi:wifi_sdk",
+  ]
+}

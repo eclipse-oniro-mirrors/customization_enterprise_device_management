@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,22 +14,22 @@
 import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 
-ohos_shared_library("deviceinfo") {
+ohos_shared_library("wifimanager") {
   include_dirs = [
     "//third_party/node/src",
     "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/interfaces/kits/device_info/include",
     "$SUBSYSTEM_DIR/interfaces/kits/common/include",
+    "$SUBSYSTEM_DIR/interfaces/kits/wifi_manager/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
     "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_common.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_error.cpp",
-    "src/device_info_addon.cpp",
+    "src/wifi_manager_addon.cpp",
   ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   deps = [ "$EDM_INNERKITS_PATH:edmservice_kits" ]
 

@@ -52,7 +52,7 @@ public:
     bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData);
     bool GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string,
         std::string> &policyData);
-    bool GetPolicy(AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply);
+    bool GetPolicy(const AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ class IEnterpriseConnection : public AAFwk::AbilityConnectionStub {
 public:
     IEnterpriseConnection(const AAFwk::Want &want, uint32_t code,
         uint32_t userId) : want_(want), code_(code), userId_(userId) {};
-    
+
     virtual ~IEnterpriseConnection() {};
 
     AAFwk::Want GetWant() const

@@ -413,7 +413,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, i
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicy(AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply)
+bool EnterpriseDeviceMgrProxy::GetPolicy(const AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply)
 {
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy invalid policyCode:%{public}d", policyCode);
