@@ -38,6 +38,11 @@ std::string IPlugin::GetPermission()
     return permission_;
 }
 
+std::uint32_t IPlugin::GetPermissionType()
+{
+    return permissionType_;
+}
+
 std::uint32_t IPlugin::GetCode()
 {
     return policyCode_;

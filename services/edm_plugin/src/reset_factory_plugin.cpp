@@ -39,7 +39,8 @@ void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactory
     EDMLOGD("ResetFactoryPlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(RESET_FACTORY, policyName);
-    ptr->InitAttribute(RESET_FACTORY, policyName, "ohos.permission.ENTERPRISE_RESET_DEVICE", false);
+    ptr->InitAttribute(RESET_FACTORY, policyName, "ohos.permission.ENTERPRISE_RESET_DEVICE",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ResetFactoryPlugin::OnSetPolicy, FuncOperateType::SET);
 }

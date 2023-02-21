@@ -28,22 +28,14 @@ namespace EDM {
 struct AdminPermission {
     std::string permissionName;
     AdminType adminType;
-};
-
-// global all permissions
-static const AdminPermission ADMIN_PERMISSIONS[] = {
-    { "ohos.permission.EDM_TEST_PERMISSION", AdminType::NORMAL },
-    { "ohos.permission.EDM_TEST_ENT_PERMISSION", AdminType::ENT },
-    { "ohos.permission.ENTERPRISE_SET_DATETIME", AdminType::ENT },
-    { "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", AdminType::ENT },
-    { "ohos.permission.ENTERPRISE_RESET_DEVICE", AdminType::ENT },
-    { "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", AdminType::ENT },
+    AdminPermission(std::string _permissionName, AdminType _adminType) : permissionName(_permissionName),
+        adminType(_adminType){}
 };
 
 class PermissionManager : public DelayedSingleton<PermissionManager> {
 DECLARE_DELAYED_SINGLETON(PermissionManager)
 public:
-    ErrCode AddPermission(const std::string &permission);
+    ErrCode AddPermission(const std::string &permission, const std::uint32_t permissionType);
     void GetReqPermission(const std::vector<std::string> &permissions,
         std::vector<AdminPermission> &reqPermission);
     void GetReqPermission(const std::vector<std::string> &permissions,

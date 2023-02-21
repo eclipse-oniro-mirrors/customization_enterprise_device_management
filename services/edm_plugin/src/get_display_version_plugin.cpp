@@ -27,7 +27,8 @@ void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisp
     EDMLOGD("GetDisplayVersionPlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(GET_DISPLAY_VERSION, policyName);
-    ptr->InitAttribute(GET_DISPLAY_VERSION, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", false);
+    ptr->InitAttribute(GET_DISPLAY_VERSION, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

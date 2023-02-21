@@ -94,7 +94,8 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
     if (plugin == nullptr) {
         return false;
     }
-    ErrCode result = PermissionManager::GetInstance()->AddPermission(plugin->GetPermission());
+    ErrCode result = PermissionManager::GetInstance()->AddPermission(plugin->GetPermission(),
+        plugin->GetPermissionType());
     if (result == ERR_OK) {
         pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
         pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));

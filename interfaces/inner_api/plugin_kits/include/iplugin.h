@@ -57,12 +57,20 @@ public:
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
     std::string GetPermission();
+    std::uint32_t GetPermissionType();
     virtual ~IPlugin();
+
+    enum PermissionType {
+        NORMAL_DEVICE_ADMIN = 0,
+        SUPER_DEVICE_ADMIN,
+        UNKNOWN,
+    };
 
 protected:
     std::uint32_t policyCode_;
     std::string policyName_;
     std::string permission_;
+    std::uint32_t permissionType_;
     bool needSave_ = true;
     bool isGlobal_ = true;
 };

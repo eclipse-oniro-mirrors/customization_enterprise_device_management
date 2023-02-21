@@ -27,7 +27,8 @@ void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePl
     EDMLOGD("SetDateTimePlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(SET_DATETIME, policyName);
-    ptr->InitAttribute(SET_DATETIME, policyName, "ohos.permission.ENTERPRISE_SET_DATETIME", false);
+    ptr->InitAttribute(SET_DATETIME, policyName, "ohos.permission.ENTERPRISE_SET_DATETIME",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(LongSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
 }
