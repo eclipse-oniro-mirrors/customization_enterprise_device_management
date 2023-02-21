@@ -31,11 +31,21 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
     ptr->InitAttribute(DISALLOW_ADD_LOCAL_ACCOUNT, policyName, "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddLocalAccountPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);
 }
 
 ErrCode DisallowAddLocalAccountPlugin::OnSetPolicy(bool &data)
 {
-    EDMLOGD("DisallowAddLocalAccountPlugin OnSetPolicy");
+    return SetGlobalOsAccountConstraints(data);
+}
+
+ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data)
+{
+    return data ? SetGlobalOsAccountConstraints(!data) : ERR_OK;
+}
+
+ErrCode DisallowAddLocalAccountPlugin::SetGlobalOsAccountConstraints(bool data)
+{
     std::vector<std::string> constraints = { "constraint.os.account.create.directly" };
     std::vector<int32_t> ids;
     AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
