@@ -152,15 +152,7 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
 
 ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    AppExecFwk::ElementName *admin = nullptr;
-    if (data.ReadInt32() == 0) {
-        admin = data.ReadParcelable<AppExecFwk::ElementName>();
-    } else {
-        admin = nullptr;
-    }
-    ErrCode retCode = GetDevicePolicy(code, admin, reply);
-    delete admin;
-    return retCode;
+    return GetDevicePolicy(code, data, reply);
 }
 
 ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply)

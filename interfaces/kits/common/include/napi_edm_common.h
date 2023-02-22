@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@ struct AsyncCallbackInfo {
     ErrCode ret;
     bool boolRet = true;
     std::string stringRet;
+    std::vector<std::string> arrayStringRet;
     int32_t err = 0;
     uint32_t errCode = 0;
     std::string errMessage;
@@ -68,6 +69,8 @@ napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::
     napi_async_execute_callback execute, napi_async_complete_callback complete);
 void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
+void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
+void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 } // namespace EDM
 } // namespace OHOS
 

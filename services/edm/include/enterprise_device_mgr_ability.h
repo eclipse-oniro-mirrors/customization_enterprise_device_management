@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,7 +44,7 @@ public:
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(std::string &bundleName) override;
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data) override;
-    ErrCode GetDevicePolicy(uint32_t code, AppExecFwk::ElementName *admin, MessageParcel &reply) override;
+    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;

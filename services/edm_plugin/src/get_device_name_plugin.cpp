@@ -36,7 +36,7 @@ void GetDeviceNamePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceNa
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetDeviceNamePlugin::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+ErrCode GetDeviceNamePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("GetDeviceNamePlugin OnGetPolicy GetMarketName");
     std::string name;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,7 +59,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy(uint32_t code, Messa
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteString("testString");
+    reply.WriteString(RETURN_STRING);
     return 0;
 }
 
@@ -70,6 +70,17 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(true);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(1);
+    reply.WriteStringVector(std::vector<std::string>{ RETURN_STRING });
     return 0;
 }
 } // namespace EDM

@@ -40,8 +40,9 @@ HWTEST_F(IsWifiActivePluginTest, TestIsWifiActive, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
     std::string policyData{"TestIsWifiActive"};
+    MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

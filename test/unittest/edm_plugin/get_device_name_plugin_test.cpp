@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,15 +41,16 @@ HWTEST_F(GetDeviceNamePluginTest, TestOnPolicy, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = GetDeviceNamePlugin::GetPlugin();
     std::string policyValue{"TestString"};
+    MessageParcel data;
     MessageParcel reply;
     EdmDataAbilityUtils::SetResult("test Failed");
-    ErrCode code = plugin->OnGetPolicy(policyValue, reply);
+    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply);
     EXPECT_TRUE(code != ERR_OK);
     EdmDataAbilityUtils::SetResult("test value nullptr");
-    code = plugin->OnGetPolicy(policyValue, reply);
+    code = plugin->OnGetPolicy(policyValue, data, reply);
     EXPECT_TRUE(code == ERR_OK);
     EdmDataAbilityUtils::SetResult("test success");
-    code = plugin->OnGetPolicy(policyValue, reply);
+    code = plugin->OnGetPolicy(policyValue, data, reply);
     EXPECT_TRUE(code == ERR_OK);
 }
 } // namespace TEST

@@ -302,14 +302,19 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
 
 void EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
 {
+    MessageParcel data;
     MessageParcel reply;
-    int32_t ret = ERR_INVALID_VALUE;
-    if (!GetPolicy(admin, policyCode, reply)) {
-        isDisabled = false;
-    } else if (reply.ReadInt32(ret) && (ret == ERR_OK)) {
-        isDisabled = reply.ReadBool();
+    data.WriteInterfaceToken(DESCRIPTOR);
+    if (admin != nullptr) {
+        data.WriteInt32(0);
+        data.WriteParcelable(admin);
     } else {
-        isDisabled = false;
+        data.WriteInt32(1);
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    isDisabled = false;
+    if (GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK)) {
+        isDisabled = reply.ReadBool();
     }
 }
 
@@ -335,16 +340,20 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
 
 bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData)
 {
+    MessageParcel data;
     MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    if (admin != nullptr) {
+        data.WriteInt32(0);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(1);
+    }
     int32_t ret = ERR_INVALID_VALUE;
-    if (!GetPolicy(admin, policyCode, reply)) {
-        policyData = "";
-        return false;
-    } else if (reply.ReadInt32(ret) && (ret == ERR_OK)) {
+    policyData = "";
+    if (GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK)) {
         policyData = Str16ToStr8(reply.ReadString16());
         return true;
-    } else {
-        policyData = "";
     }
     return false;
 }
@@ -352,8 +361,16 @@ bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, in
 bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode,
     std::vector<std::string> &policyData)
 {
+    MessageParcel data;
     MessageParcel reply;
-    if (!GetPolicy(admin, policyCode, reply)) {
+    data.WriteInterfaceToken(DESCRIPTOR);
+    if (admin != nullptr) {
+        data.WriteInt32(0);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(1);
+    }
+    if (!GetPolicy(policyCode, data, reply)) {
         return false;
     }
     int32_t ret = ERR_INVALID_VALUE;
@@ -376,8 +393,16 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, in
 bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode,
     std::map<std::string, std::string> &policyData)
 {
+    MessageParcel data;
     MessageParcel reply;
-    if (!GetPolicy(admin, policyCode, reply)) {
+    data.WriteInterfaceToken(DESCRIPTOR);
+    if (admin != nullptr) {
+        data.WriteInt32(0);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(1);
+    }
+    if (!GetPolicy(policyCode, data, reply)) {
         return false;
     }
     int32_t ret = ERR_INVALID_VALUE;
@@ -413,7 +438,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, i
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicy(const AppExecFwk::ElementName *admin, int policyCode, MessageParcel &reply)
+bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply)
 {
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy invalid policyCode:%{public}d", policyCode);
@@ -424,15 +449,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(const AppExecFwk::ElementName *admin, i
     if (!remote) {
         return false;
     }
-    MessageParcel data;
-    data.WriteInterfaceToken(DESCRIPTOR);
     MessageOption option;
-    if (admin != nullptr) {
-        data.WriteInt32(0);
-        data.WriteParcelable(admin);
-    } else {
-        data.WriteInt32(1);
-    }
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy send request fail.");
