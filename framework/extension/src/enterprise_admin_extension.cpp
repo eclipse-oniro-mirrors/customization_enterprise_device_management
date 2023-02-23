@@ -15,6 +15,7 @@
 
 #include "enterprise_admin_extension.h"
 
+#include "ability_loader.h"
 #include "enterprise_admin_extension_context.h"
 #include "hilog_wrapper.h"
 #include "js_enterprise_admin_extension.h"
