@@ -636,8 +636,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::ElementName *admin,
-    MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
@@ -645,7 +644,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
         reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-    if (admin != nullptr) {
+    std::string adminName;
+    if (data.ReadInt32() == 0) {
+        std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
         std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
         if (deviceAdmin == nullptr) {
             EDMLOGW("GetDevicePolicy: get admin failed");
@@ -657,6 +658,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
             reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
             return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
         }
+        adminName = admin->GetBundleName();
     }
     if (!VerifyCallingPermission(plugin->GetPermission())) {
         EDMLOGW("GetDevicePolicy: VerifyCallingPermission failed");
@@ -665,11 +667,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, AppExecFwk::E
     }
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
-    std::string adminName = (admin == nullptr) ? "" : admin->GetBundleName();
     if (plugin->NeedSavePolicy()) {
         policyMgr_->GetPolicy(adminName, policyName, policyValue);
     }
-    return plugin->OnGetPolicy(policyValue, reply);
+    return plugin->OnGetPolicy(policyValue, data, reply);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)

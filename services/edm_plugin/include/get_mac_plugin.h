@@ -13,21 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
-class IsWifiActivePlugin : public PluginSingleton<IsWifiActivePlugin, bool> {
+class GetMacPlugin : public PluginSingleton<GetMacPlugin, std::string> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std::string>> ptr) override;
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H

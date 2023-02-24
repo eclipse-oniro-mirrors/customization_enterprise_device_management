@@ -26,7 +26,7 @@ class GetDeviceSerialPlugin : public PluginSingleton<GetDeviceSerialPlugin, std:
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
 };
 } // namespace EDM
 } // namespace OHOS
