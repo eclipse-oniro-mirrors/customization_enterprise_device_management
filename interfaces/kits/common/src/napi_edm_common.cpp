@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -258,6 +258,58 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data)
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
+}
+
+void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value result = nullptr;
+            napi_create_array(env, &result);
+            ConvertStringVectorToJS(env, asyncCallbackInfo->arrayStringRet, result);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    } else {
+        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
+            napi_create_array(env, &callbackValue[ARGS_SIZE_ONE]);
+            ConvertStringVectorToJS(env, asyncCallbackInfo->arrayStringRet, callbackValue[ARGS_SIZE_ONE]);
+        } else {
+            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
+                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
+                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
+            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
+        }
+        napi_value callback = nullptr;
+        napi_value result = nullptr;
+        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
+        napi_delete_reference(env, asyncCallbackInfo->callback);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result)
+{
+    EDMLOGD("vector size: %{public}zu", stringVector.size());
+    size_t idx = 0;
+    for (const auto &str : stringVector) {
+        napi_value obj = nullptr;
+        napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
 }
 } // namespace EDM
 } // namespace OHOS

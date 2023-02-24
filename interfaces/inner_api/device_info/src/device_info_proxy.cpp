@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,8 +47,12 @@ int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::stri
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    MessageParcel data;
     MessageParcel reply;
-    proxy->GetPolicy(&admin, policyCode, reply);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(policyCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

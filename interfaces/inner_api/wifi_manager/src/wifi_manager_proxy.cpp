@@ -48,8 +48,12 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    MessageParcel data;
     MessageParcel reply;
-    proxy->GetPolicy(&admin, IS_WIFI_ACTIVE, reply);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(IS_WIFI_ACTIVE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

@@ -309,11 +309,12 @@ HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
 {
     int policyCode = 30;
     MessageParcel reply;
+    MessageParcel data;
     PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin());
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, policyCode);
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     std::string policyData{"TestData"};
-    ErrCode ret = plugin->OnGetPolicy(policyData, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

@@ -26,7 +26,7 @@ class GetDisplayVersionPlugin : public PluginSingleton<GetDisplayVersionPlugin, 
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
 };
 } // namespace EDM
 } // namespace OHOS
