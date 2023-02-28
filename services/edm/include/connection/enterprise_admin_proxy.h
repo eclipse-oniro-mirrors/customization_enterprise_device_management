@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,10 @@ public:
     void OnBundleAdded(const std::string &bundleName) override;
 
     void OnBundleRemoved(const std::string &bundleName) override;
+
+    void OnAppStart(const std::string &bundleName) override;
+
+    void OnAppStop(const std::string &bundleName) override;
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

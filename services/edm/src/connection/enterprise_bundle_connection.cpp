@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,12 @@ void EnterpriseBundleConnection::OnAbilityConnectDone(
             break;
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
             proxy_->OnBundleRemoved(bundleName_);
+            break;
+        case static_cast<uint32_t>(ManagedEvent::APP_START):
+            proxy_->OnAppStart(bundleName_);
+            break;
+        case static_cast<uint32_t>(ManagedEvent::APP_STOP):
+            proxy_->OnAppStop(bundleName_);
             break;
         default:
             return;
