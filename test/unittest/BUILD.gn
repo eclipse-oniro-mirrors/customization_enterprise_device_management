@@ -40,6 +40,7 @@ ohos_static_library("edmservice_static") {
     "$EDM_SRC_PATH/ability_manager_death_recipient.cpp",
     "$EDM_SRC_PATH/admin.cpp",
     "$EDM_SRC_PATH/admin_manager.cpp",
+    "$EDM_SRC_PATH/application_state_observer.cpp",
     "$EDM_SRC_PATH/connection/enterprise_admin_connection.cpp",
     "$EDM_SRC_PATH/connection/enterprise_admin_proxy.cpp",
     "$EDM_SRC_PATH/connection/enterprise_bundle_connection.cpp",
@@ -67,6 +68,7 @@ ohos_static_library("edmservice_static") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",

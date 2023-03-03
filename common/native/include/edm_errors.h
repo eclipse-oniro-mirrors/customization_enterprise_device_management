@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -97,6 +97,8 @@ enum {
     ERR_EDM_NOT_EXIST_POLICY = EDM_PLUGINMGR_ERR_OFFSET + 5,
     ERR_EDM_NOT_EXIST_FUNC = EDM_PLUGINMGR_ERR_OFFSET + 6,
 };
+
+#define RETURN_IF_FAILED(errcode) if (FAILED(errcode)) { return errcode; }
 } // namespace EDM
 } // namespace OHOS
 

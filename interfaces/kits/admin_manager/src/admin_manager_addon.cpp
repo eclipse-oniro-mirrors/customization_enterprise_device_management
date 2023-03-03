@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -666,6 +666,14 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED), &nBundleRemoved));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_BUNDLE_REMOVED", nBundleRemoved));
+    napi_value nAppStart;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedEvent::APP_START), &nAppStart));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_APP_START", nAppStart));
+    napi_value nAppStop;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedEvent::APP_STOP), &nAppStop));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_APP_STOP", nAppStop));
 }
 
 napi_value AdminManager::Init(napi_env env, napi_value exports)

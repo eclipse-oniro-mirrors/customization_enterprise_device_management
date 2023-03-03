@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,8 @@ void EnterpriseAdminStub::AddCallFuncMap()
     memberFuncMap_[COMMAND_ON_ADMIN_DISABLED] = &EnterpriseAdminStub::OnAdminDisabledInner;
     memberFuncMap_[COMMAND_ON_BUNDLE_ADDED] = &EnterpriseAdminStub::OnBundleAddedInner;
     memberFuncMap_[COMMAND_ON_BUNDLE_REMOVED] = &EnterpriseAdminStub::OnBundleRemovedInner;
+    memberFuncMap_[COMMAND_ON_APP_START] = &EnterpriseAdminStub::OnAppStartInner;
+    memberFuncMap_[COMMAND_ON_APP_STOP] = &EnterpriseAdminStub::OnAppStopInner;
 }
 
 void EnterpriseAdminStub::OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply)
@@ -61,6 +63,20 @@ void EnterpriseAdminStub::OnBundleRemovedInner(MessageParcel& data, MessageParce
     EDMLOGI("EnterpriseAdminStub::OnBundleRemoved");
     std::string bundleName = data.ReadString();
     OnBundleRemoved(bundleName);
+}
+
+void EnterpriseAdminStub::OnAppStartInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnAppStart");
+    std::string bundleName = data.ReadString();
+    OnAppStart(bundleName);
+}
+
+void EnterpriseAdminStub::OnAppStopInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnAppStop");
+    std::string bundleName = data.ReadString();
+    OnAppStop(bundleName);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
