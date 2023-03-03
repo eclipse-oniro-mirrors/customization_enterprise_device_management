@@ -32,7 +32,7 @@ void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisp
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetDisplayVersionPlugin::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+ErrCode GetDisplayVersionPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("GetDisplayVersionPlugin OnGetPolicy.");
     std::string version = GetDisplayVersion();

@@ -50,7 +50,7 @@ public:
     virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData) = 0;
     virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData) = 0;
     virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);
-    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) = 0;
+    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) = 0;
 
     std::uint32_t GetCode();
     std::string GetPolicyName();

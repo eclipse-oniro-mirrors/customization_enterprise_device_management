@@ -29,13 +29,13 @@ struct AdminPermission {
     std::string permissionName;
     AdminType adminType;
     AdminPermission(std::string _permissionName, AdminType _adminType) : permissionName(_permissionName),
-        adminType(_adminType){}
+        adminType(_adminType) {}
 };
 
 class PermissionManager : public DelayedSingleton<PermissionManager> {
 DECLARE_DELAYED_SINGLETON(PermissionManager)
 public:
-    ErrCode AddPermission(const std::string &permission, const std::uint32_t permissionType);
+    ErrCode AddPermission(const std::string &permission, std::uint32_t permissionType);
     void GetReqPermission(const std::vector<std::string> &permissions,
         std::vector<AdminPermission> &reqPermission);
     void GetReqPermission(const std::vector<std::string> &permissions,

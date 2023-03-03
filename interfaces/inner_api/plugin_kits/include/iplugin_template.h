@@ -51,7 +51,7 @@ public:
 
     ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
 
     /*
      * Sets the handle of the policy processing object.
@@ -197,7 +197,7 @@ protected:
     void SetSerializer(std::shared_ptr<IPolicySerializer<DT>> serializer);
 
     void InitAttribute(uint32_t policyCode, const std::string &policyName, const std::string &permission,
-        const std::uint32_t permissionType, bool needSave = true, bool global = true);
+        std::uint32_t permissionType, bool needSave = true, bool global = true);
 
     /*
      * Registering Listening for HandlePolicy Events.
@@ -378,10 +378,10 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
 }
 
 template<class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("IPluginTemplate::OnGetPolicy");
-    return instance_->OnGetPolicy(policyData, reply);
+    return instance_->OnGetPolicy(policyData, data, reply);
 }
 
 template<class CT, class DT>
@@ -774,7 +774,7 @@ public:
      */
     static std::shared_ptr<IPlugin> GetPlugin();
 
-    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &reply);
+    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply);
 
     static void DestroyPlugin();
 
@@ -805,7 +805,7 @@ std::shared_ptr<IPlugin> PluginSingleton<CT, DT>::GetPlugin()
 }
 
 template<typename CT, typename DT>
-ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &reply)
+ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("PluginSingleton::OnGetPolicy");
     return ERR_OK;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "permission_manager.h"
 #include "edm_log.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,14 +28,22 @@ PermissionManager::~PermissionManager()
 
 ErrCode PermissionManager::AddPermission(const std::string &permission, const std::uint32_t permissionType)
 {
+    if (permissionType < IPlugin::PermissionType::NORMAL_DEVICE_ADMIN ||
+        permissionType > IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
+        EDMLOGE("AddPermission::unknow permission type");
+        return ERR_EDM_UNKNOWN_PERMISSION;
+    }
     auto entry = permissions_.find(permission);
     if (entry == permissions_.end()) {
         AdminPermission adminPermission(permission, (AdminType)permissionType);
         permissions_.insert(std::make_pair(permission, adminPermission));
-        EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d", permission.c_str(), permissionType);
+        EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
+            permission.c_str(), permissionType);
+    } else if (entry->second.adminType != (AdminType)permissionType) {
+        EDMLOGE("AddPermission::conflict permission type");
+        return ERR_EDM_DENY_PERMISSION;
     } else {
-        EDMLOGW("AddPermission::duplicated permission");
-        return ERR_EDM_UNKNOWN_PERMISSION;
+        EDMLOGI("AddPermission::same permission has been added : %{public}s", permission.c_str());
     }
     EDMLOGD("AddPermission::return ok");
     return ERR_OK;

@@ -35,9 +35,7 @@ ohos_shared_library("deviceinfo") {
 
   external_deps = [
     "ability_base:want",
-    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 

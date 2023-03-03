@@ -37,6 +37,8 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "./device_info_plugin_test.cpp",
     "./edm_data_ability_utils_mock.cpp",
     "./get_device_name_plugin_test.cpp",
+    "./is_wifi_active_plugin_test.cpp",
+    "./network_manager_plugin_test.cpp",
   ]
 
   configs = [
@@ -73,9 +75,13 @@ ohos_static_library("edm_all_plugin_static") {
   visibility = [ ":*" ]
   testonly = true
   sources = [
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/get_all_network_interfaces_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_device_name_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_device_serial_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_display_version_plugin.cpp",
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/get_ip_address_plugin.cpp",
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/get_mac_plugin.cpp",
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/is_wifi_active_plugin.cpp",
   ]
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
@@ -88,6 +94,7 @@ ohos_static_library("edm_all_plugin_static") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
     "$SUBSYSTEM_DIR/services/edm_plugin/include",
+    "//foundation/communication/wifi/wifi/interfaces/kits/c/",
   ]
 
   deps = [
@@ -98,6 +105,8 @@ ohos_static_library("edm_all_plugin_static") {
   external_deps = [
     "c_utils:utils",
     "init:libbegetutil",
+    "netmanager_ext:ethernet_manager_if",
+    "wifi:wifi_sdk",
   ]
 
   if (is_standard_system) {

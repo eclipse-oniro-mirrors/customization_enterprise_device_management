@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <vector>
 #include "admin_manager.h"
 #include "cmd_utils.h"
+#include "iplugin.h"
 
 using namespace testing::ext;
 
@@ -32,8 +33,10 @@ const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policie
 
 void AdminManagerTest::SetUp()
 {
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     adminMgr_ = AdminManager::GetInstance();
     adminMgr_->Init();
 }

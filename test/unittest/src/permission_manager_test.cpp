@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
+#include "iplugin.h"
 #include "permission_manager.h"
 
 using namespace testing::ext;
@@ -49,10 +50,10 @@ void PermissionManagerTest::TearDown()
 HWTEST_F(PermissionManagerTest, TestAddPermission, TestSize.Level1)
 {
     ASSERT_NE(PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EMD_TEST_PERMISSION_FAIL")),
+        std::string("ohos.permission.EMD_TEST_PERMISSION_FAIL"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN),
         ERR_OK);
     ASSERT_EQ(PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_PERMISSION")),
+        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN),
         ERR_OK);
 }
 
@@ -64,7 +65,7 @@ HWTEST_F(PermissionManagerTest, TestAddPermission, TestSize.Level1)
 HWTEST_F(PermissionManagerTest, GetReqPermission01, TestSize.Level1)
 {
     PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_PERMISSION"));
+        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
     std::vector<AdminPermission> reqPermission;
@@ -80,7 +81,7 @@ HWTEST_F(PermissionManagerTest, GetReqPermission01, TestSize.Level1)
 HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
 {
     PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"));
+        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"), IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
     std::vector<EdmPermission> reqPermission;
