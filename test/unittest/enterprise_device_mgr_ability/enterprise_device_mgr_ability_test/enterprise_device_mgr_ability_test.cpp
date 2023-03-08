@@ -26,6 +26,7 @@
 #include "edm_sys_manager_mock.h"
 #include "bundle_manager_mock.h"
 #include "iplugin.h"
+#include "managed_event.h"
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
@@ -45,6 +46,10 @@ constexpr int32_t ADMIN_TYPE_MAX = 999;
 constexpr int32_t ERROR_USER_ID_REMOVE = 0;
 constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 3;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
+constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
+constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
+constexpr uint32_t APP_START_EVENT = static_cast<uint32_t>(ManagedEvent::APP_START);
+constexpr uint32_t APP_STOP_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STOP);
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
@@ -697,8 +702,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     entInfo.description = "technology company in wuhan1";
     edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
     std::shared_ptr<Admin> adminItem = edmMgr_->adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
-    const std::vector<uint32_t> events = {static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED),
-        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED)};
+    const std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     edmMgr_->adminMgr_->SaveSubscribeEvents(events, adminItem, DEFAULT_USER_ID);
 
     std::string action = "usual.event.PACKAGE_ADDED";
@@ -749,7 +753,31 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEvent, TestSize.Lev
     res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
 
-    std::vector<uint32_t> events = {0, 1};
+    std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
+    res = edmMgr_->SubscribeManagedEvent(admin, events);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    NativeTokenGet(nullptr, 0);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEvent
+ * @tc.desc: Test SubscribeAppStartStopEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    NativeTokenGet(perms, 2);
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
     res = edmMgr_->SubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
@@ -773,7 +801,31 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEvent, TestSize.L
     NativeTokenGet(perms, 2);
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    std::vector<uint32_t> events = {0, 1};
+    std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
+    res = edmMgr_->UnsubscribeManagedEvent(admin, events);
+    EXPECT_TRUE(res == ERR_OK);
+    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    NativeTokenGet(nullptr, 0);
+}
+
+/**
+ * @tc.name: TestUnsubscribeManagedEvent
+ * @tc.desc: Test UnsubscribeAppStartStopEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    NativeTokenGet(perms, 2);
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
+    std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
     res = edmMgr_->UnsubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);

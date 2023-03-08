@@ -27,6 +27,7 @@
 #include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "edm_errors.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "enterprise_admin_connection.h"
@@ -54,6 +55,12 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         &EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded;
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED] =
         &EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved;
+}
+
+void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
+{
+    addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAppManagerServiceStart;
+    addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnCommonEventServiceStart;
 }
 
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
@@ -113,17 +120,17 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::CommonEventData &data)
 {
     EDMLOGI("OnCommonEventPackageAdded");
-    OnCommonEventPackageAddedOrRemoved(data, ManagedEvent::BUNDLE_ADDED);
+    std::string bundleName = data.GetWant().GetElement().GetBundleName();
+    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data)
 {
     EDMLOGI("OnCommonEventPackageRemoved");
-    OnCommonEventPackageAddedOrRemoved(data, ManagedEvent::BUNDLE_REMOVED);
+    std::string bundleName = data.GetWant().GetElement().GetBundleName();
+    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED);
 }
-
-void EnterpriseDeviceMgrAbility::OnCommonEventPackageAddedOrRemoved(const EventFwk::CommonEventData &data,
-    ManagedEvent event)
+void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event)
 {
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
     adminMgr_->GetAdminBySubscribeEvent(event, subAdmins);
@@ -131,7 +138,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAddedOrRemoved(const EventF
         EDMLOGW("Get subscriber by common event failed.");
         return;
     }
-    std::string bundleName = data.GetWant().GetElement().GetBundleName();
     AAFwk::Want want;
     for (const auto &subAdmin : subAdmins) {
         for (auto &it : subAdmin.second) {
@@ -235,12 +241,37 @@ void EnterpriseDeviceMgrAbility::OnStart()
     EDMLOGD("create pluginMgr_ success");
     pluginMgr_->Init();
 
+    AddOnAddSystemAbilityFuncMap();
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
+    AddSystemAbilityListener(APP_MGR_SERVICE_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     EDMLOGD("OnAddSystemAbility systemAbilityId:%{public}d added!", systemAbilityId);
+    auto func = addSystemAbilityFuncMap_.find(systemAbilityId);
+    if (func != addSystemAbilityFuncMap_.end()) {
+        auto memberFunc = func->second;
+        if (memberFunc != nullptr) {
+            return (this->*memberFunc)(systemAbilityId, deviceId);
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("OnAppManagerServiceStart");
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::APP_START, subAdmins);
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::APP_STOP, subAdmins);
+    if (!subAdmins.empty()) {
+        EDMLOGI("the admin that listened the APP_START or APP_STOP event is existed");
+        SubscribeAppState();
+    }
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
     commonEventSubscriber = CreateEnterpriseDeviceEventSubscriber(*this);
     EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber);
     EDMLOGI("create commonEventSubscriber success");
@@ -287,11 +318,64 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
     return ERR_OK;
 }
 
+sptr<AppExecFwk::IAppMgr> EnterpriseDeviceMgrAbility::GetAppMgr()
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+    return iface_cast<AppExecFwk::IAppMgr>(remoteObject);
+}
+
 sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     return proxy;
+}
+
+bool EnterpriseDeviceMgrAbility::SubscribeAppState()
+{
+    if (appStateObserver_) {
+        EDMLOGD("appStateObserver has subscribed");
+        return true;
+    }
+    sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
+    if (!appMgr) {
+        EDMLOGE("GetAppMgr failed");
+        return false;
+    }
+    appStateObserver_ = new (std::nothrow) ApplicationStateObserver(*this);
+    if (!appStateObserver_) {
+        EDMLOGE("new ApplicationStateObserver failed");
+        return false;
+    }
+    if (appMgr->RegisterApplicationStateObserver(appStateObserver_) != ERR_OK) {
+        EDMLOGE("RegisterApplicationStateObserver fail!");
+        appStateObserver_.clear();
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool EnterpriseDeviceMgrAbility::UnsubscribeAppState()
+{
+    if (!appStateObserver_) {
+        EDMLOGD("appStateObserver has subscribed");
+        return true;
+    }
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::APP_START, subAdmins);
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::APP_STOP, subAdmins);
+    if (!subAdmins.empty()) {
+        return true;
+    }
+    sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
+    if (!appMgr || appMgr->UnregisterApplicationStateObserver(appStateObserver_) != ERR_OK) {
+        EDMLOGE("UnregisterApplicationStateObserver fail!");
+        return false;
+    }
+    appStateObserver_.clear();
+    appStateObserver_ = nullptr;
+    return true;
 }
 
 bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &permissionName)
@@ -455,10 +539,23 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
             return ERR_EDM_DEL_ADMIN_FAILED;
         }
     }
+    bool shouldUnsubscribeAppState = ShouldUnsubscribeAppState(adminName, userId);
     if (adminMgr_->DeleteAdmin(adminName, userId) != ERR_OK) {
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
+    if (shouldUnsubscribeAppState) {
+        UnsubscribeAppState();
+    }
     return ERR_OK;
+}
+
+bool EnterpriseDeviceMgrAbility::ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId)
+{
+    std::shared_ptr<Admin> adminPtr = adminMgr_->GetAdminByPkgName(adminName, userId);
+    return std::any_of(adminPtr->adminInfo_.managedEvents_.begin(),
+        adminPtr->adminInfo_.managedEvents_.end(), [](ManagedEvent event) {
+            return event == ManagedEvent::APP_START || event == ManagedEvent::APP_STOP;
+        });
 }
 
 ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
@@ -739,24 +836,49 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &a
     return (code != ERR_OK) ? EdmReturnErrCode::ADMIN_INACTIVE : ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe)
+{
+    bool shouldHandleAppState = std::any_of(events.begin(), events.end(), [](uint32_t event) {
+        return event == static_cast<uint32_t>(ManagedEvent::APP_START) ||
+        event == static_cast<uint32_t>(ManagedEvent::APP_STOP);
+        });
+    if (!shouldHandleAppState) {
+        return ERR_OK;
+    }
+    if (subscribe) {
+        return SubscribeAppState() ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    } else {
+        return UnsubscribeAppState() ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+}
+
 ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    return HandleManagedEvent(admin, events, true);
+    RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
+    RETURN_IF_FAILED(HandleApplicationEvent(events, true));
+    int32_t userId = GetCurrentUserId();
+    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
+    adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    return HandleManagedEvent(admin, events, false);
+    RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
+    int32_t userId = GetCurrentUserId();
+    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
+    adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
+    return HandleApplicationEvent(events, false);
 }
 
-ErrCode EnterpriseDeviceMgrAbility::HandleManagedEvent(const AppExecFwk::ElementName &admin,
-    const std::vector<uint32_t> &events, bool subscribe)
+ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::ElementName &admin,
+    const std::vector<uint32_t> &events)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     if (!VerifyCallingPermission(PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT)) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::HandleManagedEvent: check permission failed");
+        EDMLOGW("EnterpriseDeviceMgrAbility::VerifyManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     int32_t userId = GetCurrentUserId();
@@ -766,7 +888,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleManagedEvent(const AppExecFwk::Element
     }
     int32_t ret = CheckCallingUid(adminItem->adminInfo_.packageName_);
     if (ret != ERR_OK) {
-        EDMLOGW("SubscribeManagedEvent: CheckCallingUid failed: %{public}d", ret);
+        EDMLOGW("VerifyManagedEvent: CheckCallingUid failed: %{public}d", ret);
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     if (events.empty()) {
@@ -778,11 +900,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleManagedEvent(const AppExecFwk::Element
     if (iter != std::end(events)) {
         return EdmReturnErrCode::MANAGED_EVENTS_INVALID;
     }
-    if (subscribe) {
-        adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
-    } else {
-        adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
-    }
     return ERR_OK;
 }
 
@@ -791,6 +908,8 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
     switch (event) {
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED):
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
+        case static_cast<uint32_t>(ManagedEvent::APP_START):
+        case static_cast<uint32_t>(ManagedEvent::APP_STOP):
             break;
         default:
             return false;

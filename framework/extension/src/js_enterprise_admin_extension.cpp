@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -171,6 +171,28 @@ void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
         auto& engine = jsRuntime_.GetNativeEngine();
         NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
         CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
+{
+    HILOG_INFO("JsEnterpriseAdminExtension::OnAppStart");
+    auto task = [bundleName, this]() {
+        auto& engine = jsRuntime_.GetNativeEngine();
+        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        CallObjectMethod("onAppStart", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
+{
+    HILOG_INFO("JsEnterpriseAdminExtension::OnAppStop");
+    auto task = [bundleName, this]() {
+        auto& engine = jsRuntime_.GetNativeEngine();
+        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        CallObjectMethod("onAppStop", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
 }

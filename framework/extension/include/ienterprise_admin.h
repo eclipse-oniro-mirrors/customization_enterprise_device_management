@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,11 +41,25 @@ public:
      */
     virtual void OnBundleRemoved(const std::string &bundleName) = 0;
 
+    /**
+     * Called when an application start on the device.
+     * @param bundleName Indicates the bundle name of application that has been started.
+     */
+    virtual void OnAppStart(const std::string &bundleName) = 0;
+
+    /**
+     * Called when an application stop on the device.
+     * @param bundleName Indicates the bundle name of application that has been stopped.
+     */
+    virtual void OnAppStop(const std::string &bundleName) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
         COMMAND_ON_BUNDLE_ADDED = 3,
-        COMMAND_ON_BUNDLE_REMOVED = 4
+        COMMAND_ON_BUNDLE_REMOVED = 4,
+        COMMAND_ON_APP_START = 5,
+        COMMAND_ON_APP_STOP = 6
     };
 };
 } // namespace EDM

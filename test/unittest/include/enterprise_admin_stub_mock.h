@@ -46,6 +46,10 @@ public:
 
     void OnBundleRemoved(const std::string &bundleName) override {}
 
+    void OnAppStart(const std::string &bundleName) override {}
+
+    void OnAppStop(const std::string &bundleName) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

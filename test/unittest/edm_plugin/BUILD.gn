@@ -30,11 +30,12 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "$SUBSYSTEM_DIR/common/native/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
-    "./get_device_name_plugin_test.h",
+    "$SUBSYSTEM_DIR/test/unittest/edm_plugin",
   ]
 
   sources = [
     "./device_info_plugin_test.cpp",
+    "./disallow_add_local_account_plugin_test.cpp",
     "./edm_data_ability_utils_mock.cpp",
     "./get_device_name_plugin_test.cpp",
     "./is_wifi_active_plugin_test.cpp",
@@ -75,6 +76,7 @@ ohos_static_library("edm_all_plugin_static") {
   visibility = [ ":*" ]
   testonly = true
   sources = [
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_all_network_interfaces_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_device_name_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_device_serial_plugin.cpp",
@@ -106,6 +108,7 @@ ohos_static_library("edm_all_plugin_static") {
     "c_utils:utils",
     "init:libbegetutil",
     "netmanager_ext:ethernet_manager_if",
+    "os_account:os_account_innerkits",
     "wifi:wifi_sdk",
   ]
 

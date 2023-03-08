@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,6 +49,10 @@ private:
     void OnBundleAddedInner(MessageParcel& data, MessageParcel& reply);
 
     void OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnAppStartInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
 
     using EnterpriseAdminFunc = void (EnterpriseAdminStub::*)(MessageParcel& data, MessageParcel& reply);
 

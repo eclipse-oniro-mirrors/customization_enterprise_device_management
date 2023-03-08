@@ -26,10 +26,10 @@ PermissionManager::~PermissionManager()
     permissions_.clear();
 }
 
-ErrCode PermissionManager::AddPermission(const std::string &permission, const std::uint32_t permissionType)
+ErrCode PermissionManager::AddPermission(const std::string &permission, std::uint32_t permissionType)
 {
     if (permissionType < IPlugin::PermissionType::NORMAL_DEVICE_ADMIN ||
-        permissionType > IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
+        permissionType >= IPlugin::PermissionType::UNKNOWN) {
         EDMLOGE("AddPermission::unknow permission type");
         return ERR_EDM_UNKNOWN_PERMISSION;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,6 +62,30 @@ void EnterpriseAdminProxy::OnBundleRemoved(const std::string &bundleName)
     data.WriteString(bundleName);
     EDMLOGI("EnterpriseAdminProxy proxy OnBundleRemoved");
     SendRequest(COMMAND_ON_BUNDLE_REMOVED, data);
+}
+
+void EnterpriseAdminProxy::OnAppStart(const std::string &bundleName)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    EDMLOGI("EnterpriseAdminProxy proxy OnAppStart");
+    SendRequest(COMMAND_ON_APP_START, data);
+}
+
+void EnterpriseAdminProxy::OnAppStop(const std::string &bundleName)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    EDMLOGI("EnterpriseAdminProxy proxy OnAppStop");
+    SendRequest(COMMAND_ON_APP_STOP, data);
 }
 
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)

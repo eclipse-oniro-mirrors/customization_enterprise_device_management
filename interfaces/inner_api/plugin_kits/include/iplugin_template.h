@@ -726,7 +726,7 @@ void IPluginTemplate<CT, DT>::SetSerializer(std::shared_ptr<IPolicySerializer<DT
 template<class CT, class DT>
 void IPluginTemplate<CT, DT>::InitAttribute(
     uint32_t policyCode, const std::string &policyName, const std::string &permission,
-    const std::uint32_t permissionType, bool needSave, bool global)
+    std::uint32_t permissionType, bool needSave, bool global)
 {
     policyCode_ = policyCode;
     policyName_ = policyName;
