@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "permission_manager.h"
 #include "edm_log.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
@@ -25,20 +26,27 @@ PermissionManager::~PermissionManager()
     permissions_.clear();
 }
 
-ErrCode PermissionManager::AddPermission(const std::string &permission)
+ErrCode PermissionManager::AddPermission(const std::string &permission, std::uint32_t permissionType)
 {
-    for (const auto &item : ADMIN_PERMISSIONS) {
-        if (permission == item.permissionName) {
-            auto entry = permissions_.find(permission);
-            if (entry == permissions_.end()) {
-                permissions_.insert(std::make_pair(permission, item));
-            }
-            EDMLOGD("AddPermission::return ok");
-            return ERR_OK;
-        }
+    if (permissionType < IPlugin::PermissionType::NORMAL_DEVICE_ADMIN ||
+        permissionType >= IPlugin::PermissionType::UNKNOWN) {
+        EDMLOGE("AddPermission::unknow permission type");
+        return ERR_EDM_UNKNOWN_PERMISSION;
     }
-    EDMLOGW("AddPermission::return unknow permission");
-    return ERR_EDM_UNKNOWN_PERMISSION;
+    auto entry = permissions_.find(permission);
+    if (entry == permissions_.end()) {
+        AdminPermission adminPermission(permission, (AdminType)permissionType);
+        permissions_.insert(std::make_pair(permission, adminPermission));
+        EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
+            permission.c_str(), permissionType);
+    } else if (entry->second.adminType != (AdminType)permissionType) {
+        EDMLOGE("AddPermission::conflict permission type");
+        return ERR_EDM_DENY_PERMISSION;
+    } else {
+        EDMLOGI("AddPermission::same permission has been added : %{public}s", permission.c_str());
+    }
+    EDMLOGD("AddPermission::return ok");
+    return ERR_OK;
 }
 
 void PermissionManager::GetReqPermission(const std::vector<std::string> &permissions,

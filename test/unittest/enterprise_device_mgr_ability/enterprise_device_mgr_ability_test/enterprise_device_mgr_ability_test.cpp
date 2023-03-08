@@ -25,6 +25,7 @@
 #include "plugin_manager_test.h"
 #include "edm_sys_manager_mock.h"
 #include "bundle_manager_mock.h"
+#include "iplugin.h"
 #include "managed_event.h"
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
@@ -160,8 +161,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestBMSQueryExtensionAbilityInfos, Test
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin22, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo22");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -190,8 +193,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin22, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin2, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -214,8 +219,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin2, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin33, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo33");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -244,8 +251,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin33, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdmin3, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION");
-    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION");
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo11");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");

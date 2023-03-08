@@ -197,7 +197,7 @@ protected:
     void SetSerializer(std::shared_ptr<IPolicySerializer<DT>> serializer);
 
     void InitAttribute(uint32_t policyCode, const std::string &policyName, const std::string &permission,
-        bool needSave = true, bool global = true);
+        std::uint32_t permissionType, bool needSave = true, bool global = true);
 
     /*
      * Registering Listening for HandlePolicy Events.
@@ -725,11 +725,13 @@ void IPluginTemplate<CT, DT>::SetSerializer(std::shared_ptr<IPolicySerializer<DT
 
 template<class CT, class DT>
 void IPluginTemplate<CT, DT>::InitAttribute(
-    uint32_t policyCode, const std::string &policyName, const std::string &permission, bool needSave, bool global)
+    uint32_t policyCode, const std::string &policyName, const std::string &permission,
+    std::uint32_t permissionType, bool needSave, bool global)
 {
     policyCode_ = policyCode;
     policyName_ = policyName;
     permission_ = permission;
+    permissionType_ = permissionType;
     needSave_ = needSave;
     isGlobal_ = global;
 }

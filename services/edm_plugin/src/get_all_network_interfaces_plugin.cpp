@@ -32,7 +32,8 @@ void GetAllNetworkInterfacesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<G
     EDMLOGI("GetAllNetworkInterfacesPlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(GET_NETWORK_INTERFACES, policyName);
-    ptr->InitAttribute(GET_NETWORK_INTERFACES, policyName, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO", false);
+    ptr->InitAttribute(GET_NETWORK_INTERFACES, policyName, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
 }
 

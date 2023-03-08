@@ -27,7 +27,8 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
     EDMLOGI("IsWifiActivePlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(IS_WIFI_ACTIVE, policyName);
-    ptr->InitAttribute(IS_WIFI_ACTIVE, policyName, "ohos.permission.ENTERPRISE_SET_WIFI", false);
+    ptr->InitAttribute(IS_WIFI_ACTIVE, policyName, "ohos.permission.ENTERPRISE_SET_WIFI",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }
 

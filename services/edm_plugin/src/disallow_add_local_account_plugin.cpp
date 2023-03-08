@@ -28,7 +28,8 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
     EDMLOGD("DisallowAddLocalAccountPlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(DISALLOW_ADD_LOCAL_ACCOUNT, policyName);
-    ptr->InitAttribute(DISALLOW_ADD_LOCAL_ACCOUNT, policyName, "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", true);
+    ptr->InitAttribute(DISALLOW_ADD_LOCAL_ACCOUNT, policyName, "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddLocalAccountPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);
