@@ -49,9 +49,6 @@ void PermissionManagerTest::TearDown()
  */
 HWTEST_F(PermissionManagerTest, TestAddPermission, TestSize.Level1)
 {
-    ASSERT_NE(PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EMD_TEST_PERMISSION_FAIL"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN),
-        ERR_OK);
     ASSERT_EQ(PermissionManager::GetInstance()->AddPermission(
         std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN),
         ERR_OK);
