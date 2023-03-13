@@ -40,7 +40,8 @@
     "subsystem": "customization",
     "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
     "features": [
-      "enterprise_device_management_feature_coverage = false"
+      "enterprise_device_management_feature_coverage",
+      "enterprise_device_management_feature_update"
     ],
     "adapted_system_type": [
       "standard"
@@ -71,6 +72,7 @@
         "safwk",
         "samgr",
         "time_service",
+        "updater",
         "wifi"
       ],
       "third_party": [
