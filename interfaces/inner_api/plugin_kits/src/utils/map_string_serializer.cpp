@@ -104,9 +104,8 @@ bool MapStringSerializer::WritePolicy(MessageParcel &reply, std::map<std::string
 bool MapStringSerializer::MergePolicy(std::vector<std::map<std::string, std::string>> &data,
     std::map<std::string, std::string> &result)
 {
-    for (auto iter = data.rbegin(); iter != data.rend(); ++iter) {
-        result = *iter;
-        return true;
+    if (!data.empty()) {
+        result = *(data.rbegin());
     }
     return true;
 }

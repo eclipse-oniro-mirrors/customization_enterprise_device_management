@@ -74,16 +74,9 @@ ErrCode ResetFactoryPlugin::OnSetPolicy()
     return ERR_OK;
 }
 
-void ResetFactoryPlugin::InitStatus()
-{
-    if (loadUpdaterSaStatus_ != LoadUpdaterSaStatus::WAIT_RESULT) {
-        loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
-    }
-}
-
 bool ResetFactoryPlugin::TryLoadUpdaterSa()
 {
-    InitStatus();
+    loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
     return LoadUpdaterSa();
 }
 
