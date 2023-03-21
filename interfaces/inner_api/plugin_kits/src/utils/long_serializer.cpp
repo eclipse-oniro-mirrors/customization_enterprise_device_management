@@ -43,9 +43,8 @@ bool LongSerializer::WritePolicy(MessageParcel &reply, int64_t &result)
 
 bool LongSerializer::MergePolicy(std::vector<int64_t> &data, int64_t &result)
 {
-    for (auto iter = data.rbegin(); iter != data.rend(); ++iter) {
-        result = *iter;
-        return true;
+    if (!data.empty()) {
+        result = *(data.rbegin());
     }
     return true;
 }
