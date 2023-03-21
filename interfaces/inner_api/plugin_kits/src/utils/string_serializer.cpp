@@ -43,9 +43,8 @@ bool StringSerializer::WritePolicy(MessageParcel &reply, std::string &result)
 
 bool StringSerializer::MergePolicy(std::vector<std::string> &data, std::string &result)
 {
-    for (auto iter = data.rbegin(); iter != data.rend(); ++iter) {
-        result = *iter;
-        return true;
+    if (!data.empty()) {
+        result = *(data.rbegin());
     }
     return true;
 }
