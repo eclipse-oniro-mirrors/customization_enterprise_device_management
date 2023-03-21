@@ -19,31 +19,14 @@
 #include "iplugin_template.h"
 #include "iplugin_manager.h"
 #include "string_serializer.h"
-#include "system_ability_load_callback_stub.h"
 
 namespace OHOS {
 namespace EDM {
-enum class LoadUpdaterSaStatus {
-    WAIT_RESULT = 0,
-    SUCCESS,
-    FAIL,
-};
-class ResetFactoryPlugin : public PluginSingleton<ResetFactoryPlugin, std::string>,
-    public SystemAbilityLoadCallbackStub {
+class ResetFactoryPlugin : public PluginSingleton<ResetFactoryPlugin, std::string> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr) override;
-    void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject) override;
-    void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
+
     ErrCode OnSetPolicy();
-
-private:
-    void InitStatus();
-    void WaitUpdaterSaInit();
-    bool CheckUpdaterSaLoaded();
-    bool LoadUpdaterSa();
-    bool TryLoadUpdaterSa();
-
-    LoadUpdaterSaStatus loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
 };
 } // namespace EDM
 } // namespace OHOS

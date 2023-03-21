@@ -51,6 +51,7 @@ edm_plugin_shared_library("device_info_plugin") {
   ]
 
   include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
+
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
 
   external_deps = [
@@ -64,11 +65,17 @@ edm_plugin_shared_library("device_control_plugin") {
 
   include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
 
-  external_deps = [
-    "c_utils:utils",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
-  ]
+  external_deps = [ "c_utils:utils" ]
+
+  if (!enterprise_device_management_feature_update) {
+    include_dirs +=
+        [ "$UPDATE_SA_PATH/updateservice/interfaces/inner_api/include" ]
+    external_deps += [ "update_service:updateservicekits" ]
+  } else {
+    include_dirs +=
+        [ "$UPDATE_SA_PATH/dupdate_engine/interfaces/inner_api/include" ]
+    external_deps += [ "dupdate_engine:updateservicekits" ]
+  }
 }
 
 edm_plugin_shared_library("wifi_manager_plugin") {

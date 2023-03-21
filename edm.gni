@@ -11,6 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+declare_args() {
+  enterprise_device_management_feature_update = false
+}
+
 SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
 EDM_SA_ROOT = "$SUBSYSTEM_DIR/services/edm"
 EDM_SRC_PATH = "$EDM_SA_ROOT/src"
