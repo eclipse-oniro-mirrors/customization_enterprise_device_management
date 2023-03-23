@@ -67,7 +67,8 @@ edm_plugin_shared_library("device_control_plugin") {
 
   external_deps = [ "c_utils:utils" ]
 
-  if (!enterprise_device_management_feature_update) {
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.updater_update_service)) {
     include_dirs +=
         [ "$UPDATE_SA_PATH/updateservice/interfaces/inner_api/include" ]
     external_deps += [ "update_service:updateservicekits" ]
