@@ -14,18 +14,24 @@
  */
 
 class EnterpriseAdminExtensionAbility {
-    onAdminEnabled() {
-        console.log('onAdminEnabled');
-    }
-    onAdminDisabled() {
-        console.log('onAdminDisabled');
-    }
-    onBundleAdded(bundleName) {
-        console.log('EnterpriseAdminExtensionAbility->OnBundleAdded:' + bundleName);
-    }
-    onBundleRemoved(bundleName) {
-        console.log('EnterpriseAdminExtensionAbility->OnBundleRemoved:' + bundleName);
-    }
+  onAdminEnabled() {
+    console.log('onAdminEnabled');
+  }
+  onAdminDisabled() {
+    console.log('onAdminDisabled');
+  }
+  onBundleAdded(bundleName) {
+    console.log('EnterpriseAdminExtensionAbility->OnBundleAdded:' + bundleName);
+  }
+  onBundleRemoved(bundleName) {
+    console.log('EnterpriseAdminExtensionAbility->OnBundleRemoved:' + bundleName);
+  }
+  onAppStart(bundleName) {
+    console.log('EnterpriseAdminExtensionAbility->onAppStart:' + bundleName);
+  }
+  onAppStop(bundleName) {
+    console.log('EnterpriseAdminExtensionAbility->onAppStop:' + bundleName);
+  }
 }
 
-export default EnterpriseAdminExtensionAbility
+export default EnterpriseAdminExtensionAbility;
