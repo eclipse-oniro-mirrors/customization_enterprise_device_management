@@ -44,7 +44,7 @@ HWTEST_F(NetworkManagerPluginTest, TestGetAllNetworkInterfaces, TestSize.Level1)
     std::string policyData{"TestGetAllNetworkInterfaces"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -59,7 +59,7 @@ HWTEST_F(NetworkManagerPluginTest, TestGetIpAddress, TestSize.Level1)
     std::string policyData{"TestGetIpAddress"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -74,7 +74,7 @@ HWTEST_F(NetworkManagerPluginTest, TestGetMac, TestSize.Level1)
     std::string policyData{"TestGetMac"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

@@ -25,7 +25,7 @@ class IsWifiActivePlugin : public PluginSingleton<IsWifiActivePlugin, bool> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

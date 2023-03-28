@@ -41,7 +41,7 @@ bool JsonSerializer::Serialize(const Json::Value &dataObj, std::string &jsonStri
 
 bool JsonSerializer::GetPolicy(MessageParcel &data, Json::Value &result)
 {
-    std::string jsonString = Str16ToStr8(data.ReadString16());
+    std::string jsonString = data.ReadString();
     return Deserialize(jsonString, result);
 }
 
@@ -51,7 +51,7 @@ bool JsonSerializer::WritePolicy(MessageParcel &reply, Json::Value &result)
     if (!Serialize(result, jsonString)) {
         return false;
     }
-    return reply.WriteString16(Str8ToStr16(jsonString));
+    return reply.WriteString(jsonString);
 }
 
 bool JsonSerializer::MergePolicy(std::vector<Json::Value> &data, Json::Value &result)

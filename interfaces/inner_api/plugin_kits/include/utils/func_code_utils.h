@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,12 +52,6 @@ public:
 
     static void RemovePolicy(std::vector<std::map<std::string, std::string>> &removeData,
         std::vector<std::map<std::string, std::string>> &currentData);
-
-    static void U16StringToString(const std::vector<std::u16string> &u16stringArray,
-        std::vector<std::string> &stringArray);
-
-    static void StringToU16String(const std::vector<std::string> &stringArray,
-        std::vector<std::u16string> &u16stringArray);
 };
 } // namespace EDM
 } // namespace OHOS

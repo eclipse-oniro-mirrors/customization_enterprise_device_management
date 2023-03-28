@@ -63,6 +63,7 @@ bool ParseLong(napi_env env, int64_t &param, napi_value args);
 bool ParseInt(napi_env env, int32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
+napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
 napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
@@ -71,6 +72,7 @@ void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
+bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, bool &hasCallback, bool &hasUserId);
 } // namespace EDM
 } // namespace OHOS
 

@@ -46,7 +46,8 @@ const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.ENTERPRISE_S
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
 const std::string HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME = "HandlePolicyBiFunctionPlg";
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies.json";
+const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies*";
+const std::string ADMIN_TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
 
 void NativeTokenGet(const char* perms[], int size)
 {
@@ -73,7 +74,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     edmMgr_ = EnterpriseDeviceMgrAbility::GetInstance();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
     edmMgr_->pluginMgr_ = PluginManager::GetInstance();
-    edmMgr_->policyMgr_ = PolicyManager::GetInstance();
+    edmMgr_->policyMgr_.reset(new (std::nothrow) PolicyManager(DEFAULT_USER_ID));
 }
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
@@ -81,10 +82,11 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME, "", "");
     edmMgr_->adminMgr_->instance_.reset();
     edmMgr_->pluginMgr_->instance_.reset();
-    edmMgr_->policyMgr_->instance_.reset();
+    edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
     CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
+    CmdUtils::ExecCmdSync(ADMIN_TEAR_DOWN_CMD);
 }
 
 // Give testAdmin and plugin_ Initial value
@@ -116,7 +118,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest001, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
 /**
@@ -133,7 +135,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest002, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName("com.edm.test.demoFail");
     MessageParcel data;
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -151,7 +153,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest003, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
@@ -175,7 +177,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest004, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
 }
 
@@ -204,7 +206,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest005, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
@@ -230,8 +232,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    data.WriteString16(Str8ToStr16("ErrorData"));
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    data.WriteString("ErrorData");
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_EDM_OPERATE_JSON);
 }
 
@@ -256,8 +258,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    data.WriteString16(Str8ToStr16("testValue"));
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    data.WriteString("testValue");
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
@@ -266,8 +268,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
-    data.WriteString16(Str8ToStr16("{\"name\" : \"testValue\"}"));
-    res = edmMgr_->HandleDevicePolicy(code, elementName, data);
+    data.WriteString("{\"name\" : \"testValue\"}");
+    res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
 
@@ -300,9 +302,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
-    data.WriteString16(Str8ToStr16("{\"name\" : \"testValue\"}"));
-    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data);
-    ASSERT_TRUE(res == ERR_EDM_OPERATE_JSON);
+    data.WriteString("{\"name\" : \"testValue\"}");
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -318,7 +320,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest001, TestSize.Le
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
@@ -337,7 +339,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest002, TestSize.Le
     data.WriteInt32(1);
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
 
@@ -359,7 +361,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest003, TestSize.Le
     MessageParcel reply;
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -382,7 +384,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest004, TestSize.Le
     MessageParcel reply;
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
 }
 
@@ -410,7 +412,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest005, TestSize.Le
     MessageParcel reply;
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
@@ -437,7 +439,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     MessageParcel reply;
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
-    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
 } // namespace TEST

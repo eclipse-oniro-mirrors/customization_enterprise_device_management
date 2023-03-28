@@ -24,6 +24,8 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t DEFAULT_USER_ID = 100;
+
 class IPlugin {
 public:
     /*
@@ -36,7 +38,7 @@ public:
      * @return If the operation is successful, ERR_OK is returned.
      */
     virtual ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
-        bool &isChanged) = 0;
+        bool &isChanged, int32_t userId) = 0;
 
     /*
      * Merge policy data
@@ -46,11 +48,14 @@ public:
      * @return If ERR_OK is returned,policyData incoming and outgoing data will be saved to a file.
      */
     virtual ErrCode MergePolicyData(const std::string &adminName, std::string &policyData);
-    virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged) = 0;
-    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData) = 0;
-    virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData) = 0;
+    virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) = 0;
+    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) = 0;
+    virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) = 0;
     virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);
-    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) = 0;
 
     std::uint32_t GetCode();
     std::string GetPolicyName();

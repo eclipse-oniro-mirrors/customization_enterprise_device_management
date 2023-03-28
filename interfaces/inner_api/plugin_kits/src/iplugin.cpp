@@ -55,7 +55,7 @@ ErrCode IPlugin::MergePolicyData(const std::string &adminName, std::string &merg
 
 ErrCode IPlugin::WritePolicyToParcel(const std::string &policyJsonData, MessageParcel &reply)
 {
-    return reply.WriteString16(Str8ToStr16(policyJsonData)) ? ERR_OK : ERR_EDM_OPERATE_PARCEL;
+    return reply.WriteString(policyJsonData) ? ERR_OK : ERR_EDM_OPERATE_PARCEL;
 }
 
 IPlugin::~IPlugin() {}

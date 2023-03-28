@@ -54,7 +54,7 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permiss
 const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
     "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*.json";
+const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
 
 void NativeTokenGet(const char* perms[], int size)
 {
@@ -105,7 +105,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
     edmMgr_ = EnterpriseDeviceMgrAbility::GetInstance();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->policyMgr_ = PolicyManager::GetInstance();
+    edmMgr_->policyMgr_.reset(new (std::nothrow) PolicyManager(DEFAULT_USER_ID));
     edmMgr_->pluginMgr_ = PluginManager::GetInstance();
 
     edmSysManager_ = std::make_shared<EdmSysManager>();
@@ -115,7 +115,12 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
-    edmMgr_ = nullptr;
+    edmMgr_->adminMgr_->instance_.reset();
+    edmMgr_->pluginMgr_->instance_.reset();
+    edmMgr_->policyMgr_.reset();
+    edmMgr_->instance_.clear();
+    edmMgr_.clear();
+    CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
 

@@ -34,8 +34,8 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin(uint32_t code, Mes
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestEnableAdmin code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    std::vector<std::u16string> writeArray{Str8ToStr16("com.edm.test.demo")};
-    reply.WriteString16Vector(writeArray);
+    std::vector<std::string> writeArray{"com.edm.test.demo"};
+    reply.WriteStringVector(writeArray);
     return 0;
 }
 
@@ -45,11 +45,11 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestMapEnableAdminTwoSuc(uint32_t 
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestMapEnableAdminTwoSuc code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    std::vector<std::u16string> writeArray{Str8ToStr16("com.edm.test.demo")};
-    reply.WriteString16Vector(writeArray);
+    std::vector<std::string> writeArray{"com.edm.test.demo"};
+    reply.WriteStringVector(writeArray);
 
-    std::vector<std::u16string> writeArray2{Str8ToStr16("set date time policy")};
-    reply.WriteString16Vector(writeArray2);
+    std::vector<std::string> writeArray2{"set date time policy"};
+    reply.WriteStringVector(writeArray2);
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -90,8 +90,8 @@ HWTEST_F(PolicySerializerTest, STRING, TestSize.Level1)
     ASSERT_TRUE(value.length() == 2);
 
     MessageParcel messageParcel1;
-    std::u16string value16 = u"s一";
-    messageParcel1.WriteString16(value16);
+    std::string value2 = "s一";
+    messageParcel1.WriteString(value2);
     value = "";
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value == "s一");
@@ -99,9 +99,9 @@ HWTEST_F(PolicySerializerTest, STRING, TestSize.Level1)
     MessageParcel messageParcel2;
     value = "s二";
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-    value16 = u"";
-    ASSERT_TRUE(messageParcel2.ReadString16(value16));
-    ASSERT_TRUE(value16 == u"s二");
+    value2 = "";
+    ASSERT_TRUE(messageParcel2.ReadString(value2));
+    ASSERT_TRUE(value2 == "s二");
 
     vector<string> policyValues { "v1", "v2", "v3" };
     ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
@@ -129,11 +129,8 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     ASSERT_FALSE(serializer->Deserialize(R"(["v1","v2","v3","v4","v5""v6"])", value));
 
     MessageParcel messageParcel1;
-    vector<std::u16string> value16 = {
-        Str8ToStr16("一"), Str8ToStr16("二"), Str8ToStr16("三"),
-        Str8ToStr16("四"), Str8ToStr16("五"), Str8ToStr16("六"),
-        Str8ToStr16("七") };
-    messageParcel1.WriteString16Vector(value16);
+    vector<std::string> value2 = { "一", "二", "三", "四", "五", "六", "七" };
+    messageParcel1.WriteStringVector(value2);
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.size() == 7);
@@ -141,9 +138,9 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     MessageParcel messageParcel2;
     value = { "v1", "v2", "v3" };
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-    value16 = {};
-    messageParcel2.ReadString16Vector(&value16);
-    ASSERT_TRUE(value16.size() == 3);
+    value2 = {};
+    messageParcel2.ReadStringVector(&value2);
+    ASSERT_TRUE(value2.size() == 3);
 
     vector<vector<string>> policyValues {{ "v1",   "v2",   "v3" },
                                          { "vv1",  "vv2",  "vv3" },
@@ -221,12 +218,14 @@ HWTEST_F(PolicySerializerTest, ArrayMapStringGetPolicy, TestSize.Level1)
     auto serializer = ArrayMapSerializer::GetInstance();
     vector<map<string, string>> value;
     MessageParcel messageParcel1;
-    vector<std::u16string> value16 = {
-        uR"({"id":"1","name":"leon","desc":"hello world"})", uR"({"id":"2","name":"job","desc":"two"})",
-        uR"({"id":"3","name":"james","desc":"three"})", uR"({"id":"4","name":"bao","desc":"four"})",
-        uR"({"id":"5","name":"fox","desc":"five"})"
+    vector<std::string> value2 = {
+        R"({"id":"1","name":"leon","desc":"hello world"})",
+        R"({"id":"2","name":"job","desc":"two"})",
+        R"({"id":"3","name":"james","desc":"three"})",
+        R"({"id":"4","name":"bao","desc":"four"})",
+        R"({"id":"5","name":"fox","desc":"five"})"
     };
-    messageParcel1.WriteString16Vector(value16);
+    messageParcel1.WriteStringVector(value2);
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.size() == 5);
 }
@@ -323,16 +322,16 @@ HWTEST_F(PolicySerializerTest, MAP_STRING, TestSize.Level1)
     ASSERT_FALSE(serializer->Deserialize(R"(["v1","v2","v3","v4","v5","v6"])", value));
 
     MessageParcel messageParcel1;
-    vector<std::u16string> key16 = {
-        Str8ToStr16("一"), Str8ToStr16("二"), Str8ToStr16("三"),
-        Str8ToStr16("四"), Str8ToStr16("五"), Str8ToStr16("六"),
-        Str8ToStr16("七") };
-    messageParcel1.WriteString16Vector(key16);
-    vector<std::u16string> value16 = {
-        Str8ToStr16("值"), Str8ToStr16("值"), Str8ToStr16("值"),
-        Str8ToStr16("值"), Str8ToStr16("值"), Str8ToStr16("值"),
-        Str8ToStr16("值") };
-    messageParcel1.WriteString16Vector(value16);
+    vector<std::string> key2 = {
+        "一", "二", "三",
+        "四", "五", "六",
+        "七" };
+    messageParcel1.WriteStringVector(key2);
+    vector<std::string> value2 = {
+        "值", "值", "值",
+        "值", "值", "值",
+        "值" };
+    messageParcel1.WriteStringVector(value2);
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.size() == 7);
@@ -363,17 +362,17 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_002, TestSize.Level1)
         { "k4", "v4" },
     };
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-    vector<std::u16string> key16;
-    vector<std::u16string> value16;
-    messageParcel2.ReadString16Vector(&key16);
-    messageParcel2.ReadString16Vector(&value16);
-    ASSERT_TRUE(key16.size() == 4);
-    for (std::uint32_t i = 0; i < key16.size(); ++i) {
-        ASSERT_EQ(Str16ToStr8(key16.at(i)), "k" + std::to_string(i + 1));
+    vector<std::string> key4;
+    vector<std::string> value4;
+    messageParcel2.ReadStringVector(&key4);
+    messageParcel2.ReadStringVector(&value4);
+    ASSERT_TRUE(key4.size() == 4);
+    for (std::uint32_t i = 0; i < key4.size(); ++i) {
+        ASSERT_EQ(key4.at(i), "k" + std::to_string(i + 1));
     }
-    ASSERT_TRUE(value16.size() == 4);
-    for (std::uint32_t i = 0; i < value16.size(); ++i) {
-        ASSERT_EQ(Str16ToStr8(value16.at(i)), "v" + std::to_string(i + 1));
+    ASSERT_TRUE(value4.size() == 4);
+    for (std::uint32_t i = 0; i < value4.size(); ++i) {
+        ASSERT_EQ(value4.at(i), "v" + std::to_string(i + 1));
     }
 
     map<string, string> value1 = {
@@ -417,8 +416,8 @@ HWTEST_F(PolicySerializerTest, JSON, TestSize.Level1)
     ASSERT_TRUE(value.isArray() && value.size() == 6);
 
     MessageParcel messageParcel1;
-    std::u16string value16 = Str8ToStr16(R"(["v1","v2"])");
-    messageParcel1.WriteString16(value16);
+    std::string value2 = R"(["v1","v2"])";
+    messageParcel1.WriteString(value2);
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.isArray() && value.size() == 2);
@@ -429,9 +428,9 @@ HWTEST_F(PolicySerializerTest, JSON, TestSize.Level1)
     value[1] = 2;
     value[3] = 3;
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-    value16 = Str8ToStr16("");
-    messageParcel2.ReadString16(value16);
-    jsonString = Str16ToStr8(value16);
+    value2 = "";
+    messageParcel2.ReadString(value2);
+    jsonString = value2;
     sd = remove_if(jsonString.begin(), jsonString.end(), isspace);
     jsonString.erase(sd, jsonString.end());
     ASSERT_EQ(jsonString, R"([1,2,null,3])");

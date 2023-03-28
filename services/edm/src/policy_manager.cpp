@@ -23,16 +23,17 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string EDM_POLICY_JSON_FILE = "/data/service/el1/public/edm/device_policies.json";
-const std::string EDM_POLICY_JSON_FILE_BAK = "/data/service/el1/public/edm/device_policies.json.bak";
+const std::string EDM_POLICY_JSON_FILE_HEAD = "/data/service/el1/public/edm/device_policies_";
+const std::string EDM_POLICY_JSON_FILE_FOOT = ".json";
+const std::string EDM_POLICY_JSON_FILE_BAK_FOOT = ".bak.json";
 constexpr unsigned int INVALID_INDEX = -1;
 
-std::shared_ptr<PolicyManager> PolicyManager::instance_;
-std::mutex PolicyManager::mutexLock_;
-
-PolicyManager::PolicyManager()
+PolicyManager::PolicyManager(int32_t userId)
 {
     EDMLOGD("PolicyManager::PolicyManager\n");
+    userIdState_ = userId;
+    edmPolicyJsonFile_ = EDM_POLICY_JSON_FILE_HEAD + std::to_string(userId) + EDM_POLICY_JSON_FILE_FOOT;
+    edmPolicyJsonBackFile_ = EDM_POLICY_JSON_FILE_HEAD + std::to_string(userId) + EDM_POLICY_JSON_FILE_BAK_FOOT;
 }
 
 PolicyManager::~PolicyManager()
@@ -154,12 +155,12 @@ ErrCode PolicyManager::ParseDevicePolicyJsonFile(const Json::Value &policyRoot)
 
 ErrCode PolicyManager::LoadPolicy()
 {
-    if (access(EDM_POLICY_JSON_FILE.c_str(), F_OK) != 0) {
+    if (access(edmPolicyJsonFile_.c_str(), F_OK) != 0) {
         EDMLOGI("LoadPolicy: create an empty json file\n");
         CreateEmptyJsonFile();
     }
 
-    std::ifstream ifs(EDM_POLICY_JSON_FILE);
+    std::ifstream ifs(edmPolicyJsonFile_);
     if (!ifs.is_open()) {
         EDMLOGE("LoadPolicy: open edm policy json file failed\n");
         return ERR_EDM_POLICY_OPEN_JSON_FAILED;
@@ -179,7 +180,7 @@ ErrCode PolicyManager::LoadPolicy()
 void PolicyManager::SavePolicy()
 {
     /* the default file permission is 600, no need to change  */
-    std::ofstream ofs(EDM_POLICY_JSON_FILE_BAK, std::ofstream::binary);
+    std::ofstream ofs(edmPolicyJsonBackFile_, std::ofstream::binary);
     if (!ofs.is_open()) {
         EDMLOGW("SavePolicy open edm policy json file failed\n");
         return;
@@ -195,13 +196,19 @@ void PolicyManager::SavePolicy()
     ofs.flush();
     ofs.close();
     double time2 = clock();
-    std::rename(EDM_POLICY_JSON_FILE_BAK.c_str(), EDM_POLICY_JSON_FILE.c_str());
-    if (!ChangeModeFile(EDM_POLICY_JSON_FILE, S_IRUSR | S_IWUSR)) {
+    std::rename(edmPolicyJsonBackFile_.c_str(), edmPolicyJsonFile_.c_str());
+    if (!ChangeModeFile(edmPolicyJsonFile_, S_IRUSR | S_IWUSR)) {
         EDMLOGW("PolicyManager::ChangeModeFile failed");
     }
     double time3 = clock();
     EDMLOGI("SavePolicy spend time %{public}f, %{public}f", (time2 - time1) / CLOCKS_PER_SEC,
         (time3 - time2) / CLOCKS_PER_SEC);
+
+    if (adminPolicies_.empty()) {
+        bool delFlag = OHOS::RemoveFile(edmPolicyJsonFile_);
+        EDMLOGD("PolicyManager::SavePolicy delete filename = %{public}s, delFlag = %{public}d",
+            edmPolicyJsonBackFile_.c_str(), delFlag);
+    }
 }
 
 ErrCode PolicyManager::GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems)
@@ -560,19 +567,6 @@ void PolicyManager::CreateEmptyJsonFile()
 void PolicyManager::Init()
 {
     LoadPolicy();
-}
-
-std::shared_ptr<PolicyManager> PolicyManager::GetInstance()
-{
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
-        if (instance_ == nullptr) {
-            instance_.reset(new (std::nothrow) PolicyManager());
-        }
-    }
-
-    IPolicyManager::policyManagerInstance_ = instance_.get();
-    return instance_;
 }
 } // namespace EDM
 } // namespace OHOS

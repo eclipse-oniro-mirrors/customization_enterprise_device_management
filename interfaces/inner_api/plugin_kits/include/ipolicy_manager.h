@@ -33,7 +33,6 @@ public:
     }
     virtual ~IPolicyManager() {}
 
-protected:
     static IPolicyManager* policyManagerInstance_;
 };
 

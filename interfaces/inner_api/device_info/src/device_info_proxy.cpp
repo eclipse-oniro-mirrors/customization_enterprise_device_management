@@ -50,6 +50,7 @@ int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::stri
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0); // without userid
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(policyCode, data, reply);

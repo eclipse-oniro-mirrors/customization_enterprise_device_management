@@ -34,14 +34,11 @@ using AdminValueItemsMap = std::unordered_map<std::string, std::string>; /* Admi
  * provide the Get and Set api to operate on json file, the read and write json
  * file depend on jsoncpp library
  */
-class PolicyManager : public std::enable_shared_from_this<PolicyManager>, IPolicyManager {
+class PolicyManager : public IPolicyManager {
 public:
-    /*
-     * The static function used to get singleton instance of PolicyManager.
-     *
-     * @return return thr shared pointer of PolicyManager
-     */
-    static std::shared_ptr<PolicyManager> GetInstance();
+    PolicyManager(int32_t userId);
+
+    void SetUserIdState(int32_t userId);
 
     /*
      * This function is used to get all policy items of an admin, an admin represent an EDM application
@@ -166,15 +163,11 @@ private:
      */
     Json::Value policyRoot_;
 
-    /*
-     * This member is the singleton instance of PolicyManager
-     */
-    static std::shared_ptr<PolicyManager> instance_;
+    int32_t userIdState_ = 100;
 
-    /*
-     * This member is the mutex lock used to ensure the instance_ is unique
-     */
-    static std::mutex mutexLock_;
+    std::string edmPolicyJsonFile_;
+
+    std::string edmPolicyJsonBackFile_;
 };
 } // namespace EDM
 } // namespace OHOS

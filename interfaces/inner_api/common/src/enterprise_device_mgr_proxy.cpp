@@ -352,7 +352,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, in
     int32_t ret = ERR_INVALID_VALUE;
     policyData = "";
     if (GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK)) {
-        policyData = Str16ToStr8(reply.ReadString16());
+        policyData = reply.ReadString();
         return true;
     }
     return false;
@@ -377,14 +377,14 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, in
     if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
         return false;
     }
-    std::vector<std::u16string> readVector16;
-    if (!reply.ReadString16Vector(&readVector16)) {
+    std::vector<std::string> readVector;
+    if (!reply.ReadStringVector(&readVector)) {
         return false;
     }
     policyData.clear();
-    if (!readVector16.empty()) {
-        for (const auto &str16 : readVector16) {
-            policyData.push_back(Str16ToStr8(str16));
+    if (!readVector.empty()) {
+        for (const auto &str : readVector) {
+            policyData.push_back(str);
         }
     }
     return true;
@@ -409,28 +409,21 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, i
     if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
         return false;
     }
-    std::vector<std::u16string> keys16;
-    std::vector<std::u16string> values16;
-    if (!reply.ReadString16Vector(&keys16)) {
+    std::vector<std::string> keys;
+    if (!reply.ReadStringVector(&keys)) {
         EDMLOGE("EnterpriseDeviceMgrProxy::read map keys fail.");
         return false;
     }
-    if (!reply.ReadString16Vector(&values16)) {
+    std::vector<std::string> values;
+    if (!reply.ReadStringVector(&values)) {
         EDMLOGE("EnterpriseDeviceMgrProxy::read map values fail.");
         return false;
     }
-    if (keys16.size() != values16.size()) {
+    if (keys.size() != values.size()) {
         EDMLOGE("EnterpriseDeviceMgrProxy::read map fail.");
         return false;
     }
-    std::vector<std::string> keys;
-    std::vector<std::string> values;
-    for (const std::u16string &key : keys16) {
-        keys.push_back(Str16ToStr8(key));
-    }
-    for (const std::u16string &value : values16) {
-        values.push_back(Str16ToStr8(value));
-    }
+
     policyData.clear();
     for (uint64_t i = 0; i < keys.size(); ++i) {
         policyData.insert(std::make_pair(keys.at(i), values.at(i)));
@@ -507,10 +500,10 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::uint32_t type, std::vector<
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmins get result code fail.");
         return;
     }
-    std::vector<std::u16string> readArray;
-    reply.ReadString16Vector(&readArray);
-    for (const std::u16string &item : readArray) {
-        enabledAdminList.push_back(Str16ToStr8(item));
+    std::vector<std::string> readArray;
+    reply.ReadStringVector(&readArray);
+    for (const std::string &item : readArray) {
+        enabledAdminList.push_back(item);
     }
 }
 } // namespace EDM
