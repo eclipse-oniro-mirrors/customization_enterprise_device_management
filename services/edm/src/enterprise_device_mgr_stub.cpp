@@ -27,6 +27,8 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t DEFAULT_USER_ID = 100;
+
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub()
 {
     AddCallFuncMap();
@@ -84,12 +86,18 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
     if (POLICY_FLAG(code)) {
         EDMLOGD("POLICY_FLAG(code:%{public}x)\n", code);
+        int32_t hasUserId;
+        int32_t userId = DEFAULT_USER_ID;
+        data.ReadInt32(hasUserId);
+        if (hasUserId == 1) {
+            data.ReadInt32(userId);
+        }
         if (FUNC_TO_OPERATE(code) == static_cast<int>(FuncOperateType::GET)) {
             EDMLOGD("GetDevicePolicyInner");
-            return GetDevicePolicyInner(code, data, reply);
+            return GetDevicePolicyInner(code, data, reply, userId);
         } else {
             EDMLOGD("HandleDevicePolicyInner");
-            return HandleDevicePolicyInner(code, data, reply);
+            return HandleDevicePolicyInner(code, data, reply, userId);
         }
     } else {
         EDMLOGE("!POLICY_FLAG(code)");
@@ -137,7 +145,8 @@ ErrCode EnterpriseDeviceMgrStub::DisableSuperAdminInner(MessageParcel &data, Mes
     return retCode;
 }
 
-ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
@@ -145,14 +154,15 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
-    ErrCode errCode = HandleDevicePolicy(code, *admin, data);
+    ErrCode errCode = HandleDevicePolicy(code, *admin, data, userId);
     reply.WriteInt32(errCode);
     return errCode;
 }
 
-ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply)
+ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
-    return GetDevicePolicy(code, data, reply);
+    return GetDevicePolicy(code, data, reply, userId);
 }
 
 ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply)

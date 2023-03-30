@@ -46,8 +46,9 @@ public:
         int32_t userId) override;
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(std::string &bundleName) override;
-    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data) override;
-    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
+        int32_t userId) override;
+    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
@@ -73,7 +74,7 @@ private:
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     ErrCode CheckCallingUid(std::string &bundleName);
-    ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
+    ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue, int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode GetAllPermissionsByAdmin(const std::string& bundleInfoName,
         std::vector<std::string> &permissionList, int32_t userId);
@@ -94,9 +95,12 @@ private:
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+    void GetAndSwitchPolicyManagerByUserId(int32_t userId);
+
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
+    std::map<std::uint32_t, std::shared_ptr<PolicyManager>> policyMgrMap_;
     std::shared_ptr<AdminManager> adminMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;

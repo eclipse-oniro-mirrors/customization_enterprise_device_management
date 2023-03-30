@@ -20,7 +20,13 @@ namespace OHOS {
 namespace EDM {
 bool StringSerializer::Deserialize(const std::string &jsonString, std::string &dataObj)
 {
-    dataObj = jsonString;
+    if (!jsonString.empty()) {
+        std::string jsonStr = jsonString;
+        jsonStr.erase(remove(jsonStr.begin(), jsonStr.end(), '\"'), jsonStr.end());
+        dataObj = jsonStr;
+    } else {
+        dataObj = jsonString;
+    }
     return true;
 }
 
@@ -32,13 +38,13 @@ bool StringSerializer::Serialize(const std::string &dataObj, std::string &jsonSt
 
 bool StringSerializer::GetPolicy(MessageParcel &data, std::string &result)
 {
-    result = Str16ToStr8(data.ReadString16());
+    result = data.ReadString();
     return true;
 }
 
 bool StringSerializer::WritePolicy(MessageParcel &reply, std::string &result)
 {
-    return reply.WriteString16(Str8ToStr16(result));
+    return reply.WriteString(result);
 }
 
 bool StringSerializer::MergePolicy(std::vector<std::string> &data, std::string &result)

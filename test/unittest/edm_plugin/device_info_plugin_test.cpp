@@ -39,7 +39,7 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceSerial, TestSize.Level1)
     std::string policyData{"TestString"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -54,7 +54,7 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDisplayVersion, TestSize.Level1)
     std::string policyData{"TestString"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

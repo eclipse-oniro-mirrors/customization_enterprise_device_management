@@ -105,22 +105,6 @@ void ArrayPolicyUtils::RemovePolicy(std::vector<std::string> &removeData, std::v
     }
 }
 
-void ArrayPolicyUtils::U16StringToString(const std::vector<std::u16string> &u16stringArray,
-    std::vector<std::string> &stringArray)
-{
-    for (const std::u16string &item : u16stringArray) {
-        stringArray.push_back(Str16ToStr8(item));
-    }
-}
-
-void ArrayPolicyUtils::StringToU16String(const std::vector<std::string> &stringArray,
-    std::vector<std::u16string> &u16stringArray)
-{
-    for (const std::string &item : stringArray) {
-        u16stringArray.push_back(Str8ToStr16(item));
-    }
-}
-
 void ArrayPolicyUtils::RemovePolicy(std::vector<std::map<std::string, std::string>> &removeData,
     std::vector<std::map<std::string, std::string>> &currentData)
 {

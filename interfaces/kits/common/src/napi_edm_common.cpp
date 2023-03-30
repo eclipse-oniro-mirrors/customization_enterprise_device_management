@@ -128,6 +128,39 @@ bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr)
     return true;
 }
 
+napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args)
+{
+    EDMLOGD("begin to parse string array");
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        return nullptr;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
+    EDMLOGD("length=%{public}ud", arrayLength);
+    for (uint32_t j = 0; j < arrayLength; j++) {
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_get_element(env, args, j, &value));
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, value, &valueType));
+        if (valueType != napi_string) {
+            stringArray.clear();
+            return nullptr;
+        }
+        std::string str;
+        GetStringFromNAPI(env, value, str);
+        stringArray.push_back(str);
+    }
+    // create result code
+    napi_value result;
+    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    return result;
+}
+
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
 {
     if (data == nullptr) {
@@ -310,6 +343,41 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
         napi_set_element(env, result, idx, obj);
         idx++;
     }
+}
+
+bool CheckAdminWithUserIdParamType(napi_env env, size_t argc,
+    napi_value* argv, bool &hasCallback, bool &hasUserId)
+{
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        EDMLOGE("CheckAdminWithUserIdParamType admin type check failed");
+        return false;
+    }
+    EDMLOGI("argc = %{public}zu", argc);
+    if (argc == ARGS_SIZE_ONE) {
+        hasCallback = false;
+        hasUserId = false;
+        EDMLOGI("hasCallback = false; hasUserId = false;");
+        return true;
+    }
+
+    if (argc == ARGS_SIZE_TWO) {
+        if (MatchValueType(env, argv[ARR_INDEX_ONE], napi_function)) {
+            hasCallback = true;
+            hasUserId = false;
+            EDMLOGI("hasCallback = true; hasUserId = false;");
+            return true;
+        } else {
+            hasCallback = false;
+            hasUserId = true;
+            EDMLOGI("hasCallback = false;  hasUserId = true;");
+            return MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
+        }
+    }
+    hasCallback = true;
+    hasUserId = true;
+    EDMLOGI("hasCallback = true; hasUserId = true;");
+    return MatchValueType(env, argv[ARR_INDEX_ONE], napi_number) &&
+        MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
 }
 } // namespace EDM
 } // namespace OHOS

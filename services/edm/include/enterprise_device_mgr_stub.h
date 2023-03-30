@@ -36,8 +36,8 @@ private:
     ErrCode EnableAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode DisableAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode GetReqEdmPermissionsInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);

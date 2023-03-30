@@ -35,7 +35,7 @@ void GetMacPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std:
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetMacPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode GetMacPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("GetMacPlugin OnGetPolicy.");
     nmd::InterfaceConfigurationParcel config;

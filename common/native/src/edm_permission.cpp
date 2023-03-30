@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,14 +52,14 @@ bool EdmPermission::operator == (const EdmPermission &permission) const
 
 bool EdmPermission::ReadFromParcel(Parcel &parcel)
 {
-    permissionName_ = Str16ToStr8(parcel.ReadString16());
+    permissionName_ = parcel.ReadString();
     adminType_ = parcel.ReadUint32();
     return true;
 }
 
 bool EdmPermission::Marshalling(Parcel &parcel) const
 {
-    parcel.WriteString16(Str8ToStr16(permissionName_));
+    parcel.WriteString(permissionName_);
     parcel.WriteUint32(adminType_);
     return true;
 }

@@ -28,7 +28,7 @@ public:
 
     ErrCode OnSetPolicy(bool &data);
 
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data);
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, int32_t userId);
 private:
     ErrCode SetGlobalOsAccountConstraints(bool data);
 };

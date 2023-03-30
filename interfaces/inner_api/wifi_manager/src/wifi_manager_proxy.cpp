@@ -51,6 +51,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0); // without userid
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(IS_WIFI_ACTIVE, data, reply);

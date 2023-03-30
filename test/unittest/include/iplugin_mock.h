@@ -30,26 +30,28 @@ public:
     virtual ~IPluginMock() {}
 
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
-        bool &isChanged) override
+        bool &isChanged, int32_t userId) override
     {
         return 0;
     }
 
-    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged) override {}
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
+        bool isGlobalChanged, int32_t userId) override {}
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData) override
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
     {
         return 0;
     }
 
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData) override {}
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override {}
 
     void MockSetPolicyName(std::string policyName)
     {
         policyName_ = policyName;
     }
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
     {
         return 0;
     }

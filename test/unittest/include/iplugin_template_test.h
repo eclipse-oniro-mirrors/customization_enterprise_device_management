@@ -201,7 +201,7 @@ public:
 
 class HandlePolicyBiFunctionPlg : public PluginSingleton<HandlePolicyBiFunctionPlg, std::string> {
 public:
-    ErrCode SetFunction(std::string &data, std::string &currentData)
+    ErrCode SetFunction(std::string &data, std::string &currentData, int32_t userId)
     {
         std::string errStr{"ErrorData"};
         if (data == errStr) {
@@ -211,7 +211,7 @@ public:
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(std::string &data, std::string &currentData)
+    ErrCode RemoveFunction(std::string &data, std::string &currentData, int32_t userId)
     {
         currentData = "";
         return ERR_OK;
@@ -253,12 +253,12 @@ public:
 
 class HandleDoneBiBoolConsumerPlg : public PluginSingleton<HandleDoneBiBoolConsumerPlg, std::string> {
 public:
-    void SetDone(std::string &data, bool isGlobalChanged)
+    void SetDone(std::string &data, bool isGlobalChanged, int32_t userId)
     {
         g_visit = true;
     }
 
-    void RemoveDone(std::string &data, bool isGlobalChanged)
+    void RemoveDone(std::string &data, bool isGlobalChanged, int32_t userId)
     {
         g_visit = true;
     }
@@ -294,7 +294,7 @@ public:
 
 class AdminRemoveBiFunctionPlg : public PluginSingleton<AdminRemoveBiFunctionPlg, std::string> {
 public:
-    ErrCode RemoveAdmin(const std::string &adminName, std::string &data)
+    ErrCode RemoveAdmin(const std::string &adminName, std::string &data, int32_t userId)
     {
         g_visit = true;
         return ERR_OK;
@@ -329,7 +329,7 @@ public:
 
 class AdminRemoveDoneBiBiConsumerPlg : public PluginSingleton<AdminRemoveDoneBiBiConsumerPlg, std::string> {
 public:
-    void RemoveAdminDone(const std::string &adminName, std::string &data)
+    void RemoveAdminDone(const std::string &adminName, std::string &data, int32_t userId)
     {
         g_visit = true;
     }
@@ -346,13 +346,13 @@ public:
 
 class HandlePolicyJsonBiFunctionPlg : public PluginSingleton<HandlePolicyJsonBiFunctionPlg, Json::Value> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData)
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
     {
         currentData = data;
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData)
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
     {
         currentData = Json::nullValue;
         return ERR_OK;
@@ -371,13 +371,13 @@ public:
 
 class HandlePolicyBiFunctionUnsavePlg : public PluginSingleton<HandlePolicyBiFunctionUnsavePlg, Json::Value> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData)
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
     {
         currentData = data;
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData)
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
     {
         currentData = Json::nullValue;
         return ERR_OK;

@@ -42,7 +42,7 @@ HWTEST_F(IsWifiActivePluginTest, TestIsWifiActive, TestSize.Level1)
     std::string policyData{"TestIsWifiActive"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

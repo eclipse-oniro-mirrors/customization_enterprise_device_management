@@ -44,13 +44,13 @@ HWTEST_F(GetDeviceNamePluginTest, TestOnPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     EdmDataAbilityUtils::SetResult("test Failed");
-    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply);
+    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code != ERR_OK);
     EdmDataAbilityUtils::SetResult("test value nullptr");
-    code = plugin->OnGetPolicy(policyValue, data, reply);
+    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
     EdmDataAbilityUtils::SetResult("test success");
-    code = plugin->OnGetPolicy(policyValue, data, reply);
+    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 } // namespace TEST

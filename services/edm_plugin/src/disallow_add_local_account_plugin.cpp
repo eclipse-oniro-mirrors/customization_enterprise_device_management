@@ -40,7 +40,7 @@ ErrCode DisallowAddLocalAccountPlugin::OnSetPolicy(bool &data)
     return SetGlobalOsAccountConstraints(data);
 }
 
-ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data)
+ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
 {
     return data ? SetGlobalOsAccountConstraints(!data) : ERR_OK;
 }

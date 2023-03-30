@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,8 +38,8 @@ EntInfo::~EntInfo()
 
 bool EntInfo::Marshalling(Parcel &parcel) const
 {
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(enterpriseName));
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(description));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, enterpriseName);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, description);
     return true;
 }
 
@@ -56,8 +56,8 @@ EntInfo *EntInfo::Unmarshalling(Parcel &parcel)
 
 bool EntInfo::ReadFromParcel(Parcel &parcel)
 {
-    enterpriseName = Str16ToStr8(parcel.ReadString16());
-    description = Str16ToStr8(parcel.ReadString16());
+    enterpriseName = parcel.ReadString();
+    description = parcel.ReadString();
     return true;
 }
 } // namespace EDM
