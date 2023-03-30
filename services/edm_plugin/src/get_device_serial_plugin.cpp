@@ -32,7 +32,8 @@ void GetDeviceSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDevice
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetDeviceSerialPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode GetDeviceSerialPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("GetDeviceSerialPlugin OnGetPolicy.");
     std::string serial = GetSerial();

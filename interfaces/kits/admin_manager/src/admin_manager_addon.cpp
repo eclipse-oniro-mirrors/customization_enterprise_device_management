@@ -129,39 +129,6 @@ bool AdminManager::checkEnableAdminParamType(napi_env env, size_t argc,
         MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
 }
 
-bool AdminManager::checkAdminWithUserIdParamType(napi_env env, size_t argc,
-    napi_value* argv, bool &hasCallback, bool &hasUserId)
-{
-    EDMLOGI("argc = %{public}zu", argc);
-    if (argc == ARGS_SIZE_ONE) {
-        hasCallback = false;
-        hasUserId = false;
-        EDMLOGI("hasCallback = false; hasUserId = false;");
-        return MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    }
-
-    if (argc == ARGS_SIZE_TWO) {
-        if (MatchValueType(env, argv[ARR_INDEX_ONE], napi_function)) {
-            hasCallback = true;
-            hasUserId = false;
-            EDMLOGI("hasCallback = true; hasUserId = false;");
-            return MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-        } else {
-            hasCallback = false;
-            hasUserId = true;
-            EDMLOGI("hasCallback = false;  hasUserId = true;");
-            return MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-                MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-        }
-    }
-    hasCallback = true;
-    hasUserId = true;
-    EDMLOGI("hasCallback = true; hasUserId = true;");
-    return MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_number) &&
-        MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-}
-
 napi_value AdminManager::DisableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisableAdmin called");
@@ -179,7 +146,7 @@ napi_value AdminManager::DisableAdmin(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncDisableAdminCallbackInfo> callbackPtr {asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
@@ -459,7 +426,7 @@ napi_value AdminManager::isAdminEnabled(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncIsAdminEnabledCallbackInfo> callbackPtr {asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, checkAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");

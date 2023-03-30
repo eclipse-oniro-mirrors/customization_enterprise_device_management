@@ -63,26 +63,18 @@ bool MapStringSerializer::Serialize(const std::map<std::string, std::string> &da
 
 bool MapStringSerializer::GetPolicy(MessageParcel &data, std::map<std::string, std::string> &result)
 {
-    std::vector<std::u16string> keys16;
-    std::vector<std::u16string> values16;
-    if (!data.ReadString16Vector(&keys16)) {
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
+    if (!data.ReadStringVector(&keys)) {
         EDMLOGE("MapStringSerializer::read map keys fail.");
         return false;
     }
-    if (!data.ReadString16Vector(&values16)) {
+    if (!data.ReadStringVector(&values)) {
         EDMLOGE("MapStringSerializer::read map values fail.");
         return false;
     }
-    if (keys16.size() != values16.size()) {
+    if (keys.size() != values.size()) {
         return false;
-    }
-    std::vector<std::string> keys;
-    std::vector<std::string> values;
-    for (const std::u16string &key : keys16) {
-        keys.push_back(Str16ToStr8(key));
-    }
-    for (const std::u16string &value : values16) {
-        values.push_back(Str16ToStr8(value));
     }
     for (uint64_t i = 0; i < keys.size(); ++i) {
         result.insert(std::make_pair(keys.at(i), values.at(i)));
@@ -92,13 +84,13 @@ bool MapStringSerializer::GetPolicy(MessageParcel &data, std::map<std::string, s
 
 bool MapStringSerializer::WritePolicy(MessageParcel &reply, std::map<std::string, std::string> &result)
 {
-    std::vector<std::u16string> keys;
-    std::vector<std::u16string> values;
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
     for (const auto &item : result) {
-        keys.push_back(Str8ToStr16(item.first));
-        values.push_back(Str8ToStr16(item.second));
+        keys.push_back(item.first);
+        values.push_back(item.second);
     }
-    return reply.WriteString16Vector(keys) && reply.WriteString16Vector(values);
+    return reply.WriteStringVector(keys) && reply.WriteStringVector(values);
 }
 
 bool MapStringSerializer::MergePolicy(std::vector<std::map<std::string, std::string>> &data,

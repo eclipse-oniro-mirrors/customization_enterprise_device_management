@@ -32,7 +32,8 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }
 
-ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("IsWifiActivePlugin OnGetPolicy.");
     bool isActive = IsWifiActive();

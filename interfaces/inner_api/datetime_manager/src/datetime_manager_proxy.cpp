@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,6 +51,7 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0); // without userid
     data.WriteParcelable(&admin);
     data.WriteInt64(time);
     return proxy->HandleDevicePolicy(funcCode, data);

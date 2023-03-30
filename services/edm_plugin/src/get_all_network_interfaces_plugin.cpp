@@ -37,7 +37,8 @@ void GetAllNetworkInterfacesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<G
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
 }
 
-ErrCode GetAllNetworkInterfacesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode GetAllNetworkInterfacesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("GetAllNetworkInterfacesPlugin OnGetPolicy.");
     std::vector<std::string> interfaces;

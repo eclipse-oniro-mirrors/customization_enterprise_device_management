@@ -35,7 +35,8 @@ void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddress
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetIpAddressPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode GetIpAddressPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("GetIpAddressPlugin OnGetPolicy.");
     nmd::InterfaceConfigurationParcel config;

@@ -88,12 +88,14 @@ public:
         return 0;
     }
 
-    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data) override
+    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
+        int32_t userId) override
     {
         return 0;
     }
 
-    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply) override
+    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override
     {
         return 0;
     }

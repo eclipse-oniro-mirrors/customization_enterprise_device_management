@@ -38,20 +38,20 @@ template<class CT, class DT>
 class IPluginTemplate : public IPlugin {
 public:
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
-        bool &isChanged) override;
+        bool &isChanged, int32_t userId) override;
 
     ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
-        bool isGlobalChanged) override;
+        bool isGlobalChanged, int32_t userId) override;
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override;
 
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData, int32_t userId) override;
 
     ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
     /*
      * Sets the handle of the policy processing object.
@@ -80,7 +80,8 @@ protected:
      * @see OnHandlePolicy
      * @see HandlePolicyFunc
      */
-    typedef std::function<ErrCode(MessageParcel &, std::string &, bool &, FuncOperateType)> HandlePolicy;
+    typedef std::function<ErrCode(MessageParcel &, std::string &, bool &, FuncOperateType,
+        int32_t userId)> HandlePolicy;
 
     /*
      * Represents a function that invoked during handling policy.
@@ -91,7 +92,7 @@ protected:
      * @see OnHandlePolicyDone
      * @see HandlePolicyDoneFunc
      */
-    typedef std::function<ErrCode(const std::string &, bool, FuncOperateType)> HandlePolicyDone;
+    typedef std::function<ErrCode(const std::string &, bool, FuncOperateType, int32_t userId)> HandlePolicyDone;
 
     /*
      * Represents a function that invoked during the removal of admin.
@@ -99,7 +100,7 @@ protected:
      * @see OnAdminRemove
      * @see AdminRemoveFunc
      */
-    typedef std::function<ErrCode(const std::string &, const std::string &)> AdminRemove;
+    typedef std::function<ErrCode(const std::string &, const std::string &, int32_t userId)> AdminRemove;
 
     /*
      * Represents a function that invoked after the admin is removed.
@@ -107,7 +108,7 @@ protected:
      * @see OnAdminRemoveDone
      * @see AdminRemoveDoneFunc
      */
-    typedef std::function<ErrCode(const std::string &, const std::string &)> AdminRemoveDone;
+    typedef std::function<ErrCode(const std::string &, const std::string &, int32_t userId)> AdminRemoveDone;
 
     /*
      * This is a member function pointer type of CT class.
@@ -141,7 +142,7 @@ protected:
      * @return Whether the policy is handled successfully.
      * @see SetOnHandlePolicyListener
      */
-    typedef ErrCode (CT::*BiFunction)(DT &data, DT &currentData);
+    typedef ErrCode (CT::*BiFunction)(DT &data, DT &currentData, int32_t userId);
 
     /*
      * This is a member function pointer type of CT class.
@@ -151,7 +152,7 @@ protected:
      * @param data Admin policy data
      * @see SetOnAdminRemoveListener
      */
-    typedef ErrCode (CT::*BiAdminFunction)(const std::string &adminName, DT &data);
+    typedef ErrCode (CT::*BiAdminFunction)(const std::string &adminName, DT &data, int32_t userId);
 
     /*
      * This is a member function pointer type of CT class.
@@ -170,7 +171,7 @@ protected:
      * @param isGlobalChanged Whether the policy data is changed
      * @see SetOnHandlePolicyDoneListener
      */
-    typedef void (CT::*BiBoolConsumer)(DT &data, bool isGlobalChanged);
+    typedef void (CT::*BiBoolConsumer)(DT &data, bool isGlobalChanged, int32_t userId);
 
     /*
      * This is a member function pointer type of CT class.
@@ -190,7 +191,7 @@ protected:
      * @param data Admin policy data
      * @see SetOnAdminRemoveDoneListener
      */
-    typedef void (CT::*BiAdminConsumer)(const std::string &adminName, DT &data);
+    typedef void (CT::*BiAdminConsumer)(const std::string &adminName, DT &data, int32_t userId);
 
     virtual bool GetMergePolicyData(DT &policyData);
 
@@ -364,7 +365,7 @@ IPluginTemplate<CT, DT>::IPluginTemplate() {}
 
 template<class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
-    bool &isChanged)
+    bool &isChanged, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
@@ -372,16 +373,17 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (entry == handlePolicyFuncMap_.end() || entry->second.handlePolicy_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = entry->second.handlePolicy_(data, policyData, isChanged, type);
+    ErrCode res = entry->second.handlePolicy_(data, policyData, isChanged, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
 }
 
 template<class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("IPluginTemplate::OnGetPolicy");
-    return instance_->OnGetPolicy(policyData, data, reply);
+    return instance_->OnGetPolicy(policyData, data, reply, userId);
 }
 
 template<class CT, class DT>
@@ -391,7 +393,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Supplier &&listener, Fun
         return;
     }
     auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
-        FuncOperateType funcOperate) -> ErrCode {
+        FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         auto entry = handlePolicyFuncMap_.find(funcOperate);
         if (entry == handlePolicyFuncMap_.end() || entry->second.supplier_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
@@ -408,7 +410,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Function &&listener, Fun
         return;
     }
     auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
-        FuncOperateType funcOperate) -> ErrCode {
+        FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
             return ERR_EDM_OPERATE_PARCEL;
@@ -441,7 +443,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
         return;
     }
     auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
-        FuncOperateType funcOperate) -> ErrCode {
+        FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
             return ERR_EDM_OPERATE_PARCEL;
@@ -458,7 +460,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
         if (!serializer_->Serialize(currentData, beforeHandle)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        ErrCode result = (instance_.get()->*(entry->second.biFunction_))(handleData, currentData);
+        ErrCode result = (instance_.get()->*(entry->second.biFunction_))(handleData, currentData, userId);
         if (result != ERR_OK) {
             return result;
         }
@@ -522,7 +524,7 @@ ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, s
 
 template<class CT, class DT>
 void IPluginTemplate<CT, DT>::OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
-    const bool isGlobalChanged)
+    const bool isGlobalChanged, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
@@ -530,7 +532,7 @@ void IPluginTemplate<CT, DT>::OnHandlePolicyDone(std::uint32_t funcCode, const s
     if (entry == handlePolicyDoneFuncMap_.end() || entry->second.handlePolicyDone_ == nullptr) {
         return;
     }
-    ErrCode res = entry->second.handlePolicyDone_(adminName, isGlobalChanged, type);
+    ErrCode res = entry->second.handlePolicyDone_(adminName, isGlobalChanged, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicyDone operate: %{public}d, isGlobalChanged: %{public}d, res: %{public}d",
         type, isGlobalChanged, res);
 }
@@ -541,7 +543,8 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyDoneListener(BoolConsumer &&liste
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](const std::string &adminName, bool isGlobalChanged, FuncOperateType funcOperate) -> ErrCode {
+    auto handle = [this](const std::string &adminName, bool isGlobalChanged, FuncOperateType funcOperate,
+        int32_t userId) -> ErrCode {
         auto entry = handlePolicyDoneFuncMap_.find(funcOperate);
         if (entry == handlePolicyDoneFuncMap_.end() || entry->second.boolConsumer_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
@@ -558,7 +561,8 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyDoneListener(BiBoolConsumer &&lis
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](const std::string &adminName, bool isGlobalChanged, FuncOperateType funcOperate) -> ErrCode {
+    auto handle = [this](const std::string &adminName, bool isGlobalChanged, FuncOperateType funcOperate,
+        int32_t userId) -> ErrCode {
         auto entry = handlePolicyDoneFuncMap_.find(funcOperate);
         if (entry == handlePolicyDoneFuncMap_.end() || entry->second.biBoolConsumer_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
@@ -567,19 +571,20 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyDoneListener(BiBoolConsumer &&lis
         if (NeedSavePolicy() && !this->GetMergePolicyData(currentData)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        (instance_.get()->*(entry->second.biBoolConsumer_))(currentData, isGlobalChanged);
+        (instance_.get()->*(entry->second.biBoolConsumer_))(currentData, isGlobalChanged, userId);
         return ERR_OK;
     };
     handlePolicyDoneFuncMap_.insert(std::make_pair(type, HandlePolicyDoneFunc(handle, listener)));
 }
 
 template<class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData)
+ErrCode IPluginTemplate<CT, DT>::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+    int32_t userId)
 {
     if (adminRemoveFunc_.adminRemove_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = (adminRemoveFunc_.adminRemove_)(adminName, currentJsonData);
+    ErrCode res = (adminRemoveFunc_.adminRemove_)(adminName, currentJsonData, userId);
     EDMLOGI("IPluginTemplate::OnAdminRemove admin:%{public}s, res: %{public}d", adminName.c_str(), res);
     return res;
 }
@@ -590,7 +595,8 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(Supplier &&listener)
     if (instance_ == nullptr) {
         return;
     }
-    auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData) -> ErrCode {
+    auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) -> ErrCode {
         if (adminRemoveFunc_.supplier_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
@@ -605,7 +611,8 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(BiAdminFunction &&listene
     if (instance_ == nullptr) {
         return;
     }
-    auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData) -> ErrCode {
+    auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) -> ErrCode {
         DT currentData;
         if (!serializer_->Deserialize(currentJsonData, currentData)) {
             return ERR_EDM_OPERATE_JSON;
@@ -613,13 +620,14 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(BiAdminFunction &&listene
         if (adminRemoveFunc_.biAdminFunction_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
-        return (instance_.get()->*(adminRemoveFunc_.biAdminFunction_))(adminName, currentData);
+        return (instance_.get()->*(adminRemoveFunc_.biAdminFunction_))(adminName, currentData, userId);
     };
     adminRemoveFunc_ = AdminRemoveFunc(adminRemove, listener);
 }
 
 template<class CT, class DT>
-void IPluginTemplate<CT, DT>::OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData)
+void IPluginTemplate<CT, DT>::OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+    int32_t userId)
 {
     if (instance_ == nullptr) {
         return;
@@ -627,7 +635,7 @@ void IPluginTemplate<CT, DT>::OnAdminRemoveDone(const std::string &adminName, co
     if (adminRemoveDoneFunc_.adminRemoveDone_ == nullptr) {
         return;
     }
-    (adminRemoveDoneFunc_.adminRemoveDone_)(adminName, currentJsonData);
+    (adminRemoveDoneFunc_.adminRemoveDone_)(adminName, currentJsonData, userId);
 }
 
 template<class CT, class DT>
@@ -636,7 +644,8 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveDoneListener(Runner &&listener)
     if (instance_ == nullptr) {
         return;
     }
-    auto adminRemoveDone = [this](const std::string &adminName, const std::string &currentJsonData) -> ErrCode {
+    auto adminRemoveDone = [this](const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) -> ErrCode {
         if (adminRemoveDoneFunc_.runner_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
@@ -652,7 +661,8 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveDoneListener(BiAdminConsumer &&lis
     if (instance_ == nullptr) {
         return;
     }
-    auto adminRemoveDone = [this](const std::string &adminName, const std::string &currentJsonData) -> ErrCode {
+    auto adminRemoveDone = [this](const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) -> ErrCode {
         if (adminRemoveDoneFunc_.biAdminConsumer_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
@@ -660,7 +670,7 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveDoneListener(BiAdminConsumer &&lis
         if (!serializer_->Deserialize(currentJsonData, currentData)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        (instance_.get()->*(adminRemoveDoneFunc_.biAdminConsumer_))(adminName, currentData);
+        (instance_.get()->*(adminRemoveDoneFunc_.biAdminConsumer_))(adminName, currentData, userId);
         return ERR_OK;
     };
     adminRemoveDoneFunc_ = AdminRemoveDoneFunc(adminRemoveDone, listener);
@@ -774,11 +784,11 @@ public:
      */
     static std::shared_ptr<IPlugin> GetPlugin();
 
-    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply);
+    virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId);
 
     static void DestroyPlugin();
 
-private:
+protected:
     static std::shared_ptr<IPluginTemplate<CT, DT>> pluginInstance_;
     static std::mutex mutexLock_;
 };
@@ -805,7 +815,8 @@ std::shared_ptr<IPlugin> PluginSingleton<CT, DT>::GetPlugin()
 }
 
 template<typename CT, typename DT>
-ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply)
+ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("PluginSingleton::OnGetPolicy");
     return ERR_OK;

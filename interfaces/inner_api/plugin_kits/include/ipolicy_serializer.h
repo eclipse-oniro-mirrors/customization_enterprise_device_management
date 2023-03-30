@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -162,15 +162,9 @@ bool ArraySerializer<DT, T_ARRAY>::Serialize(const T_ARRAY &dataObj, std::string
 template<typename DT, typename T_ARRAY>
 bool ArraySerializer<DT, T_ARRAY>::GetPolicy(MessageParcel &data, T_ARRAY &result)
 {
-    std::vector<std::u16string> readVector16;
-    if (!data.ReadString16Vector(&readVector16)) {
-        return false;
-    }
     std::vector<std::string> readVector;
-    if (!readVector16.empty()) {
-        for (const auto &str16 : readVector16) {
-            readVector.push_back(Str16ToStr8(str16));
-        }
+    if (!data.ReadStringVector(&readVector)) {
+        return false;
     }
     // Data will be appended to result, and the original data of result will not be deleted.
     for (const auto &itemJson : readVector) {
@@ -188,15 +182,15 @@ bool ArraySerializer<DT, T_ARRAY>::GetPolicy(MessageParcel &data, T_ARRAY &resul
 template<typename DT, typename T_ARRAY>
 bool ArraySerializer<DT, T_ARRAY>::WritePolicy(MessageParcel &reply, T_ARRAY &result)
 {
-    std::vector<std::u16string> writeVector;
+    std::vector<std::string> writeVector;
     for (const auto &item : result) {
         std::string itemJson;
         if (!serializerInner_->Serialize(item, itemJson)) {
             return false;
         }
-        writeVector.push_back(Str8ToStr16(itemJson));
+        writeVector.push_back(itemJson);
     }
-    return reply.WriteString16Vector(writeVector);
+    return reply.WriteStringVector(writeVector);
 }
 
 template<typename DT, typename T_ARRAY>
