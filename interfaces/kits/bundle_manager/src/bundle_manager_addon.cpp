@@ -88,7 +88,6 @@ void BundleManagerAddon::NativeGetAllowedInstallBundles(napi_env env, void *data
 
     asyncCallbackInfo->ret = proxy_->GetAllowedInstallBundles(asyncCallbackInfo->elementName, asyncCallbackInfo->userId,
         asyncCallbackInfo->arrayStringRet);
-    EDMLOGI("asyncCallbackInfo->bundles size : %{public}d", asyncCallbackInfo->arrayStringRet.size());
 }
 
 napi_value BundleManagerAddon::AddAllowedInstallBundles(napi_env env, napi_callback_info info)
