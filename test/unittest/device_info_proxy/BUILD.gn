@@ -16,10 +16,6 @@ import("//build/test.gni")
 
 module_output_path = "enterprise_device_management/services"
 
-config("module_private_config") {
-  visibility = [ ":*" ]
-}
-
 ohos_unittest("EdmDeviceInfoProxyUnitTest") {
   module_out_path = module_output_path
 

@@ -186,6 +186,7 @@ group("unittest") {
     # deps file
     ":EdmServicesUnitTest",
     "account_manager_proxy:unittest",
+    "bundle_manager_proxy:unittest",
     "device_control_proxy:unittest",
     "device_info_proxy:unittest",
     "edm_plugin:unittest",
