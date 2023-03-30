@@ -13,26 +13,24 @@
  * limitations under the License.
  */
 
-import hilog from '@ohos.hilog';
-
 class EnterpriseAdminExtensionAbility {
   onAdminEnabled() {
-    hilog.info('onAdminEnabled');
+    console.log('onAdminEnabled');
   }
   onAdminDisabled() {
-    hilog.info('onAdminDisabled');
+    console.log('onAdminDisabled');
   }
   onBundleAdded(bundleName) {
-    hilog.info('EnterpriseAdminExtensionAbility->OnBundleAdded:' + bundleName);
+    console.log('EnterpriseAdminExtensionAbility->OnBundleAdded:' + bundleName);
   }
   onBundleRemoved(bundleName) {
-    hilog.info('EnterpriseAdminExtensionAbility->OnBundleRemoved:' + bundleName);
+    console.log('EnterpriseAdminExtensionAbility->OnBundleRemoved:' + bundleName);
   }
   onAppStart(bundleName) {
-    hilog.info('EnterpriseAdminExtensionAbility->onAppStart:' + bundleName);
+    console.log('EnterpriseAdminExtensionAbility->onAppStart:' + bundleName);
   }
   onAppStop(bundleName) {
-    hilog.info('EnterpriseAdminExtensionAbility->onAppStop:' + bundleName);
+    console.log('EnterpriseAdminExtensionAbility->onAppStop:' + bundleName);
   }
 }
 
