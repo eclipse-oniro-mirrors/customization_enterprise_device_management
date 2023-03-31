@@ -16,26 +16,23 @@ import("//build/test.gni")
 
 module_output_path = "enterprise_device_management/services"
 
-ohos_unittest("EdmAccountManagerProxyUnitTest") {
+ohos_unittest("EdmBundleManagerProxyUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
     "$EDM_SA_ROOT/include",
     "$SUBSYSTEM_DIR/test/unittest/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/test/unittest/mock/include",
     "$SUBSYSTEM_DIR/test/unittest/enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test",
   ]
 
-  sources = [ "./account_manager_proxy_test.cpp" ]
+  sources = [ "./bundle_manager_proxy_test.cpp" ]
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   deps = [
     "$EDM_INNERKITS_PATH:edmservice_kits",
     "$EDM_SA_ROOT:edmservice",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -60,6 +57,6 @@ group("unittest") {
 
   deps = [
     # deps file
-    ":EdmAccountManagerProxyUnitTest",
+    ":EdmBundleManagerProxyUnitTest",
   ]
 }

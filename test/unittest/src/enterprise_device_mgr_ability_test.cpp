@@ -36,6 +36,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr int32_t TEST_USER_ID = 101;
 constexpr int32_t ARRAY_MAP_TESTPLUGIN_POLICYCODE = 13;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
@@ -441,6 +442,43 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: GetAndSwitchPolicyManagerByUserId
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetAndSwitchPolicyManagerByUserId function.
+ * @tc.desc: Test if policyMgrMap_ is empty
+ * @tc.type: FUNC
+ * @tc.require: issueI6QU75
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest001, TestSize.Level1)
+{
+    edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
+    ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[DEFAULT_USER_ID].get());
+    ASSERT_TRUE(edmMgr_->policyMgrMap_.size() > 0);
+}
+
+/**
+ * @tc.name: GetAndSwitchPolicyManagerByUserId
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetAndSwitchPolicyManagerByUserId function.
+ * @tc.desc: Test if policyMgrMap_ is not empty.
+ * @tc.type: FUNC
+ * @tc.require: issueI6QU75
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest002, TestSize.Level1)
+{
+    edmMgr_->policyMgrMap_.insert(std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(DEFAULT_USER_ID,
+        edmMgr_->policyMgr_));
+    PolicyManager* defaultPolcyMgr = edmMgr_->policyMgr_.get();
+    std::shared_ptr<PolicyManager> guestPolicyMgr;
+    guestPolicyMgr.reset(new (std::nothrow) PolicyManager(TEST_USER_ID));
+    edmMgr_->policyMgrMap_.insert(std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(TEST_USER_ID,
+        guestPolicyMgr));
+    edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
+    ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[TEST_USER_ID].get());
+    ASSERT_TRUE(edmMgr_->policyMgr_.get() != defaultPolcyMgr);
 }
 } // namespace TEST
 } // namespace EDM

@@ -41,6 +41,8 @@ public:
     int GetDevicePolicyFuncTest004(void);
     int GetDevicePolicyFuncTest005(void);
     int GetDevicePolicyFuncTest006(void);
+    int GetAndSwitchPolicyManagerByUserIdTest001(void);
+    int GetAndSwitchPolicyManagerByUserIdTest002(void);
 protected:
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<IPlugin> plugin_;

@@ -34,6 +34,7 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
   ]
 
   sources = [
+    "./allowed_install_bundles_plugin_test.cpp",
     "./device_info_plugin_test.cpp",
     "./disallow_add_local_account_plugin_test.cpp",
     "./edm_data_ability_utils_mock.cpp",
@@ -58,6 +59,8 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ipc:ipc_core",
   ]
@@ -76,6 +79,7 @@ ohos_static_library("edm_all_plugin_static") {
   visibility = [ ":*" ]
   testonly = true
   sources = [
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_all_network_interfaces_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_device_name_plugin.cpp",
@@ -105,6 +109,8 @@ ohos_static_library("edm_all_plugin_static") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "init:libbegetutil",
     "netmanager_ext:ethernet_manager_if",
