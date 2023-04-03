@@ -57,14 +57,28 @@ constexpr size_t CALLBACK_SIZE = 1;
 constexpr int32_t NAPI_RETURN_ZERO = 0;
 constexpr int32_t NAPI_RETURN_ONE = 1;
 
+constexpr int MAX_DATA_LEN = 0x6400000;
+
 bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
 bool ParseElementName(napi_env env, AppExecFwk::ElementName &elementName, napi_value args);
 bool ParseLong(napi_env env, int64_t &param, napi_value args);
 bool ParseInt(napi_env env, int32_t &param, napi_value args);
+bool ParseUint(napi_env env, uint32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
+bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* filedStr,
+    bool isNecessaryProp, int32_t &result);
+bool JsObjectToUint(const napi_env& env, const napi_value& object, const char* filedStr,
+    bool isNecessaryProp, uint32_t &result);
+bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* filedStr,
+    bool isNecessaryProp, bool &result);
+bool JsObjectToString(const napi_env& env, const napi_value& object, const char* filedStr,
+    bool isNecessaryProp, std::string &resultStr);
+bool GetJsProperty(const napi_env& env, const napi_value& object, const char* filedStr, napi_value* result);
+bool JsObjectToU8Vector(const napi_env& env, const napi_value& object, const char* fieldStr,
+    std::vector<uint8_t> &certVector);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
 napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

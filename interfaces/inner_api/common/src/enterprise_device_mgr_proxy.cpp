@@ -333,7 +333,7 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
         EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicy send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = ERR_OK;
+    int32_t ret = ERR_INVALID_VALUE;
     reply.ReadInt32(ret);
     return ret;
 }

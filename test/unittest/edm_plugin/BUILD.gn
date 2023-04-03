@@ -41,6 +41,8 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "./get_device_name_plugin_test.cpp",
     "./is_wifi_active_plugin_test.cpp",
     "./network_manager_plugin_test.cpp",
+    "./set_wifi_profile_plugin_test.cpp",
+    "./wifi_device_config_serializer_test.cpp",
   ]
 
   configs = [
@@ -63,6 +65,7 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ipc:ipc_core",
+    "wifi:wifi_sdk",
   ]
 
   if (is_standard_system) {
@@ -88,6 +91,8 @@ ohos_static_library("edm_all_plugin_static") {
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_ip_address_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/get_mac_plugin.cpp",
     "$SUBSYSTEM_DIR/services/edm_plugin/src/is_wifi_active_plugin.cpp",
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+    "$SUBSYSTEM_DIR/services/edm_plugin/src/wifi_device_config_serializer.cpp",
   ]
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
@@ -100,12 +105,14 @@ ohos_static_library("edm_all_plugin_static") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
     "$SUBSYSTEM_DIR/services/edm_plugin/include",
-    "//foundation/communication/wifi/wifi/interfaces/kits/c/",
+    "$WIFI_ROOT_DIR/frameworks/native/include",
   ]
 
   deps = [
     "$SUBSYSTEM_DIR/common/native:edm_commom",
     "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits:plugin_kits",
+    "//third_party/bounds_checking_function:libsec_shared",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
