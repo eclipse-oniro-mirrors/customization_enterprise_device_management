@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,8 @@ napi_value DatetimeManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setDateTime", SetDateTime),
+        DECLARE_NAPI_FUNCTION("disallowModifyDateTime", DisallowModifyDateTime),
+        DECLARE_NAPI_FUNCTION("isModifyDateTimeDisallowed", IsModifyDateTimeDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -80,6 +82,123 @@ void DatetimeManagerAddon::NativeSetDateTime(napi_env env, void *data)
     }
     asyncCallbackInfo->ret = dateTimeManagerProxy_->SetDateTime(asyncCallbackInfo->elementName,
         asyncCallbackInfo->time);
+}
+
+napi_value DatetimeManagerAddon::DisallowModifyDateTime(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_DisallowModifyDateTime called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncDisallowModifyDateTimeCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncDisallowModifyDateTimeCallbackInfo> callbackPtr {asyncCallbackInfo};
+    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
+    EDMLOGD("DisallowModifyDateTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    ret = ParseBool(env, asyncCallbackInfo->disallow, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "disallow param error");
+    if (argc > ARGS_SIZE_TWO) {
+        EDMLOGD("NAPI_DisallowModifyDateTime argc == ARGS_SIZE_THREE");
+        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisallowModifyDateTime",
+        NativeDisallowModifyDateTime, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void DatetimeManagerAddon::NativeDisallowModifyDateTime(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeDisallowModifyDateTime called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncDisallowModifyDateTimeCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncDisallowModifyDateTimeCallbackInfo *>(data);
+    auto dateTimeManagerProxy_ = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    if (dateTimeManagerProxy_ == nullptr) {
+        EDMLOGE("can not get DatetimeManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = dateTimeManagerProxy_->DisallowModifyDateTime(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->disallow);
+}
+
+napi_value DatetimeManagerAddon::IsModifyDateTimeDisallowed(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsModifyDateTimeDisallowed called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncDisallowModifyDateTimeCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncDisallowModifyDateTimeCallbackInfo> callbackPtr {asyncCallbackInfo};
+    bool matchFlag = false;
+    if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null)) {
+        asyncCallbackInfo->hasAdmin = false;
+        matchFlag = true;
+    } else if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        matchFlag = true;
+        asyncCallbackInfo->hasAdmin = true;
+        bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
+        ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
+        EDMLOGD("IsModifyDateTimeDisallowed: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    }
+    if (argc > ARGS_SIZE_ONE) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    if (argc > ARGS_SIZE_ONE) {
+        EDMLOGD("NAPI_IsModifyDateTimeDisallowed argc == ARGS_SIZE_TWO");
+        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsModifyDateTimeDisallowed",
+        NativeIsModifyDateTimeDisallowed, NativeBoolCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void DatetimeManagerAddon::NativeIsModifyDateTimeDisallowed(napi_env env, void *data)
+{
+    EDMLOGI("NativeIsModifyDateTimeDisallowed called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncDisallowModifyDateTimeCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncDisallowModifyDateTimeCallbackInfo *>(data);
+    auto dateTimeManagerProxy_ = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    if (dateTimeManagerProxy_ == nullptr) {
+        EDMLOGE("can not get DatetimeManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = dateTimeManagerProxy_->IsModifyDateTimeDisallowed(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->hasAdmin, asyncCallbackInfo->boolRet);
 }
 
 static napi_module g_dateTimeManagerModule = {
