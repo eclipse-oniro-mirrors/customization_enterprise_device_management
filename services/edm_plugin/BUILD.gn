@@ -119,3 +119,16 @@ edm_plugin_shared_library("bundle_manager_plugin") {
     "ipc:ipc_core",
   ]
 }
+
+edm_plugin_shared_library("disallow_modify_datetime_plugin") {
+  sources = [ "$PLUGIN_SRC_PATH/disallow_modify_datetime_plugin.cpp" ]
+
+  deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
+
+  include_dirs = []
+
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+}

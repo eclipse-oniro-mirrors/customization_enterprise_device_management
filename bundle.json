@@ -106,6 +106,7 @@
           "//base/customization/enterprise_device_management/services/edm_plugin:datetime_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:device_info_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:device_control_plugin",
+          "//base/customization/enterprise_device_management/services/edm_plugin:disallow_modify_datetime_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:network_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:wifi_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:bundle_manager_plugin",
