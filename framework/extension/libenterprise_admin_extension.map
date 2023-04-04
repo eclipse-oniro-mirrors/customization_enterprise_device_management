@@ -14,7 +14,7 @@
 {
     global:
         extern "C++" {
-            "OHOS::EDM::EnterpriseAdminExtension::Create(std::__h::unique_ptr<OHOS::AbilityRuntime::Runtime, std::__h::default_delete<OHOS::AbilityRuntime::Runtime> > const&)";
+            "OHOS::EDM::EnterpriseAdminExtension::Create(std::__h::unique_ptr<OHOS::AbilityRuntime::Runtime, std::__h::default_delete<OHOS::AbilityRuntime::Runtime>> const&)";
         };
     local:
         *;
