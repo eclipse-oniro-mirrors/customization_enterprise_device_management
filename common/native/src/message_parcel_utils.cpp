@@ -110,11 +110,8 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiEapConfig.clientCert = data.ReadString();
     config.wifiEapConfig.privateKey = data.ReadString();
     data.ReadUInt8Vector(&config.wifiEapConfig.certEntry);
-    std::string certPassword = data.ReadString();
-    if (strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), certPassword.c_str(),
-        sizeof(config.wifiEapConfig.certPassword) - 1) != EOK) {
-        EDMLOGE("ReadWifiDeviceConfig strncpy_s failed!");
-    }
+    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword),
+        data.ReadString().c_str(), sizeof(config.wifiEapConfig.certPassword) - 1);
     ProcessPhase2Method(data.ReadInt32(), config.wifiEapConfig);
     ProcessConfigureProxyMethod(data.ReadInt32(), config.wifiProxyconfig);
     config.wifiProxyconfig.autoProxyConfig.pacWebAddress = data.ReadString();
@@ -139,7 +136,7 @@ void MessageParcelUtils::ProcessAssignIpMethod(int32_t ipMethod, Wifi::WifiIpCon
     }
 }
 
-void MessageParcelUtils::ProcessPhase2Method(int32_t phase2, Wifi::WifiEapConfig& eapConfig)
+void MessageParcelUtils::ProcessPhase2Method(int32_t phase2, Wifi::WifiEapConfig &eapConfig)
 {
     switch (phase2) {
         case static_cast<int32_t>(Wifi::Phase2Method::PAP):

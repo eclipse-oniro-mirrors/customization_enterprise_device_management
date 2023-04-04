@@ -131,6 +131,29 @@ bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr)
     return true;
 }
 
+bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param)
+{
+    napi_valuetype valuetype;
+    if (napi_typeof(env, args, &valuetype) != napi_ok || valuetype != napi_string) {
+        EDMLOGE("can not get string value");
+        return false;
+    }
+    size_t size = 0;
+    if (napi_get_value_string_utf8(env, args, nullptr, NAPI_RETURN_ZERO, &size) != napi_ok) {
+        EDMLOGE("can not get string size");
+        return false;
+    }
+    if (size < 0 || size >= maxLength) {
+        EDMLOGE("string size too long");
+        return false;
+    }
+    if (napi_get_value_string_utf8(env, args, param, (size + NAPI_RETURN_ONE), &size) != napi_ok) {
+        EDMLOGE("can not get string value");
+        return false;
+    }
+    return true;
+}
+
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args)
 {
     EDMLOGD("begin to parse string array");
@@ -164,82 +187,109 @@ napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray,
     return result;
 }
 
-bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* filedStr,
-    bool isNecessaryProp, int32_t &result)
+bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
         return false;
     }
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseInt(env, result, prop);
     }
-    return !isNecessaryProp;
+    return true;
 }
 
-bool JsObjectToUint(const napi_env& env, const napi_value& object, const char* filedStr,
-    bool isNecessaryProp, uint32_t &result)
+bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, uint32_t &result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
         return false;
     }
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseUint(env, result, prop);
     }
-    return !isNecessaryProp;
+    return true;
 }
 
-bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* filedStr,
-    bool isNecessaryProp, bool &result)
+bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, bool &result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
         return false;
     }
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseBool(env, result, prop);
     }
-    return !isNecessaryProp;
+    return true;
 }
 
-bool JsObjectToString(const napi_env& env, const napi_value& object, const char* filedStr,
-    bool isNecessaryProp, std::string &resultStr)
+bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
+    std::string &resultStr)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
         return false;
     }
+    if (isNecessaryProp && !hasProperty) {
+        return false;
+    }
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseString(env, resultStr, prop);
     }
-    return !isNecessaryProp;
+    return true;
 }
 
-bool GetJsProperty(const napi_env& env, const napi_value& object, const char* filedStr, napi_value* result)
+bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength,
+    bool isNecessaryProp, char *result)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
+        return false;
+    }
+    if (hasProperty) {
+        napi_value prop = nullptr;
+        return napi_get_named_property(env, object, filedStr, &prop) == napi_ok &&
+            ParseCharArray(env, prop, maxLength, result);
+    }
+    return true;
+}
+
+bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok || !hasProperty ||
-        napi_get_named_property(env, object, filedStr, result) != napi_ok) {
-        EDMLOGI("Js has no property");
+        napi_get_named_property(env, object, filedStr, &result) != napi_ok) {
+        EDMLOGE("Js has no property");
         return false;
     }
     return true;
 }
 
-bool JsObjectToU8Vector(const napi_env& env, const napi_value& object, const char* fieldStr,
-    std::vector<uint8_t> &certVector)
+bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, std::vector<uint8_t> &certVector)
 {
-    napi_value certEntry;
-    if (!GetJsProperty(env, object, fieldStr, &certEntry)) {
+    napi_value certEntry = nullptr;
+    if (!GetJsProperty(env, object, fieldStr, certEntry)) {
         return false;
     }
     bool isTypedArray = false;
@@ -251,13 +301,13 @@ bool JsObjectToU8Vector(const napi_env& env, const napi_value& object, const cha
     size_t offset = 0;
     napi_typedarray_type type;
     napi_value buffer = nullptr;
-    void* data = nullptr;
+    void *data = nullptr;
     if (napi_get_typedarray_info(env, certEntry, &type, &length, &data, &buffer, &offset) != napi_ok ||
         type != napi_uint8_array || buffer == nullptr) {
         EDMLOGE("js object type is not uint8 array");
         return false;
     }
-    if (length < 0 || length > MAX_DATA_LEN) {
+    if (length < 0 || length > NAPI_MAX_DATA_LEN) {
         EDMLOGE("uint8 array range failed");
         return false;
     }

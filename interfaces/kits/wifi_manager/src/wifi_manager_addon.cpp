@@ -219,8 +219,8 @@ napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info inf
         ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]), "element name param error");
     EDMLOGD("SetWifiProfile: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+            asyncCallbackInfo->elementName.GetBundleName().c_str(),
+            asyncCallbackInfo->elementName.GetAbilityName().c_str());
     ASSERT_AND_THROW_PARAM_ERROR(env,
         JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->wifiDeviceConfig), "wifiProfile param error");
     if (argc > ARGS_SIZE_TWO) {
@@ -267,30 +267,29 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
         asyncCallbackInfo->boolRet);
 }
 
-bool WifiManagerAddon::JsObjToDeviceConfig(const napi_env& env, const napi_value& args,
-    Wifi::WifiDeviceConfig& config)
+bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config)
 {
     int32_t type = static_cast<int32_t>(SecurityType::SEC_TYPE_INVALID);
     int32_t ipType = static_cast<int32_t>(Wifi::AssignIpMethod::UNASSIGNED);
     /* "creatorUid" "disableReason" "randomMacType" "randomMacAddr" is not supported currently */
-    if (!JsObjectToString(env, args, "ssid", true, config.ssid) ||
-        !JsObjectToString(env, args, "bssid", false, config.bssid) ||
-        !JsObjectToString(env, args, "preSharedKey", true, config.preSharedKey) ||
-        !JsObjectToBool(env, args, "isHiddenSsid", false, config.hiddenSSID) ||
-        !JsObjectToInt(env, args, "securityType", true, type) ||
-        !JsObjectToInt(env, args, "netId", false, config.networkId) ||
-        !JsObjectToInt(env, args, "ipType", false, ipType) ||
-        !ProcessIpType(ipType, env, args, config)) {
+    if (!JsObjectToString(env, object, "ssid", true, config.ssid) ||
+        !JsObjectToString(env, object, "bssid", false, config.bssid) ||
+        !JsObjectToString(env, object, "preSharedKey", true, config.preSharedKey) ||
+        !JsObjectToBool(env, object, "isHiddenSsid", false, config.hiddenSSID) ||
+        !JsObjectToInt(env, object, "securityType", true, type) ||
+        !JsObjectToInt(env, object, "netId", false, config.networkId) ||
+        !JsObjectToInt(env, object, "ipType", false, ipType) ||
+        !ProcessIpType(ipType, env, object, config.wifiIpConfig)) {
         return false;
     }
     ConvertEncryptionMode(type, config);
     if (type == static_cast<int32_t>(SecurityType::SEC_TYPE_EAP)) {
-        return ProcessEapConfig(env, args, config);
+        return ProcessEapConfig(env, object, config.wifiEapConfig);
     }
     return true;
 }
 
-void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig& config)
+void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config)
 {
     switch (securityType) {
         case static_cast<int32_t>(SecurityType::SEC_TYPE_OPEN):
@@ -317,43 +316,32 @@ void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDev
     }
 }
 
-bool WifiManagerAddon::ProcessIpType(int32_t ipType, const napi_env& env, const napi_value& object,
-    Wifi::WifiDeviceConfig& config)
+bool WifiManagerAddon::ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig)
 {
-    switch (ipType) {
-        case static_cast<int32_t>(Wifi::AssignIpMethod::DHCP):
-            config.wifiIpConfig.assignMethod = Wifi::AssignIpMethod::DHCP;
-            break;
-        case static_cast<int32_t>(Wifi::AssignIpMethod::STATIC):
-            config.wifiIpConfig.assignMethod = Wifi::AssignIpMethod::STATIC;
-            if (!ConfigStaticIp(env, object, config)) {
-                return false;
-            }
-            break;
-        default:
-            config.wifiIpConfig.assignMethod = Wifi::AssignIpMethod::UNASSIGNED;
-            break;
+    MessageParcelUtils::ProcessAssignIpMethod(ipType, ipConfig);
+    if (ipType == static_cast<int32_t>(Wifi::AssignIpMethod::STATIC) && !ConfigStaticIp(env, object, ipConfig)) {
+        return false;
     }
     return true;
 }
 
-bool WifiManagerAddon::ConfigStaticIp(const napi_env& env, const napi_value& object, Wifi::WifiDeviceConfig& config)
+bool WifiManagerAddon::ConfigStaticIp(napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig)
 {
-    napi_value staticIp;
-    napi_value dnsServers;
+    napi_value staticIp = nullptr;
+    napi_value dnsServers = nullptr;
     napi_value primaryDns;
     napi_value secondDns;
-    if (!GetJsProperty(env, object, "staticIp", &staticIp) ||
+    if (!GetJsProperty(env, object, "staticIp", staticIp) ||
         !JsObjectToUint(env, staticIp, "ipAddress", true,
-        config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv4) ||
+        ipConfig.staticIpAddress.ipAddress.address.addressIpv4) ||
         !JsObjectToUint(env, staticIp, "gateway", true,
-        config.wifiIpConfig.staticIpAddress.gateway.addressIpv4) ||
+        ipConfig.staticIpAddress.gateway.addressIpv4) ||
         !JsObjectToInt(env, staticIp, "prefixLength", true,
-        config.wifiIpConfig.staticIpAddress.ipAddress.prefixLength) ||
-        !GetJsProperty(env, staticIp, "dnsServers", &dnsServers)) {
+        ipConfig.staticIpAddress.ipAddress.prefixLength) ||
+        !GetJsProperty(env, staticIp, "dnsServers", dnsServers)) {
         return false;
     }
-    config.wifiIpConfig.staticIpAddress.ipAddress.address.family = 0;
+    ipConfig.staticIpAddress.ipAddress.address.family = 0;
     uint32_t arrayLength = 0;
     const uint32_t DNS_NUM = 2;
     napi_get_array_length(env, dnsServers, &arrayLength);
@@ -363,26 +351,25 @@ bool WifiManagerAddon::ConfigStaticIp(const napi_env& env, const napi_value& obj
     }
     napi_get_element(env, dnsServers, 0, &primaryDns);
     napi_get_element(env, dnsServers, 1, &secondDns);
-    napi_get_value_uint32(env, primaryDns, &config.wifiIpConfig.staticIpAddress.dnsServer1.addressIpv4);
-    napi_get_value_uint32(env, secondDns, &config.wifiIpConfig.staticIpAddress.dnsServer2.addressIpv4);
+    napi_get_value_uint32(env, primaryDns, &ipConfig.staticIpAddress.dnsServer1.addressIpv4);
+    napi_get_value_uint32(env, secondDns, &ipConfig.staticIpAddress.dnsServer2.addressIpv4);
     return true;
 }
 
-bool WifiManagerAddon::ProcessEapConfig(const napi_env& env, const napi_value& object,
-    Wifi::WifiDeviceConfig& devConfig)
+bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
 {
-    napi_value napiEap;
+    napi_value napiEap = nullptr;
     int32_t eapMethod = static_cast<int32_t>(EapMethod::EAP_NONE);
-    if (!GetJsProperty(env, object, "eapProfile", &napiEap) ||
+    if (!GetJsProperty(env, object, "eapProfile", napiEap) ||
         !JsObjectToInt(env, napiEap, "eapMethod", true, eapMethod)) {
         return false;
     }
     switch (eapMethod) {
         case static_cast<int32_t>(EapMethod::EAP_PEAP):
-            ProcessEapPeapConfig(env, napiEap, devConfig.wifiEapConfig);
+            ProcessEapPeapConfig(env, napiEap, eapConfig);
             break;
         case static_cast<int32_t>(EapMethod::EAP_TLS):
-            ProcessEapTlsConfig(env, napiEap, devConfig.wifiEapConfig);
+            ProcessEapTlsConfig(env, napiEap, eapConfig);
             break;
         default:
             EDMLOGI("EapMethod: %{public}d unsupported", eapMethod);
@@ -391,8 +378,7 @@ bool WifiManagerAddon::ProcessEapConfig(const napi_env& env, const napi_value& o
     return true;
 }
 
-bool WifiManagerAddon::ProcessEapPeapConfig(const napi_env& env, const napi_value& object,
-    Wifi::WifiEapConfig& eapConfig)
+bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
 {
     eapConfig.eap = Wifi::EAP_METHOD_PEAP;
     int32_t phase2 = static_cast<int32_t>(Wifi::Phase2Method::NONE);
@@ -405,19 +391,12 @@ bool WifiManagerAddon::ProcessEapPeapConfig(const napi_env& env, const napi_valu
     return true;
 }
 
-bool WifiManagerAddon::ProcessEapTlsConfig(const napi_env& env, const napi_value& object,
-    Wifi::WifiEapConfig& eapConfig)
+bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
 {
     eapConfig.eap = Wifi::EAP_METHOD_TLS;
-    std::string certPassword;
     if (!JsObjectToString(env, object, "identity", true, eapConfig.identity) ||
-        !JsObjectToString(env, object, "certPassword", true, certPassword) ||
+        !JsObjectToCharArray(env, object, "certPassword", WIFI_PASSWORD_LEN, true, eapConfig.certPassword) ||
         !JsObjectToU8Vector(env, object, "certEntry", eapConfig.certEntry)) {
-        return false;
-    }
-    if (strncpy_s(eapConfig.certPassword, sizeof(eapConfig.certPassword), certPassword.c_str(),
-        sizeof(eapConfig.certPassword) - 1) != EOK) {
-        EDMLOGE("ProcessEapTlsConfig strncpy_s failed!");
         return false;
     }
     return true;

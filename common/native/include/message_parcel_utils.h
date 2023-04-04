@@ -16,7 +16,6 @@
 #ifndef COMMON_NATIVE_INCLUDE_MESSAGE_PARCEL_UTILS_H
 #define COMMON_NATIVE_INCLUDE_MESSAGE_PARCEL_UTILS_H
 
-#include <iostream>
 #include <string>
 #include "edm_errors.h"
 #include "message_parcel.h"
@@ -30,7 +29,7 @@ public:
    static void WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address);
    static void ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config);
    static void ProcessAssignIpMethod(int32_t ipMethod, Wifi::WifiIpConfig &ipConfig);
-   static void ProcessPhase2Method(int32_t phase2, Wifi::WifiEapConfig& eapConfig);
+   static void ProcessPhase2Method(int32_t phase2, Wifi::WifiEapConfig &eapConfig);
    static void ProcessConfigureProxyMethod(int32_t proxyMethod, Wifi::WifiProxyConfig &proxyConfig);
    static void ProcessPrivacyConfig(int32_t privacyConfig, Wifi::WifiDeviceConfig &config);
    static void ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress &address);

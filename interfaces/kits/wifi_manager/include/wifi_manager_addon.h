@@ -37,25 +37,25 @@ struct AsyncSetWifiProfileCallbackInfo : AsyncCallbackInfo {
 };
 
 enum class SecurityType {
-    /** Invalid security type */
+    // Invalid security type.
     SEC_TYPE_INVALID = 0,
-    /** Open */
+    // Open.
     SEC_TYPE_OPEN = 1,
-    /** Wired Equivalent Privacy (WEP) */
+    // Wired Equivalent Privacy (WEP).
     SEC_TYPE_WEP = 2,
-    /** Pre-shared key (PSK) */
+    // Pre-shared key (PSK).
     SEC_TYPE_PSK = 3,
-    /** Simultaneous Authentication of Equals (SAE) */
+    // Simultaneous Authentication of Equals (SAE).
     SEC_TYPE_SAE = 4,
-    /** EAP authentication. */
+    // EAP authentication.
     SEC_TYPE_EAP = 5,
-    /** SUITE_B_192 192 bit level. */
+    // SUITE_B_192 192 bit level.
     SEC_TYPE_EAP_SUITE_B = 6,
-    /** Opportunistic Wireless Encryption. */
+    // Opportunistic Wireless Encryption.
     SEC_TYPE_OWE = 7,
-    /** WAPI certificate to be specified. */
+    // WAPI certificate to be specified.
     SEC_TYPE_WAPI_CERT = 8,
-    /** WAPI pre-shared key to be specified. */
+    // WAPI pre-shared key to be specified.
     SEC_TYPE_WAPI_PSK = 9,
 };
 
@@ -78,15 +78,13 @@ public:
 
     static napi_value Init(napi_env env, napi_value exports);
 private:
-    static bool JsObjToDeviceConfig(const napi_env& env, const napi_value& object, Wifi::WifiDeviceConfig& config);
-    static void ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig& config);
-    static void ProcessPassphrase(const SecurityType& securityType, Wifi::WifiDeviceConfig& config);
-    static bool ProcessIpType(int32_t ipType, const napi_env& env, const napi_value& object,
-        Wifi::WifiDeviceConfig& config);
-    static bool ConfigStaticIp(const napi_env& env, const napi_value& object, Wifi::WifiDeviceConfig& config);
-    static bool ProcessEapConfig(const napi_env& env, const napi_value& object, Wifi::WifiDeviceConfig& devConfig);
-    static bool ProcessEapPeapConfig(const napi_env& env, const napi_value& object, Wifi::WifiEapConfig& eapConfig);
-    static bool ProcessEapTlsConfig(const napi_env& env, const napi_value& object, Wifi::WifiEapConfig& eapConfig);
+    static bool JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config);
+    static void ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config);
+    static bool ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
+    static bool ConfigStaticIp(napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
+    static bool ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
+    static bool ProcessEapPeapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
+    static bool ProcessEapTlsConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
     static napi_value IsWifiActive(napi_env env, napi_callback_info info);
     static napi_value SetWifiProfile(napi_env env, napi_callback_info info);
     static void NativeIsWifiActive(napi_env env, void *data);

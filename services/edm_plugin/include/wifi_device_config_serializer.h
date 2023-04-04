@@ -43,6 +43,7 @@ private:
     Json::Value SerializerIpAddress(const Wifi::WifiIpAddress &address);
     Wifi::WifiIpAddress DeserializeIpAddress(const Json::Value &ipAddressJson);
     void ConvertStrToJson(const std::string &str, Json::Value &json);
+    void ConvertJsonToStr(const Json::Value &json, std::string &str);
 };
 } // namespace EDM
 } // namespace OHOS

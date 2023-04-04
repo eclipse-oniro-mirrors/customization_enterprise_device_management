@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,8 @@ public:
     ~DatetimeManagerProxy();
     static std::shared_ptr<DatetimeManagerProxy> GetDatetimeManagerProxy();
     int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
+    int32_t DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow);
+    int32_t IsModifyDateTimeDisallowed(AppExecFwk::ElementName &admin, bool hasAdmin, bool &result);
 
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;

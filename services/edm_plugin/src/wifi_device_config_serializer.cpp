@@ -57,11 +57,8 @@ bool WifiDeviceConfigSerializer::Deserialize(const std::string &jsonString, Wifi
     config.wifiEapConfig.privateKey = wifiDeviceConfigJson["privateKey"].asString();
     std::string certStr = wifiDeviceConfigJson["certEntry"].asString();
     config.wifiEapConfig.certEntry.assign(certStr.begin(), certStr.end());
-    std::string certPassword = wifiDeviceConfigJson["certPassword"].asString();
-    if (strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), certPassword.c_str(),
-        sizeof(config.wifiEapConfig.certPassword) - 1) != EOK) {
-        EDMLOGE("ReadWifiDeviceConfig strncpy_s failed!");
-    }
+    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword),
+        wifiDeviceConfigJson["certPassword"].asString().c_str(), sizeof(config.wifiEapConfig.certPassword) - 1);
     MessageParcelUtils::ProcessPhase2Method(wifiDeviceConfigJson["phase2Method"].asInt(), config.wifiEapConfig);
     MessageParcelUtils::ProcessConfigureProxyMethod(wifiDeviceConfigJson["configureMethod"].asInt(),
         config.wifiProxyconfig);
@@ -94,8 +91,6 @@ Wifi::WifiIpAddress WifiDeviceConfigSerializer::DeserializeIpAddress(const Json:
 
 bool WifiDeviceConfigSerializer::Serialize(const Wifi::WifiDeviceConfig &config, std::string &jsonString)
 {
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
     Json::Value configJson;
     configJson["networkId"] = config.networkId;
     configJson["status"] = config.status;
@@ -141,7 +136,7 @@ bool WifiDeviceConfigSerializer::Serialize(const Wifi::WifiDeviceConfig &config,
     configJson["serverPort"] = config.wifiProxyconfig.manualProxyConfig.serverPort;
     configJson["exclusionObjectList"] = config.wifiProxyconfig.manualProxyConfig.exclusionObjectList;
     configJson["wifiPrivacySetting"] = static_cast<int32_t>(config.wifiPrivacySetting);
-    jsonString = Json::writeString(builder, configJson);
+    ConvertJsonToStr(configJson, jsonString);
     return true;
 }
 
@@ -154,6 +149,13 @@ Json::Value WifiDeviceConfigSerializer::SerializerIpAddress(const Wifi::WifiIpAd
     std::string ipv6Str(address.addressIpv6.begin(), address.addressIpv6.end());
     ipAddressJson["addressIpv6"] = ipv6Str;
     return ipAddressJson;
+}
+
+void WifiDeviceConfigSerializer::ConvertJsonToStr(const Json::Value &json, std::string &str)
+{
+    Json::StreamWriterBuilder builder;
+    builder.settings_["indentation"] = "";
+    str = Json::writeString(builder, json);
 }
 
 bool WifiDeviceConfigSerializer::GetPolicy(MessageParcel &data, Wifi::WifiDeviceConfig &result)
