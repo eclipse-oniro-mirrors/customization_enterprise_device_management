@@ -59,6 +59,44 @@ HWTEST_F(DatetimeManagerProxyTest, TestSetDateTime, TestSize.Level1)
     int32_t ret = dateTimeManagerProxy->SetDateTime(admin, time);
     EXPECT_TRUE(ret != ERR_OK);
 }
+
+/**
+ * @tc.name: TestDisallowModifyDateTime
+ * @tc.desc: Test DisallowModifyDateTime func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DatetimeManagerProxyTest, TestDisallowModifyDateTime, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    ErrCode ret = dateTimeManagerProxy->DisallowModifyDateTime(admin, true);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsModifyDateTimeDisallowed
+ * @tc.desc: Test IsModifyDateTimeDisallowed func if have Admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed001, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    bool result = true;
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, true, result);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsModifyDateTimeDisallowed
+ * @tc.desc: Test IsModifyDateTimeDisallowed func if does not have Admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed002, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    bool result = true;
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, false, result);
+    ASSERT_TRUE(ret != ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
