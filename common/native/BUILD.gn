@@ -18,6 +18,8 @@ config("edm_commom_all_dependent_configs") {
   include_dirs = [
     "$EDM_INNERKITS_PATH/plugin_kits/include",
     "$SUBSYSTEM_DIR/common/native/include",
+    "$WIFI_ROOT_DIR/frameworks/native/interfaces",
+    "$WIFI_ROOT_DIR/services/wifi_standard/wifi_framework/wifi_toolkit/net_helper",
   ]
 }
 
@@ -29,18 +31,21 @@ ohos_shared_library("edm_commom") {
     "include/connection",
     JSONCPP_INCLUDE_DIR,
     "$SUBSYSTEM_DIR/framework/extension/include",
+    "$WIFI_ROOT_DIR/frameworks/native/interfaces",
+    "$WIFI_ROOT_DIR/services/wifi_standard/wifi_framework/wifi_toolkit/net_helper",
   ]
 
   sources = [
     "$SUBSYSTEM_DIR/common/native/src/edm_data_ability_utils.cpp",
     "$SUBSYSTEM_DIR/common/native/src/edm_permission.cpp",
     "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
+    "$SUBSYSTEM_DIR/common/native/src/message_parcel_utils.cpp",
   ]
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
   all_dependent_configs = [ ":edm_commom_all_dependent_configs" ]
-  deps = []
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
   external_deps = [
     "ability_base:zuri",
@@ -48,6 +53,7 @@ ohos_shared_library("edm_commom") {
     "c_utils:utils",
     "data_share:datashare_consumer",
     "samgr:samgr_proxy",
+    "wifi:wifi_sdk",
   ]
 
   if (is_standard_system) {

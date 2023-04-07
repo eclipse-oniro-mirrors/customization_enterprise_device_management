@@ -21,10 +21,7 @@ PLUGIN_SRC_PATH = "$PLUGIN_ROOT/src"
 edm_plugin_shared_library("datetime_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/set_datetime_plugin.cpp" ]
 
-  include_dirs = [
-    "//third_party/node/src",
-    "$SUBSYSTEM_DIR/common/native/include",
-  ]
+  include_dirs = [ "//third_party/node/src" ]
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
@@ -35,7 +32,6 @@ edm_plugin_shared_library("datetime_manager_plugin") {
 edm_plugin_shared_library("account_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/disallow_add_local_account_plugin.cpp" ]
 
-  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
@@ -50,8 +46,6 @@ edm_plugin_shared_library("device_info_plugin") {
     "$PLUGIN_SRC_PATH/get_display_version_plugin.cpp",
   ]
 
-  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
-
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
 
   external_deps = [
@@ -63,26 +57,34 @@ edm_plugin_shared_library("device_info_plugin") {
 edm_plugin_shared_library("device_control_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/reset_factory_plugin.cpp" ]
 
-  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
-
   external_deps = [ "c_utils:utils" ]
 
   if (defined(global_parts_info) &&
       defined(global_parts_info.updater_update_service)) {
-    include_dirs +=
+    include_dirs =
         [ "$UPDATE_SA_PATH/updateservice/interfaces/inner_api/include" ]
     external_deps += [ "update_service:updateservicekits" ]
   } else {
-    include_dirs +=
+    include_dirs =
         [ "$UPDATE_SA_PATH/dupdate_engine/interfaces/inner_api/include" ]
     external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 }
 
 edm_plugin_shared_library("wifi_manager_plugin") {
-  sources = [ "$PLUGIN_SRC_PATH/is_wifi_active_plugin.cpp" ]
+  sources = [
+    "$PLUGIN_SRC_PATH/is_wifi_active_plugin.cpp",
+    "$PLUGIN_SRC_PATH/set_wifi_profile_plugin.cpp",
+    "$PLUGIN_SRC_PATH/wifi_device_config_serializer.cpp",
+  ]
 
-  include_dirs = [ "$WIFI_INTERFACE_PATH/kits/c/" ]
+  include_dirs = [ "$WIFI_ROOT_DIR/frameworks/native/include" ]
+
+  deps = [
+    "$SUBSYSTEM_DIR/common/native:edm_commom",
+    "//third_party/bounds_checking_function:libsec_shared",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -97,8 +99,6 @@ edm_plugin_shared_library("network_manager_plugin") {
     "$PLUGIN_SRC_PATH/get_mac_plugin.cpp",
   ]
 
-  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
-
   external_deps = [
     "c_utils:utils",
     "netmanager_ext:ethernet_manager_if",
@@ -107,8 +107,6 @@ edm_plugin_shared_library("network_manager_plugin") {
 
 edm_plugin_shared_library("bundle_manager_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/allowed_install_bundles_plugin.cpp" ]
-
-  include_dirs = [ "$SUBSYSTEM_DIR/common/native/include" ]
 
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
 
@@ -124,8 +122,6 @@ edm_plugin_shared_library("disallow_modify_datetime_plugin") {
   sources = [ "$PLUGIN_SRC_PATH/disallow_modify_datetime_plugin.cpp" ]
 
   deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
-
-  include_dirs = []
 
   external_deps = [
     "c_utils:utils",

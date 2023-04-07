@@ -21,6 +21,8 @@ ohos_shared_library("wifimanager") {
     "$SUBSYSTEM_DIR/interfaces/kits/common/include",
     "$SUBSYSTEM_DIR/interfaces/kits/wifi_manager/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/include",
+    "$WIFI_ROOT_DIR/frameworks/native/interfaces",
+    "$WIFI_ROOT_DIR/services/wifi_standard/wifi_framework/wifi_toolkit/net_helper",
   ]
 
   sources = [
@@ -31,12 +33,17 @@ ohos_shared_library("wifimanager") {
 
   configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
 
-  deps = [ "$EDM_INNERKITS_PATH:edmservice_kits" ]
+  deps = [
+    "$EDM_INNERKITS_PATH:edmservice_kits",
+    "$SUBSYSTEM_DIR/common/native:edm_commom",
+    "//third_party/bounds_checking_function:libsec_shared",
+  ]
 
   external_deps = [
     "ability_base:want",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
+    "wifi:wifi_sdk",
   ]
 
   relative_install_dir = "module/enterprise"

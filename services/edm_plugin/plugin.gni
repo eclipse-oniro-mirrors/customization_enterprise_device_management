@@ -14,12 +14,15 @@
 import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 
-WIFI_INTERFACE_PATH = "//foundation/communication/wifi/wifi/interfaces"
 UPDATE_SA_PATH = "//base/update"
 
 template("edm_plugin_shared_library") {
   ohos_shared_library("${target_name}") {
     forward_variables_from(invoker, "*")
+
+    if (!defined(include_dirs)) {
+      include_dirs = []
+    }
 
     include_dirs += [
       "$SUBSYSTEM_DIR/interfaces/inner_api/common/include",

@@ -556,21 +556,12 @@ bool AdminManager::ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, na
     }
     std::string name;
     std::string description;
-    napi_value prop = nullptr;
-    EDMLOGD("ParseEnterpriseInfo name");
-    if (napi_get_named_property(env, args, "name", &prop) != napi_ok || !GetStringFromNAPI(env, prop, name)) {
-        EDMLOGE("ParseEnterpriseInfo name param error");
+    if (!JsObjectToString(env, args, "name", true, name) ||
+        !JsObjectToString(env, args, "description", true, description)) {
+        EDMLOGE("ParseEnterpriseInfo param error");
         return false;
     }
     EDMLOGD("ParseEnterpriseInfo name %{public}s ", name.c_str());
-
-    EDMLOGD("ParseEnterpriseInfo description");
-    prop = nullptr;
-    if (napi_get_named_property(env, args, "description", &prop) != napi_ok ||
-        !GetStringFromNAPI(env, prop, description)) {
-        EDMLOGE("ParseEnterpriseInfo description param error");
-        return false;
-    }
     EDMLOGD("ParseEnterpriseInfo description %{public}s", description.c_str());
 
     enterpriseInfo.enterpriseName = name;

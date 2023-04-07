@@ -87,6 +87,21 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveFail, TestSize.Level1)
     ASSERT_TRUE(ret != ERR_OK);
     ASSERT_FALSE(isActive);
 }
+
+/**
+ * @tc.name: TestSetWifiProfileFail
+ * @tc.desc: Test SetWifiProfile func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    Wifi::WifiDeviceConfig config;
+    config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
+    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

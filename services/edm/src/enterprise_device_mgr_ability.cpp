@@ -755,8 +755,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return ret;
     }
 
-    EDMLOGD("HandleDevicePolicy: isChanged:%{public}d, needSave:%{public}d, policyValue:%{public}s\n", isChanged,
-        plugin->NeedSavePolicy(), policyValue.c_str());
+    EDMLOGD("HandleDevicePolicy: isChanged:%{public}d, needSave:%{public}d\n", isChanged, plugin->NeedSavePolicy());
     std::string oldCombinePolicy = "";
     policyMgr_->GetPolicy("", policyName, oldCombinePolicy);
     std::string mergedPolicy = policyValue;

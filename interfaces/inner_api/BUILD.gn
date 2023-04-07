@@ -52,6 +52,8 @@ ohos_shared_library("edmservice_kits") {
 
   version_script = "libedmservice_kits.map"
 
+  deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",

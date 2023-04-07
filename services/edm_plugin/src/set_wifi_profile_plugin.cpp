@@ -13,38 +13,36 @@
  * limitations under the License.
  */
 
-#include "is_wifi_active_plugin.h"
+#include "set_wifi_profile_plugin.h"
 #include <system_ability_definition.h>
-#include "bool_serializer.h"
+#include "iplugin_manager.h"
 #include "policy_info.h"
 #include "wifi_device.h"
+#include "wifi_device_config_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
 
-void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
+void SetWifiProfilePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiProfilePlugin,
+    Wifi::WifiDeviceConfig>> ptr)
 {
-    EDMLOGD("IsWifiActivePlugin InitPlugin...");
+    EDMLOGD("SetWifiProfilePlugin InitPlugin...");
     std::string policyName;
-    POLICY_CODE_TO_NAME(IS_WIFI_ACTIVE, policyName);
-    ptr->InitAttribute(IS_WIFI_ACTIVE, policyName, "ohos.permission.ENTERPRISE_SET_WIFI",
+    POLICY_CODE_TO_NAME(SET_WIFI_PROFILE, policyName);
+    ptr->InitAttribute(SET_WIFI_PROFILE, policyName, "ohos.permission.ENTERPRISE_SET_WIFI",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
+    ptr->SetSerializer(WifiDeviceConfigSerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&SetWifiProfilePlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config)
 {
-    EDMLOGD("IsWifiActivePlugin OnGetPolicy.");
-    bool isActive = false;
-    ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->IsWifiActive(isActive);
+    EDMLOGD("SetWifiProfilePlugin OnSetPolicy");
+    ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->ConnectToDevice(config);
     if (ret != ERR_OK) {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isActive);
     return ERR_OK;
 }
 } // namespace EDM

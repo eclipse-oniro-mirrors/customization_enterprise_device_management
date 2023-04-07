@@ -15,8 +15,8 @@
 
 #include <gtest/gtest.h>
 #include "iplugin_template.h"
-#include "is_wifi_active_plugin.h"
 #include "plugin_manager.h"
+#include "set_wifi_profile_plugin.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -24,7 +24,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class IsWifiActivePluginTest : public testing::Test {
+class SetWifiProfilePluginTest : public testing::Test {
 protected:
     void SetUp() override {}
 
@@ -36,13 +36,11 @@ protected:
  * @tc.desc: Test OnPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(IsWifiActivePluginTest, TestIsWifiActive, TestSize.Level1)
+HWTEST_F(SetWifiProfilePluginTest, TestSetWifiProfile, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
-    std::string policyData{"TestIsWifiActive"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    SetWifiProfilePlugin plugin;
+    Wifi::WifiDeviceConfig config;
+    ErrCode ret = plugin.OnSetPolicy(config);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST

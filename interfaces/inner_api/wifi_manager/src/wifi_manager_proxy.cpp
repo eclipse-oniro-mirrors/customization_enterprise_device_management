@@ -16,6 +16,7 @@
 #include "wifi_manager_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
+#include "message_parcel_utils.h"
 #include "policy_info.h"
 
 namespace OHOS {
@@ -63,6 +64,23 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     }
     reply.ReadBool(result);
     return ERR_OK;
+}
+
+int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, const Wifi::WifiDeviceConfig &config)
+{
+    EDMLOGD("WifiManagerProxy::SetWifiProfile");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_WIFI_PROFILE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(0); // without userid
+    data.WriteParcelable(&admin);
+    MessageParcelUtils::WriteWifiDeviceConfig(config, data);
+    return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS

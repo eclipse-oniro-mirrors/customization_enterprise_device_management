@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_WIFI_MANAGER_INCLUDE_WIFI_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "wifi_msg.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,6 +27,7 @@ public:
     ~WifiManagerProxy();
     static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
     int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
+    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, const Wifi::WifiDeviceConfig &config);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<WifiManagerProxy> instance_;
