@@ -275,7 +275,7 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
     return true;
 }
 
-bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value result)
+bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok || !hasProperty ||
@@ -288,7 +288,7 @@ bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_v
 
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, std::vector<uint8_t> &certVector)
 {
-    napi_value certEntry = nullptr;
+    napi_value certEntry;
     if (!GetJsProperty(env, object, fieldStr, certEntry)) {
         return false;
     }

@@ -76,7 +76,7 @@ bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, boo
     std::string &resultStr);
 bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength, bool isNecessaryProp,
     char *result);
-bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value result);
+bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
     std::vector<uint8_t> &certVector);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
