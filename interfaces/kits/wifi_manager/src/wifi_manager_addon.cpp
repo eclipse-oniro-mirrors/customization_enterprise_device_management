@@ -327,8 +327,8 @@ bool WifiManagerAddon::ProcessIpType(int32_t ipType, napi_env env, napi_value ob
 
 bool WifiManagerAddon::ConfigStaticIp(napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig)
 {
-    napi_value staticIp = nullptr;
-    napi_value dnsServers = nullptr;
+    napi_value staticIp;
+    napi_value dnsServers;
     napi_value primaryDns;
     napi_value secondDns;
     if (!GetJsProperty(env, object, "staticIp", staticIp) ||
@@ -358,7 +358,7 @@ bool WifiManagerAddon::ConfigStaticIp(napi_env env, napi_value object, Wifi::Wif
 
 bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
 {
-    napi_value napiEap = nullptr;
+    napi_value napiEap;
     int32_t eapMethod = static_cast<int32_t>(EapMethod::EAP_NONE);
     if (!GetJsProperty(env, object, "eapProfile", napiEap) ||
         !JsObjectToInt(env, napiEap, "eapMethod", true, eapMethod)) {
