@@ -453,7 +453,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest001, TestSize.Level1)
 {
-    edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
     ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
     ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[DEFAULT_USER_ID].get());
     ASSERT_TRUE(edmMgr_->policyMgrMap_.size() > 0);
@@ -475,7 +475,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest00
     guestPolicyMgr.reset(new (std::nothrow) PolicyManager(TEST_USER_ID));
     edmMgr_->policyMgrMap_.insert(std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(TEST_USER_ID,
         guestPolicyMgr));
-    edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
     ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
     ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[TEST_USER_ID].get());
     ASSERT_TRUE(edmMgr_->policyMgr_.get() != defaultPolcyMgr);

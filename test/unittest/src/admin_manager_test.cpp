@@ -414,6 +414,28 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestGetSuperAdmin
+ * @tc.desc: Test AdminManager::GetSuperAdmin function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetSuperAdmin, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+
+    std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_ENT_PERMISSION" };
+    adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> superAdmin = nullptr;
+    ASSERT_TRUE(adminMgr_->GetSuperAdmin(superAdmin) == ERR_OK);
+    ASSERT_TRUE(superAdmin != nullptr);
+}
+
+/**
  * @tc.name: TestGetAdminBySubscribeEvent
  * @tc.desc: Test AdminManager::GetAdminBySubscribeEvent function.
  * @tc.type: FUNC
