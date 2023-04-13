@@ -67,7 +67,7 @@ void MessageParcelUtils::WriteWifiDeviceConfig(const Wifi::WifiDeviceConfig &con
 void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address)
 {
     data.WriteInt32(address.family);
-    data.WriteInt32(address.addressIpv4);
+    data.WriteUint32(address.addressIpv4);
     size_t size = address.addressIpv6.size();
     data.WriteInt32(size);
     for (size_t i = 0; i < size; i++) {
@@ -194,7 +194,7 @@ void MessageParcelUtils::ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress 
 {
     constexpr int MAX_LIMIT_SIZE = 1024;
     address.family = data.ReadInt32();
-    address.addressIpv4 = data.ReadInt32();
+    address.addressIpv4 = data.ReadUint32();
     int size = data.ReadInt32();
     if (size > MAX_LIMIT_SIZE) {
         EDMLOGE("Read ip address parameter error: %{public}d", size);
