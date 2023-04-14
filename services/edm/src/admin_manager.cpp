@@ -279,6 +279,19 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
     }
 }
 
+ErrCode AdminManager::GetSuperAdmin(std::shared_ptr<Admin> &admin)
+{
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    if (!GetAdminByUserId(DEFAULT_USER_ID, userAdmin)) {
+        EDMLOGW("IsSuperAdminExist::not find super Admin");
+        return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
+    }
+    auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(),
+        [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
+    admin = *adminItem;
+    return ERR_OK;
+}
+
 ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId)
 {
     std::vector<std::shared_ptr<Admin>> userAdmin;
