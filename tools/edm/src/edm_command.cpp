@@ -29,8 +29,6 @@ constexpr int32_t ARR_INDEX_TWO = 2;
 constexpr size_t ARGS_SIZE_TWO = 2;
 constexpr size_t ARGS_SIZE_THREE = 3;
 
-constexpr int32_t DEFAULT_USER_ID = 100;
-
 EdmCommand::EdmCommand(int argc, char *argv[])
     : ShellCommand(argc, argv, TOOL_NAME)
 {}

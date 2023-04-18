@@ -221,46 +221,46 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnabledAdminFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestIsPolicyDisableSuc
- * @tc.desc: Test IsPolicyDisable func.
+ * @tc.name: TestIsPolicyDisabledSuc
+ * @tc.desc: Test IsPolicyDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledSuc, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     bool isDisabled = false;
-    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
 /**
- * @tc.name: TestIsPolicyDisableFail
- * @tc.desc: Test IsPolicyDisable func.
+ * @tc.name: TestIsPolicyDisabledFail
+ * @tc.desc: Test IsPolicyDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableFail, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledFail, TestSize.Level1)
 {
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     bool isDisabled = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, funcCode, isDisabled);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
 /**
- * @tc.name: TestIsPolicyDisableFuncCodeFail
- * @tc.desc: Test IsPolicyDisable func.
+ * @tc.name: TestIsPolicyDisabledFuncCodeFail
+ * @tc.desc: Test IsPolicyDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisableFuncCodeFail, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledFuncCodeFail, TestSize.Level1)
 {
     bool isDisabled = false;
-    enterpriseDeviceMgrProxyTest->IsPolicyDisable(nullptr, FUNC_CODE_ERR, isDisabled);
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, FUNC_CODE_ERR, isDisabled);
     EXPECT_TRUE(!isDisabled);
 }
 
@@ -395,66 +395,66 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArraySuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestGetPolicyConfigSuc
- * @tc.desc: Test GetPolicyConfig func.
+ * @tc.name: TestGetPolicyMapSuc
+ * @tc.desc: Test GetPolicyMap func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapSuc, TestSize.Level1)
 {
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyMap(nullptr, funcCode, policyMapData);
     EXPECT_TRUE(ret);
 }
 
 /**
- * @tc.name: TestGetPolicyConfigReplyFail
- * @tc.desc: Test GetPolicyConfig func.
+ * @tc.name: TestGetPolicyMapReplyFail
+ * @tc.desc: Test GetPolicyMap func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigReplyFail, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapReplyFail, TestSize.Level1)
 {
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyMap(nullptr, funcCode, policyMapData);
     EXPECT_FALSE(ret);
 }
 
 /**
- * @tc.name: TestGetPolicyConfigEnableAdminNotEqual
- * @tc.desc: Test GetPolicyConfig func.
+ * @tc.name: TestGetPolicyMapEnableAdminNotEqual
+ * @tc.desc: Test GetPolicyMap func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigEnableAdminNotEqual, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapEnableAdminNotEqual, TestSize.Level1)
 {
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin));
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyMap(nullptr, funcCode, policyMapData);
     EXPECT_FALSE(ret);
 }
 
 /**
- * @tc.name: TestGetPolicyConfigEnableAdminSizeEqual
- * @tc.desc: Test GetPolicyConfig func.
+ * @tc.name: TestGetPolicyMapEnableAdminSizeEqual
+ * @tc.desc: Test GetPolicyMap func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyConfigEnableAdminSizeEqual, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapEnableAdminSizeEqual, TestSize.Level1)
 {
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestMapEnableAdminTwoSuc));
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyConfig(nullptr, funcCode, policyMapData);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyMap(nullptr, funcCode, policyMapData);
     EXPECT_TRUE(ret);
 }
 

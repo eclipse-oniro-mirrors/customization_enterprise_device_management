@@ -51,7 +51,7 @@ int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, RESET_FACTORY);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     return proxy->HandleDevicePolicy(funcCode, data);
 }

@@ -1,6 +1,6 @@
 {
-  "name": "@ohos/customization_enterprise_device_management",
-  "version": "",
+  "name": "@ohos/enterprise_device_management",
+  "version": 3.2,
   "description": "EDM（Enterprise Device Management）提供系统级别的管理功能API，支持企业MDM应用对设备的管控",
   "homePage": "https://gitee.com/openharmony",
   "license": "Apache V2",
@@ -48,8 +48,8 @@
     "hisysevent_config": [
       "//base/customization/enterprise_device_management/common/native/src/hisysevent.yaml"
     ],
-    "rom": "",
-    "ram": "",
+    "rom": "1800KB",
+    "ram": "6293KB",
     "deps": {
       "components": [
         "ability_base",
@@ -114,7 +114,7 @@
           "//base/customization/enterprise_device_management/etc/init:edm.cfg"
         ]
       },
-      "inner_kits": [
+      "inner_api": [
         {
           "header": {
             "header_base":"//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits/include",
@@ -135,7 +135,16 @@
             ]
           },
           "name": "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits"
-        }
+        },
+      {
+        "header": {
+          "header_base": "//base/customization/enterprise_device_management/interfaces/inner_api",
+          "header_files": [
+            "common/include/enterprise_device_mgr_proxy.h"
+          ]
+        },
+        "name": "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits"
+      }
      ],
       "test": [
         "//base/customization/enterprise_device_management/test/unittest:unittest",

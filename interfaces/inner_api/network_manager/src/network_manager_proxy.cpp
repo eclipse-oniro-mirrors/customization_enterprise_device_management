@@ -53,8 +53,8 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
-    data.WriteInt32(0);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(GET_NETWORK_INTERFACES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
@@ -84,8 +84,8 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
-    data.WriteInt32(0);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);
     proxy->GetPolicy(policyCode, data, reply);

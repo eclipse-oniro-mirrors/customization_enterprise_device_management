@@ -480,7 +480,7 @@ ErrCode PolicyManager::DeleteCombinedJsonValue(const std::string &policyName)
         Json::Value &rootObject = policyRoot_["CombinedPolicies"];
         if (rootObject.isMember(policyName)) {
             rootObject.removeMember(policyName);
-            return true;
+            return ERR_OK;
         }
     }
     return ERR_EDM_POLICY_DEL_FAILED;

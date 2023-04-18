@@ -49,7 +49,7 @@ int32_t BundleManagerProxy::AddAllowedInstallBundles(AppExecFwk::ElementName &ad
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ALLOWED_INSTALL_BUNDLES);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(1);
+    data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
     data.WriteStringVector(bundles);
@@ -68,7 +68,7 @@ int32_t BundleManagerProxy::RemoveAllowedInstallBundles(AppExecFwk::ElementName 
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, ALLOWED_INSTALL_BUNDLES);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(1);
+    data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
     data.WriteStringVector(bundles);
@@ -87,9 +87,9 @@ int32_t BundleManagerProxy::GetAllowedInstallBundles(AppExecFwk::ElementName &ad
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(1);
+    data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
-    data.WriteInt32(0);
+    data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(ALLOWED_INSTALL_BUNDLES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;

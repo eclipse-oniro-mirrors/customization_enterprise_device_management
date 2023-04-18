@@ -300,22 +300,15 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
     return ERR_OK;
 }
 
-void EnterpriseDeviceMgrProxy::IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled)
+bool EnterpriseDeviceMgrProxy::IsPolicyDisabled(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled,
+    int32_t userId)
 {
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    if (admin != nullptr) {
-        data.WriteInt32(0);
-        data.WriteParcelable(admin);
-    } else {
-        data.WriteInt32(1);
+    if (!GetPolicyData(admin, policyCode, userId, reply)) {
+        return false;
     }
-    int32_t ret = ERR_INVALID_VALUE;
-    isDisabled = false;
-    if (GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK)) {
-        isDisabled = reply.ReadBool();
-    }
+    reply.ReadBool(isDisabled);
+    return true;
 }
 
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
@@ -338,75 +331,37 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     return ret;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData)
+bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
+    int32_t userId)
 {
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    if (admin != nullptr) {
-        data.WriteInt32(0);
-        data.WriteParcelable(admin);
-    } else {
-        data.WriteInt32(1);
+    if (!GetPolicyData(admin, policyCode, userId, reply)) {
+        return false;
     }
-    int32_t ret = ERR_INVALID_VALUE;
-    policyData = "";
-    if (GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK)) {
-        policyData = reply.ReadString();
-        return true;
-    }
-    return false;
+    reply.ReadString(policyData);
+    return true;
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode,
-    std::vector<std::string> &policyData)
+    std::vector<std::string> &policyData, int32_t userId)
 {
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    if (admin != nullptr) {
-        data.WriteInt32(0);
-        data.WriteParcelable(admin);
-    } else {
-        data.WriteInt32(1);
-    }
-    if (!GetPolicy(policyCode, data, reply)) {
+    if (!GetPolicyData(admin, policyCode, userId, reply)) {
         return false;
     }
-    int32_t ret = ERR_INVALID_VALUE;
-    if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
+    int32_t size = reply.ReadInt32();
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetPolicyArray size: %{public}d.", size);
+    if (!reply.ReadStringVector(&policyData)) {
         return false;
-    }
-    std::vector<std::string> readVector;
-    if (!reply.ReadStringVector(&readVector)) {
-        return false;
-    }
-    policyData.clear();
-    if (!readVector.empty()) {
-        for (const auto &str : readVector) {
-            policyData.push_back(str);
-        }
     }
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode,
-    std::map<std::string, std::string> &policyData)
+bool EnterpriseDeviceMgrProxy::GetPolicyMap(AppExecFwk::ElementName *admin, int policyCode,
+    std::map<std::string, std::string> &policyData, int32_t userId)
 {
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    if (admin != nullptr) {
-        data.WriteInt32(0);
-        data.WriteParcelable(admin);
-    } else {
-        data.WriteInt32(1);
-    }
-    if (!GetPolicy(policyCode, data, reply)) {
-        return false;
-    }
-    int32_t ret = ERR_INVALID_VALUE;
-    if (!reply.ReadInt32(ret) || (ret != ERR_OK)) {
+    if (!GetPolicyData(admin, policyCode, userId, reply)) {
         return false;
     }
     std::vector<std::string> keys;
@@ -423,10 +378,29 @@ bool EnterpriseDeviceMgrProxy::GetPolicyConfig(AppExecFwk::ElementName *admin, i
         EDMLOGE("EnterpriseDeviceMgrProxy::read map fail.");
         return false;
     }
-
     policyData.clear();
     for (uint64_t i = 0; i < keys.size(); ++i) {
         policyData.insert(std::make_pair(keys.at(i), values.at(i)));
+    }
+    return true;
+}
+
+bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId,
+    MessageParcel &reply)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    if (!GetPolicy(policyCode, data, reply) || !reply.ReadInt32(ret) || (ret != ERR_OK)) {
+        return false;
     }
     return true;
 }
