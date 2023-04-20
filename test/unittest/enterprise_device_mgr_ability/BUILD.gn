@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/test.gni")
 
 module_output_path = "enterprise_device_management/services"
@@ -24,32 +23,25 @@ ohos_unittest("EdmDeviceMgrAbilityUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
-    "$EDM_SA_ROOT/include",
-    "$EDM_SA_ROOT/include/utils",
-    "//commonlibrary/c_utils/base:utils_config",
-    JSONCPP_INCLUDE_DIR,
-    "$SUBSYSTEM_DIR/test/unittest/include",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/test/unittest/mock/include",
+    "../include",
+    "../mock/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/test/unittest/mock/src/bundle_manager_mock.cpp",
-    "$SUBSYSTEM_DIR/test/unittest/mock/src/edm_sys_manager_mock.cpp",
-    "$SUBSYSTEM_DIR/test/unittest/src/cmd_utils.cpp",
+    "../mock/src/bundle_manager_mock.cpp",
+    "../mock/src/edm_sys_manager_mock.cpp",
+    "../src/cmd_utils.cpp",
     "./enterprise_device_mgr_ability_test/enterprise_device_mgr_ability_test.cpp",
   ]
 
   configs = [
     ":module_private_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+    "../../../common/config:coverage_flags",
   ]
 
   deps = [
-    "$EDM_INNERKITS_PATH:edmservice_kits",
-    "$SUBSYSTEM_DIR/test/unittest:edmservice_static",
+    "../:edmservice_static",
+    "../../../interfaces/inner_api:edmservice_kits",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",

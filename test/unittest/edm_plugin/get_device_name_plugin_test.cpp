@@ -15,7 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "edm_data_ability_utils_mock.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "policy_info.h"
 #include "get_device_name_plugin.h"
 

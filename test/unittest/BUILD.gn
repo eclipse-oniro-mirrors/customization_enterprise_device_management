@@ -11,51 +11,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/test.gni")
 
 module_output_path = "enterprise_device_management/services"
 
 config("module_private_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "$SUBSYSTEM_DIR/test" ]
+  include_dirs = [ "../" ]
 }
 
 config("edm_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "$EDM_SA_ROOT/include",
-    "$EDM_INNERKITS_PATH/plugin_kits/include",
-    "$EDM_INNERKITS_PATH/plugin_kits/include/utils",
-    "$EDM_SA_ROOT/include/connection",
-    JSONCPP_INCLUDE_DIR,
-    "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/framework/extension/include",
+    "../../services/edm/include",
+    "../../services/edm/include/connection",
+    "../../framework/extension/include",
   ]
 }
 
 ohos_static_library("edmservice_static") {
   testonly = true
   sources = [
-    "$EDM_SRC_PATH/ability_manager_death_recipient.cpp",
-    "$EDM_SRC_PATH/admin.cpp",
-    "$EDM_SRC_PATH/admin_manager.cpp",
-    "$EDM_SRC_PATH/application_state_observer.cpp",
-    "$EDM_SRC_PATH/connection/enterprise_admin_connection.cpp",
-    "$EDM_SRC_PATH/connection/enterprise_admin_proxy.cpp",
-    "$EDM_SRC_PATH/connection/enterprise_bundle_connection.cpp",
-    "$EDM_SRC_PATH/connection/enterprise_conn_manager.cpp",
-    "$EDM_SRC_PATH/enterprise_device_mgr_ability.cpp",
-    "$EDM_SRC_PATH/enterprise_device_mgr_stub.cpp",
-    "$EDM_SRC_PATH/permission_manager.cpp",
-    "$EDM_SRC_PATH/plugin_manager.cpp",
-    "$EDM_SRC_PATH/policy_manager.cpp",
-    "$EDM_SRC_PATH/super_admin.cpp",
+    "../../services/edm/src/ability_manager_death_recipient.cpp",
+    "../../services/edm/src/admin.cpp",
+    "../../services/edm/src/admin_manager.cpp",
+    "../../services/edm/src/application_state_observer.cpp",
+    "../../services/edm/src/connection/enterprise_admin_connection.cpp",
+    "../../services/edm/src/connection/enterprise_admin_proxy.cpp",
+    "../../services/edm/src/connection/enterprise_bundle_connection.cpp",
+    "../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../services/edm/src/enterprise_device_mgr_ability.cpp",
+    "../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../services/edm/src/permission_manager.cpp",
+    "../../services/edm/src/plugin_manager.cpp",
+    "../../services/edm/src/policy_manager.cpp",
+    "../../services/edm/src/super_admin.cpp",
   ]
 
   public_configs = [
     ":edm_config",
-    "$SUBSYSTEM_DIR/common/config:coverage_flags",
+    "../../common/config:coverage_flags",
   ]
 
   defines = []
@@ -88,9 +83,9 @@ ohos_static_library("edmservice_static") {
   }
 
   deps = [
-    "$EDM_INNERKITS_PATH:edmservice_kits",
-    "$EDM_INNERKITS_PATH/plugin_kits:plugin_kits",
-    "$SUBSYSTEM_DIR/common/native:edm_commom",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
     "//third_party/jsoncpp:jsoncpp",
   ]
 
@@ -102,18 +97,8 @@ ohos_unittest("EdmServicesUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
-    "$EDM_SA_ROOT/include",
-    "$EDM_SA_ROOT/include/utils",
-    "//commonlibrary/c_utils/base:utils_config",
-    JSONCPP_INCLUDE_DIR,
+    "../../interfaces/inner_api/plugin_kits/include/utils",
     "./include",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/services/edm_plugin/include",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits/include/utils",
   ]
 
   sources = [
@@ -139,14 +124,14 @@ ohos_unittest("EdmServicesUnitTest") {
 
   configs = [
     ":module_private_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+    "../../common/config:coverage_flags",
   ]
 
   deps = [
     ":edmservice_static",
-    "$EDM_INNERKITS_PATH:edmservice_kits",
-    "$SUBSYSTEM_DIR/common/native:edm_commom",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",

@@ -11,27 +11,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
 
 ohos_shared_library("accountmanager") {
   include_dirs = [
-    "//third_party/node/src",
-    "$SUBSYSTEM_DIR/common/native/include",
-    "$SUBSYSTEM_DIR/interfaces/kits/account_manager/include",
-    "$SUBSYSTEM_DIR/interfaces/kits/common/include",
-    "$SUBSYSTEM_DIR/interfaces/inner_api/include",
+    "include",
+    "../common/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_common.cpp",
-    "$SUBSYSTEM_DIR/interfaces/kits/common/src/napi_edm_error.cpp",
-    "src/account_manager_addon.cpp",
+    "../common/src/napi_edm_common.cpp",
+    "../common/src/napi_edm_error.cpp",
+    "./src/account_manager_addon.cpp",
   ]
 
-  configs = [ "$SUBSYSTEM_DIR/common/config:coverage_flags" ]
+  configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "$EDM_INNERKITS_PATH:edmservice_kits" ]
+  deps = [ "../../inner_api:edmservice_kits" ]
 
   external_deps = [
     "ability_base:want",

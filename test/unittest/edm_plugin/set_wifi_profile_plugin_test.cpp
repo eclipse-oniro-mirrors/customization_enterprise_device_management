@@ -15,7 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "iplugin_template.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "set_wifi_profile_plugin.h"
 
 using namespace testing::ext;

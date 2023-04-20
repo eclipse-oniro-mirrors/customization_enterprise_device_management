@@ -13,12 +13,8 @@
 
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/customization/enterprise_device_management"
-ROOT = "${SUBSYSTEM_DIR}/framework/extension"
-SRC_PATH = "${ROOT}/src"
-
 config("enterprise_admin_config") {
-  include_dirs = [ "${SUBSYSTEM_DIR}/common/native/include" ]
+  include_dirs = [ "../../common/native/include" ]
 }
 
 config("enterprise_admin_public_config") {
@@ -27,17 +23,17 @@ config("enterprise_admin_public_config") {
 
 ohos_shared_library("enterprise_admin_extension") {
   sources = [
-    "$SRC_PATH/enterprise_admin_extension.cpp",
-    "$SRC_PATH/enterprise_admin_extension_context.cpp",
-    "$SRC_PATH/enterprise_admin_stub.cpp",
-    "$SRC_PATH/enterprise_admin_stub_impl.cpp",
-    "$SRC_PATH/js_enterprise_admin_extension.cpp",
-    "$SRC_PATH/js_enterprise_admin_extension_context.cpp",
+    "./src/enterprise_admin_extension.cpp",
+    "./src/enterprise_admin_extension_context.cpp",
+    "./src/enterprise_admin_stub.cpp",
+    "./src/enterprise_admin_stub_impl.cpp",
+    "./src/js_enterprise_admin_extension.cpp",
+    "./src/js_enterprise_admin_extension_context.cpp",
   ]
 
   configs = [
     ":enterprise_admin_config",
-    "//base/customization/enterprise_device_management/common/config:coverage_flags",
+    "../../common/config:coverage_flags",
   ]
 
   version_script = "libenterprise_admin_extension.map"
@@ -61,10 +57,10 @@ ohos_shared_library("enterprise_admin_extension") {
 ohos_shared_library("enterprise_admin_extension_module") {
   include_dirs = [ "include" ]
 
-  sources = [ "$SRC_PATH/enterprise_admin_extension_module_loader.cpp" ]
+  sources = [ "./src/enterprise_admin_extension_module_loader.cpp" ]
 
   configs = [
-    "$SUBSYSTEM_DIR/common/config:coverage_flags",
+    "../../common/config:coverage_flags",
     "//build/config/gcc:symbol_visibility_hidden",
   ]
   deps = [ ":enterprise_admin_extension" ]
