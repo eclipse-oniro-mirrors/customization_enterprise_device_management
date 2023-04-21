@@ -51,7 +51,7 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_ADD_LOCAL_ACCOUNT);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteBool(isDisallow);
     return proxy->HandleDevicePolicy(funcCode, data);

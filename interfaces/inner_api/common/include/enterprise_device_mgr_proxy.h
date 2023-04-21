@@ -25,6 +25,12 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr int32_t HAS_ADMIN = 0;
+constexpr int32_t WITHOUT_ADMIN = 1;
+constexpr int32_t WITHOUT_USERID = 0;
+constexpr int32_t HAS_USERID = 1;
+
 class EnterpriseDeviceMgrProxy {
 public:
     EnterpriseDeviceMgrProxy();
@@ -47,11 +53,15 @@ public:
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
-    void IsPolicyDisable(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled);
-    bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData);
-    bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData);
-    bool GetPolicyConfig(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string,
-        std::string> &policyData);
+    bool IsPolicyDisabled(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled,
+        int32_t userId = DEFAULT_USER_ID);
+    bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
+        int32_t userId = DEFAULT_USER_ID);
+    bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData,
+        int32_t userId = DEFAULT_USER_ID);
+    bool GetPolicyMap(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string, std::string> &policyData,
+        int32_t userId = DEFAULT_USER_ID);
+    bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;

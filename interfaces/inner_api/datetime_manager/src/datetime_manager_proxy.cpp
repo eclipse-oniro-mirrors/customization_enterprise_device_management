@@ -51,7 +51,7 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteInt64(time);
     return proxy->HandleDevicePolicy(funcCode, data);
@@ -68,7 +68,7 @@ int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &ad
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_MODIFY_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteBool(disallow);
     return proxy->HandleDevicePolicy(funcCode, data);
@@ -85,12 +85,12 @@ int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     if (hasAdmin) {
-        data.WriteInt32(0);
+        data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(&admin);
     } else {
-        data.WriteInt32(1);
+        data.WriteInt32(WITHOUT_ADMIN);
     }
     proxy->GetPolicy(DISALLOW_MODIFY_DATETIME, data, reply);
     int32_t ret = ERR_INVALID_VALUE;

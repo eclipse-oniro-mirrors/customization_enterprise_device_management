@@ -52,8 +52,8 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
-    data.WriteInt32(0);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(IS_WIFI_ACTIVE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
@@ -77,7 +77,7 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, c
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_WIFI_PROFILE);
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(0); // without userid
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     MessageParcelUtils::WriteWifiDeviceConfig(config, data);
     return proxy->HandleDevicePolicy(funcCode, data);

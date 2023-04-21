@@ -35,6 +35,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin(uint32_t code, Mes
     code_ = code;
     reply.WriteInt32(ERR_OK);
     std::vector<std::string> writeArray{"com.edm.test.demo"};
+    reply.WriteInt32(writeArray.size());
     reply.WriteStringVector(writeArray);
     return 0;
 }
