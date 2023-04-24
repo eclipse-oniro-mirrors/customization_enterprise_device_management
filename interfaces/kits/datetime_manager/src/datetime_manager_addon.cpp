@@ -165,9 +165,9 @@ napi_value DatetimeManagerAddon::IsModifyDateTimeDisallowed(napi_env env, napi_c
         bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
         ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
         EDMLOGD("IsModifyDateTimeDisallowed: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+            "asyncCallbackInfo->abilityname:%{public}s",
+            asyncCallbackInfo->elementName.GetBundleName().c_str(),
+            asyncCallbackInfo->elementName.GetAbilityName().c_str());
     }
     if (argc > ARGS_SIZE_ONE) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);

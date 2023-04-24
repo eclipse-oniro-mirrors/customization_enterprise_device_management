@@ -219,8 +219,8 @@ napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info inf
         ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]), "element name param error");
     EDMLOGD("SetWifiProfile: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
-            asyncCallbackInfo->elementName.GetBundleName().c_str(),
-            asyncCallbackInfo->elementName.GetAbilityName().c_str());
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
     ASSERT_AND_THROW_PARAM_ERROR(env,
         JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->wifiDeviceConfig), "wifiProfile param error");
     if (argc > ARGS_SIZE_TWO) {

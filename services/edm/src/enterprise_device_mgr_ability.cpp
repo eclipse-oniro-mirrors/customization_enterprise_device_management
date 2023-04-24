@@ -253,8 +253,8 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
 }
 
- void EnterpriseDeviceMgrAbility::InitAllPolices()
- {
+void EnterpriseDeviceMgrAbility::InitAllPolices()
+{
     std::vector<std::string> paths;
     OHOS::GetDirFiles(EDM_JSON_BASE_DIR, paths);
     for (size_t i = 0; i < paths.size(); i++) {
