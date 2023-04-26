@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace EDM {
-enum AdminType {
+enum class AdminType {
     NORMAL = 0,
     ENT,
     UNKNOWN,

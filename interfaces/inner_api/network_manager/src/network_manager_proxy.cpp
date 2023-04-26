@@ -98,5 +98,53 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
     reply.ReadString(info);
     return ERR_OK;
 }
+
+int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
+    const std::string &networkInterface, bool isDisabled)
+{
+    EDMLOGD("NetworkManagerProxy::SetNetworkInterfaceDisabled");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> key { networkInterface };
+    std::vector<std::string> value { isDisabled ? "true" : "false" };
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
+    const std::string &networkInterface, bool &status)
+{
+    EDMLOGD("NetworkManagerProxy::IsNetworkInterfaceDisabled");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(networkInterface);
+    proxy->GetPolicy(DISABLED_NETWORK_INTERFACE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(status);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

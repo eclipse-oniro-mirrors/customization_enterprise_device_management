@@ -28,6 +28,10 @@ public:
     int32_t GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin, std::vector<std::string> &networkInterface);
     int32_t GetIpOrMacAddress(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         int policyCode, std::string &info);
+    int32_t SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
+        bool isDisabled);
+    int32_t IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
+        bool &status);
 private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<NetworkManagerProxy> instance_;

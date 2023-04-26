@@ -85,6 +85,7 @@ edm_plugin_shared_library("wifi_manager_plugin") {
 
 edm_plugin_shared_library("network_manager_plugin") {
   sources = [
+    "./src/disabled_network_interface_plugin.cpp",
     "./src/get_all_network_interfaces_plugin.cpp",
     "./src/get_ip_address_plugin.cpp",
     "./src/get_mac_plugin.cpp",

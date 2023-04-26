@@ -14,11 +14,14 @@
  */
 
 #include <gtest/gtest.h>
+#include "disabled_network_interface_plugin.h"
 #include "get_all_network_interfaces_plugin.h"
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
-#include "iplugin_template.h"
 #include "iplugin_manager.h"
+#include "iplugin_template.h"
+#include "map_string_serializer.h"
+#include "policy_info.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -76,6 +79,44 @@ HWTEST_F(NetworkManagerPluginTest, TestGetMac, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsNetworkInterfaceDisabled
+ * @tc.desc: Test IsNetworkInterfaceDisabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerPluginTest, TestIsNetworkInterfaceDisabled, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
+    std::string policyData{"TestIsNetworkInterfaceDisabled"};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("eth0");
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestSetNetworkInterfaceDisabled
+ * @tc.desc: Test SetNetworkInterfaceDisabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerPluginTest, TestSetNetworkInterfaceDisabled, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
+    bool isChanged = false;
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    MessageParcel data;
+    std::string policyStr;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    std::vector<std::string> key { "eth0" };
+    std::vector<std::string> value { "true" };
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 } // namespace TEST
 } // namespace EDM

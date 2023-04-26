@@ -25,7 +25,7 @@ namespace EDM {
 class EdmPermission : public Parcelable {
 public:
     EdmPermission();
-    EdmPermission(const std::string &name, const std::uint32_t &type);
+    EdmPermission(const std::string &name, AdminType type);
     ~EdmPermission();
 
     bool operator == (const EdmPermission &permission) const;
@@ -40,13 +40,13 @@ public:
 
     void setPermissionName(const std::string &permissionName);
 
-    uint32_t getAdminType() const;
+    AdminType getAdminType() const;
 
-    void setAdminType(uint32_t adminType);
+    void setAdminType(AdminType adminType);
 
 private:
     std::string permissionName_;
-    std::uint32_t adminType_ = AdminType::UNKNOWN;
+    AdminType adminType_ = AdminType::UNKNOWN;
 };
 } // namespace EDM
 } // namespace OHOS
