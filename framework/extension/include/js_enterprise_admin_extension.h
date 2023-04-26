@@ -30,7 +30,7 @@ class JsEnterpriseAdminExtension : public EnterpriseAdminExtension {
 public:
     JsEnterpriseAdminExtension(AbilityRuntime::JsRuntime& jsRuntime);
     
-    virtual ~JsEnterpriseAdminExtension() override;
+    ~JsEnterpriseAdminExtension() override;
 
     /**
      * @brief Create JsEnterpriseAdminExtension.
