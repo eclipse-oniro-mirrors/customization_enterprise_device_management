@@ -18,7 +18,7 @@
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
 #include "iplugin_template.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 using namespace testing::ext;
 using namespace testing;

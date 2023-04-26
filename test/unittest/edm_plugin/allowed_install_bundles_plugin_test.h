@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 #include "allowed_install_bundles_plugin.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {

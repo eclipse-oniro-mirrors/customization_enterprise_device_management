@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/customization/enterprise_device_management/edm.gni")
-
 #####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/ohos.gni")
@@ -23,16 +21,7 @@ module_output_path = "customization/enterprise_device_management"
 ohos_fuzztest("EntInfoFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "//base/customization/enterprise_device_management/test/fuzztest/entinfo_fuzzer"
-
-  include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "include",
-    "include/utils",
-    "//commonlibrary/c_utils/base:utils_config",
-    JSONCPP_INCLUDE_DIR,
-    "$SUBSYSTEM_DIR/common/native/include",
-  ]
+  fuzz_config_file = "."
 
   cflags = [
     "-g",
@@ -41,10 +30,10 @@ ohos_fuzztest("EntInfoFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "../../../common/config:coverage_flags" ]
   sources = [ "entinfo_fuzzer.cpp" ]
 
-  deps = [ "$EDM_INNERKITS_PATH:edmservice_kits" ]
+  deps = [ "../../../interfaces/inner_api:edmservice_kits" ]
 
   external_deps = [
     "ability_base:want",

@@ -11,10 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/customization/enterprise_device_management/edm.gni")
 import("//build/ohos.gni")
-
-SRC_PATH = "$EDM_INNERKITS_PATH/"
 
 config("edmservice_kits_config") {
   include_dirs = [
@@ -26,7 +23,6 @@ config("edmservice_kits_config") {
     "bundle_manager/include",
     "network_manager/include",
     "wifi_manager/include",
-    "$SUBSYSTEM_DIR/common/native/include",
   ]
 }
 
@@ -34,25 +30,24 @@ ohos_shared_library("edmservice_kits") {
   public_configs = [ ":edmservice_kits_config" ]
 
   sources = [
-    "$SRC_PATH/account_manager/src/account_manager_proxy.cpp",
-    "$SRC_PATH/bundle_manager/src/bundle_manager_proxy.cpp",
-    "$SRC_PATH/common/src/ent_info.cpp",
-    "$SRC_PATH/common/src/enterprise_device_mgr_proxy.cpp",
-    "$SRC_PATH/datetime_manager/src/datetime_manager_proxy.cpp",
-    "$SRC_PATH/device_control/src/device_control_proxy.cpp",
-    "$SRC_PATH/device_info/src/device_info_proxy.cpp",
-    "$SRC_PATH/network_manager/src/network_manager_proxy.cpp",
-    "$SRC_PATH/wifi_manager/src/wifi_manager_proxy.cpp",
-    "$SUBSYSTEM_DIR/common/native/src/edm_sys_manager.cpp",
+    "./account_manager/src/account_manager_proxy.cpp",
+    "./bundle_manager/src/bundle_manager_proxy.cpp",
+    "./common/src/ent_info.cpp",
+    "./common/src/enterprise_device_mgr_proxy.cpp",
+    "./datetime_manager/src/datetime_manager_proxy.cpp",
+    "./device_control/src/device_control_proxy.cpp",
+    "./device_info/src/device_info_proxy.cpp",
+    "./network_manager/src/network_manager_proxy.cpp",
+    "./wifi_manager/src/wifi_manager_proxy.cpp",
   ]
 
   innerapi_tags = [ "platformsdk" ]
 
-  configs = [ "//base/customization/enterprise_device_management/common/config:coverage_flags" ]
+  configs = [ "../../common/config:coverage_flags" ]
 
   version_script = "libedmservice_kits.map"
 
-  deps = [ "$SUBSYSTEM_DIR/common/native:edm_commom" ]
+  deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
     "ability_base:want",
