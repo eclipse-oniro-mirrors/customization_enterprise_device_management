@@ -241,6 +241,11 @@ bool AdminManager::IsSuperAdminExist()
         [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
 }
 
+bool AdminManager::IsAdminExist()
+{
+    return !admins_.empty();
+}
+
 bool AdminManager::IsSuperAdmin(const std::string &bundleName)
 {
     std::shared_ptr<Admin> superAdmin;

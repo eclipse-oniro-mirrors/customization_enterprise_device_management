@@ -29,7 +29,7 @@ namespace EDM {
 class JsEnterpriseAdminExtension : public EnterpriseAdminExtension {
 public:
     JsEnterpriseAdminExtension(AbilityRuntime::JsRuntime& jsRuntime);
-    
+
     ~JsEnterpriseAdminExtension() override;
 
     /**

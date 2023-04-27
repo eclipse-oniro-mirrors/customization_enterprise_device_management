@@ -36,6 +36,7 @@
 #include "enterprise_conn_manager.h"
 #include "matching_skills.h"
 #include "os_account_manager.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
@@ -45,6 +46,7 @@ const bool REGISTER_RESULT =
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
+const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 
 const std::string EDM_POLICY_JSON_FILE = "device_policies_";
 const std::string EDM_JSON_BASE_DIR = "/data/service/el1/public/edm/";
@@ -227,6 +229,7 @@ int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16s
 
 void EnterpriseDeviceMgrAbility::OnStart()
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
     if (!registerToService_) {
         if (!Publish(this)) {
@@ -505,6 +508,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         EDMLOGE("EnableAdmin: SetAdminValue failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    system::SetParameter(PARAM_EDM_ENABLE, "true");
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
     AAFwk::Want connectWant;
@@ -616,6 +620,9 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
         EDMLOGW("DisableAdmin: disable admin failed.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
+    if (!adminMgr_->IsAdminExist()) {
+        system::SetParameter(PARAM_EDM_ENABLE, "false");
+    }
     AAFwk::Want want;
     want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
@@ -678,6 +685,9 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(std::string &bundleName)
             return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
         }
         policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    }
+    if (!adminMgr_->IsAdminExist()) {
+        system::SetParameter(PARAM_EDM_ENABLE, "false");
     }
     AAFwk::Want want;
     want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
