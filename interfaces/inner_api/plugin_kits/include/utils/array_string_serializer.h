@@ -29,6 +29,9 @@ class ArrayStringSerializer : public ArraySerializer<std::string, std::vector<st
 public:
     ArrayStringSerializer();
     ~ArrayStringSerializer() override;
+    std::vector<std::string> SetUnionPolicyData(std::vector<std::string> &data, std::vector<std::string> &currentData);
+    std::vector<std::string> SetDifferencePolicyData(std::vector<std::string> &data,
+        std::vector<std::string> &currentData);
 };
 } // namespace EDM
 } // namespace OHOS

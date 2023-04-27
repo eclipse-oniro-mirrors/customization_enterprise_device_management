@@ -53,8 +53,12 @@ bool EdmPermission::operator == (const EdmPermission &permission) const
 bool EdmPermission::ReadFromParcel(Parcel &parcel)
 {
     permissionName_ = parcel.ReadString();
-    adminType_ = static_cast<AdminType>(parcel.ReadInt32());
-    return true;
+    int32_t type = parcel.ReadInt32();
+    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
+        adminType_ = static_cast<AdminType>(type);
+        return true;
+    }
+    return false;
 }
 
 bool EdmPermission::Marshalling(Parcel &parcel) const

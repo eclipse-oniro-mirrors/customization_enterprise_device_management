@@ -35,22 +35,16 @@ bool IPlugin::IsGlobalPolicy()
 
 std::string IPlugin::GetPermission(FuncOperateType operaType)
 {
-    if (permission_.empty()) {
-        auto iter = permissionMap_.find(operaType);
-        if (iter != permissionMap_.end()) {
-            return iter->second.first;
-        }
+    if (permission_.empty() && permissionMap_.count(operaType) > 0) {
+        return permissionMap_[operaType].first;
     }
     return permission_;
 }
 
 IPlugin::PermissionType IPlugin::GetPermissionType(FuncOperateType operaType)
 {
-    if (permissionType_ == PermissionType::UNKNOWN) {
-        auto iter = permissionMap_.find(operaType);
-        if (iter != permissionMap_.end()) {
-            return iter->second.second;
-        }
+    if (permissionType_ == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+        return permissionMap_[operaType].second;
     }
     return permissionType_;
 }
