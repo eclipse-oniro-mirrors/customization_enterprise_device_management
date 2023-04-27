@@ -51,10 +51,7 @@ ErrCode AllowedInstallBundlesPlugin::OnSetPolicy(std::vector<std::string> &data,
         return ERR_OK;
     }
 
-    std::vector<std::string> mergeData;
-    std::sort(data.begin(), data.end());
-    std::sort(currentData.begin(), currentData.end());
-    std::set_union(data.begin(), data.end(), currentData.begin(), currentData.end(), back_inserter(mergeData));
+    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
 
     if (mergeData.size() > MAX_SIZE) {
         EDMLOGE("AllowedInstallBundlesPlugin OnSetPolicy data is too large:");
@@ -93,10 +90,8 @@ ErrCode AllowedInstallBundlesPlugin::OnRemovePolicy(std::vector<std::string> &da
         return ERR_OK;
     }
 
-    std::vector<std::string> mergeData;
-    std::sort(data.begin(), data.end());
-    std::sort(currentData.begin(), currentData.end());
-    std::set_difference(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
+    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->
+        SetDifferencePolicyData(data, currentData);
     ErrCode res = GetAppControlProxy()->
         DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL, data, userId);
     if (res != ERR_OK) {
