@@ -19,9 +19,11 @@
 
 #include "admin_type.h"
 #include "edm_errors.h"
+#include "edm_load_manager.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "func_code.h"
+#include "parameters.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -56,11 +58,18 @@ void EnterpriseDeviceMgrProxy::DestroyInstance()
     }
 }
 
+bool EnterpriseDeviceMgrProxy::IsEdmEnabled()
+{
+    std::string edmParaValue = system::GetParameter("persist.edm.edm_enable", "false");
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetParameter %{public}s", edmParaValue.c_str());
+    return edmParaValue == "true";
+}
+
 ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::EnableAdmin");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -88,7 +97,10 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
 ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableAdmin");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -114,7 +126,10 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
 ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableSuperAdmin");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -139,7 +154,10 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
 ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnabledAdmin");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -165,7 +183,10 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
 ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnterpriseInfo");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -192,7 +213,10 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
 ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::SetEnterpriseInfo");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -219,7 +243,10 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     const std::vector<uint32_t> &events, bool subscribe)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::SubscribeManagedEvent: %{public}d", subscribe);
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -247,9 +274,12 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName, bool &res
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");
     result = false;
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        return false;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -275,7 +305,10 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled");
     result = false;
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return false;
     }
@@ -314,7 +347,10 @@ bool EnterpriseDeviceMgrProxy::IsPolicyDisabled(AppExecFwk::ElementName *admin, 
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicy");
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -388,6 +424,9 @@ bool EnterpriseDeviceMgrProxy::GetPolicyMap(AppExecFwk::ElementName *admin, int 
 bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId,
     MessageParcel &reply)
 {
+    if (!IsEdmEnabled()) {
+        return false;
+    }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
@@ -407,13 +446,18 @@ bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int
 
 bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply)
 {
+    if (!IsEdmEnabled()) {
+        reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+        return false;
+    }
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy invalid policyCode:%{public}d", policyCode);
         return false;
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)policyCode);
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return false;
     }
     MessageOption option;
@@ -446,16 +490,28 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdminExist()
     return !enabledAdminList.empty();
 }
 
-sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetRemoteObject()
+sptr<IRemoteObject> EnterpriseDeviceMgrProxy::LoadAndGetEdmService()
 {
     std::lock_guard<std::mutex> lock(mutexLock_);
-    sptr<IRemoteObject> remote = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    return remote;
+    sptr<ISystemAbilityManager> sysAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sysAbilityMgr == nullptr) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::failed to get SystemAbilityManager");
+        return nullptr;
+    }
+    auto objectSA = sysAbilityMgr->CheckSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    if (objectSA == nullptr) {
+        EDMLOGI("EnterpriseDeviceMgrProxy::load sa from remote");
+        return EdmLoadManager::GetInstance().LoadAndGetEdmService();
+    }
+    return sysAbilityMgr->GetSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
 }
 
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList)
 {
-    sptr<IRemoteObject> remote = GetRemoteObject();
+    if (!IsEdmEnabled()) {
+        return;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return;
     }

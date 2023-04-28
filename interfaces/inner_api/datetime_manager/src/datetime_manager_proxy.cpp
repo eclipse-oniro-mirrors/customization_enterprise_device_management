@@ -90,6 +90,10 @@ int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(&admin);
     } else {
+        if (!proxy->IsEdmEnabled()) {
+            result = false;
+            return ERR_OK;
+        }
         data.WriteInt32(WITHOUT_ADMIN);
     }
     proxy->GetPolicy(DISALLOW_MODIFY_DATETIME, data, reply);

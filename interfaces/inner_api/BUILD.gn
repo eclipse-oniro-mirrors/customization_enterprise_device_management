@@ -34,6 +34,8 @@ ohos_shared_library("edmservice_kits") {
     "./account_manager/src/account_manager_proxy.cpp",
     "./application_manager/src/application_manager_proxy.cpp",
     "./bundle_manager/src/bundle_manager_proxy.cpp",
+    "./common/src/edm_load_callback.cpp",
+    "./common/src/edm_load_manager.cpp",
     "./common/src/ent_info.cpp",
     "./common/src/enterprise_device_mgr_proxy.cpp",
     "./datetime_manager/src/datetime_manager_proxy.cpp",
@@ -54,6 +56,7 @@ ohos_shared_library("edmservice_kits") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

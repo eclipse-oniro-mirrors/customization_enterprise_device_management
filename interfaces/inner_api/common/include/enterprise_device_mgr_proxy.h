@@ -63,12 +63,13 @@ public:
         int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
+    bool IsEdmEnabled();
 private:
+    sptr<IRemoteObject> LoadAndGetEdmService();
+    void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);
+
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
-
-    void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);
-    sptr<IRemoteObject> GetRemoteObject();
 };
 } // namespace EDM
 } // namespace OHOS

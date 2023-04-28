@@ -113,7 +113,9 @@
           "//base/customization/enterprise_device_management/services/edm_plugin:bundle_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:application_manager_plugin",
           "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
-          "//base/customization/enterprise_device_management/etc/init:edm.cfg"
+          "//base/customization/enterprise_device_management/etc/init:edm.cfg",
+          "//base/customization/enterprise_device_management/etc/param:edm.para",
+          "//base/customization/enterprise_device_management/etc/param:edm.para.dac"
         ]
       },
       "inner_api": [
