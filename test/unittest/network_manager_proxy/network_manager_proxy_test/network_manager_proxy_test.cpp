@@ -120,6 +120,68 @@ HWTEST_F(NetworkManagerProxyTest, TestGetIpOrMacAddressFail, TestSize.Level1)
     int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", GET_MAC, info);
     ASSERT_TRUE(ret != ERR_OK);
 }
+
+/**
+ * @tc.name: TestIsNetworkInterfaceDisabledSuc
+ * @tc.desc: Test IsNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool status = false;
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(admin, "eth0", status);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(status);
+}
+
+/**
+ * @tc.name: TestIsNetworkInterfaceDisabledFail
+ * @tc.desc: Test IsNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool status = false;
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(admin, "eth0", status);
+    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_FALSE(status);
+}
+
+/**
+ * @tc.name: TestSetNetworkInterfaceDisabledSuc
+ * @tc.desc: Test SetNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetNetworkInterfaceDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(admin, "eth0", true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetNetworkInterfaceDisabledFail
+ * @tc.desc: Test SetNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetNetworkInterfaceDisabledFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(admin, "eth0", true);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

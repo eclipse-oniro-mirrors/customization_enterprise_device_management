@@ -30,5 +30,25 @@ ArrayStringSerializer::~ArrayStringSerializer()
         serializerInner_ = nullptr;
     }
 }
+
+std::vector<std::string> ArrayStringSerializer::SetUnionPolicyData(std::vector<std::string> &data,
+    std::vector<std::string> &currentData)
+{
+    std::vector<std::string> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_union(data.begin(), data.end(), currentData.begin(), currentData.end(), back_inserter(mergeData));
+    return mergeData;
+}
+
+std::vector<std::string> ArrayStringSerializer::SetDifferencePolicyData(std::vector<std::string> &data,
+    std::vector<std::string> &currentData)
+{
+    std::vector<std::string> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_difference(data.begin(), data.end(), currentData.begin(), currentData.end(), back_inserter(mergeData));
+    return mergeData;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 #include "edm_errors.h"
+#include "func_code.h"
 #include "message_parcel.h"
 
 namespace OHOS {
@@ -28,6 +29,12 @@ constexpr int32_t DEFAULT_USER_ID = 100;
 
 class IPlugin {
 public:
+    enum class PermissionType {
+        NORMAL_DEVICE_ADMIN = 0,
+        SUPER_DEVICE_ADMIN,
+        UNKNOWN,
+    };
+
     /*
      * handle policy
      *
@@ -61,21 +68,16 @@ public:
     std::string GetPolicyName();
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
-    std::string GetPermission();
-    std::uint32_t GetPermissionType();
+    std::string GetPermission(FuncOperateType operaType);
+    IPlugin::PermissionType GetPermissionType(FuncOperateType operaType);
     virtual ~IPlugin();
 
-    enum PermissionType {
-        NORMAL_DEVICE_ADMIN = 0,
-        SUPER_DEVICE_ADMIN,
-        UNKNOWN,
-    };
-
 protected:
-    std::uint32_t policyCode_;
+    std::uint32_t policyCode_ = 0;
     std::string policyName_;
     std::string permission_;
-    std::uint32_t permissionType_;
+    PermissionType permissionType_ = PermissionType::UNKNOWN;
+    std::map<FuncOperateType, std::pair<std::string, IPlugin::PermissionType>> permissionMap_;
     bool needSave_ = true;
     bool isGlobal_ = true;
 };

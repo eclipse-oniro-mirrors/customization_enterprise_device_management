@@ -65,11 +65,11 @@ public:
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
 private:
+    sptr<IRemoteObject> LoadAndGetEdmService();
+    void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);
+
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
-
-    void GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList);
-    sptr<IRemoteObject> LoadAndGetEdmService();
 };
 } // namespace EDM
 } // namespace OHOS

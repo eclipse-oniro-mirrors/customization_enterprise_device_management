@@ -51,6 +51,8 @@ public:
     int InvokeSendRequestMapEnableAdminTwoSuc(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
+    int InvokeSendRequestSetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
     int InvokeSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int InvokeBoolSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

@@ -116,7 +116,7 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     EDMLOGD("EnableAdminInner bundleName:: %{public}s : abilityName : %{public}s ", admin->GetBundleName().c_str(),
         admin->GetAbilityName().c_str());
     std::unique_ptr<EntInfo> entInfo(data.ReadParcelable<EntInfo>());
-    uint32_t type = data.ReadUint32();
+    int32_t type = data.ReadInt32();
     int32_t userId = data.ReadInt32();
     ErrCode retCode = EnableAdmin(*admin, *entInfo, AdminType(type), userId);
     reply.WriteInt32(retCode);
@@ -168,8 +168,8 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
 ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGD("EnterpriseDeviceMgrStub:GetEnabledAdmin");
-    uint32_t type = AdminType::UNKNOWN;
-    if (!data.ReadUint32(type)) {
+    int32_t type = static_cast<int32_t>(AdminType::UNKNOWN);
+    if (!data.ReadInt32(type)) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         EDMLOGE("EnterpriseDeviceMgrStub:GetEnabledAdminInner read type fail %{public}u", type);
         return EdmReturnErrCode::PARAM_ERROR;

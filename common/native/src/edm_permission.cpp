@@ -21,7 +21,7 @@ namespace EDM {
 EdmPermission::EdmPermission() {}
 EdmPermission::~EdmPermission() {}
 
-EdmPermission::EdmPermission(const std::string &name, const uint32_t &type)
+EdmPermission::EdmPermission(const std::string &name, AdminType type)
     : permissionName_(name), adminType_(type)
 {}
 
@@ -35,12 +35,12 @@ void EdmPermission::setPermissionName(const std::string &permissionName)
     EdmPermission::permissionName_ = permissionName;
 }
 
-uint32_t EdmPermission::getAdminType() const
+AdminType EdmPermission::getAdminType() const
 {
     return adminType_;
 }
 
-void EdmPermission::setAdminType(uint32_t adminType)
+void EdmPermission::setAdminType(AdminType adminType)
 {
     EdmPermission::adminType_ = adminType;
 }
@@ -53,14 +53,18 @@ bool EdmPermission::operator == (const EdmPermission &permission) const
 bool EdmPermission::ReadFromParcel(Parcel &parcel)
 {
     permissionName_ = parcel.ReadString();
-    adminType_ = parcel.ReadUint32();
-    return true;
+    int32_t type = parcel.ReadInt32();
+    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
+        adminType_ = static_cast<AdminType>(type);
+        return true;
+    }
+    return false;
 }
 
 bool EdmPermission::Marshalling(Parcel &parcel) const
 {
     parcel.WriteString(permissionName_);
-    parcel.WriteUint32(adminType_);
+    parcel.WriteInt32(static_cast<int32_t>(adminType_));
     return true;
 }
 

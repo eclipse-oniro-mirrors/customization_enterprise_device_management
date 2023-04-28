@@ -29,7 +29,6 @@ const std::string EDM_ADMIN_DOT = ".";
 const std::string EDM_ADMIN_BASE = "/data/service/el1/public/edm/";
 const std::string EDM_ADMIN_JSON_FILE = "admin_policies_";
 const std::string EDM_ADMIN_JSON_EXT = ".json";
-constexpr int32_t DEFAULT_USER_ID = 100;
 std::shared_ptr<AdminManager> AdminManager::instance_;
 std::mutex AdminManager::mutexLock_;
 
@@ -271,7 +270,8 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role,
         userAdmin.size());
-    if (role >= AdminType::UNKNOWN || role < AdminType::NORMAL) {
+    if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::UNKNOWN) ||
+        static_cast<int32_t>(role) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
         return;
     }
@@ -384,9 +384,9 @@ void AdminManager::ReadJsonAdminType(Json::Value &admin,
     std::vector<std::shared_ptr<Admin>> &adminVector)
 {
     std::shared_ptr<Admin> enabledAdmin;
-    if (admin["adminType"].asUInt() == AdminType::NORMAL) {
+    if (admin["adminType"].asInt() == static_cast<int32_t>(AdminType::NORMAL)) {
         enabledAdmin = std::make_shared<Admin>();
-    } else if (admin["adminType"].asUInt() == AdminType::ENT) {
+    } else if (admin["adminType"].asInt() == static_cast<int32_t>(AdminType::ENT)) {
         enabledAdmin = std::make_shared<SuperAdmin>();
     } else {
         EDMLOGD("admin type is error!");
@@ -395,7 +395,7 @@ void AdminManager::ReadJsonAdminType(Json::Value &admin,
 
     FindPackageAndClass(admin["name"].asString(), enabledAdmin->adminInfo_.packageName_,
         enabledAdmin->adminInfo_.className_);
-    enabledAdmin->adminInfo_.adminType_ = static_cast<AdminType>(admin["adminType"].asUInt());
+    enabledAdmin->adminInfo_.adminType_ = static_cast<AdminType>(admin["adminType"].asInt());
     enabledAdmin->adminInfo_.entInfo_.enterpriseName = admin["enterpriseInfo"]["enterpriseName"].asString(); // object
     enabledAdmin->adminInfo_.entInfo_.description = admin["enterpriseInfo"]["declaration"].asString();
     uint32_t adminSize = admin["permission"].size();
@@ -482,7 +482,7 @@ void AdminManager::WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json
     Json::Value eventsTree;
 
     tree["name"] = enabledAdmin->adminInfo_.packageName_ + "/" + enabledAdmin->adminInfo_.className_;
-    tree["adminType"] = enabledAdmin->adminInfo_.adminType_;
+    tree["adminType"] = static_cast<int32_t>(enabledAdmin->adminInfo_.adminType_);
 
     entTree["enterpriseName"] = enabledAdmin->adminInfo_.entInfo_.enterpriseName;
     entTree["declaration"] = enabledAdmin->adminInfo_.entInfo_.description;

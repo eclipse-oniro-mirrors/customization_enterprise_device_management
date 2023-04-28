@@ -83,6 +83,8 @@ private:
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
+    ErrCode UpdateDevicePolicy(std::shared_ptr<IPlugin> plugin, uint32_t code, AppExecFwk::ElementName &admin,
+        MessageParcel &data, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();

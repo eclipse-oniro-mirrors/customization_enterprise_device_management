@@ -94,13 +94,19 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
     if (plugin == nullptr) {
         return false;
     }
-    ErrCode result = PermissionManager::GetInstance()->AddPermission(plugin->GetPermission(),
-        plugin->GetPermissionType());
+    std::string permission = plugin->GetPermission(FuncOperateType::SET);
+    ErrCode result = PermissionManager::GetInstance()->AddPermission(permission,
+        plugin->GetPermissionType(FuncOperateType::SET));
+    if (result == ERR_OK && plugin->GetPermission(FuncOperateType::GET) != permission) {
+        result = PermissionManager::GetInstance()->AddPermission(plugin->GetPermission(FuncOperateType::GET),
+            plugin->GetPermissionType(FuncOperateType::GET));
+    }
     if (result == ERR_OK) {
         pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
         pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+        return true;
     }
-    return result;
+    return false;
 }
 
 void PluginManager::Init()
@@ -146,12 +152,18 @@ void PluginManager::LoadPlugin(const std::string &pluginPath)
 void PluginManager::DumpPlugin()
 {
     for (auto it = pluginsCode_.begin(); it != pluginsCode_.end(); it++) {
-        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s,permission:%{public}s",
-            it->first, it->second->GetPolicyName().c_str(), it->second->GetPermission().c_str());
+        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s,get permission:%{public}s, "
+            "set permission:%{public}s",
+            it->first, it->second->GetPolicyName().c_str(),
+            it->second->GetPermission(FuncOperateType::GET).c_str(),
+            it->second->GetPermission(FuncOperateType::SET).c_str());
     }
     for (auto it = pluginsName_.begin(); it != pluginsName_.end(); it++) {
-        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u,permission:%{public}s",
-            it->first.c_str(), it->second->GetCode(), it->second->GetPermission().c_str());
+        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u,get permission type:%{public}s, "
+            "set permission type:%{public}s",
+            it->first.c_str(), it->second->GetCode(),
+            it->second->GetPermission(FuncOperateType::GET).c_str(),
+            it->second->GetPermission(FuncOperateType::SET).c_str());
     }
 }
 } // namespace EDM

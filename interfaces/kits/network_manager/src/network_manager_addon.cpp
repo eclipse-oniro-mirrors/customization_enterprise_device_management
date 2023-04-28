@@ -25,6 +25,8 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAllNetworkInterfaces", GetAllNetworkInterfaces),
         DECLARE_NAPI_FUNCTION("getIpAddress", GetIpAddress),
         DECLARE_NAPI_FUNCTION("getMac", GetMac),
+        DECLARE_NAPI_FUNCTION("setNetworkInterfaceDisabled", SetNetworkInterfaceDisabled),
+        DECLARE_NAPI_FUNCTION("isNetworkInterfaceDisabled", IsNetworkInterfaceDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -55,7 +57,7 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfaces(napi_env env, napi_callb
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_GetDeviceInfo argc == ARGS_SIZE_TWO");
+        EDMLOGD("NAPI_GetAllNetworkInterfaces argc == ARGS_SIZE_TWO");
         napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetAllNetworkInterface",
@@ -74,7 +76,7 @@ void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data
     AsyncNetworkInterfacesCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInterfacesCallbackInfo *>(data);
     auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy_ == nullptr) {
-        EDMLOGE("can not get DeviceInfoProxy");
+        EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
     asyncCallbackInfo->ret = networkManagerProxy_->GetAllNetworkInterfaces(asyncCallbackInfo->elementName,
@@ -101,7 +103,8 @@ napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
     if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
     }
@@ -115,12 +118,12 @@ napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_in
         "element name param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
         "parameter networkInterface error");
-    EDMLOGD("GetDeviceInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD("GetIpOrMacAddress: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_GetDeviceInfo argc == ARGS_SIZE_THREE");
+        EDMLOGD("NAPI_GetIpOrMacAddress argc == ARGS_SIZE_THREE");
         napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     asyncCallbackInfo->policyCode = policyCode;
@@ -140,11 +143,122 @@ void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
     AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
     auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy_ == nullptr) {
-        EDMLOGE("can not get DeviceInfoProxy");
+        EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
     asyncCallbackInfo->ret = networkManagerProxy_->GetIpOrMacAddress(asyncCallbackInfo->elementName,
         asyncCallbackInfo->networkInterface, asyncCallbackInfo->policyCode, asyncCallbackInfo->stringRet);
+}
+
+napi_value NetworkManagerAddon::SetNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string) &&
+        MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean);
+    if (argc > ARGS_SIZE_THREE) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_THREE], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncSetNetworkInterfaceCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncSetNetworkInterfaceCallbackInfo> callbackPtr {asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter element name error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
+        "parameter networkInterface error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isDisabled, argv[ARR_INDEX_TWO]),
+        "parameter isDisabled error");
+    EDMLOGD("SetNetworkInterfaceDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    if (argc > ARGS_SIZE_THREE) {
+        EDMLOGD("NAPI_SetNetworkInterfaceDisabled argc == ARGS_SIZE_FOUR");
+        napi_create_reference(env, argv[ARGS_SIZE_THREE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetNetworkInterfaceDisabled",
+        NativeSetNetworkInterfaceDisabled, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void NetworkManagerAddon::NativeSetNetworkInterfaceDisabled(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeSetNetworkInterfaceDisabled called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncSetNetworkInterfaceCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetNetworkInterfaceCallbackInfo *>(data);
+    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy_ == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = networkManagerProxy_->SetNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->networkInterface, asyncCallbackInfo->isDisabled);
+}
+
+napi_value NetworkManagerAddon::IsNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncNetworkInfoCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncNetworkInfoCallbackInfo> callbackPtr {asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter element name error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
+        "parameter networkInterface error");
+    EDMLOGD("IsNetworkInterfaceDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    if (argc > ARGS_SIZE_TWO) {
+        EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsNetworkInterfaceDisabled",
+        NativeIsNetworkInterfaceDisabled, NativeBoolCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeIsNetworkInterfaceDisabled called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
+    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy_ == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = networkManagerProxy_->IsNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->networkInterface, asyncCallbackInfo->boolRet);
 }
 
 static napi_module g_networkManagerModule = {
