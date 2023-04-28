@@ -15,7 +15,6 @@
 
 #include "permission_manager.h"
 #include "edm_log.h"
-#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,20 +25,21 @@ PermissionManager::~PermissionManager()
     permissions_.clear();
 }
 
-ErrCode PermissionManager::AddPermission(const std::string &permission, std::uint32_t permissionType)
+ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin::PermissionType permissionType)
 {
-    if (permissionType < IPlugin::PermissionType::NORMAL_DEVICE_ADMIN ||
-        permissionType >= IPlugin::PermissionType::UNKNOWN) {
+    if (static_cast<std::int32_t>(permissionType) <
+        static_cast<std::int32_t>(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN) ||
+        static_cast<std::int32_t>(permissionType) >= static_cast<std::int32_t>(IPlugin::PermissionType::UNKNOWN)) {
         EDMLOGE("AddPermission::unknow permission type");
         return ERR_EDM_UNKNOWN_PERMISSION;
     }
     auto entry = permissions_.find(permission);
     if (entry == permissions_.end()) {
-        AdminPermission adminPermission(permission, (AdminType)permissionType);
+        AdminPermission adminPermission(permission, static_cast<AdminType>(permissionType));
         permissions_.insert(std::make_pair(permission, adminPermission));
         EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
-            permission.c_str(), permissionType);
-    } else if (entry->second.adminType != (AdminType)permissionType) {
+            permission.c_str(), static_cast<int32_t>(permissionType));
+    } else if (entry->second.adminType != static_cast<AdminType>(permissionType)) {
         EDMLOGE("AddPermission::conflict permission type");
         return ERR_EDM_DENY_PERMISSION;
     } else {

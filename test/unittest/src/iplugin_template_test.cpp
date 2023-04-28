@@ -55,7 +55,7 @@ HWTEST_F(PluginTemplateTest, TestInitAttribute, TestSize.Level1)
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     ASSERT_TRUE(plugin != nullptr);
-    ASSERT_TRUE(plugin->GetPermission() == "ohos.permission.EDM_TEST_PERMISSION");
+    ASSERT_TRUE(plugin->GetPermission(FuncOperateType::GET) == "ohos.permission.EDM_TEST_PERMISSION");
     ASSERT_TRUE(plugin->GetPolicyName() == "InitAttributePlg");
     ASSERT_TRUE(plugin->GetCode() == 20);
 }

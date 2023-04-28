@@ -198,7 +198,12 @@ protected:
     void SetSerializer(std::shared_ptr<IPolicySerializer<DT>> serializer);
 
     void InitAttribute(uint32_t policyCode, const std::string &policyName, const std::string &permission,
-        std::uint32_t permissionType, bool needSave = true, bool global = true);
+        IPlugin::PermissionType permissionType, bool needSave = true, bool global = true);
+
+    void InitAttribute(uint32_t policyCode, const std::string &policyName, bool needSave = true, bool global = true);
+
+    void InitPermission(FuncOperateType operateType, const std::string &permission,
+        IPlugin::PermissionType permissionType);
 
     /*
      * Registering Listening for HandlePolicy Events.
@@ -736,7 +741,7 @@ void IPluginTemplate<CT, DT>::SetSerializer(std::shared_ptr<IPolicySerializer<DT
 template<class CT, class DT>
 void IPluginTemplate<CT, DT>::InitAttribute(
     uint32_t policyCode, const std::string &policyName, const std::string &permission,
-    std::uint32_t permissionType, bool needSave, bool global)
+    IPlugin::PermissionType permissionType, bool needSave, bool global)
 {
     policyCode_ = policyCode;
     policyName_ = policyName;
@@ -744,6 +749,26 @@ void IPluginTemplate<CT, DT>::InitAttribute(
     permissionType_ = permissionType;
     needSave_ = needSave;
     isGlobal_ = global;
+}
+
+template<class CT, class DT>
+void IPluginTemplate<CT, DT>::InitAttribute(
+    uint32_t policyCode, const std::string &policyName, bool needSave, bool global)
+{
+    policyCode_ = policyCode;
+    policyName_ = policyName;
+    needSave_ = needSave;
+    isGlobal_ = global;
+}
+
+template<class CT, class DT>
+void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const std::string &permission,
+    IPlugin::PermissionType permissionType)
+{
+    if (static_cast<int32_t>(operateType) >= static_cast<int32_t>(FuncOperateType::GET) &&
+        static_cast<int32_t>(operateType) <= static_cast<int32_t>(FuncOperateType::REMOVE)) {
+        permissionMap_.insert(std::make_pair(operateType, std::make_pair(permission, permissionType)));
+    }
 }
 
 template<class CT, class DT>

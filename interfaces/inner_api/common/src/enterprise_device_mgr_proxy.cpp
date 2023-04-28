@@ -70,7 +70,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteParcelable(&entInfo);
-    data.WriteUint32(type);
+    data.WriteInt32(static_cast<int32_t>(type));
     data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::ADD_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
@@ -147,7 +147,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
     MessageParcel reply;
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteUint32(type);
+    data.WriteInt32(static_cast<int32_t>(type));
     ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENABLED_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
@@ -453,7 +453,7 @@ sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetRemoteObject()
     return remote;
 }
 
-void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList)
+void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     sptr<IRemoteObject> remote = GetRemoteObject();
     if (!remote) {
@@ -463,7 +463,7 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::uint32_t type, std::vector<
     MessageParcel reply;
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteUint32(type);
+    data.WriteInt32(static_cast<int32_t>(type));
     ErrCode res = remote->SendRequest(GET_ENABLE_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmins send request fail.");

@@ -67,7 +67,7 @@ private:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
 
-    void GetEnabledAdmins(std::uint32_t type, std::vector<std::string> &enabledAdminList);
+    void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);
     sptr<IRemoteObject> GetRemoteObject();
 };
 } // namespace EDM

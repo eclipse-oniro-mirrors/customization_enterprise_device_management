@@ -21,6 +21,7 @@
 #include <vector>
 #include "admin.h"
 #include "edm_permission.h"
+#include "iplugin.h"
 #include "singleton.h"
 
 namespace OHOS {
@@ -35,7 +36,7 @@ struct AdminPermission {
 class PermissionManager : public DelayedSingleton<PermissionManager> {
 DECLARE_DELAYED_SINGLETON(PermissionManager)
 public:
-    ErrCode AddPermission(const std::string &permission, std::uint32_t permissionType);
+    ErrCode AddPermission(const std::string &permission, IPlugin::PermissionType permissionType);
     void GetReqPermission(const std::vector<std::string> &permissions,
         std::vector<AdminPermission> &reqPermission);
     void GetReqPermission(const std::vector<std::string> &permissions,

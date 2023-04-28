@@ -50,6 +50,7 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
         "Parameter enterprise info error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO]),
         "Parameter admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckAdminType(asyncCallbackInfo->adminType), "Parameter admin type error");
 
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s , adminType:%{public}d",
@@ -69,6 +70,18 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
         NativeEnableAdmin, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+}
+
+bool AdminManager::CheckAdminType(int32_t type)
+{
+    switch (type) {
+        case static_cast<int32_t>(AdminType::NORMAL):
+        case static_cast<int32_t>(AdminType::ENT):
+            break;
+        default:
+            return false;
+    }
+    return true;
 }
 
 void AdminManager::NativeEnableAdmin(napi_env env, void *data)
@@ -607,10 +620,10 @@ bool AdminManager::ParseManagedEvent(napi_env env,
 void AdminManager::CreateAdminTypeObject(napi_env env, napi_value value)
 {
     napi_value nNomal;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, AdminType::NORMAL, &nNomal));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(AdminType::NORMAL), &nNomal));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_NORMAL", nNomal));
     napi_value nSuper;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, AdminType::ENT, &nSuper));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(AdminType::ENT), &nSuper));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_SUPER", nSuper));
 }
 
