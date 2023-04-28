@@ -36,7 +36,11 @@ JsEnterpriseAdminExtension* JsEnterpriseAdminExtension::Create(const std::unique
 }
 
 JsEnterpriseAdminExtension::JsEnterpriseAdminExtension(AbilityRuntime::JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsEnterpriseAdminExtension::~JsEnterpriseAdminExtension() = default;
+JsEnterpriseAdminExtension::~JsEnterpriseAdminExtension()
+{
+    HILOG_DEBUG("Js enterprise admin extension destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+}
 
 void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord>& record,
     const std::shared_ptr<AppExecFwk::OHOSApplication>& application,
