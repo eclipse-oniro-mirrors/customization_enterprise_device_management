@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
 #include "policy_info.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -48,6 +49,7 @@ void DeviceInfoProxyTest::SetUp()
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void DeviceInfoProxyTest::TearDown()
@@ -55,6 +57,7 @@ void DeviceInfoProxyTest::TearDown()
     deviceInfoProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
+    Utils::SetEdmServiceDisable();
 }
 
 /**

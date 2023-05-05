@@ -18,18 +18,15 @@
 
 #include <gtest/gtest.h>
 #include "allowed_install_bundles_plugin.h"
-#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
 class AllowedInstallBundlesPluginTest : public testing::Test {
 protected:
-    // Sets up the test fixture.
-    void SetUp() override {};
+    static void SetUpTestCase(void);
 
-    // Tears down the test fixture.
-    void TearDown() override {};
+    static void TearDownTestCase(void);
 };
 } // namespace TEST
 } // namespace EDM

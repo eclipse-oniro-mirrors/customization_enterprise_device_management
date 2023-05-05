@@ -22,20 +22,16 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "accesstoken_kit.h"
-#include "cmd_utils.h"
 #include "enterprise_device_mgr_ability_test.h"
 #include "iplugin_template_test.h"
-#include "nativetoken_kit.h"
 #include "plugin_manager_test.h"
-#include "token_setproc.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int32_t ARRAY_MAP_TESTPLUGIN_POLICYCODE = 13;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
@@ -49,25 +45,6 @@ const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
 const std::string HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME = "HandlePolicyBiFunctionPlg";
 const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies*";
 const std::string ADMIN_TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
-
-void NativeTokenGet(const char* perms[], int size)
-{
-    uint64_t tokenId;
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = size,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_basic",
-    };
-
-    infoInstance.processName = "EdmServicesUnitTest";
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
@@ -86,8 +63,8 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
-    CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
-    CmdUtils::ExecCmdSync(ADMIN_TEAR_DOWN_CMD);
+    Utils::ExecCmdSync(TEAR_DOWN_CMD);
+    Utils::ExecCmdSync(ADMIN_TEAR_DOWN_CMD);
 }
 
 // Give testAdmin and plugin_ Initial value
@@ -113,14 +90,15 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest001, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char *perms[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
 }
 /**
  * @tc.name: HandleDevicePolicyFuncTest002
@@ -222,8 +200,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest005, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char *perms[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -236,6 +214,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     data.WriteString("ErrorData");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_EDM_OPERATE_JSON);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -248,8 +227,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char *perms[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -272,6 +251,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     data.WriteString("{\"name\" : \"testValue\"}");
     res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -285,8 +265,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char *perms[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -306,6 +286,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     data.WriteString("{\"name\" : \"testValue\"}");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -334,6 +315,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest001, TestSize.Le
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest002, TestSize.Level1)
 {
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
@@ -342,6 +325,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest002, TestSize.Le
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -426,6 +410,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest005, TestSize.Le
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Level1)
 {
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
@@ -442,6 +428,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**

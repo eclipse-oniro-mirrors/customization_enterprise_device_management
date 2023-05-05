@@ -15,15 +15,26 @@
 
 #include "disallow_add_local_account_plugin_test.h"
 #include "disallow_add_local_account_plugin.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+void DisallowAddLocalAccountPluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void DisallowAddLocalAccountPluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
+
 /**
  * @tc.name: TestDisallowAddLocalAccountPlugin
- * @tc.desc: Test DisallowAddLocalAccountPlugin::OnSetPolicy function.
+ * @tc.desc: Test DisallowAddLocalAccountPlugin::OnSetPolicy function and remove policy.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPlugin, TestSize.Level1)
@@ -32,6 +43,11 @@ HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPlugin, T
     bool data = true;
     ErrCode ret = plugin.OnSetPolicy(data);
     ASSERT_TRUE(ret == ERR_OK && data);
+
+    string adminName{"testAdminName"};
+    bool allowAddLocalAccount = true;
+    ret = plugin.OnAdminRemove(adminName, allowAddLocalAccount, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

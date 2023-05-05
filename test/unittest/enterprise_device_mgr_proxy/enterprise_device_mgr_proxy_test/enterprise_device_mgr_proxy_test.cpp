@@ -16,13 +16,13 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "cmd_utils.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
 #include "func_code.h"
 #include "policy_info.h"
 #include "system_ability_definition.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using ::testing::_;

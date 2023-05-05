@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "wifi_device_config_serializer.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;

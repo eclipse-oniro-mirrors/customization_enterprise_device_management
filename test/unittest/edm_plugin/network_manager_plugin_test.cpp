@@ -22,6 +22,7 @@
 #include "iplugin_template.h"
 #include "map_string_serializer.h"
 #include "policy_info.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -29,12 +30,25 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string VALID_NETWORK_INTERFACE = "lo";
+const std::string INVALID_NETWORK_INTERFACE = "fail";
+
 class NetworkManagerPluginTest : public testing::Test {
 protected:
-    void SetUp() override {}
+    static void SetUpTestCase(void);
 
-    void TearDown() override {}
+    static void TearDownTestCase(void);
 };
+
+void NetworkManagerPluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void NetworkManagerPluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
 
 /**
  * @tc.name: TestGetAllNetworkInterfaces
@@ -83,40 +97,101 @@ HWTEST_F(NetworkManagerPluginTest, TestGetMac, TestSize.Level1)
 
 /**
  * @tc.name: TestIsNetworkInterfaceDisabled
- * @tc.desc: Test IsNetworkInterfaceDisabled.
+ * @tc.desc: Test IsNetworkInterfaceDisabled fail.
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkManagerPluginTest, TestIsNetworkInterfaceDisabled, TestSize.Level1)
+HWTEST_F(NetworkManagerPluginTest, TestIsNetworkInterfaceDisabledFail, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
-    std::string policyData{"TestIsNetworkInterfaceDisabled"};
+    std::string policyData;
     MessageParcel data;
     MessageParcel reply;
-    data.WriteString("eth0");
+    // NetworkInterface is not exist.
+    data.WriteString(INVALID_NETWORK_INTERFACE);
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
- * @tc.name: TestSetNetworkInterfaceDisabled
- * @tc.desc: Test SetNetworkInterfaceDisabled.
+ * @tc.name: TestIsNetworkInterfaceDisabled
+ * @tc.desc: Test IsNetworkInterfaceDisabled success.
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkManagerPluginTest, TestSetNetworkInterfaceDisabled, TestSize.Level1)
+HWTEST_F(NetworkManagerPluginTest, TestIsNetworkInterfaceDisabledSuc, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    // NetworkInterface is exist.
+    data.WriteString(VALID_NETWORK_INTERFACE);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestNetworkInterfaceNotExist
+ * @tc.desc: Test SetNetworkInterfaceDisabled when NetworkInterface is not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceNotExist, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
     bool isChanged = false;
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    // data is empty.
     MessageParcel data;
+    MessageParcel reply;
     std::string policyStr;
     ErrCode ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-    std::vector<std::string> key { "eth0" };
+    // NetworkInterface is invalid.
+    std::vector<std::string> key { INVALID_NETWORK_INTERFACE };
     std::vector<std::string> value { "true" };
     data.WriteStringVector(key);
     data.WriteStringVector(value);
     ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestNetworkInterfaceDisabled
+ * @tc.desc: Test SetNetworkInterfaceDisabled when set network interface disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
+    bool isChanged = false;
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyStr;
+    // set network interface disabled.
+    std::vector<std::string> key { VALID_NETWORK_INTERFACE };
+    std::vector<std::string> value { "true" };
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    // get policy.
+    data.WriteString(VALID_NETWORK_INTERFACE);
+    ret = plugin->OnGetPolicy(policyStr, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_TRUE(reply.ReadBool());
+    // set network interface enabled.
+    value = { "false" };
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    // get policy.
+    data.WriteString(VALID_NETWORK_INTERFACE);
+    ret = plugin->OnGetPolicy(policyStr, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_FALSE(reply.ReadBool());
 }
 } // namespace TEST
 } // namespace EDM

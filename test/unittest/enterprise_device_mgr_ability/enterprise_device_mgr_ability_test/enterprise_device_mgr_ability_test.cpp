@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <vector>
 #include "accesstoken_kit.h"
-#include "cmd_utils.h"
 #include "plugin_manager_test.h"
 #include "edm_sys_manager_mock.h"
 #include "bundle_manager_mock.h"
@@ -30,6 +29,7 @@
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
+#include "utils.h"
 #define private public
 #define protected public
 #include "enterprise_device_mgr_ability.h"
@@ -41,7 +41,6 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t ADMIN_TYPE_MAX = 999;
 constexpr int32_t ERROR_USER_ID_REMOVE = 0;
 constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 3;
@@ -55,25 +54,6 @@ const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENT
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
     "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
-
-void NativeTokenGet(const char* perms[], int size)
-{
-    uint64_t tokenId;
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = size,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_basic",
-    };
-
-    infoInstance.processName = "EdmServicesUnitTest";
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
 
 class EnterpriseDeviceMgrAbilityTest : public testing::Test {
 protected:
@@ -120,7 +100,7 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
-    CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
+    Utils::ExecCmdSync(TEAR_DOWN_CMD);
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
 
@@ -333,11 +313,11 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin22, TestSize.Level
     bundleName = "";
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -347,8 +327,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin22, TestSize.Level
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize.Level1)
 {
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -370,7 +350,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
 
     res = TestDump(); // not empty
     EXPECT_TRUE(res == ERR_OK);
-    CmdUtils::ExecCmdSync("rm -f /data/edmDumpTest.txt");
+    Utils::ExecCmdSync("rm -f /data/edmDumpTest.txt");
 
     // other admin
     AppExecFwk::ElementName admin1;
@@ -393,7 +373,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
     bundleName = "com.edm.test.demo";
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -403,8 +383,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin, TestSize.Level1)
 {
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -419,7 +399,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin, TestSize.Level1)
 
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -429,8 +409,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcSuc, TestSize.Level1)
 {
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo.ipc.suc");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -445,7 +425,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcSuc, TestSize.L
 
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -455,8 +435,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcSuc, TestSize.L
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcFail, TestSize.Level1)
 {
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo.ipc.fail");
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -464,7 +444,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcFail, TestSize.
 
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 
     std::string bundleName{"com.edm.test.demo.ipc.fail"};
     bool isEnable = edmMgr_->IsSuperAdmin(bundleName);
@@ -498,14 +478,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfo, TestSize.Level1)
     res = edmMgr_->SetEnterpriseInfo(admin, entInfo1);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
-    const char *perms[] = {PERMISSION_SET_ENTERPRISE_INFO_TEST.c_str(), ""};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_SET_ENTERPRISE_INFO_TEST.c_str(), ""};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]) - 1);
 
     res = edmMgr_->SetEnterpriseInfo(admin, entInfo1);
     EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 
-    perms[1] = PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str();
-    NativeTokenGet(perms, 2);
+    permissions[1] = PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str();
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
 
@@ -534,7 +514,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfo, TestSize.Level1)
     std::string bundleName{"com.edm.test.demo.ipc.suc"};
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -544,8 +524,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfo, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoNoSame, TestSize.Level1)
 {
-    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo"); // com.edm.test.demo
     admin.SetAbilityName("com.edm.test.demo.MainAbility");
@@ -578,7 +558,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoNoSame, TestSize.L
     res = edmMgr_->GetEnabledAdmin(static_cast<AdminType>(ADMIN_TYPE_MAX), enabledAdminList);
     EXPECT_TRUE(res != ERR_OK);
 
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
     std::string bundleName{"com.edm.test.demo"};
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res != ERR_OK);
@@ -742,13 +722,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEvent, TestSize.Lev
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
-    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(), ""};
-    NativeTokenGet(perms, 1);
+    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(), ""};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]) - 1);
     res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 
-    perms[1] = PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str();
-    NativeTokenGet(perms, 2);
+    permissions[1] = PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str();
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->SubscribeManagedEvent(admin, event);
@@ -763,7 +743,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEvent, TestSize.Lev
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -777,9 +757,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Le
     admin.SetBundleName("com.edm.test.demo.ipc.suc");
     admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
     EntInfo entInfo("test", "this is test");
-    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
         PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 2);
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
     std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
@@ -787,7 +767,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Le
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -801,9 +781,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEvent, TestSize.L
     admin.SetBundleName("com.edm.test.demo.ipc.suc");
     admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
     EntInfo entInfo("test", "this is test");
-    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
         PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 2);
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
     std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
@@ -811,7 +791,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEvent, TestSize.L
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -825,9 +805,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     admin.SetBundleName("com.edm.test.demo.ipc.suc");
     admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
     EntInfo entInfo("test", "this is test");
-    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
         PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 2);
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
     std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
@@ -835,7 +815,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -850,14 +830,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventIpcFail, TestS
     admin.SetAbilityName("com.edm.test.demo.ipc.fail.MainAbility");
     EntInfo entInfo("test", "this is test");
     std::vector<uint32_t> event;
-    const char *perms[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
+    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
         PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    NativeTokenGet(perms, 2);
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
-    NativeTokenGet(nullptr, 0);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**

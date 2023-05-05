@@ -22,6 +22,7 @@
 #include "edm_sys_manager_mock.h"
 #include "network_manager_proxy.h"
 #include "policy_info.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -47,6 +48,7 @@ void NetworkManagerProxyTest::SetUp()
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void NetworkManagerProxyTest::TearDown()
@@ -54,6 +56,7 @@ void NetworkManagerProxyTest::TearDown()
     networkManagerProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
+    Utils::SetEdmServiceDisable();
 }
 
 /**

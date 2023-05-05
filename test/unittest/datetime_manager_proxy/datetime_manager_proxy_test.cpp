@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "cmd_utils.h"
 #include "datetime_manager_proxy.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
@@ -36,6 +36,7 @@ protected:
 void DatetimeManagerProxyTest::SetUp()
 {
     dateTimeManagerProxy = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    Utils::SetEdmServiceEnable();
 }
 
 void DatetimeManagerProxyTest::TearDown()
@@ -43,6 +44,7 @@ void DatetimeManagerProxyTest::TearDown()
     if (dateTimeManagerProxy) {
         dateTimeManagerProxy.reset();
     }
+    Utils::SetEdmServiceDisable();
 }
 
 /**

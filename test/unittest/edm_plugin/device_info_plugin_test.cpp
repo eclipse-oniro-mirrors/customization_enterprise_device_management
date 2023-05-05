@@ -15,17 +15,21 @@
 
 #include "device_info_plugin_test.h"
 #include "iplugin_template.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DeviceInfoPluginTest::SetUp() {}
-
-void DeviceInfoPluginTest::TearDown()
+void DeviceInfoPluginTest::SetUpTestCase(void)
 {
-    plugin_.reset();
+    Utils::SetEdmInitialEnv();
+}
+
+void DeviceInfoPluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**

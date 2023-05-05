@@ -17,6 +17,7 @@
 #include "iplugin_template.h"
 #include "iplugin_manager.h"
 #include "set_wifi_profile_plugin.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -26,22 +27,34 @@ namespace EDM {
 namespace TEST {
 class SetWifiProfilePluginTest : public testing::Test {
 protected:
-    void SetUp() override {}
+    static void SetUpTestCase(void);
 
-    void TearDown() override {}
+    static void TearDownTestCase(void);
 };
 
+void SetWifiProfilePluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void SetWifiProfilePluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
+
 /**
- * @tc.name: TestOnPolicy
- * @tc.desc: Test OnPolicy function.
+ * @tc.name: TestSetWifiProfile
+ * @tc.desc: Test SetWifiProfilePlugin::OnSetPolicy function when it is SYSTEM_ABNORMALLY.
  * @tc.type: FUNC
  */
 HWTEST_F(SetWifiProfilePluginTest, TestSetWifiProfile, TestSize.Level1)
 {
+    Utils::ResetTokenTypeAndUid();
     SetWifiProfilePlugin plugin;
     Wifi::WifiDeviceConfig config;
     ErrCode ret = plugin.OnSetPolicy(config);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    Utils::ResetTokenTypeAndUid();
 }
 } // namespace TEST
 } // namespace EDM

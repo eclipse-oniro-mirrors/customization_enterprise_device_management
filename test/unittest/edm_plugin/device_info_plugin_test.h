@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,11 +27,9 @@ namespace EDM {
 namespace TEST {
 class DeviceInfoPluginTest : public testing::Test {
 protected:
-    // Sets up the test fixture.
-    void SetUp() override;
+    static void SetUpTestCase(void);
 
-    // Tears down the test fixture.
-    void TearDown() override;
+    static void TearDownTestCase(void);
 
     std::shared_ptr<IPlugin> plugin_;
 };

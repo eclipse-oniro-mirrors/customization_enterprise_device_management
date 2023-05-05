@@ -15,9 +15,10 @@
 
 #include <gtest/gtest.h>
 #include "edm_data_ability_utils_mock.h"
+#include "get_device_name_plugin.h"
 #include "iplugin_manager.h"
 #include "policy_info.h"
-#include "get_device_name_plugin.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -27,10 +28,20 @@ namespace EDM {
 namespace TEST {
 class GetDeviceNamePluginTest : public testing::Test {
 protected:
-    void SetUp() override {}
+    static void SetUpTestCase(void);
 
-    void TearDown() override {}
+    static void TearDownTestCase(void);
 };
+
+void GetDeviceNamePluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void GetDeviceNamePluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
 
 /**
  * @tc.name: TestOnPolicy

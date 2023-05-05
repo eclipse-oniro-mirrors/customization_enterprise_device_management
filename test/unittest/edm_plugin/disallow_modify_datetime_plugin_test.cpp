@@ -17,39 +17,54 @@
 #include "disallow_modify_datetime_plugin.h"
 #include "iplugin.h"
 #include "policy_info.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+void DisallowModifyDateTimePluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void DisallowModifyDateTimePluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
+
 /**
- * @tc.name: TestDisallModifyDateTimePlugin
- * @tc.desc: Test TestDisallModifyDateTimePlugin::OnSetPolicy function.
+ * @tc.name: TestDisallowModifyDateTimePlugin
+ * @tc.desc: Test TestDisallowModifyDateTimePlugin::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallModifyDateTimePlugin001, TestSize.Level1)
+HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, TestSize.Level1)
 {
     MessageParcel data;
+    // want to disallow to modify date time.
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
+    // origin policy is allow to modify date time.
     std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_MODIFY_DATETIME);
     bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+    // current policy is disallow to modify date time.
     ASSERT_TRUE(policyData == "true");
     ASSERT_TRUE(isChanged);
 }
 
 /**
- * @tc.name: TestDisallModifyDateTimePlugin
- * @tc.desc: Test TestDisallModifyDateTimePlugin::OnGetPolicy function.
+ * @tc.name: TestDisallowModifyDateTimePlugin
+ * @tc.desc: Test TestDisallowModifyDateTimePlugin::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallModifyDateTimePlugin002, TestSize.Level1)
+HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin002, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
+    // origin policy is disallow to modify date time.
     std::string policyData{"true"};
     MessageParcel data;
     MessageParcel reply;
@@ -59,6 +74,7 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallModifyDateTimePlugin002, Te
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
+    // get policy is disallow to modify date time.
     ASSERT_TRUE(result);
 }
 } // namespace TEST

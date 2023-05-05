@@ -16,9 +16,9 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "cmd_utils.h"
-#include "policy_manager.h"
 #include "array_string_serializer.h"
+#include "policy_manager.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
@@ -47,7 +47,7 @@ public:
     void TearDown() override
     {
         policyMgr_.reset();
-        CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
+        Utils::ExecCmdSync(TEAR_DOWN_CMD);
     }
 
     std::shared_ptr<PolicyManager> policyMgr_;

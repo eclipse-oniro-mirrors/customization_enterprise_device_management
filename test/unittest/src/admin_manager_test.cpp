@@ -18,15 +18,14 @@
 #undef private
 #include <vector>
 #include "admin_manager.h"
-#include "cmd_utils.h"
 #include "iplugin.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int HUGE_ADMIN_SIZE = 100;
 const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies.json";
@@ -52,7 +51,7 @@ void AdminManagerTest::TearDown()
     adminMgr_.reset();
     PermissionManager::DestroyInstance();
 
-    CmdUtils::ExecCmdSync(TEAR_DOWN_CMD);
+    Utils::ExecCmdSync(TEAR_DOWN_CMD);
 }
 
 /**
