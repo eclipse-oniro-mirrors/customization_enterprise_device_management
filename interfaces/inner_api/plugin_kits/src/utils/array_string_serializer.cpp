@@ -47,7 +47,7 @@ std::vector<std::string> ArrayStringSerializer::SetDifferencePolicyData(std::vec
     std::vector<std::string> mergeData;
     std::sort(data.begin(), data.end());
     std::sort(currentData.begin(), currentData.end());
-    std::set_difference(data.begin(), data.end(), currentData.begin(), currentData.end(), back_inserter(mergeData));
+    std::set_difference(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
     return mergeData;
 }
 } // namespace EDM
