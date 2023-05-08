@@ -20,6 +20,7 @@
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "utils.h"
 #include "wifi_manager_proxy.h"
 
 using namespace testing::ext;
@@ -46,6 +47,7 @@ void WifiManagerProxyTest::SetUp()
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void WifiManagerProxyTest::TearDown()
@@ -53,6 +55,7 @@ void WifiManagerProxyTest::TearDown()
     wifiManagerProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
+    Utils::SetEdmServiceDisable();
 }
 
 /**

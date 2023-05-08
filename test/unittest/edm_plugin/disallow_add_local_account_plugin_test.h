@@ -23,11 +23,9 @@ namespace EDM {
 namespace TEST {
 class DisallowAddLocalAccountPluginTest : public testing::Test {
 protected:
-    // Sets up the test fixture.
-    void SetUp() override {};
+    static void SetUpTestCase(void);
 
-    // Tears down the test fixture.
-    void TearDown() override {};
+    static void TearDownTestCase(void);
 };
 } // namespace TEST
 } // namespace EDM

@@ -25,13 +25,9 @@ namespace EDM {
 namespace TEST {
 class DeviceControlPluginTest : public testing::Test {
 protected:
-    // Sets up the test fixture.
-    void SetUp() override;
+    static void SetUpTestCase(void);
 
-    // Tears down the test fixture.
-    void TearDown() override;
-
-    std::shared_ptr<IPlugin> plugin_;
+    static void TearDownTestCase(void);
 };
 } // namespace TEST
 } // namespace EDM

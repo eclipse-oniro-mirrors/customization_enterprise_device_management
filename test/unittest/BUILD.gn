@@ -104,7 +104,6 @@ ohos_unittest("EdmServicesUnitTest") {
 
   sources = [
     "./src/admin_manager_test.cpp",
-    "./src/cmd_utils.cpp",
     "./src/edm_data_ability_utils_test.cpp",
     "./src/edm_permission_test.cpp",
     "./src/edm_sys_manager_test.cpp",
@@ -120,6 +119,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/plugin_manager_test.cpp",
     "./src/policy_manager_test.cpp",
     "./src/policy_serializer_test.cpp",
+    "./src/utils.cpp",
     "./src/utils_test.cpp",
   ]
 
@@ -171,6 +171,7 @@ group("unittest") {
     # deps file
     ":EdmServicesUnitTest",
     "account_manager_proxy:unittest",
+    "application_manager_proxy:unittest",
     "bundle_manager_proxy:unittest",
     "datetime_manager_proxy:unittest",
     "device_control_proxy:unittest",

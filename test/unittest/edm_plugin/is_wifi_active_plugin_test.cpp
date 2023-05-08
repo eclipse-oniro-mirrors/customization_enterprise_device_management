@@ -17,6 +17,7 @@
 #include "iplugin_template.h"
 #include "is_wifi_active_plugin.h"
 #include "iplugin_manager.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -26,24 +27,51 @@ namespace EDM {
 namespace TEST {
 class IsWifiActivePluginTest : public testing::Test {
 protected:
-    void SetUp() override {}
+    static void SetUpTestCase(void);
 
-    void TearDown() override {}
+    static void TearDownTestCase(void);
 };
 
+void IsWifiActivePluginTest::SetUpTestCase(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void IsWifiActivePluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
+}
+
 /**
- * @tc.name: TestOnPolicy
- * @tc.desc: Test OnPolicy function.
+ * @tc.name: TestIsWifiActiveFail
+ * @tc.desc: Test IsWifiActivePlugin fail function.
  * @tc.type: FUNC
  */
-HWTEST_F(IsWifiActivePluginTest, TestIsWifiActive, TestSize.Level1)
+HWTEST_F(IsWifiActivePluginTest, TestIsWifiActiveFail, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
+    std::string policyData{"TestIsWifiActive"};
+    MessageParcel data;
+    MessageParcel reply;
+    Utils::ResetTokenTypeAndUid();
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    Utils::SetEdmInitialEnv();
+}
+
+/**
+ * @tc.name: TestIsWifiActiveSuc
+ * @tc.desc: Test IsWifiActivePlugin success function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsWifiActivePluginTest, TestIsWifiActiveSuc, TestSize.Level1)
 {
     std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
     std::string policyData{"TestIsWifiActive"};
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

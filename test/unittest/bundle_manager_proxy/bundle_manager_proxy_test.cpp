@@ -26,7 +26,6 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
-constexpr int32_t DEFAULT_USER_ID = 100;
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;

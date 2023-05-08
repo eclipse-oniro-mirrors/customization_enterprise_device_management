@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,22 @@
  * limitations under the License.
  */
 
-#include "cmd_utils.h"
+#ifndef EDM_UNIT_TEST_DISALLOWED_RUNNING_BUNDLES_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_DISALLOWED_RUNNING_BUNDLES_PLUGIN_TEST_H
+
+#include <gtest/gtest.h>
+#include "disallowed_running_bundles_plugin.h"
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void CmdUtils::ExecCmdSync(const std::string &cmd)
-{
-    FILE *fp = popen(cmd.c_str(), "r");
-    if (fp != nullptr) {
-        pclose(fp);
-        fp = nullptr;
-    }
-}
+class DisallowedRunningBundlesPluginTest : public testing::Test {
+protected:
+    static void SetUpTestCase(void);
+
+    static void TearDownTestCase(void);
+};
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
+#endif // EDM_UNIT_TEST_DISALLOWED_RUNNING_BUNDLES_PLUGIN_TEST_H

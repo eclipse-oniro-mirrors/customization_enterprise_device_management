@@ -16,33 +16,38 @@
 #include "iplugin_template.h"
 #include "policy_info.h"
 #include "reset_factory_plugin_test.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DeviceControlPluginTest::SetUp() {}
-
-void DeviceControlPluginTest::TearDown()
+void DeviceControlPluginTest::SetUpTestCase(void)
 {
-    plugin_.reset();
+    Utils::SetEdmInitialEnv();
+}
+
+void DeviceControlPluginTest::TearDownTestCase(void)
+{
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
  * @tc.name: TestRestFactory
- * @tc.desc: Test RestFactoryPlugin::OnSetPolicy function.
+ * @tc.desc: Test RestFactoryPlugin::OnSetPolicy function fail.
  * @tc.type: FUNC
  */
 HWTEST_F(DeviceControlPluginTest, TestRestFactory, TestSize.Level1)
 {
-    plugin_ = ResetFactoryPlugin::GetPlugin();
+    Utils::ResetTokenTypeAndUid();
+    std::shared_ptr<IPlugin> plugin = ResetFactoryPlugin::GetPlugin();
     bool isChanged = false;
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, RESET_FACTORY);
     std::string policyData{""};
     MessageParcel data;
-    ErrCode ret = plugin_->OnHandlePolicy(code, data, policyData, isChanged);
-    ASSERT_TRUE(ret != ERR_OK);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST
 } // namespace EDM

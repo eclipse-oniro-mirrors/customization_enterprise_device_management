@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_CMD_UTILS_H
-#define EDM_UNIT_TEST_CMD_UTILS_H
+#ifndef EDM_UNIT_TEST_UTILS_H
+#define EDM_UNIT_TEST_UTILS_H
 
 #include <string>
+#include <unistd.h>
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class CmdUtils {
+class Utils {
 public:
+    static constexpr int32_t EDM_UID = 3057;
+    static constexpr int32_t ROOT_UID = 0;
     static void ExecCmdSync(const std::string &cmd);
+    static void SetNativeTokenTypeAndPermissions(const char* permissions[], int size);
+    static void SetEdmInitialEnv();
+    static void ResetTokenTypeAndUid();
+    static void SetEdmServiceEnable();
+    static void SetEdmServiceDisable();
+
+private:
+    static uint64_t selfTokenId_;
 };
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_CMD_UTILS_H
+#endif // EDM_UNIT_TEST_UTILS_H

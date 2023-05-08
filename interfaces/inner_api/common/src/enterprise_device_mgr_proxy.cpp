@@ -503,7 +503,7 @@ sptr<IRemoteObject> EnterpriseDeviceMgrProxy::LoadAndGetEdmService()
         EDMLOGI("EnterpriseDeviceMgrProxy::load sa from remote");
         return EdmLoadManager::GetInstance().LoadAndGetEdmService();
     }
-    return sysAbilityMgr->GetSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    return EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
 }
 
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList)

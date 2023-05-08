@@ -751,7 +751,6 @@ std::shared_ptr<PolicyManager> EnterpriseDeviceMgrAbility::GetAndSwitchPolicyMan
 ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(std::shared_ptr<IPlugin> plugin, uint32_t code,
     AppExecFwk::ElementName &admin, MessageParcel &data, int32_t userId)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     // Set policy to other users except 100
     policyMgr_ = GetAndSwitchPolicyManagerByUserId(userId);
     std::string policyName = plugin->GetPolicyName();
@@ -786,6 +785,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(std::shared_ptr<IPlugin> 
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, int32_t userId)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isUserExist = false;
     AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
@@ -819,6 +819,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("GetDevicePolicy: get plugin failed");
@@ -850,7 +851,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
 
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     policyMgr_ = GetAndSwitchPolicyManagerByUserId(userId);
     if (plugin->NeedSavePolicy()) {
         policyMgr_->GetPolicy(adminName, policyName, policyValue);
@@ -862,6 +862,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::vector<std::string> superList;
     std::vector<std::string> normalList;
     switch (type) {
@@ -891,6 +892,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     EntInfo entInfo;
     ErrCode code = adminMgr_->GetEntInfo(admin.GetBundleName(), entInfo, GetCurrentUserId());
     if (code != ERR_OK) {
@@ -945,6 +947,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleApplicationEvent(const std::vector<uin
 ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     RETURN_IF_FAILED(HandleApplicationEvent(events, true));
     int32_t userId = GetCurrentUserId();
@@ -956,6 +959,7 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
 ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     int32_t userId = GetCurrentUserId();
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);

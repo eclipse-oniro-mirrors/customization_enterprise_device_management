@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "cmd_utils.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_admin_stub_mock.h"
 #include "func_code.h"
