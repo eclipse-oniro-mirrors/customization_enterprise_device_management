@@ -98,7 +98,10 @@ edm_plugin_shared_library("network_manager_plugin") {
 }
 
 edm_plugin_shared_library("bundle_manager_plugin") {
-  sources = [ "./src/allowed_install_bundles_plugin.cpp" ]
+  sources = [
+    "./src/allowed_install_bundles_plugin.cpp",
+    "./src/disallowed_install_bundles_plugin.cpp",
+  ]
 
   deps = [ "../../common/native:edm_commom" ]
 
