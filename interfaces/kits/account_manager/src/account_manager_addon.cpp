@@ -74,12 +74,12 @@ void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data
     }
     AsyncDisallowAddLocalAccountCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncDisallowAddLocalAccountCallbackInfo *>(data);
-    auto accountManagerProxy_ = AccountManagerProxy::GetAccountManagerProxy();
-    if (accountManagerProxy_ == nullptr) {
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = accountManagerProxy_->DisallowAddLocalAccount(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = accountManagerProxy->DisallowAddLocalAccount(asyncCallbackInfo->elementName,
         asyncCallbackInfo->isDisallow);
 }
 

@@ -54,7 +54,6 @@ private:
 
     static bool CheckAddAllowedInstallBundlesParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
-    static std::shared_ptr<BundleManagerProxy> bundleManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

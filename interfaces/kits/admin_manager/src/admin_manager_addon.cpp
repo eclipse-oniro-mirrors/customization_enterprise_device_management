@@ -23,8 +23,6 @@
 
 using namespace OHOS::EDM;
 
-std::shared_ptr<EnterpriseDeviceMgrProxy> AdminManager::proxy_ = nullptr;
-
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
@@ -91,13 +89,13 @@ void AdminManager::NativeEnableAdmin(napi_env env, void *data)
         return;
     }
     AsyncEnableAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncEnableAdminCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
 
-    asyncCallbackInfo->ret = proxy_->EnableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
+    asyncCallbackInfo->ret = proxy->EnableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
         static_cast<AdminType>(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
 }
 
@@ -191,13 +189,13 @@ void AdminManager::NativeDisableAdmin(napi_env env, void *data)
         return;
     }
     AsyncDisableAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncDisableAdminCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
 
-    asyncCallbackInfo->ret = proxy_->DisableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
+    asyncCallbackInfo->ret = proxy->DisableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
 }
 
 napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info)
@@ -240,12 +238,12 @@ void AdminManager::NativeDisableSuperAdmin(napi_env env, void *data)
     }
     AsyncDisableSuperAdminCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncDisableSuperAdminCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy_->DisableSuperAdmin(asyncCallbackInfo->bundleName);
+    asyncCallbackInfo->ret = proxy->DisableSuperAdmin(asyncCallbackInfo->bundleName);
 }
 
 napi_value AdminManager::GetEnterpriseInfo(napi_env env, napi_callback_info info)
@@ -292,12 +290,12 @@ void AdminManager::NativeGetEnterpriseInfo(napi_env env, void *data)
         return;
     }
     AsyncGetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetEnterpriseInfoCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy_->GetEnterpriseInfo(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo);
+    asyncCallbackInfo->ret = proxy->GetEnterpriseInfo(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo);
 }
 
 void AdminManager::NativeGetEnterpriseInfoComplete(napi_env env, napi_status status, void *data)
@@ -385,12 +383,12 @@ void AdminManager::NativeSetEnterpriseInfo(napi_env env, void *data)
         return;
     }
     AsyncSetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetEnterpriseInfoCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy_->SetEnterpriseInfo(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo);
+    asyncCallbackInfo->ret = proxy->SetEnterpriseInfo(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo);
 }
 
 napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
@@ -472,12 +470,12 @@ void AdminManager::NativeIsSuperAdmin(napi_env env, void *data)
         return;
     }
     AsyncIsSuperAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsSuperAdminCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy_->IsSuperAdmin(asyncCallbackInfo->bundleName, asyncCallbackInfo->boolRet);
+    asyncCallbackInfo->ret = proxy->IsSuperAdmin(asyncCallbackInfo->bundleName, asyncCallbackInfo->boolRet);
 }
 
 void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
@@ -488,12 +486,12 @@ void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
         return;
     }
     AsyncIsAdminEnabledCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsAdminEnabledCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy_->IsAdminEnabled(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = proxy->IsAdminEnabled(asyncCallbackInfo->elementName,
         asyncCallbackInfo->userId, asyncCallbackInfo->boolRet);
 }
 
@@ -551,12 +549,12 @@ void AdminManager::NativeSubscribeManagedEvent(napi_env env, void *data)
     }
     AsyncSubscribeManagedEventCallbackInfo *asyncCallbakInfo =
         static_cast<AsyncSubscribeManagedEventCallbackInfo *>(data);
-    auto proxy_ = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy_ == nullptr) {
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbakInfo->ret = proxy_->HandleManagedEvent(asyncCallbakInfo->elementName,
+    asyncCallbakInfo->ret = proxy->HandleManagedEvent(asyncCallbakInfo->elementName,
         asyncCallbakInfo->managedEvent, asyncCallbakInfo->subscribe);
 }
 

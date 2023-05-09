@@ -109,12 +109,12 @@ void BundleManagerAddon::NativeAddAllowedInstallBundles(napi_env env, void *data
     }
     AsyncAllowedInstallBundlesCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncAllowedInstallBundlesCallbackInfo *>(data);
-    auto bundleManagerProxy_ = BundleManagerProxy::GetBundleManagerProxy();
-    if (bundleManagerProxy_ == nullptr) {
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
         EDMLOGE("can not get BundleManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = bundleManagerProxy_->AddAllowedInstallBundles(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = bundleManagerProxy->AddAllowedInstallBundles(asyncCallbackInfo->elementName,
         asyncCallbackInfo->bundles, asyncCallbackInfo->userId);
 }
 
@@ -205,12 +205,12 @@ void BundleManagerAddon::NativeRemoveAllowedInstallBundles(napi_env env, void *d
     }
     AsyncAllowedInstallBundlesCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncAllowedInstallBundlesCallbackInfo *>(data);
-    auto bundleManagerProxy_ = BundleManagerProxy::GetBundleManagerProxy();
-    if (bundleManagerProxy_ == nullptr) {
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
         EDMLOGE("can not get BundleManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = bundleManagerProxy_->RemoveAllowedInstallBundles(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = bundleManagerProxy->RemoveAllowedInstallBundles(asyncCallbackInfo->elementName,
         asyncCallbackInfo->bundles, asyncCallbackInfo->userId);
 }
 

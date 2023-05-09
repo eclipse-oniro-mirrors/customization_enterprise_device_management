@@ -75,12 +75,12 @@ void DatetimeManagerAddon::NativeSetDateTime(napi_env env, void *data)
         return;
     }
     AsyncSetDateTimeCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetDateTimeCallbackInfo *>(data);
-    auto dateTimeManagerProxy_ = DatetimeManagerProxy::GetDatetimeManagerProxy();
-    if (dateTimeManagerProxy_ == nullptr) {
+    auto dateTimeManagerProxy = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    if (dateTimeManagerProxy == nullptr) {
         EDMLOGE("can not get DatetimeManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = dateTimeManagerProxy_->SetDateTime(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = dateTimeManagerProxy->SetDateTime(asyncCallbackInfo->elementName,
         asyncCallbackInfo->time);
 }
 
@@ -132,12 +132,12 @@ void DatetimeManagerAddon::NativeDisallowModifyDateTime(napi_env env, void *data
     }
     AsyncDisallowModifyDateTimeCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncDisallowModifyDateTimeCallbackInfo *>(data);
-    auto dateTimeManagerProxy_ = DatetimeManagerProxy::GetDatetimeManagerProxy();
-    if (dateTimeManagerProxy_ == nullptr) {
+    auto dateTimeManagerProxy = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    if (dateTimeManagerProxy == nullptr) {
         EDMLOGE("can not get DatetimeManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = dateTimeManagerProxy_->DisallowModifyDateTime(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = dateTimeManagerProxy->DisallowModifyDateTime(asyncCallbackInfo->elementName,
         asyncCallbackInfo->disallow);
 }
 
@@ -192,12 +192,12 @@ void DatetimeManagerAddon::NativeIsModifyDateTimeDisallowed(napi_env env, void *
     }
     AsyncDisallowModifyDateTimeCallbackInfo *asyncCallbackInfo =
         static_cast<AsyncDisallowModifyDateTimeCallbackInfo *>(data);
-    auto dateTimeManagerProxy_ = DatetimeManagerProxy::GetDatetimeManagerProxy();
-    if (dateTimeManagerProxy_ == nullptr) {
+    auto dateTimeManagerProxy = DatetimeManagerProxy::GetDatetimeManagerProxy();
+    if (dateTimeManagerProxy == nullptr) {
         EDMLOGE("can not get DatetimeManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = dateTimeManagerProxy_->IsModifyDateTimeDisallowed(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(asyncCallbackInfo->elementName,
         asyncCallbackInfo->hasAdmin, asyncCallbackInfo->boolRet);
 }
 

@@ -90,12 +90,12 @@ void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
         return;
     }
     AsyncGetDeviceInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetDeviceInfoCallbackInfo *>(data);
-    auto deviceInfoProxy_ = DeviceInfoProxy::GetDeviceInfoProxy();
-    if (deviceInfoProxy_ == nullptr) {
+    auto deviceInfoProxy = DeviceInfoProxy::GetDeviceInfoProxy();
+    if (deviceInfoProxy == nullptr) {
         EDMLOGE("can not get DeviceInfoProxy");
         return;
     }
-    asyncCallbackInfo->ret = deviceInfoProxy_->GetDeviceInfo(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceInfo(asyncCallbackInfo->elementName,
         asyncCallbackInfo->stringRet, asyncCallbackInfo->policyCode);
 }
 
