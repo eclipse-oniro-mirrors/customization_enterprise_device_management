@@ -27,10 +27,11 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncAllowedInstallBundlesCallbackInfo : AsyncCallbackInfo {
+struct AsyncBundlesCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::vector<std::string> bundles;
     int32_t userId = 0;
+    int32_t policyType = 0;
 };
 
 class BundleManagerAddon {
@@ -43,18 +44,22 @@ public:
     static napi_value AddAllowedInstallBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedInstallBundles(napi_env env, napi_callback_info info);
     static napi_value GetAllowedInstallBundles(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedInstallBundles(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedInstallBundles(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedInstallBundles(napi_env env, napi_callback_info info);
 
 private:
-    static napi_value AddOrRemovellowedInstallBundles(napi_env env, napi_callback_info info,
+    static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info,
+        const std::string &workName, napi_async_execute_callback execute);
+    static napi_value GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
         const std::string &workName, napi_async_execute_callback execute);
 
-    static void NativeAddAllowedInstallBundles(napi_env env, void *data);
-    static void NativeRemoveAllowedInstallBundles(napi_env env, void *data);
-    static void NativeGetAllowedInstallBundles(napi_env env, void *data);
-
-    static bool CheckAddAllowedInstallBundlesParamType(napi_env env, size_t argc,
+    static void NativeAddBundlesByPolicyType(napi_env env, void *data);
+    static void NativeRemoveBundlesByPolicyType(napi_env env, void *data);
+    static void NativeGetBundlesByPolicyType(napi_env env, void *data);
+    static void InitCallbackInfoPolicyType(const std::string &workName, AsyncBundlesCallbackInfo *callback);
+    static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
-    static std::shared_ptr<BundleManagerProxy> bundleManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -12,13 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unordered_map>
 #include "bundle_manager_addon.h"
 #include "edm_log.h"
 #include "os_account_manager.h"
+#include "policy_type.h"
 
 using namespace OHOS::EDM;
 
 constexpr int32_t MAX_SIZE = 200;
+
+static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
+    {"AddAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
+    {"AddDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+    {"RemoveAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
+    {"RemoveDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+    {"GetAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
+    {"GetDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+};
 
 napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
 {
@@ -26,6 +37,9 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addAllowedInstallBundles", AddAllowedInstallBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedInstallBundles", RemoveAllowedInstallBundles),
         DECLARE_NAPI_FUNCTION("getAllowedInstallBundles", GetAllowedInstallBundles),
+        DECLARE_NAPI_FUNCTION("addDisallowedInstallBundles", AddDisallowedInstallBundles),
+        DECLARE_NAPI_FUNCTION("removeDisallowedInstallBundles", RemoveDisallowedInstallBundles),
+        DECLARE_NAPI_FUNCTION("getDisallowedInstallBundles", GetDisallowedInstallBundles),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -34,6 +48,18 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
 napi_value BundleManagerAddon::GetAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedInstallBundles called");
+    return GetAllowedOrDisallowedInstallBundles(env, info, "GetAllowedInstallBundles", NativeGetBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::GetDisallowedInstallBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedInstallBundles called");
+    return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedInstallBundles", NativeGetBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
+    const std::string &workName, napi_async_execute_callback execute)
+{
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -41,19 +67,18 @@ napi_value BundleManagerAddon::GetAllowedInstallBundles(napi_env env, napi_callb
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     bool hasCallback = false;
     bool hasUserId = false;
-    auto asyncCallbackInfo = new (std::nothrow) AsyncAllowedInstallBundlesCallbackInfo();
+    auto asyncCallbackInfo = new (std::nothrow) AsyncBundlesCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncAllowedInstallBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
 
-    EDMLOGD("GetAllowedInstallBundles::asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
+    EDMLOGD("GetInstallBundles bundlename %{public}s, abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (hasUserId) {
@@ -65,68 +90,72 @@ napi_value BundleManagerAddon::GetAllowedInstallBundles(napi_env env, napi_callb
     if (hasCallback) {
         napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetAllowedInstallBundles",
-        NativeGetAllowedInstallBundles, NativeArrayStringCallbackComplete);
+    InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
+    EDMLOGI("GetInstallBundles::%{public}s policyType = %{public}d", workName.c_str(), asyncCallbackInfo->policyType);
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, workName,
+        execute, NativeArrayStringCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
 
-void BundleManagerAddon::NativeGetAllowedInstallBundles(napi_env env, void *data)
+void BundleManagerAddon::InitCallbackInfoPolicyType(const std::string &workName, AsyncBundlesCallbackInfo *callbackInfo)
 {
-    EDMLOGI("NAPI_NativeGetAllowedInstallBundles called");
+    auto iter = POLICY_TYPE_MAP.find(workName);
+    if (iter != POLICY_TYPE_MAP.end()) {
+        callbackInfo->policyType = iter->second;
+    } else {
+        EDMLOGI("policy type map get error");
+        callbackInfo->policyType = static_cast<int32_t>(PolicyType::INVALID_TYPE);
+    }
+}
+
+void BundleManagerAddon::NativeGetBundlesByPolicyType(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetBundlesByPolicyType called");
     if (data == nullptr) {
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncAllowedInstallBundlesCallbackInfo *asyncCallbackInfo =
-        static_cast<AsyncAllowedInstallBundlesCallbackInfo *>(data);
-    auto proxy_ = BundleManagerProxy::GetBundleManagerProxy();
-    if (proxy_ == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+    AsyncBundlesCallbackInfo *asyncCallbackInfo = static_cast<AsyncBundlesCallbackInfo *>(data);
+    auto proxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
         return;
     }
 
-    asyncCallbackInfo->ret = proxy_->GetAllowedInstallBundles(asyncCallbackInfo->elementName, asyncCallbackInfo->userId,
-        asyncCallbackInfo->arrayStringRet);
+    asyncCallbackInfo->ret = proxy->GetBundlesByPolicyType(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->userId, asyncCallbackInfo->arrayStringRet, asyncCallbackInfo->policyType);
 }
 
 napi_value BundleManagerAddon::AddAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
-    return AddOrRemovellowedInstallBundles(env, info, "AddAllowedInstallBundles", NativeAddAllowedInstallBundles);
+    return AddOrRemoveInstallBundles(env, info, "AddAllowedInstallBundles", NativeAddBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::AddDisallowedInstallBundles(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveInstallBundles(env, info, "AddDisallowedInstallBundles", NativeAddBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::RemoveAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
-    return AddOrRemovellowedInstallBundles(env, info, "RemoveAllowedInstallBundles", NativeRemoveAllowedInstallBundles);
+    return AddOrRemoveInstallBundles(env, info, "RemoveAllowedInstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
-void BundleManagerAddon::NativeAddAllowedInstallBundles(napi_env env, void *data)
+napi_value BundleManagerAddon::RemoveDisallowedInstallBundles(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_NativeAddAllowedInstallBundles called");
-    if (data == nullptr) {
-        EDMLOGE("data is nullptr");
-        return;
-    }
-    AsyncAllowedInstallBundlesCallbackInfo *asyncCallbackInfo =
-        static_cast<AsyncAllowedInstallBundlesCallbackInfo *>(data);
-    auto bundleManagerProxy_ = BundleManagerProxy::GetBundleManagerProxy();
-    if (bundleManagerProxy_ == nullptr) {
-        EDMLOGE("can not get BundleManagerProxy");
-        return;
-    }
-    asyncCallbackInfo->ret = bundleManagerProxy_->AddAllowedInstallBundles(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->bundles, asyncCallbackInfo->userId);
+    return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedInstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
-bool BundleManagerAddon::CheckAddAllowedInstallBundlesParamType(napi_env env, size_t argc,
+bool BundleManagerAddon::CheckAddInstallBundlesParamType(napi_env env, size_t argc,
     napi_value* argv, bool &hasCallback, bool &hasUserId)
 {
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
         napi_object)) {
-        EDMLOGE("CheckAddAllowedInstallBundlesParamType admin or array type check failed");
+        EDMLOGE("CheckAddInstallBundlesParamType admin or array type check failed");
         return false;
     }
-    EDMLOGI("CheckAddAllowedInstallBundlesParamType argc = %{public}zu", argc);
+    EDMLOGI("CheckAddInstallBundlesParamType argc = %{public}zu", argc);
     if (argc == ARGS_SIZE_TWO) {
         hasCallback = false;
         hasUserId = false;
@@ -154,7 +183,7 @@ bool BundleManagerAddon::CheckAddAllowedInstallBundlesParamType(napi_env env, si
         MatchValueType(env, argv[ARR_INDEX_THREE], napi_function);
 }
 
-napi_value BundleManagerAddon::AddOrRemovellowedInstallBundles(napi_env env, napi_callback_info info,
+napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_callback_info info,
     const std::string &workName, napi_async_execute_callback execute)
 {
     size_t argc = ARGS_SIZE_FOUR;
@@ -164,13 +193,13 @@ napi_value BundleManagerAddon::AddOrRemovellowedInstallBundles(napi_env env, nap
     bool hasCallback = false;
     bool hasUserId = false;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    auto asyncCallbackInfo = new (std::nothrow) AsyncAllowedInstallBundlesCallbackInfo();
+    auto asyncCallbackInfo = new (std::nothrow) AsyncBundlesCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncAllowedInstallBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckAddAllowedInstallBundlesParamType(env, argc, argv, hasCallback, hasUserId),
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckAddInstallBundlesParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
@@ -190,28 +219,46 @@ napi_value BundleManagerAddon::AddOrRemovellowedInstallBundles(napi_env env, nap
     if (hasCallback) {
         napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, workName,
-        execute, NativeVoidCallbackComplete);
+    InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
+    EDMLOGI("AddOrRemoveInstallBundles::%{public}s policyType = %{public}d", workName.c_str(),
+        asyncCallbackInfo->policyType);
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, workName, execute, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
 
-void BundleManagerAddon::NativeRemoveAllowedInstallBundles(napi_env env, void *data)
+void BundleManagerAddon::NativeRemoveBundlesByPolicyType(napi_env env, void *data)
 {
-    EDMLOGI("NativeRemoveAllowedInstallBundles called");
+    EDMLOGI("NativeRemoveBundlesByPolicyType called");
     if (data == nullptr) {
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncAllowedInstallBundlesCallbackInfo *asyncCallbackInfo =
-        static_cast<AsyncAllowedInstallBundlesCallbackInfo *>(data);
-    auto bundleManagerProxy_ = BundleManagerProxy::GetBundleManagerProxy();
-    if (bundleManagerProxy_ == nullptr) {
+    AsyncBundlesCallbackInfo *asyncCallbackInfo = static_cast<AsyncBundlesCallbackInfo *>(data);
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
         EDMLOGE("can not get BundleManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = bundleManagerProxy_->RemoveAllowedInstallBundles(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->bundles, asyncCallbackInfo->userId);
+    asyncCallbackInfo->ret = bundleManagerProxy->RemoveBundlesByPolicyType(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->bundles, asyncCallbackInfo->userId, asyncCallbackInfo->policyType);
+}
+
+void BundleManagerAddon::NativeAddBundlesByPolicyType(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeAddBundlesByPolicyType called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncBundlesCallbackInfo *asyncCallbackInfo = static_cast<AsyncBundlesCallbackInfo *>(data);
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = bundleManagerProxy->AddBundlesByPolicyType(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->bundles, asyncCallbackInfo->userId, asyncCallbackInfo->policyType);
 }
 
 static napi_module g_bundleManagerModule = {

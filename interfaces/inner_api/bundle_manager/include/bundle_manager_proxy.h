@@ -22,14 +22,13 @@ namespace EDM {
 class BundleManagerProxy {
 public:
     static std::shared_ptr<BundleManagerProxy> GetBundleManagerProxy();
-    int32_t AddAllowedInstallBundles(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
-        int32_t userId);
-    int32_t RemoveAllowedInstallBundles(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
-        int32_t userId);
-    int32_t GetAllowedInstallBundles(AppExecFwk::ElementName &admin, int32_t userId,
-        std::vector<std::string> &bundles);
+    int32_t AddBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
+        int32_t userId, int32_t policyType);
+    int32_t RemoveBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
+        int32_t userId, int32_t policyType);
+    int32_t GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId,
+        std::vector<std::string> &bundles, int32_t policyType);
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<BundleManagerProxy> instance_;
     static std::mutex mutexLock_;
 };
