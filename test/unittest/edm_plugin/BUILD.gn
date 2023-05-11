@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("../../../edm.gni")
 
 module_output_path = "enterprise_device_management/services"
 
@@ -113,10 +112,7 @@ ohos_static_library("edm_all_plugin_static") {
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
-  include_dirs = [
-    "../../../services/edm_plugin/include",
-    "$WIFI_ROOT_DIR/frameworks/native/include",
-  ]
+  include_dirs = [ "../../../services/edm_plugin/include" ]
 
   deps = [
     "../../../common/native:edm_commom",

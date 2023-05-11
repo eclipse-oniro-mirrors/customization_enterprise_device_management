@@ -53,6 +53,7 @@ ohos_unittest("EdmWifiManagerProxyUnitTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "wifi:wifi_sdk",
   ]
 
   if (is_standard_system) {
