@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "bundle_manager_proxy.h"
+#include "policy_type.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -54,7 +55,8 @@ HWTEST_F(BundleManagerProxyTest, AddAllowedInstallBundles, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
-    ErrCode ret = bundleManagerProxy->AddAllowedInstallBundles(admin, bundles, DEFAULT_USER_ID);
+    int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->AddBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -67,7 +69,8 @@ HWTEST_F(BundleManagerProxyTest, RemoveAllowedInstallBundles, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
-    ErrCode ret = bundleManagerProxy->RemoveAllowedInstallBundles(admin, bundles, DEFAULT_USER_ID);
+    int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->RemoveBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -80,7 +83,50 @@ HWTEST_F(BundleManagerProxyTest, GetAllowedInstallBundles, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
-    ErrCode ret = bundleManagerProxy->GetAllowedInstallBundles(admin, DEFAULT_USER_ID, bundles);
+    int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDisallowedInstallBundles
+ * @tc.desc: Test AddDisallowedInstallBundles func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, AddDisallowedInstallBundles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->AddBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedInstallBundles
+ * @tc.desc: Test RemoveDisallowedInstallBundles func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, RemoveDisallowedInstallBundles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->RemoveBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDisallowedInstallBundles
+ * @tc.desc: Test GetDisallowedInstallBundles func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetDisallowedInstallBundles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
     ASSERT_TRUE(ret != ERR_OK);
 }
 } // namespace TEST

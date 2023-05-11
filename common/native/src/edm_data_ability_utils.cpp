@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "edm_data_ability_utils.h"
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
-#include "edm_data_ability_utils.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "system_ability_definition.h"

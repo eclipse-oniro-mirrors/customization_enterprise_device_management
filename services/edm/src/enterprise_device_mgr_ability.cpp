@@ -970,7 +970,6 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
 ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     if (!VerifyCallingPermission(PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::VerifyManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;

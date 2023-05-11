@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "gmock/gmock.h"
 #include "edm_sys_manager_mock.h"
+#include "gmock/gmock.h"
 #include "edm_log.h"
 #include "iservice_registry.h"
 

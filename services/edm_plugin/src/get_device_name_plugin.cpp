@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "edm_data_ability_utils.h"
 #include "get_device_name_plugin.h"
+#include "edm_data_ability_utils.h"
 #include "parameter.h"
 #include "policy_info.h"
 #include "string_serializer.h"

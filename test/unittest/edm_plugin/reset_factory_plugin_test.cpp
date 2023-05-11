@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "reset_factory_plugin_test.h"
 #include "iplugin_template.h"
 #include "policy_info.h"
-#include "reset_factory_plugin_test.h"
 #include "utils.h"
 
 using namespace testing::ext;
