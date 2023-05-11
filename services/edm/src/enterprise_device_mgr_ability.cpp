@@ -483,7 +483,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     AAFwk::Want want;
     want.SetElement(admin);
     if (!bundleManager->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
-        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo)) {
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo) ||
+        abilityInfo.empty()) {
         EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
@@ -727,7 +728,11 @@ bool EnterpriseDeviceMgrAbility::IsAdminEnabled(AppExecFwk::ElementName &admin, 
 int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
 {
     std::vector<int32_t> ids;
-    AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (FAILED(ret) || ids.empty()) {
+        EDMLOGE("EnterpriseDeviceMgrAbility GetCurrentUserId failed");
+        return -1;
+    }
     EDMLOGD("EnterpriseDeviceMgrAbility GetCurrentUserId user id = %{public}d", ids.at(0));
     return (ids.at(0));
 }
