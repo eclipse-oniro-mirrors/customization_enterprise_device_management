@@ -241,12 +241,12 @@ void WifiManagerAddon::NativeSetWifiProfile(napi_env env, void *data)
         return;
     }
     AsyncSetWifiProfileCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetWifiProfileCallbackInfo *>(data);
-    auto wifiManagerProxy_ = WifiManagerProxy::GetWifiManagerProxy();
-    if (wifiManagerProxy_ == nullptr) {
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = wifiManagerProxy_->SetWifiProfile(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = wifiManagerProxy->SetWifiProfile(asyncCallbackInfo->elementName,
         asyncCallbackInfo->wifiDeviceConfig);
 }
 
@@ -258,12 +258,12 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
         return;
     }
     AsyncIsWifiActiveCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsWifiActiveCallbackInfo *>(data);
-    auto wifiManagerProxy_ = WifiManagerProxy::GetWifiManagerProxy();
-    if (wifiManagerProxy_ == nullptr) {
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = wifiManagerProxy_->IsWifiActive(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = wifiManagerProxy->IsWifiActive(asyncCallbackInfo->elementName,
         asyncCallbackInfo->boolRet);
 }
 

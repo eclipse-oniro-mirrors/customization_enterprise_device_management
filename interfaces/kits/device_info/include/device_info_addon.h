@@ -45,7 +45,6 @@ private:
     static napi_value GetDeviceName(napi_env env, napi_callback_info info);
     static napi_value GetDeviceInfo(napi_env env, napi_callback_info info, int code);
     static void NativeGetDeviceInfo(napi_env env, void *data);
-    static std::shared_ptr<DeviceInfoProxy> deviceInfoProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

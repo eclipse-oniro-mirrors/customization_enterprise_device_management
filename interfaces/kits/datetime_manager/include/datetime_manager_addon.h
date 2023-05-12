@@ -51,7 +51,6 @@ private:
     static void NativeDisallowModifyDateTime(napi_env env, void *data);
     static napi_value IsModifyDateTimeDisallowed(napi_env env, napi_callback_info info);
     static void NativeIsModifyDateTimeDisallowed(napi_env env, void *data);
-    static std::shared_ptr<DatetimeManagerProxy> dateTimeManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

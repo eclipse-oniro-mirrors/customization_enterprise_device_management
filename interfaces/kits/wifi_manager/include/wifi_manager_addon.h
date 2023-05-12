@@ -93,7 +93,6 @@ private:
     static void CreateIpTypeObject(napi_env env, napi_value value);
     static void CreateEapMethodObject(napi_env env, napi_value value);
     static void CreatePhase2MethodObject(napi_env env, napi_value value);
-    static std::shared_ptr<WifiManagerProxy> wifiManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

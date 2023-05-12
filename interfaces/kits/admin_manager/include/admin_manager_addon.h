@@ -110,7 +110,6 @@ private:
     static bool checkEnableAdminParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
 };
 } // namespace EDM
 } // namespace OHOS

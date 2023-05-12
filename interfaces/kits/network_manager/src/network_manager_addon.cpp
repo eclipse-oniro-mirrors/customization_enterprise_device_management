@@ -74,12 +74,12 @@ void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data
         return;
     }
     AsyncNetworkInterfacesCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInterfacesCallbackInfo *>(data);
-    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy_ == nullptr) {
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy_->GetAllNetworkInterfaces(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = networkManagerProxy->GetAllNetworkInterfaces(asyncCallbackInfo->elementName,
         asyncCallbackInfo->arrayStringRet);
 }
 
@@ -141,12 +141,12 @@ void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
         return;
     }
     AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
-    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy_ == nullptr) {
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy_->GetIpOrMacAddress(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = networkManagerProxy->GetIpOrMacAddress(asyncCallbackInfo->elementName,
         asyncCallbackInfo->networkInterface, asyncCallbackInfo->policyCode, asyncCallbackInfo->stringRet);
 }
 
@@ -198,12 +198,12 @@ void NetworkManagerAddon::NativeSetNetworkInterfaceDisabled(napi_env env, void *
         return;
     }
     AsyncSetNetworkInterfaceCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetNetworkInterfaceCallbackInfo *>(data);
-    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy_ == nullptr) {
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy_->SetNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = networkManagerProxy->SetNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
         asyncCallbackInfo->networkInterface, asyncCallbackInfo->isDisabled);
 }
 
@@ -252,12 +252,12 @@ void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *d
         return;
     }
     AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
-    auto networkManagerProxy_ = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy_ == nullptr) {
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy_->IsNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = networkManagerProxy->IsNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
         asyncCallbackInfo->networkInterface, asyncCallbackInfo->boolRet);
 }
 

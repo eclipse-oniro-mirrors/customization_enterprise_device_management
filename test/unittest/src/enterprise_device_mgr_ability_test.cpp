@@ -19,10 +19,10 @@
 #include "iplugin_template.h"
 #undef protected
 #undef private
+#include "enterprise_device_mgr_ability_test.h"
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include "enterprise_device_mgr_ability_test.h"
 #include "iplugin_template_test.h"
 #include "plugin_manager_test.h"
 #include "utils.h"

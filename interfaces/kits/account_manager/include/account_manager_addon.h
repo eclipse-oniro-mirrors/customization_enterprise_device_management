@@ -41,7 +41,6 @@ public:
 private:
     static napi_value DisallowAddLocalAccount(napi_env env, napi_callback_info info);
     static void NativeDisallowAddLocalAccount(napi_env env, void *data);
-    static std::shared_ptr<AccountManagerProxy> accountManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS

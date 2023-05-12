@@ -60,7 +60,6 @@ private:
     static void NativeGetIpOrMacAddress(napi_env env, void *data);
     static void NativeSetNetworkInterfaceDisabled(napi_env env, void *data);
     static void NativeIsNetworkInterfaceDisabled(napi_env env, void *data);
-    static std::shared_ptr<NetworkManagerProxy> networkManagerProxy_;
 };
 } // namespace EDM
 } // namespace OHOS
