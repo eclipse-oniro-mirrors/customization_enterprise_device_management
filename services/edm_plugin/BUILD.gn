@@ -69,8 +69,6 @@ edm_plugin_shared_library("wifi_manager_plugin") {
     "./src/wifi_device_config_serializer.cpp",
   ]
 
-  include_dirs = [ "$WIFI_ROOT_DIR/frameworks/native/include" ]
-
   deps = [
     "../../common/native:edm_commom",
     "//third_party/bounds_checking_function:libsec_shared",

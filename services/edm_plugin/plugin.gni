@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../../edm.gni")
 
 template("edm_plugin_shared_library") {
   ohos_shared_library("${target_name}") {

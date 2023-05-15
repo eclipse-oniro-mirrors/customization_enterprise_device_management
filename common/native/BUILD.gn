@@ -12,14 +12,9 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../../edm.gni")
 
 config("edm_commom_all_dependent_configs") {
-  include_dirs = [
-    "include",
-    "$WIFI_ROOT_DIR/frameworks/native/interfaces",
-    "$WIFI_ROOT_DIR/services/wifi_standard/wifi_framework/wifi_toolkit/net_helper",
-  ]
+  include_dirs = [ "include" ]
 }
 
 ohos_shared_library("edm_commom") {
