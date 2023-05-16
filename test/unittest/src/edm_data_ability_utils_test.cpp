@@ -35,16 +35,26 @@ protected:
     void SetUp() override;
 
     void TearDown() override;
+
+    static void TearDownTestSuite(void);
 };
 
 void EdmDataAbilityUtilsTest::SetUp()
 {
     Utils::SetEdmInitialEnv();
+    Utils::SetEdmServiceEnable();
 }
 
 void EdmDataAbilityUtilsTest::TearDown()
 {
     Utils::ResetTokenTypeAndUid();
+    Utils::SetEdmServiceDisable();
+}
+
+void EdmDataAbilityUtilsTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**

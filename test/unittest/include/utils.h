@@ -33,6 +33,8 @@ public:
     static void SetNativeTokenTypeAndPermissions(const char* permissions[], int size);
     static void SetEdmInitialEnv();
     static void ResetTokenTypeAndUid();
+    static bool GetEdmServiceState();
+    static bool IsOriginalUTEnv();
     static void SetEdmServiceEnable();
     static void SetEdmServiceDisable();
 

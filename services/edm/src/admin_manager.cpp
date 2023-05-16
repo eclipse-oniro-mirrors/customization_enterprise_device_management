@@ -177,8 +177,7 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
-ErrCode AdminManager::GetGrantedPermission(AppExecFwk::ExtensionAbilityInfo& abilityInfo,
-    std::vector<std::string>& permissions, AdminType type)
+ErrCode AdminManager::GetGrantedPermission(std::vector<std::string>& permissions, AdminType type)
 {
     if (permissions.empty()) {
         EDMLOGW("GetGrantedPermission::permissions is empty");
@@ -214,7 +213,7 @@ ErrCode AdminManager::UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo,
     }
 
     std::vector<std::string> combinePermission = permissions;
-    ErrCode ret = GetGrantedPermission(abilityInfo, combinePermission, adminItem->adminInfo_.adminType_);
+    ErrCode ret = GetGrantedPermission(combinePermission, adminItem->adminInfo_.adminType_);
     if (ret != ERR_OK) {
         EDMLOGW("UpdateAdmin::GetGrantedPermission failed");
         return ret;

@@ -18,16 +18,26 @@ module_output_path = "enterprise_device_management/services"
 ohos_unittest("EdmApplicationManagerProxyUnitTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "../include" ]
+  include_dirs = [
+    "../include",
+    "../mock/include",
+    "../enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test",
+  ]
 
   sources = [
+    "../enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test/enterprise_device_mgr_stub_mock.cpp",
+    "../mock/src/edm_sys_manager_mock.cpp",
     "../src/utils.cpp",
     "./application_manager_proxy_test.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../../interfaces/inner_api:edmservice_kits" ]
+  deps = [
+    "../../../interfaces/inner_api:edmservice_kits",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
     "ability_base:want",

@@ -35,19 +35,21 @@ const std::string INVALID_NETWORK_INTERFACE = "fail";
 
 class NetworkManagerPluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 };
 
-void NetworkManagerPluginTest::SetUpTestCase(void)
+void NetworkManagerPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void NetworkManagerPluginTest::TearDownTestCase(void)
+void NetworkManagerPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

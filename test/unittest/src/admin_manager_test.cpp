@@ -84,44 +84,35 @@ HWTEST_F(AdminManagerTest, TestGetReqPermission, TestSize.Level1)
  */
 HWTEST_F(AdminManagerTest, TestGetGrantedPermission, TestSize.Level1)
 {
-    ErrCode res;
     std::vector<std::string> permissions;
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.name = "testDemo";
-    EntInfo entInfo;
-    entInfo.enterpriseName = "company";
-    entInfo.description = "technology company in china";
-
-    permissions = {};
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::NORMAL);
+    ErrCode res = adminMgr_->GetGrantedPermission(permissions, AdminType::NORMAL);
     ASSERT_TRUE(res == ERR_OK);
 
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION_FAIL", "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::NORMAL);
+    res = adminMgr_->GetGrantedPermission(permissions, AdminType::NORMAL);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(permissions.size() == 1);
 
     permissions = {
         "ohos.permission.EDM_TEST_PERMISSION_FAIL", "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::ENT);
+    res = adminMgr_->GetGrantedPermission(permissions, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(permissions.size() == 1);
 
     permissions = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::NORMAL);
+    res = adminMgr_->GetGrantedPermission(permissions, AdminType::NORMAL);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(permissions.size() == 1);
 
     permissions = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EDM_TEST_PERMISSION"
     };
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::ENT);
+    res = adminMgr_->GetGrantedPermission(permissions, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(permissions.size() == 2);
 }
@@ -351,7 +342,7 @@ HWTEST_F(AdminManagerTest, TestUpdateAdmin, TestSize.Level1)
     std::vector<std::string> permissions = {
         "ohos.permission.EDM_TEST_PERMISSION_FAIL", "ohos.permission.EDM_TEST_ENT_PERMISSION"
     };
-    res = adminMgr_->GetGrantedPermission(abilityInfo, permissions, AdminType::ENT);
+    res = adminMgr_->GetGrantedPermission(permissions, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
     std::vector<std::shared_ptr<Admin>> userAdmin;

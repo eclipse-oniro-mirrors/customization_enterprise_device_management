@@ -24,14 +24,16 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DisallowModifyDateTimePluginTest::SetUpTestCase(void)
+void DisallowModifyDateTimePluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowModifyDateTimePluginTest::TearDownTestCase(void)
+void DisallowModifyDateTimePluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

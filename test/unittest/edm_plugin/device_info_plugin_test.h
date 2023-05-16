@@ -27,9 +27,9 @@ namespace EDM {
 namespace TEST {
 class DeviceInfoPluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 
     std::shared_ptr<IPlugin> plugin_;
 };

@@ -19,7 +19,10 @@
 #include <vector>
 
 #include "device_control_proxy.h"
+#include "edm_sys_manager_mock.h"
+#include "enterprise_device_mgr_stub_mock.h"
 #include "policy_info.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -34,30 +37,63 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<DeviceControlProxy> deviceControlProxy = nullptr;
+    std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
+    sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
 };
 
 void DeviceControlProxyTest::SetUp()
 {
     deviceControlProxy = DeviceControlProxy::GetDeviceControlProxy();
+    edmSysManager_ = std::make_shared<EdmSysManager>();
+    object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
+    edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void DeviceControlProxyTest::TearDown()
 {
     deviceControlProxy.reset();
+    edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    object_ = nullptr;
+    Utils::SetEdmServiceDisable();
+}
+
+void DeviceControlProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
+}
+
+/**
+ * @tc.name: TestResetFactorySuc
+ * @tc.desc: Test ResetFactory success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = deviceControlProxy->ResetFactory(admin);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
  * @tc.name: TestResetFactoryFail
- * @tc.desc: Test ResetFactory func.
+ * @tc.desc: Test ResetFactory without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceControlProxyTest, TestGetDeviceInfoFail, TestSize.Level1)
+HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = deviceControlProxy->ResetFactory(admin);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

@@ -43,6 +43,7 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxyTest = nullptr;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
@@ -54,6 +55,7 @@ void EnterpriseDeviceMgrProxyTest::SetUp()
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void EnterpriseDeviceMgrProxyTest::TearDown()
@@ -61,6 +63,13 @@ void EnterpriseDeviceMgrProxyTest::TearDown()
     EnterpriseDeviceMgrProxy::DestroyInstance();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
+    Utils::SetEdmServiceDisable();
+}
+
+void EnterpriseDeviceMgrProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**

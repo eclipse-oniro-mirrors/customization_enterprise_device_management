@@ -22,14 +22,16 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DisallowAddLocalAccountPluginTest::SetUpTestCase(void)
+void DisallowAddLocalAccountPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowAddLocalAccountPluginTest::TearDownTestCase(void)
+void DisallowAddLocalAccountPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

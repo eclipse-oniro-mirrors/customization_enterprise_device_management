@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include "edm_sys_manager.h"
 #include "system_ability_definition.h"
+#include "utils.h"
 
 using namespace testing::ext;
 
@@ -24,10 +25,28 @@ namespace EDM {
 namespace TEST {
 class EdmSysManagerTest : public testing::Test {
 protected:
-    void SetUp() override {}
+    void SetUp() override;
 
-    void TearDown() override {}
+    void TearDown() override;
+
+    static void TearDownTestSuite(void);
 };
+
+void EdmSysManagerTest::SetUp()
+{
+    Utils::SetEdmServiceEnable();
+}
+
+void EdmSysManagerTest::TearDown()
+{
+    Utils::SetEdmServiceDisable();
+}
+
+void EdmSysManagerTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
+}
 
 /**
  * @tc.name: TestGetRemoteObjectOfSystemAbility
