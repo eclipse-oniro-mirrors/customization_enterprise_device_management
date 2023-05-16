@@ -95,8 +95,24 @@ void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
         EDMLOGE("can not get DeviceInfoProxy");
         return;
     }
-    asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceInfo(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->stringRet, asyncCallbackInfo->policyCode);
+    switch (asyncCallbackInfo->policyCode) {
+        case static_cast<int32_t>(GET_DEVICE_SERIAL):
+            asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceSerial(asyncCallbackInfo->elementName,
+                asyncCallbackInfo->stringRet);
+            break;
+        case static_cast<int32_t>(GET_DISPLAY_VERSION):
+            asyncCallbackInfo->ret = deviceInfoProxy->GetDisplayVersion(asyncCallbackInfo->elementName,
+                asyncCallbackInfo->stringRet);
+            break;
+        case static_cast<int32_t>(GET_DEVICE_NAME):
+            asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceName(asyncCallbackInfo->elementName,
+                asyncCallbackInfo->stringRet);
+            break;
+        default:
+            asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            EDMLOGE("NAPI_GetDeviceInfo failed");
+            return;
+    }
 }
 
 static napi_module g_deviceInfoModule = {
