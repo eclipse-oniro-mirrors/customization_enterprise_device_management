@@ -460,12 +460,10 @@ HWTEST_F(AdminManagerTest, TestGetAdminBySubscribeEvent, TestSize.Level1)
     entInfo.description = "technology company in wuhan2";
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, TEST_USER_ID);
 
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
     const std::vector<uint32_t> events = {0, 1};
-    adminMgr_->SaveSubscribeEvents(events, adminItem, DEFAULT_USER_ID);
+    adminMgr_->SaveSubscribeEvents(events, "com.edm.test.demo", DEFAULT_USER_ID);
     const std::vector<uint32_t> events1 = {1};
-    std::shared_ptr<Admin> adminItem1 = adminMgr_->GetAdminByPkgName("com.edm.test.demo2", TEST_USER_ID);
-    adminMgr_->SaveSubscribeEvents(events1, adminItem1, TEST_USER_ID);
+    adminMgr_->SaveSubscribeEvents(events1, "com.edm.test.demo2", TEST_USER_ID);
 
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subscribeAdmins;
     adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::BUNDLE_ADDED, subscribeAdmins);
@@ -480,9 +478,6 @@ HWTEST_F(AdminManagerTest, TestGetAdminBySubscribeEvent, TestSize.Level1)
  */
 HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
 {
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>();
-    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
-    std::vector<uint32_t> events = {0};
     AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
     abilityInfo.name = "testDemo";
@@ -491,10 +486,14 @@ HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+
+    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin != nullptr);
+    std::vector<uint32_t> events = {0};
+    adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(1);
-    adminMgr_->SaveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() > 1);
 }
 
@@ -505,9 +504,6 @@ HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
  */
 HWTEST_F(AdminManagerTest, TestRemoveSubscribeEvents, TestSize.Level1)
 {
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>();
-    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
-    std::vector<uint32_t> events = {1};
     AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = "com.edm.test.demo";
     abilityInfo.name = "testDemo";
@@ -516,10 +512,16 @@ HWTEST_F(AdminManagerTest, TestRemoveSubscribeEvents, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = { "ohos.permission.EDM_TEST_PERMISSION" };
     adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+
+    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
+    ASSERT_TRUE(admin != nullptr);
+    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
+
+    std::vector<uint32_t> events = {1};
+    adminMgr_->RemoveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(0);
-    adminMgr_->RemoveSubscribeEvents(events, admin, DEFAULT_USER_ID);
+    adminMgr_->RemoveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.empty());
 }
 } // namespace TEST
