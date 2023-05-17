@@ -686,9 +686,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     entInfo.enterpriseName = "company1";
     entInfo.description = "technology company in wuhan1";
     edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    std::shared_ptr<Admin> adminItem = edmMgr_->adminMgr_->GetAdminByPkgName("com.edm.test.demo", DEFAULT_USER_ID);
     const std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
-    edmMgr_->adminMgr_->SaveSubscribeEvents(events, adminItem, DEFAULT_USER_ID);
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, "com.edm.test.demo", DEFAULT_USER_ID);
 
     std::string action = "usual.event.PACKAGE_ADDED";
     want.SetAction(action);

@@ -50,8 +50,8 @@ public:
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
-    void SaveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
-    void RemoveSubscribeEvents(const std::vector<uint32_t> &events, std::shared_ptr<Admin> &admin, int32_t userId);
+    void SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
+    void RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode GetSuperAdmin(std::shared_ptr<Admin> &admin);
     virtual ~AdminManager();
 

@@ -133,9 +133,14 @@ ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInf
 
 std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packageName, int32_t userId)
 {
+    std::shared_ptr<Admin> superAdmin;
+    if (IsSuperAdminExist() && SUCCEEDED(GetSuperAdmin(superAdmin)) &&
+        superAdmin->adminInfo_.packageName_ == packageName) {
+        EDMLOGD("GetAdminByPkgName::get super admin %{public}s userId = %{public}d", packageName.c_str(), userId);
+        return superAdmin;
+    }
     std::vector<std::shared_ptr<Admin>> userAdmin;
-    bool ret = GetAdminByUserId(userId, userAdmin);
-    if (!ret) {
+    if (!GetAdminByUserId(userId, userAdmin)) {
         EDMLOGW("GetAdminByPkgName::get userId Admin failed. userId = %{public}d", userId);
         return nullptr;
     }
@@ -293,6 +298,10 @@ ErrCode AdminManager::GetSuperAdmin(std::shared_ptr<Admin> &admin)
     }
     auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(),
         [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
+    if (adminItem == userAdmin.end()) {
+        EDMLOGW("IsSuperAdminExist::not find super Admin");
+        return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
+    }
     admin = *adminItem;
     return ERR_OK;
 }
@@ -332,9 +341,13 @@ ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInf
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
-void AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
-    std::shared_ptr<Admin> &admin, int32_t userId)
+void AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+    int32_t userId)
 {
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
+    if (admin == nullptr) {
+        return;
+    }
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
     for (auto &event : events) {
         std::vector<ManagedEvent> managedEvents = admin->adminInfo_.managedEvents_;
@@ -348,9 +361,13 @@ void AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events,
     }
 }
 
-void AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
-    std::shared_ptr<Admin> &admin, int32_t userId)
+void AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+    int32_t userId)
 {
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
+    if (admin == nullptr) {
+        return;
+    }
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
     for (auto &event : events) {
         auto iter = admin->adminInfo_.managedEvents_.begin();

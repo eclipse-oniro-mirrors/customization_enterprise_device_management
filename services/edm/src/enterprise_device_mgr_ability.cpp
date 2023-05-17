@@ -905,7 +905,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     EntInfo entInfo;
-    ErrCode code = adminMgr_->GetEntInfo(admin.GetBundleName(), entInfo, GetCurrentUserId());
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    ErrCode code = adminMgr_->GetEntInfo(admin.GetBundleName(), entInfo, userId);
     if (code != ERR_OK) {
         reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -925,7 +926,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &a
         EDMLOGW("EnterpriseDeviceMgrAbility::SetEnterpriseInfo: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (adminItem == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -961,9 +962,8 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     RETURN_IF_FAILED(HandleApplicationEvent(events, true));
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
-    adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    adminMgr_->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
     return ERR_OK;
 }
 
@@ -972,9 +972,8 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
-    adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    adminMgr_->RemoveSubscribeEvents(events, admin.GetBundleName(), userId);
     return HandleApplicationEvent(events, false);
 }
 
@@ -985,8 +984,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
         EDMLOGW("EnterpriseDeviceMgrAbility::VerifyManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
+    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), GetCurrentUserId());
     if (adminItem == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
