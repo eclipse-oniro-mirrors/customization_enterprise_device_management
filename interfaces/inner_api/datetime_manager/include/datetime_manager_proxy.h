@@ -29,7 +29,6 @@ public:
     int32_t IsModifyDateTimeDisallowed(AppExecFwk::ElementName &admin, bool hasAdmin, bool &result);
 
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DatetimeManagerProxy> instance_;
     static std::mutex mutexLock_;
 };

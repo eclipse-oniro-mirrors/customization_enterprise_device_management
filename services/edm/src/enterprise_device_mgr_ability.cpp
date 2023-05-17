@@ -747,7 +747,7 @@ std::shared_ptr<PolicyManager> EnterpriseDeviceMgrAbility::GetAndSwitchPolicyMan
         EDMLOGI("get policyMgr failed create success userId : %{public}d", userId);
         policyMgr->Init();
     } else {
-        policyMgr = policyMgrMap_.find(userId)->second;
+        policyMgr = iter->second;
     }
     IPolicyManager::policyManagerInstance_ = policyMgr.get();
     return policyMgr;
@@ -825,6 +825,11 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    bool isUserExist = false;
+    AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
+    if (!isUserExist) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("GetDevicePolicy: get plugin failed");
@@ -832,6 +837,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     std::string adminName;
+    // has admin
     if (data.ReadInt32() == 0) {
         std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
         std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());

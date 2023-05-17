@@ -29,7 +29,6 @@ public:
     int32_t GetDisallowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles);
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::mutex mutexLock_;
 };
