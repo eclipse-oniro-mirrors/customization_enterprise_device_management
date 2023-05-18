@@ -29,14 +29,16 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t OVER_MAX_SIZE = 201;
 
-void DisallowedInstallBundlesPluginTest::SetUpTestCase(void)
+void DisallowedInstallBundlesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowedInstallBundlesPluginTest::TearDownTestCase(void)
+void DisallowedInstallBundlesPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

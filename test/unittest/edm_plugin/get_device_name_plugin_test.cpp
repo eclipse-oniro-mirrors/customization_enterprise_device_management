@@ -28,19 +28,21 @@ namespace EDM {
 namespace TEST {
 class GetDeviceNamePluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 };
 
-void GetDeviceNamePluginTest::SetUpTestCase(void)
+void GetDeviceNamePluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void GetDeviceNamePluginTest::TearDownTestCase(void)
+void GetDeviceNamePluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

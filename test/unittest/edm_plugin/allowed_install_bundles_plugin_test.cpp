@@ -27,14 +27,16 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void AllowedInstallBundlesPluginTest::SetUpTestCase(void)
+void AllowedInstallBundlesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void AllowedInstallBundlesPluginTest::TearDownTestCase(void)
+void AllowedInstallBundlesPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

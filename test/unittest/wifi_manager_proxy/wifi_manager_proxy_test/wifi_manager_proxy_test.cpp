@@ -36,6 +36,7 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<WifiManagerProxy> wifiManagerProxy = nullptr;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
@@ -58,6 +59,12 @@ void WifiManagerProxyTest::TearDown()
     Utils::SetEdmServiceDisable();
 }
 
+void WifiManagerProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
+}
+
 /**
  * @tc.name: TestIsWifiActiveSuc
  * @tc.desc: Test IsWifiActive func.
@@ -78,32 +85,52 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveSuc, TestSize.Level1)
 
 /**
  * @tc.name: TestIsWifiActiveFail
- * @tc.desc: Test IsWifiActive func.
+ * @tc.desc: Test IsWifiActive func without enable edm service.
  * @tc.type: FUNC
  */
 HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool isActive = false;
     int32_t ret = wifiManagerProxy->IsWifiActive(admin, isActive);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isActive);
 }
 
 /**
- * @tc.name: TestSetWifiProfileFail
- * @tc.desc: Test SetWifiProfile func.
+ * @tc.name: TestSetWifiProfileSuc
+ * @tc.desc: Test SetWifiProfile success func.
  * @tc.type: FUNC
  */
-HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
+HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     Wifi::WifiDeviceConfig config;
     config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
-    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetWifiProfileFail
+ * @tc.desc: Test SetWifiProfile func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    Wifi::WifiDeviceConfig config;
+    config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
+    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

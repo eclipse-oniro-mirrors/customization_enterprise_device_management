@@ -500,7 +500,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     /* Filter permissions with AdminType, such as NORMAL can't request super permission */
-    if (FAILED(adminMgr_->GetGrantedPermission(abilityInfo.at(0), permissionList, type))) {
+    if (FAILED(adminMgr_->GetGrantedPermission(permissionList, type))) {
         EDMLOGW("EnableAdmin: GetGrantedPermission failed");
         // permission verify, should throw exception if failed
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;

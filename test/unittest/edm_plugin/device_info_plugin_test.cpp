@@ -22,14 +22,16 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DeviceInfoPluginTest::SetUpTestCase(void)
+void DeviceInfoPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DeviceInfoPluginTest::TearDownTestCase(void)
+void DeviceInfoPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

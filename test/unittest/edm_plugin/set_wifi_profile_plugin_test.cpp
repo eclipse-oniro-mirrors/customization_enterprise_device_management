@@ -27,19 +27,21 @@ namespace EDM {
 namespace TEST {
 class SetWifiProfilePluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 };
 
-void SetWifiProfilePluginTest::SetUpTestCase(void)
+void SetWifiProfilePluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void SetWifiProfilePluginTest::TearDownTestCase(void)
+void SetWifiProfilePluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**

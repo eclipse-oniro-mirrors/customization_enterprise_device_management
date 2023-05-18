@@ -24,9 +24,9 @@ namespace EDM {
 namespace TEST {
 class DisallowedInstallBundlesPluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 };
 } // namespace TEST
 } // namespace EDM

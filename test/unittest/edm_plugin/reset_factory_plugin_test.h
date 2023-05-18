@@ -25,9 +25,9 @@ namespace EDM {
 namespace TEST {
 class DeviceControlPluginTest : public testing::Test {
 protected:
-    static void SetUpTestCase(void);
+    static void SetUpTestSuite(void);
 
-    static void TearDownTestCase(void);
+    static void TearDownTestSuite(void);
 };
 } // namespace TEST
 } // namespace EDM

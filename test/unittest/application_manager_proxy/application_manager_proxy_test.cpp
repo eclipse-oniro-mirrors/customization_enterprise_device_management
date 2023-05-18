@@ -15,8 +15,12 @@
 
 #include <gtest/gtest.h>
 #include <string>
+#include <system_ability_definition.h>
 #include <vector>
+
 #include "application_manager_proxy.h"
+#include "edm_sys_manager_mock.h"
+#include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -32,28 +36,59 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_ = nullptr;
+    std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
+    sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
 };
 
 void ApplicationManagerProxyTest::SetUp()
 {
     applicationManagerProxy_ = ApplicationManagerProxy::GetApplicationManagerProxy();
+    edmSysManager_ = std::make_shared<EdmSysManager>();
+    object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
+    edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
     Utils::SetEdmServiceEnable();
 }
 
 void ApplicationManagerProxyTest::TearDown()
 {
     applicationManagerProxy_.reset();
+    edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    object_ = nullptr;
     Utils::SetEdmServiceDisable();
 }
 
+void ApplicationManagerProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
+}
+
 /**
- * @tc.name: TestAddDisallowedRunningBundles
- * @tc.desc: Test AddDisallowedRunningBundles func.
+ * @tc.name: TestAddDisallowedRunningBundlesSuc
+ * @tc.desc: Test AddDisallowedRunningBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddDisallowedRunningBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddDisallowedRunningBundles(admin, bundles, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDisallowedRunningBundlesFail
+ * @tc.desc: Test AddDisallowedRunningBundles without enable edm service func.
  * @tc.type: FUNC
  */
 HWTEST_F(ApplicationManagerProxyTest, AddDisallowedRunningBundles, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     ErrCode ret = applicationManagerProxy_->AddDisallowedRunningBundles(admin, bundles, DEFAULT_USER_ID);
@@ -61,12 +96,29 @@ HWTEST_F(ApplicationManagerProxyTest, AddDisallowedRunningBundles, TestSize.Leve
 }
 
 /**
- * @tc.name: TestRemoveDisallowedRunningBundles
- * @tc.desc: Test RemoveDisallowedRunningBundles func.
+ * @tc.name: TestRemoveDisallowedRunningBundlesSuc
+ * @tc.desc: Test RemoveDisallowedRunningBundles success func.
  * @tc.type: FUNC
  */
-HWTEST_F(ApplicationManagerProxyTest, RemoveDisallowedRunningBundles, TestSize.Level1)
+HWTEST_F(ApplicationManagerProxyTest, RemoveDisallowedRunningBundlesSuc, TestSize.Level1)
 {
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->RemoveDisallowedRunningBundles(admin, bundles, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedRunningBundlesFail
+ * @tc.desc: Test RemoveDisallowedRunningBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, RemoveDisallowedRunningBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     ErrCode ret = applicationManagerProxy_->RemoveDisallowedRunningBundles(admin, bundles, DEFAULT_USER_ID);
@@ -74,12 +126,31 @@ HWTEST_F(ApplicationManagerProxyTest, RemoveDisallowedRunningBundles, TestSize.L
 }
 
 /**
- * @tc.name: TestGetDisallowedRunningBundles
- * @tc.desc: Test GetDisallowedRunningBundles func.
+ * @tc.name: TestGetDisallowedRunningBundlesSuc
+ * @tc.desc: Test GetDisallowedRunningBundles success func.
  * @tc.type: FUNC
  */
-HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundles, TestSize.Level1)
+HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundlesSuc, TestSize.Level1)
 {
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetDisallowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundles.size() == 1);
+    ASSERT_TRUE(bundles[0] == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetDisallowedRunningBundlesFail
+ * @tc.desc: Test GetDisallowedRunningBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     ErrCode ret = applicationManagerProxy_->GetDisallowedRunningBundles(admin, DEFAULT_USER_ID, bundles);

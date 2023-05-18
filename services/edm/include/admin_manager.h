@@ -38,8 +38,7 @@ public:
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
     ErrCode UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo, const std::vector<std::string> &permissions,
         int32_t userId);
-    ErrCode GetGrantedPermission(AppExecFwk::ExtensionAbilityInfo &abilityInfo, std::vector<std::string> &permissions,
-        AdminType type);
+    ErrCode GetGrantedPermission(std::vector<std::string> &permissions, AdminType type);
     bool IsSuperAdminExist();
     bool IsAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);

@@ -15,9 +15,13 @@
 
 #include <gtest/gtest.h>
 #include <string>
+#include <system_ability_definition.h>
 #include <vector>
 
 #include "account_manager_proxy.h"
+#include "edm_sys_manager_mock.h"
+#include "enterprise_device_mgr_stub_mock.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -32,29 +36,61 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<AccountManagerProxy> accountManagerProxy = nullptr;
+    std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
+    sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
 };
 
 void AccountManagerProxyTest::SetUp()
 {
     accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    edmSysManager_ = std::make_shared<EdmSysManager>();
+    object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
+    edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
+    Utils::SetEdmServiceEnable();
 }
 
 void AccountManagerProxyTest::TearDown()
 {
     accountManagerProxy.reset();
+    edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    object_ = nullptr;
+    Utils::SetEdmServiceDisable();
+}
+
+void AccountManagerProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**
- * @tc.name: TestDisallowAddLocalAccount
- * @tc.desc: Test DisallowAddLocalAccount func.
+ * @tc.name: TestDisallowAddLocalAccountSuc
+ * @tc.desc: Test DisallowAddLocalAccount success func.
  * @tc.type: FUNC
  */
-HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccount, TestSize.Level1)
+HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowAddLocalAccountFail
+ * @tc.desc: Test DisallowAddLocalAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

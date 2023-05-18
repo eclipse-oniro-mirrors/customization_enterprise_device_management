@@ -37,6 +37,7 @@ protected:
 
     void TearDown() override;
 
+    static void TearDownTestSuite(void);
     std::shared_ptr<NetworkManagerProxy> networkManagerProxy = nullptr;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
@@ -57,6 +58,12 @@ void NetworkManagerProxyTest::TearDown()
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
     Utils::SetEdmServiceDisable();
+}
+
+void NetworkManagerProxyTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**
@@ -85,11 +92,12 @@ HWTEST_F(NetworkManagerProxyTest, TestGetAllNetworkInterfacesSuc, TestSize.Level
  */
 HWTEST_F(NetworkManagerProxyTest, TestGetAllNetworkInterfacesFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::vector<std::string> networkInterfaces;
     int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(admin, networkInterfaces);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
@@ -117,11 +125,12 @@ HWTEST_F(NetworkManagerProxyTest, TestGetIpOrMacAddressSuc, TestSize.Level1)
  */
 HWTEST_F(NetworkManagerProxyTest, TestGetIpOrMacAddressFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string info;
     int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", GET_MAC, info);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
@@ -149,11 +158,12 @@ HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledSuc, TestSize.Le
  */
 HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool status = false;
     int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(admin, "eth0", status);
-    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(status);
 }
 
@@ -180,10 +190,11 @@ HWTEST_F(NetworkManagerProxyTest, TestSetNetworkInterfaceDisabledSuc, TestSize.L
  */
 HWTEST_F(NetworkManagerProxyTest, TestSetNetworkInterfaceDisabledFail, TestSize.Level1)
 {
+    Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(admin, "eth0", true);
-    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

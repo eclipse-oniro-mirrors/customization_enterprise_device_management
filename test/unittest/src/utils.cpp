@@ -71,6 +71,17 @@ void Utils::ResetTokenTypeAndUid()
     SetSelfTokenID(selfTokenId_);
 }
 
+bool Utils::IsOriginalUTEnv()
+{
+    return Utils::ROOT_UID == geteuid() && selfTokenId_ == GetSelfTokenID();
+}
+
+bool Utils::GetEdmServiceState()
+{
+    std::string edmParaValue = system::GetParameter("persist.edm.edm_enable", "false");
+    return edmParaValue == "true";
+}
+
 void Utils::SetEdmServiceEnable()
 {
     system::SetParameter(SET_EDM_SERVICE, "true");

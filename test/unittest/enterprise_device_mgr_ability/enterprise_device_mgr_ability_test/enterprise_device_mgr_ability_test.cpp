@@ -62,6 +62,8 @@ protected:
 
     // Tears down the test fixture.
     void TearDown() override;
+    
+    static void TearDownTestSuite(void);
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     int32_t TestDump();
@@ -102,6 +104,12 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_.clear();
     Utils::ExecCmdSync(TEAR_DOWN_CMD);
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+}
+
+void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
+{
+    ASSERT_FALSE(Utils::GetEdmServiceState());
+    std::cout<< "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**
@@ -455,6 +463,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcFail, TestSize.
 
     // the same edmMgr_->adminMgr_ two super admin
     res = edmMgr_->adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
+    Utils::SetEdmServiceDisable();
     EXPECT_TRUE(res == ERR_OK);
 }
 
@@ -570,6 +579,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoNoSame, TestSize.L
 
     // the same edmMgr_->adminMgr_ two super admin
     res = edmMgr_->adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
+    Utils::SetEdmServiceDisable();
     EXPECT_TRUE(res == ERR_OK);
 }
 
@@ -836,6 +846,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventIpcFail, TestS
     EXPECT_TRUE(res == ERR_OK);
     res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == ERR_OK);
     Utils::ResetTokenTypeAndUid();
 }
 
