@@ -103,7 +103,7 @@ private:
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
-    std::map<std::uint32_t, std::shared_ptr<PolicyManager>> policyMgrMap_;
+    std::map<std::int32_t, std::shared_ptr<PolicyManager>> policyMgrMap_;
     std::shared_ptr<AdminManager> adminMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;

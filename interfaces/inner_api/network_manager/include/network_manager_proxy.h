@@ -33,7 +33,6 @@ public:
     int32_t IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         bool &status);
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<NetworkManagerProxy> instance_;
     static std::mutex mutexLock_;
 };

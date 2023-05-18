@@ -16,6 +16,7 @@
 #include "device_info_proxy.h"
 #include "edm_log.h"
 #include "func_code.h"
+#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -37,6 +38,21 @@ std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
         }
     }
     return instance_;
+}
+
+int32_t DeviceInfoProxy::GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &info)
+{
+    return GetDeviceInfo(admin, info, GET_DEVICE_SERIAL);
+}
+
+int32_t DeviceInfoProxy::GetDisplayVersion(AppExecFwk::ElementName &admin, std::string &info)
+{
+    return GetDeviceInfo(admin, info, GET_DISPLAY_VERSION);
+}
+
+int32_t DeviceInfoProxy::GetDeviceName(AppExecFwk::ElementName &admin, std::string &info)
+{
+    return GetDeviceInfo(admin, info, GET_DEVICE_NAME);
 }
 
 int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode)

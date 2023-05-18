@@ -80,7 +80,7 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceInfo(admin, info, GET_DEVICE_SERIAL);
+    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -96,7 +96,7 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceInfo(admin, info, GET_DEVICE_SERIAL);
+    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

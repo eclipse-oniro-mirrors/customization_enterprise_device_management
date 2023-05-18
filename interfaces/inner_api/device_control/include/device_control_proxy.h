@@ -27,7 +27,6 @@ public:
     static std::shared_ptr<DeviceControlProxy> GetDeviceControlProxy();
     int32_t ResetFactory(AppExecFwk::ElementName &admin);
 private:
-    static std::shared_ptr<EnterpriseDeviceMgrProxy> proxy_;
     static std::shared_ptr<DeviceControlProxy> instance_;
     static std::mutex mutexLock_;
 };

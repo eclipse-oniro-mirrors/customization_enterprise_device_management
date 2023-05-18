@@ -747,7 +747,7 @@ std::shared_ptr<PolicyManager> EnterpriseDeviceMgrAbility::GetAndSwitchPolicyMan
         EDMLOGI("get policyMgr failed create success userId : %{public}d", userId);
         policyMgr->Init();
     } else {
-        policyMgr = policyMgrMap_.find(userId)->second;
+        policyMgr = iter->second;
     }
     IPolicyManager::policyManagerInstance_ = policyMgr.get();
     return policyMgr;
@@ -825,6 +825,11 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    bool isUserExist = false;
+    AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
+    if (!isUserExist) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("GetDevicePolicy: get plugin failed");
@@ -832,6 +837,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     std::string adminName;
+    // has admin
     if (data.ReadInt32() == 0) {
         std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
         std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
@@ -899,7 +905,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     EntInfo entInfo;
-    ErrCode code = adminMgr_->GetEntInfo(admin.GetBundleName(), entInfo, GetCurrentUserId());
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    ErrCode code = adminMgr_->GetEntInfo(admin.GetBundleName(), entInfo, userId);
     if (code != ERR_OK) {
         reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -919,7 +926,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &a
         EDMLOGW("EnterpriseDeviceMgrAbility::SetEnterpriseInfo: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (adminItem == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -955,9 +962,8 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     RETURN_IF_FAILED(HandleApplicationEvent(events, true));
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
-    adminMgr_->SaveSubscribeEvents(events, adminItem, userId);
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    adminMgr_->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
     return ERR_OK;
 }
 
@@ -966,9 +972,8 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
-    adminMgr_->RemoveSubscribeEvents(events, adminItem, userId);
+    int32_t userId = adminMgr_->IsSuperAdmin(admin.GetBundleName()) ? DEFAULT_USER_ID : GetCurrentUserId();
+    adminMgr_->RemoveSubscribeEvents(events, admin.GetBundleName(), userId);
     return HandleApplicationEvent(events, false);
 }
 
@@ -979,8 +984,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
         EDMLOGW("EnterpriseDeviceMgrAbility::VerifyManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    int32_t userId = GetCurrentUserId();
-    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
+    std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), GetCurrentUserId());
     if (adminItem == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
