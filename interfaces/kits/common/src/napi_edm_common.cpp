@@ -411,6 +411,46 @@ void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data)
     delete asyncCallbackInfo;
 }
 
+void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            EDMLOGD("asyncCallbackInfo->intRet = %{public}d", asyncCallbackInfo->intRet);
+            napi_value result = nullptr;
+            napi_create_int32(env, asyncCallbackInfo->intRet, &result);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    } else {
+        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
+            EDMLOGD("asyncCallbackInfo->intRet = %{public}d", asyncCallbackInfo->intRet);
+            napi_create_int32(env, asyncCallbackInfo->intRet, &callbackValue[ARR_INDEX_ONE]);
+        } else {
+            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
+                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
+                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
+            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
+        }
+        napi_value callback = nullptr;
+        napi_value result = nullptr;
+        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
+        napi_delete_reference(env, asyncCallbackInfo->callback);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data)
 {
     if (data == nullptr) {

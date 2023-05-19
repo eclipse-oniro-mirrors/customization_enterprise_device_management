@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,37 +13,38 @@
  * limitations under the License.
  */
 
-#include "long_serializer.h"
+#include "int_serializer.h"
 
 #include <string_ex.h>
 #include "edm_constants.h"
 
 namespace OHOS {
 namespace EDM {
-bool LongSerializer::Deserialize(const std::string &jsonString, int64_t &dataObj)
+
+bool IntSerializer::Deserialize(const std::string &jsonString, int32_t &dataObj)
 {
-    dataObj = strtoll(jsonString.c_str(), nullptr, EdmConstants::DECIMAL);
+    dataObj = strtol(jsonString.c_str(), nullptr, EdmConstants::DECIMAL);
     return true;
 }
 
-bool LongSerializer::Serialize(const int64_t &dataObj, std::string &jsonString)
+bool IntSerializer::Serialize(const int32_t &dataObj, std::string &jsonString)
 {
     jsonString = std::to_string(dataObj);
     return true;
 }
 
-bool LongSerializer::GetPolicy(MessageParcel &data, int64_t &result)
+bool IntSerializer::GetPolicy(MessageParcel &data, int32_t &result)
 {
-    result = data.ReadInt64();
+    result = data.ReadInt32();
     return true;
 }
 
-bool LongSerializer::WritePolicy(MessageParcel &reply, int64_t &result)
+bool IntSerializer::WritePolicy(MessageParcel &reply, int32_t &result)
 {
-    return reply.WriteInt64(result);
+    return reply.WriteInt32(result);
 }
 
-bool LongSerializer::MergePolicy(std::vector<int64_t> &data, int64_t &result)
+bool IntSerializer::MergePolicy(std::vector<int32_t> &data, int32_t &result)
 {
     if (!data.empty()) {
         result = *(data.rbegin());

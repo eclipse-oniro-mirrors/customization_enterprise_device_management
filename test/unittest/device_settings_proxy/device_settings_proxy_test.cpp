@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,9 @@
 #include <system_ability_definition.h>
 #include <vector>
 
-#include "device_info_proxy.h"
-#include "enterprise_device_mgr_stub_mock.h"
+#include "device_settings_proxy.h"
 #include "edm_sys_manager_mock.h"
-#include "policy_info.h"
+#include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -31,71 +30,71 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
-class DeviceInfoProxyTest : public testing::Test {
+class DeviceSettingsProxyTest : public testing::Test {
 protected:
     void SetUp() override;
 
     void TearDown() override;
 
     static void TearDownTestSuite(void);
-    std::shared_ptr<DeviceInfoProxy> deviceInfoProxy = nullptr;
+    std::shared_ptr<DeviceSettingsProxy> deviceSettingsProxy = nullptr;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
 };
 
-void DeviceInfoProxyTest::SetUp()
+void DeviceSettingsProxyTest::SetUp()
 {
-    deviceInfoProxy = DeviceInfoProxy::GetDeviceInfoProxy();
+    deviceSettingsProxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
     Utils::SetEdmServiceEnable();
 }
 
-void DeviceInfoProxyTest::TearDown()
+void DeviceSettingsProxyTest::TearDown()
 {
-    deviceInfoProxy.reset();
+    deviceSettingsProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
     Utils::SetEdmServiceDisable();
 }
 
-void DeviceInfoProxyTest::TearDownTestSuite()
+void DeviceSettingsProxyTest::TearDownTestSuite()
 {
     ASSERT_FALSE(Utils::GetEdmServiceState());
     std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
 
 /**
- * @tc.name: TestGetDeviceInfoSuc
- * @tc.desc: Test GetDeviceInfo func.
+ * @tc.name: TestGetScreenOffTimeSuc
+ * @tc.desc: Test GetGetScreenOffTime func.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSuc, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, TestGetScreenOffTimeSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
-    std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    int32_t info = 0;
+    int32_t ret = deviceSettingsProxy->GetScreenOffTime(admin, info);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(info == RETURN_STRING);
+    ASSERT_TRUE(info == 0);
 }
 
 /**
- * @tc.name: TestGetDeviceInfoFail
- * @tc.desc: Test GetDeviceInfo func.
+ * @tc.name: TestGetScreenOffTimeFail
+ * @tc.desc: Test GetGetScreenOffTime func.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoFail, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, TestGetScreenOffTimeFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
+    int32_t info = 0;
+    int32_t ret = deviceSettingsProxy->GetScreenOffTime(admin, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

@@ -19,6 +19,7 @@
 #include <fstream>
 #include <iostream>
 #include "directory_ex.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "permission_manager.h"
 #include "super_admin.h"
@@ -480,13 +481,14 @@ void AdminManager::RestoreAdminFromFile()
             continue;
         }
         // Indicates 0 user, and other user ID is 100
-        if ((std::stoi(user)) < DEFAULT_USER_ID) {
+        int32_t userId = strtol(user.c_str(), nullptr, EdmConstants::DECIMAL);
+        if (userId < DEFAULT_USER_ID) {
             continue;
         }
         std::string path = EDM_ADMIN_BASE + EDM_ADMIN_JSON_FILE + user +
             EDM_ADMIN_JSON_EXT;
         // admin information storage location
-        ReadJsonAdmin(path, (std::stoi(user)));
+        ReadJsonAdmin(path, userId);
     }
     EDMLOGD("RestoreAdminFromFile success! size = %{public}zu", paths.size());
 }

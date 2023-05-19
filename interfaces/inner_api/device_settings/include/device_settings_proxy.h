@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,24 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
-#define EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
-
-#include <gmock/gmock.h>
-#include <iostream>
-#include <string>
-#include "edm_errors.h"
+#ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-class EdmDataAbilityUtils {
+class DeviceSettingsProxy {
 public:
-    static ErrCode GetStringFromDataShare(const std::string &dataBaseUri, const std::string &key, std::string &value);
-    static ErrCode GetIntFromDataShare(const std::string &dataBaseUri, const std::string &key, int32_t &value);
-    static void SetResult(const std::string &result);
+    static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
+    int32_t GetScreenOffTime(AppExecFwk::ElementName &admin, int32_t &value);
 private:
-    static std::string result_;
+    static std::shared_ptr<DeviceSettingsProxy> instance_;
+    static std::mutex mutexLock_;
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
+
+#endif // INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H

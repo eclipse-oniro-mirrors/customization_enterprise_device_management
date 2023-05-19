@@ -176,6 +176,7 @@ group("unittest") {
     "datetime_manager_proxy:unittest",
     "device_control_proxy:unittest",
     "device_info_proxy:unittest",
+    "device_settings_proxy:unittest",
     "edm_plugin:unittest",
     "enterprise_device_mgr_ability:unittest",
     "enterprise_device_mgr_proxy:unittest",
