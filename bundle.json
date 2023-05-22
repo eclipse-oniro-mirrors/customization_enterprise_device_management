@@ -56,10 +56,10 @@
         "ability_runtime",
         "access_token",
         "bundle_framework",
-        "common",
         "common_event_service",
         "c_utils",
         "data_share",
+        "dupdate_engine",
         "netmanager_ext",
         "hisysevent_native",
         "hiviewdfx_hilog_native",
@@ -71,10 +71,11 @@
         "safwk",
         "samgr",
         "time_service",
-        "updater",
+        "update_service",
         "wifi"
       ],
       "third_party": [
+        "bounds_checking_function",
         "jsoncpp"
       ]
     },
