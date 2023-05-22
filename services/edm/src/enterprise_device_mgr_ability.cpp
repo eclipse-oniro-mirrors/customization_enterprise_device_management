@@ -123,7 +123,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
     }
     if (adminMgr_->IsSuperAdminExist()) {
         std::shared_ptr<Admin> superAdmin;
-        adminMgr_->GetSuperAdmin(superAdmin);
+        if (FAILED(adminMgr_->GetSuperAdmin(superAdmin))) {
+            return;
+        }
         if (FAILED(RemoveAdmin(superAdmin->adminInfo_.packageName_, userIdToRemove))) {
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved: remove super admin policy failed.");
         }
