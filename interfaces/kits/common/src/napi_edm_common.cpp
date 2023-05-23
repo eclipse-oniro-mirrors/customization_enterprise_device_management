@@ -143,7 +143,7 @@ bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param
         EDMLOGE("can not get string size");
         return false;
     }
-    if (size < 0 || size >= maxLength) {
+    if (size >= maxLength) {
         EDMLOGE("string size too long");
         return false;
     }
@@ -307,7 +307,7 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
         EDMLOGE("js object type is not uint8 array");
         return false;
     }
-    if (length < 0 || length > NAPI_MAX_DATA_LEN) {
+    if (length > NAPI_MAX_DATA_LEN) {
         EDMLOGE("uint8 array range failed");
         return false;
     }
@@ -316,7 +316,7 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
         return false;
     }
     certVector.clear();
-    certVector.assign((uint8_t*)data, ((uint8_t*)data) + length);
+    certVector.assign(static_cast<uint8_t*>(data), (static_cast<uint8_t*>(data) + length));
     return true;
 }
 

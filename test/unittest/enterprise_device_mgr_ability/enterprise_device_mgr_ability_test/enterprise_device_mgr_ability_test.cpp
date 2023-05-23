@@ -62,7 +62,7 @@ protected:
 
     // Tears down the test fixture.
     void TearDown() override;
-    
+
     static void TearDownTestSuite(void);
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
