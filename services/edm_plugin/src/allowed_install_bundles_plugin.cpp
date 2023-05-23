@@ -14,19 +14,12 @@
  */
 
 #include "allowed_install_bundles_plugin.h"
-#include <ipc_skeleton.h>
-#include <system_ability_definition.h>
-
-#include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
-#include "edm_sys_manager.h"
 #include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowedInstallBundlesPlugin::GetPlugin());
-
-constexpr int32_t MAX_SIZE = 200;
 
 void AllowedInstallBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<AllowedInstallBundlesPlugin,
     std::vector<std::string>>> ptr)
@@ -40,32 +33,14 @@ void AllowedInstallBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<All
     ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnAdminRemoveDoneListener(&AllowedInstallBundlesPlugin::OnAdminRemoveDone);
+    SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL);
 }
 
 ErrCode AllowedInstallBundlesPlugin::OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
     int32_t userId)
 {
     EDMLOGI("AllowedInstallBundlesPlugin OnSetPolicy userId = %{public}d", userId);
-    if (data.empty()) {
-        EDMLOGW("AllowedInstallBundlesPlugin OnSetPolicy data is empty:");
-        return ERR_OK;
-    }
-
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-
-    if (mergeData.size() > MAX_SIZE) {
-        EDMLOGE("AllowedInstallBundlesPlugin OnSetPolicy data is too large:");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    ErrCode res = GetAppControlProxy()->
-        AddAppInstallControlRule(data, AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL, userId);
-    if (res != ERR_OK) {
-        EDMLOGE("AllowedInstallBundlesPlugin OnSetPolicyDone Faild %{public}d:", res);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    currentData = mergeData;
-    return ERR_OK;
+    return BundleSetPolicy(data, currentData, userId);
 }
 
 ErrCode AllowedInstallBundlesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -75,38 +50,14 @@ ErrCode AllowedInstallBundlesPlugin::OnGetPolicy(std::string &policyData, Messag
         policyData.c_str(), userId);
     std::vector<std::string> bundles;
     pluginInstance_->serializer_->Deserialize(policyData, bundles);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(bundles.size());
-    reply.WriteStringVector(bundles);
-    return ERR_OK;
+    return BundleGetPolicy(bundles, reply);
 }
 
 ErrCode AllowedInstallBundlesPlugin::OnRemovePolicy(std::vector<std::string> &data,
     std::vector<std::string> &currentData, int32_t userId)
 {
-    EDMLOGD("AllowedInstallBundlesPlugin OnRemovePolicy userId : %{public}d:", userId);
-    if (data.empty()) {
-        EDMLOGW("AllowedInstallBundlesPlugin OnRemovePolicy data is empty:");
-        return ERR_OK;
-    }
-
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->
-        SetDifferencePolicyData(data, currentData);
-    ErrCode res = GetAppControlProxy()->
-        DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL, data, userId);
-    if (res != ERR_OK) {
-        EDMLOGE("AllowedInstallBundlesPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    currentData = mergeData;
-    return ERR_OK;
-}
-
-sptr<AppExecFwk::IAppControlMgr> AllowedInstallBundlesPlugin::GetAppControlProxy()
-{
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    return proxy->GetAppControlProxy();
+    EDMLOGD("AllowedInstallBundlesPlugin OnRemovePolicy userId : %{public}d", userId);
+    return BundleRemovePolicy(data, currentData, userId);
 }
 
 void AllowedInstallBundlesPlugin::OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data,
@@ -114,9 +65,7 @@ void AllowedInstallBundlesPlugin::OnAdminRemoveDone(const std::string &adminName
 {
     EDMLOGI("AllowedInstallBundlesPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d",
         adminName.c_str(), userId);
-    ErrCode res = GetAppControlProxy()->
-        DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL, data, userId);
-    EDMLOGI("AllowedInstallBundlesPlugin OnAdminRemoveDone result %{public}d:", res);
+    BundleAdminRemoveDone(adminName, data, userId);
 }
 } // namespace EDM
 } // namespace OHOS

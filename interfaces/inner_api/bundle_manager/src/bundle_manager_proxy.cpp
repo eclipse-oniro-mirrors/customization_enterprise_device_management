@@ -56,6 +56,9 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
         case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
             funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOWED_INSTALL_BUNDLES);
             break;
+        case static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL):
+            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOWED_UNINSTALL_BUNDLES);
+            break;
         default:
             EDMLOGE("can not get policy type");
             return EdmReturnErrCode::PARAM_ERROR;
@@ -85,6 +88,9 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
             break;
         case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
             funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, DISALLOWED_INSTALL_BUNDLES);
+            break;
+        case static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL):
+            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, DISALLOWED_UNINSTALL_BUNDLES);
             break;
         default:
             EDMLOGE("can not get policy type");
@@ -120,6 +126,9 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
             break;
         case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
             proxy->GetPolicy(DISALLOWED_INSTALL_BUNDLES, data, reply);
+            break;
+        case static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL):
+            proxy->GetPolicy(DISALLOWED_UNINSTALL_BUNDLES, data, reply);
             break;
         default:
             EDMLOGE("can not get policy type");

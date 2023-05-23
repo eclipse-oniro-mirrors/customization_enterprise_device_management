@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDALLOWEDINSTALLBUNDLES_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_ADDALLOWEDINSTALLBUNDLES_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
 
 #include <vector>
 #include "bundle_manager_plugin.h"
@@ -23,10 +23,10 @@
 
 namespace OHOS {
 namespace EDM {
-class AllowedInstallBundlesPlugin : public PluginSingleton<AllowedInstallBundlesPlugin,
+class DisallowedUninstallBundlesPlugin : public PluginSingleton<DisallowedUninstallBundlesPlugin,
     std::vector<std::string>>, public BundleManagerPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedInstallBundlesPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUninstallBundlesPlugin,
         std::vector<std::string>>> ptr) override;
 
     ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
@@ -37,4 +37,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_ADDALLOWEDINSTALLBUNDLES_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H

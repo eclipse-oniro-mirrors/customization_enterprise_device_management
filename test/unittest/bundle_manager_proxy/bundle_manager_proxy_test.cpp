@@ -261,6 +261,104 @@ HWTEST_F(BundleManagerProxyTest, GetDisallowedInstallBundlesFail, TestSize.Level
     ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: AddDisallowedUninstallBundlesSuc
+ * @tc.desc: Test AddDisallowedUninstallBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, AddDisallowedUninstallBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->AddBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: AddDisallowedUninstallBundlesFail
+ * @tc.desc: Test AddDisallowedUninstallBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, AddDisallowedUninstallBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    ErrCode ret = bundleManagerProxy->AddBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: RemoveDisallowedUninstallBundlesSuc
+ * @tc.desc: Test RemoveDisallowedUninstallBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, RemoveDisallowedUninstallBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->RemoveBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: RemoveDisallowedUninstallBundlesFail
+ * @tc.desc: Test RemoveDisallowedUninstallBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, RemoveDisallowedUninstallBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    ErrCode ret = bundleManagerProxy->RemoveBundlesByPolicyType(admin, bundles, DEFAULT_USER_ID, policyType);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetDisallowedUninstallBundlesSuc
+ * @tc.desc: Test GetDisallowedUninstallBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetDisallowedUninstallBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundles.size() == 1);
+    ASSERT_TRUE(bundles[0] == RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetDisallowedUninstallBundlesFail
+ * @tc.desc: Test GetDisallowedUninstallBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetDisallowedUninstallBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t policyType = static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL);
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

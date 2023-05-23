@@ -47,6 +47,9 @@ public:
     static napi_value AddDisallowedInstallBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedInstallBundles(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedInstallBundles(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedUninstallBundles(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedUninstallBundles(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedUninstallBundles(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info,
