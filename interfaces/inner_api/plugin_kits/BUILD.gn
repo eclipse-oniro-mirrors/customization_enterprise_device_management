@@ -31,6 +31,7 @@ ohos_shared_library("plugin_kits") {
     "./src/utils/array_string_serializer.cpp",
     "./src/utils/bool_serializer.cpp",
     "./src/utils/func_code_utils.cpp",
+    "./src/utils/int_serializer.cpp",
     "./src/utils/json_serializer.cpp",
     "./src/utils/long_serializer.cpp",
     "./src/utils/map_string_serializer.cpp",

@@ -98,7 +98,7 @@ edm_plugin_shared_library("network_manager_plugin") {
 edm_plugin_shared_library("bundle_manager_plugin") {
   sources = [
     "./src/allowed_install_bundles_plugin.cpp",
-    "./src/bundle_manager_plugin.cpp",
+    "./src/bundle_install_plugin.cpp",
     "./src/disallowed_install_bundles_plugin.cpp",
     "./src/disallowed_uninstall_bundles_plugin.cpp",
   ]
@@ -135,4 +135,12 @@ edm_plugin_shared_library("application_manager_plugin") {
     "c_utils:utils",
     "ipc:ipc_core",
   ]
+}
+
+edm_plugin_shared_library("device_settings_plugin") {
+  sources = [ "./src/get_screen_off_time_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [ "c_utils:utils" ]
 }

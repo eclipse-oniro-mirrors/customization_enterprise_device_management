@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,19 @@ ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseU
     }
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Success";
     value = "test query success";
+    return ERR_OK;
+}
+
+ErrCode EdmDataAbilityUtils::GetIntFromDataShare(const std::string &dataBaseUri,
+    const std::string &key, int32_t &value)
+{
+    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetIntFromDataShare start: " << result_.c_str();
+    if (result_ == "SYSTEM_ABNORMALLY") {
+        GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils result SYSTEM_ABNORMALLY";
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Success";
+    value = 0;
     return ERR_OK;
 }
 } // namespace EDM

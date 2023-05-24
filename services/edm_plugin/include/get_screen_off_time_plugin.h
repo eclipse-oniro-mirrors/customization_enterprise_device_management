@@ -13,22 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
 
-#include <gtest/gtest.h>
-#include "allowed_install_bundles_plugin.h"
+#include "iplugin_template.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-namespace TEST {
-class AllowedInstallBundlesPluginTest : public testing::Test {
-protected:
-    static void SetUpTestSuite(void);
+class GetScreenOffTimePlugin : public PluginSingleton<GetScreenOffTimePlugin, int32_t> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<GetScreenOffTimePlugin, int32_t>> ptr) override;
 
-    static void TearDownTestSuite(void);
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
-} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H

@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
 
-#include "long_serializer.h"
 #include "iplugin_template.h"
 #include "iplugin_manager.h"
 

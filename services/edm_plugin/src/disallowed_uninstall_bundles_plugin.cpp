@@ -15,6 +15,7 @@
 
 #include "disallowed_uninstall_bundles_plugin.h"
 #include "array_string_serializer.h"
+#include "iplugin_manager.h"
 #include "policy_info.h"
 
 namespace OHOS {
@@ -36,36 +37,12 @@ void DisallowedUninstallBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplat
     SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL);
 }
 
-ErrCode DisallowedUninstallBundlesPlugin::OnSetPolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
-{
-    EDMLOGI("DisallowedUninstallBundlesPlugin OnSetPolicy userId = %{public}d", userId);
-    return BundleSetPolicy(data, currentData, userId);
-}
-
 ErrCode DisallowedUninstallBundlesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("DisallowedUninstallBundlesPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d",
         policyData.c_str(), userId);
-    std::vector<std::string> bundles;
-    pluginInstance_->serializer_->Deserialize(policyData, bundles);
-    return BundleGetPolicy(bundles, reply);
-}
-
-ErrCode DisallowedUninstallBundlesPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
-{
-    EDMLOGD("DisallowedUninstallBundlesPlugin OnRemovePolicy userId : %{public}d", userId);
-    return BundleRemovePolicy(data, currentData, userId);
-}
-
-void DisallowedUninstallBundlesPlugin::OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data,
-    int32_t userId)
-{
-    EDMLOGI("DisallowedUninstallBundlesPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d",
-        adminName.c_str(), userId);
-    BundleAdminRemoveDone(adminName, data, userId);
+    return GetBundlePolicy(policyData, data, reply, userId);
 }
 } // namespace EDM
 } // namespace OHOS

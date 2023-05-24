@@ -14,19 +14,17 @@
  */
 
 #include "disallowed_running_bundles_plugin.h"
-#include <ipc_skeleton.h>
 #include <system_ability_definition.h>
 
 #include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
+#include "edm_constants.h"
 #include "edm_sys_manager.h"
 #include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
-
-constexpr int32_t MAX_SIZE = 200;
 
 void DisallowedRunningBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin,
     std::vector<std::string>>> ptr)
@@ -52,7 +50,7 @@ ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &da
     }
 
     std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-    if (mergeData.size() > MAX_SIZE) {
+    if (mergeData.size() > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy data is too large:");
         return EdmReturnErrCode::PARAM_ERROR;
     }

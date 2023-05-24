@@ -28,6 +28,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "directory_ex.h"
+#include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
@@ -273,10 +274,11 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         if (!std::all_of(user.begin(), user.end(), ::isdigit)) {
             continue;
         }
-        if ((std::stoi(user)) < DEFAULT_USER_ID) {
+        int32_t userId = strtol(user.c_str(), nullptr, EdmConstants::DECIMAL);
+        if (userId < DEFAULT_USER_ID) {
             continue;
         }
-        GetAndSwitchPolicyManagerByUserId(std::stoi(user));
+        GetAndSwitchPolicyManagerByUserId(userId);
     }
     policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
 }

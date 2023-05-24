@@ -16,23 +16,17 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
 
-#include <vector>
-#include "bundle_manager_plugin.h"
-#include "iplugin_manager.h"
+#include "bundle_install_plugin.h"
 #include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
 class DisallowedUninstallBundlesPlugin : public PluginSingleton<DisallowedUninstallBundlesPlugin,
-    std::vector<std::string>>, public BundleManagerPlugin {
+    std::vector<std::string>>, public BundleInstallPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUninstallBundlesPlugin,
         std::vector<std::string>>> ptr) override;
-
-    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    void OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -13,29 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEMANAGER_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEMANAGER_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEINSTALL_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEINSTALL_PLUGIN_H
 
 #include <bundle_mgr_interface.h>
 #include <vector>
-#include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
-class BundleManagerPlugin {
+class BundleInstallPlugin {
 public:
     void SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType controlRuleType);
-    virtual ErrCode BundleSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    virtual ErrCode BundleGetPolicy(const std::vector<std::string> &bundles, MessageParcel &reply);
-    virtual ErrCode BundleRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    virtual void BundleAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
-
-    sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
+    ErrCode GetBundlePolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
+    void OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
 private:
+    sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
     AppExecFwk::AppInstallControlRuleType controlRuleType_ = AppExecFwk::AppInstallControlRuleType::UNSPECIFIED;
-
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEMANAGER_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEINSTALL_PLUGIN_H

@@ -15,13 +15,12 @@
 
 #include "bundle_manager_addon.h"
 #include <unordered_map>
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "os_account_manager.h"
 #include "policy_type.h"
 
 using namespace OHOS::EDM;
-
-constexpr int32_t MAX_SIZE = 200;
 
 static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
     {"AddAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
@@ -67,7 +66,8 @@ napi_value BundleManagerAddon::GetDisallowedInstallBundles(napi_env env, napi_ca
 napi_value BundleManagerAddon::GetDisallowedUninstallBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
-    return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedUninstallBundles", NativeGetBundlesByPolicyType);
+    return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedUninstallBundles",
+        NativeGetBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
@@ -228,7 +228,8 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->bundles, argv[ARR_INDEX_ONE]),
         "Parameter bundles error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->bundles.size() <= MAX_SIZE, "Parameter bundles too large");
+    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->bundles.size() <= EdmConstants::APPID_MAX_SIZE,
+        "Parameter bundles too large");
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),

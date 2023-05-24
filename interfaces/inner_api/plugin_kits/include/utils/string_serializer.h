@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,15 +26,15 @@ namespace EDM {
  */
 class StringSerializer : public IPolicySerializer<std::string>, public DelayedSingleton<StringSerializer> {
 public:
-    virtual bool Deserialize(const std::string &jsonString, std::string &dataObj) override;
+    bool Deserialize(const std::string &jsonString, std::string &dataObj) override;
 
-    virtual bool Serialize(const std::string &dataObj, std::string &jsonString) override;
+    bool Serialize(const std::string &dataObj, std::string &jsonString) override;
 
-    virtual bool GetPolicy(MessageParcel &data, std::string &result) override;
+    bool GetPolicy(MessageParcel &data, std::string &result) override;
 
-    virtual bool WritePolicy(MessageParcel &reply, std::string &result) override;
+    bool WritePolicy(MessageParcel &reply, std::string &result) override;
 
-    virtual bool MergePolicy(std::vector<std::string> &data, std::string &result) override;
+    bool MergePolicy(std::vector<std::string> &data, std::string &result) override;
 };
 } // namespace EDM
 } // namespace OHOS

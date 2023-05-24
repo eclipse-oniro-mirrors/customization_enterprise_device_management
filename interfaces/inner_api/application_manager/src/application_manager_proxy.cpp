@@ -14,6 +14,7 @@
  */
 
 #include "application_manager_proxy.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"
@@ -23,7 +24,6 @@ namespace EDM {
 std::shared_ptr<ApplicationManagerProxy> ApplicationManagerProxy::instance_ = nullptr;
 std::mutex ApplicationManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
-constexpr int32_t MAX_SIZE = 200;
 
 std::shared_ptr<ApplicationManagerProxy> ApplicationManagerProxy::GetApplicationManagerProxy()
 {
@@ -99,7 +99,7 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
         return ret;
     }
     int32_t size = reply.ReadInt32();
-    if (size > MAX_SIZE) {
+    if (size > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("bundles size=[%{public}d] is too large", size);
         return EdmReturnErrCode::PARAM_ERROR;
     }

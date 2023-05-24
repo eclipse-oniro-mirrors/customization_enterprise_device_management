@@ -13,22 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
-
-#include <gtest/gtest.h>
-#include "disallowed_install_bundles_plugin.h"
+#ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-namespace TEST {
-class DisallowedInstallBundlesPluginTest : public testing::Test {
-protected:
-    static void SetUpTestSuite(void);
-
-    static void TearDownTestSuite(void);
+class DeviceSettingsProxy {
+public:
+    static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
+    int32_t GetScreenOffTime(AppExecFwk::ElementName &admin, int32_t &value);
+private:
+    static std::shared_ptr<DeviceSettingsProxy> instance_;
+    static std::mutex mutexLock_;
 };
-} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+
+#endif // INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
