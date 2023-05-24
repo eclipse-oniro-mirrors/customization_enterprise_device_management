@@ -22,12 +22,11 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string SETTINGS_DATA_BASE_URI =
-    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 const std::string INVALID_BASE_URI =
     "datashare:///com.ohos.invalid/entry/settingsdata/SETTINGSDATA?Proxy=true";
 const std::string ERROR_URI = "datashare:///com.ohos.settingsdata";
 const std::string PREDICATES_STRING = "settings.general.device_name";
+const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
 const std::string INVAILD_STRING = "settings.general.invalid_string";
 
 class EdmDataAbilityUtilsTest : public testing::Test {
@@ -71,11 +70,32 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromDataShare, TestSize.Level1)
     code = EdmDataAbilityUtils::GetStringFromDataShare(INVALID_BASE_URI, PREDICATES_STRING, result);
     ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 
-    EdmDataAbilityUtils::GetStringFromDataShare(SETTINGS_DATA_BASE_URI, INVAILD_STRING, result);
+    EdmDataAbilityUtils::GetStringFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, INVAILD_STRING, result);
     ASSERT_TRUE(result.empty());
 
-    EdmDataAbilityUtils::GetStringFromDataShare(SETTINGS_DATA_BASE_URI, PREDICATES_STRING, result);
+    EdmDataAbilityUtils::GetStringFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, PREDICATES_STRING, result);
     ASSERT_FALSE(result.empty());
+}
+
+/**
+ * @tc.name: TestGetIntFromDataShare
+ * @tc.desc: Test GetIntFromDataShare function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromDataShare, TestSize.Level1)
+{
+    int32_t result = 0;
+    ErrCode code = EdmDataAbilityUtils::GetIntFromDataShare(ERROR_URI, KEY_SCREEN_OFF_TIME, result);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    code = EdmDataAbilityUtils::GetIntFromDataShare(INVALID_BASE_URI, KEY_SCREEN_OFF_TIME, result);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    EdmDataAbilityUtils::GetIntFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, INVAILD_STRING, result);
+    ASSERT_TRUE(result == 0);
+
+    EdmDataAbilityUtils::GetIntFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, KEY_SCREEN_OFF_TIME, result);
+    ASSERT_FALSE(result == 0);
 }
 } // namespace TEST
 } // namespace EDM

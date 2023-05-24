@@ -19,6 +19,7 @@ config("edmservice_kits_config") {
     "application_manager/include",
     "device_control/include",
     "device_info/include",
+    "device_settings/include",
     "account_manager/include",
     "datetime_manager/include",
     "bundle_manager/include",
@@ -41,6 +42,7 @@ ohos_shared_library("edmservice_kits") {
     "./datetime_manager/src/datetime_manager_proxy.cpp",
     "./device_control/src/device_control_proxy.cpp",
     "./device_info/src/device_info_proxy.cpp",
+    "./device_settings/src/device_settings_proxy.cpp",
     "./network_manager/src/network_manager_proxy.cpp",
     "./wifi_manager/src/wifi_manager_proxy.cpp",
   ]

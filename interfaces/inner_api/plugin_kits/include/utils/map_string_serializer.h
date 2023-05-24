@@ -27,15 +27,15 @@ namespace EDM {
 class MapStringSerializer : public IPolicySerializer<std::map<std::string, std::string>>,
     public DelayedSingleton<MapStringSerializer> {
 public:
-    virtual bool Deserialize(const std::string &jsonString, std::map<std::string, std::string> &dataObj) override;
+    bool Deserialize(const std::string &jsonString, std::map<std::string, std::string> &dataObj) override;
 
-    virtual bool Serialize(const std::map<std::string, std::string> &dataObj, std::string &jsonString) override;
+    bool Serialize(const std::map<std::string, std::string> &dataObj, std::string &jsonString) override;
 
-    virtual bool GetPolicy(MessageParcel &data, std::map<std::string, std::string> &result) override;
+    bool GetPolicy(MessageParcel &data, std::map<std::string, std::string> &result) override;
 
-    virtual bool WritePolicy(MessageParcel &reply, std::map<std::string, std::string> &result) override;
+    bool WritePolicy(MessageParcel &reply, std::map<std::string, std::string> &result) override;
 
-    virtual bool MergePolicy(std::vector<std::map<std::string, std::string>> &data,
+    bool MergePolicy(std::vector<std::map<std::string, std::string>> &data,
         std::map<std::string, std::string> &result) override;
 };
 } // namespace EDM

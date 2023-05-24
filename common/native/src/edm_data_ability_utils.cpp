@@ -16,6 +16,7 @@
 #include "edm_data_ability_utils.h"
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "system_ability_definition.h"
@@ -25,6 +26,8 @@ namespace OHOS {
 namespace EDM {
 const std::string SETTINGS_DATA_FIELD_KEYWORD = "KEYWORD";
 const std::string SETTINGS_DATA_FIELD_VALUE = "VALUE";
+const std::string EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 
 ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseUri,
     const std::string &key, std::string &value)
@@ -55,6 +58,22 @@ ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseU
     resultset->GoToFirstRow();
     resultset->GetColumnIndex(SETTINGS_DATA_FIELD_VALUE, columnIndex);
     resultset->GetString(columnIndex, value);
+    return ERR_OK;
+}
+
+ErrCode EdmDataAbilityUtils::GetIntFromDataShare(const std::string &dataBaseUri,
+    const std::string &key, int32_t &result)
+{
+    std::string valueStr;
+    if (FAILED(GetStringFromDataShare(dataBaseUri, key, valueStr))) {
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromDataShare fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (valueStr.empty()) {
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromDataShare empty.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    result = strtol(valueStr.c_str(), nullptr, EdmConstants::DECIMAL);
     return ERR_OK;
 }
 } // namespace EDM

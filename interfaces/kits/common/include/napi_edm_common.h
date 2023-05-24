@@ -32,6 +32,7 @@ struct AsyncCallbackInfo {
     bool boolRet = true;
     std::string stringRet;
     std::vector<std::string> arrayStringRet;
+    int32_t intRet = 0;
     int32_t err = 0;
     uint32_t errCode = 0;
     std::string errMessage;
@@ -84,6 +85,7 @@ napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::
     napi_async_execute_callback execute, napi_async_complete_callback complete);
 void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
+void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, bool &hasCallback, bool &hasUserId);

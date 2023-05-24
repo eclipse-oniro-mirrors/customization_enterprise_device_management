@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_UTILS_LONG_SERIALIZER_H
-#define SERVICES_EDM_INCLUDE_UTILS_LONG_SERIALIZER_H
+#ifndef SERVICES_EDM_INCLUDE_UTILS_INT_SERIALIZER_H
+#define SERVICES_EDM_INCLUDE_UTILS_INT_SERIALIZER_H
 
 #include "ipolicy_serializer.h"
 #include "singleton.h"
@@ -24,19 +24,19 @@ namespace EDM {
 /*
  * Policy data serializer of type int.
  */
-class LongSerializer : public IPolicySerializer<int64_t>, public DelayedSingleton<LongSerializer> {
+class IntSerializer : public IPolicySerializer<int32_t>, public DelayedSingleton<IntSerializer> {
 public:
-    bool Deserialize(const std::string &jsonString, int64_t &dataObj) override;
+    bool Deserialize(const std::string &jsonString, int32_t &dataObj) override;
 
-    bool Serialize(const int64_t &dataObj, std::string &jsonString) override;
+    bool Serialize(const int32_t &dataObj, std::string &jsonString) override;
 
-    bool GetPolicy(MessageParcel &data, int64_t &result) override;
+    bool GetPolicy(MessageParcel &data, int32_t &result) override;
 
-    bool WritePolicy(MessageParcel &reply, int64_t &result) override;
+    bool WritePolicy(MessageParcel &reply, int32_t &result) override;
 
-    bool MergePolicy(std::vector<int64_t> &data, int64_t &result) override;
+    bool MergePolicy(std::vector<int32_t> &data, int32_t &result) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_UTILS_LONG_SERIALIZER_H
+#endif // SERVICES_EDM_INCLUDE_UTILS_INT_SERIALIZER_H

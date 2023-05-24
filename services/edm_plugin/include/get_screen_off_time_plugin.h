@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
 
 #include "iplugin_template.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class SetDateTimePlugin : public PluginSingleton<SetDateTimePlugin, int64_t> {
+class GetScreenOffTimePlugin : public PluginSingleton<GetScreenOffTimePlugin, int32_t> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<GetScreenOffTimePlugin, int32_t>> ptr) override;
 
-    ErrCode OnSetPolicy(int64_t &data);
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H

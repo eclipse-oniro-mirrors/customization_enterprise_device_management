@@ -14,7 +14,6 @@
  */
 
 #include "disallow_add_local_account_plugin.h"
-#include "long_serializer.h"
 #include "os_account_manager.h"
 #include "policy_info.h"
 
