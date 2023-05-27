@@ -12,23 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <unordered_map>
+
 #include "bundle_manager_addon.h"
+#include <unordered_map>
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "os_account_manager.h"
 #include "policy_type.h"
 
 using namespace OHOS::EDM;
 
-constexpr int32_t MAX_SIZE = 200;
-
 static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
     {"AddAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
     {"AddDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+    {"AddDisallowedUninstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)},
     {"RemoveAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
     {"RemoveDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+    {"RemoveDisallowedUninstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)},
     {"GetAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
     {"GetDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
+    {"GetDisallowedUninstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)},
 };
 
 napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
@@ -40,6 +43,9 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedInstallBundles", AddDisallowedInstallBundles),
         DECLARE_NAPI_FUNCTION("removeDisallowedInstallBundles", RemoveDisallowedInstallBundles),
         DECLARE_NAPI_FUNCTION("getDisallowedInstallBundles", GetDisallowedInstallBundles),
+        DECLARE_NAPI_FUNCTION("addDisallowedUninstallBundles", AddDisallowedUninstallBundles),
+        DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundles", RemoveDisallowedUninstallBundles),
+        DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundles", GetDisallowedUninstallBundles),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -55,6 +61,13 @@ napi_value BundleManagerAddon::GetDisallowedInstallBundles(napi_env env, napi_ca
 {
     EDMLOGI("NAPI_GetDisallowedInstallBundles called");
     return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedInstallBundles", NativeGetBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::GetDisallowedUninstallBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
+    return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedUninstallBundles",
+        NativeGetBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
@@ -137,6 +150,11 @@ napi_value BundleManagerAddon::AddDisallowedInstallBundles(napi_env env, napi_ca
     return AddOrRemoveInstallBundles(env, info, "AddDisallowedInstallBundles", NativeAddBundlesByPolicyType);
 }
 
+napi_value BundleManagerAddon::AddDisallowedUninstallBundles(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveInstallBundles(env, info, "AddDisallowedUninstallBundles", NativeAddBundlesByPolicyType);
+}
+
 napi_value BundleManagerAddon::RemoveAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
     return AddOrRemoveInstallBundles(env, info, "RemoveAllowedInstallBundles", NativeRemoveBundlesByPolicyType);
@@ -145,6 +163,11 @@ napi_value BundleManagerAddon::RemoveAllowedInstallBundles(napi_env env, napi_ca
 napi_value BundleManagerAddon::RemoveDisallowedInstallBundles(napi_env env, napi_callback_info info)
 {
     return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedInstallBundles", NativeRemoveBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::RemoveDisallowedUninstallBundles(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedUninstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
 bool BundleManagerAddon::CheckAddInstallBundlesParamType(napi_env env, size_t argc,
@@ -205,7 +228,8 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->bundles, argv[ARR_INDEX_ONE]),
         "Parameter bundles error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->bundles.size() <= MAX_SIZE, "Parameter bundles too large");
+    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->bundles.size() <= EdmConstants::APPID_MAX_SIZE,
+        "Parameter bundles too large");
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),

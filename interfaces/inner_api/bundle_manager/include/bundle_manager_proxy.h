@@ -21,6 +21,8 @@ namespace OHOS {
 namespace EDM {
 class BundleManagerProxy {
 public:
+    BundleManagerProxy();
+    ~BundleManagerProxy();
     static std::shared_ptr<BundleManagerProxy> GetBundleManagerProxy();
     int32_t AddBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
         int32_t userId, int32_t policyType);
@@ -29,8 +31,10 @@ public:
     int32_t GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles, int32_t policyType);
 private:
+    void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;
     static std::mutex mutexLock_;
+    std::map<int32_t, uint32_t> policyTypeMap_;
 };
 } // namespace EDM
 } // namespace OHOS

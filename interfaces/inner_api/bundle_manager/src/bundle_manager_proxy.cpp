@@ -14,6 +14,7 @@
  */
 
 #include "bundle_manager_proxy.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "policy_info.h"
@@ -24,7 +25,24 @@ namespace EDM {
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::instance_ = nullptr;
 std::mutex BundleManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
-constexpr int32_t MAX_SIZE = 200;
+
+BundleManagerProxy::BundleManagerProxy()
+{
+    AddPolicyTypeMap();
+    EDMLOGD("BundleManagerProxy()");
+}
+
+BundleManagerProxy::~BundleManagerProxy()
+{
+    EDMLOGD("~BundleManagerProxy()");
+}
+
+void BundleManagerProxy::AddPolicyTypeMap()
+{
+    policyTypeMap_[static_cast<int32_t>(PolicyType::ALLOW_INSTALL)] = ALLOWED_INSTALL_BUNDLES;
+    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)] = DISALLOWED_INSTALL_BUNDLES;
+    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)] = DISALLOWED_UNINSTALL_BUNDLES;
+}
 
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::GetBundleManagerProxy()
 {
@@ -49,16 +67,11 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
     }
     MessageParcel data;
     std::uint32_t funcCode = 0;
-    switch (policyType) {
-        case static_cast<int32_t>(PolicyType::ALLOW_INSTALL):
-            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ALLOWED_INSTALL_BUNDLES);
-            break;
-        case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
-            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOWED_INSTALL_BUNDLES);
-            break;
-        default:
-            EDMLOGE("can not get policy type");
-            return EdmReturnErrCode::PARAM_ERROR;
+    if (policyTypeMap_.count(policyType) > 0) {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyTypeMap_[policyType]);
+    } else {
+        EDMLOGE("can not get policy type");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
@@ -79,16 +92,11 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
     }
     MessageParcel data;
     std::uint32_t funcCode = 0;
-    switch (policyType) {
-        case static_cast<int32_t>(PolicyType::ALLOW_INSTALL):
-            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, ALLOWED_INSTALL_BUNDLES);
-            break;
-        case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
-            funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, DISALLOWED_INSTALL_BUNDLES);
-            break;
-        default:
-            EDMLOGE("can not get policy type");
-            return EdmReturnErrCode::PARAM_ERROR;
+    if (policyTypeMap_.count(policyType) > 0) {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, policyTypeMap_[policyType]);
+    } else {
+        EDMLOGE("can not get policy type");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
@@ -114,16 +122,11 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     data.WriteInt32(userId);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    switch (policyType) {
-        case static_cast<int32_t>(PolicyType::ALLOW_INSTALL):
-            proxy->GetPolicy(ALLOWED_INSTALL_BUNDLES, data, reply);
-            break;
-        case static_cast<int32_t>(PolicyType::DISALLOW_INSTALL):
-            proxy->GetPolicy(DISALLOWED_INSTALL_BUNDLES, data, reply);
-            break;
-        default:
-            EDMLOGE("can not get policy type");
-            return EdmReturnErrCode::PARAM_ERROR;
+    if (policyTypeMap_.count(policyType) > 0) {
+        proxy->GetPolicy(policyTypeMap_[policyType], data, reply);
+    } else {
+        EDMLOGE("can not get policy type");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -132,7 +135,7 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
         return ret;
     }
     int32_t size = reply.ReadInt32();
-    if (size > MAX_SIZE) {
+    if (size > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("bundles size=[%{public}d] is too large", size);
         return EdmReturnErrCode::PARAM_ERROR;
     }

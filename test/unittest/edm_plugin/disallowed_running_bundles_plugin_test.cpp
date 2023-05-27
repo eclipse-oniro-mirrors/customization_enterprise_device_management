@@ -15,6 +15,7 @@
 
 #include "disallowed_running_bundles_plugin_test.h"
 #include "bundle_mgr_proxy.h"
+#include "edm_constants.h"
 #include "edm_sys_manager.h"
 #include "if_system_ability_manager.h"
 #include "iremote_stub.h"
@@ -27,7 +28,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-constexpr int OVER_MAX_SIZE = 201;
+const std::string TEST_BUNDLE = "testBundle";
 
 void DisallowedRunningBundlesPluginTest::SetUpTestSuite(void)
 {
@@ -63,7 +64,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin002, TestSize.Level1)
 {
     DisallowedRunningBundlesPlugin plugin;
-    std::vector<std::string> data(OVER_MAX_SIZE, "testData");
+    std::vector<std::string> data(EdmConstants::APPID_MAX_SIZE + 1, TEST_BUNDLE);
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -78,7 +79,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 {
     Utils::ResetTokenTypeAndUid();
     DisallowedRunningBundlesPlugin plugin;
-    std::vector<std::string> data = {"testBundles"};
+    std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -123,7 +124,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 {
     Utils::ResetTokenTypeAndUid();
     DisallowedRunningBundlesPlugin plugin;
-    std::vector<std::string> data = {"testBundles"};
+    std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -142,12 +143,12 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
     sptr<AppExecFwk::IAppControlMgr> appControlProxy = bundleMgrProxy->GetAppControlProxy();
     // set policy that "testBundle" is disallowed to run.
     DisallowedRunningBundlesPlugin plugin;
-    std::vector<std::string> data = { "testBundle" };
+    std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     ErrCode res = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(currentData.size() == 1);
-    ASSERT_TRUE(currentData[0] == "testBundle");
+    ASSERT_TRUE(currentData[0] == TEST_BUNDLE);
 
     // get current policy.
     std::vector<std::string> result;
@@ -155,11 +156,11 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
         GetAppRunningControlRule(DEFAULT_USER_ID, result);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(result.size() == 1);
-    ASSERT_TRUE(result[0] == "testBundle");
+    ASSERT_TRUE(result[0] == TEST_BUNDLE);
 
     // remove policy.
-    std::string adminName = "testName";
-    std::vector<std::string> appIds = { "testBundle" };
+    std::string adminName = TEST_BUNDLE;
+    std::vector<std::string> appIds = { TEST_BUNDLE };
     plugin.OnAdminRemoveDone(adminName, appIds, DEFAULT_USER_ID);
 
     // get current policy.

@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDINSTALLBUNDLES_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDINSTALLBUNDLES_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H
 
 #include "bundle_install_plugin.h"
 #include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedInstallBundlesPlugin : public PluginSingleton<DisallowedInstallBundlesPlugin,
+class DisallowedUninstallBundlesPlugin : public PluginSingleton<DisallowedUninstallBundlesPlugin,
     std::vector<std::string>>, public BundleInstallPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedInstallBundlesPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUninstallBundlesPlugin,
         std::vector<std::string>>> ptr) override;
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDINSTALLBUNDLES_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDUNINSTALLBUNDLES_PLUGIN_H

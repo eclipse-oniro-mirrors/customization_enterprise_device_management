@@ -14,12 +14,11 @@
  */
 
 #include "application_manager_addon.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "os_account_manager.h"
 
 using namespace OHOS::EDM;
-
-constexpr int32_t MAX_SIZE = 200;
 
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
@@ -178,7 +177,8 @@ napi_value ApplicationManagerAddon::AddOrRemovellowedRunningBundles(napi_env env
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->appIds, argv[ARR_INDEX_ONE]),
         "Parameter bundles error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->appIds.size() <= MAX_SIZE, "Parameter bundles too large");
+    ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->appIds.size() <= EdmConstants::APPID_MAX_SIZE,
+        "Parameter bundles too large");
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),

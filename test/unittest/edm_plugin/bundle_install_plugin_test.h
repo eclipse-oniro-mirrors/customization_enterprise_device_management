@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+#ifndef EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
-#include "disallowed_install_bundles_plugin.h"
+#include "bundle_install_plugin.h"
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class DisallowedInstallBundlesPluginTest : public testing::Test {
+class BundleInstallPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
@@ -31,4 +31,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_DISALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
+#endif // EDM_UNIT_TEST_ALLOWED_INSTAL_BUNDLES_PLUGIN_TEST_H
