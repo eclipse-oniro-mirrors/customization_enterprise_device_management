@@ -25,6 +25,9 @@ const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.SET_TIME";
 const std::string EDM_FACTORY_RESET_PERMISSION = "ohos.permission.FACTORY_RESET";
 const std::string EDM_MANAGE_LOCAL_ACCOUNTS_PERMISSION = "ohos.permission.MANAGE_LOCAL_ACCOUNTS";
 const std::string EDM_MANAGE_SECURE_SETTINGS_PERMISSION = "ohos.permission.MANAGE_SECURE_SETTINGS";
+const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
+const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
+const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -59,8 +62,15 @@ void Utils::SetNativeTokenTypeAndPermissions(const char* permissions[], int size
 void Utils::SetEdmInitialEnv()
 {
     selfTokenId_ = GetSelfTokenID();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str(), EDM_FACTORY_RESET_PERMISSION.c_str(),
-        EDM_MANAGE_LOCAL_ACCOUNTS_PERMISSION.c_str(), EDM_MANAGE_SECURE_SETTINGS_PERMISSION.c_str()};
+    const char* permissions[] = {
+        EDM_MANAGE_DATETIME_PERMISSION.c_str(),
+        EDM_FACTORY_RESET_PERMISSION.c_str(),
+        EDM_MANAGE_LOCAL_ACCOUNTS_PERMISSION.c_str(),
+        EDM_MANAGE_SECURE_SETTINGS_PERMISSION.c_str(),
+        PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT.c_str(),
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN.c_str(),
+        PERMISSION_SET_ENTERPRISE_INFO.c_str()
+    };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
 }

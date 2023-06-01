@@ -137,7 +137,7 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     int32_t size = reply.ReadInt32();
     if (size > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("bundles size=[%{public}d] is too large", size);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&bundles);
     return ERR_OK;

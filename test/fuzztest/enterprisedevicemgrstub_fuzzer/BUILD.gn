@@ -38,10 +38,14 @@ ohos_fuzztest("EnterpriseDeviceMgrStubFuzzTest") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../../common/native:edm_commom" ]
+  deps = [
+    "../../../common/native:edm_commom",
+    "../../unittest:edmservice_static",
+  ]
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -50,9 +54,16 @@ ohos_fuzztest("EnterpriseDeviceMgrStubFuzzTest") {
     "c_utils:utils",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
 
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
