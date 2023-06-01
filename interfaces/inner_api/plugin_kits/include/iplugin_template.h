@@ -37,7 +37,7 @@ namespace EDM {
 template<class CT, class DT>
 class IPluginTemplate : public IPlugin {
 public:
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply, std::string &policyData,
         bool &isChanged, int32_t userId) override;
 
     ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
@@ -74,13 +74,14 @@ protected:
      * Represents a function that invoked during handling policy.
      *
      * @param one MessageParcel
-     * @param two Current policy data
-     * @param three Whether the policy data is changed
-     * @param four Handle type
+     * @param two MessageParcel
+     * @param three Current policy data
+     * @param four Whether the policy data is changed
+     * @param five Handle type
      * @see OnHandlePolicy
      * @see HandlePolicyFunc
      */
-    typedef std::function<ErrCode(MessageParcel &, std::string &, bool &, FuncOperateType,
+    typedef std::function<ErrCode(MessageParcel &, MessageParcel &, std::string &, bool &, FuncOperateType,
         int32_t userId)> HandlePolicy;
 
     /*
@@ -132,6 +133,18 @@ protected:
      * @see SetOnHandlePolicyListener
      */
     typedef ErrCode (CT::*Function)(DT &data);
+
+    /*
+     * This is a member function pointer type of CT class.
+     * Represents a function that accepts one DT argument and produces a ErrCode result.
+     * It is generally used in the scenario where only one DT parameter and return value need to be processed.
+     *
+     * @param data In: Input policy data parameter,Out: Used to update the admin data.
+     * @param reply In: return message parcel for ipc,Out: parcel with return value or message.
+     * @return Whether the policy is handled successfully.
+     * @see SetOnHandlePolicyListener
+     */
+    typedef ErrCode (CT::*ReplyFunction)(DT &data, MessageParcel &reply);
 
     /*
      * This is a member function pointer type of CT class.
@@ -233,6 +246,15 @@ protected:
     void SetOnHandlePolicyListener(BiFunction &&listener, FuncOperateType type);
 
     /*
+     * Registering Listening for HandlePolicy Events.
+     *
+     * @param listener Listening member function pointer of CT Class
+     * @param type Policy Data Processing Mode,default FuncOperateType::SET
+     * @see FuncOperateType
+     */
+    void SetOnHandlePolicyListener(ReplyFunction &&listener, FuncOperateType type);
+
+    /*
      * Registering listening for HandlePolicyDone events.
      *
      * @param listener Listening member function pointer of CT Class
@@ -283,6 +305,7 @@ protected:
         HandlePolicy handlePolicy_ = nullptr;
         Supplier supplier_ = nullptr;
         Function function_ = nullptr;
+        ReplyFunction replyfunction_ = nullptr;
         BiFunction biFunction_ = nullptr;
 
         HandlePolicyFunc() {}
@@ -292,6 +315,9 @@ protected:
 
         HandlePolicyFunc(HandlePolicy handlePolicy, Function function)
             : handlePolicy_(std::move(handlePolicy)), function_(function) {}
+
+        HandlePolicyFunc(HandlePolicy handlePolicy, ReplyFunction replyfunction)
+            : handlePolicy_(std::move(handlePolicy)), replyfunction_(replyfunction) {}
 
         HandlePolicyFunc(HandlePolicy handlePolicy, BiFunction biFunction)
             : handlePolicy_(std::move(handlePolicy)), biFunction_(biFunction) {}
@@ -369,8 +395,8 @@ template<class CT, class DT>
 IPluginTemplate<CT, DT>::IPluginTemplate() {}
 
 template<class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
-    bool &isChanged, int32_t userId)
+ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    std::string &policyData, bool &isChanged, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
@@ -378,7 +404,7 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (entry == handlePolicyFuncMap_.end() || entry->second.handlePolicy_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = entry->second.handlePolicy_(data, policyData, isChanged, type, userId);
+    ErrCode res = entry->second.handlePolicy_(data, reply, policyData, isChanged, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
 }
@@ -397,7 +423,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Supplier &&listener, Fun
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
         FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         auto entry = handlePolicyFuncMap_.find(funcOperate);
         if (entry == handlePolicyFuncMap_.end() || entry->second.supplier_ == nullptr) {
@@ -414,7 +440,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Function &&listener, Fun
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
         FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
@@ -442,12 +468,45 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Function &&listener, Fun
 }
 
 template<class CT, class DT>
+void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(ReplyFunction &&listener, FuncOperateType type)
+{
+    if (instance_ == nullptr) {
+        return;
+    }
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
+        FuncOperateType funcOperate, int32_t userId) -> ErrCode {
+        DT handleData;
+        if (!serializer_->GetPolicy(data, handleData)) {
+            return ERR_EDM_OPERATE_PARCEL;
+        }
+        auto entry = handlePolicyFuncMap_.find(funcOperate);
+        if (entry == handlePolicyFuncMap_.end() || entry->second.replyfunction_ == nullptr) {
+            return ERR_EDM_NOT_EXIST_FUNC;
+        }
+        ErrCode result = (instance_.get()->*(entry->second.replyfunction_))(handleData, reply);
+        if (result != ERR_OK) {
+            return result;
+        }
+        std::string afterHandle;
+        if (!serializer_->Serialize(handleData, afterHandle)) {
+            return ERR_EDM_OPERATE_JSON;
+        }
+        isChanged = (policyData != afterHandle);
+        if (isChanged) {
+            policyData = afterHandle;
+        }
+        return ERR_OK;
+    };
+    handlePolicyFuncMap_.insert(std::make_pair(type, HandlePolicyFunc(handle, listener)));
+}
+
+template<class CT, class DT>
 void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, FuncOperateType type)
 {
     if (instance_ == nullptr || instance_.get() == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
         FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {

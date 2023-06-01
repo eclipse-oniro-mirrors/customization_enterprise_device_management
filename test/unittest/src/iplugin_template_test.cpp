@@ -70,6 +70,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicySupplier, TestSize.Level1)
     int policyCode = 21;
     ErrCode res;
     MessageParcel data;
+    MessageParcel reply;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
@@ -85,7 +86,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicySupplier, TestSize.Level1)
     isChange = false;
     data.WriteString(setPolicyValue);
     g_visit = false;
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res != ERR_OK);
     ASSERT_TRUE(policyValue.empty());
     ASSERT_TRUE(g_visit);
@@ -96,7 +97,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicySupplier, TestSize.Level1)
     data.WriteString(setPolicyValue);
     g_visit = false;
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::REMOVE, policyCode);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res != ERR_OK);
     ASSERT_TRUE(policyValue.empty());
     ASSERT_TRUE(g_visit);
@@ -112,6 +113,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     int policyCode = 22;
     ErrCode res;
     MessageParcel data;
+    MessageParcel reply;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
@@ -126,7 +128,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     policyValue = "";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "newTestValue");
     ASSERT_TRUE(isChange);
@@ -135,7 +137,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     policyValue = "";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "testValue");
     ASSERT_TRUE(isChange);
@@ -147,7 +149,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     policyValue = "testValue";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue.empty());
     ASSERT_TRUE(isChange);
@@ -163,6 +165,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     int policyCode = 23;
     ErrCode res;
     MessageParcel data;
+    MessageParcel reply;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
@@ -177,7 +180,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     policyValue = "";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "testValue");
     ASSERT_TRUE(isChange);
@@ -186,7 +189,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     policyValue = "testValue";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "testValue");
     ASSERT_TRUE(!isChange);
@@ -195,7 +198,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     policyValue = "testValue";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue.empty());
     ASSERT_TRUE(isChange);
@@ -207,7 +210,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     policyValue = "testValue";
     isChange = false;
     data.WriteString(setPolicyValue);
-    res = plugin->OnHandlePolicy(funcCode, data, policyValue, isChange, DEFAULT_USER_ID);
+    res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue.empty());
     ASSERT_TRUE(isChange);

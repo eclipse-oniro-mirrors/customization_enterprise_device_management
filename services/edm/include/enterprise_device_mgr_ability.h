@@ -46,7 +46,7 @@ public:
         int32_t userId) override;
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(std::string &bundleName) override;
-    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
+    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
     ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
@@ -83,8 +83,8 @@ private:
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
-    ErrCode UpdateDevicePolicy(std::shared_ptr<IPlugin> plugin, uint32_t code, AppExecFwk::ElementName &admin,
-        MessageParcel &data, int32_t userId);
+    ErrCode UpdateDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
+        MessageParcel &data, MessageParcel &reply, int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();

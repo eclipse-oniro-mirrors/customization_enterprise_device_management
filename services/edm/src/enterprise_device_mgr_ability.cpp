@@ -757,16 +757,22 @@ std::shared_ptr<PolicyManager> EnterpriseDeviceMgrAbility::GetAndSwitchPolicyMan
     return policyMgr;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(std::shared_ptr<IPlugin> plugin, uint32_t code,
-    AppExecFwk::ElementName &admin, MessageParcel &data, int32_t userId)
+ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
+    MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
+    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    if (plugin == nullptr) {
+        EDMLOGW("UpdateDevicePolicy: get plugin failed, code:%{public}d", code);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+
     // Set policy to other users except 100
     policyMgr_ = GetAndSwitchPolicyManagerByUserId(userId);
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue = "";
     policyMgr_->GetPolicy(admin.GetBundleName(), policyName, policyValue);
     bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, policyValue, isChanged, userId);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyValue, isChanged, userId);
     if (FAILED(ret)) {
         EDMLOGW("HandleDevicePolicy: OnHandlePolicy failed");
         return ret;
@@ -792,7 +798,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(std::shared_ptr<IPlugin> 
 }
 
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
-    MessageParcel &data, int32_t userId)
+    MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isUserExist = false;
@@ -822,7 +828,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: VerifyCallingPermission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    return UpdateDevicePolicy(plugin, code, admin, data, userId);
+    return UpdateDevicePolicy(code, admin, data, reply, userId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,

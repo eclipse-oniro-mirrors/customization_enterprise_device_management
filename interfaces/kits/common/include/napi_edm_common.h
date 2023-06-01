@@ -67,6 +67,7 @@ bool ParseInt(napi_env env, int32_t &param, napi_value args);
 bool ParseUint(napi_env env, uint32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
+bool ParseCallback(napi_env env, napi_ref &param, napi_value args);
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
 bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);

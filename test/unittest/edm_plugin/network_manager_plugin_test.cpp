@@ -145,14 +145,14 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceNotExist, TestSize.Level1
     MessageParcel data;
     MessageParcel reply;
     std::string policyStr;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
     // NetworkInterface is invalid.
     std::vector<std::string> key { INVALID_NETWORK_INTERFACE };
     std::vector<std::string> value { "true" };
     data.WriteStringVector(key);
     data.WriteStringVector(value);
-    ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -174,7 +174,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
     std::vector<std::string> value { "true" };
     data.WriteStringVector(key);
     data.WriteStringVector(value);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // get policy.
     data.WriteString(VALID_NETWORK_INTERFACE);
@@ -186,7 +186,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
     value = { "false" };
     data.WriteStringVector(key);
     data.WriteStringVector(value);
-    ret = plugin->OnHandlePolicy(code, data, policyStr, isChanged, DEFAULT_USER_ID);
+    ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // get policy.
     data.WriteString(VALID_NETWORK_INTERFACE);

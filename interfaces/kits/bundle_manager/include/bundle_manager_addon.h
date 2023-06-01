@@ -34,6 +34,13 @@ struct AsyncBundlesCallbackInfo : AsyncCallbackInfo {
     int32_t policyType = 0;
 };
 
+struct AsyncUninstallCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string bundleName;
+    int32_t userId = 0;
+    bool isKeepData = false;
+};
+
 class BundleManagerAddon {
 public:
     BundleManagerAddon();
@@ -50,6 +57,7 @@ public:
     static napi_value AddDisallowedUninstallBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedUninstallBundles(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUninstallBundles(napi_env env, napi_callback_info info);
+    static napi_value Uninstall(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info,
@@ -61,8 +69,12 @@ private:
     static void NativeRemoveBundlesByPolicyType(napi_env env, void *data);
     static void NativeGetBundlesByPolicyType(napi_env env, void *data);
     static void InitCallbackInfoPolicyType(const std::string &workName, AsyncBundlesCallbackInfo *callback);
+    static void NativeUninstall(napi_env env, void *data);
+    static void NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data);
     static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc,
-        napi_value* argv, bool &hasCallback, bool &hasUserId);
+        napi_value *argv, bool &hasCallback, bool &hasUserId);
+    static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value* argv,
+        AsyncUninstallCallbackInfo *context);
 };
 } // namespace EDM
 } // namespace OHOS
