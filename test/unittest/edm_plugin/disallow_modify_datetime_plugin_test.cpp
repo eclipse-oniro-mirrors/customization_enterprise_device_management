@@ -44,6 +44,7 @@ void DisallowModifyDateTimePluginTest::TearDownTestSuite(void)
 HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, TestSize.Level1)
 {
     MessageParcel data;
+    MessageParcel reply;
     // want to disallow to modify date time.
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
@@ -51,7 +52,7 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, 
     std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_MODIFY_DATETIME);
     bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is disallow to modify date time.
     ASSERT_TRUE(policyData == "true");

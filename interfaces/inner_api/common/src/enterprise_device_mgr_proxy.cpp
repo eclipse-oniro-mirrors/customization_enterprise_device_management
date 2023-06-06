@@ -346,6 +346,12 @@ bool EnterpriseDeviceMgrProxy::IsPolicyDisabled(AppExecFwk::ElementName *admin, 
 
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
 {
+    MessageParcel reply;
+    return HandleDevicePolicy(policyCode, data, reply);
+}
+
+int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply)
+{
     EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicy");
     if (!IsEdmEnabled()) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -354,7 +360,6 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    MessageParcel reply;
     MessageOption option;
     EDMLOGD("EnterpriseDeviceMgrProxy::handleDevicePolicy::sendRequest %{public}d", policyCode);
     ErrCode res = remote->SendRequest(policyCode, data, reply, option);

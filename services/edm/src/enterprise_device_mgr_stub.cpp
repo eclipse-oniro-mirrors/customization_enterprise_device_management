@@ -154,7 +154,7 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
-    ErrCode errCode = HandleDevicePolicy(code, *admin, data, userId);
+    ErrCode errCode = HandleDevicePolicy(code, *admin, data, reply, userId);
     reply.WriteInt32(errCode);
     return errCode;
 }

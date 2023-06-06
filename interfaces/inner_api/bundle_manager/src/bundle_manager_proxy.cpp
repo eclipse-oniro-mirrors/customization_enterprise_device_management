@@ -56,6 +56,31 @@ std::shared_ptr<BundleManagerProxy> BundleManagerProxy::GetBundleManagerProxy()
     return instance_;
 }
 
+int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::string bundleName,
+    int32_t userId, bool isKeepData, std::string &retMessage)
+{
+    EDMLOGD("BundleManagerProxy::Uninstall");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    data.WriteInt32(userId);
+    data.WriteBool(isKeepData);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, UNINSTALL);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::PARAM_ERROR) {
+        retMessage = reply.ReadString();
+    }
+    return ret;
+}
+
 int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admin,
     std::vector<std::string> &bundles, int32_t userId, int32_t policyType)
 {

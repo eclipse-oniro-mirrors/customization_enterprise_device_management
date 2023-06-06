@@ -92,7 +92,7 @@ public:
         return 0;
     }
 
-    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
+    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override
     {
         return 0;

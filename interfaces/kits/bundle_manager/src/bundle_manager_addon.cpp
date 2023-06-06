@@ -46,6 +46,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedUninstallBundles", AddDisallowedUninstallBundles),
         DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundles", RemoveDisallowedUninstallBundles),
         DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundles", GetDisallowedUninstallBundles),
+        DECLARE_NAPI_FUNCTION("uninstall", Uninstall),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -68,6 +69,142 @@ napi_value BundleManagerAddon::GetDisallowedUninstallBundles(napi_env env, napi_
     EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
     return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedUninstallBundles",
         NativeGetBundlesByPolicyType);
+}
+
+napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_Uninstall called");
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    auto asyncCallbackInfo = new (std::nothrow) AsyncUninstallCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncUninstallCallbackInfo> callbackPtr {asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    if (!CheckAndParseUninstallParamType(env, argc, argv, asyncCallbackInfo)) {
+        return nullptr;
+    }
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeUninstall",
+        NativeUninstall, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void BundleManagerAddon::NativeUninstall(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetBundlesByPolicyType called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncUninstallCallbackInfo *asyncCallbackInfo = static_cast<AsyncUninstallCallbackInfo *>(data);
+    auto proxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return;
+    }
+
+    asyncCallbackInfo->ret = proxy->Uninstall(asyncCallbackInfo->elementName, asyncCallbackInfo->bundleName,
+        asyncCallbackInfo->userId, asyncCallbackInfo->isKeepData, asyncCallbackInfo->errMessage);
+}
+
+void BundleManagerAddon::NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    napi_value error = nullptr;
+    if (asyncCallbackInfo->callback == nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &error);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, error);
+        } else {
+            if (asyncCallbackInfo->ret == EdmReturnErrCode::PARAM_ERROR) {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret,
+                    asyncCallbackInfo->errMessage));
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            }
+        }
+    } else {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &error);
+        } else {
+            if (asyncCallbackInfo->ret == EdmReturnErrCode::PARAM_ERROR) {
+                error = CreateError(env, asyncCallbackInfo->ret, asyncCallbackInfo->errMessage);
+            } else {
+                error = CreateError(env, asyncCallbackInfo->ret);
+            }
+        }
+        napi_value callback = nullptr;
+        napi_value result = nullptr;
+        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+        napi_call_function(env, nullptr, callback, ARGS_SIZE_ONE, &error, &result);
+        napi_delete_reference(env, asyncCallbackInfo->callback);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t argc,
+    napi_value *argv, AsyncUninstallCallbackInfo *asyncCallbackInfo)
+{
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundle name error");
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+    if (argc == ARGS_SIZE_TWO) {
+        return true;
+    }
+    bool hasCallback = argc <= ARGS_SIZE_FIVE ? MatchValueType(env, argv[argc - 1], napi_function) :
+        MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
+    if (hasCallback) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
+            argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]), "Parameter callback error");
+        switch (argc) {
+            case ARGS_SIZE_THREE:
+                break;
+            case ARGS_SIZE_FOUR:
+                if (MatchValueType(env, argv[ARR_INDEX_TWO], napi_number)) {
+                    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
+                        "Parameter userId error");
+                } else if (MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean)) {
+                    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isKeepData,
+                        argv[ARR_INDEX_TWO]), "Parameter isKeepData error");
+                } else {
+                    ASSERT_AND_THROW_PARAM_ERROR(env, false, "Parameter three type error");
+                }
+                break;
+            default:
+                ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
+                    "Parameter userId error");
+                ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isKeepData, argv[ARR_INDEX_THREE]),
+                    "Parameter isKeepData error");
+        }
+        return true;
+    }
+    if (argc == ARGS_SIZE_THREE) {
+        if (!ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO])) {
+            AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+            ParseBool(env, asyncCallbackInfo->isKeepData, argv[ARR_INDEX_TWO]);
+        }
+        return true;
+    }
+    if (!ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO])) {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+    }
+    ParseBool(env, asyncCallbackInfo->isKeepData, argv[ARR_INDEX_THREE]);
+    return true;
 }
 
 napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,

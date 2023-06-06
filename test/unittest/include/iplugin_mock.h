@@ -29,7 +29,7 @@ public:
 
     virtual ~IPluginMock() {}
 
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, std::string &policyData,
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply, std::string &policyData,
         bool &isChanged, int32_t userId) override
     {
         return 0;

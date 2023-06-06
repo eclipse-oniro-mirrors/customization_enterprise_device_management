@@ -34,8 +34,8 @@ public:
         int32_t userId) = 0;
     virtual ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     virtual ErrCode DisableSuperAdmin(std::string &bundleName) = 0;
-    virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
-        MessageParcel &data, int32_t userId) = 0;
+    virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
+        MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) = 0;
     virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;

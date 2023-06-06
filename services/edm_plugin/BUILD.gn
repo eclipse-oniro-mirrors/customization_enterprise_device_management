@@ -63,10 +63,12 @@ edm_plugin_shared_library("device_control_plugin") {
 }
 
 edm_plugin_shared_library("wifi_manager_plugin") {
+  include_dirs = [ "./include/utils" ]
+
   sources = [
     "./src/is_wifi_active_plugin.cpp",
     "./src/set_wifi_profile_plugin.cpp",
-    "./src/wifi_device_config_serializer.cpp",
+    "./src/utils/wifi_device_config_serializer.cpp",
   ]
 
   deps = [
@@ -96,11 +98,16 @@ edm_plugin_shared_library("network_manager_plugin") {
 }
 
 edm_plugin_shared_library("bundle_manager_plugin") {
+  include_dirs = [ "./include/utils" ]
+
   sources = [
     "./src/allowed_install_bundles_plugin.cpp",
     "./src/bundle_install_plugin.cpp",
     "./src/disallowed_install_bundles_plugin.cpp",
     "./src/disallowed_uninstall_bundles_plugin.cpp",
+    "./src/uninstall_plugin.cpp",
+    "./src/utils/installer_callback.cpp",
+    "./src/utils/uninstall_param_serializer.cpp",
   ]
 
   deps = [ "../../common/native:edm_commom" ]

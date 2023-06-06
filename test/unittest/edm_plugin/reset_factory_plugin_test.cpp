@@ -48,7 +48,8 @@ HWTEST_F(DeviceControlPluginTest, TestRestFactory, TestSize.Level1)
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, RESET_FACTORY);
     std::string policyData{""};
     MessageParcel data;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, policyData, isChanged, DEFAULT_USER_ID);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST

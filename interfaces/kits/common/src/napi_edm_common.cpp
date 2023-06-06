@@ -78,6 +78,17 @@ bool ParseInt(napi_env env, int32_t &param, napi_value args)
     return true;
 }
 
+bool ParseCallback(napi_env env, napi_ref &param, napi_value args)
+{
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, args, &valueType) != napi_ok ||
+        valueType != napi_function || napi_create_reference(env, args, NAPI_RETURN_ONE, &param) != napi_ok) {
+        EDMLOGE("Wrong argument type. napi_function expected.");
+        return false;
+    }
+    return true;
+}
+
 bool ParseUint(napi_env env, uint32_t &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
