@@ -30,7 +30,7 @@ void GetScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetScree
     EDMLOGD("GetScreenOffTimePlugin InitPlugin...");
     std::string policyName;
     POLICY_CODE_TO_NAME(SCREEN_OFF_TIME, policyName);
-    ptr->InitAttribute(SCREEN_OFF_TIME, policyName, "ohos.permission.ENTERPRISE_SET_SCREENOFF_TIME",
+    ptr->InitAttribute(SCREEN_OFF_TIME, policyName, "ohos.permission.ENTERPRISE_GET_SETTINGS",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
 }
