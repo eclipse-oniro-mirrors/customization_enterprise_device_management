@@ -20,6 +20,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include "device_policies_storage_rdb.h"
 #include "edm_errors.h"
 #include "json/json.h"
 #include "ipolicy_manager.h"
@@ -113,34 +114,13 @@ public:
 
 private:
     PolicyManager();
-    bool DeleteAdminPolicyItemJsonValue(Json::Value &admin, const std::string &adminName,
-        const std::string &policyName, unsigned int &policyItemsNum);
-    bool GetAdminItemJsonObject(const Json::Value &admin, const std::string &adminName);
-    bool ParseAdminList(const std::string &adminName, const PolicyItemsMap &itemsMap);
-    bool ParseAdminPolicy(const Json::Value &admin);
-    bool ParseCombinedPolicy(const Json::Value &combined);
-    bool ParsePolicyItems(const Json::Value &items, PolicyItemsMap &itemsMap);
-    bool SetAdminPolicyItemJsonValue(Json::Value &admin, const std::string &adminName, const std::string &policyName,
-        const std::string &policyValue);
-
-    ErrCode DeleteAdminJsonValue(const std::string &adminName, const std::string &policyName);
     ErrCode DeleteAdminPolicy(const std::string &adminName, const std::string &policyName);
-    ErrCode DeleteCombinedJsonValue(const std::string &policyName);
     ErrCode DeleteCombinedPolicy(const std::string &policyName);
     ErrCode GetAdminPolicy(const std::string &adminName, const std::string &policyName, std::string &policyValue);
     ErrCode GetCombinedPolicy(const std::string &policyName, std::string &policyValue);
-    ErrCode LoadPolicy();
-    ErrCode SetAdminJsonValue(const std::string &adminName, const std::string &policyName,
-        const std::string &policyValue);
     ErrCode SetAdminPolicy(const std::string &adminName, const std::string &policyName, const std::string &policyValue);
-    ErrCode SetCombinedJsonValue(const std::string &policyName, const std::string &policyValue);
     ErrCode SetCombinedPolicy(const std::string &policyName, const std::string &policyValue);
-    ErrCode ParseDevicePolicyJsonFile(const Json::Value &policyRoot);
-    ErrCode ParseJsonString(const std::string &policyValue, Json::Value &policyValueRoot);
-
-    void CreateEmptyJsonFile();
     void DeleteAdminList(const std::string &adminName, const std::string &policyName);
-    void SavePolicy();
     void SetAdminList(const std::string &adminName, const std::string &policyName, const std::string &policyValue);
 
     /*
@@ -158,16 +138,7 @@ private:
      */
     std::unordered_map<std::string, AdminValueItemsMap> policyAdmins_;
 
-    /*
-     * This member is the json root, used to parse and write json file
-     */
-    Json::Value policyRoot_;
-
     int32_t userIdState_ = 100;
-
-    std::string edmPolicyJsonFile_;
-
-    std::string edmPolicyJsonBackFile_;
 };
 } // namespace EDM
 } // namespace OHOS

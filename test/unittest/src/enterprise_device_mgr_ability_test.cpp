@@ -42,9 +42,6 @@ const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.ENTERPRISE_SET_DATETIME";
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
-const std::string HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME = "HandlePolicyBiFunctionPlg";
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies*";
-const std::string ADMIN_TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
@@ -57,14 +54,11 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
-    edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, HANDLE_POLICY_BIFUNCTIONPLG_POLICYNAME, "", "");
     edmMgr_->adminMgr_->instance_.reset();
     edmMgr_->pluginMgr_->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
-    Utils::ExecCmdSync(TEAR_DOWN_CMD);
-    Utils::ExecCmdSync(ADMIN_TEAR_DOWN_CMD);
 }
 
 // Give testAdmin and plugin_ Initial value
@@ -248,6 +242,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     data.WriteString("testValue");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    res = edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, plugin_->GetPolicyName(), "", "");
+    ASSERT_TRUE(res == ERR_OK);
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
@@ -293,6 +289,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     MessageParcel reply;
     data.WriteString("{\"name\" : \"testValue\"}");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+    res = edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, plugin_->GetPolicyName(), "", "");
     ASSERT_TRUE(res == ERR_OK);
     Utils::ResetTokenTypeAndUid();
 }

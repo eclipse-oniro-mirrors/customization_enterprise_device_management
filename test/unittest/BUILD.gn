@@ -25,6 +25,7 @@ config("edm_config") {
   include_dirs = [
     "../../services/edm/include",
     "../../services/edm/include/connection",
+    "../../services/edm/include/database",
     "../../framework/extension/include",
   ]
 }
@@ -35,11 +36,15 @@ ohos_static_library("edmservice_static") {
     "../../services/edm/src/ability_manager_death_recipient.cpp",
     "../../services/edm/src/admin.cpp",
     "../../services/edm/src/admin_manager.cpp",
+    "../../services/edm/src/admin_policies_storage_rdb.cpp",
     "../../services/edm/src/application_state_observer.cpp",
     "../../services/edm/src/connection/enterprise_admin_connection.cpp",
     "../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../services/edm/src/database/edm_rdb_data_manager.cpp",
+    "../../services/edm/src/database/edm_rdb_open_callback.cpp",
+    "../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../services/edm/src/permission_manager.cpp",
@@ -73,6 +78,7 @@ ohos_static_library("edmservice_static") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

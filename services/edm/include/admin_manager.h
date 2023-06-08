@@ -20,6 +20,7 @@
 #include <memory>
 #include <unordered_map>
 #include "admin.h"
+#include "admin_policies_storage_rdb.h"
 #include "ent_info.h"
 #include "edm_permission.h"
 #include "json/json.h"
@@ -44,23 +45,17 @@ public:
     bool IsSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
-    void RestoreAdminFromFile();
     ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
-    void SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
-    void RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
+    ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
+    ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode GetSuperAdmin(std::shared_ptr<Admin> &admin);
     virtual ~AdminManager();
 
 private:
     AdminManager();
-    void SaveAdmin(int32_t userId);
-    void ReadJsonAdminType(Json::Value &admin, std::vector<std::shared_ptr<Admin>> &adminVector);
-    void ReadJsonAdmin(const std::string &filePath, int32_t userId);
-    void WriteJsonAdminType(std::shared_ptr<Admin> &enabledAdmin, Json::Value &tree);
-    void WriteJsonAdmin(const std::string &filePath, int32_t userId);
 
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins_;
     static std::mutex mutexLock_;

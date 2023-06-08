@@ -27,6 +27,7 @@
 #include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -48,10 +49,6 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.M
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
-
-const std::string EDM_POLICY_JSON_FILE = "device_policies_";
-const std::string EDM_JSON_BASE_DIR = "/data/service/el1/public/edm/";
-const std::string EDM_DOT_STRING = ".";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -261,20 +258,14 @@ void EnterpriseDeviceMgrAbility::OnStart()
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
 {
-    std::vector<std::string> paths;
-    OHOS::GetDirFiles(EDM_JSON_BASE_DIR, paths);
-    for (size_t i = 0; i < paths.size(); i++) {
-        std::string::size_type pos = paths[i].find(EDM_DOT_STRING);
-        std::string::size_type posHead = paths[i].find(EDM_POLICY_JSON_FILE);
-        if (pos == std::string::npos || posHead == std::string::npos) {
-            continue;
-        }
-        size_t start = (EDM_JSON_BASE_DIR + EDM_POLICY_JSON_FILE).length();
-        std::string user = paths[i].substr(start, (pos - start));
-        if (!std::all_of(user.begin(), user.end(), ::isdigit)) {
-            continue;
-        }
-        int32_t userId = strtol(user.c_str(), nullptr, EdmConstants::DECIMAL);
+    std::vector<int32_t> userIds;
+    auto devicePolicies = DevicePoliciesStorageRdb::GetInstance();
+    if (devicePolicies == nullptr) {
+        EDMLOGE("OnAddSystemAbility::InitAllPolices:get rdbStore failed.");
+        return;
+    }
+    devicePolicies->QueryAllUserId(userIds);
+    for (auto userId : userIds) {
         if (userId < DEFAULT_USER_ID) {
             continue;
         }
