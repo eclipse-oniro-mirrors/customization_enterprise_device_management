@@ -62,6 +62,8 @@ public:
     int InvokeArrayStringSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeSendRequestParamError(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
     int InvokeSendRequestReplyFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
         GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestReplyFail code :" << code;
