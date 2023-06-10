@@ -202,7 +202,7 @@ EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
     EDMLOGD("instance is destroyed");
 }
 
-int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
+int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::Dump");
     if (fd < 0) {
@@ -314,7 +314,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbility
     EDMLOGI("create commonEventSubscriber success");
 }
 
-void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
 }
 

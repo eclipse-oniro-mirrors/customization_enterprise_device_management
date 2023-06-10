@@ -196,6 +196,39 @@ HWTEST_F(BundleManagerProxyTest, InstallBundlesInvalidType, TestSize.Level1)
     ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
+
+/**
+ * @tc.name: TestUninstallParamErr
+ * @tc.desc: Test Uninsatll method with param error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestUninstallParamErr, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string retMsg;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
+    ErrCode ret = bundleManagerProxy->Uninstall(admin, ADMIN_PACKAGENAME, DEFAULT_USER_ID, false, retMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(retMsg == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestUninstallSuc
+ * @tc.desc: Test Uninsatll method success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string retMsg;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->Uninstall(admin, ADMIN_PACKAGENAME, DEFAULT_USER_ID, false, retMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

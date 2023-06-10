@@ -21,12 +21,12 @@
 #include "admin_manager.h"
 #include "application_state_observer.h"
 #include "common_event_subscriber.h"
+#include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
 #include "hilog/log.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "system_ability.h"
-#include "enterprise_admin_proxy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -42,8 +42,7 @@ public:
     ~EnterpriseDeviceMgrAbility();
     static sptr<EnterpriseDeviceMgrAbility> GetInstance();
 
-    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
-        int32_t userId) override;
+    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) override;
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(std::string &bundleName) override;
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
@@ -63,9 +62,9 @@ public:
 protected:
     void OnStart() override;
     void OnStop() override;
-    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+    int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
 
 private:
     bool IsHdc();
@@ -76,7 +75,7 @@ private:
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue, int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
-    ErrCode GetAllPermissionsByAdmin(const std::string& bundleInfoName,
+    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName,
         std::vector<std::string> &permissionList, int32_t userId);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
@@ -118,7 +117,7 @@ public:
 
     void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
 private:
-      EnterpriseDeviceMgrAbility &listener_;
+    EnterpriseDeviceMgrAbility &listener_;
 };
 } // namespace EDM
 } // namespace OHOS

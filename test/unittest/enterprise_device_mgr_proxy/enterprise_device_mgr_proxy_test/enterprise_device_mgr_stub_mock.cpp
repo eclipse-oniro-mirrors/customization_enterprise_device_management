@@ -103,5 +103,15 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy(uint32_t 
     reply.WriteStringVector(std::vector<std::string>{ RETURN_STRING });
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+    reply.WriteString(RETURN_STRING);
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS

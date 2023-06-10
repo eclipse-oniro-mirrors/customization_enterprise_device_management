@@ -94,4 +94,3 @@ bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, 
 } // namespace OHOS
 
 #endif // INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_COMMON_ADDON_H
- 

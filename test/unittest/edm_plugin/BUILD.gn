@@ -26,23 +26,25 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "../../../services/edm_plugin/include",
     "../../../services/edm_plugin/include/utils",
     "../include",
+    "./include",
   ]
 
   sources = [
     "../src/utils.cpp",
-    "./bundle_install_plugin_test.cpp",
-    "./device_info_plugin_test.cpp",
-    "./disallow_add_local_account_plugin_test.cpp",
-    "./disallow_modify_datetime_plugin_test.cpp",
-    "./disallowed_running_bundles_plugin_test.cpp",
-    "./edm_data_ability_utils_mock.cpp",
-    "./get_device_name_plugin_test.cpp",
-    "./get_screen_off_time_plugin_test.cpp",
-    "./is_wifi_active_plugin_test.cpp",
-    "./network_manager_plugin_test.cpp",
-    "./reset_factory_plugin_test.cpp",
-    "./set_wifi_profile_plugin_test.cpp",
-    "./wifi_device_config_serializer_test.cpp",
+    "./src/bundle_install_plugin_test.cpp",
+    "./src/device_info_plugin_test.cpp",
+    "./src/disallow_add_local_account_plugin_test.cpp",
+    "./src/disallow_modify_datetime_plugin_test.cpp",
+    "./src/disallowed_running_bundles_plugin_test.cpp",
+    "./src/edm_data_ability_utils_mock.cpp",
+    "./src/get_device_name_plugin_test.cpp",
+    "./src/get_screen_off_time_plugin_test.cpp",
+    "./src/is_wifi_active_plugin_test.cpp",
+    "./src/network_manager_plugin_test.cpp",
+    "./src/reset_factory_plugin_test.cpp",
+    "./src/set_wifi_profile_plugin_test.cpp",
+    "./src/uninstall_plugin_test.cpp",
+    "./src/wifi_device_config_serializer_test.cpp",
   ]
 
   configs = [
@@ -112,6 +114,9 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
     "../../../services/edm_plugin/src/reset_factory_plugin.cpp",
     "../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+    "../../../services/edm_plugin/src/uninstall_plugin.cpp",
+    "../../../services/edm_plugin/src/utils/installer_callback.cpp",
+    "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
   ]
 
