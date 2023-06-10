@@ -29,8 +29,10 @@ const std::string TEST_ADMIN_NAME = "com.edm.test.demo";
 const std::string TEST_ADMIN_NAME1 = "com.edm.test.demo1";
 const std::string TEST_BOOL_POLICY_NAME = "testBoolPolicy";
 const std::string TEST_STRING_POLICY_NAME = "testStringPolicy";
+const std::string TEST_ADMIN_POLICY_VALUE = "adminPolicy";
+const std::string TEST_MERAGE_POLICY_VALUE = "mergedValue";
+const std::string TEST_MERAGE_POLICY_VALUE_ONE = "mergedValue1";
 constexpr int HUGE_POLICY_SIZE = 65537;
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/device_policies_*";
 constexpr int32_t DEFAULT_USER_ID = 100;
 
 class PolicyManagerTest : public testing::Test {
@@ -47,7 +49,6 @@ public:
     void TearDown() override
     {
         policyMgr_.reset();
-        Utils::ExecCmdSync(TEAR_DOWN_CMD);
     }
 
     std::shared_ptr<PolicyManager> policyMgr_;
@@ -61,30 +62,32 @@ public:
 HWTEST_F(PolicyManagerTest, TestSetPolicy, TestSize.Level1)
 {
     ErrCode res;
-    std::string adminName = TEST_ADMIN_NAME;
-    std::string policyName = TEST_BOOL_POLICY_NAME;
-    std::string adminName1 = TEST_ADMIN_NAME1;
     std::string adminPolicy;
     std::string mergedPolicy;
-    res = policyMgr_->SetPolicy(adminName, policyName, "false", "true");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "false", "true");
     ASSERT_TRUE(res == ERR_OK);
 
     std::string policyValue;
-    res = policyMgr_->GetPolicy(adminName, policyName, policyValue);
+    res = policyMgr_->GetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "false");
-    res = policyMgr_->GetPolicy("", policyName, policyValue);
+    res = policyMgr_->GetPolicy("", TEST_BOOL_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "true");
 
-    res = policyMgr_->SetPolicy(adminName1, policyName, "true", "true");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "true", "true");
     ASSERT_TRUE(res == ERR_OK);
-    res = policyMgr_->GetPolicy(adminName, policyName, policyValue);
-    ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(policyValue == "false");
-    res = policyMgr_->GetPolicy("", policyName, policyValue);
+    res = policyMgr_->GetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue == "true");
+    res = policyMgr_->GetPolicy("", TEST_BOOL_POLICY_NAME, policyValue);
+    ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(policyValue == "true");
+
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -95,30 +98,33 @@ HWTEST_F(PolicyManagerTest, TestSetPolicy, TestSize.Level1)
 HWTEST_F(PolicyManagerTest, TestGetPolicy, TestSize.Level1)
 {
     ErrCode res;
-    std::string adminName = TEST_ADMIN_NAME;
-    std::string policyName = TEST_STRING_POLICY_NAME;
-    std::string adminPolicy = "adminPolicy";
-    std::string mergedPolicy = "mergedValue";
-    res = policyMgr_->SetPolicy(adminName, policyName, adminPolicy, mergedPolicy);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, TEST_ADMIN_POLICY_VALUE,
+        TEST_MERAGE_POLICY_VALUE);
     ASSERT_TRUE(res == ERR_OK);
 
     std::string policyValue;
-    res = policyMgr_->GetPolicy(adminName, policyName, policyValue);
+    res = policyMgr_->GetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(policyValue == "adminPolicy");
-    res = policyMgr_->GetPolicy("", policyName, policyValue);
+    ASSERT_TRUE(policyValue == TEST_ADMIN_POLICY_VALUE);
+    res = policyMgr_->GetPolicy("", TEST_STRING_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(policyValue == "mergedValue");
+    ASSERT_TRUE(policyValue == TEST_MERAGE_POLICY_VALUE);
 
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, policyName, "", "mergedValue1");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME, "", TEST_MERAGE_POLICY_VALUE_ONE);
     ASSERT_TRUE(res == ERR_OK);
 
-    res = policyMgr_->GetPolicy(adminName, policyName, policyValue);
+    policyValue = "";
+    res = policyMgr_->GetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME, policyValue);
+    ASSERT_TRUE(res == ERR_EDM_POLICY_NOT_FIND);
+    ASSERT_TRUE(policyValue.empty());
+    res = policyMgr_->GetPolicy("", TEST_STRING_POLICY_NAME, policyValue);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(policyValue == "adminPolicy");
-    res = policyMgr_->GetPolicy("", policyName, policyValue);
+    ASSERT_TRUE(policyValue == TEST_MERAGE_POLICY_VALUE_ONE);
+
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, "", "");
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(policyValue == "mergedValue1");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -129,11 +135,10 @@ HWTEST_F(PolicyManagerTest, TestGetPolicy, TestSize.Level1)
 HWTEST_F(PolicyManagerTest, TestGetAdminAllPolicy, TestSize.Level1)
 {
     ErrCode res;
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
-        "adminPolicy", "mergedValue");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, TEST_ADMIN_POLICY_VALUE,
+        TEST_MERAGE_POLICY_VALUE);
     ASSERT_TRUE(res == ERR_OK);
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME,
-        "true", "true");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "true", "true");
     ASSERT_TRUE(res == ERR_OK);
 
     std::unordered_map<std::string, std::string> allPolicyValue;
@@ -141,9 +146,12 @@ HWTEST_F(PolicyManagerTest, TestGetAdminAllPolicy, TestSize.Level1)
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(allPolicyValue.size() == 2);
     auto stringEntry = allPolicyValue.find(TEST_STRING_POLICY_NAME);
-    ASSERT_TRUE(stringEntry != allPolicyValue.end() && stringEntry->second == "adminPolicy");
+    ASSERT_TRUE(stringEntry != allPolicyValue.end() && stringEntry->second == TEST_ADMIN_POLICY_VALUE);
     auto boolEntry = allPolicyValue.find(TEST_BOOL_POLICY_NAME);
     ASSERT_TRUE(boolEntry != allPolicyValue.end() && boolEntry->second == "true");
+
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -154,11 +162,9 @@ HWTEST_F(PolicyManagerTest, TestGetAdminAllPolicy, TestSize.Level1)
 HWTEST_F(PolicyManagerTest, TestGetAdminByPolicyName, TestSize.Level1)
 {
     ErrCode res;
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME,
-        "false", "true");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "false", "true");
     ASSERT_TRUE(res == ERR_OK);
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME,
-        "true", "true");
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "true", "true");
     ASSERT_TRUE(res == ERR_OK);
 
     std::unordered_map<std::string, std::string> adminPolicyValue;
@@ -169,6 +175,11 @@ HWTEST_F(PolicyManagerTest, TestGetAdminByPolicyName, TestSize.Level1)
     ASSERT_TRUE(adminEntry != adminPolicyValue.end() && adminEntry->second == "false");
     auto adminEntry1 = adminPolicyValue.find(TEST_ADMIN_NAME1);
     ASSERT_TRUE(adminEntry1 != adminPolicyValue.end() && adminEntry1->second == "true");
+
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -186,11 +197,14 @@ HWTEST_F(PolicyManagerTest, TestSetPolicyHuge, TestSize.Level1)
     ErrCode res;
     std::string policyValue;
     ASSERT_TRUE(ArrayStringSerializer::GetInstance()->Serialize(hugeArrayPolicy, policyValue));
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
-        policyValue, policyValue);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, policyValue, policyValue);
     ASSERT_TRUE(res == ERR_OK);
-    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME,
-        policyValue, policyValue);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME, policyValue, policyValue);
+    ASSERT_TRUE(res == ERR_OK);
+
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, "", "");
+    ASSERT_TRUE(res == ERR_OK);
+    res = policyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_STRING_POLICY_NAME, "", "");
     ASSERT_TRUE(res == ERR_OK);
 }
 } // namespace TEST

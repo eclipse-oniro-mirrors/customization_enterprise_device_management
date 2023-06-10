@@ -53,7 +53,6 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permiss
 const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
     "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies*";
 
 class EnterpriseDeviceMgrAbilityTest : public testing::Test {
 protected:
@@ -102,7 +101,6 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
-    Utils::ExecCmdSync(TEAR_DOWN_CMD);
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
 
@@ -656,6 +654,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.
     edmMgr_->OnCommonEventUserRemoved(data);
     isExist = edmMgr_->adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     EXPECT_TRUE(!isExist);
+
+    ErrCode ret = edmMgr_->adminMgr_->DeleteAdmin(abilityInfo.bundleName, ERROR_USER_ID_REMOVE);
+    EXPECT_TRUE(ret == ERR_OK);
 }
 
 /**

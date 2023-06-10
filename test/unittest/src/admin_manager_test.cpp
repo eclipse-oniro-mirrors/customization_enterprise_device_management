@@ -28,7 +28,6 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int HUGE_ADMIN_SIZE = 100;
-const std::string TEAR_DOWN_CMD = "rm /data/service/el1/public/edm/admin_policies.json";
 
 void AdminManagerTest::SetUp()
 {
@@ -47,11 +46,13 @@ void AdminManagerTest::TearDown()
     for (const auto &admin : userAdmin) {
         adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID);
     }
+    adminMgr_->GetAdminByUserId(TEST_USER_ID, userAdmin);
+    for (const auto &admin : userAdmin) {
+        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, TEST_USER_ID);
+    }
     adminMgr_->instance_.reset();
     adminMgr_.reset();
     PermissionManager::DestroyInstance();
-
-    Utils::ExecCmdSync(TEAR_DOWN_CMD);
 }
 
 /**
