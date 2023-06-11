@@ -29,7 +29,7 @@ public:
     bool Insert(const std::string &tableName, const NativeRdb::ValuesBucket &valuesBucket);
     bool Delete(const NativeRdb::AbsRdbPredicates &predicates);
     bool Update(const NativeRdb::ValuesBucket &valuesBucket, const NativeRdb::AbsRdbPredicates &predicates);
-    std::unique_ptr<NativeRdb::AbsSharedResultSet> Query(const NativeRdb::AbsRdbPredicates &predicates,
+    std::shared_ptr<NativeRdb::ResultSet> Query(const NativeRdb::AbsRdbPredicates &predicates,
         const std::vector<std::string> &columns);
 private:
     static std::shared_ptr<NativeRdb::RdbStore> GetRdbStore();

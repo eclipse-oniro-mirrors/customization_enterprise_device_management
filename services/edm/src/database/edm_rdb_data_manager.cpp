@@ -113,7 +113,7 @@ bool EdmRdbDataManager::Update(const NativeRdb::ValuesBucket &valuesBucket,
     return ret == NativeRdb::E_OK;
 }
 
-std::unique_ptr<NativeRdb::AbsSharedResultSet> EdmRdbDataManager::Query(const NativeRdb::AbsRdbPredicates &predicates,
+std::shared_ptr<NativeRdb::ResultSet> EdmRdbDataManager::Query(const NativeRdb::AbsRdbPredicates &predicates,
     const std::vector<std::string> &columns)
 {
     EDMLOGD("EdmRdbDataManager Query data start.");
