@@ -151,3 +151,15 @@ edm_plugin_shared_library("device_settings_plugin") {
 
   external_deps = [ "c_utils:utils" ]
 }
+
+edm_plugin_shared_library("restrictions_plugin") {
+  sources = [
+    "./src/disable_hdc_plugin.cpp",
+    "./src/disable_printer_plugin.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+  ]
+}

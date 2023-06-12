@@ -274,6 +274,59 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledFuncCodeFail, TestSiz
 }
 
 /**
+ * @tc.name: TestSetPolicyDisabledSuc
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_PRINTER);
+    bool isDisabled = true;
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, funcCode, isDisabled);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPolicyDisabledFail
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_PRINTER);
+    bool isDisabled = true;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, funcCode, isDisabled);
+    EXPECT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPolicyDisabledFuncCodeFail
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledFuncCodeFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    bool isDisabled = true;
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, FUNC_CODE_ERR, isDisabled);
+    EXPECT_TRUE(ret != ERR_OK);
+}
+
+/**
  * @tc.name: TestGetPolicyValueSuc
  * @tc.desc: Test GetPolicyValue func.
  * @tc.type: FUNC

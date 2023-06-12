@@ -36,6 +36,7 @@ struct AsyncCallbackInfo {
     int32_t err = 0;
     uint32_t errCode = 0;
     std::string errMessage;
+    int policyCode = 0;
 
     virtual ~AsyncCallbackInfo() {};
 };

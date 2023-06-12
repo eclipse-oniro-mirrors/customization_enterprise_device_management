@@ -333,15 +333,31 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
     return ERR_OK;
 }
 
-bool EnterpriseDeviceMgrProxy::IsPolicyDisabled(AppExecFwk::ElementName *admin, int policyCode, bool &isDisabled,
-    int32_t userId)
+int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result)
 {
-    MessageParcel reply;
-    if (!GetPolicyData(admin, policyCode, userId, reply)) {
-        return false;
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        if (!IsEdmEnabled()) {
+            result = false;
+            return ERR_OK;
+        }
+        data.WriteInt32(WITHOUT_ADMIN);
     }
-    reply.ReadBool(isDisabled);
-    return true;
+    MessageParcel reply;
+    GetPolicy(policyCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        EDMLOGE("IsPolicyDisabled:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
 }
 
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data)
@@ -540,6 +556,18 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std:
     for (const std::string &item : readArray) {
         enabledAdminList.push_back(item);
     }
+}
+
+int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled,
+    int32_t policyCode)
+{
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isDisabled);
+    return HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS

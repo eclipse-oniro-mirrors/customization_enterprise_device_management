@@ -29,7 +29,6 @@ namespace OHOS {
 namespace EDM {
 struct AsyncGetDeviceInfoCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
-    int policyCode = 0;
 };
 
 class DeviceInfoAddon {

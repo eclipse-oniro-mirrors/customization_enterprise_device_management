@@ -43,68 +43,25 @@ std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::GetDatetimeManagerPr
 int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
 {
     EDMLOGD("DatetimeManagerProxy::SetDateTime");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteInt64(time);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow)
 {
     EDMLOGD("DatetimeManagerProxy::DisallowModifyDateTime");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_MODIFY_DATETIME);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteBool(disallow);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, DISALLOW_MODIFY_DATETIME);
 }
 
-int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName &admin, bool hasAdmin, bool &result)
+int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("DatetimeManagerProxy::IsModifyDateTimeDisallowed");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    if (hasAdmin) {
-        data.WriteInt32(HAS_ADMIN);
-        data.WriteParcelable(&admin);
-    } else {
-        if (!proxy->IsEdmEnabled()) {
-            result = false;
-            return ERR_OK;
-        }
-        data.WriteInt32(WITHOUT_ADMIN);
-    }
-    proxy->GetPolicy(DISALLOW_MODIFY_DATETIME, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("DatetimeManagerProxy:GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    reply.ReadBool(result);
-    return ERR_OK;
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, DISALLOW_MODIFY_DATETIME, result);
 }
 } // namespace EDM
 } // namespace OHOS
