@@ -91,7 +91,7 @@ napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeUninstall",
-        NativeUninstall, NativeVoidCallbackComplete);
+        NativeUninstall, NativeUninstallCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
