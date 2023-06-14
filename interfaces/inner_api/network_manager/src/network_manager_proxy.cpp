@@ -66,7 +66,7 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     int32_t size = reply.ReadInt32();
     if (size > MAX_SIZE) {
         EDMLOGE("networkInterface size=[%{public}d] is too large", size);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&networkInterface);
     return ERR_OK;

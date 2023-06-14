@@ -206,6 +206,10 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
         return resCode;
     }
     std::unique_ptr<EntInfo> info(reply.ReadParcelable<EntInfo>());
+    if (!info) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     entInfo = *info;
     return ERR_OK;
 }
@@ -532,7 +536,7 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std:
     }
     int32_t resCode = ERR_OK;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmins get result code fail.");
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmins get result code fail.");
         return;
     }
     std::vector<std::string> readArray;

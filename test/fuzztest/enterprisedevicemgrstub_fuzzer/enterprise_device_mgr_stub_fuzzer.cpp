@@ -16,14 +16,14 @@
 
 #include <system_ability_definition.h>
 
-#include "edm_sys_manager.h"
-#include "ienterprise_device_mgr.h"
+#define protected public
+#include "enterprise_device_mgr_ability.h"
+#undef protected
 #include "parcel.h"
 #include "utils.h"
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MAX_SIZE = 1024;
 constexpr size_t MIN_SIZE = 4;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -31,7 +31,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (data == nullptr) {
         return 0;
     }
-    if (size > MAX_SIZE || size < MIN_SIZE) {
+    if (size < MIN_SIZE) {
         return 0;
     }
 
@@ -42,16 +42,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    TEST::Utils::SetEdmServiceEnable();
-    auto remote = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    if (remote == nullptr) {
-        return 0;
-    }
-    remote->SendRequest(code, parcel, reply, option);
-
-    TEST::Utils::SetEdmServiceDisable();
+    TEST::Utils::SetEdmInitialEnv();
+    sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
+    enterpriseDeviceMgrAbility->OnStart();
+    enterpriseDeviceMgrAbility->OnRemoteRequest(code, parcel, reply, option);
+    TEST::Utils::ResetTokenTypeAndUid();
     return 0;
 }
 } // namespace EDM
 } // namespace OHOS
-

@@ -841,6 +841,11 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     // has admin
     if (data.ReadInt32() == 0) {
         std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+        if (!admin) {
+            EDMLOGW("GetDevicePolicy: ReadParcelable failed");
+            reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+            return ERR_EDM_PARAM_ERROR;
+        }
         std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
         if (deviceAdmin == nullptr) {
             EDMLOGW("GetDevicePolicy: get admin failed");
