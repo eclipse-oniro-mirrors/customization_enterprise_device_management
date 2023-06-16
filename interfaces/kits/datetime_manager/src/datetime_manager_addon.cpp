@@ -197,8 +197,12 @@ void DatetimeManagerAddon::NativeIsModifyDateTimeDisallowed(napi_env env, void *
         EDMLOGE("can not get DatetimeManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->hasAdmin, asyncCallbackInfo->boolRet);
+    if (asyncCallbackInfo->hasAdmin) {
+        asyncCallbackInfo->ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(&(asyncCallbackInfo->elementName),
+            asyncCallbackInfo->boolRet);
+    } else {
+        asyncCallbackInfo->ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(nullptr, asyncCallbackInfo->boolRet);
+    }
 }
 
 static napi_module g_dateTimeManagerModule = {

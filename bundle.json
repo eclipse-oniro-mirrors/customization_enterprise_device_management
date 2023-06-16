@@ -95,6 +95,7 @@
           "//base/customization/enterprise_device_management/interfaces/kits/device_info:deviceinfo",
           "//base/customization/enterprise_device_management/interfaces/kits/device_settings:devicesettings",
           "//base/customization/enterprise_device_management/interfaces/kits/network_manager:networkmanager",
+          "//base/customization/enterprise_device_management/interfaces/kits/restrictions:restrictions",
           "//base/customization/enterprise_device_management/interfaces/kits/wifi_manager:wifimanager",
           "//base/customization/enterprise_device_management/framework/extension:enterprise_admin_extension",
           "//base/customization/enterprise_device_management/interfaces/kits/enterprise_admin_extension:enterpriseadminextensionability_napi",
@@ -113,6 +114,7 @@
           "//base/customization/enterprise_device_management/services/edm_plugin:device_control_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:disallow_modify_datetime_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:network_manager_plugin",
+          "//base/customization/enterprise_device_management/services/edm_plugin:restrictions_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:wifi_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:bundle_manager_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:application_manager_plugin",
@@ -148,7 +150,8 @@
         "header": {
           "header_base": "//base/customization/enterprise_device_management/interfaces/inner_api",
           "header_files": [
-            "common/include/enterprise_device_mgr_proxy.h"
+            "common/include/enterprise_device_mgr_proxy.h",
+            "restrictions/include/restrictions_proxy.h"
           ]
         },
         "name": "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits"

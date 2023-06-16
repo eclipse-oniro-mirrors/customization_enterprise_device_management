@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "disable_hdc_plugin.h"
+
+#include "bool_serializer.h"
+#include "iplugin_manager.h"
+#include "parameters.h"
+#include "policy_info.h"
+
+namespace OHOS {
+namespace EDM {
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
+const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
+
+void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr)
+{
+    EDMLOGD("DisableHdcPlugin InitPlugin...");
+    std::string policyName;
+    POLICY_CODE_TO_NAME(DISABLED_HDC, policyName);
+    ptr->InitAttribute(DISABLED_HDC, policyName, "ohos.permission.ENTERPRISE_RESTRICT_POLICY",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->SetSerializer(BoolSerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&DisableHdcPlugin::OnSetPolicy, FuncOperateType::SET);
+}
+
+ErrCode DisableHdcPlugin::OnSetPolicy(bool &data)
+{
+    EDMLOGI("DisableHdcPlugin OnSetPolicy %{public}d", data);
+    std::string value = data ? "false" : "true";
+    return system::SetParameter(PERSIST_HDC_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisableHdcPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    bool ret = system::GetBoolParameter(PERSIST_HDC_CONTROL, true);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(!ret);
+    return ERR_OK;
+}
+} // namespace EDM
+} // namespace OHOS

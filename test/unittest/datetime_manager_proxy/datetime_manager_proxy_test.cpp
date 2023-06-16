@@ -139,7 +139,7 @@ HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed001, TestSize.L
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
-    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, true, result);
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(&admin, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -153,7 +153,7 @@ HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed002, TestSize.L
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     bool result = true;
-    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, true, result);
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(&admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -169,7 +169,7 @@ HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed003, TestSize.L
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
-    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, false, result);
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(nullptr, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result);
 }
@@ -182,9 +182,8 @@ HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed003, TestSize.L
 HWTEST_F(DatetimeManagerProxyTest, TestIsModifyDateTimeDisallowed004, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
     bool result = false;
-    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(admin, false, result);
+    ErrCode ret = dateTimeManagerProxy->IsModifyDateTimeDisallowed(nullptr, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(result);
 }

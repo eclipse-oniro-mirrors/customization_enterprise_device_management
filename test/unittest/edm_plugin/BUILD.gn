@@ -33,6 +33,8 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "../src/utils.cpp",
     "./src/bundle_install_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
+    "./src/disable_hdc_plugin_test.cpp",
+    "./src/disable_printer_plugin_test.cpp",
     "./src/disallow_add_local_account_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_running_bundles_plugin_test.cpp",
@@ -98,6 +100,8 @@ ohos_static_library("edm_all_plugin_static") {
   sources = [
     "../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
+    "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
+    "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
     "../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
