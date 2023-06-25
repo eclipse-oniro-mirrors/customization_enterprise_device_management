@@ -563,7 +563,7 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std:
 }
 
 int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled,
-    int32_t policyCode)
+    uint32_t policyCode)
 {
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
