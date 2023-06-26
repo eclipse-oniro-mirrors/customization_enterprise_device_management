@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 #include "device_info_addon.h"
+
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "policy_info.h"
 
 using namespace OHOS::EDM;
 
@@ -32,19 +33,19 @@ napi_value DeviceInfoAddon::Init(napi_env env, napi_value exports)
 napi_value DeviceInfoAddon::GetDeviceSerial(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDeviceSerial called");
-    return GetDeviceInfo(env, info, GET_DEVICE_SERIAL);
+    return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DEVICE_SERIAL);
 }
 
 napi_value DeviceInfoAddon::GetDisplayVersion(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisplayVersion called");
-    return GetDeviceInfo(env, info, GET_DISPLAY_VERSION);
+    return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DISPLAY_VERSION);
 }
 
 napi_value DeviceInfoAddon::GetDeviceName(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDeviceName called");
-    return GetDeviceInfo(env, info, GET_DEVICE_NAME);
+    return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DEVICE_NAME);
 }
 
 napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info, int code)
@@ -64,10 +65,11 @@ napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info,
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncGetDeviceInfoCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncGetDeviceInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("GetDeviceInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD(
+        "GetDeviceInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -76,8 +78,8 @@ napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info,
         napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     asyncCallbackInfo->policyCode = code;
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetDeviceInfo",
-        NativeGetDeviceInfo, NativeStringCallbackComplete);
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "GetDeviceInfo", NativeGetDeviceInfo, NativeStringCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
@@ -96,17 +98,17 @@ void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
         return;
     }
     switch (asyncCallbackInfo->policyCode) {
-        case static_cast<int32_t>(GET_DEVICE_SERIAL):
-            asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceSerial(asyncCallbackInfo->elementName,
-                asyncCallbackInfo->stringRet);
+        case static_cast<int32_t>(EdmInterfaceCode::GET_DEVICE_SERIAL):
+            asyncCallbackInfo->ret =
+                deviceInfoProxy->GetDeviceSerial(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
             break;
-        case static_cast<int32_t>(GET_DISPLAY_VERSION):
-            asyncCallbackInfo->ret = deviceInfoProxy->GetDisplayVersion(asyncCallbackInfo->elementName,
-                asyncCallbackInfo->stringRet);
+        case static_cast<int32_t>(EdmInterfaceCode::GET_DISPLAY_VERSION):
+            asyncCallbackInfo->ret =
+                deviceInfoProxy->GetDisplayVersion(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
             break;
-        case static_cast<int32_t>(GET_DEVICE_NAME):
-            asyncCallbackInfo->ret = deviceInfoProxy->GetDeviceName(asyncCallbackInfo->elementName,
-                asyncCallbackInfo->stringRet);
+        case static_cast<int32_t>(EdmInterfaceCode::GET_DEVICE_NAME):
+            asyncCallbackInfo->ret =
+                deviceInfoProxy->GetDeviceName(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
             break;
         default:
             asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -122,7 +124,7 @@ static napi_module g_deviceInfoModule = {
     .nm_register_func = DeviceInfoAddon::Init,
     .nm_modname = "enterprise.deviceInfo",
     .nm_priv = ((void *)0),
-    .reserved = { 0 },
+    .reserved = {0},
 };
 
 extern "C" __attribute__((constructor)) void DeviceInfoRegister()

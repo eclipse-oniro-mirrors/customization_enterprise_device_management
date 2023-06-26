@@ -16,9 +16,9 @@
 #include "disable_hdc_plugin.h"
 
 #include "bool_serializer.h"
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -28,9 +28,7 @@ const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
 void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr)
 {
     EDMLOGD("DisableHdcPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISABLED_HDC, policyName);
-    ptr->InitAttribute(DISABLED_HDC, policyName, "ohos.permission.ENTERPRISE_RESTRICT_POLICY",
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC, "disabled_hdc", "ohos.permission.ENTERPRISE_RESTRICT_POLICY",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableHdcPlugin::OnSetPolicy, FuncOperateType::SET);

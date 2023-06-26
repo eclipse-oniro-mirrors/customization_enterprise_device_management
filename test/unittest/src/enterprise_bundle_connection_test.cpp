@@ -20,7 +20,6 @@
 #include "enterprise_bundle_connection.h"
 #include "func_code.h"
 #include "managed_event.h"
-#include "policy_info.h"
 using namespace testing::ext;
 using namespace testing;
 

@@ -16,10 +16,12 @@
 #ifndef INTERFACES_INNER_API_INCLUDE_IENTERPRISE_DEVICE_MGR_H
 #define INTERFACES_INNER_API_INCLUDE_IENTERPRISE_DEVICE_MGR_H
 #include <string>
+
 #include "admin_type.h"
-#include "ent_info.h"
 #include "edm_errors.h"
+#include "edm_ipc_interface_code.h"
 #include "element_name.h"
+#include "ent_info.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -30,8 +32,7 @@ namespace EDM {
 class IEnterpriseDeviceMgr : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.edm.IEnterpriseDeviceMgr");
-    virtual ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
-        int32_t userId) = 0;
+    virtual ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) = 0;
     virtual ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     virtual ErrCode DisableSuperAdmin(std::string &bundleName) = 0;
     virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
@@ -46,19 +47,6 @@ public:
         const std::vector<uint32_t> &events) = 0;
     virtual bool IsSuperAdmin(std::string &bundleName) = 0;
     virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
-    enum {
-        ADD_DEVICE_ADMIN = 1,
-        REMOVE_DEVICE_ADMIN = 2,
-        GET_PERMISSION_REQUEST = 3,
-        REMOVE_SUPER_ADMIN = 4,
-        GET_ENABLED_ADMIN = 5,
-        GET_ENT_INFO = 6,
-        SET_ENT_INFO = 7,
-        IS_SUPER_ADMIN = 8,
-        IS_ADMIN_ENABLED = 9,
-        SUBSCRIBE_MANAGED_EVENT = 10,
-        UNSUBSCRIBE_MANAGED_EVENT = 11,
-    };
 };
 } // namespace EDM
 } // namespace OHOS

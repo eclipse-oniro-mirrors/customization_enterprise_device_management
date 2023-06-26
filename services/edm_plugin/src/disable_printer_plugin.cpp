@@ -16,8 +16,8 @@
 #include "disable_printer_plugin.h"
 
 #include "bool_serializer.h"
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,10 +26,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisablePri
 void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrinterPlugin, bool>> ptr)
 {
     EDMLOGD("DisablePrinterPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISABLED_PRINTER, policyName);
-    ptr->InitAttribute(DISABLED_PRINTER, policyName, "ohos.permission.ENTERPRISE_RESTRICT_POLICY",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, "disabled_printer",
+        "ohos.permission.ENTERPRISE_RESTRICT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisablePrinterPlugin::OnSetPolicy, FuncOperateType::SET);
 }
@@ -39,8 +37,8 @@ ErrCode DisablePrinterPlugin::OnSetPolicy(bool &data)
     return ERR_OK;
 }
 
-ErrCode DisablePrinterPlugin::OnGetPolicy(std::string &policyData,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode DisablePrinterPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGI("DisablePrinterPlugin OnGetPolicy %{public}s...", policyData.c_str());
     bool isDisabled = false;

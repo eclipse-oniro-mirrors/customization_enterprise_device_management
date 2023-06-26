@@ -18,7 +18,6 @@
 #include <vector>
 #include "func_code.h"
 #include "managed_event.h"
-#include "policy_info.h"
 #define private public
 #include "enterprise_conn_manager.h"
 #undef private

@@ -14,21 +14,19 @@
  */
 
 #include "disallow_modify_datetime_plugin.h"
+
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
 
-void DisallModifyDateTimePlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
+void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
 {
     EDMLOGD("DisallModifyDateTimePlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISALLOW_MODIFY_DATETIME, policyName);
-    ptr->InitAttribute(DISALLOW_MODIFY_DATETIME, policyName, "ohos.permission.ENTERPRISE_SET_DATETIME",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime",
+        "ohos.permission.ENTERPRISE_SET_DATETIME", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallModifyDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
 }
@@ -38,8 +36,8 @@ ErrCode DisallModifyDateTimePlugin::OnSetPolicy(bool &data)
     return ERR_OK;
 }
 
-ErrCode DisallModifyDateTimePlugin::OnGetPolicy(std::string &policyData,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode DisallModifyDateTimePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     bool disallow = false;
     pluginInstance_->serializer_->Deserialize(policyData, disallow);

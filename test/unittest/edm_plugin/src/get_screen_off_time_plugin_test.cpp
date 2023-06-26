@@ -15,9 +15,9 @@
 
 #include <gtest/gtest.h>
 #include "edm_data_ability_utils_mock.h"
+#include "edm_ipc_interface_code.h"
 #include "get_screen_off_time_plugin.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;

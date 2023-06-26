@@ -15,10 +15,10 @@
 
 #include "get_mac_plugin.h"
 
+#include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 #include "string_serializer.h"
 
 namespace OHOS {
@@ -28,9 +28,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetMacPlug
 void GetMacPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std::string>> ptr)
 {
     EDMLOGI("GetMacPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_MAC, policyName);
-    ptr->InitAttribute(GET_MAC, policyName, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
+    ptr->InitAttribute(EdmInterfaceCode::GET_MAC, "get_mac", "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }

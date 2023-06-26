@@ -14,23 +14,22 @@
  */
 
 #include "disabled_network_interface_plugin.h"
+
+#include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "iplugin_manager.h"
 #include "map_string_serializer.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string IF_CFG_DOWN = "down";
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
 
-void DisabledNetworkInterfacePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisabledNetworkInterfacePlugin,
-    std::map<std::string, std::string>>> ptr)
+void DisabledNetworkInterfacePlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<DisabledNetworkInterfacePlugin, std::map<std::string, std::string>>> ptr)
 {
     EDMLOGD("DisabledNetworkInterfacePlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISABLED_NETWORK_INTERFACE, policyName);
-    ptr->InitAttribute(DISABLED_NETWORK_INTERFACE, policyName, false);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "disabled_network_interface", false);
     ptr->InitPermission(FuncOperateType::SET, "ohos.permission.ENTERPRISE_SET_NETWORK",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->InitPermission(FuncOperateType::GET, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
@@ -39,8 +38,8 @@ void DisabledNetworkInterfacePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<
     ptr->SetOnHandlePolicyListener(&DisabledNetworkInterfacePlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
+ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     EDMLOGD("DisabledNetworkInterfacePlugin OnGetPolicy.");
     nmd::InterfaceConfigurationParcel config;

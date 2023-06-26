@@ -21,7 +21,6 @@
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
 #include "network_manager_proxy.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -113,7 +112,7 @@ HWTEST_F(NetworkManagerProxyTest, TestGetIpOrMacAddressSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", GET_MAC, info);
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", EdmInterfaceCode::GET_MAC, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -129,7 +128,7 @@ HWTEST_F(NetworkManagerProxyTest, TestGetIpOrMacAddressFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string info;
-    int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", GET_MAC, info);
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(admin, "eth0", EdmInterfaceCode::GET_MAC, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

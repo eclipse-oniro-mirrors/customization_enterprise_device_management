@@ -14,10 +14,10 @@
  */
 
 #include "bundle_manager_proxy.h"
+
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 #include "policy_type.h"
 
 namespace OHOS {
@@ -39,9 +39,10 @@ BundleManagerProxy::~BundleManagerProxy()
 
 void BundleManagerProxy::AddPolicyTypeMap()
 {
-    policyTypeMap_[static_cast<int32_t>(PolicyType::ALLOW_INSTALL)] = ALLOWED_INSTALL_BUNDLES;
-    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)] = DISALLOWED_INSTALL_BUNDLES;
-    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)] = DISALLOWED_UNINSTALL_BUNDLES;
+    policyTypeMap_[static_cast<int32_t>(PolicyType::ALLOW_INSTALL)] = EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES;
+    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)] = EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES;
+    policyTypeMap_[static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL)] =
+        EdmInterfaceCode::DISALLOWED_UNINSTALL_BUNDLES;
 }
 
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::GetBundleManagerProxy()
@@ -56,8 +57,8 @@ std::shared_ptr<BundleManagerProxy> BundleManagerProxy::GetBundleManagerProxy()
     return instance_;
 }
 
-int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::string bundleName,
-    int32_t userId, bool isKeepData, std::string &retMessage)
+int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::string bundleName, int32_t userId,
+    bool isKeepData, std::string &retMessage)
 {
     EDMLOGD("BundleManagerProxy::Uninstall");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -73,7 +74,7 @@ int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::strin
     data.WriteString(bundleName);
     data.WriteInt32(userId);
     data.WriteBool(isKeepData);
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, UNINSTALL);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::UNINSTALL);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::PARAM_ERROR) {
         retMessage = reply.ReadString();
@@ -81,8 +82,8 @@ int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::strin
     return ret;
 }
 
-int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admin,
-    std::vector<std::string> &bundles, int32_t userId, int32_t policyType)
+int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
+    int32_t userId, int32_t policyType)
 {
     EDMLOGD("BundleManagerProxy::AddBundlesByPolicyType policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -106,8 +107,8 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &admin,
-    std::vector<std::string> &bundles, int32_t userId, int32_t policyType)
+int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
+    int32_t userId, int32_t policyType)
 {
     EDMLOGD("BundleManagerProxy::RemoveBundlesByPolicyType policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();

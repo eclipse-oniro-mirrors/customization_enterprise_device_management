@@ -14,10 +14,10 @@
  */
 
 #include "application_manager_proxy.h"
+
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -47,7 +47,8 @@ int32_t ApplicationManagerProxy::AddDisallowedRunningBundles(AppExecFwk::Element
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISALLOW_RUNNING_BUNDLES);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
@@ -66,7 +67,8 @@ int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::Elem
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, DISALLOW_RUNNING_BUNDLES);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
@@ -91,7 +93,7 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInt32(userId);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    proxy->GetPolicy(DISALLOW_RUNNING_BUNDLES, data, reply);
+    proxy->GetPolicy(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

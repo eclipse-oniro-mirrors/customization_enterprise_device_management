@@ -14,8 +14,9 @@
  */
 
 #include "get_display_version_plugin.h"
+
+#include "edm_ipc_interface_code.h"
 #include "parameter.h"
-#include "policy_info.h"
 #include "string_serializer.h"
 
 namespace OHOS {
@@ -25,10 +26,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDisplay
 void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr)
 {
     EDMLOGD("GetDisplayVersionPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_DISPLAY_VERSION, policyName);
-    ptr->InitAttribute(GET_DISPLAY_VERSION, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_DISPLAY_VERSION, "get_display_version",
+        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

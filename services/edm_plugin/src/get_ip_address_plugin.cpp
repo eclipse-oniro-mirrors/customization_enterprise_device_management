@@ -15,10 +15,10 @@
 
 #include "get_ip_address_plugin.h"
 
+#include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 #include "string_serializer.h"
 
 namespace OHOS {
@@ -28,10 +28,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetIpAddre
 void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddressPlugin, std::string>> ptr)
 {
     EDMLOGI("GetIpAddressPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_IP_ADDRESS, policyName);
-    ptr->InitAttribute(GET_IP_ADDRESS, policyName, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, "get_ip_address",
+        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

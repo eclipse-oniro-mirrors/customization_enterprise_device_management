@@ -18,7 +18,6 @@
 #include <vector>
 #include "enterprise_device_mgr_proxy.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 using namespace testing::ext;
 
@@ -82,7 +81,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
     enterpriseDeviceMgrProxyTest->GetEnabledAdmin(AdminType::NORMAL, enabledAdminList1);
     EXPECT_TRUE(enabledAdminList1.empty());
 
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     bool isDisabled;
     enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled);
     EXPECT_FALSE(isDisabled);

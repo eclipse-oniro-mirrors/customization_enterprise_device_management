@@ -15,13 +15,13 @@
 
 #include <gtest/gtest.h>
 #include "disabled_network_interface_plugin.h"
+#include "edm_ipc_interface_code.h"
 #include "get_all_network_interfaces_plugin.h"
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
 #include "iplugin_manager.h"
 #include "iplugin_template.h"
 #include "map_string_serializer.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -140,7 +140,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceNotExist, TestSize.Level1
 {
     std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
     bool isChanged = false;
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
     // data is empty.
     MessageParcel data;
     MessageParcel reply;
@@ -165,7 +165,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
 {
     std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
     bool isChanged = false;
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
     MessageParcel data;
     MessageParcel reply;
     std::string policyStr;

@@ -14,7 +14,9 @@
  */
 
 #include "bundle_install_plugin.h"
+
 #include <system_ability_definition.h>
+
 #include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
 #include "edm_constants.h"
@@ -63,16 +65,16 @@ ErrCode BundleInstallPlugin::GetBundlePolicy(std::string &policyData, MessagePar
     return ERR_OK;
 }
 
-ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
+    int32_t userId)
 {
     if (data.empty()) {
         EDMLOGW("BundleInstallPlugin OnRemovePolicy data is empty.");
         return ERR_OK;
     }
 
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->
-        SetDifferencePolicyData(data, currentData);
+    std::vector<std::string> mergeData =
+        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
     ErrCode res = GetAppControlProxy()->DeleteAppInstallControlRule(controlRuleType_, data, userId);
     if (res != ERR_OK) {
         EDMLOGE("BundleInstallPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);

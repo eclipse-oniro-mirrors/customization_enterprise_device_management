@@ -14,9 +14,9 @@
  */
 
 #include "device_settings_proxy.h"
+
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -50,7 +50,7 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, in
     data.WriteInt32(WITHOUT_USERID);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    proxy->GetPolicy(SCREEN_OFF_TIME, data, reply);
+    proxy->GetPolicy(EdmInterfaceCode::SCREEN_OFF_TIME, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

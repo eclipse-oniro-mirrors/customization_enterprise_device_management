@@ -16,24 +16,21 @@
 #include "get_all_network_interfaces_plugin.h"
 
 #include "array_string_serializer.h"
+#include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
-
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
 
-void GetAllNetworkInterfacesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetAllNetworkInterfacesPlugin,
-    std::vector<std::string>>> ptr)
+void GetAllNetworkInterfacesPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<GetAllNetworkInterfacesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("GetAllNetworkInterfacesPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_NETWORK_INTERFACES, policyName);
-    ptr->InitAttribute(GET_NETWORK_INTERFACES, policyName, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_NETWORK_INTERFACES, "get_network_interfaces",
+        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
 }
 
