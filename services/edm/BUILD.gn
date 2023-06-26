@@ -66,6 +66,7 @@ ohos_shared_library("edmservice") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
@@ -73,12 +74,6 @@ ohos_shared_library("edmservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
 
   deps = [
     "../../common/native:edm_commom",

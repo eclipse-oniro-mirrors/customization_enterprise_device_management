@@ -38,15 +38,10 @@ ohos_shared_library("edm_commom") {
     "ability_runtime:ability_manager",
     "c_utils:utils",
     "data_share:datashare_consumer",
+    "hilog:libhilog",
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]
-
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
 
   subsystem_name = "customization"
   part_name = "enterprise_device_management"

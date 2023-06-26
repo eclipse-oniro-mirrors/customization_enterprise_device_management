@@ -70,6 +70,7 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -82,12 +83,6 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     external_deps += [ "update_service:updateservicekits" ]
   } else {
     external_deps += [ "dupdate_engine:updateservicekits" ]
-  }
-
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
   }
 
   subsystem_name = "customization"
@@ -145,6 +140,7 @@ ohos_static_library("edm_all_plugin_static") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "hilog:libhilog",
     "init:libbegetutil",
     "netmanager_ext:ethernet_manager_if",
     "os_account:os_account_innerkits",
@@ -158,11 +154,6 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

@@ -49,12 +49,7 @@ template("edm_plugin_shared_library") {
       external_deps += invoker.external_deps
     }
 
-    if (is_standard_system) {
-      external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-    } else {
-      external_deps += [ "hilog:libhilog" ]
-    }
-
+    external_deps += [ "hilog:libhilog" ]
     relative_install_dir = "edm_plugin"
     subsystem_name = "customization"
     part_name = "enterprise_device_management"

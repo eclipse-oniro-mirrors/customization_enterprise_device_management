@@ -32,8 +32,8 @@ ohos_shared_library("adminmanager") {
 
   external_deps = [
     "ability_base:want",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "napi:ace_napi",
     "os_account:os_account_innerkits",
   ]
