@@ -14,9 +14,9 @@
  */
 
 #include "account_manager_proxy.h"
+
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -48,7 +48,7 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return proxy->SetPolicyDisabled(admin, isDisallow, DISALLOW_ADD_LOCAL_ACCOUNT);
+    return proxy->SetPolicyDisabled(admin, isDisallow, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT);
 }
 } // namespace EDM
 } // namespace OHOS

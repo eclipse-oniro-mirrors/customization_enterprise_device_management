@@ -14,8 +14,9 @@
  */
 
 #include "set_datetime_plugin.h"
+
+#include "edm_ipc_interface_code.h"
 #include "long_serializer.h"
-#include "policy_info.h"
 #include "time_service_client.h"
 
 namespace OHOS {
@@ -25,9 +26,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDateTim
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {
     EDMLOGD("SetDateTimePlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(SET_DATETIME, policyName);
-    ptr->InitAttribute(SET_DATETIME, policyName, "ohos.permission.ENTERPRISE_SET_DATETIME",
+    ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", "ohos.permission.ENTERPRISE_SET_DATETIME",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(LongSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetDateTimePlugin::OnSetPolicy, FuncOperateType::SET);

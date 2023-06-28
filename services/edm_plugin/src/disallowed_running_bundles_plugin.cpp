@@ -14,26 +14,25 @@
  */
 
 #include "disallowed_running_bundles_plugin.h"
+
 #include <system_ability_definition.h>
 
 #include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
 #include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
 
-void DisallowedRunningBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin,
-    std::vector<std::string>>> ptr)
+void DisallowedRunningBundlesPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGD("DisallowedRunningBundlesPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISALLOW_RUNNING_BUNDLES, policyName);
-    ptr->InitAttribute(DISALLOW_RUNNING_BUNDLES, policyName, "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles",
+        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
@@ -92,8 +91,8 @@ ErrCode DisallowedRunningBundlesPlugin::OnRemovePolicy(std::vector<std::string> 
         EDMLOGW("DisallowedRunningBundlesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->
-        SetDifferencePolicyData(data, currentData);
+    std::vector<std::string> mergeData =
+        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
     std::vector<AppExecFwk::AppRunningControlRule> controlRules;
     std::for_each(data.begin(), data.end(), [&](const std::string &str) {
         AppExecFwk::AppRunningControlRule controlRule;

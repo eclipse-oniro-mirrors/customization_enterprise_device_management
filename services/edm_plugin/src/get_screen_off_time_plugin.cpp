@@ -16,8 +16,8 @@
 #include "get_screen_off_time_plugin.h"
 
 #include "edm_data_ability_utils.h"
+#include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -28,9 +28,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetScreenO
 void GetScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetScreenOffTimePlugin, int32_t>> ptr)
 {
     EDMLOGD("GetScreenOffTimePlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(SCREEN_OFF_TIME, policyName);
-    ptr->InitAttribute(SCREEN_OFF_TIME, policyName, "ohos.permission.ENTERPRISE_GET_SETTINGS",
+    ptr->InitAttribute(EdmInterfaceCode::SCREEN_OFF_TIME, "screen_off_time", "ohos.permission.ENTERPRISE_GET_SETTINGS",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
 }

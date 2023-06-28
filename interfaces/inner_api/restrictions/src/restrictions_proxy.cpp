@@ -17,7 +17,6 @@
 
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -39,22 +38,24 @@ std::shared_ptr<RestrictionsProxy> RestrictionsProxy::GetRestrictionsProxy()
 
 int32_t RestrictionsProxy::SetPrinterDisabled(const AppExecFwk::ElementName &admin, bool isDisabled)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled, DISABLED_PRINTER);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
+        EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 int32_t RestrictionsProxy::SetHdcDisabled(const AppExecFwk::ElementName &admin, bool isDisabled)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled, DISABLED_HDC);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
+        EdmInterfaceCode::DISABLED_HDC);
 }
 
 int32_t RestrictionsProxy::IsPrinterDisabled(AppExecFwk::ElementName *admin, bool &result)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, DISABLED_PRINTER, result);
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLED_PRINTER, result);
 }
 
 int32_t RestrictionsProxy::IsHdcDisabled(AppExecFwk::ElementName *admin, bool &result)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, DISABLED_HDC, result);
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLED_HDC, result);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -21,7 +21,6 @@
 #include "device_info_proxy.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;

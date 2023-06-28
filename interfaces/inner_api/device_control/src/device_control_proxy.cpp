@@ -14,9 +14,9 @@
  */
 
 #include "device_control_proxy.h"
+
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -49,7 +49,7 @@ int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, RESET_FACTORY);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::RESET_FACTORY);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);

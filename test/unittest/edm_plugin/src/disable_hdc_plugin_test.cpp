@@ -15,9 +15,9 @@
 
 #include <gtest/gtest.h>
 #include "disable_hdc_plugin.h"
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "iplugin_template.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -57,7 +57,7 @@ HWTEST_F(DisableHdcPluginTest, TestDisableHdcPluginTestSet, TestSize.Level1)
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableHdcPlugin::GetPlugin();
     std::string policyData{"false"};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_HDC);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_HDC);
     bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);

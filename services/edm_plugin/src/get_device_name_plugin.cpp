@@ -14,9 +14,10 @@
  */
 
 #include "get_device_name_plugin.h"
+
 #include "edm_data_ability_utils.h"
+#include "edm_ipc_interface_code.h"
 #include "parameter.h"
-#include "policy_info.h"
 #include "string_serializer.h"
 
 namespace OHOS {
@@ -28,10 +29,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceN
 void GetDeviceNamePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceNamePlugin, std::string>> ptr)
 {
     EDMLOGD("GetDeviceNamePlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_DEVICE_NAME, policyName);
-    ptr->InitAttribute(GET_DEVICE_NAME, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_NAME, "get_device_name",
+        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

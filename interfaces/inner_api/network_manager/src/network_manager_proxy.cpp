@@ -14,9 +14,9 @@
  */
 
 #include "network_manager_proxy.h"
+
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -56,7 +56,7 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     data.WriteInt32(WITHOUT_USERID);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    proxy->GetPolicy(GET_NETWORK_INTERFACES, data, reply);
+    proxy->GetPolicy(EdmInterfaceCode::GET_NETWORK_INTERFACES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -109,12 +109,13 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_NETWORK_INTERFACE);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    std::vector<std::string> key { networkInterface };
-    std::vector<std::string> value { isDisabled ? "true" : "false" };
+    std::vector<std::string> key{networkInterface};
+    std::vector<std::string> value{isDisabled ? "true" : "false"};
     data.WriteStringVector(key);
     data.WriteStringVector(value);
     return proxy->HandleDevicePolicy(funcCode, data);
@@ -136,7 +137,7 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);
-    proxy->GetPolicy(DISABLED_NETWORK_INTERFACE, data, reply);
+    proxy->GetPolicy(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

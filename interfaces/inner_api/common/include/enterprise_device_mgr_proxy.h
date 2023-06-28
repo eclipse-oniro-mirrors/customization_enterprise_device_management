@@ -16,11 +16,13 @@
 #ifndef INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 #define INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 #include <message_parcel.h>
+
 #include <map>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
+
 #include "ienterprise_device_mgr.h"
 
 namespace OHOS {
@@ -44,8 +46,8 @@ public:
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
-    ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin,
-        const std::vector<uint32_t> &events, bool subscribe);
+    ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
+        bool subscribe);
     ErrCode IsSuperAdmin(std::string bundleName, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
@@ -65,6 +67,7 @@ public:
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
+
 private:
     sptr<IRemoteObject> LoadAndGetEdmService();
     void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);

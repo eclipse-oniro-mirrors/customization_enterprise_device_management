@@ -42,16 +42,17 @@ EnterpriseDeviceMgrStub::~EnterpriseDeviceMgrStub()
 
 void EnterpriseDeviceMgrStub::AddCallFuncMap()
 {
-    memberFuncMap_[ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::EnableAdminInner;
-    memberFuncMap_[REMOVE_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::DisableAdminInner;
-    memberFuncMap_[REMOVE_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::DisableSuperAdminInner;
-    memberFuncMap_[GET_ENABLED_ADMIN] = &EnterpriseDeviceMgrStub::GetEnabledAdminInner;
-    memberFuncMap_[GET_ENT_INFO] = &EnterpriseDeviceMgrStub::GetEnterpriseInfoInner;
-    memberFuncMap_[SET_ENT_INFO] =  &EnterpriseDeviceMgrStub::SetEnterpriseInfoInner;
-    memberFuncMap_[IS_SUPER_ADMIN] =  &EnterpriseDeviceMgrStub::IsSuperAdminInner;
-    memberFuncMap_[IS_ADMIN_ENABLED] =  &EnterpriseDeviceMgrStub::IsAdminEnabledInner;
-    memberFuncMap_[SUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::SubscribeManagedEventInner;
-    memberFuncMap_[UNSUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
+    memberFuncMap_[EdmInterfaceCode::ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::EnableAdminInner;
+    memberFuncMap_[EdmInterfaceCode::REMOVE_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::DisableAdminInner;
+    memberFuncMap_[EdmInterfaceCode::REMOVE_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::DisableSuperAdminInner;
+    memberFuncMap_[EdmInterfaceCode::GET_ENABLED_ADMIN] = &EnterpriseDeviceMgrStub::GetEnabledAdminInner;
+    memberFuncMap_[EdmInterfaceCode::GET_ENT_INFO] = &EnterpriseDeviceMgrStub::GetEnterpriseInfoInner;
+    memberFuncMap_[EdmInterfaceCode::SET_ENT_INFO] = &EnterpriseDeviceMgrStub::SetEnterpriseInfoInner;
+    memberFuncMap_[EdmInterfaceCode::IS_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::IsSuperAdminInner;
+    memberFuncMap_[EdmInterfaceCode::IS_ADMIN_ENABLED] = &EnterpriseDeviceMgrStub::IsAdminEnabledInner;
+    memberFuncMap_[EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::SubscribeManagedEventInner;
+    memberFuncMap_[EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT] =
+        &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
 }
 
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -61,8 +62,8 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
     Security::AccessToken::ATokenTypeEnum tokenType =
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE
-        && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE &&
+        tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
         EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
         return EdmReturnErrCode::SYSTEM_API_DENIED;
@@ -150,8 +151,8 @@ ErrCode EnterpriseDeviceMgrStub::DisableSuperAdminInner(MessageParcel &data, Mes
     return retCode;
 }
 
-ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
+ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
@@ -164,8 +165,8 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
     return errCode;
 }
 
-ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
+ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
 {
     return GetDevicePolicy(code, data, reply, userId);
 }
@@ -200,7 +201,7 @@ ErrCode EnterpriseDeviceMgrStub::GetEnterpriseInfoInner(MessageParcel &data, Mes
         return EdmReturnErrCode::PARAM_ERROR;
     }
     EDMLOGD("GetEnterpriseInfoInner bundleName:: %{public}s : abilityName : %{public}s ",
-            admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
+        admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
 
     return GetEnterpriseInfo(*admin, reply);
 }

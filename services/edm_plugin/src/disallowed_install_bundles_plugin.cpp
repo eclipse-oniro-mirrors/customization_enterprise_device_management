@@ -14,22 +14,21 @@
  */
 
 #include "disallowed_install_bundles_plugin.h"
+
 #include "array_string_serializer.h"
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedInstallBundlesPlugin::GetPlugin());
 
-void DisallowedInstallBundlesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedInstallBundlesPlugin,
-    std::vector<std::string>>> ptr)
+void DisallowedInstallBundlesPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<DisallowedInstallBundlesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGD("DisallowedInstallBundlesPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(DISALLOWED_INSTALL_BUNDLES, policyName);
-    ptr->InitAttribute(DISALLOWED_INSTALL_BUNDLES, policyName, "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES, "disallowed_install_bundles",
+        "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedInstallBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedInstallBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);

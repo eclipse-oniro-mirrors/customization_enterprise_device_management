@@ -20,7 +20,6 @@
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
 #include "func_code.h"
-#include "policy_info.h"
 #include "system_ability_definition.h"
 #include "utils.h"
 
@@ -239,7 +238,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     bool isDisabled = false;
     enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled);
     EXPECT_TRUE(!isDisabled);
@@ -252,7 +251,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledSuc, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledFail, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     bool isDisabled = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -286,7 +285,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledSuc, TestSize.Level1
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_PRINTER);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_PRINTER);
     bool isDisabled = true;
     int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, funcCode, isDisabled);
     EXPECT_TRUE(ret == ERR_OK);
@@ -302,7 +301,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledFail, TestSize.Level
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, DISABLED_PRINTER);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_PRINTER);
     bool isDisabled = true;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -336,7 +335,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::string policyData;
     bool ret = enterpriseDeviceMgrProxyTest->GetPolicyValue(nullptr, funcCode, policyData);
     EXPECT_TRUE(ret);
@@ -349,7 +348,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueSuc, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueReplyFail, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::string policyData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -365,7 +364,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueReplyFail, TestSize.Lev
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestHandleDevicePolicyFuncCodeFail, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
@@ -415,7 +414,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdminFail, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArrayEnableAdmin, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin));
@@ -431,7 +430,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArrayEnableAdmin, TestSize.L
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArrayFail, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::vector<std::string> policyArrayData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -447,7 +446,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArrayFail, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArraySuc, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::vector<std::string> policyArrayData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -463,7 +462,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyArraySuc, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapSuc, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -479,7 +478,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapSuc, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapReplyFail, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -495,7 +494,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapReplyFail, TestSize.Level
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapEnableAdminNotEqual, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
@@ -511,7 +510,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapEnableAdminNotEqual, Test
  */
 HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyMapEnableAdminSizeEqual, TestSize.Level1)
 {
-    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::map<std::string, std::string> policyMapData;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)

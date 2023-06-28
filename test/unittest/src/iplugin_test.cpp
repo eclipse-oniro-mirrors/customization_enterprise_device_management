@@ -18,7 +18,6 @@
 #include <vector>
 #include "func_code.h"
 #include "iplugin_mock.h"
-#include "policy_info.h"
 
 using namespace testing::ext;
 using namespace testing;

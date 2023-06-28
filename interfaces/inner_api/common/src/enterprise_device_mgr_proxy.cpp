@@ -14,6 +14,7 @@
  */
 
 #include "enterprise_device_mgr_proxy.h"
+
 #include <iservice_registry.h>
 #include <string_ex.h>
 
@@ -81,7 +82,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     data.WriteParcelable(&entInfo);
     data.WriteInt32(static_cast<int32_t>(type));
     data.WriteInt32(userId);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::ADD_DEVICE_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::ADD_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:EnableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -110,7 +111,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteInt32(userId);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_DEVICE_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::REMOVE_DEVICE_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -138,7 +139,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteString(bundleName);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::REMOVE_SUPER_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::REMOVE_SUPER_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableSuperAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -166,7 +167,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(static_cast<int32_t>(type));
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENABLED_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::GET_ENABLED_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -195,7 +196,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::GET_ENT_INFO, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::GET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -230,7 +231,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteParcelable(&entInfo);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::SET_ENT_INFO, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -260,9 +261,9 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteUInt32Vector(events);
-    uint32_t policyCode = IEnterpriseDeviceMgr::SUBSCRIBE_MANAGED_EVENT;
+    uint32_t policyCode = EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT;
     if (!subscribe) {
-        policyCode = IEnterpriseDeviceMgr::UNSUBSCRIBE_MANAGED_EVENT;
+        policyCode = EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT;
     }
     ErrCode res = remote->SendRequest(policyCode, data, reply, option);
     if (FAILED(res)) {
@@ -290,7 +291,7 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName, bool &res
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteString(bundleName);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_SUPER_ADMIN, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::IS_SUPER_ADMIN, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:IsSuperAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -322,7 +323,7 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteInt32(userId);
-    ErrCode res = remote->SendRequest(IEnterpriseDeviceMgr::IS_ADMIN_ENABLED, data, reply, option);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::IS_ADMIN_ENABLED, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminEnabled send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

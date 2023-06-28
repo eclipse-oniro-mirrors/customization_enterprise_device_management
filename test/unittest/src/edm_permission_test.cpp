@@ -18,7 +18,6 @@
 #include <vector>
 #include "edm_permission.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 using namespace testing::ext;
 using namespace testing;

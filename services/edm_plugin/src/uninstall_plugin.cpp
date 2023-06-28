@@ -14,13 +14,15 @@
  */
 
 #include "uninstall_plugin.h"
+
 #include <system_ability_definition.h>
+
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "installer_callback.h"
 #include "iplugin_manager.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,9 +31,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(UninstallP
 void UninstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UninstallPlugin, UninstallParam>> ptr)
 {
     EDMLOGD("UninstallPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(UNINSTALL, policyName);
-    ptr->InitAttribute(UNINSTALL, policyName, "ohos.permission.ENTERPRISE_INSTALL_BUNDLE",
+    ptr->InitAttribute(EdmInterfaceCode::UNINSTALL, "uninstall", "ohos.permission.ENTERPRISE_INSTALL_BUNDLE",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(UninstallParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&UninstallPlugin::OnSetPolicy, FuncOperateType::SET);

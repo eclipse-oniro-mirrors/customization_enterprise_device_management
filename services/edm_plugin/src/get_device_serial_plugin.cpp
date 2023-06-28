@@ -14,9 +14,10 @@
  */
 
 #include "get_device_serial_plugin.h"
-#include "string_serializer.h"
+
+#include "edm_ipc_interface_code.h"
 #include "parameter.h"
-#include "policy_info.h"
+#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
@@ -25,10 +26,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceS
 void GetDeviceSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr)
 {
     EDMLOGD("GetDeviceSerialPlugin InitPlugin...");
-    std::string policyName;
-    POLICY_CODE_TO_NAME(GET_DEVICE_SERIAL, policyName);
-    ptr->InitAttribute(GET_DEVICE_SERIAL, policyName, "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_SERIAL, "get_device_serial",
+        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

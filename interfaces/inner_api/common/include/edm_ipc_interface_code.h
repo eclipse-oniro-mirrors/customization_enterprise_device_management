@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
-#define INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#ifndef INTERFACES_INNER_API_INCLUDE_EDM_IPC_INTERFACE_CODE_H
+#define INTERFACES_INNER_API_INCLUDE_EDM_IPC_INTERFACE_CODE_H
 
-#include <algorithm>
-#include <string>
-
+/* SAID:3516 */
 namespace OHOS {
 namespace EDM {
-enum {
+enum EdmInterfaceCode : uint32_t {
+    ADD_DEVICE_ADMIN = 1,
+    REMOVE_DEVICE_ADMIN = 2,
+    GET_PERMISSION_REQUEST = 3,
+    REMOVE_SUPER_ADMIN = 4,
+    GET_ENABLED_ADMIN = 5,
+    GET_ENT_INFO = 6,
+    SET_ENT_INFO = 7,
+    IS_SUPER_ADMIN = 8,
+    IS_ADMIN_ENABLED = 9,
+    SUBSCRIBE_MANAGED_EVENT = 10,
+    UNSUBSCRIBE_MANAGED_EVENT = 11,
+
     SET_DATETIME = 1001,
     GET_DEVICE_SERIAL = 1002,
     GET_DISPLAY_VERSION = 1003,
@@ -46,12 +56,6 @@ enum {
     DISABLED_HDC = 1022,
     POLICY_CODE_END = 3000,
 };
-
-#define POLICY_CODE_TO_NAME(ENUM_CODE, POLICY_NAME) do { \
-    POLICY_NAME = (#ENUM_CODE); \
-    std::transform((POLICY_NAME).begin(), (POLICY_NAME).end(), (POLICY_NAME).begin(), ::tolower); \
-} while (0)
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_INNER_API_INCLUDE_POLICY_INFO_H
+#endif // INTERFACES_INNER_API_INCLUDE_EDM_IPC_INTERFACE_CODE_H

@@ -14,9 +14,9 @@
  */
 
 #include "datetime_manager_proxy.h"
+
 #include "edm_log.h"
 #include "func_code.h"
-#include "policy_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -44,7 +44,7 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
 {
     EDMLOGD("DatetimeManagerProxy::SetDateTime");
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, SET_DATETIME);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
@@ -55,13 +55,15 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
 int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow)
 {
     EDMLOGD("DatetimeManagerProxy::DisallowModifyDateTime");
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, DISALLOW_MODIFY_DATETIME);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow,
+        EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
 }
 
 int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("DatetimeManagerProxy::IsModifyDateTimeDisallowed");
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, DISALLOW_MODIFY_DATETIME, result);
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
+        result);
 }
 } // namespace EDM
 } // namespace OHOS

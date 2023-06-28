@@ -15,19 +15,19 @@
 
 #include "restrictions_addon.h"
 
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "policy_info.h"
 
 using namespace OHOS::EDM;
 
 std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::memberSetFuncMap_ = {
-    {DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
-    {DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
+    {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
+    {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
 };
 
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
-    {DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
-    {DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
+    {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
+    {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -44,12 +44,12 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 
 napi_value RestrictionsAddon::SetPrinterDisabled(napi_env env, napi_callback_info info)
 {
-    return SetPolicyDisabled(env, info, DISABLED_PRINTER);
+    return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::SetHdcDisabled(napi_env env, napi_callback_info info)
 {
-    return SetPolicyDisabled(env, info, DISABLED_HDC);
+    return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
 napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode)
@@ -73,10 +73,11 @@ napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncRestrictionsCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncRestrictionsCallbackInfo> callbackPtr{asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("SetPolicyDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD(
+        "SetPolicyDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -87,8 +88,8 @@ napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     asyncCallbackInfo->policyCode = policyCode;
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetPolicyDisabled",
-        NativeSetPolicyDisabled, NativeVoidCallbackComplete);
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetPolicyDisabled", NativeSetPolicyDisabled,
+        NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
@@ -105,8 +106,8 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
     if (func != memberSetFuncMap_.end()) {
         auto memberFunc = func->second;
         auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-        asyncCallbackInfo->ret = (proxy.get()->*memberFunc)(asyncCallbackInfo->elementName,
-            asyncCallbackInfo->isDisabled);
+        asyncCallbackInfo->ret =
+            (proxy.get()->*memberFunc)(asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled);
     } else {
         EDMLOGE("NativeSetPolicyDisabled failed");
         asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -115,12 +116,12 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
 {
-    return IsPolicyDisabled(env, info, DISABLED_PRINTER);
+    return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::IsHdcDisabled(napi_env env, napi_callback_info info)
 {
-    return IsPolicyDisabled(env, info, DISABLED_HDC);
+    return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
 napi_value RestrictionsAddon::IsPolicyDisabled(napi_env env, napi_callback_info info, int policyCode)
@@ -136,7 +137,7 @@ napi_value RestrictionsAddon::IsPolicyDisabled(napi_env env, napi_callback_info 
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncRestrictionsCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncRestrictionsCallbackInfo> callbackPtr{asyncCallbackInfo};
     bool matchFlag = false;
     if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null)) {
         asyncCallbackInfo->hasAdmin = false;
@@ -146,7 +147,8 @@ napi_value RestrictionsAddon::IsPolicyDisabled(napi_env env, napi_callback_info 
         asyncCallbackInfo->hasAdmin = true;
         bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
         ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-        EDMLOGD("IsPolicyDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        EDMLOGD(
+            "IsPolicyDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
             "asyncCallbackInfo->abilityname:%{public}s",
             asyncCallbackInfo->elementName.GetBundleName().c_str(),
             asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -160,8 +162,8 @@ napi_value RestrictionsAddon::IsPolicyDisabled(napi_env env, napi_callback_info 
         napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     asyncCallbackInfo->policyCode = policyCode;
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsPolicyDisabled",
-        NativeIsPolicyDisabled, NativeBoolCallbackComplete);
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "IsPolicyDisabled", NativeIsPolicyDisabled, NativeBoolCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
@@ -179,8 +181,8 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
         auto memberFunc = func->second;
         auto proxy = RestrictionsProxy::GetRestrictionsProxy();
         if (asyncCallbackInfo->hasAdmin) {
-            asyncCallbackInfo->ret = (proxy.get()->*memberFunc)(&(asyncCallbackInfo->elementName),
-                asyncCallbackInfo->boolRet);
+            asyncCallbackInfo->ret =
+                (proxy.get()->*memberFunc)(&(asyncCallbackInfo->elementName), asyncCallbackInfo->boolRet);
         } else {
             asyncCallbackInfo->ret = (proxy.get()->*memberFunc)(nullptr, asyncCallbackInfo->boolRet);
         }
@@ -197,7 +199,7 @@ static napi_module g_restrictionsModule = {
     .nm_register_func = RestrictionsAddon::Init,
     .nm_modname = "enterprise.restrictions",
     .nm_priv = ((void *)0),
-    .reserved = { 0 },
+    .reserved = {0},
 };
 
 extern "C" __attribute__((constructor)) void RestrictionsRegister()

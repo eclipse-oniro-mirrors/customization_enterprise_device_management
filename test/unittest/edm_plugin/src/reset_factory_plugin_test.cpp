@@ -14,8 +14,8 @@
  */
 
 #include "reset_factory_plugin_test.h"
+#include "edm_ipc_interface_code.h"
 #include "iplugin_template.h"
-#include "policy_info.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -45,7 +45,7 @@ HWTEST_F(DeviceControlPluginTest, TestRestFactory, TestSize.Level1)
     Utils::ResetTokenTypeAndUid();
     std::shared_ptr<IPlugin> plugin = ResetFactoryPlugin::GetPlugin();
     bool isChanged = false;
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, RESET_FACTORY);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::RESET_FACTORY);
     std::string policyData{""};
     MessageParcel data;
     MessageParcel reply;
