@@ -35,7 +35,7 @@ ohos_shared_library("wifimanager") {
 
   external_deps = [
     "ability_base:want",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
     "wifi:wifi_sdk",
   ]
