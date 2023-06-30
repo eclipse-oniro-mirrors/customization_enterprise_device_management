@@ -16,7 +16,7 @@
 #ifndef INTERFACES_INNER_API_INCLUDE_EDM_IPC_INTERFACE_CODE_H
 #define INTERFACES_INNER_API_INCLUDE_EDM_IPC_INTERFACE_CODE_H
 
-/* SAID:3516 */
+/* SAID:1601 */
 namespace OHOS {
 namespace EDM {
 enum EdmInterfaceCode : uint32_t {
