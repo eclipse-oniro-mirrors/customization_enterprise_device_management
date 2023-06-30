@@ -65,7 +65,6 @@
         "hisysevent",
         "init",
         "ipc",
-        "jsoncpp",
         "napi",
         "os_account",
         "relational_store",
