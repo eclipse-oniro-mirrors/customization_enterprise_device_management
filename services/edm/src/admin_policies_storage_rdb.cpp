@@ -215,44 +215,50 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
     }
     int resultSetNum = resultSet->GoToFirstRow();
     while (resultSetNum == NativeRdb::E_OK) {
+        std::shared_ptr<Admin> item = std::make_shared<Admin>();
         int32_t userId = 0;
         resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_ONE, userId);
-        std::shared_ptr<Admin> item = std::make_shared<Admin>();
-        int32_t adminType = 0;
-        resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWO, adminType);
-        item->adminInfo_.adminType_ = static_cast<AdminType>(adminType);
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_THREE, item->adminInfo_.packageName_);
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
-        std::string permissionStr;
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
-        if (!permissionStr.empty() && permissionStr != "null") {
-            Json::Value permissionJson;
-            ConvertStrToJson(permissionStr, permissionJson);
-            for (uint32_t i = 0; i < permissionJson.size(); i++) {
-                item->adminInfo_.permission_.push_back(permissionJson[i].asString());
-            }
-        }
-        std::string managedEventsStr;
-        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
-        if (!managedEventsStr.empty() && managedEventsStr != "null") {
-            Json::Value managedEventsJson;
-            ConvertStrToJson(managedEventsStr, managedEventsJson);
-            for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
-                item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
-            }
-        }
+        SetAdminItems(resultSet, item);
         if (admins.find(userId) != admins.end()) {
             admins[userId].push_back(item);
         } else {
-            std::vector<std::shared_ptr<Admin>> adminItems { item };
+            std::vector<std::shared_ptr<Admin>> adminItems{item};
             admins[userId] = adminItems;
         }
         resultSetNum = resultSet->GoToNextRow();
-    };
+    }
     resultSet->Close();
     return admins;
+}
+
+void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
+    std::shared_ptr<Admin> item)
+{
+    int32_t adminType = 0;
+    resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWO, adminType);
+    item->adminInfo_.adminType_ = static_cast<AdminType>(adminType);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_THREE, item->adminInfo_.packageName_);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
+    std::string permissionStr;
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
+    if (!permissionStr.empty() && permissionStr != "null") {
+        Json::Value permissionJson;
+        ConvertStrToJson(permissionStr, permissionJson);
+        for (uint32_t i = 0; i < permissionJson.size(); i++) {
+            item->adminInfo_.permission_.push_back(permissionJson[i].asString());
+        }
+    }
+    std::string managedEventsStr;
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
+    if (!managedEventsStr.empty() && managedEventsStr != "null") {
+        Json::Value managedEventsJson;
+        ConvertStrToJson(managedEventsStr, managedEventsJson);
+        for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
+            item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
+        }
+    }
 }
 
 void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)
