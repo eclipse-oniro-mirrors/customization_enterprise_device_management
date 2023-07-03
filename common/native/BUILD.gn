@@ -14,7 +14,10 @@
 import("//build/ohos.gni")
 
 config("edm_commom_all_dependent_configs") {
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "include/plugin_utils",
+  ]
 }
 
 ohos_shared_library("edm_commom") {
@@ -22,7 +25,8 @@ ohos_shared_library("edm_commom") {
     "./src/edm_data_ability_utils.cpp",
     "./src/edm_permission.cpp",
     "./src/edm_sys_manager.cpp",
-    "./src/message_parcel_utils.cpp",
+    "./src/plugin_utils/iptables_utils.cpp",
+    "./src/plugin_utils/message_parcel_utils.cpp",
   ]
 
   configs = [

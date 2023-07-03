@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "iptables_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,12 +27,16 @@ public:
     ~NetworkManagerProxy();
     static std::shared_ptr<NetworkManagerProxy> GetNetworkManagerProxy();
     int32_t GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin, std::vector<std::string> &networkInterface);
-    int32_t GetIpOrMacAddress(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
-        int policyCode, std::string &info);
+    int32_t GetIpOrMacAddress(const AppExecFwk::ElementName &admin, const std::string &networkInterface, int policyCode,
+        std::string &info);
     int32_t SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         bool isDisabled);
     int32_t IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         bool &status);
+    int32_t AddIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::AddFilter &filter);
+    int32_t RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::RemoveFilter &filter);
+    int32_t ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result);
+
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;
     static std::mutex mutexLock_;

@@ -15,6 +15,7 @@
 
 #include "network_manager_proxy.h"
 
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code.h"
 
@@ -145,6 +146,52 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
         return ret;
     }
     reply.ReadBool(status);
+    return ERR_OK;
+}
+
+int32_t NetworkManagerProxy::AddIptablesFilterRule(const AppExecFwk::ElementName &admin,
+    const IPTABLES::AddFilter &filter)
+{
+    EDMLOGD("NetworkManagerProxy::AddIptablesFilterRule");
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::IPTABLES_RULE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteAddFilterConfig(filter, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin,
+    const IPTABLES::RemoveFilter &filter)
+{
+    EDMLOGD("NetworkManagerProxy::RemoveIptablesFilterRule");
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result)
+{
+    EDMLOGD("NetworkManagerProxy::ListIptablesFilterRules");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::IPTABLES_RULE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(result);
     return ERR_OK;
 }
 } // namespace EDM

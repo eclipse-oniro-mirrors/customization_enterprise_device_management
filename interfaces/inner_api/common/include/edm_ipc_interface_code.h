@@ -54,6 +54,7 @@ enum EdmInterfaceCode : uint32_t {
     UNINSTALL = 1020,
     DISABLED_PRINTER = 1021,
     DISABLED_HDC = 1022,
+    IPTABLES_RULE = 1023,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

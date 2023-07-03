@@ -89,10 +89,14 @@ edm_plugin_shared_library("network_manager_plugin") {
     "./src/get_all_network_interfaces_plugin.cpp",
     "./src/get_ip_address_plugin.cpp",
     "./src/get_mac_plugin.cpp",
+    "./src/iptables_rule_plugin.cpp",
   ]
+
+  deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
     "c_utils:utils",
+    "netmanager_base:netsys_controller",
     "netmanager_ext:ethernet_manager_if",
   ]
 }
