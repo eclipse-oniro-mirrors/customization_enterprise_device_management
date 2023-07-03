@@ -50,7 +50,8 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, 
     std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
     // origin policy is allow to modify date time.
     std::string policyData{"false"};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
     bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
