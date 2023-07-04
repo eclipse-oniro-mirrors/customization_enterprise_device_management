@@ -28,7 +28,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(IsWifiActi
 void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
 {
     EDMLOGD("IsWifiActivePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, "is_wifi_active",
+    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active",
         "ohos.permission.ENTERPRISE_SET_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }

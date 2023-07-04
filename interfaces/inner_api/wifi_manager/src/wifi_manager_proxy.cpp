@@ -55,7 +55,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     data.WriteInt32(WITHOUT_USERID);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    proxy->GetPolicy(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, data, reply);
+    proxy->GetPolicy(EdmInterfaceCode::IS_WIFI_ACTIVE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

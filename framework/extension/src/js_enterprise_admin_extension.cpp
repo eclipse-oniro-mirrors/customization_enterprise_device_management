@@ -60,7 +60,6 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
     HILOG_INFO("JsEnterpriseAdminExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
-    auto& engine = jsRuntime_.GetNativeEngine();
 
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo_->hapPath,
         Extension::abilityInfo_->compileMode == AbilityRuntime::CompileMode::ES_MODULE);
@@ -69,12 +68,18 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
         return;
     }
     HILOG_INFO("JsEnterpriseAdminExtension::Init ConvertNativeValueTo.");
+    JsEnterpriseAdminExtensionContextInit();
+}
+
+void JsEnterpriseAdminExtension::JsEnterpriseAdminExtensionContextInit()
+{
     NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
         HILOG_INFO("JsEnterpriseAdminExtension Failed to get JsEnterpriseAdminExtension object");
         return;
     }
 
+    auto& engine = jsRuntime_.GetNativeEngine();
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_INFO("JsEnterpriseAdminExtension Failed to get context");

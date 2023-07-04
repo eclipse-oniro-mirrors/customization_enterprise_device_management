@@ -42,6 +42,7 @@ public:
 private:
     NativeRdb::ValuesBucket CreateValuesBucket(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo,
         const EntInfo &entInfo, AdminType role, const std::vector<std::string> &permissions);
+    void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
     void ConvertStrToJson(const std::string &str, Json::Value &json);
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;
     static std::mutex mutexLock_;

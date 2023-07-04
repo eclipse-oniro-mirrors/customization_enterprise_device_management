@@ -67,6 +67,8 @@ public:
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue** argv, size_t argc);
 
+    void JsEnterpriseAdminExtensionContextInit();
+
     void GetSrcPath(std::string& srcPath);
 
     AbilityRuntime::JsRuntime& jsRuntime_;
