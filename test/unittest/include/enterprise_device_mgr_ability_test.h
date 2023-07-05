@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include "enterprise_device_mgr_ability.h"
+#include "edm_sys_manager_mock.h"
 
 namespace OHOS {
 namespace EDM {
@@ -44,6 +45,7 @@ public:
     int GetAndSwitchPolicyManagerByUserIdTest001(void);
     int GetAndSwitchPolicyManagerByUserIdTest002(void);
 protected:
+    std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<IPlugin> plugin_;
 };

@@ -51,6 +51,7 @@ public:
 class BundleMgrService : public BundleMgrStub {
 public:
     BundleMgrService();
+    explicit BundleMgrService(const std::string &bundleNameMock);
     virtual ~BundleMgrService() {}
 
     bool QueryExtensionAbilityInfos(const Want &want, const ExtensionAbilityType &extensionType,

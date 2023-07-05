@@ -803,6 +803,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: get admin failed");
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
+    if (FAILED(CheckCallingUid(deviceAdmin->adminInfo_.packageName_))) {
+        EDMLOGW("HandleDevicePolicy: CheckCallingUid failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -838,29 +842,15 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     std::string adminName;
+    std::string getPermission = plugin->GetPermission(FuncOperateType::GET);
     // has admin
     if (data.ReadInt32() == 0) {
-        std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
-        if (!admin) {
-            EDMLOGW("GetDevicePolicy: ReadParcelable failed");
-            reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-            return ERR_EDM_PARAM_ERROR;
+        ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, adminName);
+        if (FAILED(ret)) {
+            return ret;
         }
-        std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
-        if (deviceAdmin == nullptr) {
-            EDMLOGW("GetDevicePolicy: get admin failed");
-            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
-            return EdmReturnErrCode::ADMIN_INACTIVE;
-        }
-        if (!deviceAdmin->CheckPermission(plugin->GetPermission(FuncOperateType::GET))) {
-            EDMLOGW("GetDevicePolicy: admin check permission failed %{public}s",
-                plugin->GetPermission(FuncOperateType::GET).c_str());
-            reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
-            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-        }
-        adminName = admin->GetBundleName();
     }
-    if (!VerifyCallingPermission(plugin->GetPermission(FuncOperateType::GET))) {
+    if (!getPermission.empty() && !VerifyCallingPermission(getPermission)) {
         EDMLOGW("GetDevicePolicy: VerifyCallingPermission failed");
         reply.WriteInt32(EdmReturnErrCode::PERMISSION_DENIED);
         return EdmReturnErrCode::PERMISSION_DENIED;
@@ -875,6 +865,35 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     ErrCode ret = plugin->OnGetPolicy(policyValue, data, reply, userId);
     policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
     return ret;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply,
+    const std::string &getPermission, std::string &adminName)
+{
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        EDMLOGW("GetDevicePolicy: ReadParcelable failed");
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return ERR_EDM_PARAM_ERROR;
+    }
+    std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
+    if (deviceAdmin == nullptr) {
+        EDMLOGW("GetDevicePolicy: get admin failed");
+        reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    if (FAILED(CheckCallingUid(deviceAdmin->adminInfo_.packageName_))) {
+        EDMLOGW("GetDevicePolicy: CheckCallingUid failed.");
+        reply.WriteInt32(EdmReturnErrCode::PERMISSION_DENIED);
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (!getPermission.empty() && !deviceAdmin->CheckPermission(getPermission)) {
+        EDMLOGW("GetDevicePolicy: admin check permission failed %{public}s", getPermission.c_str());
+        reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    adminName = admin->GetBundleName();
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)

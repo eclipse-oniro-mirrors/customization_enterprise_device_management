@@ -23,8 +23,10 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
+#include "bundle_manager_mock.h"
 #include "iplugin_template_test.h"
 #include "plugin_manager_test.h"
+#include "system_ability_definition.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -38,13 +40,17 @@ constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
 constexpr int32_t INVALID_POLICYCODE = 123456;
-const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
+const std::string ADMIN_PACKAGENAME = "com.edm.test.demo.ipc.suc";
+const std::string ADMIN_PACKAGENAME_FAILED = "com.edm.test.demo.ipc.fail";
 const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.ENTERPRISE_SET_DATETIME";
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
+    edmSysManager_ = std::make_shared<EdmSysManager>();
+    sptr<IRemoteObject> object = new (std::nothrow) AppExecFwk::BundleMgrService(ADMIN_PACKAGENAME);
+    edmSysManager_->RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, object);
     plugin_ = PLUGIN::ArrayMapTestPlugin::GetPlugin();
     edmMgr_ = EnterpriseDeviceMgrAbility::GetInstance();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
@@ -59,6 +65,7 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
+    edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
 
 // Give testAdmin and plugin_ Initial value
@@ -68,10 +75,35 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_MANAGE_DATETIME_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.
-        insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_FAILED;
+    adminVec.push_back(std::make_shared<Admin>(testAdmin));
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
+}
+
+/**
+ * @tc.name: HandleDevicePolicyFuncTest000
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicy function.(return ERR_OK)
+ * @tc.desc: Test whether HandleDevicePolicy runs to the end
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest000, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -147,8 +179,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest004, TestSize
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.
-        insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
@@ -173,8 +205,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest005, TestSize
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.
-        insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
     plugin_->permission_ = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
@@ -279,10 +311,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     std::string errJsonStr = "v1,v2v3??v4"; // Enter a string that cannot be parsed by JSON
     map.insert(std::pair<std::string, std::string>(ADMIN_PACKAGENAME, errJsonStr));
     map.insert(std::pair<std::string, std::string>("com.edm.test.demo2", errJsonStr));
-    edmMgr_->policyMgr_->policyAdmins_.
-        insert(std::pair<std::string, AdminValueItemsMap>("HandlePolicyJsonBiFunctionPlg", map));
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE);
+    edmMgr_->policyMgr_->policyAdmins_.insert(
+        std::pair<std::string, AdminValueItemsMap>("HandlePolicyJsonBiFunctionPlg", map));
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -392,8 +423,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest005, TestSize.Le
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.
-        insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
     plugin_->permission_ = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
@@ -424,8 +455,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
+    uint32_t code =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -435,6 +466,29 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
     Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: GetDevicePolicyFuncTest007
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicy function.
+ * @tc.desc: Test if admin != nullptr && (deviceAdmin->CheckPermission fail)
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permission_ = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
 /**
@@ -461,13 +515,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest00
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest002, TestSize.Level1)
 {
-    edmMgr_->policyMgrMap_.insert(std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(DEFAULT_USER_ID,
-        edmMgr_->policyMgr_));
+    edmMgr_->policyMgrMap_.insert(
+        std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(DEFAULT_USER_ID, edmMgr_->policyMgr_));
     PolicyManager* defaultPolcyMgr = edmMgr_->policyMgr_.get();
     std::shared_ptr<PolicyManager> guestPolicyMgr;
     guestPolicyMgr.reset(new (std::nothrow) PolicyManager(TEST_USER_ID));
-    edmMgr_->policyMgrMap_.insert(std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(TEST_USER_ID,
-        guestPolicyMgr));
+    edmMgr_->policyMgrMap_.insert(
+        std::pair<std::uint32_t, std::shared_ptr<PolicyManager>>(TEST_USER_ID, guestPolicyMgr));
     edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
     ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
     ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[TEST_USER_ID].get());
