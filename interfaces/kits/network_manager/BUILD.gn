@@ -27,7 +27,10 @@ ohos_shared_library("networkmanager") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  deps = [
+    "../../../common/native:edm_commom",
+    "../../inner_api:edmservice_kits",
+  ]
 
   external_deps = [
     "ability_base:want",

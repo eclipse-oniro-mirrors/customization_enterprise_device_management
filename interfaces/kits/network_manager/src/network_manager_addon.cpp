@@ -16,18 +16,89 @@
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "iptables_utils.h"
 #include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
 
+void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
+{
+    napi_value nAllow;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::ALLOW), &nAllow));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW", nAllow));
+    napi_value nDeny;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::DENY), &nDeny));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DENY", nDeny));
+}
+
+void NetworkManagerAddon::CreateFirewallProtocolObject(napi_env env, napi_value value)
+{
+    napi_value nAll;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Protocol::ALL), &nAll));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALL", nAll));
+    napi_value nTCP;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Protocol::TCP), &nTCP));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TCP", nTCP));
+    napi_value nUDP;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Protocol::UDP), &nUDP));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UDP", nUDP));
+    napi_value nICMP;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Protocol::ICMP), &nICMP));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ICMP", nICMP));
+}
+
+void NetworkManagerAddon::CreateFirewallDirectionObject(napi_env env, napi_value value)
+{
+    napi_value nInput;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Direction::INPUT), &nInput));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INPUT", nInput));
+    napi_value nOutput;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Direction::OUTPUT), &nOutput));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OUTPUT", nOutput));
+}
+
+void NetworkManagerAddon::CreateFirewallAddMethodObject(napi_env env, napi_value value)
+{
+    napi_value nAppend;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::AddMethod::APPEND), &nAppend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "APPEND", nAppend));
+    napi_value nInsert;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::AddMethod::INSERT), &nInsert));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INSERT", nInsert));
+}
+
 napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nFirewallAction = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFirewallAction));
+    CreateFirewallActionObject(env, nFirewallAction);
+
+    napi_value nFirewallProtocol = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFirewallProtocol));
+    CreateFirewallProtocolObject(env, nFirewallProtocol);
+
+    napi_value nFirewallDirection = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFirewallDirection));
+    CreateFirewallDirectionObject(env, nFirewallDirection);
+
+    napi_value nFirewallAddMethod = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFirewallAddMethod));
+    CreateFirewallAddMethodObject(env, nFirewallAddMethod);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getAllNetworkInterfaces", GetAllNetworkInterfaces),
         DECLARE_NAPI_FUNCTION("getIpAddress", GetIpAddress),
         DECLARE_NAPI_FUNCTION("getMac", GetMac),
         DECLARE_NAPI_FUNCTION("setNetworkInterfaceDisabled", SetNetworkInterfaceDisabled),
         DECLARE_NAPI_FUNCTION("isNetworkInterfaceDisabled", IsNetworkInterfaceDisabled),
+
+        DECLARE_NAPI_PROPERTY("Action", nFirewallAction),
+        DECLARE_NAPI_PROPERTY("Protocol", nFirewallProtocol),
+        DECLARE_NAPI_PROPERTY("Direction", nFirewallDirection),
+        DECLARE_NAPI_PROPERTY("AddMethod", nFirewallAddMethod),
+        DECLARE_NAPI_FUNCTION("addIptablesFilterRule", AddIptablesFilterRule),
+        DECLARE_NAPI_FUNCTION("removeIptablesFilterRule", RemoveIptablesFilterRule),
+        DECLARE_NAPI_FUNCTION("listIptablesFilterRules", ListIptablesFilterRules),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -263,6 +334,210 @@ void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *d
     }
     asyncCallbackInfo->ret = networkManagerProxy->IsNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
         asyncCallbackInfo->networkInterface, asyncCallbackInfo->boolRet);
+}
+
+napi_value NetworkManagerAddon::AddIptablesFilterRule(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NetworkManagerAddon::AddIptablesFilterRule called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "AddIptalbsFilterRule: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToAddFirewallObject(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->addFilter),
+        "addFilter param error");
+    if (argc > ARGS_SIZE_TWO) {
+        EDMLOGD("NAPI_AddIptalbsFilterRule argc == ARGS_SIZE_THREE");
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "AddIptablesFilterRule",
+        NativeAddIptalbsFilterRule, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+bool NetworkManagerAddon::JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &filter)
+{
+    JsObjectToUint(env, object, "ruleNo", false, filter.ruleNo);
+    JsObjectToString(env, object, "srcAddr", false, filter.srcAddr);
+    JsObjectToString(env, object, "destAddr", false, filter.destAddr);
+    JsObjectToString(env, object, "srcPort", false, filter.srcPort);
+    JsObjectToString(env, object, "destPort", false, filter.destPort);
+    JsObjectToString(env, object, "uid", false, filter.uid);
+    int32_t method = -1;
+    if (!JsObjectToInt(env, object, "method", true, method) ||
+        !IPTABLES::IptablesUtils::ProcessFirewallMethod(method, filter.method)) {
+        EDMLOGE("NAPI_AddIptalbsFilterRule JsObjToAddFirewallObject method trans failed");
+        return false;
+    }
+    int32_t direction = -1;
+    if (!JsObjectToInt(env, object, "direction", true, direction) ||
+        !IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, filter.direction)) {
+        EDMLOGE("NAPI_AddIptalbsFilterRule JsObjToAddFirewallObject direction trans failed");
+        return false;
+    }
+    int32_t action = -1;
+    if (!JsObjectToInt(env, object, "action", true, action) ||
+        !IPTABLES::IptablesUtils::ProcessFirewallAction(action, filter.action)) {
+        EDMLOGE("NAPI_AddIptalbsFilterRule JsObjToAddFirewallObject action trans failed");
+        return false;
+    }
+    int32_t protocol = -1;
+    JsObjectToInt(env, object, "protocol", false, protocol);
+    IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, filter.protocol);
+    return true;
+}
+
+void NetworkManagerAddon::NativeAddIptalbsFilterRule(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeAddIptalbsFilterRule called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddIptablesFilterRule(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->addFilter);
+}
+
+napi_value NetworkManagerAddon::RemoveIptablesFilterRule(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NetworkManagerAddon::RemoveIptablesFilterRule called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "RemoveIptablesFilterRule: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        JsObjToRemoveFirewallObject(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->removeFilter), "firewall param error");
+    if (argc > ARGS_SIZE_TWO) {
+        EDMLOGD("NAPI_RemoveIptablesFilterRule argc == ARGS_SIZE_THREE");
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "RemoveIptablesFilterRule",
+        NativeRemoveIptalbsFilterRule, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+bool NetworkManagerAddon::JsObjToRemoveFirewallObject(napi_env env, napi_value object, IPTABLES::RemoveFilter &firewall)
+{
+    JsObjectToString(env, object, "srcAddr", false, firewall.srcAddr);
+    JsObjectToString(env, object, "destAddr", false, firewall.destAddr);
+    JsObjectToString(env, object, "srcPort", false, firewall.srcPort);
+    JsObjectToString(env, object, "destPort", false, firewall.destPort);
+    JsObjectToString(env, object, "uid", false, firewall.uid);
+    int32_t direction = -1;
+    if (!JsObjectToInt(env, object, "direction", true, direction) ||
+        !IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, firewall.direction)) {
+        EDMLOGE("NAPI_removeIptalbsFilterRule JsObjToRemoveFirewallObject direction trans failed");
+        return false;
+    }
+    int32_t action = -1;
+    JsObjectToInt(env, object, "action", false, action);
+    IPTABLES::IptablesUtils::ProcessFirewallAction(action, firewall.action);
+    int32_t protocol = -1;
+    JsObjectToInt(env, object, "protocol", false, protocol);
+    IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, firewall.protocol);
+    return true;
+}
+
+void NetworkManagerAddon::NativeRemoveIptalbsFilterRule(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeDeleteIptalbsFilterRule called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    asyncCallbackInfo->ret =
+        networkManagerProxy->RemoveIptablesFilterRule(asyncCallbackInfo->elementName, asyncCallbackInfo->removeFilter);
+}
+
+napi_value NetworkManagerAddon::ListIptablesFilterRules(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    if (argc > ARGS_SIZE_ONE) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "ListIptablesFilterRules: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    if (argc > ARGS_SIZE_ONE) {
+        EDMLOGD("NAPI_ListIptablesFilterRule argc == ARGS_SIZE_TWO");
+        napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "ListIptablesFilterRules",
+        NativeListIptablesFilterRules, NativeStringCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeListIptablesFilterRule called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->ListIptablesFilterRules(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
 }
 
 static napi_module g_networkManagerModule = {

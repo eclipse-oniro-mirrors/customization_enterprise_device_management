@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
+#include "network_manager_proxy.h"
+
 #include <gtest/gtest.h>
-#include <string>
 #include <system_ability_definition.h>
+
+#include <string>
 #include <vector>
 
-#include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
-#include "network_manager_proxy.h"
+#include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -193,6 +195,102 @@ HWTEST_F(NetworkManagerProxyTest, TestSetNetworkInterfaceDisabledFail, TestSize.
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(admin, "eth0", true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddIptablesFilterRuleSuc
+ * @tc.desc: Test AddIptablesFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddIptablesFilterRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::AddFilter addFilter;
+    int32_t ret = networkManagerProxy->AddIptablesFilterRule(admin, addFilter);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddIptablesFilterRuleFail
+ * @tc.desc: Test AddIptablesFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddIptablesFilterRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::AddFilter addFilter;
+    int32_t ret = networkManagerProxy->AddIptablesFilterRule(admin, addFilter);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveIptablesFilterRuleSuc
+ * @tc.desc: Test RemoveIptablesFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveIptablesFilterRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::RemoveFilter removeFilter;
+    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(admin, removeFilter);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveIptablesFilterRuleFail
+ * @tc.desc: Test RemoveIptablesFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveIptablesFilterRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::RemoveFilter removeFilter;
+    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(admin, removeFilter);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestListIptablesFilterRulesSuc
+ * @tc.desc: Test ListIptablesFilterRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestListIptablesFilterRulesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::string result;
+    int32_t ret = networkManagerProxy->ListIptablesFilterRules(admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestListIptablesFilterRulesFail
+ * @tc.desc: Test ListIptablesFilterRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestListIptablesFilterRulesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string result;
+    int32_t ret = networkManagerProxy->ListIptablesFilterRules(admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
