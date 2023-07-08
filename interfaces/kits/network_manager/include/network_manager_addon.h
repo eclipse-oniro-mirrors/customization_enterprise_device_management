@@ -52,6 +52,7 @@ struct AsyncIptablesCallbackInfo : AsyncCallbackInfo {
 struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     OHOS::NetManagerStandard::HttpProxy httpProxy;
+    bool hasAdmin = false;
 };
 
 class NetworkManagerAddon {

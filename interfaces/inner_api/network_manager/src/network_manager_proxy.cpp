@@ -199,11 +199,6 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
     const OHOS::NetManagerStandard::HttpProxy &httpProxy)
 {
     EDMLOGD("NetworkManagerProxy::SetGlobalHttpProxy");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::GLOBAL_PROXY);
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -213,31 +208,29 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
         EDMLOGE("NetworkManagerProxy::SetGlobalHttpProxy Marshalling proxy fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = proxy->HandleDevicePolicy(funcCode, data);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
     EDMLOGI("NetworkManagerProxy::SetGlobalHttpProxy ret = %{public}d", ret);
     return ret;
 }
 
-int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
+int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *admin,
     OHOS::NetManagerStandard::HttpProxy &httpProxy)
 {
     EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxy");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    if (!admin.GetBundleName().empty()) {
+    if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
-        data.WriteParcelable(&admin);
+        data.WriteParcelable(admin);
     } else {
+        if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
+            return ERR_OK;
+        }
         data.WriteInt32(WITHOUT_ADMIN);
     }
-    proxy->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

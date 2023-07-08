@@ -65,11 +65,6 @@ int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, 
     std::string &alias, std::string &result, std::string &innerCodeMsg)
 {
     EDMLOGD("DeviceSettingsProxy::InstallCertificate");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
@@ -79,7 +74,7 @@ int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, 
     data.WriteParcelable(&admin);
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
-    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     EDMLOGI("DeviceSettingsProxy::InstallCertificate : %{public}d.", ret);
     if (ret == ERR_OK) {
         result = reply.ReadString();
@@ -94,12 +89,7 @@ int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, 
 int32_t DeviceSettingsProxy::UninstallCertificate(AppExecFwk::ElementName &admin, std::string &alias,
     std::string &innerCodeMsg)
 {
-    EDMLOGD("DeviceSettingsProxy::InstallCertificate");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    EDMLOGD("DeviceSettingsProxy::UninstallCertificate");
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
@@ -108,7 +98,7 @@ int32_t DeviceSettingsProxy::UninstallCertificate(AppExecFwk::ElementName &admin
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(alias);
-    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
         int32_t netCode = ERR_INVALID_VALUE;
         reply.ReadInt32(netCode);

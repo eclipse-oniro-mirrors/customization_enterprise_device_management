@@ -347,7 +347,7 @@ HWTEST_F(NetworkManagerProxyTest, TestGetGlobalHttpProxySuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeHttpProxySendRequestGetPolicy));
     NetManagerStandard::HttpProxy httpProxy;
-    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(admin, httpProxy);
+    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(&admin, httpProxy);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -362,7 +362,7 @@ HWTEST_F(NetworkManagerProxyTest, TestGetGlobalHttpProxyFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     NetManagerStandard::HttpProxy httpProxy;
-    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(admin, httpProxy);
+    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(&admin, httpProxy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

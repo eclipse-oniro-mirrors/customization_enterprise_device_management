@@ -489,7 +489,7 @@ bool NetworkManagerAddon::JsObjToRemoveFirewallObject(napi_env env, napi_value o
 
 void NetworkManagerAddon::NativeRemoveIptalbsFilterRule(napi_env env, void *data)
 {
-    EDMLOGI("NAPI_NativeDeleteIptalbsFilterRule called");
+    EDMLOGI("NAPI_NativeRemoveIptalbsFilterRule called");
     if (data == nullptr) {
         EDMLOGE("data is nullptr");
         return;
@@ -674,21 +674,24 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_i
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    bool isNull = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin || isNull, "parameter admin error");
-
-    if (argc > ARGS_SIZE_ONE) {
-        bool hasCallback = MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "parameter callback error");
-    }
-
     auto asyncCallbackInfo = new (std::nothrow) AsyncHttpProxyCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncHttpProxyCallbackInfo> callbackPtr{asyncCallbackInfo};
-    if (hasAdmin) {
+    bool matchValue = false;
+    if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null)) {
+        asyncCallbackInfo->hasAdmin = false;
+        matchValue = true;
+    } else if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        asyncCallbackInfo->hasAdmin = true;
+        matchValue = true;
+    }
+    if (argc > ARGS_SIZE_ONE) {
+        matchValue = matchValue && MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchValue, "parameter type error");
+    if (asyncCallbackInfo->hasAdmin) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
             "element name param error");
         EDMLOGD(
@@ -697,7 +700,6 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_i
             asyncCallbackInfo->elementName.GetBundleName().c_str(),
             asyncCallbackInfo->elementName.GetAbilityName().c_str());
     }
-
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_GetGlobalHttpProxy argc == ARGS_SIZE_TWO");
         napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
@@ -721,8 +723,12 @@ void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret =
-        networkManagerProxy->GetGlobalHttpProxy(asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+    if (asyncCallbackInfo->hasAdmin) {
+        asyncCallbackInfo->ret =
+            networkManagerProxy->GetGlobalHttpProxy(&asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+    } else {
+        asyncCallbackInfo->ret = networkManagerProxy->GetGlobalHttpProxy(nullptr, asyncCallbackInfo->httpProxy);
+    }
 }
 
 void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_status status, void *data)
