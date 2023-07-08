@@ -14,8 +14,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "gmock/gmock.h"
 #include "bundle_manager_mock.h"
+#include "gmock/gmock.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -103,6 +103,12 @@ int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessagePa
 BundleMgrService::BundleMgrService()
 {
     GTEST_LOG_(INFO) << "mock BundleMgrService constructor";
+}
+
+BundleMgrService::BundleMgrService(const std::string &bundleNameMock)
+{
+    bundleNameMock_ = bundleNameMock;
+    GTEST_LOG_(INFO) << "mock BundleMgrService constructor with bundleNameMock";
 }
 
 bool BundleMgrService::QueryExtensionAbilityInfos(const Want &want, const ExtensionAbilityType &extensionType,

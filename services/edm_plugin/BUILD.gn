@@ -167,3 +167,11 @@ edm_plugin_shared_library("restrictions_plugin") {
     "init:libbegetutil",
   ]
 }
+
+edm_plugin_shared_library("browser_plugin") {
+  sources = [ "./src/set_browser_policies_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [ "c_utils:utils" ]
+}

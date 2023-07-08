@@ -27,6 +27,9 @@ PermissionManager::~PermissionManager()
 
 ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin::PermissionType permissionType)
 {
+    if (permission.empty()) {
+        return ERR_OK;
+    }
     if (static_cast<std::int32_t>(permissionType) <
         static_cast<std::int32_t>(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN) ||
         static_cast<std::int32_t>(permissionType) >= static_cast<std::int32_t>(IPlugin::PermissionType::UNKNOWN)) {

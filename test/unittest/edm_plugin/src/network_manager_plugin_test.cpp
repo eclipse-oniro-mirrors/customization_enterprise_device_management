@@ -21,7 +21,6 @@
 #include "get_mac_plugin.h"
 #include "iplugin_manager.h"
 #include "iplugin_template.h"
-#include "map_string_serializer.h"
 #include "utils.h"
 
 using namespace testing::ext;

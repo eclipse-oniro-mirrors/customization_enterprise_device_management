@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <system_ability_definition.h>
-#include <vector>
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"

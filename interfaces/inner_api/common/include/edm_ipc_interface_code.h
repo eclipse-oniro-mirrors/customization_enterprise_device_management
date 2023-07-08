@@ -55,6 +55,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLED_PRINTER = 1021,
     DISABLED_HDC = 1022,
     IPTABLES_RULE = 1023,
+    SET_BROWSER_POLICIES = 1024,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
