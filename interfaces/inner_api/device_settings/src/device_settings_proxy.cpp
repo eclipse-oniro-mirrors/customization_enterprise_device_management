@@ -60,5 +60,61 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, in
     reply.ReadInt32(value);
     return ERR_OK;
 }
+
+int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray,
+    std::string &alias, std::string &result, std::string &innerCodeMsg)
+{
+    EDMLOGD("DeviceSettingsProxy::InstallCertificate");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteUInt8Vector(certArray);
+    data.WriteString(alias);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    EDMLOGI("DeviceSettingsProxy::InstallCertificate : %{public}d.", ret);
+    if (ret == ERR_OK) {
+        result = reply.ReadString();
+    } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
+        int32_t netCode = ERR_INVALID_VALUE;
+        reply.ReadInt32(netCode);
+        innerCodeMsg = std::to_string(netCode);
+    }
+    return ret;
+}
+
+int32_t DeviceSettingsProxy::UninstallCertificate(AppExecFwk::ElementName &admin, std::string &alias,
+    std::string &innerCodeMsg)
+{
+    EDMLOGD("DeviceSettingsProxy::InstallCertificate");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::INSTALL_CERTIFICATE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(alias);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
+        int32_t netCode = ERR_INVALID_VALUE;
+        reply.ReadInt32(netCode);
+        innerCodeMsg = std::to_string(netCode);
+    }
+    return ret;
+}
 } // namespace EDM
 } // namespace OHOS

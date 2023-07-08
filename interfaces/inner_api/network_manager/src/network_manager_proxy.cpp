@@ -188,10 +188,66 @@ int32_t NetworkManagerProxy::ListIptablesFilterRules(const AppExecFwk::ElementNa
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
     reply.ReadString(result);
+    return ERR_OK;
+}
+
+int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
+    const OHOS::NetManagerStandard::HttpProxy &httpProxy)
+{
+    EDMLOGD("NetworkManagerProxy::SetGlobalHttpProxy");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::GLOBAL_PROXY);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    if (!httpProxy.Marshalling(data)) {
+        EDMLOGE("NetworkManagerProxy::SetGlobalHttpProxy Marshalling proxy fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ret = proxy->HandleDevicePolicy(funcCode, data);
+    EDMLOGI("NetworkManagerProxy::SetGlobalHttpProxy ret = %{public}d", ret);
+    return ret;
+}
+
+int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
+    OHOS::NetManagerStandard::HttpProxy &httpProxy)
+{
+    EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxy");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    if (!admin.GetBundleName().empty()) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(&admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    proxy->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("GetGlobalHttpProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!OHOS::NetManagerStandard::HttpProxy::Unmarshalling(reply, httpProxy)) {
+        EDMLOGE("NetworkManagerProxy::GetGlobalHttpProxy Unmarshalling proxy fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 } // namespace EDM

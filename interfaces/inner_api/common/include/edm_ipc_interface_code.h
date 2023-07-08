@@ -56,6 +56,9 @@ enum EdmInterfaceCode : uint32_t {
     DISABLED_HDC = 1022,
     IPTABLES_RULE = 1023,
     SET_BROWSER_POLICIES = 1024,
+    GLOBAL_PROXY = 1025,
+    USB_READ_ONLY = 1026,
+    INSTALL_CERTIFICATE = 1027,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

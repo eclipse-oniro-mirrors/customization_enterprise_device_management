@@ -37,6 +37,7 @@ struct AsyncCallbackInfo {
     uint32_t errCode = 0;
     std::string errMessage;
     int policyCode = 0;
+    std::string innerCodeMsg;
 
     virtual ~AsyncCallbackInfo() {};
 };
@@ -91,6 +92,7 @@ void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, bool &hasCallback, bool &hasUserId);
+bool ConvertUint8ArrayToVector(napi_env env, napi_value in, std::vector<uint8_t> &out);
 } // namespace EDM
 } // namespace OHOS
 

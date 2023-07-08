@@ -21,6 +21,10 @@
 
 using namespace OHOS::EDM;
 
+const char *const HOST_PROP_NAME = "host";
+const char *const PORT_PROP_NAME = "port";
+const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
+
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
     napi_value nAllow;
@@ -99,6 +103,9 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addIptablesFilterRule", AddIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("removeIptablesFilterRule", RemoveIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("listIptablesFilterRules", ListIptablesFilterRules),
+
+        DECLARE_NAPI_FUNCTION("setGlobalProxy", SetGlobalHttpProxy),
+        DECLARE_NAPI_FUNCTION("getGlobalProxy", GetGlobalHttpProxy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -538,6 +545,219 @@ void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data
     AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
     asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->ListIptablesFilterRules(
         asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+}
+
+napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "parameter admin error");
+
+    bool isHttpProxy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, isHttpProxy, "parameter http proxy error");
+
+    if (argc > ARGS_SIZE_TWO) {
+        bool hasCallback = MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
+        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "parameter callback error");
+    }
+
+    auto asyncCallbackInfo = new (std::nothrow) AsyncHttpProxyCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncHttpProxyCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter element name error");
+    bool parseRet = ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], asyncCallbackInfo);
+    ASSERT_AND_THROW_PARAM_ERROR(env, parseRet, "ParseHttpProxyParam error");
+    if (argc > ARGS_SIZE_TWO) {
+        EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "setGlobalProxy", NativeSetGlobalHttpProxy, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, AsyncHttpProxyCallbackInfo *callbackInfo)
+{
+    napi_value hostValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, HOST_PROP_NAME, &hostValue), false);
+    std::string host;
+    if (!ParseString(env, host, hostValue)) {
+        EDMLOGE("error host value");
+        return false;
+    }
+
+    napi_value portValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, PORT_PROP_NAME, &portValue), false);
+    std::int32_t port = 0;
+    if (!ParseInt(env, port, portValue)) {
+        EDMLOGE("error port value");
+        return false;
+    }
+
+    napi_value exclusionListValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, EXCLUSION_LIST_PROP_NAME, &exclusionListValue), false);
+    std::vector<std::string> exclusionList;
+    if (!ParseStringArray(env, exclusionList, exclusionListValue)) {
+        EDMLOGE("error exclusionList value");
+        return false;
+    }
+
+    callbackInfo->httpProxy.SetHost(host.c_str());
+    callbackInfo->httpProxy.SetPort(port);
+    std::list<std::string> dataList;
+    for (const auto &item : exclusionList) {
+        dataList.emplace_back(item);
+    }
+    callbackInfo->httpProxy.SetExclusionList(dataList);
+    return true;
+}
+
+void NetworkManagerAddon::NativeSetGlobalHttpProxy(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeSetGlobalHttpProxycalled");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret =
+        networkManagerProxy->SetGlobalHttpProxy(asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+}
+
+napi_value NetworkManagerAddon::ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy)
+{
+    napi_value proxy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &proxy));
+    napi_value host = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, httpProxy.GetHost().c_str(), httpProxy.GetHost().length(), &host));
+    napi_value port = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, httpProxy.GetPort(), &port));
+    napi_value list = nullptr;
+    if (httpProxy.GetExclusionList().empty()) {
+        NAPI_CALL(env, napi_create_array(env, &list));
+    } else {
+        std::list<std::string> tempList = httpProxy.GetExclusionList();
+        NAPI_CALL(env, napi_create_array_with_length(env, tempList.size(), &list));
+        size_t index = 0;
+        for (const auto &item : tempList) {
+            napi_value ip = nullptr;
+            NAPI_CALL(env, napi_create_string_utf8(env, item.c_str(), item.length(), &ip));
+            NAPI_CALL(env, napi_set_element(env, list, index++, ip));
+        }
+    }
+    NAPI_CALL(env, napi_set_named_property(env, proxy, HOST_PROP_NAME, host));
+    NAPI_CALL(env, napi_set_named_property(env, proxy, PORT_PROP_NAME, port));
+    NAPI_CALL(env, napi_set_named_property(env, proxy, EXCLUSION_LIST_PROP_NAME, list));
+    return proxy;
+}
+
+napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    bool isNull = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin || isNull, "parameter admin error");
+
+    if (argc > ARGS_SIZE_ONE) {
+        bool hasCallback = MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
+        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "parameter callback error");
+    }
+
+    auto asyncCallbackInfo = new (std::nothrow) AsyncHttpProxyCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncHttpProxyCallbackInfo> callbackPtr{asyncCallbackInfo};
+    if (hasAdmin) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+            "element name param error");
+        EDMLOGD(
+            "GetGlobalHttpProxy: asyncCallbackInfo->elementName.bundlename %{public}s, "
+            "asyncCallbackInfo->abilityname:%{public}s",
+            asyncCallbackInfo->elementName.GetBundleName().c_str(),
+            asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    }
+
+    if (argc > ARGS_SIZE_ONE) {
+        EDMLOGD("NAPI_GetGlobalHttpProxy argc == ARGS_SIZE_TWO");
+        napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetGlobalHttpProxy",
+        NativeGetGlobalHttpProxy, NativeHttpProxyCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetGlobalHttpProxy called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret =
+        networkManagerProxy->GetGlobalHttpProxy(asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+}
+
+void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    EDMLOGD("NativeHttpProxyCallbackComplete start");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value jsHttpProxy = ConvertHttpProxyToJS(env, asyncCallbackInfo->httpProxy);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, jsHttpProxy);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    } else {
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
+            callbackValue[ARR_INDEX_ONE] = ConvertHttpProxyToJS(env, asyncCallbackInfo->httpProxy);
+        } else {
+            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
+        }
+        napi_value callback = nullptr;
+        napi_value result = nullptr;
+        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
+        napi_delete_reference(env, asyncCallbackInfo->callback);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
 }
 
 static napi_module g_networkManagerModule = {

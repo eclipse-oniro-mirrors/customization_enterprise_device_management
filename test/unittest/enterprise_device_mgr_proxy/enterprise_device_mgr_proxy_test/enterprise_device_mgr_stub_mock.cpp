@@ -15,6 +15,8 @@
 
 #include "enterprise_device_mgr_stub_mock.h"
 
+#include "http_proxy.h"
+
 namespace OHOS {
 namespace EDM {
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
@@ -28,8 +30,8 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t cod
     return 0;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestEnableAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestEnableAdmin code :" << code;
     code_ = code;
@@ -54,8 +56,8 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestMapEnableAdminTwoSuc(uint32_t 
     return 0;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
     code_ = code;
@@ -63,8 +65,8 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy(uint32_t code, Messa
     return 0;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
     code_ = code;
@@ -83,8 +85,8 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     return 0;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIntSendRequestGetPolicy code :" << code;
     code_ = code;
@@ -100,18 +102,29 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy(uint32_t 
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
-    reply.WriteStringVector(std::vector<std::string>{ RETURN_STRING });
+    reply.WriteStringVector(std::vector<std::string>{RETURN_STRING});
     return 0;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
     code_ = code;
     reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
     reply.WriteString(RETURN_STRING);
     return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeHttpProxySendRequestGetPolicy code :" << code;
+    code_ = code;
+    OHOS::NetManagerStandard::HttpProxy httpProxy;
+    reply.WriteInt32(ERR_OK);
+    httpProxy.Marshalling(reply);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

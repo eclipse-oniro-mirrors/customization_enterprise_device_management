@@ -19,10 +19,10 @@
 #include "edm_log.h"
 #include "js_native_api.h"
 #include "js_native_api_types.h"
-#include "napi_edm_error.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "napi_edm_error.h"
 
 namespace OHOS {
 namespace EDM {
@@ -59,8 +59,8 @@ bool ParseElementName(napi_env env, AppExecFwk::ElementName &elementName, napi_v
 bool ParseLong(napi_env env, int64_t &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
-    if (napi_typeof(env, args, &valueType)!= napi_ok ||
-        valueType != napi_number || napi_get_value_int64(env, args, &param) != napi_ok) {
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_number ||
+        napi_get_value_int64(env, args, &param) != napi_ok) {
         EDMLOGE("Wrong argument type. int64 expected.");
         return false;
     }
@@ -70,8 +70,8 @@ bool ParseLong(napi_env env, int64_t &param, napi_value args)
 bool ParseInt(napi_env env, int32_t &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
-    if (napi_typeof(env, args, &valueType)!= napi_ok ||
-        valueType != napi_number || napi_get_value_int32(env, args, &param) != napi_ok) {
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_number ||
+        napi_get_value_int32(env, args, &param) != napi_ok) {
         EDMLOGE("Wrong argument type. int32 expected.");
         return false;
     }
@@ -81,8 +81,8 @@ bool ParseInt(napi_env env, int32_t &param, napi_value args)
 bool ParseCallback(napi_env env, napi_ref &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
-    if (napi_typeof(env, args, &valueType) != napi_ok ||
-        valueType != napi_function || napi_create_reference(env, args, NAPI_RETURN_ONE, &param) != napi_ok) {
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_function ||
+        napi_create_reference(env, args, NAPI_RETURN_ONE, &param) != napi_ok) {
         EDMLOGE("Wrong argument type. napi_function expected.");
         return false;
     }
@@ -92,8 +92,8 @@ bool ParseCallback(napi_env env, napi_ref &param, napi_value args)
 bool ParseUint(napi_env env, uint32_t &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
-    if (napi_typeof(env, args, &valueType)!= napi_ok ||
-        valueType != napi_number || napi_get_value_uint32(env, args, &param) != napi_ok) {
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_number ||
+        napi_get_value_uint32(env, args, &param) != napi_ok) {
         EDMLOGE("Wrong argument type. uint32 expected.");
         return false;
     }
@@ -103,8 +103,8 @@ bool ParseUint(napi_env env, uint32_t &param, napi_value args)
 bool ParseBool(napi_env env, bool &param, napi_value args)
 {
     napi_valuetype valueType = napi_undefined;
-    if (napi_typeof(env, args, &valueType)!= napi_ok ||
-        valueType != napi_boolean || napi_get_value_bool(env, args, &param) != napi_ok) {
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_boolean ||
+        napi_get_value_bool(env, args, &param) != napi_ok) {
         EDMLOGE("Wrong argument type. bool expected.");
         return false;
     }
@@ -267,8 +267,8 @@ bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, boo
     return true;
 }
 
-bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength,
-    bool isNecessaryProp, char *result)
+bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength, bool isNecessaryProp,
+    char *result)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
@@ -327,7 +327,7 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
         return false;
     }
     certVector.clear();
-    certVector.assign(static_cast<uint8_t*>(data), (static_cast<uint8_t*>(data) + length));
+    certVector.assign(static_cast<uint8_t *>(data), (static_cast<uint8_t *>(data) + length));
     return true;
 }
 
@@ -345,13 +345,22 @@ void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
             napi_get_null(env, &error);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, error);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
+            }
         }
     } else {
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &error);
         } else {
-            error = CreateError(env, asyncCallbackInfo->ret);
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                error = CreateError(env, asyncCallbackInfo->ret);
+            } else {
+                error = CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg);
+            }
         }
         napi_value callback = nullptr;
         napi_value result = nullptr;
@@ -376,8 +385,8 @@ napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::
     napi_get_undefined(env, &resource);
     napi_value resourceName = nullptr;
     napi_create_string_utf8(env, workName.data(), NAPI_AUTO_LENGTH, &resourceName);
-    napi_create_async_work(env, resource, resourceName, execute, complete,
-        static_cast<void *>(context), &context->asyncWork);
+    napi_create_async_work(env, resource, resourceName, execute, complete, static_cast<void *>(context),
+        &context->asyncWork);
     napi_queue_async_work(env, context->asyncWork);
     return result;
 }
@@ -400,7 +409,7 @@ void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data)
             napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
         }
     } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
             EDMLOGD("asyncCallbackInfo->boolRet = %{public}d", asyncCallbackInfo->boolRet);
@@ -440,7 +449,7 @@ void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data)
             napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
         }
     } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
             EDMLOGD("asyncCallbackInfo->intRet = %{public}d", asyncCallbackInfo->intRet);
@@ -477,10 +486,15 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data)
             napi_create_string_utf8(env, asyncCallbackInfo->stringRet.c_str(), NAPI_AUTO_LENGTH, &result);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
+            }
         }
     } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
             EDMLOGD("asyncCallbackInfo->stringRet = %{public}s", asyncCallbackInfo->stringRet.c_str());
@@ -490,7 +504,12 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data)
             EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
                 GetMessageFromReturncode(asyncCallbackInfo->ret).first,
                 GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
-            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            } else {
+                callbackValue[ARR_INDEX_ZERO] =
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg);
+            }
             napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
         }
         napi_value callback = nullptr;
@@ -521,7 +540,7 @@ void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *d
             napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
         }
     } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = { 0 };
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
             napi_create_array(env, &callbackValue[ARGS_SIZE_ONE]);
@@ -555,8 +574,7 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
     }
 }
 
-bool CheckAdminWithUserIdParamType(napi_env env, size_t argc,
-    napi_value* argv, bool &hasCallback, bool &hasUserId)
+bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId)
 {
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
         EDMLOGE("CheckAdminWithUserIdParamType admin type check failed");
@@ -588,6 +606,31 @@ bool CheckAdminWithUserIdParamType(napi_env env, size_t argc,
     EDMLOGI("hasCallback = true; hasUserId = true;");
     return MatchValueType(env, argv[ARR_INDEX_ONE], napi_number) &&
         MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
+}
+
+bool ConvertUint8ArrayToVector(napi_env env, napi_value in, std::vector<uint8_t> &out)
+{
+    out.clear();
+    napi_typedarray_type type = napi_biguint64_array;
+    size_t length = 0;
+    napi_value buffer = nullptr;
+    size_t offset = 0;
+    void *data = nullptr;
+    napi_status status = napi_get_typedarray_info(env, in, &type, &length, &data, &buffer, &offset);
+    if (status != napi_ok || type != napi_uint8_array) {
+        EDMLOGE("ConvertUint8ArrayToVector type or status error");
+        return false;
+    }
+    if (length < 0 || length > NAPI_MAX_DATA_LEN) {
+        EDMLOGE("ConvertUint8ArrayToVector length error %{public}d", length);
+        return false;
+    }
+    if (data == nullptr) {
+        EDMLOGE("ConvertUint8ArrayToVector data error");
+        return false;
+    }
+    out.assign((uint8_t *)data, ((uint8_t *)data) + length);
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
-#define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#ifndef INTERFACES_INNER_API_USB_MANAGER_INCLUDE_USB_MANAGER_PROXY_H
+#define INTERFACES_INNER_API_USB_MANAGER_INCLUDE_USB_MANAGER_PROXY_H
+
 #include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
 namespace EDM {
-class DeviceSettingsProxy {
+class UsbManagerProxy {
 public:
-    static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
-    int32_t GetScreenOffTime(AppExecFwk::ElementName &admin, int32_t &value);
-    int32_t InstallCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray, std::string &alias,
-        std::string &result, std::string &innerCodeMsg);
-    int32_t UninstallCertificate(AppExecFwk::ElementName &admin, std::string &certUri, std::string &innerCodeMsg);
+    UsbManagerProxy() = default;
+    ~UsbManagerProxy() = default;
+    static std::shared_ptr<UsbManagerProxy> GetUsbManagerProxy();
+    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
+    int32_t SetUsbReadOnly(const AppExecFwk::ElementName &admin, bool readOnly);
 
 private:
-    static std::shared_ptr<DeviceSettingsProxy> instance_;
+    static std::shared_ptr<UsbManagerProxy> instance_;
     static std::mutex mutexLock_;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
+#endif // INTERFACES_INNER_API_USB_MANAGER_INCLUDE_USB_MANAGER_PROXY_H

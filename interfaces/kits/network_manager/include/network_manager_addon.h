@@ -49,6 +49,11 @@ struct AsyncIptablesCallbackInfo : AsyncCallbackInfo {
     IPTABLES::RemoveFilter removeFilter;
 };
 
+struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    OHOS::NetManagerStandard::HttpProxy httpProxy;
+};
+
 class NetworkManagerAddon {
 public:
     NetworkManagerAddon() = default;
@@ -79,6 +84,15 @@ private:
     static void CreateFirewallAddMethodObject(napi_env env, napi_value value);
     static bool JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &addFilter);
     static bool JsObjToRemoveFirewallObject(napi_env env, napi_value object, IPTABLES::RemoveFilter &removeFilter);
+
+    static napi_value SetGlobalHttpProxy(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxy(napi_env env, napi_callback_info info);
+    static bool ParseHttpProxyParam(napi_env env, napi_value argv,
+        AsyncHttpProxyCallbackInfo *asyncHttpProxyCallbackInfo);
+    static napi_value ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy);
+    static void NativeSetGlobalHttpProxy(napi_env env, void *data);
+    static void NativeGetGlobalHttpProxy(napi_env env, void *data);
+    static void NativeHttpProxyCallbackComplete(napi_env env, napi_status status, void *data);
 };
 } // namespace EDM
 } // namespace OHOS

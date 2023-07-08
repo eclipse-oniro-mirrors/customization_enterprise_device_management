@@ -25,6 +25,7 @@ namespace OHOS {
 namespace EDM {
     napi_value CreateError(napi_env env, ErrCode errorCode);
     napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage);
+    napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage);
     std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
     #define ASSERT_AND_THROW_PARAM_ERROR(env, assertion, message)               \
     do {                                                                       \

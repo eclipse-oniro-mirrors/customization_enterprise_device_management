@@ -18,8 +18,10 @@
 
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
+
 #include <map>
 #include <vector>
+
 #include "ienterprise_device_mgr.h"
 #include "string_ex.h"
 
@@ -43,13 +45,13 @@ public:
         return 0;
     }
 
-    int InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
-        MessageParcel &reply, MessageOption &option);
+    int InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeSendRequestEnableAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
-    int InvokeSendRequestMapEnableAdminTwoSuc(uint32_t code, MessageParcel &data,
-        MessageParcel &reply, MessageOption &option);
+    int InvokeSendRequestMapEnableAdminTwoSuc(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeSendRequestSetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
@@ -60,6 +62,9 @@ public:
     int InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int InvokeArrayStringSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     int InvokeSendRequestParamError(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
@@ -84,15 +89,9 @@ public:
         return 0;
     }
 
-    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override
-    {
-        return 0;
-    }
+    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override { return 0; }
 
-    ErrCode DisableSuperAdmin(std::string &bundleName) override
-    {
-        return 0;
-    }
+    ErrCode DisableSuperAdmin(std::string &bundleName) override { return 0; }
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override
@@ -100,26 +99,16 @@ public:
         return 0;
     }
 
-    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) override
+    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override
     {
         return 0;
     }
 
-    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override
-    {
-        return 0;
-    }
+    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override { return 0; }
 
-    ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override
-    {
-        return 0;
-    }
+    ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override { return 0; }
 
-    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override
-    {
-        return 0;
-    }
+    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override { return 0; }
 
     ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override
     {
@@ -131,15 +120,9 @@ public:
         return 0;
     }
 
-    bool IsSuperAdmin(std::string &bundleName) override
-    {
-        return false;
-    }
+    bool IsSuperAdmin(std::string &bundleName) override { return false; }
 
-    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override
-    {
-        return false;
-    }
+    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override { return false; }
 
     uint32_t code_ = 0;
 };

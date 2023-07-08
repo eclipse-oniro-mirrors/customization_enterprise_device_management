@@ -18,11 +18,11 @@
 
 #include "device_settings_proxy.h"
 #include "edm_errors.h"
-#include "napi_edm_error.h"
-#include "napi_edm_common.h"
+#include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "napi/native_api.h"
+#include "napi_edm_common.h"
+#include "napi_edm_error.h"
 #include "want.h"
 
 namespace OHOS {
@@ -31,15 +31,28 @@ struct AsyncDeviceSettingsCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
 };
 
+struct AsyncCertCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::vector<uint8_t> certArray;
+    std::string alias;
+};
+
 class DeviceSettingsAddon {
 public:
     DeviceSettingsAddon();
     ~DeviceSettingsAddon() = default;
 
     static napi_value Init(napi_env env, napi_value exports);
+
 private:
     static napi_value GetScreenOffTime(napi_env env, napi_callback_info info);
     static void NativeGetScreenOffTime(napi_env env, void *data);
+
+    static napi_value InstallUserCertificate(napi_env env, napi_callback_info info);
+    static napi_value UninstallUserCertificate(napi_env env, napi_callback_info info);
+    static void NativeInstallCertificate(napi_env env, void *data);
+    static void NativeUninstallCertificate(napi_env env, void *data);
+    static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
 };
 } // namespace EDM
 } // namespace OHOS
