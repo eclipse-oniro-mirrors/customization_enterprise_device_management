@@ -48,6 +48,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   subsystem_name = "customization"
@@ -65,7 +66,10 @@ ohos_shared_library("enterprise_admin_extension_module") {
   ]
   deps = [ ":enterprise_admin_extension" ]
 
-  external_deps = [ "ability_runtime:abilitykit_native" ]
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "napi:ace_napi",
+  ]
 
   relative_install_dir = "extensionability/"
   subsystem_name = "customization"
