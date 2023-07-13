@@ -28,7 +28,6 @@ void SetBrowserPoliciesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<SetBrowserPoliciesPlugin, std::map<std::string, std::string>>> ptr)
 {
     EDMLOGD("SetBrowserPoliciesPlugin InitPlugin.");
-    std::string policyName;
     ptr->InitAttribute(EdmInterfaceCode::SET_BROWSER_POLICIES, "set_browser_policies", true);
     ptr->InitPermission(FuncOperateType::SET, "ohos.permission.ENTERPRISE_SET_BROWSER_POLICY",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);

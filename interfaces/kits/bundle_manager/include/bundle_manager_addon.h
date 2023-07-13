@@ -73,8 +73,8 @@ private:
     static void NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data);
     static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc,
         napi_value *argv, bool &hasCallback, bool &hasUserId);
-    static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value* argv,
-        AsyncUninstallCallbackInfo *context);
+    static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
+        AsyncUninstallCallbackInfo *asyncCallbackInfo);
 };
 } // namespace EDM
 } // namespace OHOS
