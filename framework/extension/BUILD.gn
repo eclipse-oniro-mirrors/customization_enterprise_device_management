@@ -46,6 +46,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
     "c_utils:utils",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
