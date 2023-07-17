@@ -96,17 +96,14 @@ void UsbManagerAddon::NativeSetUsbPolicy(napi_env env, void *data)
         return;
     }
     AsyncSetUsbPolicyCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetUsbPolicyCallbackInfo *>(data);
-    auto proxy = UsbManagerProxy::GetUsbManagerProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get UsbManagerProxy");
-        return;
-    }
     switch (asyncCallbackInfo->policy) {
         case READ_WRITE:
-            asyncCallbackInfo->ret = proxy->SetUsbReadOnly(asyncCallbackInfo->elementName, false);
+            asyncCallbackInfo->ret =
+                UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, false);
             break;
         case READ_ONLY:
-            asyncCallbackInfo->ret = proxy->SetUsbReadOnly(asyncCallbackInfo->elementName, true);
+            asyncCallbackInfo->ret =
+                UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, true);
             break;
         default:
             asyncCallbackInfo->ret = EdmReturnErrCode::PARAM_ERROR;

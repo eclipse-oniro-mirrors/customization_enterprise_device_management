@@ -50,8 +50,8 @@ private:
 
     static napi_value InstallUserCertificate(napi_env env, napi_callback_info info);
     static napi_value UninstallUserCertificate(napi_env env, napi_callback_info info);
-    static void NativeInstallCertificate(napi_env env, void *data);
-    static void NativeUninstallCertificate(napi_env env, void *data);
+    static void NativeInstallUserCertificate(napi_env env, void *data);
+    static void NativeUninstallUserCertificate(napi_env env, void *data);
     static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
 };
 } // namespace EDM

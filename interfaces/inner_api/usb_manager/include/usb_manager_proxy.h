@@ -22,10 +22,7 @@ namespace OHOS {
 namespace EDM {
 class UsbManagerProxy {
 public:
-    UsbManagerProxy() = default;
-    ~UsbManagerProxy() = default;
     static std::shared_ptr<UsbManagerProxy> GetUsbManagerProxy();
-    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
     int32_t SetUsbReadOnly(const AppExecFwk::ElementName &admin, bool readOnly);
 
 private:

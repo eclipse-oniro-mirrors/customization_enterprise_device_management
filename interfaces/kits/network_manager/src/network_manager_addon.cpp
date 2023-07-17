@@ -630,13 +630,8 @@ void NetworkManagerAddon::NativeSetGlobalHttpProxy(napi_env env, void *data)
         return;
     }
     AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
-    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy == nullptr) {
-        EDMLOGE("can not get GetNetworkManagerProxy");
-        return;
-    }
-    asyncCallbackInfo->ret =
-        networkManagerProxy->SetGlobalHttpProxy(asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+    asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetGlobalHttpProxy(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
 }
 
 napi_value NetworkManagerAddon::ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy)
@@ -718,16 +713,13 @@ void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
         return;
     }
     AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
-    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
-    if (networkManagerProxy == nullptr) {
-        EDMLOGE("can not get GetNetworkManagerProxy");
-        return;
-    }
+
     if (asyncCallbackInfo->hasAdmin) {
-        asyncCallbackInfo->ret =
-            networkManagerProxy->GetGlobalHttpProxy(&asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+        asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetGlobalHttpProxy(
+            &asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
     } else {
-        asyncCallbackInfo->ret = networkManagerProxy->GetGlobalHttpProxy(nullptr, asyncCallbackInfo->httpProxy);
+        asyncCallbackInfo->ret =
+            NetworkManagerProxy::GetNetworkManagerProxy()->GetGlobalHttpProxy(nullptr, asyncCallbackInfo->httpProxy);
     }
 }
 

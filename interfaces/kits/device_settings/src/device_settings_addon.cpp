@@ -83,7 +83,7 @@ void DeviceSettingsAddon::NativeGetScreenOffTime(napi_env env, void *data)
 
 napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_InstallCertificate called");
+    EDMLOGI("NAPI_InstallUserCertificate called");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -106,7 +106,7 @@ napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callba
     bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
     EDMLOGD(
-        "InstallCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "InstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -117,32 +117,28 @@ napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callba
     if (argc > ARGS_SIZE_TWO) {
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallCertificate", NativeInstallCertificate,
-        NativeStringCallbackComplete);
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallUserCertificate",
+        NativeInstallUserCertificate, NativeStringCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
 
-void DeviceSettingsAddon::NativeInstallCertificate(napi_env env, void *data)
+void DeviceSettingsAddon::NativeInstallUserCertificate(napi_env env, void *data)
 {
-    EDMLOGI("NAPI_NativeInstallCertificate called");
+    EDMLOGI("NAPI_NativeInstallUserCertificate called");
     if (data == nullptr) {
         EDMLOGE("data is nullptr");
         return;
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
-    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get DeviceSettingsProxy");
-        return;
-    }
-    asyncCallbackInfo->ret = proxy->InstallCertificate(asyncCallbackInfo->elementName, asyncCallbackInfo->certArray,
-        asyncCallbackInfo->alias, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->certArray, asyncCallbackInfo->alias,
+        asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_UninstallCertificate called");
+    EDMLOGI("NAPI_UninstallUserCertificate called");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -165,7 +161,7 @@ napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_call
     bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
     EDMLOGD(
-        "UninstallCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "UninstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -176,27 +172,22 @@ napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_call
     if (argc > ARGS_SIZE_TWO) {
         napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallCertificate",
-        NativeUninstallCertificate, NativeVoidCallbackComplete);
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
+        NativeUninstallUserCertificate, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
 
-void DeviceSettingsAddon::NativeUninstallCertificate(napi_env env, void *data)
+void DeviceSettingsAddon::NativeUninstallUserCertificate(napi_env env, void *data)
 {
-    EDMLOGI("NAPI_NativeUninstallCertificate called");
+    EDMLOGI("NAPI_NativeUninstallUserCertificate called");
     if (data == nullptr) {
         EDMLOGE("data is nullptr");
         return;
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
-    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get DeviceSettingsProxy");
-        return;
-    }
-    asyncCallbackInfo->ret = proxy->UninstallCertificate(asyncCallbackInfo->elementName, asyncCallbackInfo->alias,
-        asyncCallbackInfo->innerCodeMsg);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->UninstallUserCertificate(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->alias, asyncCallbackInfo->innerCodeMsg);
 }
 
 bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo)

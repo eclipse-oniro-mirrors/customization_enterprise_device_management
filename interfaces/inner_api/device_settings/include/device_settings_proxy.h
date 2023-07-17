@@ -23,9 +23,9 @@ class DeviceSettingsProxy {
 public:
     static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
     int32_t GetScreenOffTime(AppExecFwk::ElementName &admin, int32_t &value);
-    int32_t InstallCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray, std::string &alias,
+    int32_t InstallUserCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray, std::string &alias,
         std::string &result, std::string &innerCodeMsg);
-    int32_t UninstallCertificate(AppExecFwk::ElementName &admin, std::string &certUri, std::string &innerCodeMsg);
+    int32_t UninstallUserCertificate(AppExecFwk::ElementName &admin, std::string &certUri, std::string &innerCodeMsg);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

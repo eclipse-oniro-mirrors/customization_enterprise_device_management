@@ -61,7 +61,7 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, in
     return ERR_OK;
 }
 
-int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray,
+int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray,
     std::string &alias, std::string &result, std::string &innerCodeMsg)
 {
     EDMLOGD("DeviceSettingsProxy::InstallCertificate");
@@ -86,7 +86,7 @@ int32_t DeviceSettingsProxy::InstallCertificate(AppExecFwk::ElementName &admin, 
     return ret;
 }
 
-int32_t DeviceSettingsProxy::UninstallCertificate(AppExecFwk::ElementName &admin, std::string &alias,
+int32_t DeviceSettingsProxy::UninstallUserCertificate(AppExecFwk::ElementName &admin, std::string &alias,
     std::string &innerCodeMsg)
 {
     EDMLOGD("DeviceSettingsProxy::UninstallCertificate");
