@@ -17,27 +17,20 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_GLOBAL_PROXY_PLUGIN_H
 
 #include <message_parcel.h>
-#include "iplugin.h"
+
+#include "http_proxy.h"
+#include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
-class GlobalProxyPlugin : public IPlugin {
+class GlobalProxyPlugin : public PluginSingleton<GlobalProxyPlugin, OHOS::NetManagerStandard::HttpProxy> {
 public:
-    GlobalProxyPlugin();
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-        std::string &policyData, bool &isChanged, int32_t userId) override;
+    void InitPlugin(
+        std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, OHOS::NetManagerStandard::HttpProxy>> ptr) override;
 
-    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
-        int32_t userId) override {};
+    ErrCode OnSetPolicy(OHOS::NetManagerStandard::HttpProxy &httpProxy);
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
-        int32_t userId) override { return ERR_OK; };
-
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
-        int32_t userId) override {};
-
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) override;
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

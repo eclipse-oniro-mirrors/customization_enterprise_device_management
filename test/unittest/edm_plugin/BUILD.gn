@@ -126,6 +126,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../services/edm_plugin/src/usb_read_only_plugin.cpp",
     "../../../services/edm_plugin/src/user_cert_plugin.cpp",
+    "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",

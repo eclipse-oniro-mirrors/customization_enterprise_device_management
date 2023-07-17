@@ -18,36 +18,27 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
+#include "http_proxy_serializer.h"
 #include "iplugin_manager.h"
 #include "net_conn_client.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<GlobalProxyPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 
-GlobalProxyPlugin::GlobalProxyPlugin()
+void GlobalProxyPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, OHOS::NetManagerStandard::HttpProxy>> ptr)
 {
-    policyCode_ = EdmInterfaceCode::GLOBAL_PROXY;
-    policyName_ = "global_proxy";
-    permission_ = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
-    needSave_ = false;
+    EDMLOGD("GlobalProxyPlugin InitPlugin...");
+    ptr->InitAttribute(EdmInterfaceCode::GLOBAL_PROXY, "global_proxy", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->SetSerializer(HttpProxySerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&GlobalProxyPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode GlobalProxyPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-    std::string &policyData, bool &isChanged, int32_t userId)
+ErrCode GlobalProxyPlugin::OnSetPolicy(OHOS::NetManagerStandard::HttpProxy &httpProxy)
 {
-    uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
-    FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    if (type != FuncOperateType::SET) {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    OHOS::NetManagerStandard::HttpProxy httpProxy;
-    if (!OHOS::NetManagerStandard::HttpProxy::Unmarshalling(data, httpProxy)) {
-        EDMLOGE("GlobalProxyPlugin::SetGlobalHttpProxy Unmarshalling proxy fail.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    auto netConnClient = DelayedSingleton<NetManagerStandard::NetConnClient>::GetInstance();
+    auto netConnClient = DelayedSingleton<OHOS::NetManagerStandard::NetConnClient>::GetInstance();
     int32_t ret = netConnClient->SetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::SetGlobalHttpProxy set result = %{public}d", ret);
     return ret == ERR_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -57,7 +48,7 @@ ErrCode GlobalProxyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     int32_t userId)
 {
     OHOS::NetManagerStandard::HttpProxy httpProxy;
-    auto netConnClient = DelayedSingleton<NetManagerStandard::NetConnClient>::GetInstance();
+    auto netConnClient = DelayedSingleton<OHOS::NetManagerStandard::NetConnClient>::GetInstance();
     int32_t ret = netConnClient->GetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::GetGlobalHttpProxy result = %{public}d", ret);
     if (ret == ERR_OK) {

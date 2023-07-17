@@ -84,6 +84,8 @@ edm_plugin_shared_library("wifi_manager_plugin") {
 }
 
 edm_plugin_shared_library("network_manager_plugin") {
+  include_dirs = [ "./include/utils" ]
+
   sources = [
     "./src/disabled_network_interface_plugin.cpp",
     "./src/get_all_network_interfaces_plugin.cpp",
@@ -91,6 +93,7 @@ edm_plugin_shared_library("network_manager_plugin") {
     "./src/get_mac_plugin.cpp",
     "./src/global_proxy_plugin.cpp",
     "./src/iptables_rule_plugin.cpp",
+    "./src/utils/http_proxy_serializer.cpp",
   ]
 
   deps = [ "../../common/native:edm_commom" ]

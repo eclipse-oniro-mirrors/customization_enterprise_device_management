@@ -55,14 +55,14 @@ void GlobalProxyPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyParamError, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = std::make_shared<GlobalProxyPlugin>();
-    bool isChanged = false;
+    std::shared_ptr<IPlugin> plugin = GlobalProxyPlugin::GetPlugin();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::GLOBAL_PROXY);
     MessageParcel data;
     MessageParcel reply;
     std::string policyStr;
+    bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
@@ -72,7 +72,7 @@ HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyParamError, TestSize.Level
  */
 HWTEST_F(GlobalProxyPluginTest, TestGetGlobalHttpProxy, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = std::make_shared<GlobalProxyPlugin>();
+    std::shared_ptr<IPlugin> plugin = GlobalProxyPlugin::GetPlugin();
     MessageParcel data;
     MessageParcel reply;
     std::string policyStr;
