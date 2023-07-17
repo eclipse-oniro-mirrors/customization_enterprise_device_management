@@ -68,6 +68,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
 
   external_deps = [
     "ability_runtime:abilitykit_native",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
