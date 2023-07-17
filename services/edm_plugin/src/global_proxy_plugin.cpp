@@ -38,8 +38,7 @@ void GlobalProxyPlugin::InitPlugin(
 
 ErrCode GlobalProxyPlugin::OnSetPolicy(OHOS::NetManagerStandard::HttpProxy &httpProxy)
 {
-    auto netConnClient = DelayedSingleton<OHOS::NetManagerStandard::NetConnClient>::GetInstance();
-    int32_t ret = netConnClient->SetGlobalHttpProxy(httpProxy);
+    int32_t ret = NetManagerStandard::NetConnClient::GetInstance().SetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::SetGlobalHttpProxy set result = %{public}d", ret);
     return ret == ERR_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -48,8 +47,7 @@ ErrCode GlobalProxyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     int32_t userId)
 {
     OHOS::NetManagerStandard::HttpProxy httpProxy;
-    auto netConnClient = DelayedSingleton<OHOS::NetManagerStandard::NetConnClient>::GetInstance();
-    int32_t ret = netConnClient->GetGlobalHttpProxy(httpProxy);
+    int32_t ret = NetManagerStandard::NetConnClient::GetInstance().GetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::GetGlobalHttpProxy result = %{public}d", ret);
     if (ret == ERR_OK) {
         reply.WriteInt32(ERR_OK);
