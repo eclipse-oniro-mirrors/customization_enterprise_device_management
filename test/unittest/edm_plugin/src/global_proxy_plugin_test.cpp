@@ -55,13 +55,30 @@ void GlobalProxyPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyParamError, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GlobalProxyPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::GLOBAL_PROXY);
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyStr;
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyStr, isChanged, DEFAULT_USER_ID);
+    GlobalProxyPlugin plugin;
+    NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetPort(9090);
+    httpProxy.SetHost("192.168.1.1");
+    std::list<std::string> list = {"192.168.2.2", "baidu.com"};
+    httpProxy.SetExclusionList(list);
+    ErrCode ret = plugin.OnSetPolicy(httpProxy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetGlobalHttpProxyAnyParam
+ * @tc.desc: Test SetGlobalHttpProxy
+ * @tc.type: FUNC
+ */
+HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyAnyParam, TestSize.Level1)
+{
+    GlobalProxyPlugin plugin;
+    NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetPort(1234);
+    httpProxy.SetHost("any host");
+    std::list<std::string> list = {"any list", "any list2"};
+    httpProxy.SetExclusionList(list);
+    ErrCode ret = plugin.OnSetPolicy(httpProxy);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
