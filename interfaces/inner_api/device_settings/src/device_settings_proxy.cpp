@@ -36,7 +36,7 @@ std::shared_ptr<DeviceSettingsProxy> DeviceSettingsProxy::GetDeviceSettingsProxy
     return instance_;
 }
 
-int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, int32_t &value)
+int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value)
 {
     EDMLOGD("DeviceSettingsProxy::GetScreenOffTime");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -61,8 +61,8 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, in
     return ERR_OK;
 }
 
-int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray,
-    std::string &alias, std::string &result, std::string &innerCodeMsg)
+int32_t DeviceSettingsProxy::InstallUserCertificate(const AppExecFwk::ElementName &admin,
+    const std::vector<uint8_t> &certArray, std::string &alias, std::string &result, std::string &innerCodeMsg)
 {
     EDMLOGD("DeviceSettingsProxy::InstallUserCertificate");
     MessageParcel data;
@@ -86,7 +86,7 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &adm
     return ret;
 }
 
-int32_t DeviceSettingsProxy::UninstallUserCertificate(AppExecFwk::ElementName &admin, std::string &alias,
+int32_t DeviceSettingsProxy::UninstallUserCertificate(const AppExecFwk::ElementName &admin, const std::string &alias,
     std::string &innerCodeMsg)
 {
     EDMLOGD("DeviceSettingsProxy::UninstallUserCertificate");

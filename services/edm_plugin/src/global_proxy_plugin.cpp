@@ -52,6 +52,7 @@ ErrCode GlobalProxyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     if (ret == ERR_OK) {
         reply.WriteInt32(ERR_OK);
         if (!httpProxy.Marshalling(reply)) {
+            EDMLOGE("GlobalProxyPlugin::httpProxy Marshalling error");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         return ERR_OK;
