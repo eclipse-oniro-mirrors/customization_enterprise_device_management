@@ -39,9 +39,6 @@ struct AsyncCertCallbackInfo : AsyncCallbackInfo {
 
 class DeviceSettingsAddon {
 public:
-    DeviceSettingsAddon();
-    ~DeviceSettingsAddon() = default;
-
     static napi_value Init(napi_env env, napi_value exports);
 
 private:

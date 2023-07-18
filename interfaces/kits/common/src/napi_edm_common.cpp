@@ -331,6 +331,20 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
     return true;
 }
 
+bool JsObjectToStringVector(napi_env env, napi_value object, const char *filedStr, std::vector<std::string> &vec)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (!hasProperty) {
+        return true;
+    }
+    napi_value prop = nullptr;
+    return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseStringArray(env, vec, prop);
+}
+
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
 {
     if (data == nullptr) {
@@ -606,31 +620,6 @@ bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, 
     EDMLOGI("hasCallback = true; hasUserId = true;");
     return MatchValueType(env, argv[ARR_INDEX_ONE], napi_number) &&
         MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-}
-
-bool ConvertUint8ArrayToVector(napi_env env, napi_value in, std::vector<uint8_t> &out)
-{
-    out.clear();
-    napi_typedarray_type type = napi_biguint64_array;
-    size_t length = 0;
-    napi_value buffer = nullptr;
-    size_t offset = 0;
-    void *data = nullptr;
-    napi_status status = napi_get_typedarray_info(env, in, &type, &length, &data, &buffer, &offset);
-    if (status != napi_ok || type != napi_uint8_array) {
-        EDMLOGE("ConvertUint8ArrayToVector type or status error");
-        return false;
-    }
-    if (length < 0 || length > NAPI_MAX_DATA_LEN) {
-        EDMLOGE("ConvertUint8ArrayToVector length error %{public}d", length);
-        return false;
-    }
-    if (data == nullptr) {
-        EDMLOGE("ConvertUint8ArrayToVector data error");
-        return false;
-    }
-    out.assign((uint8_t *)data, ((uint8_t *)data) + length);
-    return true;
 }
 } // namespace EDM
 } // namespace OHOS

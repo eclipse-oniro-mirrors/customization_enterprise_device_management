@@ -57,9 +57,6 @@ struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
 
 class NetworkManagerAddon {
 public:
-    NetworkManagerAddon() = default;
-    ~NetworkManagerAddon() = default;
-
     static napi_value Init(napi_env env, napi_value exports);
 
 private:

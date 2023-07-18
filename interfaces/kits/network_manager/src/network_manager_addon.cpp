@@ -588,26 +588,18 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
 
 bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, AsyncHttpProxyCallbackInfo *callbackInfo)
 {
-    napi_value hostValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, HOST_PROP_NAME, &hostValue), false);
     std::string host;
-    if (!ParseString(env, host, hostValue)) {
+    if (!JsObjectToString(env, argv, HOST_PROP_NAME, false, host)) {
         EDMLOGE("error host value");
         return false;
     }
-
-    napi_value portValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, PORT_PROP_NAME, &portValue), false);
     std::int32_t port = 0;
-    if (!ParseInt(env, port, portValue)) {
+    if (!JsObjectToInt(env, argv, PORT_PROP_NAME, false, port)) {
         EDMLOGE("error port value");
         return false;
     }
-
-    napi_value exclusionListValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, argv, EXCLUSION_LIST_PROP_NAME, &exclusionListValue), false);
     std::vector<std::string> exclusionList;
-    if (!ParseStringArray(env, exclusionList, exclusionListValue)) {
+    if (!JsObjectToStringVector(env, argv, EXCLUSION_LIST_PROP_NAME, exclusionList)) {
         EDMLOGE("error exclusionList value");
         return false;
     }

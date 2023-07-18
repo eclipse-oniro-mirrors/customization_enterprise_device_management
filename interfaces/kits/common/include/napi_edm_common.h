@@ -83,6 +83,8 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
 bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
     std::vector<uint8_t> &certVector);
+bool JsObjectToStringVector(napi_env env, napi_value object, const char *fieldStr,
+    std::vector<std::string> &stringVector);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
 napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
@@ -92,7 +94,6 @@ void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, bool &hasCallback, bool &hasUserId);
-bool ConvertUint8ArrayToVector(napi_env env, napi_value in, std::vector<uint8_t> &out);
 } // namespace EDM
 } // namespace OHOS
 

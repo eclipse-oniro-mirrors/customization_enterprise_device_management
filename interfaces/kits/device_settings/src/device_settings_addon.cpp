@@ -198,24 +198,11 @@ bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCe
         EDMLOGE("type of param certblob is not object");
         return false;
     }
-    napi_value userCertValue = nullptr;
-    napi_status status = napi_get_named_property(env, object, "inData", &userCertValue);
-    if (status != napi_ok || userCertValue == nullptr) {
-        EDMLOGE("get certblob indata error");
-        return false;
-    }
-
-    if (!ConvertUint8ArrayToVector(env, userCertValue, asyncCertCallbackInfo->certArray)) {
+    if (!JsObjectToU8Vector(env, object, "inData", asyncCertCallbackInfo->certArray)) {
         EDMLOGE("uint8Array to vector failed");
         return false;
     }
-    napi_value certAliasValue = nullptr;
-    status = napi_get_named_property(env, object, "alias", &certAliasValue);
-    if (status != napi_ok || certAliasValue == nullptr) {
-        EDMLOGE("get certblob alias error");
-        return false;
-    }
-    return ParseString(env, asyncCertCallbackInfo->alias, certAliasValue);
+    return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->alias);
 }
 
 static napi_module g_deviceSettingsModule = {

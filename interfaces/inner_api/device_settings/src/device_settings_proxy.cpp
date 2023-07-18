@@ -64,7 +64,7 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(AppExecFwk::ElementName &admin, in
 int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &admin, std::vector<uint8_t> &certArray,
     std::string &alias, std::string &result, std::string &innerCodeMsg)
 {
-    EDMLOGD("DeviceSettingsProxy::InstallCertificate");
+    EDMLOGD("DeviceSettingsProxy::InstallUserCertificate");
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
@@ -75,13 +75,13 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &adm
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
-    EDMLOGI("DeviceSettingsProxy::InstallCertificate : %{public}d.", ret);
+    EDMLOGI("DeviceSettingsProxy::InstallUserCertificate : %{public}d.", ret);
     if (ret == ERR_OK) {
         result = reply.ReadString();
     } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
-        int32_t netCode = ERR_INVALID_VALUE;
-        reply.ReadInt32(netCode);
-        innerCodeMsg = std::to_string(netCode);
+        int32_t certRetCode = ERR_INVALID_VALUE;
+        reply.ReadInt32(certRetCode);
+        innerCodeMsg = std::to_string(certRetCode);
     }
     return ret;
 }
@@ -89,7 +89,7 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(AppExecFwk::ElementName &adm
 int32_t DeviceSettingsProxy::UninstallUserCertificate(AppExecFwk::ElementName &admin, std::string &alias,
     std::string &innerCodeMsg)
 {
-    EDMLOGD("DeviceSettingsProxy::UninstallCertificate");
+    EDMLOGD("DeviceSettingsProxy::UninstallUserCertificate");
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
@@ -100,9 +100,9 @@ int32_t DeviceSettingsProxy::UninstallUserCertificate(AppExecFwk::ElementName &a
     data.WriteString(alias);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
-        int32_t netCode = ERR_INVALID_VALUE;
-        reply.ReadInt32(netCode);
-        innerCodeMsg = std::to_string(netCode);
+        int32_t certRetCode = ERR_INVALID_VALUE;
+        reply.ReadInt32(certRetCode);
+        innerCodeMsg = std::to_string(certRetCode);
     }
     return ret;
 }
