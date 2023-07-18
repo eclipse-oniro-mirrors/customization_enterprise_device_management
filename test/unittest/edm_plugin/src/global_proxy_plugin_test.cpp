@@ -83,6 +83,19 @@ HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyAnyParam, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestSetGlobalHttpProxyEmpty
+ * @tc.desc: Test SetGlobalHttpProxy
+ * @tc.type: FUNC
+ */
+HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyEmpty, TestSize.Level1)
+{
+    GlobalProxyPlugin plugin;
+    NetManagerStandard::HttpProxy httpProxy;
+    ErrCode ret = plugin.OnSetPolicy(httpProxy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestGetGlobalHttpProxy
  * @tc.desc: Test GetGlobalHttpProxy
  * @tc.type: FUNC
