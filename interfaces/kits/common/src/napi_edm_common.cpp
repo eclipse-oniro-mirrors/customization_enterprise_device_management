@@ -331,18 +331,23 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
     return true;
 }
 
-bool JsObjectToStringVector(napi_env env, napi_value object, const char *filedStr, std::vector<std::string> &vec)
+bool JsObjectToStringVector(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
+    std::vector<std::string> &vec)
 {
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
         return false;
     }
-    if (!hasProperty) {
-        return true;
+    if (isNecessaryProp && !hasProperty) {
+        EDMLOGE("no yaobaohua hasProperty.");
+        return false;
     }
-    napi_value prop = nullptr;
-    return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseStringArray(env, vec, prop);
+    if (hasProperty) {
+        napi_value prop = nullptr;
+        return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseStringArray(env, vec, prop);
+    }
+    return true;
 }
 
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)

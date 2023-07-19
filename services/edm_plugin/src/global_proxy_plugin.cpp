@@ -27,7 +27,7 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 
 void GlobalProxyPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, OHOS::NetManagerStandard::HttpProxy>> ptr)
+    std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, NetManagerStandard::HttpProxy>> ptr)
 {
     EDMLOGD("GlobalProxyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GLOBAL_PROXY, "global_proxy", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
@@ -36,7 +36,7 @@ void GlobalProxyPlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&GlobalProxyPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode GlobalProxyPlugin::OnSetPolicy(OHOS::NetManagerStandard::HttpProxy &httpProxy)
+ErrCode GlobalProxyPlugin::OnSetPolicy(NetManagerStandard::HttpProxy &httpProxy)
 {
     int32_t ret = NetManagerStandard::NetConnClient::GetInstance().SetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::SetGlobalHttpProxy set result = %{public}d", ret);
@@ -46,7 +46,7 @@ ErrCode GlobalProxyPlugin::OnSetPolicy(OHOS::NetManagerStandard::HttpProxy &http
 ErrCode GlobalProxyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    OHOS::NetManagerStandard::HttpProxy httpProxy;
+    NetManagerStandard::HttpProxy httpProxy;
     int32_t ret = NetManagerStandard::NetConnClient::GetInstance().GetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::GetGlobalHttpProxy result = %{public}d", ret);
     if (ret == ERR_OK) {

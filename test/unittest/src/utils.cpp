@@ -28,6 +28,8 @@ const std::string EDM_MANAGE_SECURE_SETTINGS_PERMISSION = "ohos.permission.MANAG
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
+const std::string PERMISSION_ACCESS_CERT_MANAGER_INTERNAL = "ohos.permission.ACCESS_CERT_MANAGER_INTERNAL";
+const std::string PERMISSION_ACCESS_CERT_MANAGER = "ohos.permission.ACCESS_CERT_MANAGER";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -69,7 +71,9 @@ void Utils::SetEdmInitialEnv()
         EDM_MANAGE_SECURE_SETTINGS_PERMISSION.c_str(),
         PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT.c_str(),
         PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN.c_str(),
-        PERMISSION_SET_ENTERPRISE_INFO.c_str()
+        PERMISSION_SET_ENTERPRISE_INFO.c_str(),
+        PERMISSION_ACCESS_CERT_MANAGER_INTERNAL.c_str(),
+        PERMISSION_ACCESS_CERT_MANAGER.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);

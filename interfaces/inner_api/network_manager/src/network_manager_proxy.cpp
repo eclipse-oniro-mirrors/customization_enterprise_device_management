@@ -196,7 +196,7 @@ int32_t NetworkManagerProxy::ListIptablesFilterRules(const AppExecFwk::ElementNa
 }
 
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
-    const OHOS::NetManagerStandard::HttpProxy &httpProxy)
+    const NetManagerStandard::HttpProxy &httpProxy)
 {
     EDMLOGD("NetworkManagerProxy::SetGlobalHttpProxy");
     MessageParcel data;
@@ -214,7 +214,7 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
 }
 
 int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *admin,
-    OHOS::NetManagerStandard::HttpProxy &httpProxy)
+    NetManagerStandard::HttpProxy &httpProxy)
 {
     EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxy");
     MessageParcel data;
@@ -237,7 +237,7 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
         EDMLOGE("GetGlobalHttpProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    if (!OHOS::NetManagerStandard::HttpProxy::Unmarshalling(reply, httpProxy)) {
+    if (!NetManagerStandard::HttpProxy::Unmarshalling(reply, httpProxy)) {
         EDMLOGE("NetworkManagerProxy::GetGlobalHttpProxy Unmarshalling proxy fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

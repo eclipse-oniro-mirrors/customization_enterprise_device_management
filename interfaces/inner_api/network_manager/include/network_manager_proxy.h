@@ -37,9 +37,8 @@ public:
     int32_t AddIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::AddFilter &filter);
     int32_t RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::RemoveFilter &filter);
     int32_t ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result);
-    int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
-        const OHOS::NetManagerStandard::HttpProxy &httpProxy);
-    int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, OHOS::NetManagerStandard::HttpProxy &httpProxy);
+    int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin, const NetManagerStandard::HttpProxy &httpProxy);
+    int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy);
 
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;

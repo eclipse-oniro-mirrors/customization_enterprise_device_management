@@ -599,7 +599,7 @@ bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, Asy
         return false;
     }
     std::vector<std::string> exclusionList;
-    if (!JsObjectToStringVector(env, argv, EXCLUSION_LIST_PROP_NAME, exclusionList)) {
+    if (!JsObjectToStringVector(env, argv, EXCLUSION_LIST_PROP_NAME, false, exclusionList)) {
         EDMLOGE("error exclusionList value");
         return false;
     }
