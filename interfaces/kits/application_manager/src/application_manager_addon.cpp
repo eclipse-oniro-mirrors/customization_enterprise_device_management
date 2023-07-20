@@ -63,7 +63,10 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, na
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARR_INDEX_THREE ? argv[argc - 1] : argv[ARR_INDEX_TWO]),
+            "Parameter callback error");
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetDisallowedRunningBundles",
         NativeGetDisallowedRunningBundles, NativeArrayStringCallbackComplete);
@@ -190,7 +193,10 @@ napi_value ApplicationManagerAddon::AddOrRemovellowedRunningBundles(napi_env env
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARR_INDEX_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]),
+            "Parameter callback error");
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, workName,
         execute, NativeVoidCallbackComplete);

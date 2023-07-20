@@ -62,7 +62,10 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]),
+            "Parameter callback error");
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "EnableAdmin",
         NativeEnableAdmin, NativeVoidCallbackComplete);
@@ -173,7 +176,10 @@ napi_value AdminManager::DisableAdmin(napi_env env, napi_callback_info info)
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARGS_SIZE_THREE ? argv[argc - 1] : argv[ARR_INDEX_TWO]),
+            "Parameter callback error");
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisableAdmin", NativeDisableAdmin,
         NativeVoidCallbackComplete);
@@ -453,7 +459,10 @@ napi_value AdminManager::isAdminEnabled(napi_env env, napi_callback_info info)
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARGS_SIZE_THREE ? argv[argc - 1] : argv[ARR_INDEX_TWO]),
+            "Parameter callback error");
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "isAdminEnabled",

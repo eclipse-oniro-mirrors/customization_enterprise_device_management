@@ -85,7 +85,6 @@ napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncUninstallCallbackInfo> callbackPtr {asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     if (!CheckAndParseUninstallParamType(env, argc, argv, asyncCallbackInfo)) {
         return nullptr;
     }
@@ -155,9 +154,10 @@ void BundleManagerAddon::NativeUninstallCallbackComplete(napi_env env, napi_stat
     delete asyncCallbackInfo;
 }
 
-bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t argc,
-    napi_value *argv, AsyncUninstallCallbackInfo *asyncCallbackInfo)
+bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
+    AsyncUninstallCallbackInfo *asyncCallbackInfo)
 {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ONE]),
@@ -238,7 +238,10 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARR_INDEX_THREE ? argv[argc - 1] : argv[ARR_INDEX_TWO]),
+            "Parameter callback error");
     }
     InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
     EDMLOGI("GetInstallBundles::%{public}s policyType = %{public}d", workName.c_str(), asyncCallbackInfo->policyType);
@@ -378,7 +381,10 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
     }
     if (hasCallback) {
-        napi_create_reference(env, argv[argc - 1], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]),
+            "Parameter callback error");
     }
     InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
     EDMLOGI("AddOrRemoveInstallBundles::%{public}s policyType = %{public}d", workName.c_str(),
