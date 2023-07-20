@@ -37,7 +37,8 @@ bool HttpProxySerializer::WritePolicy(MessageParcel &reply, NetManagerStandard::
     return true;
 }
 
-bool HttpProxySerializer::MergePolicy(std::vector<NetManagerStandard::HttpProxy> &data, NetManagerStandard::HttpProxy &result)
+bool HttpProxySerializer::MergePolicy(std::vector<NetManagerStandard::HttpProxy> &data,
+    NetManagerStandard::HttpProxy &result)
 {
     return true;
 }
