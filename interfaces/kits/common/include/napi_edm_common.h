@@ -37,6 +37,7 @@ struct AsyncCallbackInfo {
     uint32_t errCode = 0;
     std::string errMessage;
     int policyCode = 0;
+    std::string innerCodeMsg;
 
     virtual ~AsyncCallbackInfo() {};
 };
@@ -82,6 +83,8 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
 bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
     std::vector<uint8_t> &certVector);
+bool JsObjectToStringVector(napi_env env, napi_value object, const char *fieldStr, bool isNecessaryProp,
+    std::vector<std::string> &stringVector);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);
 napi_value HandleAsyncWork(napi_env env, AsyncCallbackInfo *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

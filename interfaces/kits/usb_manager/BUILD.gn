@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 
-ohos_shared_library("networkmanager") {
+ohos_shared_library("usbmanager") {
   include_dirs = [
     "../common/include",
     "include",
@@ -22,7 +22,7 @@ ohos_shared_library("networkmanager") {
   sources = [
     "../common/src/napi_edm_common.cpp",
     "../common/src/napi_edm_error.cpp",
-    "./src/network_manager_addon.cpp",
+    "./src/usb_manager_addon.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
@@ -30,14 +30,13 @@ ohos_shared_library("networkmanager") {
   deps = [
     "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
+    "//third_party/bounds_checking_function:libsec_shared",
   ]
 
   external_deps = [
     "ability_base:want",
-    "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
-    "netmanager_base:net_conn_manager_if",
   ]
 
   relative_install_dir = "module/enterprise"

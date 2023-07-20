@@ -15,7 +15,7 @@ import("//build/test.gni")
 
 module_output_path = "enterprise_device_management/services"
 
-ohos_unittest("EdmNetworkManagerProxyUnitTest") {
+ohos_unittest("EdmUsbManagerUnitTest") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -28,7 +28,7 @@ ohos_unittest("EdmNetworkManagerProxyUnitTest") {
     "../enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test/enterprise_device_mgr_stub_mock.cpp",
     "../mock/src/edm_sys_manager_mock.cpp",
     "../src/utils.cpp",
-    "./network_manager_proxy_test/network_manager_proxy_test.cpp",
+    "./usb_manager_proxy_test.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
@@ -61,6 +61,6 @@ group("unittest") {
 
   deps = [
     # deps file
-    ":EdmNetworkManagerProxyUnitTest",
+    ":EdmUsbManagerUnitTest",
   ]
 }

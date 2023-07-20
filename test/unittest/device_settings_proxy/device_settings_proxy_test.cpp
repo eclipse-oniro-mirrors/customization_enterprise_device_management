@@ -96,6 +96,82 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetScreenOffTimeFail, TestSize.Level1)
     int32_t ret = deviceSettingsProxy->GetScreenOffTime(admin, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestInstallUserCertificateSuc
+ * @tc.desc: Test InstallUserCertificate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestInstallUserCertificateSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<uint8_t> certArray;
+    std::string alias = "alias";
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = deviceSettingsProxy->InstallUserCertificate(admin, certArray, alias, stringRet, innerCodeMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallUserCertificateFail
+ * @tc.desc: Test InstallUserCertificate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestInstallUserCertificateFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<uint8_t> certArray;
+    std::string alias = "alias";
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = deviceSettingsProxy->InstallUserCertificate(admin, certArray, alias, stringRet, innerCodeMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestUninstallUserCertificateSuc
+ * @tc.desc: Test UninstallUserCertificate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestUninstallUserCertificateSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<uint8_t> certArray;
+    std::string alias = "alias";
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(admin, alias, innerCodeMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUninstallUserCertificateFail
+ * @tc.desc: Test UninstallUserCertificate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestUninstallUserCertificateFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<uint8_t> certArray;
+    std::string alias = "alias";
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(admin, alias, innerCodeMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

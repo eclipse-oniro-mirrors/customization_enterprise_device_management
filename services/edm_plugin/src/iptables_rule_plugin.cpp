@@ -255,8 +255,8 @@ void IptablesRulePlugin::ConvertIpAddressCommand(const std::string &ipAddress, c
     if (ipAddress.empty()) {
         return;
     }
-    std::string key = "-";
-    std::string::size_type idx = ipAddress.find(key);
+    std::string splitStr = "-";
+    std::string::size_type idx = ipAddress.find(splitStr);
     if (idx == std::string::npos) {
         if (isSourceIp) {
             command.append(" -s " + ipAddress);

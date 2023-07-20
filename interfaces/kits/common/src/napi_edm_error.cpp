@@ -20,49 +20,36 @@
 namespace OHOS {
 namespace EDM {
 static const std::unordered_map<int32_t, std::string> errMessageMap = {
-    {
-        EdmReturnErrCode::PERMISSION_DENIED, "the application does not have permission to call this function."
-    },
-    {
-        EdmReturnErrCode::SYSTEM_ABNORMALLY, "the system ability work abnormally."
-    },
-    {
-        EdmReturnErrCode::ENABLE_ADMIN_FAILED, "failed to enable the administrator application of the device."
-    },
-    {
-        EdmReturnErrCode::COMPONENT_INVALID, "the administrator ability component is invalid."
-    },
-    {
-        EdmReturnErrCode::ADMIN_INACTIVE, "the application is not a administrator of the device."
-    },
-    {
-        EdmReturnErrCode::DISABLE_ADMIN_FAILED, "failed to disable the administrator application of the device."
-    },
-    {
-        EdmReturnErrCode::UID_INVALID, "the specified user ID is invalid."
-    },
-    {
-        EdmReturnErrCode::INTERFACE_UNSUPPORTED, "the specified interface is not supported."
-    },
-    {
-        EdmReturnErrCode::PARAM_ERROR, "invalid input parameter."
-    },
-    {
-        EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED,
-        "the administrator application does not have permission to manage the device."
-    },
-    {
-        EdmReturnErrCode::MANAGED_EVENTS_INVALID, "the specified managed event is is invalid."
-    },
-    {
-        EdmReturnErrCode::SYSTEM_API_DENIED, "not system application."
-    }
+    {EdmReturnErrCode::PERMISSION_DENIED, "the application does not have permission to call this function."},
+    {EdmReturnErrCode::SYSTEM_ABNORMALLY, "the system ability work abnormally."},
+    {EdmReturnErrCode::ENABLE_ADMIN_FAILED, "failed to enable the administrator application of the device."},
+    {EdmReturnErrCode::COMPONENT_INVALID, "the administrator ability component is invalid."},
+    {EdmReturnErrCode::ADMIN_INACTIVE, "the application is not a administrator of the device."},
+    {EdmReturnErrCode::DISABLE_ADMIN_FAILED, "failed to disable the administrator application of the device."},
+    {EdmReturnErrCode::UID_INVALID, "the specified user ID is invalid."},
+    {EdmReturnErrCode::INTERFACE_UNSUPPORTED, "the specified interface is not supported."},
+    {EdmReturnErrCode::PARAM_ERROR, "invalid input parameter."},
+    {EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED,
+        "the administrator application does not have permission to manage the device."},
+    {EdmReturnErrCode::MANAGED_EVENTS_INVALID, "the specified managed event is is invalid."},
+    {EdmReturnErrCode::SYSTEM_API_DENIED, "not system application."},
+    {EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED, "manage certificate failed $."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)
 {
-    return CreateError(env, GetMessageFromReturncode(errorCode).first,
-        GetMessageFromReturncode(errorCode).second);
+    auto pair = GetMessageFromReturncode(errorCode);
+    return CreateError(env, pair.first, pair.second);
+}
+
+napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage)
+{
+    auto pair = GetMessageFromReturncode(errorCode);
+    auto iter = pair.second.find("$");
+    if (iter != std::string::npos) {
+        pair.second = pair.second.replace(iter, 1, errMessage);
+    }
+    return CreateError(env, pair.first, pair.second);
 }
 
 napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage)

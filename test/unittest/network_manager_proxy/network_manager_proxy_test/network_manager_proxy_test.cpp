@@ -293,6 +293,78 @@ HWTEST_F(NetworkManagerProxyTest, TestListIptablesFilterRulesFail, TestSize.Leve
     int32_t ret = networkManagerProxy->ListIptablesFilterRules(admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetGlobalHttpProxySuc
+ * @tc.desc: Test SetGlobalHttpProxy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetGlobalHttpProxySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    OHOS::NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetHost("baidu.com");
+    httpProxy.SetPort(1234);
+    std::list<std::string> list = {"192.168.1.100"};
+    httpProxy.SetExclusionList(list);
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(admin, httpProxy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetGlobalHttpProxyFail
+ * @tc.desc: Test SetGlobalHttpProxy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetGlobalHttpProxyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    OHOS::NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetHost("baidu.com");
+    httpProxy.SetPort(1234);
+    std::list<std::string> list = {"192.168.1.100"};
+    httpProxy.SetExclusionList(list);
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(admin, httpProxy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetGlobalHttpProxySuc
+ * @tc.desc: Test GetGlobalHttpProxy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetGlobalHttpProxySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeHttpProxySendRequestGetPolicy));
+    NetManagerStandard::HttpProxy httpProxy;
+    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(&admin, httpProxy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetGlobalHttpProxyFail
+ * @tc.desc: Test GetGlobalHttpProxy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetGlobalHttpProxyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    NetManagerStandard::HttpProxy httpProxy;
+    int32_t ret = networkManagerProxy->GetGlobalHttpProxy(&admin, httpProxy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
