@@ -53,11 +53,7 @@ ohos_unittest("EdmBrowserProxyUnitTest") {
     "samgr:samgr_proxy",
   ]
 
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
+  external_deps += [ "hilog:libhilog" ]
 
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
