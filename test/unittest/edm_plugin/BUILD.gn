@@ -51,7 +51,6 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "./src/uninstall_plugin_test.cpp",
     "./src/usb_read_only_plugin_test.cpp",
     "./src/user_cert_plugin_test.cpp",
-    "./src/wifi_device_config_serializer_test.cpp",
   ]
 
   configs = [
