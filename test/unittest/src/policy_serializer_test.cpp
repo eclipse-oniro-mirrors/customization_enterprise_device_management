@@ -18,6 +18,7 @@
 #include "array_string_serializer.h"
 #include "bool_serializer.h"
 #include "func_code_utils.h"
+#include "long_serializer.h"
 #include "json_serializer.h"
 #include "map_string_serializer.h"
 #include "string_serializer.h"
@@ -434,6 +435,45 @@ HWTEST_F(PolicySerializerTest, JSON, TestSize.Level1)
     sd = remove_if(jsonString.begin(), jsonString.end(), isspace);
     jsonString.erase(sd, jsonString.end());
     ASSERT_EQ(jsonString, R"([1,2,null,3])");
+
+    std::vector<Json::Value> vec = {jsonString};
+    ASSERT_TRUE(serializer->MergePolicy(vec, value));
+    ASSERT_TRUE(vec.size() == 1);
+}
+
+/**
+ * @tc.name: Long
+ * @tc.desc: Test LongSerializer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PolicySerializerTest, Long, TestSize.Level1)
+{
+    auto serializer = LongSerializer::GetInstance();
+    std::string testString = "123456";
+    std::string jsonString = testString;
+    int64_t res = 0;
+    ASSERT_TRUE(serializer->Deserialize(jsonString, res));
+    ASSERT_EQ(res, 123456);
+
+    jsonString = "";
+    ASSERT_TRUE(serializer->Serialize(res, jsonString));
+    ASSERT_EQ(jsonString, testString);
+
+    MessageParcel data;
+    data.WriteInt64(1);
+    ASSERT_TRUE(serializer->GetPolicy(data, res));
+    ASSERT_TRUE(res == 1);
+
+    MessageParcel reply;
+    res = 1;
+    ASSERT_TRUE(serializer->WritePolicy(reply, res));
+    int64_t temp = 0;
+    reply.ReadInt64(temp);
+    ASSERT_TRUE(temp == 1);
+
+    std::vector<int64_t> vec = {1, 2, 3, 4, 5};
+    serializer->MergePolicy(vec, res);
+    ASSERT_TRUE(res == 5);
 }
 } // namespace TEST
 } // namespace EDM

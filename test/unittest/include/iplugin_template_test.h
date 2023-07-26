@@ -17,9 +17,11 @@
 #define EDM_UNIT_TEST_IPLUGIN_TEMPLATE_TEST_H
 
 #include <gtest/gtest.h>
+
 #include <map>
 #include <string>
 #include <vector>
+
 #include "array_map_serializer.h"
 #include "array_string_serializer.h"
 #include "bool_serializer.h"
@@ -230,15 +232,9 @@ public:
 
 class HandleDoneBoolConsumerPlg : public PluginSingleton<HandleDoneBoolConsumerPlg, std::string> {
 public:
-    void SetDone(bool isGlobalChanged)
-    {
-        g_visit = true;
-    }
+    void SetDone(bool isGlobalChanged) { g_visit = true; }
 
-    void RemoveDone(bool isGlobalChanged)
-    {
-        g_visit = true;
-    }
+    void RemoveDone(bool isGlobalChanged) { g_visit = true; }
 
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBoolConsumerPlg, std::string>> ptr) override
     {
@@ -253,15 +249,9 @@ public:
 
 class HandleDoneBiBoolConsumerPlg : public PluginSingleton<HandleDoneBiBoolConsumerPlg, std::string> {
 public:
-    void SetDone(std::string &data, bool isGlobalChanged, int32_t userId)
-    {
-        g_visit = true;
-    }
+    void SetDone(std::string &data, bool isGlobalChanged, int32_t userId) { g_visit = true; }
 
-    void RemoveDone(std::string &data, bool isGlobalChanged, int32_t userId)
-    {
-        g_visit = true;
-    }
+    void RemoveDone(std::string &data, bool isGlobalChanged, int32_t userId) { g_visit = true; }
 
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBiBoolConsumerPlg, std::string>> ptr) override
     {
@@ -312,10 +302,7 @@ public:
 
 class AdminRemoveDoneRunnerPlg : public PluginSingleton<AdminRemoveDoneRunnerPlg, std::string> {
 public:
-    void RemoveAdminDone()
-    {
-        g_visit = true;
-    }
+    void RemoveAdminDone() { g_visit = true; }
 
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneRunnerPlg, std::string>> ptr) override
     {
@@ -329,10 +316,7 @@ public:
 
 class AdminRemoveDoneBiBiConsumerPlg : public PluginSingleton<AdminRemoveDoneBiBiConsumerPlg, std::string> {
 public:
-    void RemoveAdminDone(const std::string &adminName, std::string &data, int32_t userId)
-    {
-        g_visit = true;
-    }
+    void RemoveAdminDone(const std::string &adminName, std::string &data, int32_t userId) { g_visit = true; }
 
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneBiBiConsumerPlg, std::string>> ptr) override
     {
@@ -386,12 +370,36 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionUnsavePlg, Json::Value>> ptr) override
     {
         int policyCode = 31;
-        ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionUnsavePlg",
-            "ohos.permission.EDM_TEST_PERMISSION",
+        ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionUnsavePlg", "ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, false, true);
         ptr->SetSerializer(JsonSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::SetFunction, FuncOperateType::SET);
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::RemoveFunction, FuncOperateType::REMOVE);
+    }
+};
+
+class HandlePolicyReplyFunctionPlg : public PluginSingleton<HandlePolicyReplyFunctionPlg, std::string> {
+public:
+    ErrCode SetFunction(std::string &data, MessageParcel &reply)
+    {
+        g_visit = true;
+        return ERR_OK;
+    }
+
+    ErrCode RemoveFunction(std::string &data, MessageParcel &reply)
+    {
+        g_visit = true;
+        return ERR_OK;
+    }
+
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyReplyFunctionPlg, std::string>> ptr) override
+    {
+        int policyCode = 32;
+        ptr->InitAttribute(policyCode, "HandlePolicyReplyFunctionPlg", "ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, false, true);
+        ptr->SetSerializer(StringSerializer::GetInstance());
+        ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::SetFunction, FuncOperateType::SET);
+        ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
     }
 };
 } // namespace PLUGIN
