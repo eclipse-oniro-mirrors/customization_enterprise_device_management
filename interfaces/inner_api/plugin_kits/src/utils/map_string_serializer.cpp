@@ -40,6 +40,11 @@ bool MapStringSerializer::Deserialize(const std::string &jsonString, std::map<st
         return true;
     }
     for (auto &member : root.getMemberNames()) {
+        if (root[member].type() != Json::ValueType::stringValue && root[member].type() != Json::ValueType::intValue &&
+            root[member].type() != Json::ValueType::uintValue && root[member].type() != Json::ValueType::booleanValue) {
+            EDMLOGE("MapStringSerializer::Deserialize member type is not support.");
+            return false;
+        }
         dataObj.insert(std::pair<std::string, std::string>(member, root[member].asString()));
     }
     return true;
