@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 
+#define protected public
 #include "iplugin_template_test.h"
+#undef protected
+
 #include "policy_manager.h"
 using namespace testing::ext;
 
@@ -34,7 +37,7 @@ HWTEST_F(PluginTemplateTest, TestTemplate, TestSize.Level1)
     PluginManager::GetInstance()->AddPlugin(PLUGIN::JsonTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::StringTestPlugin::GetPlugin());
 
-    std::vector<std::uint32_t> policyCodes = { 10, 11, 12, 13, 14, 15 };
+    std::vector<std::uint32_t> policyCodes = {10, 11, 12, 13, 14, 15};
     for (auto policyCode : policyCodes) {
         uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
         std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -223,7 +226,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
  */
 HWTEST_F(PluginTemplateTest, TestHandlePolicyDone, TestSize.Level1)
 {
-    std::vector<int> policyCodes = { 24, 25 };
+    std::vector<int> policyCodes = {24, 25};
     MessageParcel data;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
@@ -254,7 +257,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyDone, TestSize.Level1)
  */
 HWTEST_F(PluginTemplateTest, TestAdminRemove, TestSize.Level1)
 {
-    std::vector<int> policyCodes = { 26, 27 };
+    std::vector<int> policyCodes = {26, 27};
     MessageParcel data;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
@@ -282,7 +285,7 @@ HWTEST_F(PluginTemplateTest, TestAdminRemove, TestSize.Level1)
  */
 HWTEST_F(PluginTemplateTest, TestAdminRemoveDone, TestSize.Level1)
 {
-    std::vector<int> policyCodes = { 28, 29 };
+    std::vector<int> policyCodes = {28, 29};
     MessageParcel data;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
@@ -319,6 +322,64 @@ HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
     std::string policyData{"TestData"};
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestWritePolicyToParcel
+ * @tc.desc: Test PluginTemplate WritePolicyToParcel func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestWritePolicyToParcel, TestSize.Level1)
+{
+    int policyCode = 22;
+    MessageParcel reply;
+    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyFunctionPlg::GetPlugin());
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, policyCode);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    std::string policyData = "testValue";
+    ErrCode ret = plugin->WritePolicyToParcel(policyData, reply);
+    ASSERT_TRUE(ret == ERR_OK);
+    std::string temp;
+    reply.ReadString(temp);
+    ASSERT_TRUE(temp == policyData);
+}
+
+/**
+ * @tc.name: TestHandlePolicyReplyFunctionPlg
+ * @tc.desc: Test PluginTemplate TestHandlePolicyReplyFunctionPlg func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestHandlePolicyReplyFunctionPlg, TestSize.Level1)
+{
+    int policyCode = 32;
+    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyReplyFunctionPlg::GetPlugin());
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    ASSERT_TRUE(plugin != nullptr);
+    std::string setPolicyValue = "testValue";
+    std::string policyValue;
+    bool isChange = false;
+    MessageParcel data;
+    data.WriteString(setPolicyValue);
+    MessageParcel reply;
+    ErrCode res = plugin->OnHandlePolicy(funcCode, data, reply, policyValue, isChange, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(policyValue == "testValue");
+    ASSERT_TRUE(isChange);
+}
+
+/**
+ * @tc.name: TestDestroyPlugin
+ * @tc.desc: Test PluginTemplate DestroyPlugin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestDestroyPlugin, TestSize.Level1)
+{
+    MessageParcel reply;
+    PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
+    ASSERT_TRUE(PLUGIN::HandlePolicyJsonBiFunctionPlg::pluginInstance_ != nullptr);
+    PLUGIN::HandlePolicyJsonBiFunctionPlg::DestroyPlugin();
+    ASSERT_TRUE(PLUGIN::HandlePolicyJsonBiFunctionPlg::pluginInstance_ == nullptr);
 }
 
 void PluginTemplateTest::SetUp()

@@ -15,6 +15,8 @@
 
 #include <gtest/gtest.h>
 #include <ipc_skeleton.h>
+
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
 
@@ -25,6 +27,10 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class UtilsTest : public testing::Test {};
+const std::string TEST_STRING_INDEX_ZORE = "19216811";
+const std::string TEST_STRING_INDEX_ONE = "19216812";
+const std::string TEST_STRING_INDEX_TWO = "19216813";
+const std::string TEST_STRING_INDEX_THREE = "19216814";
 
 /**
  * @tc.name: Test_FuncCodeUtils_ConvertSystemFlag
@@ -42,6 +48,27 @@ HWTEST_F(UtilsTest, Test_FuncCodeUtils_ConvertSystemFlag, TestSize.Level1)
 }
 
 /**
+ * @tc.name: Test_FuncCodeUtils
+ * @tc.desc: Test FuncCodeUtils functions
+ * @tc.type: FUNC
+ */
+HWTEST_F(UtilsTest, Test_FuncCodeUtils, TestSize.Level1)
+{
+    uint32_t code =
+        FuncCodeUtils::CreateFuncCode(1, (std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
+    ASSERT_TRUE(FuncCodeUtils::IsPolicyFlag(code));
+    ASSERT_FALSE(FuncCodeUtils::IsServiceFlag(code));
+    ASSERT_TRUE(FuncCodeUtils::GetOperateType(code) == FuncOperateType::SET);
+    ASSERT_TRUE(FuncCodeUtils::GetSystemFlag(code) == FuncFlag::POLICY_FLAG);
+    ASSERT_TRUE(FuncCodeUtils::GetPolicyCode(code) == EdmInterfaceCode::SET_DATETIME);
+
+    code = EdmInterfaceCode::ADD_DEVICE_ADMIN;
+    ASSERT_FALSE(FuncCodeUtils::IsPolicyFlag(code));
+    ASSERT_TRUE(FuncCodeUtils::IsServiceFlag(code));
+}
+
+
+/**
  * @tc.name: Test_ArrayPolicyUtils_RemovePolicy
  * @tc.desc: Test ArrayPolicyUtils::RemovePolicy.
  * @tc.type: FUNC
@@ -51,23 +78,23 @@ HWTEST_F(UtilsTest, Test_ArrayPolicyUtils_RemovePolicy, TestSize.Level1)
     std::vector<std::string> removeData;
     std::vector<std::string> currentData;
 
-    removeData = { "19216811" };
-    currentData = { "19216811", "19216812", "19216813" };
+    removeData = {TEST_STRING_INDEX_ZORE};
+    currentData = {TEST_STRING_INDEX_ZORE, TEST_STRING_INDEX_ONE, TEST_STRING_INDEX_TWO};
     ArrayPolicyUtils::RemovePolicy(removeData, currentData);
     ASSERT_TRUE(currentData.size() == 2);
 
-    removeData = { "19216811" };
+    removeData = {TEST_STRING_INDEX_ZORE};
     currentData = {};
     ArrayPolicyUtils::RemovePolicy(removeData, currentData);
     ASSERT_TRUE(currentData.empty());
 
     removeData = {};
-    currentData = { "19216811", "19216812", "19216813" };
+    currentData = {TEST_STRING_INDEX_ZORE, TEST_STRING_INDEX_ONE, TEST_STRING_INDEX_TWO};
     ArrayPolicyUtils::RemovePolicy(removeData, currentData);
     ASSERT_TRUE(currentData.size() == 3);
 
-    removeData = { "19216814" };
-    currentData = { "19216811", "19216812", "19216813" };
+    removeData = {TEST_STRING_INDEX_THREE};
+    currentData = {TEST_STRING_INDEX_ZORE, TEST_STRING_INDEX_ONE, TEST_STRING_INDEX_TWO};
     ArrayPolicyUtils::RemovePolicy(removeData, currentData);
     ASSERT_TRUE(currentData.size() == 3);
 }
@@ -80,15 +107,15 @@ HWTEST_F(UtilsTest, Test_ArrayPolicyUtils_RemovePolicy, TestSize.Level1)
 HWTEST_F(UtilsTest, Test_ArrayPolicyUtils_ArrayStringContains, TestSize.Level1)
 {
     std::vector<std::string> data;
-    std::string find = "19216812";
-    data = { "19216811", "19216812", "19216813" };
+    std::string find = TEST_STRING_INDEX_ONE;
+    data = {TEST_STRING_INDEX_ZORE, TEST_STRING_INDEX_ONE, TEST_STRING_INDEX_TWO};
     ASSERT_TRUE(ArrayPolicyUtils::ArrayStringContains(data, find));
 
-    find = "19216814";
-    data = { "19216811", "19216812", "19216813" };
+    find = TEST_STRING_INDEX_THREE;
+    data = {TEST_STRING_INDEX_ZORE, TEST_STRING_INDEX_ONE, TEST_STRING_INDEX_TWO};
     ASSERT_FALSE(ArrayPolicyUtils::ArrayStringContains(data, find));
 
-    find = "19216814";
+    find = TEST_STRING_INDEX_THREE;
     data = {};
     ASSERT_FALSE(ArrayPolicyUtils::ArrayStringContains(data, find));
 }
