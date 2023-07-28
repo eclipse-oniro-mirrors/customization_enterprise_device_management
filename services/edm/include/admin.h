@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+
 #include "ability_info.h"
 #include "admin_type.h"
 #include "edm_errors.h"
@@ -34,12 +35,14 @@ struct AdminInfo {
     EntInfo entInfo_;
     std::vector<std::string> permission_;
     std::vector<ManagedEvent> managedEvents_;
+    std::string parentAdminName_;
 };
 
 class Admin {
 public:
     virtual bool CheckPermission(const std::string &permission);
     virtual AdminType GetAdminType();
+    virtual std::string GetParentAdminName() const;
     virtual ~Admin() = default;
     AdminInfo adminInfo_;
 };

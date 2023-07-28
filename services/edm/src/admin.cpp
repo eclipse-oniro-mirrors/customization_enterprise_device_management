@@ -30,7 +30,11 @@ bool Admin::CheckPermission(const std::string &permission)
 
 AdminType Admin::GetAdminType()
 {
-    return AdminType::NORMAL;
+    return adminInfo_.adminType_;
+}
+std::string Admin::GetParentAdminName() const
+{
+    return adminInfo_.parentAdminName_;
 }
 } // namespace EDM
 } // namespace OHOS

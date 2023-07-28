@@ -34,7 +34,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.edm.IEnterpriseDeviceMgr");
     virtual ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) = 0;
     virtual ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
-    virtual ErrCode DisableSuperAdmin(std::string &bundleName) = 0;
+    virtual ErrCode DisableSuperAdmin(const std::string &bundleName) = 0;
     virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
         MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
@@ -45,8 +45,9 @@ public:
         const std::vector<uint32_t> &events) = 0;
     virtual ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
         const std::vector<uint32_t> &events) = 0;
-    virtual bool IsSuperAdmin(std::string &bundleName) = 0;
+    virtual bool IsSuperAdmin(const std::string &bundleName) = 0;
     virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
+    virtual ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

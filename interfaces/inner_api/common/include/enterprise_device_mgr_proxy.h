@@ -15,6 +15,7 @@
 
 #ifndef INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 #define INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
+
 #include <message_parcel.h>
 
 #include <map>
@@ -35,23 +36,22 @@ constexpr int32_t HAS_USERID = 1;
 
 class EnterpriseDeviceMgrProxy {
 public:
-    EnterpriseDeviceMgrProxy();
-    ~EnterpriseDeviceMgrProxy();
     static std::shared_ptr<EnterpriseDeviceMgrProxy> GetInstance();
     static void DestroyInstance();
 
     ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
-    ErrCode DisableSuperAdmin(std::string bundleName);
+    ErrCode DisableSuperAdmin(const std::string &bundleName);
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
         bool subscribe);
-    ErrCode IsSuperAdmin(std::string bundleName, bool &result);
+    ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
+    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

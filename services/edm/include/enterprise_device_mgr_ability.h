@@ -17,9 +17,11 @@
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 
 #include <bundle_mgr_interface.h>
+
 #include <string>
+
 #include "admin_manager.h"
-#include "application_state_observer.h"
+#include "app_mgr_interface.h"
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
@@ -39,12 +41,12 @@ public:
         void (EnterpriseDeviceMgrAbility::*)(int32_t systemAbilityId, const std::string &deviceId);
     EnterpriseDeviceMgrAbility();
     DISALLOW_COPY_AND_MOVE(EnterpriseDeviceMgrAbility);
-    ~EnterpriseDeviceMgrAbility();
+    ~EnterpriseDeviceMgrAbility() override;
     static sptr<EnterpriseDeviceMgrAbility> GetInstance();
 
     ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) override;
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
-    ErrCode DisableSuperAdmin(std::string &bundleName) override;
+    ErrCode DisableSuperAdmin(const std::string &bundleName) override;
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
     ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
@@ -53,7 +55,8 @@ public:
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
     ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
     ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
-    bool IsSuperAdmin(std::string &bundleName) override;
+    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override;
+    bool IsSuperAdmin(const std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event);
     std::unordered_map<std::string, CommonEventCallbackFunc> commonEventFuncMap_;
@@ -72,11 +75,13 @@ private:
     void AddOnAddSystemAbilityFuncMap();
     bool SubscribeAppState();
     bool UnsubscribeAppState();
-    ErrCode CheckCallingUid(std::string &bundleName);
-    ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue, int32_t userId);
+    ErrCode CheckCallingUid(const std::string &bundleName);
+    ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
+        int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
-    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName,
-        std::vector<std::string> &permissionList, int32_t userId);
+    ErrCode RemovePolicyAndAdmin(const std::string &bundleName);
+    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, std::vector<std::string> &permissionList,
+        int32_t userId);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
@@ -118,6 +123,7 @@ public:
     ~EnterpriseDeviceEventSubscriber() override = default;
 
     void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
+
 private:
     EnterpriseDeviceMgrAbility &listener_;
 };

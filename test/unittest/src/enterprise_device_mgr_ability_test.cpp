@@ -19,11 +19,13 @@
 #include "iplugin_template.h"
 #undef protected
 #undef private
-#include "enterprise_device_mgr_ability_test.h"
 #include <gtest/gtest.h>
+
 #include <string>
 #include <vector>
+
 #include "bundle_manager_mock.h"
+#include "enterprise_device_mgr_ability_test.h"
 #include "iplugin_template_test.h"
 #include "plugin_manager_test.h"
 #include "system_ability_definition.h"
@@ -45,6 +47,8 @@ const std::string ADMIN_PACKAGENAME_FAILED = "com.edm.test.demo.ipc.fail";
 const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.ENTERPRISE_SET_DATETIME";
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string ARRAY_MAP_TESTPLG_POLICYNAME = "ArrayMapTestPlugin";
+const std::string TEST_POLICY_VALUE = "test_policy_value";
+const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
@@ -526,6 +530,419 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetAndSwitchPolicyManagerByUserIdTest00
     ASSERT_TRUE(edmMgr_->policyMgr_.get() == IPolicyManager::policyManagerInstance_);
     ASSERT_TRUE(IPolicyManager::policyManagerInstance_ == edmMgr_->policyMgrMap_[TEST_USER_ID].get());
     ASSERT_TRUE(edmMgr_->policyMgr_.get() != defaultPolcyMgr);
+}
+
+/**
+ * @tc.name: TestOnCommonEventUserRemovedWithPolicy
+ * @tc.desc: Test OnCommonEventUserRemoved remove user 101 with policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    // enable super admin
+    AppExecFwk::ElementName superAdmin;
+    superAdmin.SetBundleName("com.edm.test.demo.ipc.suc");
+    superAdmin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(superAdmin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+    // authorize sub-super admin
+    std::string subSuperAdmin = "com.edm.test.demo1";
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(superAdmin, subSuperAdmin)));
+    // set policy with userId = 100 and 101
+    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    // remove user 101
+    EventFwk::CommonEventData data;
+    data.SetCode(TEST_USER_ID);
+    edmMgr_->OnCommonEventUserRemoved(data);
+    // get policy of userId = 101
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    std::string policyValue;
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(
+        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy("", plugin->GetPolicyName(), policyValue)));
+    // get policy of userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    EXPECT_TRUE(
+        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy("", plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    // disable super admin
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageRemovedNormal
+ * @tc.desc: Test OnCommonEventPackageRemoved noraml admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedNormal, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    // enable normal admin with userId = 100 and 101
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, TEST_USER_ID)));
+    // remove normal admin under userId = 101
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam(AppExecFwk::Constants::USER_ID, TEST_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get naormal admin under userId = 100 and 101
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) != nullptr);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), TEST_USER_ID) == nullptr);
+    // remove normal admin under userId = 100
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get naormal admin under userId = 100 and 101
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), TEST_USER_ID) == nullptr);
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageRemovedSub
+ * @tc.desc: Test OnCommonEventPackageRemoved sub super admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    // enable super admin
+    AppExecFwk::ElementName superAdmin;
+    superAdmin.SetBundleName("com.edm.test.demo.ipc.suc");
+    superAdmin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(superAdmin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+    // authorize sub-super admin
+    std::string subSuperAdmin = "com.edm.test.demo1";
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(superAdmin, subSuperAdmin)));
+    // sub-super admin set policy with userId = 100 and 101
+    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    // remove sub-super admin under userId = 101
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetBundle(subSuperAdmin);
+    want.SetParam(AppExecFwk::Constants::USER_ID, TEST_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get sub-super admin
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) != nullptr);
+    // get sub-super admin policy of sub-super admin with userId = 101
+    std::string policyValue;
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    // get sub-super admin policy of sub-super admin with userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    // remove sub-super admin under userId = 100
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get sub-super admin
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
+    // get sub-super admin policy of sub-super admin with userId = 101
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    // get sub-super admin policy of sub-super admin with userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    // disable super admin
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageRemovedEnt
+ * @tc.desc: Test OnCommonEventPackageRemoved super admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    // enable super admin
+    AppExecFwk::ElementName superAdmin;
+    superAdmin.SetBundleName("com.edm.test.demo.ipc.suc");
+    superAdmin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(superAdmin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+    // authorize sub-super admin
+    std::string subSuperAdmin = "com.edm.test.demo1";
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(superAdmin, subSuperAdmin)));
+    // set policy with userId = 100 and 101
+    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    // remove super admin under userId = 101
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(superAdmin.GetBundleName(), superAdmin.GetAbilityName());
+    want.SetParam(AppExecFwk::Constants::USER_ID, TEST_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get sub-super admin and super admin
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) != nullptr);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) != nullptr);
+    // get policy of sub-super admin with userId = 101
+    std::string policyValue;
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    EXPECT_TRUE(
+        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    // get policy of sub-super admin with userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    EXPECT_TRUE(
+        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    // remove super under userId = 100
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageRemoved(data);
+    // get sub-super admin and super admin
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
+    // get policy of sub-super admin with userId = 101
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(
+        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    // get policy of sub-super admin with userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(
+        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestdisableSuperAdminWithPolicy
+ * @tc.desc: Test disableSuperAdmin super admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    // enable super admin
+    AppExecFwk::ElementName superAdmin;
+    superAdmin.SetBundleName("com.edm.test.demo.ipc.suc");
+    superAdmin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(superAdmin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+    // authorize sub-super admin
+    std::string subSuperAdmin = "com.edm.test.demo1";
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(superAdmin, subSuperAdmin)));
+    // set policy with userId = 100 and 101
+    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
+        TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    // disable super admin
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
+    // get sub-super admin and super admin
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
+    // get policy of sub-super admin with userId = 101
+    std::string policyValue;
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(
+        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    // get policy of sub-super admin with userId = 100
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    EXPECT_TRUE(
+        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminWithoutPermisson
+ * @tc.desc: Test TestAuthorizeAdmin without permission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutPermisson, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo");
+    ErrCode ret = edmMgr_->AuthorizeAdmin(admin, "com.edm.test.demo1");
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminWithoutAdmin
+ * @tc.desc: Test TestAuthorizeAdmin without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutAdmin, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo");
+    ErrCode ret = edmMgr_->AuthorizeAdmin(admin, "com.edm.test.demo1");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminWithoutSDA
+ * @tc.desc: Test TestAuthorizeAdmin without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutSDA, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo");
+    EntInfo entInfo("test", "this is test");
+    ASSERT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID)));
+
+    ErrCode ret = edmMgr_->AuthorizeAdmin(admin, "com.edm.test.demo1");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+
+    ASSERT_TRUE(SUCCEEDED(edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID)));
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminIpcFail
+ * @tc.desc: Test AuthorizeAdmin ipc fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.fail");
+    admin.SetAbilityName("com.edm.test.demo.ipc.fail.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+
+    ErrCode res = edmMgr_->AuthorizeAdmin(admin, "com.edm.test.demo1");
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    std::shared_ptr<Admin> superAdmin;
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminWithoutReq
+ * @tc.desc: Test AuthorizeAdmin without request permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+
+    ErrCode ret = edmMgr_->AuthorizeAdmin(admin, "com.edm.get.permission.fail");
+    EXPECT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    std::shared_ptr<Admin> superAdmin;
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    Utils::ResetTokenTypeAndUid();
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminSuc
+ * @tc.desc: Test AuthorizeAdmin success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminSuc, TestSize.Level1)
+{
+    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo.ipc.suc");
+    admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID)));
+
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(admin, "com.edm.test.demo1")));
+
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    std::shared_ptr<Admin> subOrSuperAdmin;
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName("com.edm.test.demo1", subOrSuperAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetAbilityName(), subOrSuperAdmin)));
+    Utils::ResetTokenTypeAndUid();
 }
 } // namespace TEST
 } // namespace EDM

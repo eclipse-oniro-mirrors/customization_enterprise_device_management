@@ -34,10 +34,6 @@ std::mutex EnterpriseDeviceMgrProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 const uint32_t GET_ENABLE_ADMIN = 5;
 
-EnterpriseDeviceMgrProxy::EnterpriseDeviceMgrProxy() {}
-
-EnterpriseDeviceMgrProxy::~EnterpriseDeviceMgrProxy() {}
-
 std::shared_ptr<EnterpriseDeviceMgrProxy> EnterpriseDeviceMgrProxy::GetInstance()
 {
     if (instance_ == nullptr) {
@@ -124,7 +120,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(std::string bundleName)
+ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(const std::string &bundleName)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableSuperAdmin");
     if (!IsEdmEnabled()) {
@@ -275,7 +271,7 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     return retCode;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(std::string bundleName, bool &result)
+ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bool &result)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");
     result = false;
@@ -393,6 +389,35 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     return ret;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::AuthorizeAdmin");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::AUTHORIZE_ADMIN, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:AuthorizeAdmin send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t resCode = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:AuthorizeAdmin get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    return ERR_OK;
+}
+
 bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
     int32_t userId)
 {
@@ -413,10 +438,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyArray(AppExecFwk::ElementName *admin, in
     }
     int32_t size = reply.ReadInt32();
     EDMLOGD("EnterpriseDeviceMgrProxy::GetPolicyArray size: %{public}d.", size);
-    if (!reply.ReadStringVector(&policyData)) {
-        return false;
-    }
-    return true;
+    return reply.ReadStringVector(&policyData);
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicyMap(AppExecFwk::ElementName *admin, int policyCode,
@@ -464,10 +486,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int
         data.WriteInt32(WITHOUT_ADMIN);
     }
     int32_t ret = ERR_INVALID_VALUE;
-    if (!GetPolicy(policyCode, data, reply) || !reply.ReadInt32(ret) || (ret != ERR_OK)) {
-        return false;
-    }
-    return true;
+    return GetPolicy(policyCode, data, reply) && reply.ReadInt32(ret) && (ret == ERR_OK);
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply)
