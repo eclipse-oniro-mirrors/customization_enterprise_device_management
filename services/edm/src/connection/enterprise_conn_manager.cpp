@@ -22,6 +22,7 @@
 #include <system_ability_definition.h>
 
 #include "ability_manager_client.h"
+#include "ability_manager_proxy.h"
 #include "edm_log.h"
 
 using namespace OHOS::AAFwk;
@@ -52,7 +53,7 @@ bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& co
 
     if (!GetAbilityMgrProxy()) {
         EDMLOGE("failed to get ability manager proxy!");
-        return -1;
+        return false;
     }
 
     int32_t ret = abilityMgr_->ConnectAbility(connection->GetWant(), connection, nullptr, connection->GetUserId());
