@@ -14,7 +14,9 @@
  */
 
 #include "bundle_manager_addon.h"
+
 #include <unordered_map>
+
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "os_account_manager.h"
@@ -47,6 +49,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundles", RemoveDisallowedUninstallBundles),
         DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundles", GetDisallowedUninstallBundles),
         DECLARE_NAPI_FUNCTION("uninstall", Uninstall),
+        DECLARE_NAPI_FUNCTION("install", Install),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -84,13 +87,13 @@ napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncUninstallCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncUninstallCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (!CheckAndParseUninstallParamType(env, argc, argv, asyncCallbackInfo)) {
         return nullptr;
     }
 
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeUninstall",
-        NativeUninstall, NativeUninstallCallbackComplete);
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "NativeUninstall", NativeUninstall, NativeUninstallCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
@@ -113,6 +116,50 @@ void BundleManagerAddon::NativeUninstall(napi_env env, void *data)
         asyncCallbackInfo->userId, asyncCallbackInfo->isKeepData, asyncCallbackInfo->errMessage);
 }
 
+napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_Install called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    auto asyncCallbackInfo = new (std::nothrow) AsyncInstallCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo)) {
+        return nullptr;
+    }
+
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "NativeInstall", NativeInstall, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void BundleManagerAddon::NativeInstall(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeInstall called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncInstallCallbackInfo *asyncCallbackInfo = static_cast<AsyncInstallCallbackInfo *>(data);
+    auto proxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return;
+    }
+
+    asyncCallbackInfo->ret = proxy->Install(asyncCallbackInfo->elementName, asyncCallbackInfo->hapFilePaths,
+        asyncCallbackInfo->installParam, asyncCallbackInfo->errMessage);
+    EDMLOGI("NAPI_NativeInstall asyncCallbackInfo->ret : %{public}d", asyncCallbackInfo->ret);
+}
+
 void BundleManagerAddon::NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data)
 {
     if (data == nullptr) {
@@ -128,8 +175,8 @@ void BundleManagerAddon::NativeUninstallCallbackComplete(napi_env env, napi_stat
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, error);
         } else {
             if (asyncCallbackInfo->ret == EdmReturnErrCode::PARAM_ERROR) {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret,
-                    asyncCallbackInfo->errMessage));
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateError(env, asyncCallbackInfo->ret, asyncCallbackInfo->errMessage));
             } else {
                 napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
             }
@@ -167,7 +214,7 @@ bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t ar
         return true;
     }
     bool hasCallback = argc <= ARGS_SIZE_FIVE ? MatchValueType(env, argv[argc - 1], napi_function) :
-        MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
+                                                MatchValueType(env, argv[ARR_INDEX_FOUR], napi_function);
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
             argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]), "Parameter callback error");
@@ -207,6 +254,58 @@ bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t ar
     return true;
 }
 
+bool BundleManagerAddon::jsObjectToInstallParam(napi_env env, napi_value object,
+    OHOS::AppExecFwk::InstallParam &installParam)
+{
+    int32_t installFlag = 0;
+    if (!JsObjectToInt(env, object, "userId", false, installParam.userId) ||
+        !JsObjectToInt(env, object, "installFlag", false, installFlag)) {
+        return false;
+    }
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, "userId", &hasProperty) == napi_ok && !hasProperty) {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(installParam.userId);
+    }
+    if ((installFlag != static_cast<int32_t>(OHOS::AppExecFwk::InstallFlag::NORMAL)) &&
+        (installFlag != static_cast<int32_t>(OHOS::AppExecFwk::InstallFlag::REPLACE_EXISTING)) &&
+        (installFlag != static_cast<int32_t>(OHOS::AppExecFwk::InstallFlag::FREE_INSTALL))) {
+        EDMLOGE("invalid installFlag param");
+        return false;
+    }
+    installParam.installFlag = static_cast<OHOS::AppExecFwk::InstallFlag>(installFlag);
+    return true;
+}
+
+bool BundleManagerAddon::CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
+    AsyncInstallCallbackInfo *asyncCallbackInfo)
+{
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->hapFilePaths, argv[ARR_INDEX_ONE]),
+        "Parameter bundleFilePaths error");
+    if (argc == ARGS_SIZE_TWO) {
+        return true;
+    }
+    bool hasCallback = argc <= ARGS_SIZE_FOUR ? MatchValueType(env, argv[argc - 1], napi_function) :
+                                                MatchValueType(env, argv[ARR_INDEX_THREE], napi_function);
+    if (hasCallback) {
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            ParseCallback(env, asyncCallbackInfo->callback,
+                argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARGS_SIZE_THREE]),
+            "Parameter callback error");
+        EDMLOGI("CheckAndParseInstallParamType ParseCallback success");
+        if (argc == ARGS_SIZE_FOUR) {
+            ASSERT_AND_THROW_PARAM_ERROR(env,
+                jsObjectToInstallParam(env, argv[ARR_INDEX_TWO], asyncCallbackInfo->installParam),
+                "installParam param error");
+        }
+        return true;
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, jsObjectToInstallParam(env, argv[ARR_INDEX_TWO], asyncCallbackInfo->installParam),
+        "installParam param error");
+    return true;
+}
+
 napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
     const std::string &workName, napi_async_execute_callback execute)
 {
@@ -221,7 +320,7 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckAdminWithUserIdParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
@@ -245,8 +344,8 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundles(napi_env env
     }
     InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
     EDMLOGI("GetInstallBundles::%{public}s policyType = %{public}d", workName.c_str(), asyncCallbackInfo->policyType);
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, workName,
-        execute, NativeArrayStringCallbackComplete);
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, workName, execute, NativeArrayStringCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 }
@@ -276,8 +375,8 @@ void BundleManagerAddon::NativeGetBundlesByPolicyType(napi_env env, void *data)
         return;
     }
 
-    asyncCallbackInfo->ret = proxy->GetBundlesByPolicyType(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->userId, asyncCallbackInfo->arrayStringRet, asyncCallbackInfo->policyType);
+    asyncCallbackInfo->ret = proxy->GetBundlesByPolicyType(asyncCallbackInfo->elementName, asyncCallbackInfo->userId,
+        asyncCallbackInfo->arrayStringRet, asyncCallbackInfo->policyType);
 }
 
 napi_value BundleManagerAddon::AddAllowedInstallBundles(napi_env env, napi_callback_info info)
@@ -310,11 +409,11 @@ napi_value BundleManagerAddon::RemoveDisallowedUninstallBundles(napi_env env, na
     return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedUninstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
-bool BundleManagerAddon::CheckAddInstallBundlesParamType(napi_env env, size_t argc,
-    napi_value* argv, bool &hasCallback, bool &hasUserId)
+bool BundleManagerAddon::CheckAddInstallBundlesParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
+    bool &hasUserId)
 {
-    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
-        napi_object)) {
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) ||
+        !MatchValueType(env, argv[ARR_INDEX_ONE], napi_object)) {
         EDMLOGE("CheckAddInstallBundlesParamType admin or array type check failed");
         return false;
     }
@@ -360,7 +459,7 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncBundlesCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckAddInstallBundlesParamType(env, argc, argv, hasCallback, hasUserId),
         "Parameter type error");
@@ -370,7 +469,8 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
         "Parameter bundles error");
     ASSERT_AND_THROW_PARAM_ERROR(env, asyncCallbackInfo->bundles.size() <= EdmConstants::APPID_MAX_SIZE,
         "Parameter bundles too large");
-    EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD(
+        "EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
@@ -435,7 +535,7 @@ static napi_module g_bundleManagerModule = {
     .nm_register_func = BundleManagerAddon::Init,
     .nm_modname = "enterprise.bundleManager",
     .nm_priv = ((void *)0),
-    .reserved = { 0 },
+    .reserved = {0},
 };
 
 extern "C" __attribute__((constructor)) void BundleManagerRegister()

@@ -114,7 +114,9 @@ edm_plugin_shared_library("bundle_manager_plugin") {
     "./src/bundle_install_plugin.cpp",
     "./src/disallowed_install_bundles_plugin.cpp",
     "./src/disallowed_uninstall_bundles_plugin.cpp",
+    "./src/install_plugin.cpp",
     "./src/uninstall_plugin.cpp",
+    "./src/utils/install_param_serializer.cpp",
     "./src/utils/installer_callback.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
   ]

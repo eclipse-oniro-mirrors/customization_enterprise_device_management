@@ -44,6 +44,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t MANAGED_EVENTS_INVALID = 9200008;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
+    constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

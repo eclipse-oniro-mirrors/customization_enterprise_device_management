@@ -18,11 +18,12 @@
 
 #include "bundle_manager_proxy.h"
 #include "edm_errors.h"
-#include "napi_edm_error.h"
-#include "napi_edm_common.h"
+#include "install_param.h"
+#include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "napi/native_api.h"
+#include "napi_edm_common.h"
+#include "napi_edm_error.h"
 #include "want.h"
 
 namespace OHOS {
@@ -39,6 +40,12 @@ struct AsyncUninstallCallbackInfo : AsyncCallbackInfo {
     std::string bundleName;
     int32_t userId = 0;
     bool isKeepData = false;
+};
+
+struct AsyncInstallCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::vector<std::string> hapFilePaths;
+    OHOS::AppExecFwk::InstallParam installParam;
 };
 
 class BundleManagerAddon {
@@ -58,10 +65,11 @@ public:
     static napi_value RemoveDisallowedUninstallBundles(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUninstallBundles(napi_env env, napi_callback_info info);
     static napi_value Uninstall(napi_env env, napi_callback_info info);
+    static napi_value Install(napi_env env, napi_callback_info info);
 
 private:
-    static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info,
-        const std::string &workName, napi_async_execute_callback execute);
+    static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
+        napi_async_execute_callback execute);
     static napi_value GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,
         const std::string &workName, napi_async_execute_callback execute);
 
@@ -71,10 +79,14 @@ private:
     static void InitCallbackInfoPolicyType(const std::string &workName, AsyncBundlesCallbackInfo *callback);
     static void NativeUninstall(napi_env env, void *data);
     static void NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data);
-    static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc,
-        napi_value *argv, bool &hasCallback, bool &hasUserId);
+    static void NativeInstall(napi_env env, void *data);
+    static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
+        bool &hasUserId);
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
+    static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
+        AsyncInstallCallbackInfo *asyncCallbackInfo);
+    static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -65,6 +65,12 @@ void MessageParcelUtils::WriteWifiDeviceConfig(const Wifi::WifiDeviceConfig &con
     data.WriteInt32(static_cast<int32_t>(config.wifiPrivacySetting));
 }
 
+void MessageParcelUtils::WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data)
+{
+    data.WriteInt32(installParam.userId);
+    data.WriteInt32(static_cast<int>(installParam.installFlag));
+}
+
 void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address)
 {
     data.WriteInt32(address.family);

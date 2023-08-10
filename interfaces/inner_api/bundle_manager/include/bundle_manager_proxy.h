@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_PROXY_H
 #include "enterprise_device_mgr_proxy.h"
+#include "install_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -24,20 +25,26 @@ public:
     BundleManagerProxy();
     ~BundleManagerProxy();
     static std::shared_ptr<BundleManagerProxy> GetBundleManagerProxy();
-    int32_t AddBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
-        int32_t userId, int32_t policyType);
-    int32_t RemoveBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
-        int32_t userId, int32_t policyType);
-    int32_t GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId,
-        std::vector<std::string> &bundles, int32_t policyType);
+    int32_t AddBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles, int32_t userId,
+        int32_t policyType);
+    int32_t RemoveBundlesByPolicyType(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles, int32_t userId,
+        int32_t policyType);
+    int32_t GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId, std::vector<std::string> &bundles,
+        int32_t policyType);
     int32_t Uninstall(AppExecFwk::ElementName &admin, std::string bundleName, int32_t userId, bool isKeepData,
         std::string &retMessage);
+    int32_t Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,
+        AppExecFwk::InstallParam &installParam, std::string &retMessage);
 
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;
     static std::mutex mutexLock_;
     std::map<int32_t, uint32_t> policyTypeMap_;
+    ErrCode WriteFileToInner(MessageParcel &reply,
+        const std::string &hapFilePath, std::vector<std::string> &realPaths, std::string &errMessage);
+    ErrCode WriteFileToStream(AppExecFwk::ElementName &admin, const std::string &path,
+        std::vector<std::string> &realPaths, std::string &errMessage);
 };
 } // namespace EDM
 } // namespace OHOS

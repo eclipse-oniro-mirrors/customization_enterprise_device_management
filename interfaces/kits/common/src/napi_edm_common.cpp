@@ -372,6 +372,7 @@ void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
             }
         }
     } else {
+        EDMLOGD("asyncCallbackInfo->callback != nullptr");
         if (asyncCallbackInfo->ret == ERR_OK) {
             napi_get_null(env, &error);
         } else {

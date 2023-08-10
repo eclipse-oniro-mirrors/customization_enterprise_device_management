@@ -15,9 +15,16 @@
 
 #include "bundle_manager_proxy.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
+#include "message_parcel_utils.h"
 #include "policy_type.h"
 
 namespace OHOS {
@@ -25,6 +32,8 @@ namespace EDM {
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::instance_ = nullptr;
 std::mutex BundleManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+const std::string SEPARATOR = "/";
+const int32_t DEFAULT_BUFFER_SIZE = 65536;
 
 BundleManagerProxy::BundleManagerProxy()
 {
@@ -166,6 +175,119 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&bundles);
+    return ERR_OK;
+}
+
+int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,
+    AppExecFwk::InstallParam &installParam, std::string &errMessage)
+{
+    EDMLOGD("BundleManagerProxy::install");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::vector<std::string> realPaths;
+
+    for (auto const & hapFilePath : hapFilePaths) {
+        ErrCode res = WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+        if (res != ERR_OK) {
+            EDMLOGE("WriteFileToStream failed");
+            return res;
+        }
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(realPaths);
+    MessageParcelUtils::WriteInstallParam(installParam, data);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED) {
+        errMessage = reply.ReadString();
+        EDMLOGE("Install failed");
+    }
+    return ret;
+}
+
+ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply,
+    const std::string &hapFilePath, std::vector<std::string> &realPaths, std::string &errMessage)
+{
+    int32_t sharedFd = reply.ReadFileDescriptor();
+    realPaths.emplace_back(reply.ReadString());
+    if (sharedFd < 0) {
+        EDMLOGE("write file to stream failed due to invalid file descriptor");
+        errMessage = "write file to stream failed due to invalid file descriptor";
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    int32_t outputFd = dup(sharedFd);
+    close(sharedFd);
+    int32_t inputFd = open(hapFilePath.c_str(), O_RDONLY);
+    if (inputFd < 0) {
+        close(outputFd);
+        EDMLOGE("write file to stream failed due to open the hap file");
+        errMessage = "write file to stream failed due to open the hap file";
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    char buffer[DEFAULT_BUFFER_SIZE] = {0};
+    int offset = -1;
+    while ((offset = read(inputFd, buffer, sizeof(buffer))) > 0) {
+        if (write(outputFd, buffer, offset) < 0) {
+            close(inputFd);
+            close(outputFd);
+            EDMLOGE("write file to the temp dir failed");
+            errMessage = "write file to the temp dir failed";
+            return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+        }
+    }
+    close(inputFd);
+    fsync(outputFd);
+    close(outputFd);
+    return ERR_OK;
+}
+
+ErrCode BundleManagerProxy::WriteFileToStream(AppExecFwk::ElementName &admin, const std::string &hapFilePath,
+    std::vector<std::string> &realPaths, std::string &errMessage)
+{
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    // find hap file name
+    size_t pos = hapFilePath.find_last_of(SEPARATOR);
+    if (pos == std::string::npos) {
+        EDMLOGE("write file to stream failed due to invalid file path");
+        errMessage = "write file to stream failed due to invalid file path";
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    std::string fileName = hapFilePath.substr(pos + 1);
+    if (fileName.empty()) {
+        EDMLOGE("write file to stream failed due to invalid file path");
+        errMessage = "write file to stream failed due to invalid file path";
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    data.WriteString(fileName);
+    proxy->GetPolicy(POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL), data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("BundleManagerProxy:WriteFileToStream fail. %{public}d", ret);
+        return ret;
+    }
+    if (WriteFileToInner(reply, hapFilePath, realPaths, errMessage) != ERR_OK) {
+        EDMLOGE("write file to stream failed");
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
     return ERR_OK;
 }
 } // namespace EDM

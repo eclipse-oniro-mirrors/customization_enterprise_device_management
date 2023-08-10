@@ -59,6 +59,7 @@ enum EdmInterfaceCode : uint32_t {
     GLOBAL_PROXY = 1025,
     USB_READ_ONLY = 1026,
     INSTALL_CERTIFICATE = 1027,
+    INSTALL = 1028,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

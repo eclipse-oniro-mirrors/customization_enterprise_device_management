@@ -18,9 +18,12 @@
 #include <system_ability_definition.h>
 #include <vector>
 
+#define private public
 #include "bundle_manager_proxy.h"
+#undef private
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "install_param.h"
 #include "policy_type.h"
 #include "utils.h"
 
@@ -228,6 +231,43 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = bundleManagerProxy->Uninstall(admin, ADMIN_PACKAGENAME, DEFAULT_USER_ID, false, retMsg);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestWriteFileToStreamSuc
+ * @tc.desc: Test WriteFileToStream method success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string hapFilePath;
+    std::vector<std::string> realPaths;
+    string errMessage;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_TRUE(errMessage == "write file to stream failed due to invalid file path");
+}
+
+/**
+ * @tc.name: TestInstallSuc
+ * @tc.desc: Test Insatll method success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> hapFilePaths;
+    AppExecFwk::InstallParam installParam;
+    std::string retMsg;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
 }
 } // namespace TEST
 } // namespace EDM
