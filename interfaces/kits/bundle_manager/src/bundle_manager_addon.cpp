@@ -156,7 +156,7 @@ void BundleManagerAddon::NativeInstall(napi_env env, void *data)
     }
 
     asyncCallbackInfo->ret = proxy->Install(asyncCallbackInfo->elementName, asyncCallbackInfo->hapFilePaths,
-        asyncCallbackInfo->installParam, asyncCallbackInfo->errMessage);
+        asyncCallbackInfo->installParam, asyncCallbackInfo->innerCodeMsg);
     EDMLOGI("NAPI_NativeInstall asyncCallbackInfo->ret : %{public}d", asyncCallbackInfo->ret);
 }
 

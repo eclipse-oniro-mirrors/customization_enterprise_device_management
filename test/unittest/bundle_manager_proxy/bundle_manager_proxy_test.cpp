@@ -244,9 +244,6 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
     std::string hapFilePath;
     std::vector<std::string> realPaths;
     string errMessage;
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
     ASSERT_TRUE(errMessage == "write file to stream failed due to invalid file path");
@@ -267,7 +264,7 @@ HWTEST_F(BundleManagerProxyTest, TestInstallSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
-    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
