@@ -247,7 +247,9 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
         Json::Value permissionJson;
         ConvertStrToJson(permissionStr, permissionJson);
         for (uint32_t i = 0; i < permissionJson.size(); i++) {
-            item->adminInfo_.permission_.push_back(permissionJson[i].asString());
+            if (permissionJson[i].isString()) {
+                item->adminInfo_.permission_.push_back(permissionJson[i].asString());
+            }
         }
     }
     std::string managedEventsStr;
@@ -256,7 +258,9 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
         Json::Value managedEventsJson;
         ConvertStrToJson(managedEventsStr, managedEventsJson);
         for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
-            item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
+            if (managedEventsJson[i].isUInt()) {
+                item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
+            }
         }
     }
 }

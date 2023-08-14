@@ -395,6 +395,48 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MAP_STRING_Serializer_Deserialize
+ * @tc.desc: Test MapStringSerializer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_Deserialize, TestSize.Level1)
+{
+    auto serializer = MapStringSerializer::GetInstance();
+    Json::Value root;
+    root["string"] = "str";
+    root["bool"] = true;
+    root["int"] = 1;
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "    ";
+    std::string jsonString = Json::writeString(builder, root);
+    std::map<std::string, std::string> result;
+    ASSERT_TRUE(serializer->Deserialize(jsonString, result));
+    ASSERT_TRUE(result["string"] == "str");
+    ASSERT_TRUE(result["bool"] == "true");
+    ASSERT_TRUE(result["int"] == "1");
+}
+
+/**
+ * @tc.name: MAP_STRING_Serializer_DeserializeFail
+ * @tc.desc: Test MapStringSerializer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_DeserializeFail, TestSize.Level1)
+{
+    auto serializer = MapStringSerializer::GetInstance();
+    Json::Value root;
+    Json::Value sub;
+    sub["key"] = "value";
+    root["object"] = sub;
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "    ";
+    std::string jsonString = Json::writeString(builder, root);
+    std::map<std::string, std::string> result;
+    ASSERT_FALSE(serializer->Deserialize(jsonString, result));
+    ASSERT_TRUE(result.empty());
+}
+
+/**
  * @tc.name: JSON
  * @tc.desc: Test JsonSerializer.
  * @tc.type: FUNC

@@ -71,11 +71,7 @@ edm_plugin_shared_library("wifi_manager_plugin") {
     "./src/utils/wifi_device_config_serializer.cpp",
   ]
 
-  deps = [
-    "../../common/native:edm_commom",
-    "//third_party/bounds_checking_function:libsec_shared",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
     "c_utils:utils",
