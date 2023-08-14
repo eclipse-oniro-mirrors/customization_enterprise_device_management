@@ -35,11 +35,6 @@ EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub()
     EDMLOGI("EnterpriseDeviceMgrStub()");
 }
 
-EnterpriseDeviceMgrStub::~EnterpriseDeviceMgrStub()
-{
-    EDMLOGI("~EnterpriseDeviceMgrStub()");
-}
-
 void EnterpriseDeviceMgrStub::AddCallFuncMap()
 {
     memberFuncMap_[EdmInterfaceCode::ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::EnableAdminInner;
@@ -53,6 +48,7 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
     memberFuncMap_[EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::SubscribeManagedEventInner;
     memberFuncMap_[EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT] =
         &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
+    memberFuncMap_[EdmInterfaceCode::AUTHORIZE_ADMIN] = &EnterpriseDeviceMgrStub::AuthorizeAdminInner;
 }
 
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -124,7 +120,11 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     }
     int32_t type = data.ReadInt32();
     int32_t userId = data.ReadInt32();
-    ErrCode retCode = EnableAdmin(*admin, *entInfo, AdminType(type), userId);
+    AdminType adminType = AdminType::UNKNOWN;
+    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
+        adminType = static_cast<AdminType>(type);
+    }
+    ErrCode retCode = EnableAdmin(*admin, *entInfo, adminType, userId);
     reply.WriteInt32(retCode);
     return ERR_OK;
 }
@@ -280,6 +280,20 @@ ErrCode EnterpriseDeviceMgrStub::SubscribeManagedEventInner(MessageParcel &data,
     }
     reply.WriteInt32(code);
     return code;
+}
+
+ErrCode EnterpriseDeviceMgrStub::AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:AuthorizeAdminInner.");
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string bundleName = data.ReadString();
+    ErrCode ret = AuthorizeAdmin(*admin, bundleName);
+    reply.WriteInt32(ret);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

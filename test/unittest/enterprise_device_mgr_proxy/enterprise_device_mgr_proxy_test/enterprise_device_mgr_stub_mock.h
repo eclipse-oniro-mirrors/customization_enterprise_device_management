@@ -91,7 +91,7 @@ public:
 
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override { return 0; }
 
-    ErrCode DisableSuperAdmin(std::string &bundleName) override { return 0; }
+    ErrCode DisableSuperAdmin(const std::string &bundleName) override { return 0; }
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override
@@ -120,9 +120,14 @@ public:
         return 0;
     }
 
-    bool IsSuperAdmin(std::string &bundleName) override { return false; }
+    bool IsSuperAdmin(const std::string &bundleName) override { return false; }
 
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override { return false; }
+
+    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override
+    {
+        return ERR_OK;
+    }
 
     uint32_t code_ = 0;
 };

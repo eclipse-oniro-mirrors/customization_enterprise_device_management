@@ -24,11 +24,11 @@
 #include "enterprise_device_mgr_proxy.h"
 #include "ienterprise_device_mgr.h"
 #include "managed_event.h"
-#include "napi_edm_error.h"
-#include "napi_edm_common.h"
+#include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "napi/native_api.h"
+#include "napi_edm_common.h"
+#include "napi_edm_error.h"
 #include "want.h"
 
 namespace OHOS {
@@ -74,10 +74,13 @@ struct AsyncSubscribeManagedEventCallbackInfo : AsyncCallbackInfo {
     bool subscribe = true;
 };
 
+struct AsyncAuthorizeAdminCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string bundleName;
+};
+
 class AdminManager {
 public:
-    AdminManager();
-    ~AdminManager() = default;
     static napi_value Init(napi_env env, napi_value exports);
     static napi_value EnableAdmin(napi_env env, napi_callback_info info);
     static napi_value DisableAdmin(napi_env env, napi_callback_info info);
@@ -85,10 +88,11 @@ public:
     static napi_value GetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value SetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value IsSuperAdmin(napi_env env, napi_callback_info info);
-    static napi_value isAdminEnabled(napi_env env, napi_callback_info info);
+    static napi_value IsAdminEnabled(napi_env env, napi_callback_info info);
     static napi_value CreateAdminTypeObject(napi_env env);
     static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEvent(napi_env env, napi_callback_info info);
+    static napi_value AuthorizeAdmin(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -99,16 +103,18 @@ public:
     static void NativeIsAdminEnabled(napi_env env, void *data);
     static void NativeSubscribeManagedEvent(napi_env env, void *data);
     static void NativeGetEnterpriseInfoComplete(napi_env env, napi_status status, void *data);
+    static void NativeAuthorizeAdmin(napi_env env, void *data);
 
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);
     static bool ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
     static void CreateManagedEventObject(napi_env env, napi_value value);
+
 private:
-    static bool CheckAdminType(int32_t type);
-    static bool checkEnableAdminParamType(napi_env env, size_t argc,
-        napi_value* argv, bool &hasCallback, bool &hasUserId);
+    static AdminType ParseAdminType(int32_t type);
+    static bool CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
+        bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
 };
 } // namespace EDM
