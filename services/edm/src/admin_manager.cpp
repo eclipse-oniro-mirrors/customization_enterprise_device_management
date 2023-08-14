@@ -14,10 +14,12 @@
  */
 
 #include "admin_manager.h"
+
 #include <algorithm>
 #include <ctime>
 #include <fstream>
 #include <iostream>
+
 #include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -82,7 +84,7 @@ void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
                 subAdmin.push_back(it);
             }
         }
-        if (subAdmin.size() > 0) {
+        if (!subAdmin.empty()) {
             subscribeAdmins[adminItem.first] = subAdmin;
         }
     }
@@ -141,11 +143,10 @@ ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInf
 
 std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packageName, int32_t userId)
 {
-    std::shared_ptr<Admin> superAdmin;
-    if (IsSuperAdminExist() && SUCCEEDED(GetSuperAdmin(superAdmin)) &&
-        superAdmin->adminInfo_.packageName_ == packageName) {
-        EDMLOGD("GetAdminByPkgName::get super admin %{public}s userId = %{public}d", packageName.c_str(), userId);
-        return superAdmin;
+    std::shared_ptr<Admin> subOrSuperAdmin;
+    if (SUCCEEDED(GetSubOrSuperAdminByPkgName(packageName, subOrSuperAdmin))) {
+        EDMLOGD("GetAdminByPkgName::get sub-super or super admin: %{public}s", packageName.c_str());
+        return subOrSuperAdmin;
     }
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(userId, userAdmin)) {
@@ -178,9 +179,8 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
         EDMLOGW("delete admin (%{public}s) failed!", packageName.c_str());
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
-    auto iter = std::remove_if(iterMap->second.begin(), iterMap->second.end(), [&](std::shared_ptr<Admin> admin) {
-        return admin->adminInfo_.packageName_ == packageName;
-    });
+    auto iter = std::remove_if(iterMap->second.begin(), iterMap->second.end(),
+        [&](std::shared_ptr<Admin> admin) { return admin->adminInfo_.packageName_ == packageName; });
     iterMap->second.erase(iter, iterMap->second.end());
     if (iterMap->second.empty()) {
         admins_.erase(iterMap);
@@ -188,7 +188,7 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     return ERR_OK;
 }
 
-ErrCode AdminManager::GetGrantedPermission(std::vector<std::string>& permissions, AdminType type)
+ErrCode AdminManager::GetGrantedPermission(std::vector<std::string> &permissions, AdminType type)
 {
     if (permissions.empty()) {
         EDMLOGW("GetGrantedPermission::permissions is empty");
@@ -234,7 +234,7 @@ ErrCode AdminManager::UpdateAdmin(AppExecFwk::ExtensionAbilityInfo &abilityInfo,
         EDMLOGW("UpdateAdmin::GetGrantedPermission failed");
         return ret;
     }
-    
+
     if (!adminPoliciesStorageRdb->UpdateAdmin(userId, abilityInfo.bundleName, abilityInfo.name, combinePermission)) {
         EDMLOGW("UpdateAdmin::update admin failed.");
         return ERR_EDM_UNKNOWN_ADMIN;
@@ -263,14 +263,15 @@ bool AdminManager::IsAdminExist()
     return !admins_.empty();
 }
 
-bool AdminManager::IsSuperAdmin(const std::string &bundleName)
+bool AdminManager::IsSuperOrSubSuperAdmin(const std::string &bundleName)
 {
     std::shared_ptr<Admin> superAdmin;
     superAdmin = GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         return false;
     }
-    return superAdmin->adminInfo_.adminType_ == AdminType::ENT;
+    return superAdmin->adminInfo_.adminType_ == AdminType::ENT ||
+        superAdmin->adminInfo_.adminType_ == AdminType::SUB_SUPER_ADMIN;
 }
 
 /*
@@ -286,8 +287,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
         EDMLOGW("GetEnabledAdmin::not find enabled Admin. userId = %{public}d", userId);
         return;
     }
-    EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role,
-        userAdmin.size());
+    EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role, userAdmin.size());
     if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::UNKNOWN) ||
         static_cast<int32_t>(role) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
@@ -302,20 +302,40 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
     }
 }
 
-ErrCode AdminManager::GetSuperAdmin(std::shared_ptr<Admin> &admin)
+ErrCode AdminManager::GetSubOrSuperAdminByPkgName(const std::string &subAdminName,
+    std::shared_ptr<Admin> &subOrSuperAdmin)
 {
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(DEFAULT_USER_ID, userAdmin)) {
-        EDMLOGW("IsSuperAdminExist::not find super Admin");
+        EDMLOGW("GetSubOrSuperAdminByPkgName::not find Admin under default user id");
         return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
     }
-    auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(),
-        [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
+    auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(), [&](const std::shared_ptr<Admin> &admin) {
+        return admin->adminInfo_.packageName_ == subAdminName && (admin->adminInfo_.adminType_ == AdminType::ENT ||
+            admin->adminInfo_.adminType_ == AdminType::SUB_SUPER_ADMIN);
+    });
     if (adminItem == userAdmin.end()) {
-        EDMLOGW("IsSuperAdminExist::not find super Admin");
+        EDMLOGW("GetSubOrSuperAdminByPkgName::not find sub-super admin or super Admin");
         return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
     }
-    admin = *adminItem;
+    subOrSuperAdmin = *adminItem;
+    return ERR_OK;
+}
+
+ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins)
+{
+    subAdmins.clear();
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    if (!GetAdminByUserId(DEFAULT_USER_ID, userAdmin)) {
+        EDMLOGE("GetSubSuperAdminsByParentName::not find Admin under default user id.");
+        return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
+    }
+    for (const auto &admin : userAdmin) {
+        if (admin->adminInfo_.adminType_ == AdminType::SUB_SUPER_ADMIN &&
+            admin->adminInfo_.parentAdminName_ == parentName) {
+            subAdmins.push_back(admin->adminInfo_.packageName_);
+        }
+    }
     return ERR_OK;
 }
 
@@ -373,15 +393,16 @@ ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, c
     }
     std::vector<ManagedEvent> oldManagedEvents = admin->adminInfo_.managedEvents_;
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
-    for (auto &event : events) {
+    for (const auto &event : events) {
         std::vector<ManagedEvent> managedEvents = admin->adminInfo_.managedEvents_;
         ManagedEvent subEvent = static_cast<ManagedEvent>(event);
         if (std::find(managedEvents.begin(), managedEvents.end(), subEvent) == managedEvents.end()) {
             admin->adminInfo_.managedEvents_.push_back(subEvent);
         }
     }
-    if (admin->adminInfo_.managedEvents_.size() > eventsNumber && !adminPoliciesStorageRdb->UpdateManagedEvents(userId,
-        admin->adminInfo_.packageName_, admin->adminInfo_.managedEvents_)) {
+    if (admin->adminInfo_.managedEvents_.size() > eventsNumber &&
+        !adminPoliciesStorageRdb->UpdateManagedEvents(userId, admin->adminInfo_.packageName_,
+            admin->adminInfo_.managedEvents_)) {
         admin->adminInfo_.managedEvents_ = oldManagedEvents;
         return ERR_EDM_UNKNOWN_ADMIN;
     }
@@ -409,13 +430,50 @@ ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
         });
     admin->adminInfo_.managedEvents_.erase(iter, admin->adminInfo_.managedEvents_.end());
 
-    if (admin->adminInfo_.managedEvents_.size() < eventsNumber && !adminPoliciesStorageRdb->UpdateManagedEvents(userId,
-        admin->adminInfo_.packageName_, admin->adminInfo_.managedEvents_)) {
+    if (admin->adminInfo_.managedEvents_.size() < eventsNumber &&
+        !adminPoliciesStorageRdb->UpdateManagedEvents(userId, admin->adminInfo_.packageName_,
+            admin->adminInfo_.managedEvents_)) {
         admin->adminInfo_.managedEvents_ = oldManagedEvents;
         return ERR_EDM_UNKNOWN_ADMIN;
     }
     return ERR_OK;
 }
+
+ErrCode AdminManager::SaveAuthorizedAdmin(const std::string &bundleName, const std::vector<std::string> &permissions,
+    const std::string &parentName)
+{
+    std::vector<std::shared_ptr<Admin>> admin;
+    if (!GetAdminByUserId(DEFAULT_USER_ID, admin)) {
+        return ERR_SAVE_AUTHORIZED_ADMIN_FAILED;
+    }
+    std::shared_ptr<Admin> adminItem = GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
+    if (!adminItem &&
+        !AdminPoliciesStorageRdb::GetInstance()->InsertAuthorizedAdmin(bundleName, permissions, parentName)) {
+        EDMLOGE("AdminManager::InsertAuthorizedAdmin save authorized failed.");
+        return ERR_SAVE_AUTHORIZED_ADMIN_FAILED;
+    }
+    if (adminItem) {
+        if (adminItem->GetAdminType() != AdminType::SUB_SUPER_ADMIN) {
+            EDMLOGE("AdminManager::UpdateAuthorizedAdmin can only update sub-super admin.");
+            return ERR_SAVE_AUTHORIZED_ADMIN_FAILED;
+        }
+        if (!AdminPoliciesStorageRdb::GetInstance()->UpdateAuthorizedAdmin(bundleName, permissions, parentName)) {
+            EDMLOGE("AdminManager::UpdateAuthorizedAdmin save authorized failed.");
+            return ERR_SAVE_AUTHORIZED_ADMIN_FAILED;
+        }
+    }
+    if (!adminItem) {
+        admin.emplace_back(std::make_shared<Admin>());
+        admins_[DEFAULT_USER_ID] = admin;
+        adminItem = admin.back();
+        adminItem->adminInfo_.adminType_ = AdminType::SUB_SUPER_ADMIN;
+    }
+    adminItem->adminInfo_.packageName_ = bundleName;
+    adminItem->adminInfo_.permission_ = permissions;
+    adminItem->adminInfo_.parentAdminName_ = parentName;
+    return ERR_OK;
+}
+
 // init
 void AdminManager::Init()
 {

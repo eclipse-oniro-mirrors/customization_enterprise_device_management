@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include "bundle_manager_mock.h"
+
+#include <gtest/gtest.h>
+
+#include "bundle_constants.h"
 #include "gmock/gmock.h"
 
 namespace OHOS {
@@ -32,8 +35,7 @@ bool BundleMgrProxy::QueryExtensionAbilityInfos(const Want &want, const Extensio
     }
     ExtensionAbilityInfo extensionAbilityInfo;
     AppExecFwk::ElementName admin = want.GetElement();
-    if (admin.GetBundleName() == "com.edm.test.demo22" ||
-        admin.GetBundleName() == "com.edm.test.demo33") {
+    if (admin.GetBundleName() == "com.edm.test.demo22" || admin.GetBundleName() == "com.edm.test.demo33") {
     } else {
         extensionAbilityInfo.bundleName = admin.GetBundleName();
         extensionAbilityInfo.name = admin.GetAbilityName();
@@ -55,8 +57,8 @@ ErrCode BundleMgrProxy::GetNameForUid(const int uid, std::string &name)
     return ERR_OK;
 }
 
-bool BundleMgrProxy::GetBundleInfo(const std::string &bundleName, const BundleFlag flag,
-    BundleInfo &bundleInfo, int32_t userId)
+bool BundleMgrProxy::GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo,
+    int32_t userId)
 {
     GTEST_LOG_(INFO) << "mock BundleMgrProxy GetBundleInfo in";
     if (userId == 0) {
@@ -121,8 +123,7 @@ bool BundleMgrService::QueryExtensionAbilityInfos(const Want &want, const Extens
     }
     ExtensionAbilityInfo extensionAbilityInfo;
     AppExecFwk::ElementName admin = want.GetElement();
-    if (admin.GetBundleName() == "com.edm.test.demo22" ||
-        admin.GetBundleName() == "com.edm.test.demo33") {
+    if (admin.GetBundleName() == "com.edm.test.demo22" || admin.GetBundleName() == "com.edm.test.demo33") {
     } else {
         extensionAbilityInfo.bundleName = admin.GetBundleName();
         extensionAbilityInfo.name = admin.GetAbilityName();
@@ -144,11 +145,11 @@ ErrCode BundleMgrService::GetNameForUid(const int uid, std::string &name)
     return ERR_OK;
 }
 
-bool BundleMgrService::GetBundleInfo(const std::string &bundleName, const BundleFlag flag,
-    BundleInfo &bundleInfo, int32_t userId)
+bool BundleMgrService::GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo,
+    int32_t userId)
 {
     GTEST_LOG_(INFO) << "mock BundleMgrService GetBundleInfo in";
-    if (userId == 0) {
+    if (userId == 0 || (userId == Constants::START_USERID && bundleName == "com.edm.get.permission.fail")) {
         GTEST_LOG_(INFO) << "mock BundleMgrService GetBundleInfo userId==0 return";
         return false;
     }
@@ -182,5 +183,5 @@ bool BundleMgrService::GetBundleInfo(const std::string &bundleName, const Bundle
     }
     return true;
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

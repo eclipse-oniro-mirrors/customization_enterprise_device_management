@@ -14,11 +14,13 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <string>
 #include <vector>
+
+#include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "enterprise_device_mgr_stub_mock.h"
-#include "edm_sys_manager_mock.h"
 #include "func_code.h"
 #include "system_ability_definition.h"
 #include "utils.h"
@@ -641,6 +643,64 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestHandleManagedEventSuc, TestSize.Level
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->HandleManagedEvent(admin, events, true);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminEdmDisable
+ * @tc.desc: Test AuthorizeAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    ErrCode ret = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminIpcFail
+ * @tc.desc: Test AuthorizeAdmin func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminIpcFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminReplyFail
+ * @tc.desc: Test AuthorizeAdmin func with reply failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminReplyFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminSuccess
+ * @tc.desc: Test AuthorizeAdmin func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminSuccess, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
     EXPECT_TRUE(errVal == ERR_OK);
 }
 } // namespace TEST

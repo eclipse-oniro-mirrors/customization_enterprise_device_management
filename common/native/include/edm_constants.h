@@ -23,6 +23,7 @@ namespace EDM {
 namespace EdmConstants {
     static constexpr int32_t DECIMAL = 10;
     static constexpr int32_t APPID_MAX_SIZE = 200;
+    static constexpr int32_t DEFAULT_USER_ID = 100;
 }
 } // namespace EDM
 } // namespace OHOS

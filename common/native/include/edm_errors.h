@@ -42,6 +42,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t UID_INVALID = 9200006;
     constexpr uint32_t SYSTEM_ABNORMALLY = 9200007;
     constexpr uint32_t MANAGED_EVENTS_INVALID = 9200008;
+    constexpr uint32_t AUTHORIZE_PERMISSION_FAILED = 9200009;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;
@@ -67,6 +68,7 @@ enum {
     ERR_EDM_DUMP_FAILED,
     ERR_EDM_SA_LOAD_FAILED,
     ERR_GET_STORAGE_RDB_FAILED,
+    ERR_SAVE_AUTHORIZED_ADMIN_FAILED,
 };
 
 // Error code for ADMINMGR: 0x2020000,value:33685504

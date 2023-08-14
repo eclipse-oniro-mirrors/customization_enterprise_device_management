@@ -30,6 +30,7 @@ const std::string FILED_ENT_NAME = "ent_name";
 const std::string FILED_ENT_DESC = "ent_desc";
 const std::string FILED_PERMISSIONS = "permissions";
 const std::string FILED_SUBSCRIBE_EVENTS = "subscribe_events";
+const std::string FILED_PARENT_ADMIN = "parent_admin";
 
 const std::string FILED_ADMIN_NAME = "admin_name";
 const std::string FILED_POLICY_NAME = "policy_name";
@@ -44,6 +45,7 @@ constexpr int32_t FILED_COLUMN_INDEX_FIVE = 5;
 constexpr int32_t FILED_COLUMN_INDEX_SIX = 6;
 constexpr int32_t FILED_COLUMN_INDEX_SEVEN = 7;
 constexpr int32_t FILED_COLUMN_INDEX_EIGHT = 8;
+constexpr int32_t FILED_COLUMN_INDEX_NINE = 9;
 
 const std::string EDM_SERVICE_DATABASE_PATH = "/data/service/el1/public/edm";
 const std::string EDM_RDB_NAME = "/edmdb.db";
@@ -51,8 +53,8 @@ const std::string ADMIN_POLICIES_RDB_TABLE_NAME = "admin_policies";
 const std::string DEVICE_ADMIN_POLICIES_RDB_TABLE_NAME = "device_admin_policies";
 const std::string DEVICE_COMBINED_POLICIES_RDB_TABLE_NAME = "device_combined_policies";
 constexpr int32_t EDM_RDB_VERSION = 1;
-};
-}  // namespace EDM
-}  // namespace OHOS
+} // namespace EdmRdbFiledConst
+} // namespace EDM
+} // namespace OHOS
 
-#endif  // SERVICES_EDM_INCLUDE_DATABASE_ADMIN_FILED_CONST_H
+#endif // SERVICES_EDM_INCLUDE_DATABASE_ADMIN_FILED_CONST_H

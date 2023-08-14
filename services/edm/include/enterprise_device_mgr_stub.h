@@ -15,7 +15,9 @@
 
 #ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_STUB_ABILITY_H
+
 #include <map>
+
 #include "edm_log.h"
 #include "func_code.h"
 #include "ienterprise_device_mgr.h"
@@ -26,7 +28,6 @@ namespace EDM {
 class EnterpriseDeviceMgrStub : public IRemoteStub<IEnterpriseDeviceMgr> {
 public:
     EnterpriseDeviceMgrStub();
-    ~EnterpriseDeviceMgrStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
@@ -38,7 +39,6 @@ private:
     ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
-    ErrCode GetReqEdmPermissionsInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
@@ -47,6 +47,7 @@ private:
     ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
     ErrCode UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
+    ErrCode AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS

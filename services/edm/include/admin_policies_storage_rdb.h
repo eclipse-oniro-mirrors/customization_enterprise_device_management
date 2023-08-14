@@ -17,6 +17,7 @@
 #define SERVICES_EDM_INCLUDE_ADMIN_POLICIES_STORAGE_RDB_H
 
 #include <unordered_map>
+
 #include "admin.h"
 #include "edm_rdb_data_manager.h"
 #include "json/json.h"
@@ -26,7 +27,6 @@ namespace EDM {
 class AdminPoliciesStorageRdb {
 public:
     AdminPoliciesStorageRdb();
-    ~AdminPoliciesStorageRdb() = default;
     static std::shared_ptr<AdminPoliciesStorageRdb> GetInstance();
     bool InsertAdmin(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo, const EntInfo &entInfo,
         AdminType role, const std::vector<std::string> &permissions);
@@ -39,6 +39,11 @@ public:
     bool UpdateManagedEvents(int32_t userId, const std::string &packageName,
         const std::vector<ManagedEvent> &managedEvents);
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> QueryAllAdmin();
+    bool InsertAuthorizedAdmin(const std::string &bundleName, const std::vector<std::string> &permissions,
+        const std::string &parentName);
+    bool UpdateAuthorizedAdmin(const std::string &bundleName, const std::vector<std::string> &permissions,
+        const std::string &parentName);
+
 private:
     NativeRdb::ValuesBucket CreateValuesBucket(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo,
         const EntInfo &entInfo, AdminType role, const std::vector<std::string> &permissions);
@@ -47,7 +52,7 @@ private:
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;
     static std::mutex mutexLock_;
 };
-}  // namespace EDM
-}  // namespace OHOS
+} // namespace EDM
+} // namespace OHOS
 
-#endif  // SERVICES_EDM_INCLUDE_ADMIN_POLICIES_STORAGE_RDB_H
+#endif // SERVICES_EDM_INCLUDE_ADMIN_POLICIES_STORAGE_RDB_H

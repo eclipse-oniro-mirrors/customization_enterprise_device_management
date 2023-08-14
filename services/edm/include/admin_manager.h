@@ -19,10 +19,11 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+
 #include "admin.h"
 #include "admin_policies_storage_rdb.h"
-#include "ent_info.h"
 #include "edm_permission.h"
+#include "ent_info.h"
 #include "json/json.h"
 #include "permission_manager.h"
 
@@ -42,7 +43,7 @@ public:
     ErrCode GetGrantedPermission(std::vector<std::string> &permissions, AdminType type);
     bool IsSuperAdminExist();
     bool IsAdminExist();
-    bool IsSuperAdmin(const std::string &bundleName);
+    bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     void Init();
     ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
@@ -51,8 +52,11 @@ public:
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
-    ErrCode GetSuperAdmin(std::shared_ptr<Admin> &admin);
-    virtual ~AdminManager();
+    ErrCode SaveAuthorizedAdmin(const std::string &bundleName, const std::vector<std::string> &permissions,
+        const std::string &parentName);
+    ErrCode GetSubOrSuperAdminByPkgName(const std::string &subAdminName, std::shared_ptr<Admin> &subOrSuperAdmin);
+    ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
+    ~AdminManager();
 
 private:
     AdminManager();
