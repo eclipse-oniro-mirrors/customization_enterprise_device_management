@@ -32,6 +32,7 @@ ohos_shared_library("bundlemanager") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
     "os_account:os_account_innerkits",

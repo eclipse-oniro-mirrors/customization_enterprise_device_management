@@ -35,6 +35,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::SYSTEM_API_DENIED, "not system application."},
     {EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED, "manage certificate failed $."},
     {EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED, "authorize permission to the application failed."},
+    {EdmReturnErrCode::APPLICATION_INSTALL_FAILED, "application install failed $."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

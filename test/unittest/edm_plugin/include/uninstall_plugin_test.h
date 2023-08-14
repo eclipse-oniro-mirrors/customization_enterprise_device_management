@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_UNINSTAL_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_UNINSTAL_PLUGIN_TEST_H
+#ifndef EDM_UNIT_TEST_UNINSTALL_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_UNINSTALL_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
 #include "uninstall_plugin.h"
@@ -31,4 +31,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_UNINSTAL_PLUGIN_TEST_H
+#endif // EDM_UNIT_TEST_UNINSTALL_PLUGIN_TEST_H

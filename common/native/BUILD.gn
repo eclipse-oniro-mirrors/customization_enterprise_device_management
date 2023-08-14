@@ -41,6 +41,7 @@ ohos_shared_library("edm_commom") {
   external_deps = [
     "ability_base:zuri",
     "ability_runtime:ability_manager",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "data_share:datashare_consumer",

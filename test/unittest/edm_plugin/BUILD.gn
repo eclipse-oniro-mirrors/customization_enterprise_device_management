@@ -19,7 +19,7 @@ config("module_private_config") {
   visibility = [ ":*" ]
 }
 
-ohos_unittest("EdmGetDeviceNamePluginTest") {
+ohos_unittest("EdmPluginTest") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -42,6 +42,7 @@ ohos_unittest("EdmGetDeviceNamePluginTest") {
     "./src/get_device_name_plugin_test.cpp",
     "./src/get_screen_off_time_plugin_test.cpp",
     "./src/global_proxy_plugin_test.cpp",
+    "./src/install_plugin_test.cpp",
     "./src/iptables_rule_plugin_test.cpp",
     "./src/is_wifi_active_plugin_test.cpp",
     "./src/network_manager_plugin_test.cpp",
@@ -117,6 +118,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/get_mac_plugin.cpp",
     "../../../services/edm_plugin/src/get_screen_off_time_plugin.cpp",
     "../../../services/edm_plugin/src/global_proxy_plugin.cpp",
+    "../../../services/edm_plugin/src/install_plugin.cpp",
     "../../../services/edm_plugin/src/iptables_rule_plugin.cpp",
     "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
     "../../../services/edm_plugin/src/reset_factory_plugin.cpp",
@@ -126,6 +128,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/usb_read_only_plugin.cpp",
     "../../../services/edm_plugin/src/user_cert_plugin.cpp",
     "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
@@ -178,6 +181,6 @@ group("unittest") {
 
   deps = [
     # deps file
-    ":EdmGetDeviceNamePluginTest",
+    ":EdmPluginTest",
   ]
 }
