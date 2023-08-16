@@ -26,6 +26,7 @@ namespace OHOS {
 namespace EDM {
 const std::string SETTINGS_DATA_FIELD_KEYWORD = "KEYWORD";
 const std::string SETTINGS_DATA_FIELD_VALUE = "VALUE";
+constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 const std::string EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 
@@ -34,7 +35,8 @@ ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseU
 {
     EDMLOGI("EdmDataAbilityUtils::GetStringFromDataShareHelper enter.");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObject, dataBaseUri);
+    std::string extUri = (dataBaseUri == SETTINGS_DATA_BASE_URI ? SETTINGS_DATA_EXT_URI : "");
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObject, dataBaseUri, extUri);
     if (dataShareHelper == nullptr) {
         EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
