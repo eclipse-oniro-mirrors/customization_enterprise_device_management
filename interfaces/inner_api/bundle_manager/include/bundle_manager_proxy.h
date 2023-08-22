@@ -41,10 +41,12 @@ private:
     static std::shared_ptr<BundleManagerProxy> instance_;
     static std::mutex mutexLock_;
     std::map<int32_t, uint32_t> policyTypeMap_;
-    ErrCode WriteFileToInner(MessageParcel &reply,
-        const std::string &hapFilePath, std::vector<std::string> &realPaths, std::string &errMessage);
+    ErrCode WriteFileToInner(MessageParcel &reply, const std::string &realPath, std::vector<std::string> &servicePaths,
+        std::string &errMessage);
     ErrCode WriteFileToStream(AppExecFwk::ElementName &admin, const std::string &path,
-        std::vector<std::string> &realPaths, std::string &errMessage);
+        std::vector<std::string> &servicePaths, std::string &errMessage);
+    ErrCode checkHapFilePath(const std::string &hapFilePath, std::string &fileName, std::string &realPath,
+        std::string &errMessage);
 };
 } // namespace EDM
 } // namespace OHOS

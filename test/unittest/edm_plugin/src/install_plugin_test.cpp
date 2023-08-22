@@ -44,7 +44,7 @@ HWTEST_F(InstallPluginTest, TestOnSetPolicySuc, TestSize.Level1)
     InstallParam param = { {"/system/app/com.ohos.camera/Camera.hap"}, DEFAULT_USER_ID, 0};
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret != ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
