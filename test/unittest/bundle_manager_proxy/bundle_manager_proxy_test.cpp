@@ -234,11 +234,11 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamSuc
- * @tc.desc: Test WriteFileToStream method success.
+ * @tc.name: TestWriteFileToStreamFail
+ * @tc.desc: Test WriteFileToStream method when file path is invalid.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath;
@@ -250,21 +250,35 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestInstallSuc
- * @tc.desc: Test Insatll method success.
+ * @tc.name: TestInstallFail
+ * @tc.desc: Test Insatll method with empty hapFilePaths.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestInstallSuc, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> hapFilePaths;
     AppExecFwk::InstallParam installParam;
     std::string retMsg;
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestWriteFileToInnerFail
+ * @tc.desc: Test Insatll method with invalid hap file paths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerFail, TestSize.Level1)
+{
+    MessageParcel reply;
+    reply.WriteFileDescriptor(-1);
+    std::string hapFilePaths;
+    std::vector<std::string> realPaths;
+    std::string retMsg;
+    ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_TRUE(retMsg == "write file to stream failed due to invalid file descriptor");
 }
 } // namespace TEST
 } // namespace EDM

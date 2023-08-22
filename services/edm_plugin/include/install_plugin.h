@@ -16,8 +16,9 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_INSTALL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_INSTALL_PLUGIN_H
 
-#include "iplugin_template.h"
+#include "install_param.h"
 #include "install_param_serializer.h"
+#include "iplugin_template.h"
 
 namespace OHOS {
 namespace EDM {
@@ -28,6 +29,14 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
     ErrCode OnSetPolicy(InstallParam &param, MessageParcel &reply);
+
+private:
+    bool CreateDirectory();
+
+    bool DeleteFiles();
+
+    ErrCode InstallParamInit(InstallParam &param, MessageParcel &reply, AppExecFwk::InstallParam &installParam,
+        std::vector<std::string> &realPaths);
 };
 } // namespace EDM
 } // namespace OHOS
