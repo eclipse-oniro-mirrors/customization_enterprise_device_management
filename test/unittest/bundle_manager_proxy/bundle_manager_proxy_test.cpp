@@ -246,7 +246,7 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail, TestSize.Level1)
     string errMessage;
     ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
-    ASSERT_TRUE(errMessage == "write file to stream failed due to invalid file path");
+    ASSERT_TRUE(errMessage == "install failed due to invalid hapFilePaths");
 }
 
 /**

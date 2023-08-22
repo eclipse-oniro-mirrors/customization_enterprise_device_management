@@ -317,7 +317,6 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
     }
     std::string innerFilePath = HAP_DIRECTORY + SEPARATOR + fileName;
     if ((innerFilePath.length() > PATH_MAX)) {
-        EDMLOGE("innerFilePath length is error, the len is: [%{public}d]", innerFilePath.length());
         errMessage = "invalid hap file path";
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
