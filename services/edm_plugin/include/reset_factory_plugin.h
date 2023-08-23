@@ -16,8 +16,8 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_RESET_FACTORY_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_RESET_FACTORY_PLUGIN_H
 
-#include "iplugin_template.h"
 #include "iplugin_manager.h"
+#include "plugin_singleton.h"
 #include "string_serializer.h"
 
 namespace OHOS {

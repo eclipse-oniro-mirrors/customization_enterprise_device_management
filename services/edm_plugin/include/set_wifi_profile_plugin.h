@@ -16,7 +16,7 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_PROFILE_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_PROFILE_PLUGIN_H
 
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "wifi_msg.h"
 
 namespace OHOS {

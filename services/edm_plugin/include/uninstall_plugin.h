@@ -16,7 +16,7 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_UNINSTALL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_UNINSTALL_PLUGIN_H
 
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "uninstall_param_serializer.h"
 
 namespace OHOS {

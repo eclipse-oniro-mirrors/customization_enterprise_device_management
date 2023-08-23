@@ -27,12 +27,12 @@
 #include "bool_serializer.h"
 #include "func_code_utils.h"
 #include "iplugin.h"
-#include "iplugin_template.h"
 #include "ipolicy_serializer.h"
 #include "json/json.h"
 #include "json_serializer.h"
 #include "map_string_serializer.h"
 #include "plugin_manager.h"
+#include "plugin_singleton.h"
 #include "string_serializer.h"
 
 namespace OHOS {

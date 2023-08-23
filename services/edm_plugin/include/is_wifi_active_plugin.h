@@ -17,7 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
 
 #include "iplugin_manager.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {

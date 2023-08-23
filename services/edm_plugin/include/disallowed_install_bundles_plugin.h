@@ -17,7 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDINSTALLBUNDLES_PLUGIN_H
 
 #include "bundle_install_plugin.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
