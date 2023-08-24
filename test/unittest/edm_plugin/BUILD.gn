@@ -64,6 +64,8 @@ ohos_unittest("EdmPluginTest") {
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
     "../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../test_bundle/ohos_test:copy_ohos_test",
+    "../test_bundle/right_hap:right",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
