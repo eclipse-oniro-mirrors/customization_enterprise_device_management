@@ -28,6 +28,9 @@ public:
     void SetUp() override;
     void TearDown() override;
     void PrepareBeforeHandleDevicePolicy();
+    void GetPolicySuccess(int32_t userId, const std::string& adminName, const std::string& policyName);
+    void GetPolicyFailed(int32_t userId, const std::string& adminName, const std::string& policyName);
+    void SetPolicy(const std::string& adminName, const std::string& policyName);
     int HandleDevicePolicyFuncTest001(void);
     int HandleDevicePolicyFuncTest002(void);
     int HandleDevicePolicyFuncTest003(void);

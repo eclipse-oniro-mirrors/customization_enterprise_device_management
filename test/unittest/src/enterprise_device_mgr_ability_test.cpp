@@ -88,6 +88,35 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 }
 
+void EnterpriseDeviceMgrAbilityTest::GetPolicySuccess(int32_t userId, const std::string& adminName,
+    const std::string& policyName)
+{
+    std::string policyValue;
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(userId);
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(adminName, policyName, policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    policyValue.clear();
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy("", policyName, policyValue)));
+    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+}
+
+void EnterpriseDeviceMgrAbilityTest::GetPolicyFailed(int32_t userId, const std::string& adminName,
+    const std::string& policyName)
+{
+    std::string policyValue;
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(userId);
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(adminName, policyName, policyValue)));
+    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy("", policyName, policyValue)));
+}
+
+void EnterpriseDeviceMgrAbilityTest::SetPolicy(const std::string& adminName, const std::string& policyName)
+{
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(adminName, policyName, TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
+    edmMgr_->policyMgr_->SetPolicy(adminName, policyName, TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+}
+
 /**
  * @tc.name: HandleDevicePolicyFuncTest000
  * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicy function.(return ERR_OK)
@@ -553,36 +582,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy,
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
     edmMgr_->pluginMgr_->AddPlugin(plugin);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
+    SetPolicy(subSuperAdmin, plugin->GetPolicyName());
     // remove user 101
     EventFwk::CommonEventData data;
     data.SetCode(TEST_USER_ID);
     edmMgr_->OnCommonEventUserRemoved(data);
     // get policy of userId = 101
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    std::string policyValue;
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(
-        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy("", plugin->GetPolicyName(), policyValue)));
+    GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // get policy of userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
-    EXPECT_TRUE(
-        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy("", plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    GetPolicySuccess(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicySuccess(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
     EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
     Utils::ResetTokenTypeAndUid();
@@ -645,10 +656,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     // sub-super admin set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
     edmMgr_->pluginMgr_->AddPlugin(plugin);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    SetPolicy(subSuperAdmin, plugin->GetPolicyName());
+
     // remove sub-super admin under userId = 101
     EventFwk::CommonEventData data;
     AAFwk::Want want;
@@ -659,15 +668,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     // get sub-super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) != nullptr);
     // get sub-super admin policy of sub-super admin with userId = 101
-    std::string policyValue;
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
+    GetPolicySuccess(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // get sub-super admin policy of sub-super admin with userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    GetPolicySuccess(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
+
     // remove sub-super admin under userId = 100
     want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
     data.SetWant(want);
@@ -675,11 +679,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     // get sub-super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
     // get sub-super admin policy of sub-super admin with userId = 101
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // get sub-super admin policy of sub-super admin with userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
+    GetPolicyFailed(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
     EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
     Utils::ResetTokenTypeAndUid();
@@ -706,14 +708,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
     edmMgr_->pluginMgr_->AddPlugin(plugin);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
+    SetPolicy(subSuperAdmin, plugin->GetPolicyName());
+
     // remove super admin under userId = 101
     EventFwk::CommonEventData data;
     AAFwk::Want want;
@@ -724,24 +721,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     // get sub-super admin and super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) != nullptr);
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) != nullptr);
-    // get policy of sub-super admin with userId = 101
-    std::string policyValue;
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
-    EXPECT_TRUE(
-        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
-    // get policy of sub-super admin with userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
-    policyValue.clear();
-    EXPECT_TRUE(
-        SUCCEEDED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
-    EXPECT_EQ(policyValue, TEST_POLICY_VALUE);
+    // get policy of super and sub-super admin with userId = 101
+    GetPolicySuccess(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicySuccess(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
+    // get policy of super and sub-super admin with userId = 100
+    GetPolicySuccess(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicySuccess(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
+
     // remove super under userId = 100
     want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
     data.SetWant(want);
@@ -749,16 +735,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     // get sub-super admin and super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
-    // get policy of sub-super admin with userId = 101
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(
-        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
-    // get policy of sub-super admin with userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(
-        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    // get policy of super and sub-super admin with userId = 100
+    GetPolicyFailed(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicyFailed(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
+    // get policy of super and sub-super admin with userId = 101
+    GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     Utils::ResetTokenTypeAndUid();
 }
 
@@ -783,30 +765,19 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSi
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
     edmMgr_->pluginMgr_->AddPlugin(plugin);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    edmMgr_->policyMgr_->SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), TEST_POLICY_VALUE,
-        TEST_POLICY_VALUE);
-    edmMgr_->policyMgr_->SetPolicy(subSuperAdmin, plugin->GetPolicyName(), TEST_POLICY_VALUE, TEST_POLICY_VALUE);
+    SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
+    SetPolicy(subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
     EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
     // get sub-super admin and super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
     // get policy of sub-super admin with userId = 101
-    std::string policyValue;
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(TEST_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(
-        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // get policy of sub-super admin with userId = 100
-    edmMgr_->policyMgr_ = edmMgr_->GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
-    EXPECT_TRUE(FAILED(edmMgr_->policyMgr_->GetPolicy(subSuperAdmin, plugin->GetPolicyName(), policyValue)));
-    EXPECT_TRUE(
-        FAILED(edmMgr_->policyMgr_->GetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName(), policyValue)));
+    GetPolicyFailed(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
+    GetPolicyFailed(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     Utils::ResetTokenTypeAndUid();
 }
 
