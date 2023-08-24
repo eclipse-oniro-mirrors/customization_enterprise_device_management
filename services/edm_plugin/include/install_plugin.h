@@ -18,7 +18,7 @@
 
 #include "install_param.h"
 #include "install_param_serializer.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {

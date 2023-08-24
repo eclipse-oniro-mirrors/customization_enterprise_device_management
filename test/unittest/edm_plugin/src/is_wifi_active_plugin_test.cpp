@@ -14,9 +14,9 @@
  */
 
 #include <gtest/gtest.h>
-#include "iplugin_template.h"
 #include "is_wifi_active_plugin.h"
 #include "iplugin_manager.h"
+#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;

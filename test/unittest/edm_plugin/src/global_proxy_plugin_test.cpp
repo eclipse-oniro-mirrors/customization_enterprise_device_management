@@ -18,7 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "global_proxy_plugin.h"
 #include "iplugin_manager.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;

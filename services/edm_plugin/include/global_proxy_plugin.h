@@ -19,7 +19,7 @@
 #include <message_parcel.h>
 
 #include "http_proxy.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {

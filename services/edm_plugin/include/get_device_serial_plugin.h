@@ -17,7 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_SERIAL_PLUGIN_H
 
 #include "string_serializer.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {

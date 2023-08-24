@@ -17,7 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_DATETIME_PLUGIN_H
 
 #include "bool_serializer.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {

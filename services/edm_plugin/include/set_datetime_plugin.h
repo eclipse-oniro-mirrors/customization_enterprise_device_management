@@ -16,8 +16,8 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_DATETIME_PLUGIN_H
 
-#include "iplugin_template.h"
 #include "iplugin_manager.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {

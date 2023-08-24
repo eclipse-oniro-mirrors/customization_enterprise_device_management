@@ -16,7 +16,7 @@
 #define private public
 #define protected public
 #include "enterprise_device_mgr_ability.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #undef protected
 #undef private
 #include <gtest/gtest.h>

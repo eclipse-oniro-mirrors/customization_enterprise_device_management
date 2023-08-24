@@ -14,8 +14,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "iplugin_template.h"
 #include "iplugin_manager.h"
+#include "plugin_singleton.h"
 #include "set_wifi_profile_plugin.h"
 #include "utils.h"
 

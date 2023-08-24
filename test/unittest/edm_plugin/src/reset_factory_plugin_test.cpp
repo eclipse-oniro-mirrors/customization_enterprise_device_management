@@ -15,7 +15,7 @@
 
 #include "reset_factory_plugin_test.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;

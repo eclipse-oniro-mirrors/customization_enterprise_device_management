@@ -14,7 +14,7 @@
  */
 
 #include "device_info_plugin_test.h"
-#include "iplugin_template.h"
+#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
