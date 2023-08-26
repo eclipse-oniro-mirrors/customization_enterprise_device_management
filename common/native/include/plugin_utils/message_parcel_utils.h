@@ -27,7 +27,7 @@ namespace OHOS {
 namespace EDM {
 class MessageParcelUtils {
 public:
-    static void WriteWifiDeviceConfig(const Wifi::WifiDeviceConfig &config, MessageParcel &data);
+    static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data);
     static void WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data);
     static void WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address);
     static void ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config);
