@@ -206,7 +206,7 @@ void MessageParcelUtils::ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress 
     address.addressIpv4 = data.ReadUint32();
     size_t size = data.ReadUint32();
     if (size > MAX_LIMIT_SIZE) {
-        EDMLOGE("Read ip address parameter error: %{public}d", size);
+        EDMLOGE("Read ip address parameter error: %{public}zu", size);
         return;
     }
     for (size_t i = 0; i < size; i++) {
