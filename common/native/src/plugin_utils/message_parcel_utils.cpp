@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace EDM {
-void MessageParcelUtils::WriteWifiDeviceConfig(const Wifi::WifiDeviceConfig &config, MessageParcel &data)
+void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data)
 {
     data.WriteInt32(config.networkId);
     data.WriteInt32(config.status);
@@ -55,7 +55,9 @@ void MessageParcelUtils::WriteWifiDeviceConfig(const Wifi::WifiDeviceConfig &con
     data.WriteString(config.wifiEapConfig.clientCert);
     data.WriteString(config.wifiEapConfig.privateKey);
     data.WriteUInt8Vector(config.wifiEapConfig.certEntry);
-    data.WriteString(std::string(config.wifiEapConfig.certPassword));
+    data.WriteCString(config.wifiEapConfig.certPassword);
+    memset_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), 0,
+        sizeof(config.wifiEapConfig.certPassword));
     data.WriteInt32(static_cast<int32_t>(config.wifiEapConfig.phase2Method));
     data.WriteInt32(static_cast<int32_t>(config.wifiProxyconfig.configureMethod));
     data.WriteString(config.wifiProxyconfig.autoProxyConfig.pacWebAddress);
@@ -76,7 +78,7 @@ void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpA
     data.WriteInt32(address.family);
     data.WriteUint32(address.addressIpv4);
     size_t size = address.addressIpv6.size();
-    data.WriteInt32(size);
+    data.WriteUint32(size);
     for (size_t i = 0; i < size; i++) {
         data.WriteUint8(address.addressIpv6[i]);
     }
@@ -117,7 +119,7 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiEapConfig.clientCert = data.ReadString();
     config.wifiEapConfig.privateKey = data.ReadString();
     data.ReadUInt8Vector(&config.wifiEapConfig.certEntry);
-    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), data.ReadString().c_str(),
+    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), data.ReadCString(),
         sizeof(config.wifiEapConfig.certPassword) - 1);
     ProcessPhase2Method(data.ReadInt32(), config.wifiEapConfig);
     ProcessConfigureProxyMethod(data.ReadInt32(), config.wifiProxyconfig);
@@ -202,12 +204,12 @@ void MessageParcelUtils::ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress 
     constexpr int MAX_LIMIT_SIZE = 1024;
     address.family = data.ReadInt32();
     address.addressIpv4 = data.ReadUint32();
-    int size = data.ReadInt32();
+    size_t size = data.ReadUint32();
     if (size > MAX_LIMIT_SIZE) {
-        EDMLOGE("Read ip address parameter error: %{public}d", size);
+        EDMLOGE("Read ip address parameter error: %{public}zu", size);
         return;
     }
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         address.addressIpv6.push_back(data.ReadUint8());
     }
 }

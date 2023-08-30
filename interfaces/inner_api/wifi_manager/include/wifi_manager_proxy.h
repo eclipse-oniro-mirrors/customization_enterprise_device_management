@@ -27,7 +27,7 @@ public:
     ~WifiManagerProxy();
     static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
     int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
-    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, const Wifi::WifiDeviceConfig &config);
+    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config);
 private:
     static std::shared_ptr<WifiManagerProxy> instance_;
     static std::mutex mutexLock_;

@@ -66,7 +66,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     return ERR_OK;
 }
 
-int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, const Wifi::WifiDeviceConfig &config)
+int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config)
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
