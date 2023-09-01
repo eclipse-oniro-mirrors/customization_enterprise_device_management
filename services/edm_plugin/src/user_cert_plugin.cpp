@@ -25,7 +25,8 @@
 namespace OHOS {
 namespace EDM {
 static constexpr uint32_t MAX_URI_LEN = 256;
-static constexpr uint32_t MAX_ALIAS_LEN = 64;
+static constexpr uint32_t MAX_ALIAS_LEN = 40;
+static constexpr uint32_t MAX_CERT_URI_LEN = 64;
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
 
 UserCertPlugin::UserCertPlugin()
@@ -55,6 +56,10 @@ ErrCode UserCertPlugin::InstallUserCert(MessageParcel &data, MessageParcel &repl
     std::vector<uint8_t> certArray;
     data.ReadUInt8Vector(&certArray);
     std::string alias = data.ReadString();
+    if (alias.length() >= MAX_ALIAS_LEN || alias.length() == 0) {
+        EDMLOGE("InstallUserCert alias length error");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
     uint8_t *ptr = certArray.data();
     CmBlob certCmBlob = {certArray.size(), ptr};
@@ -81,10 +86,14 @@ ErrCode UserCertPlugin::InstallUserCert(MessageParcel &data, MessageParcel &repl
 
 ErrCode UserCertPlugin::UninstallUserCert(MessageParcel &data, MessageParcel &reply)
 {
-    std::string alias = data.ReadString();
+    std::string certUri = data.ReadString();
+    if (certUri.length() >= MAX_CERT_URI_LEN || certUri.length() == 0) {
+        EDMLOGE("UninstallUserCert alias length error");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
-    uint8_t arr[MAX_ALIAS_LEN] = {0};
-    std::copy(alias.begin(), alias.end(), std::begin(arr));
+    uint8_t arr[MAX_CERT_URI_LEN] = {0};
+    std::copy(certUri.begin(), certUri.end(), std::begin(arr));
     CmBlob aliasCmBlob = {sizeof(arr), arr};
 
     int32_t ret = CmUninstallUserTrustedCert(&aliasCmBlob);
