@@ -20,6 +20,9 @@
 
 #include "edm_log.h"
 
+#include "accesstoken_kit.h"
+#include "ipc_skeleton.h"
+
 namespace OHOS {
 namespace EDM {
 
