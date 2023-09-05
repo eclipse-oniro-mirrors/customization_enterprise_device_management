@@ -47,6 +47,8 @@ ohos_shared_library("enterprise_admin_extension") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_context",
     "ability_runtime:runtime",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
