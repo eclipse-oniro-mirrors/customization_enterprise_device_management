@@ -14,6 +14,10 @@
  */
 
 #include "enterprise_admin_stub.h"
+
+#include <accesstoken_kit.h>
+#include <ipc_skeleton.h>
+
 #include "edm_log.h"
 
 #include "accesstoken_kit.h"
