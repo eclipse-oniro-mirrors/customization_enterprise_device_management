@@ -16,8 +16,14 @@
 #include "enterprise_admin_stub.h"
 #include "edm_log.h"
 
+#include "accesstoken_kit.h"
+#include "ipc_skeleton.h"
+
 namespace OHOS {
 namespace EDM {
+
+constexpr const int EDM_UID = 3057;
+
 EnterpriseAdminStub::EnterpriseAdminStub()
 {
     AddCallFuncMap();
@@ -88,6 +94,20 @@ int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
         EDMLOGE("EnterpriseAdminStub::OnRemoteRequest failed, descriptor is not matched!");
         return ERR_INVALID_STATE;
     }
+
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EDMLOGE("EnterpriseAdminStub::OnRemoteRequest failed, caller tokenType is not matched");
+        return ERR_INVALID_STATE;
+    }
+    int uid = GetCallingUid();
+    if (uid != EDM_UID) {
+        EDMLOGE("EnterpriseAdminStub::OnRemoteRequest failed, caller uid is not matched");
+        return ERR_INVALID_STATE;
+    }
+
     auto func = memberFuncMap_.find(code);
     if (func != memberFuncMap_.end()) {
         auto memberFunc = func->second;
