@@ -40,6 +40,14 @@ ohos_shared_library("usbmanager") {
   ]
 
   relative_install_dir = "module/enterprise"
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    debug = false
+    integer_overflow = true
+    stack_protector_ret = true
+    ubsan = true
+  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
