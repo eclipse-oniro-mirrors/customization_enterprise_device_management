@@ -99,6 +99,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
         return;
     }
     EDMLOGI("OnCommonEventUserRemoved");
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     // include super admin, need to be removed
     std::vector<std::shared_ptr<Admin>> userAdmin;
     adminMgr_->GetAdminByUserId(userIdToRemove, userAdmin);
