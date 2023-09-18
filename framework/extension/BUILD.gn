@@ -54,14 +54,6 @@ ohos_shared_library("enterprise_admin_extension") {
     "napi:ace_napi",
   ]
 
-  sanitize = {
-    boundary_sanitize = true
-    cfi = true
-    debug = false
-    integer_overflow = true
-    stack_protector_ret = true
-    ubsan = true
-  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
@@ -84,14 +76,6 @@ ohos_shared_library("enterprise_admin_extension_module") {
   ]
 
   relative_install_dir = "extensionability/"
-  sanitize = {
-    boundary_sanitize = true
-    cfi = true
-    debug = false
-    integer_overflow = true
-    stack_protector_ret = true
-    ubsan = true
-  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

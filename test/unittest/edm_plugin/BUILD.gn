@@ -94,14 +94,6 @@ ohos_unittest("EdmPluginTest") {
     external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 
-  sanitize = {
-    boundary_sanitize = true
-    cfi = true
-    debug = false
-    integer_overflow = true
-    stack_protector_ret = true
-    ubsan = true
-  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
@@ -182,14 +174,6 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 
-  sanitize = {
-    boundary_sanitize = true
-    cfi = true
-    debug = false
-    integer_overflow = true
-    stack_protector_ret = true
-    ubsan = true
-  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
