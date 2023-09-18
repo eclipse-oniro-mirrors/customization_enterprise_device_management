@@ -90,7 +90,7 @@ private:
     ErrCode UpdateDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
-        std::string &adminName);
+        std::string &adminName, const int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
