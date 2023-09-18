@@ -91,6 +91,14 @@ ohos_static_library("edmservice_static") {
     "//third_party/jsoncpp:jsoncpp",
   ]
 
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    debug = false
+    integer_overflow = true
+    stack_protector_ret = true
+    ubsan = true
+  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
@@ -156,6 +164,14 @@ ohos_unittest("EdmServicesUnitTest") {
     "samgr:samgr_proxy",
   ]
 
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    debug = false
+    integer_overflow = true
+    stack_protector_ret = true
+    ubsan = true
+  }
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
