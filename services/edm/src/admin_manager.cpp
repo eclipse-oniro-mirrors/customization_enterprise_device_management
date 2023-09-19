@@ -16,8 +16,12 @@
 #include "admin_manager.h"
 #include <algorithm>
 #include <ctime>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "directory_ex.h"
 #include "edm_log.h"
 #include "permission_manager.h"
@@ -513,6 +517,9 @@ void AdminManager::WriteJsonAdmin(const std::string &filePath, int32_t userId)
     writer->write(root, &ofs);
     ofs.flush();
     ofs.close();
+    int fd = open(filePath.c_str(), O_RDONLY);
+    fsync(fd);
+    close(fd);
     double time2 = clock();
     if (time1 != 0 && time2 != 0) {
         EDMLOGD("WriteJsonAdmin spend time %{public}f", (time2 - time1) / CLOCKS_PER_SEC);

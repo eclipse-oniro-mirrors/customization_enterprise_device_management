@@ -16,7 +16,10 @@
 #include "policy_manager.h"
 #include <algorithm>
 #include <ctime>
+#include <fcntl.h>
 #include <fstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include "directory_ex.h"
 #include "edm_log.h"
@@ -199,6 +202,9 @@ void PolicyManager::SavePolicy()
     if (!ChangeModeFile(EDM_POLICY_JSON_FILE, S_IRUSR | S_IWUSR)) {
         EDMLOGW("PolicyManager::ChangeModeFile failed");
     }
+    int fd = open(EDM_POLICY_JSON_FILE.c_str(), O_RDONLY);
+    fsync(fd);
+    close(fd);
     double time3 = clock();
     EDMLOGI("SavePolicy spend time %{public}f, %{public}f", (time2 - time1) / CLOCKS_PER_SEC,
         (time3 - time2) / CLOCKS_PER_SEC);
