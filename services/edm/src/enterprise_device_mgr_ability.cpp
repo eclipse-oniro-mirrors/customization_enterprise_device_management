@@ -116,7 +116,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
     // include super admin, need to be removed
     std::vector<std::shared_ptr<Admin>> userAdmin;
     adminMgr_->GetAdminByUserId(userIdToRemove, userAdmin);
-    policyMgr_ = GetAndSwitchPolicyManagerByUserId(userIdToRemove);
     for (auto &item : userAdmin) {
         if (FAILED(RemoveAdmin(item->adminInfo_.packageName_, userIdToRemove))) {
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved remove admin failed packagename = %{public}s",
@@ -131,7 +130,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved: remove sub and super admin policy failed.");
         }
     }
-    policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::CommonEventData &data)
@@ -586,6 +584,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
 {
     EDMLOGD("RemoveAdmin %{public}s, user id = %{public}d", adminName.c_str(), userId);
     std::unordered_map<std::string, std::string> policyItems;
+    policyMgr_ = GetAndSwitchPolicyManagerByUserId(userId);
     policyMgr_->GetAllPolicyByAdmin(adminName, policyItems);
     for (const auto &policyItem : policyItems) {
         std::string policyItemName = policyItem.first;
@@ -609,6 +608,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (shouldUnsubscribeAppState) {
         UnsubscribeAppState();
     }
+    policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
     return ERR_OK;
 }
 
@@ -616,13 +616,10 @@ ErrCode EnterpriseDeviceMgrAbility::RemovePolicyAndAdmin(const std::string &bund
 {
     for (auto it = policyMgrMap_.rbegin(); it != policyMgrMap_.rend(); ++it) {
         EDMLOGD("RemovePolicyAndAdmin: policyMgrMap_ it->first %{public}d", it->first);
-        policyMgr_ = GetAndSwitchPolicyManagerByUserId(it->first);
         if (FAILED(RemoveAdmin(bundleName, it->first))) {
-            policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
             return ERR_EDM_DEL_ADMIN_FAILED;
         }
     }
-    policyMgr_ = GetAndSwitchPolicyManagerByUserId(DEFAULT_USER_ID);
     return ERR_OK;
 }
 
@@ -890,7 +887,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     std::string getPermission = plugin->GetPermission(FuncOperateType::GET);
     // has admin
     if (data.ReadInt32() == 0) {
-        ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, adminName);
+        ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, adminName, userId);
         if (FAILED(ret)) {
             return ret;
         }
@@ -913,7 +910,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply,
-    const std::string &getPermission, std::string &adminName)
+    const std::string &getPermission, std::string &adminName, const int32_t userId)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
@@ -921,7 +918,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
-    std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
+    std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), userId);
     if (deviceAdmin == nullptr) {
         EDMLOGW("GetDevicePolicy: get admin failed");
         reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
