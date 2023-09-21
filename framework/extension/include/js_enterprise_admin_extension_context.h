@@ -19,13 +19,11 @@
 #include <memory>
 
 #include "enterprise_admin_extension_context.h"
-
-class NativeEngine;
-class NativeValue;
+#include "napi/native_api.h"
 
 namespace OHOS {
 namespace EDM {
-NativeValue* CreateJsEnterpriseAdminExtensionContext(NativeEngine& engine,
+napi_value CreateJsEnterpriseAdminExtensionContext(napi_env env,
     std::shared_ptr<EnterpriseAdminExtensionContext> context);
 } // namespace EDM
 } // namespace OHOS
