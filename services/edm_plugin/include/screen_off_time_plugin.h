@@ -13,21 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SCREEN_OFF_TIME_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SCREEN_OFF_TIME_PLUGIN_H
 
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class GetScreenOffTimePlugin : public PluginSingleton<GetScreenOffTimePlugin, int32_t> {
+class ScreenOffTimePlugin : public PluginSingleton<ScreenOffTimePlugin, int32_t> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetScreenOffTimePlugin, int32_t>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<ScreenOffTimePlugin, int32_t>> ptr) override;
+
+    ErrCode OnSetPolicy(int32_t &data);
 
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_SCREEN_OFF_TIME_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SCREEN_OFF_TIME_PLUGIN_H

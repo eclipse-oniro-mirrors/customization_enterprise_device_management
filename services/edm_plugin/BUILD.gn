@@ -35,16 +35,21 @@ edm_plugin_shared_library("account_manager_plugin") {
 }
 
 edm_plugin_shared_library("device_info_plugin") {
+  include_dirs = [ "./include/utils" ]
+
   sources = [
     "./src/get_device_name_plugin.cpp",
     "./src/get_device_serial_plugin.cpp",
     "./src/get_display_version_plugin.cpp",
+    "./src/utils/settings_data_share_utils.cpp",
   ]
 
   deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
+    "ability_base:zuri",
     "c_utils:utils",
+    "data_share:datashare_consumer",
     "init:libbegetutil",
   ]
 }
@@ -152,16 +157,21 @@ edm_plugin_shared_library("application_manager_plugin") {
 }
 
 edm_plugin_shared_library("device_settings_plugin") {
+  include_dirs = [ "./include/utils" ]
+
   sources = [
-    "./src/get_screen_off_time_plugin.cpp",
+    "./src/screen_off_time_plugin.cpp",
     "./src/user_cert_plugin.cpp",
+    "./src/utils/settings_data_share_utils.cpp",
   ]
 
   deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
+    "ability_base:zuri",
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
+    "data_share:datashare_consumer",
   ]
 }
 

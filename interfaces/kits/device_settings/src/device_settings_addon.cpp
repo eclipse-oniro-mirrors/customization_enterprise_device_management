@@ -21,12 +21,49 @@ using namespace OHOS::EDM;
 napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor property[] = {
+        DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
         DECLARE_NAPI_FUNCTION("getScreenOffTime", GetScreenOffTime),
         DECLARE_NAPI_FUNCTION("installUserCertificate", InstallUserCertificate),
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetScreenOffTime called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
+
+    auto asyncCallbackInfo = new (std::nothrow) AsyncScreenOffTimeCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncScreenOffTimeCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "GetScreenOffTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->time, argv[ARR_INDEX_ONE]),
+        "element name param error");
+    EDMLOGD("SetScreenOffTime time = %{public}d", asyncCallbackInfo->time);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetScreenOffTime(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->time);
+    if (FAILED(asyncCallbackInfo->ret)) {
+        napi_throw(env, CreateError(env, asyncCallbackInfo->ret));
+        EDMLOGE("SetScreenOffTime failed!");
+    }
+    return nullptr;
 }
 
 napi_value DeviceSettingsAddon::GetScreenOffTime(napi_env env, napi_callback_info info)
@@ -43,11 +80,11 @@ napi_value DeviceSettingsAddon::GetScreenOffTime(napi_env env, napi_callback_inf
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
     }
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncDeviceSettingsCallbackInfo();
+    auto asyncCallbackInfo = new (std::nothrow) AsyncScreenOffTimeCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncDeviceSettingsCallbackInfo> callbackPtr{asyncCallbackInfo};
+    std::unique_ptr<AsyncScreenOffTimeCallbackInfo> callbackPtr{asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
     EDMLOGD(
@@ -72,13 +109,9 @@ void DeviceSettingsAddon::NativeGetScreenOffTime(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDeviceSettingsCallbackInfo *asyncCallbackInfo = static_cast<AsyncDeviceSettingsCallbackInfo *>(data);
-    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get DeviceSettingsProxy");
-        return;
-    }
-    asyncCallbackInfo->ret = proxy->GetScreenOffTime(asyncCallbackInfo->elementName, asyncCallbackInfo->intRet);
+    AsyncScreenOffTimeCallbackInfo *asyncCallbackInfo = static_cast<AsyncScreenOffTimeCallbackInfo *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetScreenOffTime(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->intRet);
 }
 
 napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callback_info info)

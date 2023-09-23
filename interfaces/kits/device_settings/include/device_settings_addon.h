@@ -27,8 +27,9 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncDeviceSettingsCallbackInfo : AsyncCallbackInfo {
+struct AsyncScreenOffTimeCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
+    int32_t time = 0;
 };
 
 struct AsyncCertCallbackInfo : AsyncCallbackInfo {
@@ -42,6 +43,7 @@ public:
     static napi_value Init(napi_env env, napi_value exports);
 
 private:
+    static napi_value SetScreenOffTime(napi_env env, napi_callback_info info);
     static napi_value GetScreenOffTime(napi_env env, napi_callback_info info);
     static void NativeGetScreenOffTime(napi_env env, void *data);
 

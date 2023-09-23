@@ -22,6 +22,7 @@ namespace EDM {
 class DeviceSettingsProxy {
 public:
     static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
+    int32_t SetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t value);
     int32_t GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin, const std::vector<uint8_t> &certArray,
         std::string &alias, std::string &result, std::string &innerCodeMsg);

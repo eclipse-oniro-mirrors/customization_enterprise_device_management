@@ -36,6 +36,18 @@ std::shared_ptr<DeviceSettingsProxy> DeviceSettingsProxy::GetDeviceSettingsProxy
     return instance_;
 }
 
+int32_t DeviceSettingsProxy::SetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t value)
+{
+    EDMLOGD("DeviceSettingsProxy::SetScreenOffTime");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SCREEN_OFF_TIME);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
 int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value)
 {
     EDMLOGD("DeviceSettingsProxy::GetScreenOffTime");

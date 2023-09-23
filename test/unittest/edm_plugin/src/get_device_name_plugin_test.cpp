@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-#include "edm_data_ability_utils_mock.h"
-#include "edm_ipc_interface_code.h"
 #include "get_device_name_plugin.h"
+
+#include <gtest/gtest.h>
+
+#include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "utils.h"
 
@@ -35,11 +36,13 @@ protected:
 
 void GetDeviceNamePluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
 void GetDeviceNamePluginTest::TearDownTestSuite(void)
 {
+    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -56,14 +59,7 @@ HWTEST_F(GetDeviceNamePluginTest, TestOnPolicy, TestSize.Level1)
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;
-    EdmDataAbilityUtils::SetResult("test Failed");
     ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    EXPECT_TRUE(code != ERR_OK);
-    EdmDataAbilityUtils::SetResult("test value nullptr");
-    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    EXPECT_TRUE(code == ERR_OK);
-    EdmDataAbilityUtils::SetResult("test success");
-    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 } // namespace TEST

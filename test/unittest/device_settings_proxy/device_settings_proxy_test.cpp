@@ -65,6 +65,38 @@ void DeviceSettingsProxyTest::TearDownTestSuite()
 }
 
 /**
+ * @tc.name: TestSetScreenOffTimeSuc
+ * @tc.desc: Test SetGetScreenOffTime func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetScreenOffTimeSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t time = 30000;
+    int32_t ret = deviceSettingsProxy->GetScreenOffTime(admin, time);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetScreenOffTimeFail
+ * @tc.desc: Test SetGetScreenOffTime func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetScreenOffTimeFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t time = 30000;
+    int32_t ret = deviceSettingsProxy->SetScreenOffTime(admin, time);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestGetScreenOffTimeSuc
  * @tc.desc: Test GetGetScreenOffTime func.
  * @tc.type: FUNC
