@@ -116,7 +116,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "./mock/src/bundle_manager_mock.cpp",
     "./mock/src/edm_sys_manager_mock.cpp",
     "./src/admin_manager_test.cpp",
-    "./src/edm_data_ability_utils_test.cpp",
     "./src/edm_permission_test.cpp",
     "./src/edm_sys_manager_test.cpp",
     "./src/ent_info_test.cpp",
