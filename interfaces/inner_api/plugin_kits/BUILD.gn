@@ -18,7 +18,6 @@ config("plugin_kits_config") {
     "include",
     "include/utils",
     "../common/include",
-    "//third_party/jsoncpp/include",
   ]
 }
 
@@ -40,7 +39,10 @@ ohos_shared_library("plugin_kits") {
 
   version_script = "libplugin_kits.map"
 
-  all_dependent_configs = [ ":plugin_kits_config" ]
+  all_dependent_configs = [
+    ":plugin_kits_config",
+    "//third_party/jsoncpp:jsoncpp_public_config",
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
