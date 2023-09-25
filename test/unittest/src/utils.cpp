@@ -32,6 +32,7 @@ const std::string PERMISSION_ACCESS_CERT_MANAGER_INTERNAL = "ohos.permission.ACC
 const std::string PERMISSION_ACCESS_CERT_MANAGER = "ohos.permission.ACCESS_CERT_MANAGER";
 const std::string PERMISSION_NETSYS_INTERNAL = "ohos.permission.NETSYS_INTERNAL";
 const std::string PERMISSION_INSTALL_BUNDLE = "ohos.permission.INSTALL_BUNDLE";
+const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -77,7 +78,8 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_ACCESS_CERT_MANAGER_INTERNAL.c_str(),
         PERMISSION_ACCESS_CERT_MANAGER.c_str(),
         PERMISSION_NETSYS_INTERNAL.c_str(),
-        PERMISSION_INSTALL_BUNDLE.c_str()
+        PERMISSION_INSTALL_BUNDLE.c_str(),
+        PERMISSION_RUNNING_STATE_OBSERVER.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);

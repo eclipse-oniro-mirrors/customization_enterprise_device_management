@@ -53,6 +53,7 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permiss
 const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
     "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
+const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 
 class EnterpriseDeviceMgrAbilityTest : public testing::Test {
 protected:
@@ -768,7 +769,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Le
     admin.SetAbilityName("com.edm.test.demo.ipc.suc.MainAbility");
     EntInfo entInfo("test", "this is test");
     const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str(), PERMISSION_RUNNING_STATE_OBSERVER.c_str()};
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
