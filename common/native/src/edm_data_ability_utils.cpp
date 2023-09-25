@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "edm_data_ability_utils.h"
 
 #include "datashare_helper.h"

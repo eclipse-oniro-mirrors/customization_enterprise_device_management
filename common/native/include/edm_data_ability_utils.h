@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_SETTINGS_DATA_SHARE_UTILS_h
-#define COMMON_NATIVE_INCLUDE_SETTINGS_DATA_SHARE_UTILS_h
+#ifndef COMMON_NATIVE_INCLUDE_EDM_DATA_ABILITY_UTILS_H
+#define COMMON_NATIVE_INCLUDE_EDM_DATA_ABILITY_UTILS_H
 
 #include <iostream>
 #include <string>
@@ -33,4 +33,4 @@ public:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_NATIVE_INCLUDE_SETTINGS_DATA_SHARE_UTILS_h
+#endif // COMMON_NATIVE_INCLUDE_EDM_DATA_ABILITY_UTILS_H
