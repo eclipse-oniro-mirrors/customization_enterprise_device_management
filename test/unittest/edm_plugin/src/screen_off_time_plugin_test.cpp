@@ -17,8 +17,6 @@
 
 #include <gtest/gtest.h>
 
-#include <map>
-
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"

@@ -19,13 +19,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string SETTINGS_DATA_FIELD_KEYWORD = "KEYWORD";
-const std::string SETTINGS_DATA_FIELD_VALUE = "VALUE";
-const std::string SETTINGS_DATA_BASE_URI =
-    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
-
-const std::string EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
-const std::string EdmDataAbilityUtils::KEY_DEVICE_NAME = "settings.general.device_name";
 
 std::string EdmDataAbilityUtils::result_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
