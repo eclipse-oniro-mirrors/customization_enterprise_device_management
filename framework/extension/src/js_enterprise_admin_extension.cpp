@@ -73,41 +73,31 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
 
 void JsEnterpriseAdminExtension::JsEnterpriseAdminExtensionContextInit()
 {
-    NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(jsObj_->Get());
-    if (obj == nullptr) {
-        HILOG_INFO("JsEnterpriseAdminExtension Failed to get JsEnterpriseAdminExtension object");
-        return;
-    }
+    napi_value obj = jsObj_->GetNapiValue();
 
-    auto& engine = jsRuntime_.GetNativeEngine();
+    auto env = jsRuntime_.GetNapiEnv();
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_INFO("JsEnterpriseAdminExtension Failed to get context");
         return;
     }
     HILOG_INFO("JsEnterpriseAdminExtension::Init CreateJsEnterpriseAdminExtensionContext.");
-    NativeValue* contextObj = CreateJsEnterpriseAdminExtensionContext(engine, context);
+    napi_value contextObj = CreateJsEnterpriseAdminExtensionContext(env, context);
     auto shellContextRef = jsRuntime_.LoadSystemModule("enterprise.EnterpriseAdminExtensionContext",
         &contextObj, JS_NAPI_ARGC_ONE);
-    contextObj = shellContextRef->Get();
+    contextObj = shellContextRef->GetNapiValue();
     HILOG_INFO("JsEnterpriseAdminExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
     HILOG_INFO("JsEnterpriseAdminExtension::SetProperty.");
-    obj->SetProperty("context", contextObj);
-
-    auto nativeObj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get enterprise admin extension native object");
-        return;
-    }
+    napi_set_named_property(env, obj, "context", contextObj);
 
     HILOG_INFO("Set enterprise admin extension context");
 
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
-        [](NativeEngine*, void* data, void*) {
+    napi_wrap(env, contextObj, new std::weak_ptr<AbilityRuntime::Context>(context),
+        [](napi_env env, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
-        }, nullptr);
+        }, nullptr, nullptr);
 
     HILOG_INFO("JsEnterpriseAdminExtension::Init end.");
 }
@@ -167,8 +157,8 @@ void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnBundleAdded");
     auto task = [bundleName, this]() {
-        auto& engine = jsRuntime_.GetNativeEngine();
-        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
@@ -178,8 +168,8 @@ void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnBundleRemoved");
     auto task = [bundleName, this]() {
-        auto& engine = jsRuntime_.GetNativeEngine();
-        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
@@ -189,8 +179,8 @@ void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnAppStart");
     auto task = [bundleName, this]() {
-        auto& engine = jsRuntime_.GetNativeEngine();
-        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onAppStart", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
@@ -200,14 +190,14 @@ void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::OnAppStop");
     auto task = [bundleName, this]() {
-        auto& engine = jsRuntime_.GetNativeEngine();
-        NativeValue* argv[] = { AbilityRuntime::CreateJsValue(engine, bundleName) };
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onAppStop", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
 }
 
-NativeValue* JsEnterpriseAdminExtension::CallObjectMethod(const char* name, NativeValue** argv, size_t argc)
+napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_value* argv, size_t argc)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::CallObjectMethod(%{public}s), begin", name);
 
@@ -217,22 +207,28 @@ NativeValue* JsEnterpriseAdminExtension::CallObjectMethod(const char* name, Nati
     }
 
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto env = jsRuntime_.GetNapiEnv();
 
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value value = jsObj_->GetNapiValue();
+    if (value == nullptr) {
         HILOG_ERROR("Failed to get EnterpriseAdminExtension object");
         return nullptr;
     }
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, name, &method);
 
-    NativeValue* method = obj->GetProperty(name);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get '%{public}s' from EnterpriseAdminExtension object", name);
         return nullptr;
     }
+
     HILOG_INFO("JsEnterpriseAdminExtension::CallFunction(%{public}s), success", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    napi_value result = nullptr;
+    napi_status status = napi_call_function(env, value, method, argc, argv, &result);
+    if (status != napi_ok) {
+        HILOG_ERROR("Failed to call function");
+    }
+    return result;
 }
 
 void JsEnterpriseAdminExtension::GetSrcPath(std::string& srcPath)

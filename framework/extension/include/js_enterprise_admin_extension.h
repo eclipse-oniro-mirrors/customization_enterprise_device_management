@@ -65,7 +65,7 @@ public:
 
     void OnAppStop(const std::string &bundleName);
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue** argv, size_t argc);
+    napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 
     void JsEnterpriseAdminExtensionContextInit();
 

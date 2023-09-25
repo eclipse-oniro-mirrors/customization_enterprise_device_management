@@ -18,7 +18,6 @@
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
-#include "napi/native_api.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,7 +28,7 @@ public:
         : context_(context) {}
     ~JsEnterpriseAdminExtensionContext() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint)
+    static void Finalizer(napi_env env, void* data, void* hint)
     {
         std::unique_ptr<JsEnterpriseAdminExtensionContext>(
             static_cast<JsEnterpriseAdminExtensionContext*>(data));
@@ -39,15 +38,14 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsEnterpriseAdminExtensionContext(NativeEngine& engine,
+napi_value CreateJsEnterpriseAdminExtensionContext(napi_env env,
     std::shared_ptr<EnterpriseAdminExtensionContext> context)
 {
-    NativeValue *objValue = AbilityRuntime::CreateJsExtensionContext(engine, context);
-    NativeObject *object = AbilityRuntime::ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value objValue = AbilityRuntime::CreateJsExtensionContext(env, context);
 
     std::unique_ptr<JsEnterpriseAdminExtensionContext> jsContext =
         std::make_unique<JsEnterpriseAdminExtensionContext>(context);
-    object->SetNativePointer(jsContext.release(), JsEnterpriseAdminExtensionContext::Finalizer, nullptr);
+    napi_wrap(env, objValue, jsContext.release(), JsEnterpriseAdminExtensionContext::Finalizer, nullptr, nullptr);
     return objValue;
 }
 } // namespace EDM
