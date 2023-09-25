@@ -19,6 +19,7 @@
 
 #include <map>
 
+#include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "utils.h"
@@ -89,7 +90,13 @@ HWTEST_F(ScreenOffTimePluginTest, TestOnGetPolicy, TestSize.Level1)
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;
+
+    EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
     ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    EXPECT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    EdmDataAbilityUtils::SetResult("test success");
+    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 

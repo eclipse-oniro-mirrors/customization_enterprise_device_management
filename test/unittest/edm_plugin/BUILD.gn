@@ -38,6 +38,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallow_add_local_account_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_running_bundles_plugin_test.cpp",
+    "./src/edm_data_ability_utils_mock.cpp",
     "./src/get_device_name_plugin_test.cpp",
     "./src/global_proxy_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
@@ -51,7 +52,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/uninstall_plugin_test.cpp",
     "./src/usb_read_only_plugin_test.cpp",
     "./src/user_cert_plugin_test.cpp",
-    "./src/utils/settings_data_share_utils_test.cpp",
   ]
 
   configs = [
@@ -71,7 +71,6 @@ ohos_unittest("EdmPluginTest") {
   ]
 
   external_deps = [
-    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -79,7 +78,6 @@ ohos_unittest("EdmPluginTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
-    "data_share:datashare_consumer",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -142,7 +140,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
-    "../../../services/edm_plugin/src/utils/settings_data_share_utils.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
   ]
@@ -162,7 +159,6 @@ ohos_static_library("edm_all_plugin_static") {
   ]
 
   external_deps = [
-    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -170,7 +166,6 @@ ohos_static_library("edm_all_plugin_static") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
-    "data_share:datashare_consumer",
     "hilog:libhilog",
     "init:libbegetutil",
     "netmanager_base:net_conn_manager_if",

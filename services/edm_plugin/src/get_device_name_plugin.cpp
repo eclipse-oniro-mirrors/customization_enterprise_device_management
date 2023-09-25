@@ -15,9 +15,9 @@
 
 #include "get_device_name_plugin.h"
 
+#include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "parameter.h"
-#include "settings_data_share_utils.h"
 #include "string_serializer.h"
 
 namespace OHOS {
@@ -38,7 +38,7 @@ ErrCode GetDeviceNamePlugin::OnGetPolicy(std::string &policyData, MessageParcel 
 {
     EDMLOGI("GetDeviceNamePlugin OnGetPolicy GetMarketName");
     std::string name;
-    ErrCode code = SettingsDataShareUtils::GetDeviceName(name);
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmDataAbilityUtils::KEY_DEVICE_NAME, name);
     if (code != ERR_OK) {
         EDMLOGD("GetDeviceNamePlugin::get device name from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);

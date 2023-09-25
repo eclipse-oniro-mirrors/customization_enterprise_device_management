@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_UTILS_SETTINGS_DATA_ABILITY_UTILS_H
-#define SERVICES_EDM_INCLUDE_UTILS_SETTINGS_DATA_ABILITY_UTILS_H
+#ifndef EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
+#define EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
 
+#include <gmock/gmock.h>
 #include <iostream>
 #include <string>
-
 #include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
-class SettingsDataShareUtils {
+class EdmDataAbilityUtils {
 public:
-    static ErrCode GetScreenOffTime(int32_t &result);
-    static ErrCode GetDeviceName(std::string &value);
-    static ErrCode SetScreenOffTime(const std::string &value);
-
-private:
+    static const std::string KEY_SCREEN_OFF_TIME;
+    static const std::string KEY_DEVICE_NAME;
     static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
-    static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &result);
-    static ErrCode UpdateSettingsData(const std::string &key, const std::string &value);
+    static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &value);
+    static void SetResult(const std::string &result);
+private:
+    static std::string result_;
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_UTILS_SETTINGS_DATA_ABILITY_UTILS_H
+#endif // EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H

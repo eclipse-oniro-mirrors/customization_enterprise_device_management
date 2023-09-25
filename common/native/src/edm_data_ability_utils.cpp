@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "settings_data_share_utils.h"
+#include "edm_data_ability_utils.h"
 
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
@@ -30,32 +30,17 @@ constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdat
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 
-const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
-const std::string KEY_DEVICE_NAME = "settings.general.device_name";
+const std::string EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
+const std::string EdmDataAbilityUtils::KEY_DEVICE_NAME = "settings.general.device_name";
 
-ErrCode SettingsDataShareUtils::GetScreenOffTime(int32_t &result)
+ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
-    return GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
-}
-
-ErrCode SettingsDataShareUtils::GetDeviceName(std::string &value)
-{
-    return GetStringFromSettingsDataShare(KEY_DEVICE_NAME, value);
-}
-
-ErrCode SettingsDataShareUtils::SetScreenOffTime(const std::string &value)
-{
-    return UpdateSettingsData(KEY_SCREEN_OFF_TIME, value);
-}
-
-ErrCode SettingsDataShareUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
-{
-    EDMLOGD("SettingsDataShareUtils::GetStringFromSettingsDataShare enter.");
+    EDMLOGD("EdmDataAbilityUtils::GetStringFromSettingsDataShare enter.");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     auto dataShareHelper =
         DataShare::DataShareHelper::Creator(remoteObject, SETTINGS_DATA_BASE_URI, SETTINGS_DATA_EXT_URI);
     if (dataShareHelper == nullptr) {
-        EDMLOGE("SettingsDataShareUtils::Acquire dataShareHelper failed.");
+        EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     Uri uri(SETTINGS_DATA_BASE_URI);
@@ -64,13 +49,13 @@ ErrCode SettingsDataShareUtils::GetStringFromSettingsDataShare(const std::string
     predicates.EqualTo(SETTINGS_DATA_FIELD_KEYWORD, key);
     auto resultset = dataShareHelper->Query(uri, predicates, columns);
     if (resultset == nullptr) {
-        EDMLOGE("SettingsDataShareUtils::GetStringFromDataAbility query fail.");
+        EDMLOGE("EdmDataAbilityUtils::GetStringFromDataAbility query fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t numRows = 0;
     resultset->GetRowCount(numRows);
     if (numRows <= 0) {
-        EDMLOGD("SettingsDataShareUtils::GetStringFromDataAbility row zero.");
+        EDMLOGD("EdmDataAbilityUtils::GetStringFromDataAbility row zero.");
         return ERR_OK;
     }
     int columnIndex = 0;
@@ -80,28 +65,28 @@ ErrCode SettingsDataShareUtils::GetStringFromSettingsDataShare(const std::string
     return ERR_OK;
 }
 
-ErrCode SettingsDataShareUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &result)
+ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &result)
 {
     std::string valueStr;
     if (FAILED(GetStringFromSettingsDataShare(key, valueStr))) {
-        EDMLOGE("SettingsDataShareUtils::GetIntFromSettingsDataShare fail");
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (valueStr.empty()) {
-        EDMLOGE("SettingsDataShareUtils::GetIntFromSettingsDataShare empty.");
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare empty.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     result = strtol(valueStr.c_str(), nullptr, EdmConstants::DECIMAL);
     return ERR_OK;
 }
 
-ErrCode SettingsDataShareUtils::UpdateSettingsData(const std::string &key, const std::string &value)
+ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &key, const std::string &value)
 {
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     auto dataShareHelper =
         DataShare::DataShareHelper::Creator(remoteObject, SETTINGS_DATA_BASE_URI, SETTINGS_DATA_EXT_URI);
     if (dataShareHelper == nullptr) {
-        EDMLOGE("SettingsDataShareUtils::Acquire dataShareHelper failed.");
+        EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::string strUri = SETTINGS_DATA_BASE_URI + "&key=" + key;

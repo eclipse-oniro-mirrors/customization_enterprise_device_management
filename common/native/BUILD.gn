@@ -23,6 +23,7 @@ config("edm_commom_all_dependent_configs") {
 ohos_shared_library("edm_commom") {
   sources = [
     "./src/bundle_manager_utils.cpp",
+    "./src/edm_data_ability_utils.cpp",
     "./src/edm_permission.cpp",
     "./src/edm_sys_manager.cpp",
     "./src/plugin_utils/iptables_utils.cpp",
@@ -38,10 +39,12 @@ ohos_shared_library("edm_commom") {
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
   external_deps = [
+    "ability_base:zuri",
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
