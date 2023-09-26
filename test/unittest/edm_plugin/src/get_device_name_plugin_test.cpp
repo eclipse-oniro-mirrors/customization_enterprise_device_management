@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
+#include "get_device_name_plugin.h"
+
 #include <gtest/gtest.h>
+
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
-#include "get_device_name_plugin.h"
 #include "iplugin_manager.h"
 #include "utils.h"
 
@@ -35,11 +37,13 @@ protected:
 
 void GetDeviceNamePluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
 void GetDeviceNamePluginTest::TearDownTestSuite(void)
 {
+    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;

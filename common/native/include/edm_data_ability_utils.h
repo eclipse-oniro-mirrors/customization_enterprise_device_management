@@ -18,16 +18,16 @@
 
 #include <iostream>
 #include <string>
+
 #include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
 class EdmDataAbilityUtils {
 public:
-    static const std::string SETTINGS_DATA_BASE_URI;
-
-    static ErrCode GetStringFromDataShare(const std::string &dataBaseUri, const std::string &key, std::string &value);
-    static ErrCode GetIntFromDataShare(const std::string &dataBaseUri, const std::string &key, int32_t &result);
+    static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
+    static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &result);
+    static ErrCode UpdateSettingsData(const std::string &key, const std::string &value);
 };
 } // namespace EDM
 } // namespace OHOS

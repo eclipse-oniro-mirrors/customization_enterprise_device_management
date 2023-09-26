@@ -14,18 +14,19 @@
  */
 
 #include "edm_data_ability_utils_mock.h"
+
 #include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
+
 std::string EdmDataAbilityUtils::result_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
 {
     result_ = result;
 }
 
-ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseUri,
-    const std::string &key, std::string &value)
+ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetStringFromDataShare start: " << result_.c_str();
     if (result_ == "test Failed") {
@@ -40,8 +41,7 @@ ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseU
     return ERR_OK;
 }
 
-ErrCode EdmDataAbilityUtils::GetIntFromDataShare(const std::string &dataBaseUri,
-    const std::string &key, int32_t &value)
+ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &value)
 {
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetIntFromDataShare start: " << result_.c_str();
     if (result_ == "SYSTEM_ABNORMALLY") {

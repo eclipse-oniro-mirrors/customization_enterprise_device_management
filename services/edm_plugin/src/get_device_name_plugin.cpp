@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PREDICATES_STRING = "settings.general.device_name";
+const std::string KEY_DEVICE_NAME = "settings.general.device_name";
 
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
 
@@ -39,8 +39,7 @@ ErrCode GetDeviceNamePlugin::OnGetPolicy(std::string &policyData, MessageParcel 
 {
     EDMLOGI("GetDeviceNamePlugin OnGetPolicy GetMarketName");
     std::string name;
-    ErrCode code = EdmDataAbilityUtils::GetStringFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI,
-        PREDICATES_STRING, name);
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, name);
     if (code != ERR_OK) {
         EDMLOGD("GetDeviceNamePlugin::get device name from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);

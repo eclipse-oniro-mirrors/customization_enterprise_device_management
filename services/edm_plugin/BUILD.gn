@@ -153,7 +153,7 @@ edm_plugin_shared_library("application_manager_plugin") {
 
 edm_plugin_shared_library("device_settings_plugin") {
   sources = [
-    "./src/get_screen_off_time_plugin.cpp",
+    "./src/screen_off_time_plugin.cpp",
     "./src/user_cert_plugin.cpp",
   ]
 

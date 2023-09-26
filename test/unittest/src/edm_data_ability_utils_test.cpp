@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include "edm_data_ability_utils.h"
+
+#include <gtest/gtest.h>
+
 #include "utils.h"
 
 using namespace testing::ext;
@@ -22,10 +24,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string INVALID_BASE_URI =
-    "datashare:///com.ohos.invalid/entry/settingsdata/SETTINGSDATA?Proxy=true";
-const std::string ERROR_URI = "datashare:///com.ohos.settingsdata";
-const std::string PREDICATES_STRING = "settings.general.device_name";
+const std::string KEY_DEVICE_NAME = "settings.general.device_name";
 const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
 const std::string INVAILD_STRING = "settings.general.invalid_string";
 
@@ -57,45 +56,48 @@ void EdmDataAbilityUtilsTest::TearDownTestSuite()
 }
 
 /**
- * @tc.name: TestGetStringFromDataShare
- * @tc.desc: Test GetStringFromDataShare function.
+ * @tc.name: TestGetStringFromSettingsDataShare
+ * @tc.desc: Test GetStringFromSettingsDataShare function.
  * @tc.type: FUNC
  */
-HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromDataShare, TestSize.Level1)
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromSettingsDataShare, TestSize.Level1)
 {
     std::string result;
-    ErrCode code = EdmDataAbilityUtils::GetStringFromDataShare(ERROR_URI, PREDICATES_STRING, result);
-    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-
-    code = EdmDataAbilityUtils::GetStringFromDataShare(INVALID_BASE_URI, PREDICATES_STRING, result);
-    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-
-    EdmDataAbilityUtils::GetStringFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, INVAILD_STRING, result);
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(INVAILD_STRING, result);
+    ASSERT_TRUE(code == ERR_OK);
     ASSERT_TRUE(result.empty());
 
-    EdmDataAbilityUtils::GetStringFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, PREDICATES_STRING, result);
+    code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, result);
+    ASSERT_TRUE(code == ERR_OK);
     ASSERT_FALSE(result.empty());
 }
 
 /**
- * @tc.name: TestGetIntFromDataShare
- * @tc.desc: Test GetIntFromDataShare function.
+ * @tc.name: TestGetIntFromSettingsDataShare
+ * @tc.desc: Test GetIntFromSettingsDataShare function.
  * @tc.type: FUNC
  */
-HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromDataShare, TestSize.Level1)
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare, TestSize.Level1)
 {
     int32_t result = 0;
-    ErrCode code = EdmDataAbilityUtils::GetIntFromDataShare(ERROR_URI, KEY_SCREEN_OFF_TIME, result);
+    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(INVAILD_STRING, result);
     ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 
-    code = EdmDataAbilityUtils::GetIntFromDataShare(INVALID_BASE_URI, KEY_SCREEN_OFF_TIME, result);
-    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-
-    EdmDataAbilityUtils::GetIntFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, INVAILD_STRING, result);
-    ASSERT_TRUE(result == 0);
-
-    EdmDataAbilityUtils::GetIntFromDataShare(EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI, KEY_SCREEN_OFF_TIME, result);
+    code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
+    ASSERT_TRUE(code == ERR_OK);
     ASSERT_FALSE(result == 0);
+}
+
+/**
+ * @tc.name: TestUpdateSettingsData
+ * @tc.desc: Test UpdateSettingsData function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestUpdateSettingsData, TestSize.Level1)
+{
+    std::string value = "30000";
+    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(KEY_SCREEN_OFF_TIME, value);
+    ASSERT_TRUE(code == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

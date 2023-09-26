@@ -14,6 +14,7 @@
  */
 
 #include "edm_data_ability_utils.h"
+
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
 #include "edm_constants.h"
@@ -27,21 +28,20 @@ namespace EDM {
 const std::string SETTINGS_DATA_FIELD_KEYWORD = "KEYWORD";
 const std::string SETTINGS_DATA_FIELD_VALUE = "VALUE";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
-const std::string EdmDataAbilityUtils::SETTINGS_DATA_BASE_URI =
+const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 
-ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseUri,
-    const std::string &key, std::string &value)
+ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
-    EDMLOGI("EdmDataAbilityUtils::GetStringFromDataShareHelper enter.");
+    EDMLOGD("EdmDataAbilityUtils::GetStringFromSettingsDataShare enter.");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    std::string extUri = (dataBaseUri == SETTINGS_DATA_BASE_URI ? SETTINGS_DATA_EXT_URI : "");
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObject, dataBaseUri, extUri);
+    auto dataShareHelper =
+        DataShare::DataShareHelper::Creator(remoteObject, SETTINGS_DATA_BASE_URI, SETTINGS_DATA_EXT_URI);
     if (dataShareHelper == nullptr) {
         EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    Uri uri(dataBaseUri);
+    Uri uri(SETTINGS_DATA_BASE_URI);
     std::vector<std::string> columns{SETTINGS_DATA_FIELD_VALUE};
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(SETTINGS_DATA_FIELD_KEYWORD, key);
@@ -63,20 +63,56 @@ ErrCode EdmDataAbilityUtils::GetStringFromDataShare(const std::string &dataBaseU
     return ERR_OK;
 }
 
-ErrCode EdmDataAbilityUtils::GetIntFromDataShare(const std::string &dataBaseUri,
-    const std::string &key, int32_t &result)
+ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &result)
 {
     std::string valueStr;
-    if (FAILED(GetStringFromDataShare(dataBaseUri, key, valueStr))) {
-        EDMLOGE("EdmDataAbilityUtils::GetIntFromDataShare fail");
+    if (FAILED(GetStringFromSettingsDataShare(key, valueStr))) {
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (valueStr.empty()) {
-        EDMLOGE("EdmDataAbilityUtils::GetIntFromDataShare empty.");
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare empty.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     result = strtol(valueStr.c_str(), nullptr, EdmConstants::DECIMAL);
     return ERR_OK;
 }
+
+ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &key, const std::string &value)
+{
+    sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    auto dataShareHelper =
+        DataShare::DataShareHelper::Creator(remoteObject, SETTINGS_DATA_BASE_URI, SETTINGS_DATA_EXT_URI);
+    if (dataShareHelper == nullptr) {
+        EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGD("UpdateSettingsData key = %{public}s", key.c_str());
+    std::string strUri = SETTINGS_DATA_BASE_URI + "&key=" + key;
+    OHOS::Uri uri(strUri);
+    OHOS::DataShare::DataShareValuesBucket bucket;
+    bucket.Put(SETTINGS_DATA_FIELD_KEYWORD, key);
+    bucket.Put(SETTINGS_DATA_FIELD_VALUE, value);
+
+    OHOS::DataShare::DataSharePredicates predicates;
+    predicates.EqualTo(SETTINGS_DATA_FIELD_KEYWORD, key);
+
+    std::vector<std::string> columns;
+    columns.push_back(SETTINGS_DATA_FIELD_VALUE);
+    auto resultset = dataShareHelper->Query(uri, predicates, columns);
+    int numRows = 0;
+    if (resultset != nullptr) {
+        resultset->GetRowCount(numRows);
+    }
+    if (resultset == nullptr || numRows <= 0) {
+        EDMLOGD("UpdateSettingsData Insert branch");
+        dataShareHelper->Insert(uri, bucket);
+    } else {
+        EDMLOGD("UpdateSettingsData update branch");
+        dataShareHelper->Update(uri, predicates, bucket);
+    }
+    return ERR_OK;
+}
+
 } // namespace EDM
 } // namespace OHOS
