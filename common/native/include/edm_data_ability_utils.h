@@ -25,8 +25,6 @@ namespace OHOS {
 namespace EDM {
 class EdmDataAbilityUtils {
 public:
-    static const std::string KEY_SCREEN_OFF_TIME;
-    static const std::string KEY_DEVICE_NAME;
     static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
     static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &result);
     static ErrCode UpdateSettingsData(const std::string &key, const std::string &value);

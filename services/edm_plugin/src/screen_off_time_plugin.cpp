@@ -21,10 +21,12 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ScreenOffTimePlugin::GetPlugin());
-
 static constexpr int32_t SCREEN_OFF_TIME_MIN_VALUE = 15000;
 static constexpr int32_t SCREEN_OFF_TIME_NEVER_VALUE = -1;
+
+const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
+
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ScreenOffTimePlugin::GetPlugin());
 
 void ScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ScreenOffTimePlugin, int32_t>> ptr)
 {
@@ -43,7 +45,7 @@ ErrCode ScreenOffTimePlugin::OnSetPolicy(int32_t &data)
     EDMLOGD("ScreenOffTimePlugin start set screen off time value = %{public}d.", data);
     if (data >= SCREEN_OFF_TIME_MIN_VALUE || data == SCREEN_OFF_TIME_NEVER_VALUE) {
         ErrCode code =
-            EdmDataAbilityUtils::UpdateSettingsData(EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME, std::to_string(data));
+            EdmDataAbilityUtils::UpdateSettingsData(KEY_SCREEN_OFF_TIME, std::to_string(data));
         if (FAILED(code)) {
             EDMLOGE("ScreenOffTimePlugin::set screen off time failed : %{public}d.", code);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -57,7 +59,7 @@ ErrCode ScreenOffTimePlugin::OnGetPolicy(std::string &value, MessageParcel &data
 {
     EDMLOGI("ScreenOffTimePlugin OnGetPolicy");
     int32_t result = 0;
-    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME, result);
+    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
     if (code != ERR_OK) {
         EDMLOGE("ScreenOffTimePlugin::get screen off time from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);

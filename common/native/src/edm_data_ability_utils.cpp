@@ -31,9 +31,6 @@ constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdat
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 
-const std::string EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
-const std::string EdmDataAbilityUtils::KEY_DEVICE_NAME = "settings.general.device_name";
-
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
     EDMLOGD("EdmDataAbilityUtils::GetStringFromSettingsDataShare enter.");
@@ -90,8 +87,8 @@ ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &key, const st
         EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    EDMLOGD("UpdateSettingsData key = %{public}s", key.c_str());
     std::string strUri = SETTINGS_DATA_BASE_URI + "&key=" + key;
-    EDMLOGD("strUri = %{public}s", strUri.c_str());
     OHOS::Uri uri(strUri);
     OHOS::DataShare::DataShareValuesBucket bucket;
     bucket.Put(SETTINGS_DATA_FIELD_KEYWORD, key);

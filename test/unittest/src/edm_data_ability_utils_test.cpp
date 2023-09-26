@@ -24,6 +24,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string KEY_DEVICE_NAME = "settings.general.device_name";
+const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
 const std::string INVAILD_STRING = "settings.general.invalid_string";
 
 class EdmDataAbilityUtilsTest : public testing::Test {
@@ -65,7 +67,7 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromSettingsDataShare, TestSize.L
     ASSERT_TRUE(code == ERR_OK);
     ASSERT_TRUE(result.empty());
 
-    code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmDataAbilityUtils::KEY_DEVICE_NAME, result);
+    code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, result);
     ASSERT_TRUE(code == ERR_OK);
     ASSERT_FALSE(result.empty());
 }
@@ -81,7 +83,7 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare, TestSize.Leve
     ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(INVAILD_STRING, result);
     ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 
-    code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME, result);
+    code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
     ASSERT_TRUE(code == ERR_OK);
     ASSERT_FALSE(result == 0);
 }
@@ -94,7 +96,7 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare, TestSize.Leve
 HWTEST_F(EdmDataAbilityUtilsTest, TestUpdateSettingsData, TestSize.Level1)
 {
     std::string value = "30000";
-    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(EdmDataAbilityUtils::KEY_SCREEN_OFF_TIME, value);
+    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(KEY_SCREEN_OFF_TIME, value);
     ASSERT_TRUE(code == ERR_OK);
 }
 } // namespace TEST
