@@ -28,7 +28,12 @@ public:
     ErrCode OnSetPolicy(std::map<std::string, std::string> &policies, std::map<std::string, std::string> &currentData,
         int32_t userId);
 
+    void OnSetPolicyDone(bool isGlobalChanged);
+
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+private:
+    void NotifyBrowserPolicyChanged();
 };
 } // namespace EDM
 } // namespace OHOS
