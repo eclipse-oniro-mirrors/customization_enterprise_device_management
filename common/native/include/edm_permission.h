@@ -34,7 +34,7 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const override;
 
-    static EdmPermission *Unmarshalling(Parcel &parcel);
+    static bool Unmarshalling(Parcel &parcel, EdmPermission &edmPermission);
 
     const std::string &getPermissionName() const;
 

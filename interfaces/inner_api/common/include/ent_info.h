@@ -30,7 +30,7 @@ struct EntInfo : public Parcelable {
     std::string description;
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
-    static EntInfo *Unmarshalling(Parcel &parcel);
+    static bool Unmarshalling(Parcel &parcel, EntInfo &entInfo);
 };
 } // namespace EDM
 } // namespace OHOS

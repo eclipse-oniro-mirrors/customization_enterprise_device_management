@@ -43,15 +43,9 @@ bool EntInfo::Marshalling(Parcel &parcel) const
     return true;
 }
 
-EntInfo *EntInfo::Unmarshalling(Parcel &parcel)
+bool EntInfo::Unmarshalling(Parcel &parcel, EntInfo &entInfo)
 {
-    auto *info = new (std::nothrow) EntInfo();
-    if (info && !info->ReadFromParcel(parcel)) {
-        EDMLOGW("read from parcel failed");
-        delete info;
-        info = nullptr;
-    }
-    return info;
+    return entInfo.ReadFromParcel(parcel);
 }
 
 bool EntInfo::ReadFromParcel(Parcel &parcel)
