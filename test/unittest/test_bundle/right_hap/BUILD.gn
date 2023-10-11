@@ -18,7 +18,7 @@ ohos_hap("right") {
   hap_name = "right"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
-  final_hap_path = "$root_out_dir/tests/unittest/enterprise_device_management/services/resource/test_bundle/${hap_name}.hap"
+  final_hap_path = "$root_out_dir/tests/unittest/enterprise_device_management/enterprise_device_management/resource/test_bundle/${hap_name}.hap"
   testonly = true
   deps = [
     ":hjs_demo_js_assets",
