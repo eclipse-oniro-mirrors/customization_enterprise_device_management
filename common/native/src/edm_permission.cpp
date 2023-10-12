@@ -68,11 +68,9 @@ bool EdmPermission::Marshalling(Parcel &parcel) const
     return true;
 }
 
-EdmPermission *EdmPermission::Unmarshalling(Parcel &parcel)
+bool EdmPermission::Unmarshalling(Parcel &parcel, EdmPermission &edmPermission)
 {
-    auto *permission = new (std::nothrow)EdmPermission();
-    permission->ReadFromParcel(parcel);
-    return permission;
+    return edmPermission.ReadFromParcel(parcel);
 }
 } // namespace EDM
 } // namespace OHOS

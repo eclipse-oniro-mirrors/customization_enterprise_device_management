@@ -202,12 +202,10 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
     }
-    std::unique_ptr<EntInfo> info(reply.ReadParcelable<EntInfo>());
-    if (!info) {
+    if (!EntInfo::Unmarshalling(reply, entInfo)) {
         EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    entInfo = *info;
     return ERR_OK;
 }
 

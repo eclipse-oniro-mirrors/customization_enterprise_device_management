@@ -28,8 +28,7 @@ namespace OHOS {
         EntInfo entInfo;
         std::string entName(reinterpret_cast<const char*>(data), size);
         entInfo.enterpriseName = entName;
-        std::unique_ptr<EntInfo> entInfoPtr(EntInfo::Unmarshalling(dataMessageParcel));
-        return entInfoPtr != nullptr;
+        return EntInfo::Unmarshalling(dataMessageParcel, entInfo);
     }
 }
 
