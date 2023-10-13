@@ -20,6 +20,7 @@
 namespace OHOS {
 namespace EDM {
 
+const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 std::string EdmDataAbilityUtils::result_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
 {
@@ -34,6 +35,24 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &k
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     } else if (result_ == "test value nullptr") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test nullptr";
+        return ERR_OK;
+    } else if (result_ == "power_suspend_normal") {
+        value =
+            "{\"lid\":{\"action\":1,\"delayMs\":0},\"powerkey\":{\"action\":1,\"delayMs\":0},\"switch\":{\"action\":1,"
+            "\"delayMs\":0},\"timeout\":{\"action\":1,\"delayMs\":0}}";
+        return ERR_OK;
+    } else if (result_ == "power_suspend_json_error") {
+        value = "json error";
+        return ERR_OK;
+    } else if (result_ == "power_suspend_json_no_time_out") {
+        value =
+            "{\"lid\":{\"action\":1,\"delayMs\":0},\"powerkey\":{\"action\":1,\"delayMs\":0},\"switch\":{\"action\":1,"
+            "\"delayMs\":0},\"timeerror\":{\"action\":1,\"delayMs\":0}}";
+        return ERR_OK;
+    } else if (result_ == "power_suspend_json_key_not_object") {
+        value =
+            "{\"lid\":{\"action\":1,\"delayMs\":0},\"powerkey\":{\"action\":1,\"delayMs\":0},\"switch\":{\"action\":1,"
+            "\"delayMs\":0},\"timeout\":1000}";
         return ERR_OK;
     }
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Success";

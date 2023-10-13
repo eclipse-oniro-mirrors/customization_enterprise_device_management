@@ -16,6 +16,8 @@
 #ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
 #define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
 #include "enterprise_device_mgr_proxy.h"
+#include "power_policy.h"
+#include "power_scene.h"
 
 namespace OHOS {
 namespace EDM {
@@ -28,6 +30,10 @@ public:
         std::string &alias, std::string &result, std::string &innerCodeMsg);
     int32_t UninstallUserCertificate(const AppExecFwk::ElementName &admin, const std::string &certUri,
         std::string &innerCodeMsg);
+    int32_t SetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
+        const PowerPolicy &powerPolicy);
+    int32_t GetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
+        PowerPolicy &powerPolicy);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

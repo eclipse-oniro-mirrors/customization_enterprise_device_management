@@ -18,16 +18,158 @@
 
 using namespace OHOS::EDM;
 
+void DeviceSettingsAddon::CreatePowerSceneObject(napi_env env, napi_value value)
+{
+    napi_value nTimeOut;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(PowerScene::TIME_OUT), &nTimeOut));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TIME_OUT", nTimeOut));
+}
+
+void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
+{
+    napi_value nActionNone;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_NONE), &nActionNone));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_NONE", nActionNone));
+    napi_value nActionAutoSuspend;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_AUTO_SUSPEND), &nActionAutoSuspend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_AUTO_SUSPEND", nActionAutoSuspend));
+    napi_value nActionForceSuspend;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_FORCE_SUSPEND), &nActionForceSuspend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_FORCE_SUSPEND", nActionForceSuspend));
+    napi_value nActionHibernate;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_HIBERNATE), &nActionHibernate));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_HIBERNATE", nActionHibernate));
+    napi_value nActionShutDown;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_SHUTDOWN), &nActionShutDown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_SHUTDOWN", nActionShutDown));
+}
+
 napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nTimeOut = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nTimeOut));
+    CreatePowerSceneObject(env, nTimeOut);
+    napi_value nPolicyAction = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPolicyAction));
+    CreatePowerPolicyActionObject(env, nPolicyAction);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
         DECLARE_NAPI_FUNCTION("getScreenOffTime", GetScreenOffTime),
+        DECLARE_NAPI_FUNCTION("setPowerPolicy", SetPowerPolicy),
+        DECLARE_NAPI_FUNCTION("getPowerPolicy", GetPowerPolicy),
         DECLARE_NAPI_FUNCTION("installUserCertificate", InstallUserCertificate),
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
+        DECLARE_NAPI_PROPERTY("PowerScene", nTimeOut),
+        DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetPowerPolicy called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_object), "parameter object error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    PowerScene powerScene;
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerScene(env, argv[ARR_INDEX_ONE], powerScene),
+        "power scene param error");
+    PowerPolicy powerPolicy;
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerPolicy(env, argv[ARR_INDEX_TWO], powerPolicy),
+        "power policy param error");
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerPolicy(elementName, powerScene, powerPolicy);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetPowerPolicy failed!");
+    }
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::GetPowerPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetPowerPolicy called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    PowerScene powerScene;
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerScene(env, argv[ARR_INDEX_ONE], powerScene),
+        "power scene param error");
+    PowerPolicy powerPolicy;
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerPolicy(elementName, powerScene, powerPolicy);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetPowerPolicy failed!");
+        return nullptr;
+    }
+    napi_value result = ConvertPolicyPolicyToJs(env, powerPolicy);
+    return result;
+}
+
+bool DeviceSettingsAddon::JsObjToPowerScene(napi_env env, napi_value object, PowerScene &powerScene)
+{
+    uint32_t powerInt = 0;
+    if (ParseUint(env, powerInt, object) && powerInt == static_cast<uint32_t>(PowerScene::TIME_OUT)) {
+        powerScene = PowerScene(powerInt);
+        return true;
+    }
+    return false;
+}
+
+bool DeviceSettingsAddon::JsObjToPowerPolicy(napi_env env, napi_value object, PowerPolicy &powerPolicy)
+{
+    uint32_t action = 0;
+    if (!JsObjectToUint(env, object, "powerPolicyAction", true, action)) {
+        EDMLOGE("SetPowerPolicy powerPolicyAction parse error!");
+        return false;
+    }
+    uint32_t delayTime = 0;
+    if (!JsObjectToUint(env, object, "delayTime", true, delayTime)) {
+        EDMLOGE("SetPowerPolicy delayTime parse error!");
+        return false;
+    }
+    powerPolicy.SetDelayTime(delayTime);
+    if (!powerPolicy.SetPowerAction(action)) {
+        return false;
+    }
+    return true;
+}
+
+napi_value DeviceSettingsAddon::ConvertPolicyPolicyToJs(napi_env env, PowerPolicy &powerPolicy)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &result));
+    napi_value action = nullptr;
+    NAPI_CALL(env, napi_create_uint32(env, static_cast<uint32_t>(powerPolicy.GetPowerAction()), &action));
+    napi_value delayTime = nullptr;
+    NAPI_CALL(env, napi_create_uint32(env, powerPolicy.GetDealyTime(), &delayTime));
+    NAPI_CALL(env, napi_set_named_property(env, result, "powerPolicyAction", action));
+    NAPI_CALL(env, napi_set_named_property(env, result, "delayTime", delayTime));
+    return result;
 }
 
 napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_info info)
@@ -50,7 +192,7 @@ napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_inf
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     EDMLOGD(
-        "GetScreenOffTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "SetScreenOffTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
