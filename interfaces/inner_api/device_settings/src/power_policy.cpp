@@ -47,7 +47,7 @@ bool PowerPolicy::SetPowerPolicyAction(uint32_t action)
 {
     if (action >= static_cast<uint32_t>(PowerPolicyAction::NONE) &&
         action <= static_cast<uint32_t>(PowerPolicyAction::SHUTDOWN)) {
-        powerAction_ = PowerPolicyAction(action);
+        powerPolicyAction_ = PowerPolicyAction(action);
         return true;
     }
     return false;
