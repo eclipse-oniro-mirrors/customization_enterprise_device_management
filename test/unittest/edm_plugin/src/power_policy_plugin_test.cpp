@@ -21,7 +21,6 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
-#include "power_scene.h"
 #include "utils.h"
 
 using namespace testing::ext;

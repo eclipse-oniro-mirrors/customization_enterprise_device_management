@@ -29,24 +29,24 @@ void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value
 {
     napi_value nActionNone;
     NAPI_CALL_RETURN_VOID(env,
-        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_NONE), &nActionNone));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_NONE", nActionNone));
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::NONE), &nActionNone));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NONE", nActionNone));
     napi_value nActionAutoSuspend;
     NAPI_CALL_RETURN_VOID(env,
-        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_AUTO_SUSPEND), &nActionAutoSuspend));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_AUTO_SUSPEND", nActionAutoSuspend));
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::AUTO_SUSPEND), &nActionAutoSuspend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "AUTO_SUSPEND", nActionAutoSuspend));
     napi_value nActionForceSuspend;
     NAPI_CALL_RETURN_VOID(env,
-        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_FORCE_SUSPEND), &nActionForceSuspend));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_FORCE_SUSPEND", nActionForceSuspend));
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::FORCE_SUSPEND), &nActionForceSuspend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FORCE_SUSPEND", nActionForceSuspend));
     napi_value nActionHibernate;
     NAPI_CALL_RETURN_VOID(env,
-        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_HIBERNATE), &nActionHibernate));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_HIBERNATE", nActionHibernate));
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::HIBERNATE), &nActionHibernate));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "HIBERNATE", nActionHibernate));
     napi_value nActionShutDown;
     NAPI_CALL_RETURN_VOID(env,
-        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::ACTION_SHUTDOWN), &nActionShutDown));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACTION_SHUTDOWN", nActionShutDown));
+        napi_create_uint32(env, static_cast<uint32_t>(PowerPolicyAction::SHUTDOWN), &nActionShutDown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SHUTDOWN", nActionShutDown));
 }
 
 napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
@@ -153,7 +153,7 @@ bool DeviceSettingsAddon::JsObjToPowerPolicy(napi_env env, napi_value object, Po
         return false;
     }
     powerPolicy.SetDelayTime(delayTime);
-    if (!powerPolicy.SetPowerAction(action)) {
+    if (!powerPolicy.SetPowerPolicyAction(action)) {
         return false;
     }
     return true;
@@ -164,7 +164,7 @@ napi_value DeviceSettingsAddon::ConvertPolicyPolicyToJs(napi_env env, PowerPolic
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
     napi_value action = nullptr;
-    NAPI_CALL(env, napi_create_uint32(env, static_cast<uint32_t>(powerPolicy.GetPowerAction()), &action));
+    NAPI_CALL(env, napi_create_uint32(env, static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()), &action));
     napi_value delayTime = nullptr;
     NAPI_CALL(env, napi_create_uint32(env, powerPolicy.GetDealyTime(), &delayTime));
     NAPI_CALL(env, napi_set_named_property(env, result, "powerPolicyAction", action));

@@ -20,7 +20,6 @@
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "iplugin_manager.h"
-#include "power_scene.h"
 
 namespace OHOS {
 namespace EDM {
@@ -131,7 +130,7 @@ bool PowerPolicyPlugin::UpdateSuspendSettingsData(Json::Value &root, const std::
     if (!valueObj.isObject()) {
         return false;
     }
-    valueObj[KEY_ACTION] = static_cast<uint32_t>(powerPolicy.GetPowerAction());
+    valueObj[KEY_ACTION] = static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction());
     valueObj[KEY_DELAY_TIME] = powerPolicy.GetDealyTime();
     root[key] = valueObj;
     std::string jsonStr = root.toStyledString();
@@ -151,7 +150,7 @@ bool PowerPolicyPlugin::SetPowerPolicyObject(Json::Value &root, std::string &key
     Json::Value actionValue = valueObj[KEY_ACTION];
     Json::Value delayValue = valueObj[KEY_DELAY_TIME];
     if (actionValue.isUInt() && delayValue.isUInt()) {
-        if (!powerPolicy.SetPowerAction(actionValue.asUInt())) {
+        if (!powerPolicy.SetPowerPolicyAction(actionValue.asUInt())) {
             return false;
         }
         powerPolicy.SetDelayTime(delayValue.asUInt());

@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 bool PowerPolicy::Marshalling(Parcel &parcel) const
 {
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, static_cast<uint32_t>(powerAction_));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, static_cast<uint32_t>(powerPolicyAction_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, delayTime_);
     return true;
 }
@@ -31,16 +31,31 @@ bool PowerPolicy::Unmarshalling(Parcel &parcel, PowerPolicy &powerPolicy)
 {
     uint32_t action = parcel.ReadUint32();
     uint32_t delayTime = parcel.ReadUint32();
-    if (!powerPolicy.SetPowerAction(action)) {
+    if (!powerPolicy.SetPowerPolicyAction(action)) {
         return false;
     }
     powerPolicy.SetDelayTime(delayTime);
     return true;
 }
 
-PowerPolicyAction PowerPolicy::GetPowerAction() const
+void PowerPolicy::SetDelayTime(uint32_t delayTime)
 {
-    return powerAction_;
+    delayTime_ = delayTime;
+}
+
+bool PowerPolicy::SetPowerPolicyAction(uint32_t action)
+{
+    if (action >= static_cast<uint32_t>(PowerPolicyAction::NONE) &&
+        action <= static_cast<uint32_t>(PowerPolicyAction::SHUTDOWN)) {
+        powerAction_ = PowerPolicyAction(action);
+        return true;
+    }
+    return false;
+}
+
+PowerPolicyAction PowerPolicy::GetPowerPolicyAction() const
+{
+    return powerPolicyAction_;
 }
 
 uint32_t PowerPolicy::GetDealyTime() const

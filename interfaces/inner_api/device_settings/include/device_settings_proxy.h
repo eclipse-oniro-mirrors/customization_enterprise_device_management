@@ -17,7 +17,6 @@
 #define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
 #include "enterprise_device_mgr_proxy.h"
 #include "power_policy.h"
-#include "power_scene.h"
 
 namespace OHOS {
 namespace EDM {

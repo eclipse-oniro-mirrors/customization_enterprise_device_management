@@ -20,12 +20,16 @@
 
 namespace OHOS {
 namespace EDM {
+enum class PowerScene : uint32_t {
+    TIME_OUT = 0,
+};
+
 enum class PowerPolicyAction : uint32_t {
-    ACTION_NONE = 0,
-    ACTION_AUTO_SUSPEND,
-    ACTION_FORCE_SUSPEND,
-    ACTION_HIBERNATE,
-    ACTION_SHUTDOWN,
+    NONE = 0,
+    AUTO_SUSPEND,
+    FORCE_SUSPEND,
+    HIBERNATE,
+    SHUTDOWN,
 };
 
 class PowerPolicy : public Parcelable {
@@ -33,22 +37,14 @@ public:
     virtual bool Marshalling(Parcel &parcel) const override;
     static bool Unmarshalling(Parcel &parcel, PowerPolicy &powerPolicy);
 
-    void inline SetDelayTime(uint32_t delayTime) { delayTime_ = delayTime; }
-    bool inline SetPowerAction(uint32_t action)
-    {
-        if (action >= static_cast<uint32_t>(PowerPolicyAction::ACTION_NONE) &&
-            action <= static_cast<uint32_t>(PowerPolicyAction::ACTION_SHUTDOWN)) {
-            powerAction_ = PowerPolicyAction(action);
-            return true;
-        }
-        return false;
-    }
+    void SetDelayTime(uint32_t delayTime);
+    bool SetPowerPolicyAction(uint32_t action);
 
-    [[nodiscard]] PowerPolicyAction GetPowerAction() const;
+    [[nodiscard]] PowerPolicyAction GetPowerPolicyAction() const;
     [[nodiscard]] uint32_t GetDealyTime() const;
 
 private:
-    PowerPolicyAction powerAction_ = PowerPolicyAction::ACTION_AUTO_SUSPEND;
+    PowerPolicyAction powerPolicyAction_ = PowerPolicyAction::AUTO_SUSPEND;
     uint32_t delayTime_ = 0;
 };
 } // namespace EDM
