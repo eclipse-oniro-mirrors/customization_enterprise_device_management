@@ -26,6 +26,7 @@ config("edmservice_kits_config") {
     "device_settings/include",
     "network_manager/include",
     "restrictions/include",
+    "system_manager/include",
     "usb_manager/include",
     "wifi_manager/include",
   ]
@@ -49,6 +50,7 @@ ohos_shared_library("edmservice_kits") {
     "./device_settings/src/device_settings_proxy.cpp",
     "./network_manager/src/network_manager_proxy.cpp",
     "./restrictions/src/restrictions_proxy.cpp",
+    "./system_manager/src/system_manager_proxy.cpp",
     "./usb_manager/src/usb_manager_proxy.cpp",
     "./wifi_manager/src/wifi_manager_proxy.cpp",
   ]

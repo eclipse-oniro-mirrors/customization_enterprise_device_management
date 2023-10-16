@@ -165,6 +165,17 @@ edm_plugin_shared_library("device_settings_plugin") {
   ]
 }
 
+edm_plugin_shared_library("system_manager_plugin") {
+  sources = [ "./src/ntp_server_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+  ]
+}
+
 edm_plugin_shared_library("usb_manager_plugin") {
   sources = [ "./src/usb_read_only_plugin.cpp" ]
 
