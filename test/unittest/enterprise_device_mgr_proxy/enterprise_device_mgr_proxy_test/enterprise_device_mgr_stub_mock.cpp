@@ -26,7 +26,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t cod
     EntInfo entInfo;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteParcelable(&entInfo);
+    entInfo.Marshalling(reply);
     return 0;
 }
 
