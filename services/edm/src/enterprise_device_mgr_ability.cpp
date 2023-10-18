@@ -979,7 +979,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     reply.WriteInt32(ERR_OK);
-    reply.WriteParcelable(&entInfo);
+    entInfo.Marshalling(reply);
     EDMLOGD(
         "EnterpriseDeviceMgrAbility::GetEnterpriseInfo: entInfo->enterpriseName %{public}s, "
         "entInfo->description:%{public}s",
