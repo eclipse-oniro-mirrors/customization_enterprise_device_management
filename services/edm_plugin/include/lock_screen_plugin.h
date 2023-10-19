@@ -13,25 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_PROXY_H
-#define INTERFACES_INNER_API_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_PROXY_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
+#define SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
 
-#include "enterprise_device_mgr_proxy.h"
+#include "iplugin_manager.h"
+#include "plugin_singleton.h"
+#include "string_serializer.h"
+#include "screenlock_manager.h"
+#include "iremote_stub.h"
 
 namespace OHOS {
 namespace EDM {
-class DeviceControlProxy {
+class LockScreenPlugin : public PluginSingleton<LockScreenPlugin, int32_t> {
 public:
-    DeviceControlProxy();
-    ~DeviceControlProxy();
-    static std::shared_ptr<DeviceControlProxy> GetDeviceControlProxy();
-    int32_t ResetFactory(AppExecFwk::ElementName &admin);
-    int32_t LockScreen(AppExecFwk::ElementName &admin, int32_t userId);
-private:
-    static std::shared_ptr<DeviceControlProxy> instance_;
-    static std::mutex mutexLock_;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlugin, int32_t>> ptr) override;
+
+    ErrCode OnSetPolicy(int32_t &data);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_DEVICE_INFO_INCLUDE_DEVICE_INFO_PROXY_H
+#endif /* SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_ */

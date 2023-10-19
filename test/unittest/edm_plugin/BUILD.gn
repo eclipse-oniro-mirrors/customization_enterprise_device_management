@@ -47,6 +47,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/network_manager_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/reset_factory_plugin_test.cpp",
+    "./src/lock_screen_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/set_browser_policies_plugin_test.cpp",
     "./src/set_wifi_profile_plugin_test.cpp",
@@ -88,6 +89,7 @@ ohos_unittest("EdmPluginTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
+    "screenlock_mgr:screenlock_client",
   ]
 
   if (defined(global_parts_info) &&
@@ -135,6 +137,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
     "../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../services/edm_plugin/src/reset_factory_plugin.cpp",
+    "../../../services/edm_plugin/src/lock_screen_plugin.cpp",
     "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
     "../../../services/edm_plugin/src/set_browser_policies_plugin.cpp",
     "../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
@@ -180,6 +183,7 @@ ohos_static_library("edm_all_plugin_static") {
     "netmanager_ext:ethernet_manager_if",
     "os_account:os_account_innerkits",
     "wifi:wifi_sdk",
+    "screenlock_mgr:screenlock_client",
   ]
 
   if (defined(global_parts_info) &&

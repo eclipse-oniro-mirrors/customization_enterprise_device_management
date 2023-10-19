@@ -21,6 +21,7 @@
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
+#include "os_account_manager.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -78,6 +79,10 @@ HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = deviceControlProxy->ResetFactory(admin);
     ASSERT_TRUE(ret == ERR_OK);
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    ret = deviceControlProxy->LockScreen(admin, userId);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
@@ -91,6 +96,10 @@ HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = deviceControlProxy->ResetFactory(admin);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    ret = deviceControlProxy->LockScreen(admin, userId);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
