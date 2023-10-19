@@ -60,12 +60,9 @@ HWTEST_F(EdmPermissionTest, TestMarshalling, TestSize.Level1)
     EdmPermission permission1("ohos.permission.EDM_TEST_PERMISSION", AdminType::NORMAL);
     Parcel parcel;
     permission1.Marshalling(parcel);
-    EdmPermission *permission2 = permission1.Unmarshalling(parcel);
-    EXPECT_TRUE(permission2 != nullptr);
-    EXPECT_TRUE(permission1 == *permission2);
-    if (permission2) {
-        delete permission2;
-    }
+    EdmPermission permission2;
+    EXPECT_TRUE(EdmPermission::Unmarshalling(parcel, permission2));
+    EXPECT_TRUE(permission1 == permission2);
 }
 } // namespace TEST
 } // namespace EDM

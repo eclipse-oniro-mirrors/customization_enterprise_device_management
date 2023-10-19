@@ -75,7 +75,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
-    data.WriteParcelable(&entInfo);
+    entInfo.Marshalling(data);
     data.WriteInt32(static_cast<int32_t>(type));
     data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(EdmInterfaceCode::ADD_DEVICE_ADMIN, data, reply, option);
@@ -202,12 +202,10 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
     }
-    std::unique_ptr<EntInfo> info(reply.ReadParcelable<EntInfo>());
-    if (!info) {
+    if (!EntInfo::Unmarshalling(reply, entInfo)) {
         EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    entInfo = *info;
     return ERR_OK;
 }
 
@@ -226,7 +224,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
-    data.WriteParcelable(&entInfo);
+    entInfo.Marshalling(data);
     ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);

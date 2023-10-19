@@ -61,7 +61,8 @@ enum EdmInterfaceCode : uint32_t {
     USB_READ_ONLY = 1026,
     INSTALL_CERTIFICATE = 1027,
     INSTALL = 1028,
-    GET_SECURITY_PATCH_TAG = 1029,
+    POWER_POLICY = 1029,
+    GET_SECURITY_PATCH_TAG = 1030,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

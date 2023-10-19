@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 
 ohos_copy("copy_ohos_test") {
   sources = [ "./ohos_test.xml" ]
-  outputs = [ "$root_out_dir/tests/unittest/enterprise_device_management/services/resource/ohos_test.xml" ]
+  outputs = [ "$root_out_dir/tests/unittest/enterprise_device_management/enterprise_device_management/resource/ohos_test.xml" ]
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

@@ -204,6 +204,75 @@ HWTEST_F(DeviceSettingsProxyTest, TestUninstallUserCertificateFail, TestSize.Lev
     int32_t ret = deviceSettingsProxy->UninstallUserCertificate(admin, alias, innerCodeMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetPowerPolicySuc
+ * @tc.desc: Test SetPowerPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetPowerPolicySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    PowerScene scene = PowerScene::TIME_OUT;
+    PowerPolicy powerPolicy;
+    int32_t ret = deviceSettingsProxy->SetPowerPolicy(admin, scene, powerPolicy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPowerPolicyFail
+ * @tc.desc: Test SetPowerPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetPowerPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    PowerScene scene = PowerScene::TIME_OUT;
+    PowerPolicy powerPolicy;
+    int32_t ret = deviceSettingsProxy->SetPowerPolicy(admin, scene, powerPolicy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetPowerPolicySuc
+ * @tc.desc: Test GetPowerPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetPowerPolicySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    PowerScene scene = PowerScene::TIME_OUT;
+    PowerPolicy powerPolicy;
+    int32_t ret = deviceSettingsProxy->GetPowerPolicy(admin, scene, powerPolicy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetPowerPolicyFail
+ * @tc.desc: Test GetPowerPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetPowerPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    PowerScene scene = PowerScene::TIME_OUT;
+    PowerPolicy powerPolicy;
+    int32_t ret = deviceSettingsProxy->GetPowerPolicy(admin, scene, powerPolicy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
