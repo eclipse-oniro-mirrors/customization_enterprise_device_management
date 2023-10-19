@@ -195,5 +195,9 @@ edm_plugin_shared_library("browser_plugin") {
 
   deps = [ "../../common/native:edm_commom" ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+  ]
 }
