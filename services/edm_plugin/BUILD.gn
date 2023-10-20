@@ -170,6 +170,17 @@ edm_plugin_shared_library("device_settings_plugin") {
   ]
 }
 
+edm_plugin_shared_library("system_manager_plugin") {
+  sources = [ "./src/ntp_server_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+  ]
+}
+
 edm_plugin_shared_library("usb_manager_plugin") {
   sources = [ "./src/usb_read_only_plugin.cpp" ]
 
@@ -195,7 +206,11 @@ edm_plugin_shared_library("browser_plugin") {
 
   deps = [ "../../common/native:edm_commom" ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+  ]
 }
 
 edm_plugin_shared_library("security_manager_plugin") {

@@ -16,13 +16,17 @@
 #include "set_browser_policies_plugin.h"
 
 #include "bundle_manager_utils.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "map_string_serializer.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetBrowserPoliciesPlugin::GetPlugin());
+const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.browserpolicychanged";
 
 void SetBrowserPoliciesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<SetBrowserPoliciesPlugin, std::map<std::string, std::string>>> ptr)
@@ -33,6 +37,7 @@ void SetBrowserPoliciesPlugin::InitPlugin(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetBrowserPoliciesPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyDoneListener(&SetBrowserPoliciesPlugin::OnSetPolicyDone, FuncOperateType::SET);
 }
 
 ErrCode SetBrowserPoliciesPlugin::OnSetPolicy(std::map<std::string, std::string> &policies,
@@ -52,6 +57,14 @@ ErrCode SetBrowserPoliciesPlugin::OnSetPolicy(std::map<std::string, std::string>
     return ERR_OK;
 }
 
+void SetBrowserPoliciesPlugin::OnSetPolicyDone(bool isGlobalChanged)
+{
+    if (!isGlobalChanged) {
+        return;
+    }
+    NotifyBrowserPolicyChanged();
+}
+
 ErrCode SetBrowserPoliciesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
@@ -69,6 +82,18 @@ ErrCode SetBrowserPoliciesPlugin::OnGetPolicy(std::string &policyData, MessagePa
     }
     reply.WriteString(policy);
     return ERR_OK;
+}
+
+void SetBrowserPoliciesPlugin::NotifyBrowserPolicyChanged()
+{
+    EDMLOGD("SetBrowserPoliciesPlugin NotifyBrowserPolicyChanged.");
+    AAFwk::Want want;
+    want.SetAction(BROWSER_POLICY_CHANGED_EVENT);
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+        EDMLOGE("NotifyBrowserPolicyChanged failed.");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

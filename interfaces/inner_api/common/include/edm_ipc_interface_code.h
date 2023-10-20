@@ -62,7 +62,8 @@ enum EdmInterfaceCode : uint32_t {
     INSTALL_CERTIFICATE = 1027,
     INSTALL = 1028,
     POWER_POLICY = 1029,
-    GET_SECURITY_PATCH_TAG = 1030,
+    NTP_SERVER = 1030,
+    GET_SECURITY_PATCH_TAG = 1031,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
