@@ -51,7 +51,7 @@ edm_plugin_shared_library("device_info_plugin") {
 
 edm_plugin_shared_library("device_control_plugin") {
   sources = [
-    "./src/reset_factory_plugin.cpp1",
+    "./src/reset_factory_plugin.cpp",
     "./src/lock_screen_plugin.cpp",
   ]
 
