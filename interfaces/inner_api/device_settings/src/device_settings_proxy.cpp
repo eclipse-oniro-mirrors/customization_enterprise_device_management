@@ -118,5 +118,48 @@ int32_t DeviceSettingsProxy::UninstallUserCertificate(const AppExecFwk::ElementN
     }
     return ret;
 }
+
+int32_t DeviceSettingsProxy::SetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
+    const PowerPolicy &powerPolicy)
+{
+    EDMLOGD("DeviceSettingsProxy::SetPowerPolicy");
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteUint32(static_cast<uint32_t>(powerScene));
+    if (!powerPolicy.Marshalling(data)) {
+        EDMLOGE("DeviceSettingsProxy::SetPowerPolicy Marshalling proxy fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
+    PowerPolicy &powerPolicy)
+{
+    EDMLOGD("DeviceSettingsProxy::GetPowerPolicy");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteUint32(static_cast<uint32_t>(powerScene));
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::POWER_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("DeviceSettingsProxy:getPowerPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!PowerPolicy::Unmarshalling(reply, powerPolicy)) {
+        EDMLOGE("DeviceSettingsProxy::getPowerPolicy Unmarshalling power policy fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

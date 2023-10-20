@@ -45,6 +45,8 @@ public:
 private:
     static napi_value SetScreenOffTime(napi_env env, napi_callback_info info);
     static napi_value GetScreenOffTime(napi_env env, napi_callback_info info);
+    static napi_value SetPowerPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetPowerPolicy(napi_env env, napi_callback_info info);
     static void NativeGetScreenOffTime(napi_env env, void *data);
 
     static napi_value InstallUserCertificate(napi_env env, napi_callback_info info);
@@ -52,6 +54,11 @@ private:
     static void NativeInstallUserCertificate(napi_env env, void *data);
     static void NativeUninstallUserCertificate(napi_env env, void *data);
     static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
+    static bool JsObjToPowerScene(napi_env env, napi_value object, PowerScene &powerScene);
+    static bool JsObjToPowerPolicy(napi_env env, napi_value object, PowerPolicy &powerPolicy);
+    static void CreatePowerSceneObject(napi_env env, napi_value value);
+    static void CreatePowerPolicyActionObject(napi_env env, napi_value value);
+    static napi_value ConvertPolicyPolicyToJs(napi_env env, PowerPolicy &powerPolicy);
 };
 } // namespace EDM
 } // namespace OHOS

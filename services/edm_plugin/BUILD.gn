@@ -153,11 +153,16 @@ edm_plugin_shared_library("application_manager_plugin") {
 
 edm_plugin_shared_library("device_settings_plugin") {
   sources = [
+    "./src/power_policy_plugin.cpp",
     "./src/screen_off_time_plugin.cpp",
     "./src/user_cert_plugin.cpp",
   ]
 
-  deps = [ "../../common/native:edm_commom" ]
+  deps = [
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -201,5 +206,9 @@ edm_plugin_shared_library("browser_plugin") {
 
   deps = [ "../../common/native:edm_commom" ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+  ]
 }

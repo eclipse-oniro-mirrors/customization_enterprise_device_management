@@ -31,6 +31,7 @@ ohos_shared_library("devicesettings") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
   ]

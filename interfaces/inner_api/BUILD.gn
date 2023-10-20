@@ -48,6 +48,7 @@ ohos_shared_library("edmservice_kits") {
     "./device_control/src/device_control_proxy.cpp",
     "./device_info/src/device_info_proxy.cpp",
     "./device_settings/src/device_settings_proxy.cpp",
+    "./device_settings/src/power_policy.cpp",
     "./network_manager/src/network_manager_proxy.cpp",
     "./restrictions/src/restrictions_proxy.cpp",
     "./system_manager/src/system_manager_proxy.cpp",

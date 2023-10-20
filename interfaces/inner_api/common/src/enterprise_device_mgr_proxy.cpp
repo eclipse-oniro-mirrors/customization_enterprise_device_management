@@ -75,7 +75,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
-    data.WriteParcelable(&entInfo);
+    entInfo.Marshalling(data);
     data.WriteInt32(static_cast<int32_t>(type));
     data.WriteInt32(userId);
     ErrCode res = remote->SendRequest(EdmInterfaceCode::ADD_DEVICE_ADMIN, data, reply, option);
@@ -224,7 +224,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
-    data.WriteParcelable(&entInfo);
+    entInfo.Marshalling(data);
     ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_ENT_INFO, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);
