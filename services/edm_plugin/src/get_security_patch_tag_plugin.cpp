@@ -32,7 +32,8 @@ void GetSecurityPatchTagPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetSe
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetSecurityPatchTagPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode GetSecurityPatchTagPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("GetSecurityPatchTagPlugin OnGetPolicy.");
     const char* securityPatchTagPtr = GetSecurityPatchTag();
