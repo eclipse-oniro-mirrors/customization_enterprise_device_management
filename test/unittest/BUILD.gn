@@ -196,6 +196,8 @@ group("unittest") {
     "enterprise_device_mgr_proxy:unittest",
     "network_manager_proxy:unittest",
     "restrictions_proxy:unittest",
+    "security_manager_proxy:unittest",
+    "system_manager_proxy:unittest",
     "usb_manager_proxy:unittest",
     "wifi_manager_proxy:unittest",
   ]
