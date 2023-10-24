@@ -64,6 +64,7 @@ enum EdmInterfaceCode : uint32_t {
     POWER_POLICY = 1029,
     NTP_SERVER = 1030,
     GET_SECURITY_PATCH_TAG = 1031,
+    GET_DEVICE_ENCRYPTION_STATUS = 1032,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
