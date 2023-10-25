@@ -51,7 +51,7 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.M
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
-const std::string PARAM_SECURITY_ADVANCEDMODEMODE = "const.security.advancedmode.state";
+const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -454,7 +454,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
-    bool securityMode = system::GetBoolParameter(PARAM_SECURITY_ADVANCEDMODEMODE, false);
+    bool securityMode = system::GetBoolParameter(PARAM_SECURITY_MODE, false);
     if (securityMode) {
         EDMLOGW("EnableAdmin: The current mode is not supported.");
         return ERR_EDM_ADD_ADMIN_FAILED;
