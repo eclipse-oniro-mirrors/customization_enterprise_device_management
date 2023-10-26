@@ -70,7 +70,6 @@ protected:
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
 
 private:
-    bool IsHdc();
     void AddCommonEventFuncMap();
     void AddOnAddSystemAbilityFuncMap();
     bool SubscribeAppState();
