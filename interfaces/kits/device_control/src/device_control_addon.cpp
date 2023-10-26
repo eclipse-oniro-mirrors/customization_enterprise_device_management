@@ -87,7 +87,7 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
     EDMLOGI("NAPI_lockScreen called userId :%{public}d", userId);
     int32_t result = DeviceControlProxy::GetDeviceControlProxy()->LockScreen(elementName, userId);
     if (FAILED(result)) {
-    	napi_throw(env, CreateError(env, ret));
+    	napi_throw(env, CreateError(env, result));
     	EDMLOGE("LockScreen failed!");
     }
     return nullptr;
