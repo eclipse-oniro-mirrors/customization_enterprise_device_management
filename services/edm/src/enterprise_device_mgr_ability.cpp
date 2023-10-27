@@ -454,8 +454,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
-    bool securityMode = system::GetBoolParameter(PARAM_SECURITY_MODE, false);
-    if (securityMode) {
+    if (type != AdminType::ENT && system::GetBoolParameter(PARAM_SECURITY_MODE, false)) {
         EDMLOGW("EnableAdmin: The current mode is not supported.");
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
