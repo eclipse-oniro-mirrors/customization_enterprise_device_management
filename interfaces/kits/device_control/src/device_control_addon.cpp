@@ -72,7 +72,7 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc == ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     OHOS::AppExecFwk::ElementName elementName;
@@ -88,7 +88,7 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
     int32_t result = DeviceControlProxy::GetDeviceControlProxy()->LockScreen(elementName, userId);
     if (FAILED(result)) {
     	napi_throw(env, CreateError(env, result));
-    	EDMLOGE("LockScreen failed!");
+    	return nullptr;
     }
     return nullptr;
 }
