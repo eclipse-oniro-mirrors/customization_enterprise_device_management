@@ -36,7 +36,12 @@ ErrCode LockScreenPlugin::OnSetPolicy(int32_t &data)
 {
     EDMLOGD("LockScreenPlugin OnSetPolicy userId = %{public}d.", data);
     int32_t userId = data;
-    ScreenLock::ScreenLockManager::GetInstance()->Lock(userId);
+    int32_t ret = ScreenLock::E_SCREENLOCK_OK;
+    ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(userId);
+    if (ret != ScreenLock::E_SCREENLOCK_OK) {
+        EDMLOGE("LockScreenPlugin:OnSetPolicy send request fail. %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 } // namespace EDM
