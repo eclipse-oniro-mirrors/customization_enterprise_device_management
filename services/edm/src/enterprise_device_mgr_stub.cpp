@@ -58,8 +58,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
     Security::AccessToken::ATokenTypeEnum tokenType =
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE &&
-        tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
         EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
         return EdmReturnErrCode::SYSTEM_API_DENIED;

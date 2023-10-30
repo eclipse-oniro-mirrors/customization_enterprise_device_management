@@ -489,7 +489,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!IsHdc() && !VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -633,7 +633,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
 {
     EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!IsHdc() && !VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -661,18 +661,6 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
         manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
     manager->ConnectAbility(connection);
     return ERR_OK;
-}
-
-bool EnterpriseDeviceMgrAbility::IsHdc()
-{
-    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::ATokenTypeEnum tokenType =
-        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
-        EDMLOGI("caller tokenType is shell, verify success");
-        return true;
-    }
-    return false;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleName)
