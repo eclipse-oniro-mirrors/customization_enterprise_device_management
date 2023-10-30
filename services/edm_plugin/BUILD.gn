@@ -220,7 +220,10 @@ edm_plugin_shared_library("browser_plugin") {
 }
 
 edm_plugin_shared_library("security_manager_plugin") {
-  sources = [ "./src/get_security_patch_tag_plugin.cpp" ]
+  sources = [
+    "./src/get_device_encryption_status_plugin.cpp",
+    "./src/get_security_patch_tag_plugin.cpp",
+  ]
 
   deps = [ "../../common/native:edm_commom" ]
 

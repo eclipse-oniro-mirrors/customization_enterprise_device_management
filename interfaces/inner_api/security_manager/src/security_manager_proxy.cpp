@@ -57,5 +57,25 @@ int32_t SecurityManagerProxy::GetSecurityPatchTag(const AppExecFwk::ElementName 
     return ret;
 }
 
+int32_t SecurityManagerProxy::GetDeviceEncryptionStatus(const AppExecFwk::ElementName &admin,
+    DeviceEncryptionStatus &deviceEncryptionStatus)
+{
+    EDMLOGD("SecurityManagerProxy::GetDeviceEncryptionStatus");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_DEVICE_ENCRYPTION_STATUS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(deviceEncryptionStatus.isEncrypted);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

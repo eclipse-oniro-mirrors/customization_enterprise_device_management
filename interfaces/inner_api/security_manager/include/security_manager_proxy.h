@@ -20,10 +20,16 @@
 
 namespace OHOS {
 namespace EDM {
+struct DeviceEncryptionStatus {
+    bool isEncrypted = false;
+};
+
 class SecurityManagerProxy {
 public:
     static std::shared_ptr<SecurityManagerProxy> GetSecurityManagerProxy();
     int32_t GetSecurityPatchTag(const AppExecFwk::ElementName &admin, std::string &info);
+    int32_t GetDeviceEncryptionStatus(const AppExecFwk::ElementName &admin,
+        DeviceEncryptionStatus &deviceEncryptionStatus);
 
 private:
     static std::shared_ptr<SecurityManagerProxy> instance_;

@@ -34,7 +34,7 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
 }
 
 ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+    int32_t userId) __attribute__((no_sanitize("cfi")))
 {
     EDMLOGD("IsWifiActivePlugin OnGetPolicy.");
     bool isActive = false;

@@ -33,6 +33,8 @@ public:
 
 private:
     static napi_value GetSecurityPatchTag(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceEncryptionStatus(napi_env env, napi_callback_info info);
+    static napi_value ConvertDeviceEncryptionStatus(napi_env env, DeviceEncryptionStatus &deviceEncryptionStatus);
 };
 } // namespace EDM
 } // namespace OHOS
