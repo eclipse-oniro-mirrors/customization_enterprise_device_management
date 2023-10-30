@@ -37,8 +37,7 @@ ErrCode GetDeviceEncryptionStatusPlugin::OnGetPolicy(std::string &policyData, Me
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("GetDeviceEncryptionStatusPlugin OnGetPolicy.");
-    std::string res;
-    res = system::GetParameter("fscrypt.policy.config", "");
+    std::string res = system::GetParameter("fscrypt.policy.config", "");
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(!res.empty());
     return ERR_OK;
