@@ -36,7 +36,7 @@ void SetWifiProfilePlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&SetWifiProfilePlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config)
+ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config) __attribute__((no_sanitize("cfi")))
 {
     EDMLOGD("SetWifiProfilePlugin OnSetPolicy");
     ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->ConnectToDevice(config);
