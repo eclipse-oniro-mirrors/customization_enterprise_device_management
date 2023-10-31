@@ -32,10 +32,9 @@ void LockScreenPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlug
     ptr->SetOnHandlePolicyListener(&LockScreenPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode LockScreenPlugin::OnSetPolicy(int32_t &data)
+ErrCode LockScreenPlugin::OnSetPolicy(int32_t &userId)
 {
-    EDMLOGD("LockScreenPlugin OnSetPolicy userId = %{public}d.", data);
-    int32_t userId = data;
+    EDMLOGD("LockScreenPlugin OnSetPolicy userId = %{public}d.", userId);
     int32_t ret = ScreenLock::E_SCREENLOCK_OK;
     ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(userId);
     if (ret != ScreenLock::E_SCREENLOCK_OK) {
