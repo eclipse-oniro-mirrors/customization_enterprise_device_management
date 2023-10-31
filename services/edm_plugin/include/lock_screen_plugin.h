@@ -28,7 +28,7 @@ class LockScreenPlugin : public PluginSingleton<LockScreenPlugin, int32_t> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlugin, int32_t>> ptr) override;
 
-    ErrCode OnSetPolicy(int32_t &data);
+    ErrCode OnSetPolicy(int32_t &userId);
 };
 } // namespace EDM
 } // namespace OHOS
