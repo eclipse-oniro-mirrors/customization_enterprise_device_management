@@ -109,7 +109,7 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    ret = deviceControlProxy->LockScreen(admin, userId);
+    int32_t ret = deviceControlProxy->LockScreen(admin, userId);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -125,7 +125,7 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    ret = deviceControlProxy->LockScreen(admin, userId);
+    int32_t ret = deviceControlProxy->LockScreen(admin, userId);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
