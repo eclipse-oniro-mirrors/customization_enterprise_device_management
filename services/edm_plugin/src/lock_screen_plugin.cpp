@@ -14,7 +14,7 @@
  */
 
 #include "lock_screen_plugin.h"
-
+#include "screenlock_manager.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
 
