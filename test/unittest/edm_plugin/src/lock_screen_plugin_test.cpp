@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "os_account_manager.h"
 #include "lock_screen_plugin_test.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
@@ -37,20 +38,16 @@ void LockScreenPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestLockScreen
- * @tc.desc: Test LockScreenPlugin::OnSetPolicy function fail.
+ * @tc.desc: Test LockScreenPlugin::OnSetPolicy function success.
  * @tc.type: FUNC
  */
 HWTEST_F(LockScreenPluginTest, TestLockScreen, TestSize.Level1)
 {
-    Utils::ResetTokenTypeAndUid();
-    std::shared_ptr<IPlugin> plugin = LockScreenPlugin::GetPlugin();
-    bool isChanged = false;
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCK_SCREEN);
-    std::string policyData{""};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    LockScreenPlugin plugin;
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    ErrCode ret = plugin.OnSetPolicy(userId);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
