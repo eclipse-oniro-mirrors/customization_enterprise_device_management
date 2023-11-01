@@ -18,7 +18,6 @@
 
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
-#include "string_serializer.h"
 #include "iremote_stub.h"
 
 namespace OHOS {
