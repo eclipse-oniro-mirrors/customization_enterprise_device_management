@@ -65,6 +65,8 @@ enum EdmInterfaceCode : uint32_t {
     NTP_SERVER = 1030,
     GET_SECURITY_PATCH_TAG = 1031,
     GET_DEVICE_ENCRYPTION_STATUS = 1032,
+    FIREWALL_RULE = 1033,
+    DOMAIN_FILTER_RULE = 1034,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

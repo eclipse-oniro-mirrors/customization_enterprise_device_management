@@ -80,7 +80,12 @@ edm_plugin_shared_library("wifi_manager_plugin") {
 }
 
 edm_plugin_shared_library("network_manager_plugin") {
-  include_dirs = [ "./include/utils" ]
+  include_dirs = [
+    "./include/network_manager",
+    "./include/network_manager/dao",
+    "./include/network_manager/do",
+    "./include/utils",
+  ]
 
   sources = [
     "./src/disabled_network_interface_plugin.cpp",
@@ -89,6 +94,20 @@ edm_plugin_shared_library("network_manager_plugin") {
     "./src/get_mac_plugin.cpp",
     "./src/global_proxy_plugin.cpp",
     "./src/iptables_rule_plugin.cpp",
+    "./src/network_manager/iptables_service.cpp",
+    "./src/network_manager/rule_executer.cpp",
+    "./src/network_manager/rule_utils.cpp",
+    "./src/network_manager/dao/dao_factory.cpp",
+    "./src/network_manager/dao/domain_dao.cpp",
+    "./src/network_manager/dao/firewall_dao.cpp",
+    "./src/network_manager/dao/idao.cpp",
+    "./src/network_manager/do/chain_rule.cpp",
+    "./src/network_manager/do/domain_chain_rule.cpp",
+    "./src/network_manager/do/firewall_chain_rule.cpp",
+    "./src/domain_filter_rule_plugin.cpp",
+    "./src/firewall_rule_plugin.cpp",
+    "./src/utils/domain_filter_rule_serializer.cpp",
+    "./src/utils/firewall_rule_serializer.cpp",
     "./src/utils/http_proxy_serializer.cpp",
   ]
 
