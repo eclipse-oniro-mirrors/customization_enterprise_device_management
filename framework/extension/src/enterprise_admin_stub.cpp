@@ -44,6 +44,7 @@ void EnterpriseAdminStub::AddCallFuncMap()
     memberFuncMap_[COMMAND_ON_BUNDLE_REMOVED] = &EnterpriseAdminStub::OnBundleRemovedInner;
     memberFuncMap_[COMMAND_ON_APP_START] = &EnterpriseAdminStub::OnAppStartInner;
     memberFuncMap_[COMMAND_ON_APP_STOP] = &EnterpriseAdminStub::OnAppStopInner;
+    memberFuncMap_[COMMAND_ON_SYSTEM_UPDATE] = &EnterpriseAdminStub::OnSystemUpdateInner;
 }
 
 void EnterpriseAdminStub::OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply)
@@ -84,6 +85,16 @@ void EnterpriseAdminStub::OnAppStopInner(MessageParcel& data, MessageParcel& rep
     EDMLOGI("EnterpriseAdminStub::OnAppStop");
     std::string bundleName = data.ReadString();
     OnAppStop(bundleName);
+}
+
+void EnterpriseAdminStub::OnSystemUpdateInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnSystemUpdate");
+    UpdateInfo updateInfo;
+    updateInfo.version = data.ReadString();
+    updateInfo.firstReceivedTime = data.ReadInt64();
+    updateInfo.packageType = data.ReadString();
+    OnSystemUpdate(updateInfo);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

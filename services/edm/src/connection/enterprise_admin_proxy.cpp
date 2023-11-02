@@ -88,6 +88,20 @@ void EnterpriseAdminProxy::OnAppStop(const std::string &bundleName)
     SendRequest(COMMAND_ON_APP_STOP, data);
 }
 
+void EnterpriseAdminProxy::OnSystemUpdate(const UpdateInfo &updateInfo)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(updateInfo.version);
+    data.WriteInt64(updateInfo.firstReceivedTime);
+    data.WriteString(updateInfo.packageType);
+    EDMLOGI("EnterpriseAdminProxy proxy OnSystemUpdate");
+    SendRequest(COMMAND_ON_SYSTEM_UPDATE, data);
+}
+
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     MessageParcel reply;

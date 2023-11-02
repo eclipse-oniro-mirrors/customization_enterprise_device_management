@@ -28,6 +28,7 @@
 #include "hilog/log.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
+#include "policy_struct.h"
 #include "system_ability.h"
 
 namespace OHOS {
@@ -104,6 +105,8 @@ private:
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     std::shared_ptr<PolicyManager> GetAndSwitchPolicyManagerByUserId(int32_t userId);
     void InitAllPolices();
+    void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
+    void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;

@@ -690,6 +690,10 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     napi_value nAppStop;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::APP_STOP), &nAppStop));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_APP_STOP", nAppStop));
+    napi_value nSystemUpdate;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE),
+        &nSystemUpdate));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_SYSTEM_UPDATE", nSystemUpdate));
 }
 
 napi_value AdminManager::Init(napi_env env, napi_value exports)
