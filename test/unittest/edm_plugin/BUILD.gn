@@ -190,9 +190,9 @@ ohos_static_library("edm_all_plugin_static") {
   include_dirs = [
     "../../../services/edm_plugin/include",
     "../../../services/edm_plugin/include/utils",
-    "../../../services/edm_plugin/include/networkr",
-    "../../../services/edm_plugin/include/networkr/executer",
-    "../../../services/edm_plugin/include/networkr/rule",
+    "../../../services/edm_plugin/include/network",
+    "../../../services/edm_plugin/include/network/executer",
+    "../../../services/edm_plugin/include/network/rule",
   ]
 
   deps = [
