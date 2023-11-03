@@ -31,9 +31,7 @@ public:
 private:
     std::string actualChainName_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_FIREWALL_DAO_H

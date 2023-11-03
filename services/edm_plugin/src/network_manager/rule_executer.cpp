@@ -49,7 +49,6 @@ ErrCode RuleExecuter::Execute(const std::string& rule, std::string &result)
     }
     return ERR_OK;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

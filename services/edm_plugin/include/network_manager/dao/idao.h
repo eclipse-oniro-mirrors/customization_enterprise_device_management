@@ -48,9 +48,7 @@ protected:
     std::string tableName_;
     std::string chainName_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_IPTABLES_IDAO_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_IDAO_H

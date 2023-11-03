@@ -51,9 +51,7 @@ public:
     static std::string EnumToString(Protocol protocol);
     static Protocol StringProtocl(std::string protocol);
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_RULE_UTILS_H

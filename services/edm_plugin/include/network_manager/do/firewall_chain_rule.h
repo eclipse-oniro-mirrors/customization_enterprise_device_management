@@ -45,5 +45,4 @@ private:
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_FIREWALL_CHAIN_RULE_H

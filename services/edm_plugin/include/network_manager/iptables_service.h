@@ -66,9 +66,7 @@ private:
     static std::shared_ptr<IptablesService> instance_;
     static std::mutex mutexLock_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_IPTABLES_SERVICE_H

@@ -73,7 +73,6 @@ Protocol RuleUtils::StringProtocl(std::string protocol)
         return Protocol::INVALID;
     }
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

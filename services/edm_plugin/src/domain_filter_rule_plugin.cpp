@@ -42,10 +42,6 @@ void DomainFilterRulePlugin::InitPlugin(
 ErrCode DomainFilterRulePlugin::OnSetPolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    EDMLOGI("DomainFilterRulePlugin OnSetPolicy.");
-    EDMLOGI("DomainFilterRulePlugin action %{public}d", static_cast<int32_t>(std::get<0>(rule)));
-    EDMLOGI("DomainFilterRulePlugin appUid %{public}s", std::get<1>(rule).c_str());
-    EDMLOGI("DomainFilterRulePlugin domainName %{public}s", std::get<2>(rule).c_str());
     if (!IptablesService::GetInstance()->HasInit()) {
         IptablesService::GetInstance()->Init();
     }
@@ -55,10 +51,6 @@ ErrCode DomainFilterRulePlugin::OnSetPolicy(IPTABLES::DomainFilterRuleParcel &ru
 ErrCode DomainFilterRulePlugin::OnRemovePolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    EDMLOGI("DomainFilterRulePlugin OnRemovePolicy.");
-    EDMLOGI("DomainFilterRulePlugin action %{public}d", static_cast<int32_t>(std::get<0>(rule)));
-    EDMLOGI("DomainFilterRulePlugin appUid %{public}s", std::get<1>(rule).c_str());
-    EDMLOGI("DomainFilterRulePlugin domainName %{public}s", std::get<2>(rule).c_str());
     if (!IptablesService::GetInstance()->HasInit()) {
         IptablesService::GetInstance()->Init();
     }
@@ -70,10 +62,6 @@ ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParc
 {
     EDMLOGI("DomainFilterRulePlugin OnGetPolicy.");
     reply.WriteInt32(ERR_OK);
-//    IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel1{{IPTABLES::Action::ALLOW, "1000", "www.baidu.com"}};
-//    domainFilterRuleParcel1.Marshalling(reply);
-//    IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel2{{IPTABLES::Action::ALLOW, "2000", "www.example.com"}};
-//    domainFilterRuleParcel2.Marshalling(reply);
     if (!IptablesService::GetInstance()->HasInit()) {
         IptablesService::GetInstance()->Init();
         reply.WriteInt32(ERR_OK);

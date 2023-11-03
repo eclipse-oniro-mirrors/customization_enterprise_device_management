@@ -43,7 +43,6 @@ ErrCode DomainDao::Init()
     }
     return ERR_OK;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

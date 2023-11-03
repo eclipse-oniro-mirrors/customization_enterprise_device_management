@@ -46,5 +46,4 @@ private:
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_DAO_FACTORY_H

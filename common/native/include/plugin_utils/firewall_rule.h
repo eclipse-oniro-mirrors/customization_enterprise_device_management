@@ -41,9 +41,7 @@ public:
 private:
     FirewallRule rule_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_IPTABLES_FIREWALL_RULE_H

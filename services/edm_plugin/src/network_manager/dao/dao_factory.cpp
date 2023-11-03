@@ -81,7 +81,6 @@ std::vector<std::shared_ptr<IDao>> DaoFactory::GetAllDao() const
 {
     return daoVector_;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

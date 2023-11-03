@@ -42,15 +42,6 @@ void FirewallRulePlugin::InitPlugin(
 ErrCode FirewallRulePlugin::OnSetPolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    EDMLOGI("FirewallRulePlugin OnSetPolicy.");
-    EDMLOGI("FirewallRulePlugin Direction %{public}d", static_cast<int32_t>(std::get<0>(rule)));
-    EDMLOGI("FirewallRulePlugin Action %{public}d", static_cast<int32_t>(std::get<1>(rule)));
-    EDMLOGI("FirewallRulePlugin Protocol %{public}d", static_cast<int32_t>(std::get<2>(rule)));
-    EDMLOGI("FirewallRulePlugin srcAddr %{public}s", std::get<3>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin destAddr %{public}s", std::get<4>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin srcPort %{public}s", std::get<5>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin destPort %{public}s", std::get<6>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin appUid %{public}s", std::get<7>(rule).c_str());
     if (!IPTABLES::IptablesService::GetInstance()->HasInit()) {
         IPTABLES::IptablesService::GetInstance()->Init();
     }
@@ -60,15 +51,6 @@ ErrCode FirewallRulePlugin::OnSetPolicy(IPTABLES::FirewallRuleParcel &ruleParcel
 ErrCode FirewallRulePlugin::OnRemovePolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    EDMLOGI("FirewallRulePlugin OnRemovePolicy.");
-    EDMLOGI("FirewallRulePlugin Direction %{public}d", static_cast<int32_t>(std::get<0>(rule)));
-    EDMLOGI("FirewallRulePlugin Action %{public}d", static_cast<int32_t>(std::get<1>(rule)));
-    EDMLOGI("FirewallRulePlugin Protocol %{public}d", static_cast<int32_t>(std::get<2>(rule)));
-    EDMLOGI("FirewallRulePlugin srcAddr %{public}s", std::get<3>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin destAddr %{public}s", std::get<4>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin srcPort %{public}s", std::get<5>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin destPort %{public}s", std::get<6>(rule).c_str());
-    EDMLOGI("FirewallRulePlugin appUid %{public}s", std::get<7>(rule).c_str());
     if (!IPTABLES::IptablesService::GetInstance()->HasInit()) {
         IPTABLES::IptablesService::GetInstance()->Init();
     }
@@ -78,7 +60,6 @@ ErrCode FirewallRulePlugin::OnRemovePolicy(IPTABLES::FirewallRuleParcel &rulePar
 ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("FirewallRulePlugin OnGetPolicy.");
     reply.WriteInt32(ERR_OK);
     if (!IptablesService::GetInstance()->HasInit()) {
         IptablesService::GetInstance()->Init();
@@ -90,7 +71,6 @@ ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &
             EDMLOGE("FirewallRulePlugin OnGetPolicy fail");
             return ret;
         }
-        EDMLOGI("FirewallRulePlugin OnGetPolicy size%{public}d.", list.size());
         reply.WriteInt32(list.size());
         for(auto const &item : list) {
             item.Marshalling(reply);

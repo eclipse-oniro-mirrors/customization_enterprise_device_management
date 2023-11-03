@@ -53,9 +53,7 @@ protected:
 
     std::string otherOptions_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_CHAIN_RULE_H

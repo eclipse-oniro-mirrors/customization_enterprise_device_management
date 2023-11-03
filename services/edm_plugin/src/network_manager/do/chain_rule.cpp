@@ -87,7 +87,6 @@ void ChainRule::TruncateOption(const std::string& options, const std::string& ke
         result = options.substr(index + key.length());
     }
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

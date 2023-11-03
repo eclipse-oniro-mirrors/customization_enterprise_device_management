@@ -28,9 +28,7 @@ public:
     explicit DomainDao(const std::string& chainName);
     ErrCode Init() override;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_DOMAIN_DAO_H

@@ -83,7 +83,6 @@ ErrCode IptablesService::AddFirewallRule(const FirewallRuleParcel& firewall)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (action == Action::DENY) {
-        EDMLOGD("AddFirewallRule:before SetDefaultFirewallDenyChain.");
         SetDefaultFirewallDenyChain();
     }
     auto chainRule = std::make_shared<FirewallChainRule>(rule);
@@ -137,7 +136,6 @@ ErrCode IptablesService::RemoveFirewallRule(const FirewallRuleParcel& firewall)
         }
     }
     if (!ExistDenyFirewallRule()) {
-        EDMLOGD("RemoveFirewallRule:before ClearDefaultFirewallDenyChain.");
         ClearDefaultFirewallDenyChain();
     }
     return ERR_OK;
@@ -161,7 +159,6 @@ ErrCode IptablesService::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::INPUT)};
         list.emplace_back(firewall);
     }
-    EDMLOGD("GetFirewallRules:GetDao inputRuleList, %{public}d", list.size());
 
     std::vector<std::string> outputRuleList;
     std::vector<std::string> outputChainVector{EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME};
@@ -178,7 +175,6 @@ ErrCode IptablesService::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::OUTPUT)};
         list.emplace_back(firewall);
     }
-    EDMLOGD("GetFirewallRules:GetDao outputRuleList, %{public}d", list.size());
     return ERR_OK;
 }
 
@@ -256,7 +252,6 @@ ErrCode IptablesService::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
             // flush chain
             dao->Remove(nullptr);
         }
-        EDMLOGD("RemoveDomainFilterRules: before flush chain.");
         ClearDefaultDomainDenyChain();
         return ERR_OK;
     }
@@ -269,7 +264,6 @@ ErrCode IptablesService::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     auto chainRule = std::make_shared<DomainChainRule>(rule);
     auto ret = dao->Remove(chainRule);
     if (ret == ERR_OK && !ExistDenyDomainRule()) {
-        EDMLOGD("RemoveDomainFilterRules: before ClearDefaultDomainDenyChain.");
         ClearDefaultDomainDenyChain();
     }
     return ret;
@@ -335,13 +329,13 @@ void IptablesService::Init()
         std::vector<std::shared_ptr<IDao>> daoVector = DaoFactory::GetInstance()->GetAllDao();
         for (const auto& dao : daoVector) {
             ErrCode ret = dao->CreateChain();
-            if(ret != ERR_OK) {
+            if (ret != ERR_OK) {
                 EDMLOGE("Init CreateChain fail, this should not happen.");
             }
         }
         for (const auto& dao : daoVector) {
             ErrCode ret = dao->Init();
-            if(ret != ERR_OK) {
+            if (ret != ERR_OK) {
                 EDMLOGE("Init fail, this should not happen.");
             }
         }
@@ -352,7 +346,6 @@ void IptablesService::Init()
 void IptablesService::SetDefaultFirewallDenyChain()
 {
     if (!g_defaultFirewallChainInit) {
-        EDMLOGD("SetDefaultFirewallDenyChain: %{public}d.", g_defaultFirewallChainInit);
         FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", ""};
         FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", ""};
 
@@ -374,7 +367,6 @@ void IptablesService::SetDefaultFirewallDenyChain()
 void IptablesService::ClearDefaultFirewallDenyChain()
 {
     if (g_defaultFirewallChainInit) {
-        EDMLOGD("ClearDefaultFirewallDenyChain: %{public}d.", g_defaultFirewallChainInit);
         auto dao = DaoFactory::GetInstance()->GetDao(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
         if (dao == nullptr) {
             EDMLOGE("ClearDefaultFirewallDenyChain:GetDao fail, this should not happen.");
@@ -388,7 +380,6 @@ void IptablesService::ClearDefaultFirewallDenyChain()
 void IptablesService::SetDefaultDomainDenyChain()
 {
     if (!g_defaultDomainChainInit) {
-        EDMLOGD("SetDefaultDomainDenyChain: %{public}d.", g_defaultDomainChainInit);
         DomainFilterRule domainFilterRule{Action::DENY, "", ""};
         std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
         auto dao = DaoFactory::GetInstance()->GetDao(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
@@ -404,7 +395,6 @@ void IptablesService::SetDefaultDomainDenyChain()
 void IptablesService::ClearDefaultDomainDenyChain()
 {
     if (g_defaultDomainChainInit) {
-        EDMLOGD("ClearDefaultDomainDenyChain: %{public}d.", g_defaultDomainChainInit);
         auto dao = DaoFactory::GetInstance()->GetDao(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
         if (dao == nullptr) {
             EDMLOGE("ClearDefaultDomainDenyChain:GetDao fail, this should not happen.");
@@ -429,7 +419,6 @@ bool IptablesService::ExistDenyDomainRule()
 
 bool IptablesService::ChainExistRule(const std::vector<std::string>& chainNames)
 {
-    EDMLOGD("ChainExistRule:.");
     std::vector<std::string> ruleList;
     for (const auto& chainName : chainNames) {
         auto dao = DaoFactory::GetInstance()->GetDao(chainName);
@@ -438,7 +427,6 @@ bool IptablesService::ChainExistRule(const std::vector<std::string>& chainNames)
             return true;
         }
     }
-    EDMLOGD("ChainExistRule: not exist rule.");
     return false;
 }
 

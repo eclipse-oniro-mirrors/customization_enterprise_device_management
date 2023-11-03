@@ -146,7 +146,6 @@ uint8_t DomainChainRule::CharToHex(const char &hexChar)
     }
     return 0;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

@@ -40,9 +40,7 @@ private:
     std::string appUid_;
     std::string domainName_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_DOMAIN_CHAIN_RULE_H

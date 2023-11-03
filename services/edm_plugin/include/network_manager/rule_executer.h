@@ -28,19 +28,22 @@ namespace IPTABLES {
 
 class RuleExecuter {
 public:
-    virtual ErrCode Execute(const std::string &rule, std::string &result);
+    RuleExecuter() = default;
+    RuleExecuter(const RuleExecuter&) = delete;
+    RuleExecuter& operator=(const RuleExecuter&) = delete;
+    RuleExecuter(RuleExecuter&&) = delete;
+    RuleExecuter& operator=(RuleExecuter&&) = delete;
+    virtual ~RuleExecuter() = default;
+
+    virtual ErrCode Execute(const std::string& rule, std::string& result);
 
     static std::shared_ptr<RuleExecuter> GetInstance();
-
-    virtual ~RuleExecuter() = default;
 
 private:
     static std::shared_ptr<RuleExecuter> instance_;
     static std::mutex mutexLock_;
 };
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_IPTABLES_RULE_EXECUTER_H

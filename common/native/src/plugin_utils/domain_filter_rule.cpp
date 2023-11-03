@@ -47,7 +47,6 @@ DomainFilterRule DomainFilterRuleParcel::GetRule() const
 {
     return rule_;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

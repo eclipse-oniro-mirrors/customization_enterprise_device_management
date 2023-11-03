@@ -126,7 +126,7 @@ ErrCode IDao::GetAll(std::vector<std::string>& ruleList)
         ruleLines.emplace_back(line);
     }
     if (ruleLines.size() < RESULT_MIN_SIZE) {
-        EDMLOGW("GetAll: No data found");
+        EDMLOGI("GetAll: ruleLines is empty");
         return ERR_OK;
     }
 
@@ -141,10 +141,8 @@ ErrCode IDao::GetAll(std::vector<std::string>& ruleList)
         }
         ruleList.emplace_back(ruleLines[i]);
     }
-    EDMLOGD("GetAll: ruleList %{public}d", ruleList.size());
     return ERR_OK;
 }
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
