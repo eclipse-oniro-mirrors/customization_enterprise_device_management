@@ -13,25 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_PROXY_H
-#define INTERFACES_INNER_API_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_PROXY_H
+#ifndef EDM_UNIT_TEST_LOCK_SCREEN_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_LOCK_SCREEN_PLUGIN_TEST_H
 
-#include "enterprise_device_mgr_proxy.h"
+#include <gtest/gtest.h>
+#include "iplugin_manager.h"
+#include "lock_screen_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DeviceControlProxy {
-public:
-    DeviceControlProxy();
-    ~DeviceControlProxy();
-    static std::shared_ptr<DeviceControlProxy> GetDeviceControlProxy();
-    int32_t ResetFactory(AppExecFwk::ElementName &admin);
-    int32_t LockScreen(AppExecFwk::ElementName &admin, int32_t userId);
-private:
-    static std::shared_ptr<DeviceControlProxy> instance_;
-    static std::mutex mutexLock_;
+namespace TEST {
+class LockScreenPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_INNER_API_DEVICE_INFO_INCLUDE_DEVICE_INFO_PROXY_H
+#endif // EDM_UNIT_TEST_LOCK_SCREEN_PLUGIN_TEST_H
