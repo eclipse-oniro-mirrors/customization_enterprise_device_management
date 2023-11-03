@@ -32,7 +32,6 @@ ohos_unittest("EdmPluginTest") {
     "./include",
     "./include/network",
     "./include/network/executer",
-    "./include/network/rule",
   ]
 
   sources = [

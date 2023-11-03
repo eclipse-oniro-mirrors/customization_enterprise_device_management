@@ -13,8 +13,9 @@
 * limitations under the License.
  */
 
-#include "edm_log.h"
 #include "executer_utils_mock.h"
+
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
