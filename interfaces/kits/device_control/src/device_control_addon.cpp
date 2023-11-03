@@ -14,6 +14,7 @@
  */
 
 #include "device_control_addon.h"
+#include "os_account_manager.h"
 #include "edm_log.h"
 
 using namespace OHOS::EDM;
@@ -22,6 +23,7 @@ napi_value DeviceControlAddon::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("resetFactory", ResetFactory),
+        DECLARE_NAPI_FUNCTION("lockScreen", LockScreen),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -60,6 +62,35 @@ napi_value DeviceControlAddon::ResetFactory(napi_env env, napi_callback_info inf
         NativeResetFactory, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+}
+
+napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_lockScreen called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    OHOS::AppExecFwk::ElementName elementName;
+    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
+    EDMLOGD("lockScreen: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        elementName.GetBundleName().c_str(),
+        elementName.GetAbilityName().c_str());
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    EDMLOGI("NAPI_lockScreen called userId :%{public}d", userId);
+    int32_t result = DeviceControlProxy::GetDeviceControlProxy()->LockScreen(elementName, userId);
+    if (FAILED(result)) {
+    	napi_throw(env, CreateError(env, result));
+    	return nullptr;
+    }
+    return nullptr;
 }
 
 void DeviceControlAddon::NativeResetFactory(napi_env env, void *data)

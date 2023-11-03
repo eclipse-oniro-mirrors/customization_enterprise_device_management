@@ -75,7 +75,8 @@
         "time_service",
         "update_service",
         "wifi",
-        "eventhandler"
+        "eventhandler",
+        "screenlock_mgr"
       ],
       "third_party": [
         "bounds_checking_function",

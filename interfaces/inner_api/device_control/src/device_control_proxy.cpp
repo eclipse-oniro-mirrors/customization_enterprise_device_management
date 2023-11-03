@@ -42,7 +42,7 @@ std::shared_ptr<DeviceControlProxy> DeviceControlProxy::GetDeviceControlProxy()
 
 int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
 {
-    EDMLOGD("DeviceInfoProxy::ResetFactory");
+    EDMLOGD("DeviceControlProxy::ResetFactory");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -53,6 +53,24 @@ int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceControlProxy::LockScreen(AppExecFwk::ElementName &admin, int32_t userId)
+{
+    EDMLOGD("DeviceControlProxy::LockScreen");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCK_SCREEN);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(userId);
+    EDMLOGD("DeviceControlProxy LockScreen userId = %{public}d.", userId);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
