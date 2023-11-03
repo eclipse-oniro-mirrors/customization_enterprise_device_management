@@ -252,7 +252,7 @@ int32_t NetworkManagerProxy::GetFirewallRules(const AppExecFwk::ElementName &adm
         }
         result.push_back(firewallRuleParcel.GetRule());
     }
-    EDMLOGE("EnterpriseDeviceMgrProxy:GetFirewallRules success. %{public}d", size);
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetFirewallRules success. %{public}d", size);
     return ERR_OK;
 }
 
@@ -313,7 +313,7 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
         }
         result.push_back(domainFilterRuleParcel.GetRule());
     }
-    EDMLOGE("EnterpriseDeviceMgrProxy:GetDomainFilterRules success. %{public}d", size);
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetDomainFilterRules success. %{public}d", size);
     return ERR_OK;
 }
 
