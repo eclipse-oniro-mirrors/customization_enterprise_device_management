@@ -11,43 +11,32 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*/
-#ifndef TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORKMANAGER_IPTABLES_SERVICES_TEST_H
-#define TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORKMANAGER_IPTABLES_SERVICES_TEST_H
+ */
 
-#define private public
-#define protected public
-#include "iptables_service.h"
-#undef protected
-#undef private
+#ifndef TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
+#define TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#define private public
-#define protected public
-#include "rule_executer.h"
-#undef protected
-#undef private
-
-#include "rule_executer_mock.h"
+#include "executer_utils.h"
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 namespace TEST {
-class IptablesSereviceTest : public testing::Test {
-public:
-    std::shared_ptr<RuleExecuterMock> ruleExecuterMock;
-    std::shared_ptr<IptablesService> iptablesService;
 
-protected:
-    void SetUp() override;
-    void TearDown() override;
+class ExecuterUtilsMock final: public IPTABLES::ExecuterUtils {
+public:
+    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result), (override));
 };
+
+ErrCode PrintExecRule(const std::string &rule, std::string &result);
+
 } // namespace TEST
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
 
-#endif // TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORKMANAGER_IPTABLES_SERVICES_TEST_H
+#endif // TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
+

@@ -64,7 +64,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/network/rule/chain_rule_test.cpp",
     "./src/network/rule/domain_chain_rule_test.cpp",
     "./src/network/rule/firewall_chain_rule_test.cpp",
-
     "./src/network_manager_plugin_test.cpp",
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
