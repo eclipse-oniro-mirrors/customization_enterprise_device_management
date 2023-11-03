@@ -33,14 +33,17 @@
 #include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
+#include "func_code_utils.h"
 #include "matching_skills.h"
 #include "os_account_manager.h"
 #include "parameters.h"
+#include "security_report.h"
 
 namespace OHOS {
 namespace EDM {
@@ -52,6 +55,13 @@ const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRI
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
+
+const std::vector<uint32_t> codeList = {
+    EdmInterfaceCode::RESET_FACTORY,
+    EdmInterfaceCode::DISABLED_PRINTER,
+    EdmInterfaceCode::DISABLED_HDC,
+    EdmInterfaceCode::NTP_SERVER,
+};
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -851,7 +861,21 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: VerifyCallingPermission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
+    CreateSecurityContent(deviceAdmin, plugin);
     return UpdateDevicePolicy(code, admin, data, reply, userId);
+}
+
+void EnterpriseDeviceMgrAbility::CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin,
+    std::shared_ptr<IPlugin> plugin)
+{
+    if (std::find(codeList.begin(), codeList.end(), plugin->GetCode()) == codeList.end()) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::CreateSecurityContent code not in list: %{public}d", plugin->GetCode());
+        return;
+    }
+    std::string bundleName = deviceAdmin->adminInfo_.packageName_;
+    std::string abilityName = deviceAdmin->adminInfo_.className_;
+    std::string policyName = plugin->GetPolicyName();
+    SecurityReport::ReportSecurityInfo(bundleName, abilityName, policyName);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,

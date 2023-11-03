@@ -28,6 +28,7 @@ ohos_shared_library("edm_commom") {
     "./src/edm_sys_manager.cpp",
     "./src/plugin_utils/iptables_utils.cpp",
     "./src/plugin_utils/message_parcel_utils.cpp",
+    "./src/security_report.cpp",
   ]
 
   configs = [
@@ -51,6 +52,12 @@ ohos_shared_library("edm_commom") {
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.security_security_guard)) {
+    external_deps += [ "security_guard:libsg_collect_sdk" ]
+    cflags_cc = [ "-DSECURITY_GUARDE_ENABLE" ]
+  }
 
   sanitize = {
     boundary_sanitize = true
