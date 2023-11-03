@@ -25,6 +25,10 @@ namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 
+const int32_t DOMAIN_ACTION_IND = 0;
+const int32_t DOMAIN_APPUID_IND = 1;
+const int32_t DOMAIN_DOMAINNAME_IND = 2;
+
 using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/>;
 
 class DomainFilterRuleParcel : public Parcelable {

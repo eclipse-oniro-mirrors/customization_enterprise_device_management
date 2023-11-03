@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include <iostream>
-
 #include "firewall_rule.h"
 
 namespace OHOS {
@@ -24,14 +22,14 @@ FirewallRuleParcel::FirewallRuleParcel(FirewallRule rule) : rule_(std::move(rule
 
 bool FirewallRuleParcel::Marshalling(Parcel& parcel) const
 {
-    parcel.WriteUint32(static_cast<int32_t>(std::get<0>(rule_)));
-    parcel.WriteUint32(static_cast<int32_t>(std::get<1>(rule_)));
-    parcel.WriteUint32(static_cast<int32_t>(std::get<2>(rule_)));
-    parcel.WriteString(std::get<3>(rule_));
-    parcel.WriteString(std::get<4>(rule_));
-    parcel.WriteString(std::get<5>(rule_));
-    parcel.WriteString(std::get<6>(rule_));
-    parcel.WriteString(std::get<7>(rule_));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_DICECTION_IND>(rule_)));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_ACTION_IND>(rule_)));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_PROT_IND>(rule_)));
+    parcel.WriteString(std::get<FIREWALL_SRCADDR_IND>(rule_));
+    parcel.WriteString(std::get<FIREWALL_DESTADDR_IND>(rule_));
+    parcel.WriteString(std::get<FIREWALL_SRCPORT_IND>(rule_));
+    parcel.WriteString(std::get<FIREWALL_DESTPORT_IND>(rule_));
+    parcel.WriteString(std::get<FIREWALL_APPUID_IND>(rule_));
     return true;
 }
 

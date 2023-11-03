@@ -20,6 +20,7 @@
 #include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
+using namespace OHOS::EDM::IPTABLES;
 
 const char *const HOST_PROP_NAME = "host";
 const char *const PORT_PROP_NAME = "port";
@@ -650,21 +651,18 @@ bool NetworkManagerAddon::JsObjToFirewallRule(napi_env env, napi_value object, I
     EDMLOGI("JsObjToFirewallRule direction %{pubilc}d", direction);
     IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
-    EDMLOGI("JsObjToFirewallRule direction %{pubilc}d", direction);
 
     int32_t action = -1;
     JsObjectToInt(env, object, "action", false, action);
     EDMLOGI("JsObjToFirewallRule action %{pubilc}d", action);
     IPTABLES::Action actionEnum = IPTABLES::Action::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);
-    EDMLOGI("JsObjToFirewallRule action %{pubilc}d", action);
 
     int32_t protocol = -1;
     JsObjectToInt(env, object, "protocol", false, protocol);
     EDMLOGI("JsObjToFirewallRule protocol %{pubilc}d", protocol);
     IPTABLES::Protocol protocolEnum = IPTABLES::Protocol::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, protocolEnum);
-    EDMLOGI("JsObjToFirewallRule protocol %{pubilc}d", protocol);
 
     std::string srcAddr;
     JsObjectToString(env, object, "srcAddr", false, srcAddr);
@@ -690,25 +688,25 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
     NAPI_CALL(env, napi_create_object(env, &jsRule));
 
     napi_value direction = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<0>(rule)), &direction));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_DICECTION_IND>(rule)), &direction));
     napi_value action = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<1>(rule)), &action));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_ACTION_IND>(rule)), &action));
     napi_value protocol = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<2>(rule)), &protocol));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_PROT_IND>(rule)), &protocol));
     napi_value srcAddr = nullptr;
-    std::string srcAddrStr = std::get<3>(rule);
+    std::string srcAddrStr = std::get<FIREWALL_SRCADDR_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, srcAddrStr.c_str(), srcAddrStr.length(), &srcAddr));
     napi_value destAddr = nullptr;
-    std::string destAddrStr = std::get<4>(rule);
+    std::string destAddrStr = std::get<FIREWALL_DESTADDR_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, destAddrStr.c_str(), destAddrStr.length(), &destAddr));
     napi_value srcPort = nullptr;
-    std::string srcPortStr = std::get<5>(rule);
+    std::string srcPortStr = std::get<FIREWALL_SRCPORT_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, srcPortStr.c_str(), srcPortStr.length(), &srcPort));
     napi_value destPort = nullptr;
-    std::string destPortStr = std::get<6>(rule);
+    std::string destPortStr = std::get<FIREWALL_DESTPORT_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, destPortStr.c_str(), destPortStr.length(), &destPort));
     napi_value appUid = nullptr;
-    std::string appUidStr = std::get<7>(rule);
+    std::string appUidStr = std::get<FIREWALL_APPUID_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, appUidStr.c_str(), appUidStr.length(), &appUid));
 
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "direction", direction));
@@ -831,12 +829,12 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     NAPI_CALL(env, napi_create_object(env, &jsRule));
 
     napi_value action = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<0>(rule)), &action));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule)), &action));
     napi_value appUid = nullptr;
-    std::string appUidStr = std::get<1>(rule);
+    std::string appUidStr = std::get<DOMAIN_APPUID_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, appUidStr.c_str(), appUidStr.length(), &appUid));
     napi_value domainName = nullptr;
-    std::string domainNameStr = std::get<2>(rule);
+    std::string domainNameStr = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, domainNameStr.c_str(), domainNameStr.length(), &domainName));
 
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));

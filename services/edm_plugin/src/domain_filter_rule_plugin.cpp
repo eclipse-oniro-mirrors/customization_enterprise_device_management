@@ -20,7 +20,7 @@
 #include "func_code_utils.h"
 #include "domain_filter_rule_serializer.h"
 #include "iplugin_manager.h"
-#include "iptables_service.h"
+#include "iptables_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
@@ -42,19 +42,19 @@ void DomainFilterRulePlugin::InitPlugin(
 ErrCode DomainFilterRulePlugin::OnSetPolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IptablesService::GetInstance()->HasInit()) {
-        IptablesService::GetInstance()->Init();
+    if (!IptablesManager::GetInstance()->HasInit()) {
+        IptablesManager::GetInstance()->Init();
     }
-    return IptablesService::GetInstance()->AddDomainFilterRule(ruleParcel);
+    return IptablesManager::GetInstance()->AddDomainFilterRule(ruleParcel);
 }
 
 ErrCode DomainFilterRulePlugin::OnRemovePolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IptablesService::GetInstance()->HasInit()) {
-        IptablesService::GetInstance()->Init();
+    if (!IptablesManager::GetInstance()->HasInit()) {
+        IptablesManager::GetInstance()->Init();
     }
-    return IptablesService::GetInstance()->RemoveDomainFilterRules(ruleParcel);
+    return IptablesManager::GetInstance()->RemoveDomainFilterRules(ruleParcel);
 }
 
 ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -62,12 +62,12 @@ ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParc
 {
     EDMLOGI("DomainFilterRulePlugin OnGetPolicy.");
     reply.WriteInt32(ERR_OK);
-    if (!IptablesService::GetInstance()->HasInit()) {
-        IptablesService::GetInstance()->Init();
+    if (!IptablesManager::GetInstance()->HasInit()) {
+        IptablesManager::GetInstance()->Init();
         reply.WriteInt32(ERR_OK);
     } else {
         std::vector<DomainFilterRuleParcel> list;
-        ErrCode ret = IptablesService::GetInstance()->GetDomainFilterRules(list);
+        ErrCode ret = IptablesManager::GetInstance()->GetDomainFilterRules(list);
         if (ret != ERR_OK) {
             EDMLOGE("DomainFilterRulePlugin OnGetPolicy fail");
             return ret;

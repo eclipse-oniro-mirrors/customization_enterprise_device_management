@@ -18,24 +18,33 @@
 
 #include <tuple>
 
-#include "parcel.h"
 #include "iptables_utils.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 
-using FirewallRule = std::tuple<Direction, Action, Protocol, std::string /*srcAddr*/,
-    std::string /*destAddr*/, std::string /*srcPort*/, std::string /*destPort*/, std::string /*uid*/>;
+const int32_t FIREWALL_DICECTION_IND = 0;
+const int32_t FIREWALL_ACTION_IND = 1;
+const int32_t FIREWALL_PROT_IND = 2;
+const int32_t FIREWALL_SRCADDR_IND = 3;
+const int32_t FIREWALL_DESTADDR_IND = 4;
+const int32_t FIREWALL_SRCPORT_IND = 5;
+const int32_t FIREWALL_DESTPORT_IND = 6;
+const int32_t FIREWALL_APPUID_IND = 7;
+
+using FirewallRule = std::tuple<Direction, Action, Protocol, std::string /*srcAddr*/, std::string /*destAddr*/,
+    std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/>;
 class FirewallRuleParcel : public Parcelable {
 public:
     FirewallRuleParcel() = default;
     explicit FirewallRuleParcel(FirewallRule rule);
 
     FirewallRule GetRule() const;
-	
+
     bool Marshalling(Parcel& parcel) const override;
-	
+
     static bool Unmarshalling(Parcel& parcel, FirewallRuleParcel& firewallRuleParcel);
 
 private:

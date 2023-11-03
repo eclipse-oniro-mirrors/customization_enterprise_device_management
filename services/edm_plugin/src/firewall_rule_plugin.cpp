@@ -20,7 +20,7 @@
 #include "func_code_utils.h"
 #include "firewall_rule_serializer.h"
 #include "iplugin_manager.h"
-#include "iptables_service.h"
+#include "iptables_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
@@ -42,31 +42,31 @@ void FirewallRulePlugin::InitPlugin(
 ErrCode FirewallRulePlugin::OnSetPolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IPTABLES::IptablesService::GetInstance()->HasInit()) {
-        IPTABLES::IptablesService::GetInstance()->Init();
+    if (!IPTABLES::IptablesManager::GetInstance()->HasInit()) {
+        IPTABLES::IptablesManager::GetInstance()->Init();
     }
-    return IPTABLES::IptablesService::GetInstance()->AddFirewallRule(ruleParcel);
+    return IPTABLES::IptablesManager::GetInstance()->AddFirewallRule(ruleParcel);
 }
 
 ErrCode FirewallRulePlugin::OnRemovePolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IPTABLES::IptablesService::GetInstance()->HasInit()) {
-        IPTABLES::IptablesService::GetInstance()->Init();
+    if (!IPTABLES::IptablesManager::GetInstance()->HasInit()) {
+        IPTABLES::IptablesManager::GetInstance()->Init();
     }
-    return IptablesService::GetInstance()->RemoveFirewallRule(ruleParcel);
+    return IptablesManager::GetInstance()->RemoveFirewallRule(ruleParcel);
 }
 
 ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     reply.WriteInt32(ERR_OK);
-    if (!IptablesService::GetInstance()->HasInit()) {
-        IptablesService::GetInstance()->Init();
+    if (!IptablesManager::GetInstance()->HasInit()) {
+        IptablesManager::GetInstance()->Init();
         reply.WriteInt32(0);
     } else {
         std::vector<FirewallRuleParcel> list;
-        ErrCode ret = IptablesService::GetInstance()->GetFirewallRules(list);
+        ErrCode ret = IptablesManager::GetInstance()->GetFirewallRules(list);
         if (ret != ERR_OK) {
             EDMLOGE("FirewallRulePlugin OnGetPolicy fail");
             return ret;

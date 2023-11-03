@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include <tuple>
-
 #include "domain_filter_rule.h"
 
 namespace OHOS {
@@ -25,9 +23,9 @@ DomainFilterRuleParcel::DomainFilterRuleParcel(DomainFilterRule rule) : rule_(st
 
 bool DomainFilterRuleParcel::Marshalling(Parcel& parcel) const
 {
-    parcel.WriteUint32(static_cast<int32_t>(std::get<0>(rule_)));
-    parcel.WriteString(std::get<1>(rule_));
-    parcel.WriteString(std::get<2>(rule_));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule_)));
+    parcel.WriteString(std::get<DOMAIN_APPUID_IND>(rule_));
+    parcel.WriteString(std::get<DOMAIN_DOMAINNAME_IND>(rule_));
     return true;
 }
 
