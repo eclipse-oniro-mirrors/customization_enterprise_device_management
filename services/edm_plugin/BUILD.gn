@@ -50,9 +50,15 @@ edm_plugin_shared_library("device_info_plugin") {
 }
 
 edm_plugin_shared_library("device_control_plugin") {
-  sources = [ "./src/reset_factory_plugin.cpp" ]
+  sources = [
+    "./src/lock_screen_plugin.cpp",
+    "./src/reset_factory_plugin.cpp",
+  ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "c_utils:utils",
+    "screenlock_mgr:screenlock_client",
+  ]
 
   if (defined(global_parts_info) &&
       defined(global_parts_info.updater_update_service)) {

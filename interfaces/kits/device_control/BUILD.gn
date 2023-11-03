@@ -33,6 +33,7 @@ ohos_shared_library("devicecontrol") {
     "ability_base:want",
     "hilog:libhilog",
     "napi:ace_napi",
+    "os_account:os_account_innerkits",
   ]
 
   relative_install_dir = "module/enterprise"

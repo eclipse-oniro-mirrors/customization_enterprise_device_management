@@ -54,6 +54,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/install_plugin_test.cpp",
     "./src/iptables_rule_plugin_test.cpp",
     "./src/is_wifi_active_plugin_test.cpp",
+    "./src/lock_screen_plugin_test.cpp",
     "./src/network/executer/domain_executer_test.cpp",
     "./src/network/executer/executer_factory_test.cpp",
     "./src/network/executer/executer_utils_mock.cpp",
@@ -64,6 +65,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/network/rule/chain_rule_test.cpp",
     "./src/network/rule/domain_chain_rule_test.cpp",
     "./src/network/rule/firewall_chain_rule_test.cpp",
+
     "./src/network_manager_plugin_test.cpp",
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
@@ -106,8 +108,10 @@ ohos_unittest("EdmPluginTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "netmanager_base:net_conn_manager_if",
+    "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "screenlock_mgr:screenlock_client",
     "wifi:wifi_sdk",
   ]
 
@@ -159,6 +163,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/install_plugin.cpp",
     "../../../services/edm_plugin/src/iptables_rule_plugin.cpp",
     "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
+    "../../../services/edm_plugin/src/lock_screen_plugin.cpp",
     "../../../services/edm_plugin/src/network/executer/domain_executer.cpp",
     "../../../services/edm_plugin/src/network/executer/executer_factory.cpp",
     "../../../services/edm_plugin/src/network/executer/executer_utils.cpp",
@@ -219,6 +224,7 @@ ohos_static_library("edm_all_plugin_static") {
     "netmanager_base:netsys_controller",
     "netmanager_ext:ethernet_manager_if",
     "os_account:os_account_innerkits",
+    "screenlock_mgr:screenlock_client",
     "wifi:wifi_sdk",
   ]
 
