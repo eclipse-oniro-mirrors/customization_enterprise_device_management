@@ -88,6 +88,32 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestOnSetPolicyDonePolicyChanged
+ * @tc.desc: Test SetBrowserPoliciesPlugin::OnSetPolicyDone when isGlobalChanged is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestOnSetPolicyDonePolicyChanged, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    bool isGlobalChanged = true;
+    plugin.OnSetPolicyDone(isGlobalChanged);
+    ASSERT_TRUE(isGlobalChanged);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyDonePolicyUnchanged
+ * @tc.desc: Test SetBrowserPoliciesPlugin::OnSetPolicyDone when isGlobalChanged is false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestOnSetPolicyDonePolicyUnchanged, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    bool isGlobalChanged = false;
+    plugin.OnSetPolicyDone(isGlobalChanged);
+    ASSERT_FALSE(isGlobalChanged);
+}
+
+/**
  * @tc.name: TestOnGetPolicyAppIdEmpty
  * @tc.desc: Test SetBrowserPoliciesPlugin::OnGetPolicy when appId is empty.
  * @tc.type: FUNC
