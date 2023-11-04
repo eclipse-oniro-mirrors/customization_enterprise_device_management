@@ -16,7 +16,6 @@
 #ifndef INTERFACES_KITS_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_ADDON_H
 #define INTERFACES_KITS_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_ADDON_H
 
-#include "iptables_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -24,6 +23,10 @@
 #include "napi_edm_error.h"
 #include "network_manager_proxy.h"
 #include "want.h"
+
+#include "domain_filter_rule.h"
+#include "firewall_rule.h"
+#include "iptables_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -69,6 +72,12 @@ private:
     static napi_value AddIptablesFilterRule(napi_env env, napi_callback_info info);
     static napi_value RemoveIptablesFilterRule(napi_env env, napi_callback_info info);
     static napi_value ListIptablesFilterRules(napi_env env, napi_callback_info info);
+    static napi_value AddFirewallRule(napi_env env, napi_callback_info info);
+    static napi_value RemoveFirewallRule(napi_env env, napi_callback_info info);
+    static napi_value GetFirewallRules(napi_env env, napi_callback_info info);
+    static napi_value AddDomainFilterRule(napi_env env, napi_callback_info info);
+    static napi_value RemoveDomainFilterRule(napi_env env, napi_callback_info info);
+    static napi_value GetDomainFilterRules(napi_env env, napi_callback_info info);
     static void NativeGetAllNetworkInterfaces(napi_env env, void *data);
     static void NativeGetIpOrMacAddress(napi_env env, void *data);
     static void NativeSetNetworkInterfaceDisabled(napi_env env, void *data);
@@ -82,6 +91,10 @@ private:
     static void CreateFirewallAddMethodObject(napi_env env, napi_value value);
     static bool JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &addFilter);
     static bool JsObjToRemoveFirewallObject(napi_env env, napi_value object, IPTABLES::RemoveFilter &removeFilter);
+    static bool JsObjToFirewallRule(napi_env env, napi_value object, IPTABLES::FirewallRule &rule);
+    static napi_value FirewallRuleToJsObj(napi_env env, const IPTABLES::FirewallRule &rule);
+    static bool JsObjToDomainFilterRule(napi_env env, napi_value object, IPTABLES::DomainFilterRule &rule);
+    static napi_value DomainFilterRuleToJsObj(napi_env env, const IPTABLES::DomainFilterRule &rule);
 
     static napi_value SetGlobalHttpProxy(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxy(napi_env env, napi_callback_info info);

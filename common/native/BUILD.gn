@@ -26,6 +26,8 @@ ohos_shared_library("edm_commom") {
     "./src/edm_data_ability_utils.cpp",
     "./src/edm_permission.cpp",
     "./src/edm_sys_manager.cpp",
+    "./src/plugin_utils/domain_filter_rule.cpp",
+    "./src/plugin_utils/firewall_rule.cpp",
     "./src/plugin_utils/iptables_utils.cpp",
     "./src/plugin_utils/message_parcel_utils.cpp",
     "./src/security_report.cpp",
