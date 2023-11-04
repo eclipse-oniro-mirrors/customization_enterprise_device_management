@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#include <string>
-
 #ifndef COMMON_NATIVE_INCLUDE_SECURITY_REPORT_H
 #define COMMON_NATIVE_INCLUDE_SECURITY_REPORT_H
+
+#include <string>
 
 namespace OHOS {
 namespace EDM {
