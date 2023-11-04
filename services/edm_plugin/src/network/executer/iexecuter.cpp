@@ -54,6 +54,7 @@ ErrCode IExecuter::CreateChain()
 ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule)
 {
     if (rule == nullptr) {
+        EDMLOGE("Add: error param.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::ostringstream oss;

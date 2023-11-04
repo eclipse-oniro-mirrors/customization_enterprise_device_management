@@ -330,17 +330,20 @@ bool IptablesManager::HasInit()
 void IptablesManager::Init()
 {
     if (!g_chainInit) {
+        EDMLOGD("IptablesManager:start init.");
         std::vector<std::shared_ptr<IExecuter>> allExecuter = ExecuterFactory::GetInstance()->GetAllExecuter();
         for (const auto &executer : allExecuter) {
             ErrCode ret = executer->CreateChain();
             if (ret != ERR_OK) {
                 EDMLOGE("Init CreateChain fail, this should not happen.");
+                return;
             }
         }
         for (const auto &executer : allExecuter) {
             ErrCode ret = executer->Init();
             if (ret != ERR_OK) {
                 EDMLOGE("Init fail, this should not happen.");
+                return;
             }
         }
         g_chainInit = true;

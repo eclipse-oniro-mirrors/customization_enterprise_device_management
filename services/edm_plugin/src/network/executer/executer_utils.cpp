@@ -15,7 +15,8 @@
 
 #include "executer_utils.h"
 
-#include <iostream>
+#include "edm_log.h"
+#include "netsys_controller.h"
 
 namespace OHOS {
 namespace EDM {
@@ -37,7 +38,12 @@ std::shared_ptr<ExecuterUtils> ExecuterUtils::GetInstance()
 
 ErrCode ExecuterUtils::Execute(const std::string& rule, std::string &result)
 {
-    std::cout << "Execute=> iptables" << rule << std::endl;
+    EDMLOGD("ExecuterUtils Execute:%{public}s", rule.c_str());
+    ErrCode ret = NetManagerStandard::NetsysController::GetInstance().SetIptablesCommandForRes(rule, result);
+    if(ret != ERR_OK || !result.empty()) {
+        EDMLOGE("ExecuterUtils Execute fail:%{public}d, %{public}s", ret, result.c_str());
+        return ret;
+    }
     return ERR_OK;
 }
 } // namespace IPTABLES
