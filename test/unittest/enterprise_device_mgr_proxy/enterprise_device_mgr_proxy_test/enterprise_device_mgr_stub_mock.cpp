@@ -95,7 +95,7 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule(uint32_t c
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
-    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ruleParcel.Marshalling(reply);

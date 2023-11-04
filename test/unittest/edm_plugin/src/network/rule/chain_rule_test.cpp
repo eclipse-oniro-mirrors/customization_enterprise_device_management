@@ -34,7 +34,10 @@ class ChainRuleMock final : public ChainRule {
 public:
     explicit ChainRuleMock(const std::string& rule) : ChainRule(rule) {}
 
-    [[nodiscard]] std::string Parameter() const override { return ""; }
+    [[nodiscard]] std::string Parameter() const override
+    {
+        return "";
+    }
 };
 
 class ChainRuleTest : public testing::Test { };

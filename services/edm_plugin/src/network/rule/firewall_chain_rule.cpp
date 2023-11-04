@@ -107,7 +107,7 @@ std::string FirewallChainRule::IpToParameter(const std::string &ip, const std::s
     if (idx == std::string::npos) {
         parameterString << SPACE_OPTION << ipType << SPACE_OPTION << ip;
     } else {
-        if (ipType == "-s"){
+        if (ipType == "-s") {
             parameterString << " -m iprange --src-range " << ip;
         } else {
             parameterString << " -m iprange --dst-range " << ip;

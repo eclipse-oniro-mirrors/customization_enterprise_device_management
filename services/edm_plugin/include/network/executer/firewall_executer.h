@@ -26,7 +26,7 @@ namespace IPTABLES {
 class FirewallExecuter final: public IExecuter {
 public:
     ErrCode Init() override;
-    explicit FirewallExecuter(std::string actualChainName,const std::string &chainName);
+    explicit FirewallExecuter(std::string actualChainName, const std::string &chainName);
 
 private:
     std::string actualChainName_;

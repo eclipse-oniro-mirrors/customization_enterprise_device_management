@@ -44,7 +44,10 @@ namespace TEST {
 
 class IExecuterMock final: public IExecuter {
 public:
-    ErrCode Init() override { return ERR_OK; }
+    ErrCode Init() override
+    {
+        return ERR_OK;
+    }
 };
 
 class IExecuterTest : public testing::Test {

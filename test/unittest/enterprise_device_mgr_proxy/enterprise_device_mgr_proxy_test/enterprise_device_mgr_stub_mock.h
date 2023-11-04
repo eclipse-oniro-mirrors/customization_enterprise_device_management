@@ -59,7 +59,8 @@ public:
 
     int InvokeBoolSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
-    int InvokeBoolSendRequestGetFirewallRule(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int InvokeBoolSendRequestGetFirewallRule(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 

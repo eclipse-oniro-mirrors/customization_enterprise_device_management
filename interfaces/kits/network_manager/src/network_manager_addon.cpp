@@ -633,7 +633,7 @@ napi_value NetworkManagerAddon::GetFirewallRules(napi_env env, napi_callback_inf
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetFirewallRules(elementName, result);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-		return nullptr;
+        return nullptr;
     }
     napi_value jsList = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));

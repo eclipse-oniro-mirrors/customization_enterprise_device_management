@@ -379,7 +379,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
     int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
@@ -395,7 +395,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
     int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
@@ -413,7 +413,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
     int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
@@ -429,7 +429,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
     int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);

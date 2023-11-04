@@ -281,7 +281,7 @@ int32_t NetworkManagerProxy::RemoveDomainFilterRule(const AppExecFwk::ElementNam
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
-    if(!domainFilterRuleParcel.Marshalling(data)) {
+    if (!domainFilterRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::RemoveDomainFilterRule Marshalling rule fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
