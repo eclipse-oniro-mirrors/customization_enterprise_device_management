@@ -56,7 +56,7 @@ std::shared_ptr<ExecuterFactory> ExecuterFactory::GetInstance()
                 EDM_ALLOW_INPUT_CHAIN_NAME));
 
             instance_->chainNames_.emplace_back(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
-            instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(OUTPUT_CHAIN,
+            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(
                 EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME));
             instance_->chainNames_.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
             instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(EDM_DNS_DENY_OUTPUT_CHAIN_NAME));
