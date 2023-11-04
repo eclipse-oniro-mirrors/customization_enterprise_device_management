@@ -573,7 +573,7 @@ napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, 
+    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
         IPTABLES::Protocol::INVALID, "", "", "", "", ""};
     ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule), "firewallRule param error");
 
@@ -595,16 +595,16 @@ napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    if(argc >= ARGS_SIZE_TWO) {
+    if (argc >= ARGS_SIZE_TWO) {
         bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
         ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be FirewallRule.");
     }
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, 
+    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
         IPTABLES::Protocol::INVALID, "", "", "", "", ""};
-    if(argc >= ARGS_SIZE_TWO) {
+    if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule),
             "firewallRule param error");
     }
@@ -637,7 +637,7 @@ napi_value NetworkManagerAddon::GetFirewallRules(napi_env env, napi_callback_inf
     }
     napi_value jsList = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));
-    for(size_t i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++) {
         napi_value item = FirewallRuleToJsObj(env, result[i]);
         NAPI_CALL(env, napi_set_element(env, jsList, i, item));
     }
@@ -756,7 +756,7 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    if(argc >= ARGS_SIZE_TWO) {
+    if (argc >= ARGS_SIZE_TWO) {
         bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
         ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be DomainFilterRule.");
     }
@@ -765,7 +765,7 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
-    if(argc >= ARGS_SIZE_TWO) {
+    if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
             "DomainFilterRule param error");
     }
@@ -799,7 +799,7 @@ napi_value NetworkManagerAddon::GetDomainFilterRules(napi_env env, napi_callback
     }
     napi_value jsList = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));
-    for(size_t i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++) {
         napi_value item = DomainFilterRuleToJsObj(env, result[i]);
         NAPI_CALL(env, napi_set_element(env, jsList, i, item));
     }

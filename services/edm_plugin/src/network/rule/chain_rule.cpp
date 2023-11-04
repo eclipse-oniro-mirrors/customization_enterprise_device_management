@@ -61,7 +61,8 @@ std::string ChainRule::Target()
     return target_;
 }
 
-void ChainRule::GetOption(const std::string& options, const std::string& key, std::string& value) {
+void ChainRule::GetOption(const std::string& options, const std::string& key, std::string& value)
+{
     std::string result;
     TruncateOption(options, key, result);
     if (!result.empty()) {

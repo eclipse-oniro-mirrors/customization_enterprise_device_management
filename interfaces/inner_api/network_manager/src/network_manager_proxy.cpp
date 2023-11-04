@@ -203,7 +203,7 @@ int32_t NetworkManagerProxy::AddFirewallRule(const AppExecFwk::ElementName &admi
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
-    if(!firewallRuleParcel.Marshalling(data)) {
+    if (!firewallRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::AddFirewallRule Marshalling rule fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -219,7 +219,7 @@ int32_t NetworkManagerProxy::RemoveFirewallRule(const AppExecFwk::ElementName &a
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
-    if(!firewallRuleParcel.Marshalling(data)) {
+    if (!firewallRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::RemoveFirewallRule Marshalling rule fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -244,7 +244,7 @@ int32_t NetworkManagerProxy::GetFirewallRules(const AppExecFwk::ElementName &adm
         return ret;
     }
     int32_t size = reply.ReadInt32();
-    for(int32_t i = 0; i < size; i++) {
+    for (int32_t i = 0; i < size; i++) {
         IPTABLES::FirewallRuleParcel firewallRuleParcel;
         if (!IPTABLES::FirewallRuleParcel::Unmarshalling(reply, firewallRuleParcel)) {
             EDMLOGE("NetworkManagerProxy::GetFirewallRules Unmarshalling rule fail.");
@@ -264,11 +264,12 @@ int32_t NetworkManagerProxy::AddDomainFilterRule(const AppExecFwk::ElementName &
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
-    if(!domainFilterRuleParcel.Marshalling(data)) {
+    if (!domainFilterRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::AddDomainFilterRule Marshalling rule fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DOMAIN_FILTER_RULE);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DOMAIN_FILTER_RULE);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -284,7 +285,8 @@ int32_t NetworkManagerProxy::RemoveDomainFilterRule(const AppExecFwk::ElementNam
         EDMLOGE("NetworkManagerProxy::RemoveDomainFilterRule Marshalling rule fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DOMAIN_FILTER_RULE);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::DOMAIN_FILTER_RULE);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -305,7 +307,7 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
         return ret;
     }
     int32_t size = reply.ReadInt32();
-    for(int32_t i = 0; i < size; i++) {
+    for (int32_t i = 0; i < size; i++) {
         IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel;
         if (!IPTABLES::DomainFilterRuleParcel::Unmarshalling(reply, domainFilterRuleParcel)) {
             EDMLOGE("NetworkManagerProxy::GetDomainFilterRules Unmarshalling rule fail.");

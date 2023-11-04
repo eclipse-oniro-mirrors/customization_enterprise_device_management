@@ -172,7 +172,8 @@ HWTEST_F(IExecuterTest, TestGetAll, TestSize.Level1)
     std::string result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .WillRepeatedly(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
     EXPECT_TRUE(executer->GetAll(list) == ERR_OK);

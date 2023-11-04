@@ -40,7 +40,7 @@ ErrCode ExecuterUtils::Execute(const std::string& rule, std::string &result)
 {
     EDMLOGD("ExecuterUtils Execute:%{public}s", rule.c_str());
     ErrCode ret = NetManagerStandard::NetsysController::GetInstance().SetIptablesCommandForRes(rule, result);
-    if(ret != ERR_OK || !result.empty()) {
+    if (ret != ERR_OK || !result.empty()) {
         EDMLOGE("ExecuterUtils Execute fail:%{public}d, %{public}s", ret, result.c_str());
         return ret;
     }

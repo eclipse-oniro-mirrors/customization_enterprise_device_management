@@ -13,34 +13,33 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H
- #define SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H
 
- #include "firewall_rule.h"
- #include "ipolicy_serializer.h"
- #include "json/json.h"
- #include "singleton.h"
+#include "firewall_rule.h"
+#include "ipolicy_serializer.h"
+#include "json/json.h"
+#include "singleton.h"
 
- namespace OHOS {
- namespace EDM {
- /*
-  * Policy data serializer of type FirewallRuleSerializer.
-  */
- class FirewallRuleSerializer : public IPolicySerializer<IPTABLES::FirewallRuleParcel>,
+namespace OHOS {
+namespace EDM {
+/*
+* Policy data serializer of type FirewallRuleSerializer.
+*/
+class FirewallRuleSerializer : public IPolicySerializer<IPTABLES::FirewallRuleParcel>,
     public DelayedSingleton<FirewallRuleSerializer> {
- public:
-     bool Deserialize(const std::string &jsonString, IPTABLES::FirewallRuleParcel &dataObj) override;
+public:
+    bool Deserialize(const std::string &jsonString, IPTABLES::FirewallRuleParcel &dataObj) override;
 
-     bool Serialize(const IPTABLES::FirewallRuleParcel &dataObj, std::string &jsonString) override;
+    bool Serialize(const IPTABLES::FirewallRuleParcel &dataObj, std::string &jsonString) override;
 
-     bool GetPolicy(MessageParcel &data, IPTABLES::FirewallRuleParcel &result) override;
+    bool GetPolicy(MessageParcel &data, IPTABLES::FirewallRuleParcel &result) override;
 
-     bool WritePolicy(MessageParcel &reply, IPTABLES::FirewallRuleParcel &result) override;
+    bool WritePolicy(MessageParcel &reply, IPTABLES::FirewallRuleParcel &result) override;
 
-     bool MergePolicy(std::vector<IPTABLES::FirewallRuleParcel> &data,
-         IPTABLES::FirewallRuleParcel &result) override;
- };
- } // namespace EDM
- } // namespace OHOS
-
- #endif // SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H
+    bool MergePolicy(std::vector<IPTABLES::FirewallRuleParcel> &data,
+        IPTABLES::FirewallRuleParcel &result) override;
+};
+} // namespace EDM
+} // namespace OHOS
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_UTILS_FIREWALL_RULE_SERIALIZER_H

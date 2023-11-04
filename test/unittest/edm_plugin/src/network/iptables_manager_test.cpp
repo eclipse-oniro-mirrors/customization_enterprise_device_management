@@ -229,7 +229,8 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
     std::string result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
     std::string resultEmpty =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
@@ -248,7 +249,8 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
     result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(4)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
@@ -394,7 +396,8 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules, TestSize.Level1)
     std::string result =
         "Chain edm_dns_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
     std::string resultEmpty =
         "Chain edm_dns_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
@@ -521,7 +524,8 @@ HWTEST_F(IptablesManagerTest, TestExistAllowFirewallRule, TestSize.Level1)
     std::string result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
     std::string resultEmpty =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
@@ -546,7 +550,8 @@ HWTEST_F(IptablesManagerTest, TestExistAllowDomainRule, TestSize.Level1)
     std::string result =
         "Chain edm_dns_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
@@ -567,7 +572,8 @@ HWTEST_F(IptablesManagerTest, TestChainExistRule, TestSize.Level1)
     std::string result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .WillRepeatedly(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 

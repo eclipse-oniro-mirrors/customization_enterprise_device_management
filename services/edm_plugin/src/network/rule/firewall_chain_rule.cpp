@@ -26,13 +26,13 @@ namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 
-FirewallChainRule::FirewallChainRule(): ChainRule() {
+FirewallChainRule::FirewallChainRule(): ChainRule()
+{
     target_ = ACCEPT_TARGET;
     state_ = "RELATED,ESTABLISHED";
 }
 
-FirewallChainRule::FirewallChainRule(FirewallRule firewallTuple) :
-    ChainRule(),
+FirewallChainRule::FirewallChainRule(FirewallRule firewallTuple) : ChainRule(),
     srcPort_(std::get<FIREWALL_SRCPORT_IND>(firewallTuple)),
     destPort_(std::get<FIREWALL_DESTPORT_IND>(firewallTuple)),
     appUid_(std::get<FIREWALL_APPUID_IND>(firewallTuple))
@@ -107,7 +107,7 @@ std::string FirewallChainRule::IpToParameter(const std::string &ip, const std::s
     if (idx == std::string::npos) {
         parameterString << SPACE_OPTION << ipType << SPACE_OPTION << ip;
     } else {
-        if(ipType == "-s"){
+        if (ipType == "-s"){
             parameterString << " -m iprange --src-range " << ip;
         } else {
             parameterString << " -m iprange --dst-range " << ip;

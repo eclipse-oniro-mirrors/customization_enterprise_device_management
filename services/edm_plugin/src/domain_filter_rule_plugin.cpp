@@ -32,8 +32,8 @@ void DomainFilterRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DomainFilterRulePlugin, IPTABLES::DomainFilterRuleParcel>> ptr)
 {
     EDMLOGD("DomainFilterRulePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "firewall_rule", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "firewall_rule",
+        "ohos.permission.ENTERPRISE_MANAGE_NETWORK", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(DomainFilterRuleSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DomainFilterRulePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DomainFilterRulePlugin::OnRemovePolicy, FuncOperateType::REMOVE);
@@ -73,7 +73,7 @@ ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParc
             return ret;
         }
         reply.WriteInt32(list.size());
-        for(auto const &item : list) {
+        for (auto const &item : list) {
             item.Marshalling(reply);
         }
     }

@@ -41,16 +41,11 @@ bool FirewallRuleParcel::Unmarshalling(Parcel& parcel, FirewallRuleParcel& firew
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
     IPTABLES::Protocol protocol = IPTABLES::Protocol::INVALID;
     IptablesUtils::ProcessFirewallProtocol(parcel.ReadInt32(), protocol);
-    std::string srcAddr;
-    srcAddr = parcel.ReadString();
-    std::string destAddr;
-    destAddr = parcel.ReadString();
-    std::string srcPort;
-    srcPort = parcel.ReadString();
-    std::string destPort;
-    destPort = parcel.ReadString();
-    std::string appUid;
-    appUid = parcel.ReadString();
+    std::string srcAddr = parcel.ReadString();
+    std::string destAddr = parcel.ReadString();
+    std::string srcPort = parcel.ReadString();
+    std::string destPort = parcel.ReadString();
+    std::string appUid = parcel.ReadString();
     firewallRuleParcel.rule_ = {direction, action, protocol, srcAddr, destAddr, srcPort, destPort, appUid};
     return true;
 }

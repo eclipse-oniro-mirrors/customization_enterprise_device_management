@@ -72,7 +72,7 @@ ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &
             return ret;
         }
         reply.WriteInt32(list.size());
-        for(auto const &item : list) {
+        for (auto const &item : list) {
             item.Marshalling(reply);
         }
     }

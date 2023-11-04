@@ -48,22 +48,26 @@ HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.1.1", "192.168.2.2", "9090", "9091",
         "1234567"};
     std::string rule =
-        "1        0     0 ACCEPT     udp  --  *      *       192.168.1.1          192.168.2.2          udp spt:9090 dpt:9091 owner UID match 1234567";
+        "1        0     0 ACCEPT     udp  --  *      *       192.168.1.1          192.168.2.2          "
+        "udp spt:9090 dpt:9091 owner UID match 1234567";
     FirewallChainRule firewallChainRule1{rule};
     EXPECT_EQ(firewallChainRule1.ToFilterRule(Direction::INPUT), firewallRule);
 
-    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.4.1", "192.168.5.1-192.168.5.254", "55", "55",
-        "6667"};
+    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.4.1", "192.168.5.1-192.168.5.254",
+        "55", "55", "6667"};
     rule =
-        "2        0     0 ACCEPT     udp  --  *      *       192.168.4.1          0.0.0.0/0            destination IP range 192.168.5.1-192.168.5.254 udp spt:55 dpt:55 owner UID match 6667";
+        "2        0     0 ACCEPT     udp  --  *      *       192.168.4.1          0.0.0.0/0            "
+        "destination IP range 192.168.5.1-192.168.5.254 udp spt:55 dpt:55 owner UID match 6667";
 
     FirewallChainRule firewallChainRule2{rule};
     EXPECT_EQ(firewallChainRule2.ToFilterRule(Direction::INPUT), firewallRule);
 
-    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.6.1-192.168.6.254", "192.168.5.1-192.168.5.254", "55:66", "55:77",
-        ""};
+    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.6.1-192.168.6.254",
+        "192.168.5.1-192.168.5.254", "55:66", "55:77", ""};
     rule =
-        "3        0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            source IP range 192.168.6.1-192.168.6.254 destination IP range 192.168.5.1-192.168.5.254 udp spts:55:66 dpts:55:77 ";
+        "3        0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "source IP range 192.168.6.1-192.168.6.254 destination IP range 192.168.5.1-192.168.5.254 "
+        "udp spts:55:66 dpts:55:77 ";
 
     FirewallChainRule firewallChainRule3{rule};
     EXPECT_EQ(firewallChainRule3.ToFilterRule(Direction::INPUT), firewallRule);
@@ -99,7 +103,8 @@ HWTEST_F(FirewallChainRuleTest, TestParameter, TestSize.Level1)
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.1/22", "192.168.2.200", "99,100",
         "800-900", "9999"};
     parameter =
-        " -p tcp -s 192.168.2.1/22 -d 192.168.2.200 -m multiport --sport 99,100 -m multiport --dport 800-900 -m owner --uid-owner 9999";
+        " -p tcp -s 192.168.2.1/22 -d 192.168.2.200 -m multiport --sport 99,100 -m multiport --dport 800-900 "
+        "-m owner --uid-owner 9999";
 
     FirewallChainRule firewallChainRule2{firewallRule};
     EXPECT_EQ(firewallChainRule2.Parameter(), parameter);

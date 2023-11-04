@@ -27,6 +27,11 @@ const std::string SELECT_TABLE_OPTION = "-t ";
 const std::string JUMP_OPTION = " -j ";
 const std::string INSERT_OPTION = " -I ";
 
+FirewallExecuter::FirewallExecuter(std::string actualChainName, const std::string& chainName) : IExecuter(chainName),
+    actualChainName_(std::move(actualChainName))
+{
+}
+
 ErrCode FirewallExecuter::Init()
 {
     std::ostringstream oss;
@@ -39,13 +44,6 @@ ErrCode FirewallExecuter::Init()
     }
     return ERR_OK;
 }
-
-FirewallExecuter::FirewallExecuter(std::string actualChainName, const std::string& chainName):
-    IExecuter(chainName),
-    actualChainName_(std::move(actualChainName))
-{
-}
-
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

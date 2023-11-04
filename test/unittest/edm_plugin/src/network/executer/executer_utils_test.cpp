@@ -35,7 +35,6 @@ class ExecuterUtilsTest : public testing::Test { };
  */
 HWTEST_F(ExecuterUtilsTest, TestExecute, TestSize.Level1)
 {
-
 }
 } // namespace TEST
 } // namespace IPTABLES

@@ -13,34 +13,33 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
- #define SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
 
- #include "domain_filter_rule.h"
- #include "ipolicy_serializer.h"
- #include "json/json.h"
- #include "singleton.h"
+#include "domain_filter_rule.h"
+#include "ipolicy_serializer.h"
+#include "json/json.h"
+#include "singleton.h"
 
- namespace OHOS {
- namespace EDM {
- /*
-  * Policy data serializer of type DomainFilterRuleParcel.
-  */
- class DomainFilterRuleSerializer : public IPolicySerializer<IPTABLES::DomainFilterRuleParcel>,
+namespace OHOS {
+namespace EDM {
+/*
+* Policy data serializer of type DomainFilterRuleParcel.
+*/
+class DomainFilterRuleSerializer : public IPolicySerializer<IPTABLES::DomainFilterRuleParcel>,
     public DelayedSingleton<DomainFilterRuleSerializer> {
- public:
-     bool Deserialize(const std::string &jsonString, IPTABLES::DomainFilterRuleParcel &dataObj) override;
+public:
+    bool Deserialize(const std::string &jsonString, IPTABLES::DomainFilterRuleParcel &dataObj) override;
 
-     bool Serialize(const IPTABLES::DomainFilterRuleParcel &dataObj, std::string &jsonString) override;
+    bool Serialize(const IPTABLES::DomainFilterRuleParcel &dataObj, std::string &jsonString) override;
 
-     bool GetPolicy(MessageParcel &data, IPTABLES::DomainFilterRuleParcel &result) override;
+    bool GetPolicy(MessageParcel &data, IPTABLES::DomainFilterRuleParcel &result) override;
 
-     bool WritePolicy(MessageParcel &reply, IPTABLES::DomainFilterRuleParcel &result) override;
+    bool WritePolicy(MessageParcel &reply, IPTABLES::DomainFilterRuleParcel &result) override;
 
-     bool MergePolicy(std::vector<IPTABLES::DomainFilterRuleParcel> &data,
-         IPTABLES::DomainFilterRuleParcel &result) override;
- };
- } // namespace EDM
- } // namespace OHOS
-
- #endif // SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
+    bool MergePolicy(std::vector<IPTABLES::DomainFilterRuleParcel> &data,
+        IPTABLES::DomainFilterRuleParcel &result) override;
+};
+} // namespace EDM
+} // namespace OHOS
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_UTILS_DOMAIN_FILTER_RULE_SERIALIZER_H
