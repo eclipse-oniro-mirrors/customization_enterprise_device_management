@@ -33,10 +33,8 @@ bool DomainFilterRuleParcel::Unmarshalling(Parcel& parcel, DomainFilterRuleParce
 {
     IPTABLES::Action action = IPTABLES::Action::INVALID;
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
-    std::string appUid;
-    appUid = parcel.ReadString();
-    std::string domainName;
-    domainName = parcel.ReadString();
+    std::string appUid = parcel.ReadString();
+    std::string domainName = parcel.ReadString();
     domainFilterRuleParcel.rule_ = {action, appUid, domainName};
     return true;
 }

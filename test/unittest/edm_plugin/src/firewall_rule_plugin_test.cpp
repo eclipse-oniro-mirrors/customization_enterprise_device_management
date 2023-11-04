@@ -24,9 +24,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class FirewallRulePluginTest : public testing::Test {
-
-};
+class FirewallRulePluginTest : public testing::Test { };
 
 /**
  * @tc.name: TestIptablesRulePluginErrorFuncCode
@@ -35,7 +33,6 @@ class FirewallRulePluginTest : public testing::Test {
  */
 HWTEST_F(FirewallRulePluginTest, TestFirewallRulePlugin, TestSize.Level1)
 {
-
 }
 } // namespace TEST
 } // namespace EDM

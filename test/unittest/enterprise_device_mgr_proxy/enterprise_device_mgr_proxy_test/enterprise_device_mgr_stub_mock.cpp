@@ -15,7 +15,10 @@
 
 #include "enterprise_device_mgr_stub_mock.h"
 
+#include "domain_filter_rule.h"
+#include "firewall_rule.h"
 #include "http_proxy.h"
+#include "iptables_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -82,6 +85,20 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(true);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetFirewallRule code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(1);
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID, 
+        "", "", "", "", ""};
+    IPTABLES::FirewallRuleParcel ruleParcel{rule};
+    ruleParcel.Marshalling(reply);
     return 0;
 }
 

@@ -28,9 +28,12 @@ namespace EDM {
 namespace IPTABLES {
 
 const char DOMAIN_DELIM = '.';
+const uint32_t DOUBLE_NUM = 2;
+const uint32_t FOUR_BIT = 4;
+const uint8_t HEX_TEM_NUM = 10;
 
-DomainChainRule::DomainChainRule(DomainFilterRule domainFilterRule) :
-    ChainRule(), appUid_(std::get<DOMAIN_APPUID_IND>(domainFilterRule)),
+DomainChainRule::DomainChainRule(DomainFilterRule domainFilterRule) : ChainRule(),
+    appUid_(std::get<DOMAIN_APPUID_IND>(domainFilterRule)),
     domainName_(std::get<DOMAIN_DOMAINNAME_IND>(domainFilterRule))
 {
     target_ = RuleUtils::EnumToString(std::get<DOMAIN_ACTION_IND>(domainFilterRule));
@@ -98,7 +101,7 @@ std::string DomainChainRule::FormatDataToDomain(const std::string &formatData)
                              [&invalidChar](const char &c) { return invalidChar.find(c) != std::string::npos; }),
         tempFormatData.end());
 
-    if (tempFormatData.empty() || tempFormatData.length() % 2 != 0) {
+    if (tempFormatData.empty() || tempFormatData.length() % DOUBLE_NUM != 0) {
         EDMLOGE("FormatDataToDomain: wrong domain data, this should not happen.");
         return {};
     }
@@ -133,7 +136,7 @@ uint8_t DomainChainRule::CharToHex(const char &first, const char &second)
 {
     uint8_t high = CharToHex(first);
     uint8_t low = CharToHex(second);
-    return high << 4 | low;
+    return high << FOUR_BIT | low;
 }
 
 uint8_t DomainChainRule::CharToHex(const char &hexChar)
@@ -141,9 +144,9 @@ uint8_t DomainChainRule::CharToHex(const char &hexChar)
     if (hexChar >= '0' && hexChar <= '9') {
         return hexChar - '0';
     } else if (hexChar >= 'a' && hexChar <= 'f') {
-        return hexChar - 'a' + 10;
+        return hexChar - 'a' + HEX_TEM_NUM;
     } else if (hexChar >= 'A' && hexChar <= 'F') {
-        return hexChar - 'A' + 10;
+        return hexChar - 'A' + HEX_TEM_NUM;
     }
     return 0;
 }
