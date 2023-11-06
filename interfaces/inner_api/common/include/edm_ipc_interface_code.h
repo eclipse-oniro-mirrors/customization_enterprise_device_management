@@ -68,6 +68,8 @@ enum EdmInterfaceCode : uint32_t {
     LOCK_SCREEN = 1033,
     FIREWALL_RULE = 1034,
     DOMAIN_FILTER_RULE = 1035,
+    DISALLOW_ADD_OS_ACCOUNT_BY_USER = 1036,
+    ADD_OS_ACCOUNT = 1037,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
