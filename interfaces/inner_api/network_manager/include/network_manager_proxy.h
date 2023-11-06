@@ -17,7 +17,11 @@
 #define INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+
 #include "http_proxy.h"
+
+#include "domain_filter_rule.h"
+#include "firewall_rule.h"
 #include "iptables_utils.h"
 
 namespace OHOS {
@@ -37,6 +41,12 @@ public:
     int32_t AddIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::AddFilter &filter);
     int32_t RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::RemoveFilter &filter);
     int32_t ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result);
+    int32_t AddFirewallRule(const AppExecFwk::ElementName &admin, const IPTABLES::FirewallRule &rule);
+    int32_t RemoveFirewallRule(const AppExecFwk::ElementName &admin, const IPTABLES::FirewallRule &rule);
+    int32_t GetFirewallRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::FirewallRule> &result);
+    int32_t AddDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
+    int32_t RemoveDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
+    int32_t GetDomainFilterRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::DomainFilterRule> &rule);
     int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin, const NetManagerStandard::HttpProxy &httpProxy);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy);
 

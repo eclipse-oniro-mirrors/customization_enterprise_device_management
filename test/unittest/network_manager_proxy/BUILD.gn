@@ -34,6 +34,7 @@ ohos_unittest("EdmNetworkManagerProxyUnitTest") {
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
+    "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

@@ -20,6 +20,7 @@
 #include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
+using namespace OHOS::EDM::IPTABLES;
 
 const char *const HOST_PROP_NAME = "host";
 const char *const PORT_PROP_NAME = "port";
@@ -103,6 +104,14 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addIptablesFilterRule", AddIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("removeIptablesFilterRule", RemoveIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("listIptablesFilterRules", ListIptablesFilterRules),
+
+        DECLARE_NAPI_FUNCTION("addFirewallRule", AddFirewallRule),
+        DECLARE_NAPI_FUNCTION("removeFirewallRule", RemoveFirewallRule),
+        DECLARE_NAPI_FUNCTION("getFirewallRules", GetFirewallRules),
+
+        DECLARE_NAPI_FUNCTION("addDomainFilterRule", AddDomainFilterRule),
+        DECLARE_NAPI_FUNCTION("removeDomainFilterRule", RemoveDomainFilterRule),
+        DECLARE_NAPI_FUNCTION("getDomainFilterRules", GetDomainFilterRules),
 
         DECLARE_NAPI_FUNCTION("setGlobalProxy", SetGlobalHttpProxy),
         DECLARE_NAPI_FUNCTION("getGlobalProxy", GetGlobalHttpProxy),
@@ -545,6 +554,293 @@ void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data
     AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
     asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->ListIptablesFilterRules(
         asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+}
+
+napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("AddFirewallRule start");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be FirewallRule.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
+        IPTABLES::Protocol::INVALID, "", "", "", "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule), "firewallRule param error");
+
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddFirewallRule(elementName, rule);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("RemoveFirewallRule start");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    if (argc >= ARGS_SIZE_TWO) {
+        bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+        ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be FirewallRule.");
+    }
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
+        IPTABLES::Protocol::INVALID, "", "", "", "", ""};
+    if (argc >= ARGS_SIZE_TWO) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule),
+            "firewallRule param error");
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->RemoveFirewallRule(elementName, rule);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::GetFirewallRules(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::vector<IPTABLES::FirewallRule> result;
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetFirewallRules(elementName, result);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));
+    for (size_t i = 0; i < result.size(); i++) {
+        napi_value item = FirewallRuleToJsObj(env, result[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+}
+
+bool NetworkManagerAddon::JsObjToFirewallRule(napi_env env, napi_value object, IPTABLES::FirewallRule &rule)
+{
+    int32_t direction = -1;
+    JsObjectToInt(env, object, "direction", false, direction);
+    EDMLOGI("JsObjToFirewallRule direction %{pubilc}d", direction);
+    IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
+
+    int32_t action = -1;
+    JsObjectToInt(env, object, "action", false, action);
+    EDMLOGI("JsObjToFirewallRule action %{pubilc}d", action);
+    IPTABLES::Action actionEnum = IPTABLES::Action::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);
+
+    int32_t protocol = -1;
+    JsObjectToInt(env, object, "protocol", false, protocol);
+    EDMLOGI("JsObjToFirewallRule protocol %{pubilc}d", protocol);
+    IPTABLES::Protocol protocolEnum = IPTABLES::Protocol::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, protocolEnum);
+
+    std::string srcAddr;
+    JsObjectToString(env, object, "srcAddr", false, srcAddr);
+
+    std::string destAddr;
+    JsObjectToString(env, object, "destAddr", false, destAddr);
+
+    std::string srcPort;
+    JsObjectToString(env, object, "srcPort", false, srcPort);
+
+    std::string destPort;
+    JsObjectToString(env, object, "destPort", false, destPort);
+
+    std::string appUid;
+    JsObjectToString(env, object, "appUid", false, appUid);
+    rule = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, appUid};
+    return true;
+}
+
+napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES::FirewallRule &rule)
+{
+    napi_value jsRule = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsRule));
+
+    napi_value direction = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_DICECTION_IND>(rule)), &direction));
+    napi_value action = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_ACTION_IND>(rule)), &action));
+    napi_value protocol = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_PROT_IND>(rule)), &protocol));
+    napi_value srcAddr = nullptr;
+    std::string srcAddrStr = std::get<FIREWALL_SRCADDR_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, srcAddrStr.c_str(), srcAddrStr.length(), &srcAddr));
+    napi_value destAddr = nullptr;
+    std::string destAddrStr = std::get<FIREWALL_DESTADDR_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, destAddrStr.c_str(), destAddrStr.length(), &destAddr));
+    napi_value srcPort = nullptr;
+    std::string srcPortStr = std::get<FIREWALL_SRCPORT_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, srcPortStr.c_str(), srcPortStr.length(), &srcPort));
+    napi_value destPort = nullptr;
+    std::string destPortStr = std::get<FIREWALL_DESTPORT_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, destPortStr.c_str(), destPortStr.length(), &destPort));
+    napi_value appUid = nullptr;
+    std::string appUidStr = std::get<FIREWALL_APPUID_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, appUidStr.c_str(), appUidStr.length(), &appUid));
+
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direction", direction));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "protocol", protocol));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "srcAddr", srcAddr));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "destAddr", destAddr));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "srcPort", srcPort));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "destPort", destPort));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
+    return jsRule;
+}
+
+napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be DomainFilterRule.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
+        "DomainFilterRule param error");
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddDomainFilterRule(elementName, rule);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    if (argc >= ARGS_SIZE_TWO) {
+        bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+        ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be DomainFilterRule.");
+    }
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
+    if (argc >= ARGS_SIZE_TWO) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
+            "DomainFilterRule param error");
+    }
+
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->RemoveDomainFilterRule(elementName, rule);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::GetDomainFilterRules(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::vector<IPTABLES::DomainFilterRule> result;
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetDomainFilterRules(elementName, result);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));
+    for (size_t i = 0; i < result.size(); i++) {
+        napi_value item = DomainFilterRuleToJsObj(env, result[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+}
+
+bool NetworkManagerAddon::JsObjToDomainFilterRule(napi_env env, napi_value object, IPTABLES::DomainFilterRule &rule)
+{
+    int32_t action = -1;
+    JsObjectToInt(env, object, "action", false, action);
+    IPTABLES::Action actionEnum = IPTABLES::Action::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);
+
+    std::string appUid;
+    JsObjectToString(env, object, "appUid", false, appUid);
+
+    std::string domainName;
+    JsObjectToString(env, object, "domainName", false, domainName);
+
+    rule = {actionEnum, appUid, domainName};
+    return true;
+}
+
+napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTABLES::DomainFilterRule &rule)
+{
+    napi_value jsRule = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsRule));
+
+    napi_value action = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule)), &action));
+    napi_value appUid = nullptr;
+    std::string appUidStr = std::get<DOMAIN_APPUID_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, appUidStr.c_str(), appUidStr.length(), &appUid));
+    napi_value domainName = nullptr;
+    std::string domainNameStr = std::get<DOMAIN_DOMAINNAME_IND>(rule);
+    NAPI_CALL(env, napi_create_string_utf8(env, domainNameStr.c_str(), domainNameStr.length(), &domainName));
+
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "domainName", domainName));
+    return jsRule;
 }
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_info info)

@@ -21,6 +21,7 @@
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
+#include "os_account_manager.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -69,7 +70,7 @@ void DeviceControlProxyTest::TearDownTestSuite()
  * @tc.desc: Test ResetFactory success func.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlSuc, TestSize.Level1)
+HWTEST_F(DeviceControlProxyTest, TestResetFactorySuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -85,12 +86,46 @@ HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlSuc, TestSize.Level1)
  * @tc.desc: Test ResetFactory without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceControlProxyTest, TestGetDeviceControlFail, TestSize.Level1)
+HWTEST_F(DeviceControlProxyTest, TestResetFactoryFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = deviceControlProxy->ResetFactory(admin);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTestLockScreenSuc
+ * @tc.desc: Test LockScreen success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestLockScreenSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    int32_t ret = deviceControlProxy->LockScreen(admin, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRLockScreenFail
+ * @tc.desc: Test LockScreen without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestLockScreenFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    int32_t ret = deviceControlProxy->LockScreen(admin, userId);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

@@ -23,6 +23,7 @@
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "iptables_utils.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -363,6 +364,108 @@ HWTEST_F(NetworkManagerProxyTest, TestGetGlobalHttpProxyFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     NetManagerStandard::HttpProxy httpProxy;
     int32_t ret = networkManagerProxy->GetGlobalHttpProxy(&admin, httpProxy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddFirewallRuleSuc
+ * @tc.desc: Test AddFirewallRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
+        "", "", "", "", ""};
+    int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddFirewallRuleFail
+ * @tc.desc: Test AddFirewallRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
+        "", "", "", "", ""};
+    int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveFirewallRuleSuc
+ * @tc.desc: Test RemoveFirewallRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
+        "", "", "", "", ""};
+    int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveFirewallRuleFail
+ * @tc.desc: Test RemoveFirewallRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
+        "", "", "", "", ""};
+    int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetFirewallRulesSuc
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetFirewallRulesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule));
+    std::vector<IPTABLES::FirewallRule> result;
+    int32_t ret = networkManagerProxy->GetFirewallRules(admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetFirewallRulesFail
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetFirewallRulesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<IPTABLES::FirewallRule> result;
+    int32_t ret = networkManagerProxy->GetFirewallRules(admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

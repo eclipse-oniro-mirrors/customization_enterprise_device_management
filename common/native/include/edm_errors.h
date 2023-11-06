@@ -16,6 +16,8 @@
 #ifndef COMMON_NATIVE_INCLUDE_EDM_ERRORS_H
 #define COMMON_NATIVE_INCLUDE_EDM_ERRORS_H
 
+#include <stdint.h>
+
 #include "errors.h"
 
 namespace OHOS {

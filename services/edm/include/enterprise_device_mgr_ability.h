@@ -103,6 +103,7 @@ private:
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+    void CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin, std::shared_ptr<IPlugin> plugin);
     std::shared_ptr<PolicyManager> GetAndSwitchPolicyManagerByUserId(int32_t userId);
     void InitAllPolices();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
