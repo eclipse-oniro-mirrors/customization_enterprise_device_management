@@ -98,7 +98,7 @@ std::string DomainChainRule::FormatDataToDomain(const std::string &formatData)
     std::string tempFormatData{formatData};
     std::string invalidChar = "|\"";
     tempFormatData.erase(std::remove_if(tempFormatData.begin(), tempFormatData.end(),
-                             [&invalidChar](const char &c) { return invalidChar.find(c) != std::string::npos; }),
+        [&invalidChar](const char &c) { return invalidChar.find(c) != std::string::npos; }),
         tempFormatData.end());
 
     if (tempFormatData.empty() || tempFormatData.length() % DOUBLE_NUM != 0) {
@@ -136,7 +136,7 @@ uint8_t DomainChainRule::CharToHex(const char &first, const char &second)
 {
     uint8_t high = CharToHex(first);
     uint8_t low = CharToHex(second);
-    return high << FOUR_BIT | low;
+    return (high << FOUR_BIT) | low;
 }
 
 uint8_t DomainChainRule::CharToHex(const char &hexChar)
