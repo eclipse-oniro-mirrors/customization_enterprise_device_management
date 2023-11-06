@@ -40,6 +40,8 @@ public:
     static napi_value Init(napi_env env, napi_value exports);
 private:
     static napi_value ResetFactory(napi_env env, napi_callback_info info);
+    static napi_value Shutdown(napi_env env, napi_callback_info info);
+    static napi_value Reboot(napi_env env, napi_callback_info info);
     static napi_value LockScreen(napi_env env, napi_callback_info info);
     static void NativeResetFactory(napi_env env, void *data);
 };
