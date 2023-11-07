@@ -30,8 +30,7 @@ namespace EDM {
 namespace IPTABLES {
 namespace TEST {
 
-class ExecuterUtilsTest : public testing::Test
-{
+class ExecuterUtilsTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
