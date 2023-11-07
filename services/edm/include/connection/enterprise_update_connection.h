@@ -23,8 +23,8 @@ namespace OHOS {
 namespace EDM {
 class EnterpriseUpdateConnection : public IEnterpriseConnection {
 public:
-    EnterpriseUpdateConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, const UpdateInfo &updateInfo) :
-        IEnterpriseConnection(want, code, userId), updateInfo_(updateInfo){};
+    EnterpriseUpdateConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const UpdateInfo &updateInfo) : IEnterpriseConnection(want, code, userId), updateInfo_(updateInfo){};
 
     ~EnterpriseUpdateConnection() override;
 
