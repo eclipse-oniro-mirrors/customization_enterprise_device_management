@@ -77,7 +77,8 @@
         "update_service",
         "wifi",
         "eventhandler",
-        "screenlock_mgr"
+        "screenlock_mgr",
+        "power_manager"
       ],
       "third_party": [
         "bounds_checking_function",

@@ -68,6 +68,7 @@ enum EdmInterfaceCode : uint32_t {
     LOCK_SCREEN = 1033,
     FIREWALL_RULE = 1034,
     DOMAIN_FILTER_RULE = 1035,
+    SHUTDOWN = 1036,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
