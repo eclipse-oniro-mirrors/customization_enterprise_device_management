@@ -38,7 +38,7 @@ using namespace OHOS::EDM::IPTABLES::TEST;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class FirewallRulePluginTest : public testing::Test{
+class FirewallRulePluginTest : public testing::Test {
 public:
     std::shared_ptr<ExecuterUtilsMock> executerUtilsMock;
     std::shared_ptr<IptablesManager> iptablesManager;
