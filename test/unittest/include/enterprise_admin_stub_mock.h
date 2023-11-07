@@ -50,7 +50,7 @@ public:
 
     void OnAppStop(const std::string &bundleName) override {}
 
-    void OnAppStop(const std::string &bundleName) override {}
+    void OnSystemUpdate(const UpdateInfo &updateInfo) override {}
 
     uint32_t code_ = 0;
 };
