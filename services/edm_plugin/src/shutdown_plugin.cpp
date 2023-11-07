@@ -35,7 +35,7 @@ void ShutdownPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, 
 ErrCode ShutdownPlugin::OnSetPolicy()
 {
     auto& powerMgrClient = PowerMgr::PowerMgrClient::GetInstance();
-    auto ret = powerMgrClient.ShutDownDevice("edm_Shutdown");
+    int32_t ret = powerMgrClient.ShutDownDevice("edm_Shutdown");
     if (ret != PowerMgr::PowerErrors::ERR_OK) {
         EDMLOGE("ShutdownPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
