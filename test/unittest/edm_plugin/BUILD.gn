@@ -181,6 +181,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../services/edm_plugin/src/usb_read_only_plugin.cpp",
     "../../../services/edm_plugin/src/user_cert_plugin.cpp",
+    "../../../services/edm_plugin/src/utils/domain_filter_rule_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/firewall_rule_serializer.cpp",
     "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
