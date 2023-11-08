@@ -32,20 +32,11 @@ namespace OHOS {
 namespace EDM {
 class EnterpriseConnManager : public DelayedSingleton<EnterpriseConnManager> {
 public:
-    sptr<IEnterpriseConnection> CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId);
+    sptr<IEnterpriseConnection> CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        bool isOnAdminEnabled = true);
     sptr<IEnterpriseConnection> CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName);
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
-
-    void Clear();
-private:
-    bool GetAbilityMgrProxy();
-
-    std::mutex mutex_;
-
-    sptr<AAFwk::IAbilityManager> abilityMgr_{nullptr};
-
-    sptr<AbilityManagerDeathRecipient> deathRecipient_{nullptr};
 };
 } // namespace EDM
 } // namespace OHOS

@@ -14,6 +14,7 @@
  */
 
 #include "ability_manager_death_recipient.h"
+#include "admin_manager.h"
 #include "edm_log.h"
 #include "enterprise_conn_manager.h"
 #include "singleton.h"
@@ -35,7 +36,11 @@ void AbilityManagerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& wptrD
         return;
     }
 
-    DelayedSingleton<EnterpriseConnManager>::GetInstance()->Clear();
+    if (AdminManager::GetInstance()->IsSuperAdmin(extensionConnection_->GetWant().GetElement().GetBundleName())) {
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        extensionConnection_->SetIsOnAdminEnabled(false);
+        manager->ConnectAbility(extensionConnection_);
+    }
 }
 }  // namespace EDM
 }  // namespace OHOS

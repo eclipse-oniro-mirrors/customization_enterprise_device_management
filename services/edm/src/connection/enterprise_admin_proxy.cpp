@@ -94,5 +94,19 @@ void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
     MessageOption option(MessageOption::TF_SYNC);
     Remote()->SendRequest(code, data, reply, option);
 }
+
+void EnterpriseAdminProxy::AddDeathRecipient(const sptr<OHOS::IRemoteObject::DeathRecipient> &recipient)
+{
+    if (AsObject()) {
+        AsObject()->AddDeathRecipient(recipient);
+    }
+}
+
+void EnterpriseAdminProxy::RemoveDeathRecipient(const sptr<OHOS::IRemoteObject::DeathRecipient> &recipient)
+{
+    if (AsObject()) {
+        AsObject()->RemoveDeathRecipient(recipient);
+    }
+}
 } // namespace EDM
 } // namespace OHOS

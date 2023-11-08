@@ -278,7 +278,15 @@ void EnterpriseDeviceMgrAbility::OnStart()
         adminMgr_ = AdminManager::GetInstance();
     }
     EDMLOGD("create adminMgr_ success");
-    adminMgr_->Init();
+    auto superAdmin = adminMgr_->Init();
+    if (superAdmin != nullptr) {
+        AAFwk::Want connectWant;
+            connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
+            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
+                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+            manager->ConnectAbility(connection);
+    }
     InitAllPolices();
 
     if (!pluginMgr_) {
@@ -734,16 +742,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
 bool EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
-    if (admin == nullptr) {
-        EDMLOGW("IsSuperAdmin: admin == nullptr.");
-        return false;
-    }
-    if (admin->adminInfo_.adminType_ == AdminType::ENT) {
-        EDMLOGW("IsSuperAdmin: admin->adminInfo_.adminType_ == AdminType::ENT.");
-        return true;
-    }
-    return false;
+    return adminMgr_->IsSuperAdmin(bundleName);
 }
 
 bool EnterpriseDeviceMgrAbility::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId)

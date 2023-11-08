@@ -106,6 +106,10 @@ void JsEnterpriseAdminExtension::OnStart(const AAFwk::Want& want)
 {
     HILOG_INFO("JsEnterpriseAdminExtension OnStart begin");
     AbilityRuntime::Extension::OnStart(want);
+    auto task = [this]() {
+        CallObjectMethod("onStart", nullptr, JS_NAPI_ARGC_ZERO);
+    };
+    handler_->PostTask(task);
 }
 
 void JsEnterpriseAdminExtension::OnStop()

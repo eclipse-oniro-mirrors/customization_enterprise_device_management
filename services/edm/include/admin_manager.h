@@ -42,10 +42,11 @@ public:
         int32_t userId);
     ErrCode GetGrantedPermission(std::vector<std::string> &permissions, AdminType type);
     bool IsSuperAdminExist();
+    bool IsSuperAdmin(const std::string &bundleName);
     bool IsAdminExist();
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
-    void Init();
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> Init();
     ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);

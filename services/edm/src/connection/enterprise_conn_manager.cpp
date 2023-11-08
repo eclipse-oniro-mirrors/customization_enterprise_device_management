@@ -21,8 +21,8 @@
 #include <string_ex.h>
 #include <system_ability_definition.h>
 
-#include "ability_manager_client.h"
-#include "ability_manager_proxy.h"
+#include "extension_manager_client.h"
+#include "extension_manager_proxy.h"
 #include "edm_log.h"
 
 using namespace OHOS::AAFwk;
@@ -30,9 +30,10 @@ using namespace OHOS::AAFwk;
 namespace OHOS {
 namespace EDM {
 sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId)
+    uint32_t code, uint32_t userId, bool isOnAdminEnabled)
 {
-    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId));
+    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId,
+        isOnAdminEnabled));
     return connection;
 }
 
@@ -49,66 +50,13 @@ bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& co
     if (connection == nullptr) {
         return false;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    if (!GetAbilityMgrProxy()) {
-        EDMLOGE("failed to get ability manager proxy!");
-        return false;
-    }
-
-    int32_t ret = abilityMgr_->ConnectAbility(connection->GetWant(), connection, nullptr, connection->GetUserId());
-    EDMLOGI("ConnectAbility over.");
+    int32_t ret = ExtensionManagerClient::GetInstance().ConnectEnterpriseAdminExtensionAbility(connection->GetWant(),
+        connection, nullptr, connection->GetUserId());
     if (ret != ERR_OK) {
-        EDMLOGE("connect failed");
+        EDMLOGE("EnterpriseConnManager::ConnectAbility connect extenison ability failed:%{public}d.", ret);
         return false;
     }
     return true;
-}
-
-bool EnterpriseConnManager::GetAbilityMgrProxy()
-{
-    EDMLOGI("GetAbilityMgrProxy enter");
-    if (abilityMgr_ == nullptr) {
-        sptr<ISystemAbilityManager> systemAbilityManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemAbilityManager == nullptr) {
-            EDMLOGE("Failed to get system ability mgr.");
-            return false;
-        }
-
-        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-        if (remoteObject == nullptr) {
-            EDMLOGE("Failed to get ability manager service.");
-            return false;
-        }
-
-        abilityMgr_ = iface_cast<AAFwk::IAbilityManager>(remoteObject);
-        if ((abilityMgr_ == nullptr) || (abilityMgr_->AsObject() == nullptr)) {
-            EDMLOGE("Failed to get system ability manager services ability");
-            return false;
-        }
-
-        deathRecipient_ = (new (std::nothrow) AbilityManagerDeathRecipient());
-        if (deathRecipient_ == nullptr) {
-            EDMLOGE("Failed to create AbilityManagerDeathRecipient");
-            return false;
-        }
-        if (!abilityMgr_->AsObject()->AddDeathRecipient(deathRecipient_)) {
-            EDMLOGW("Failed to add AbilityManagerDeathRecipient");
-        }
-    }
-    return true;
-}
-
-void EnterpriseConnManager::Clear()
-{
-    EDMLOGI("enter");
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    if ((abilityMgr_ != nullptr) && (abilityMgr_->AsObject() != nullptr)) {
-        abilityMgr_->AsObject()->RemoveDeathRecipient(deathRecipient_);
-    }
-    abilityMgr_ = nullptr;
 }
 } // namespace EDM
 } // namespace OHOS

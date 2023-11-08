@@ -14,9 +14,10 @@
  */
 
 #include "enterprise_bundle_connection.h"
+
+#include "edm_log.h"
 #include "enterprise_conn_manager.h"
 #include "managed_event.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace EDM {
@@ -25,10 +26,10 @@ EnterpriseBundleConnection::~EnterpriseBundleConnection() {}
 void EnterpriseBundleConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseBundleConnection OnAbilityConnectDone");
+    EDMLOGI("EnterpriseBundleConnection OnAbilityConnectDone");
     proxy_ = (new (std::nothrow) EnterpriseAdminProxy(remoteObject));
     if (proxy_ == nullptr) {
-        HILOG_INFO("EnterpriseBundleConnection get enterpriseAdminProxy failed.");
+        EDMLOGI("EnterpriseBundleConnection get enterpriseAdminProxy failed.");
         return;
     }
     switch (code_) {
@@ -47,12 +48,12 @@ void EnterpriseBundleConnection::OnAbilityConnectDone(
         default:
             return;
     }
-    HILOG_INFO("EnterpriseBundleConnection OnAbilityConnectDone over");
+    EDMLOGI("EnterpriseBundleConnection OnAbilityConnectDone over");
 }
 
 void EnterpriseBundleConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseBundleConnection OnAbilityDisconnectDone");
+    EDMLOGI("EnterpriseBundleConnection OnAbilityDisconnectDone");
 }
 }  // namespace EDM
 }  // namespace OHOS
