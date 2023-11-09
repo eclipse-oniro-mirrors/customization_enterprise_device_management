@@ -89,7 +89,6 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
     int32_t result = DeviceControlProxy::GetDeviceControlProxy()->LockScreen(elementName, userId);
     if (FAILED(result)) {
         napi_throw(env, CreateError(env, result));
-        return nullptr;
     }
     return nullptr;
 }
@@ -115,7 +114,6 @@ napi_value DeviceControlAddon::Shutdown(napi_env env, napi_callback_info info)
     int32_t result = DeviceControlProxy::GetDeviceControlProxy()->Shutdown(elementName);
     if (FAILED(result)) {
         napi_throw(env, CreateError(env, result));
-        return nullptr;
     }
     return nullptr;
 }
