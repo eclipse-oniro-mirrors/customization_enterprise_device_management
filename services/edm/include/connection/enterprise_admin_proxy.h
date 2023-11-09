@@ -19,6 +19,7 @@
 #include <iremote_proxy.h>
 
 #include "ienterprise_admin.h"
+#include "policy_struct.h"
 
 namespace OHOS {
 namespace EDM {
@@ -40,6 +41,8 @@ public:
     void OnAppStart(const std::string &bundleName) override;
 
     void OnAppStop(const std::string &bundleName) override;
+
+    void OnSystemUpdate(const UpdateInfo &updateInfo) override;
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

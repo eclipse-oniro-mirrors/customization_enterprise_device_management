@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "ability_manager_client.h"
 #include "ability_manager_proxy.h"
 #include "edm_log.h"
+#include "managed_event.h"
 
 using namespace OHOS::AAFwk;
 
@@ -41,6 +42,14 @@ sptr<IEnterpriseConnection> EnterpriseConnManager::CreateBundleConnection(const 
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseBundleConnection(want,
         code, userId, bundleName));
+    return connection;
+}
+
+sptr<IEnterpriseConnection> EnterpriseConnManager::CreateUpdateConnection(const AAFwk::Want &want,
+    uint32_t userId, const UpdateInfo &updateInfo)
+{
+    sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseUpdateConnection(want,
+        static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE), userId, updateInfo));
     return connection;
 }
 
