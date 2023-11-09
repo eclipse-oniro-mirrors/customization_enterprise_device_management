@@ -42,6 +42,7 @@ ohos_static_library("edmservice_static") {
     "../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../services/edm/src/database/edm_rdb_open_callback.cpp",
     "../../services/edm/src/device_policies_storage_rdb.cpp",

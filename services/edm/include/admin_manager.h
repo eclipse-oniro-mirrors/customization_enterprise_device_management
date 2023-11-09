@@ -46,7 +46,8 @@ public:
     bool IsAdminExist();
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> Init();
+    std::shared_ptr<Admin> GetSuperAdmin();
+    void Init();
     ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
         std::vector<std::string> &permissions, int32_t userId);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);

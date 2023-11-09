@@ -55,6 +55,10 @@ const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRI
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
+const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
+const std::string FIRMWARE_EVENT_INFO_NAME = "version";
+const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
+const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 
 const std::vector<uint32_t> codeList = {
     EdmInterfaceCode::RESET_FACTORY,
@@ -75,6 +79,39 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         &EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded;
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED] =
         &EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved;
+    commonEventFuncMap_[SYSTEM_UPDATE_FOR_POLICY] =
+        &EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate;
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventSystemUpdate");
+    UpdateInfo updateInfo;
+    updateInfo.version = data.GetWant().GetStringParam(FIRMWARE_EVENT_INFO_NAME);
+    updateInfo.firstReceivedTime = data.GetWant().GetLongParam(FIRMWARE_EVENT_INFO_CHECK_TIME, 0);
+    updateInfo.packageType = data.GetWant().GetStringParam(FIRMWARE_EVENT_INFO_TYPE);
+
+    ConnectAbilityOnSystemUpdate(updateInfo);
+}
+
+void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo)
+{
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
+    adminMgr_->GetAdminBySubscribeEvent(ManagedEvent::SYSTEM_UPDATE, subAdmins);
+    if (subAdmins.empty()) {
+        EDMLOGW("Get subscriber by common event failed.");
+        return;
+    }
+    AAFwk::Want want;
+    for (const auto &subAdmin : subAdmins) {
+        for (const auto &it : subAdmin.second) {
+            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
+            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            sptr<IEnterpriseConnection> connection =
+                manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
+            manager->ConnectAbility(connection);
+        }
+    }
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -278,15 +315,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
         adminMgr_ = AdminManager::GetInstance();
     }
     EDMLOGD("create adminMgr_ success");
-    auto superAdmin = adminMgr_->Init();
-    if (superAdmin != nullptr) {
-        AAFwk::Want connectWant;
-            connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
-            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-            sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
-                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
-            manager->ConnectAbility(connection);
-    }
+    adminMgr_->Init();
     InitAllPolices();
 
     if (!pluginMgr_) {
@@ -298,6 +327,16 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddOnAddSystemAbilityFuncMap();
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
+
+    auto superAdmin = adminMgr_->GetSuperAdmin();
+    if (superAdmin != nullptr) {
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+        manager->ConnectAbility(connection);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
@@ -1089,6 +1128,7 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
         case static_cast<uint32_t>(ManagedEvent::APP_START):
         case static_cast<uint32_t>(ManagedEvent::APP_STOP):
+        case static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE):
             break;
         default:
             return false;

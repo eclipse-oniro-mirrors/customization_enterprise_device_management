@@ -201,6 +201,37 @@ void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
+{
+    HILOG_INFO("JsEnterpriseAdminExtension::OnSystemUpdate");
+    auto task = [updateInfo, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateUpdateInfoObject(env, updateInfo) };
+        CallObjectMethod("onSystemUpdate", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
+{
+    napi_value nSystemUpdateInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSystemUpdateInfo));
+
+    napi_value nVersionName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, updateInfo.version.c_str(), NAPI_AUTO_LENGTH, &nVersionName));
+    NAPI_CALL(env, napi_set_named_property(env, nSystemUpdateInfo, "versionName", nVersionName));
+
+    napi_value nFirstReceivedTime = nullptr;
+    NAPI_CALL(env, napi_create_int64(env, updateInfo.firstReceivedTime, &nFirstReceivedTime));
+    NAPI_CALL(env, napi_set_named_property(env, nSystemUpdateInfo, "firstReceivedTime", nFirstReceivedTime));
+
+    napi_value nPackageType = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, updateInfo.packageType.c_str(), NAPI_AUTO_LENGTH, &nPackageType));
+    NAPI_CALL(env, napi_set_named_property(env, nSystemUpdateInfo, "packageType", nPackageType));
+
+    return nSystemUpdateInfo;
+}
+
 napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_value* argv, size_t argc)
 {
     HILOG_INFO("JsEnterpriseAdminExtension::CallObjectMethod(%{public}s), begin", name);

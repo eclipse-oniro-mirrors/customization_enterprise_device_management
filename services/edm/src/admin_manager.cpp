@@ -488,15 +488,8 @@ ErrCode AdminManager::SaveAuthorizedAdmin(const std::string &bundleName, const s
     return ERR_OK;
 }
 
-// init
-std::shared_ptr<Admin> AdminManager::Init()
+std::shared_ptr<Admin> AdminManager::GetSuperAdmin()
 {
-    auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
-    if (adminPoliciesStorageRdb != nullptr) {
-        admins_ = adminPoliciesStorageRdb->QueryAllAdmin();
-    } else {
-        EDMLOGE("AdminManager::Init failed.");
-    }
     if (admins_.find(DEFAULT_USER_ID) != admins_.end()) {
         auto item = std::find_if(admins_[DEFAULT_USER_ID].begin(), admins_[DEFAULT_USER_ID].end(),
             [&](const std::shared_ptr<Admin>& admin) { return admin->GetAdminType() == AdminType::ENT; });
@@ -505,6 +498,17 @@ std::shared_ptr<Admin> AdminManager::Init()
         }
     }
     return nullptr;
+}
+
+// init
+void AdminManager::Init()
+{
+    auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
+    if (adminPoliciesStorageRdb != nullptr) {
+        admins_ = adminPoliciesStorageRdb->QueryAllAdmin();
+    } else {
+        EDMLOGE("AdminManager::Init failed.");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

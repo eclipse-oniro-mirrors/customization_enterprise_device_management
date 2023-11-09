@@ -54,6 +54,8 @@ private:
 
     void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
 
+    void OnSystemUpdateInner(MessageParcel& data, MessageParcel& reply);
+
     using EnterpriseAdminFunc = void (EnterpriseAdminStub::*)(MessageParcel& data, MessageParcel& reply);
 
     std::map<uint32_t, EnterpriseAdminFunc> memberFuncMap_;

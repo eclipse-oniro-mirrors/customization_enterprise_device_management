@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "ability_manager_interface.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
+#include "enterprise_update_connection.h"
 #include "errors.h"
 #include "ienterprise_connection.h"
 #include "singleton.h"
@@ -36,6 +37,8 @@ public:
         bool isOnAdminEnabled = true);
     sptr<IEnterpriseConnection> CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName);
+    sptr<IEnterpriseConnection> CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
+        const UpdateInfo &updateInfo);
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };
 } // namespace EDM
