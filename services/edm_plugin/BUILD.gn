@@ -56,6 +56,7 @@ edm_plugin_shared_library("device_info_plugin") {
 edm_plugin_shared_library("device_control_plugin") {
   sources = [
     "./src/lock_screen_plugin.cpp",
+    "./src/reboot_plugin.cpp",
     "./src/reset_factory_plugin.cpp",
     "./src/shutdown_plugin.cpp",
   ]

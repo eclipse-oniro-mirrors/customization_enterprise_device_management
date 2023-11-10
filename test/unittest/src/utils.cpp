@@ -34,7 +34,8 @@ const std::string PERMISSION_NETSYS_INTERNAL = "ohos.permission.NETSYS_INTERNAL"
 const std::string PERMISSION_INSTALL_BUNDLE = "ohos.permission.INSTALL_BUNDLE";
 const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const std::string PERMISSION_ENTERPRISE_MANAGE_SECURITY = "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
-const std::string PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER = "ohos.permission.ACCESS_SCREEN_LOCK_INNER";
+const std::string PERMISSION_ENTERPRISE_LOCK_DEVICE = "ohos.permission.ENTERPRISE_LOCK_DEVICE";
+const std::string PERMISSION_ENTERPRISE_REBOOT = "ohos.permission.ENTERPRISE_REBOOT";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -83,7 +84,8 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_INSTALL_BUNDLE.c_str(),
         PERMISSION_RUNNING_STATE_OBSERVER.c_str(),
         PERMISSION_ENTERPRISE_MANAGE_SECURITY.c_str(),
-        PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER.c_str()
+        PERMISSION_ENTERPRISE_LOCK_DEVICE.c_str(),
+        PERMISSION_ENTERPRISE_REBOOT.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);

@@ -161,6 +161,7 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, name, argv[ARR_INDEX_ONE]), "parameter name parse error");
     int32_t type;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, type, argv[ARR_INDEX_TWO]), "parameter type parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, !name.empty(), "parameter name is empty");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckOsAccountType(type), "parameter type unknown");
 
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
