@@ -13,30 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-#define TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
+#define SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
-#include "executer_utils.h"
+#include "iplugin_manager.h"
+#include "plugin_singleton.h"
+#include "string_serializer.h"
+#include "iremote_stub.h"
 
 namespace OHOS {
 namespace EDM {
-namespace IPTABLES {
-namespace TEST {
-
-class ExecuterUtilsMock final: public IPTABLES::ExecuterUtils {
+class ShutdownPlugin : public PluginSingleton<ShutdownPlugin, int32_t> {
 public:
-    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result), (override));
+    void InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, int32_t>> ptr) override;
+
+    ErrCode OnSetPolicy();
 };
-
-ErrCode PrintExecRule(const std::string &rule, std::string &result);
-
-} // namespace TEST
-} // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
 
-#endif // TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-
+#endif /* SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_ */

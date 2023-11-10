@@ -18,6 +18,7 @@
 
 #include <iremote_broker.h>
 #include <string_ex.h>
+#include "policy_struct.h"
 
 namespace OHOS {
 namespace EDM {
@@ -53,13 +54,20 @@ public:
      */
     virtual void OnAppStop(const std::string &bundleName) = 0;
 
+    /**
+     * Called when a version need to update on the device.
+     * @param updateInfo Indicates the information of the version.
+     */
+    virtual void OnSystemUpdate(const UpdateInfo &updateInfo) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
         COMMAND_ON_BUNDLE_ADDED = 3,
         COMMAND_ON_BUNDLE_REMOVED = 4,
         COMMAND_ON_APP_START = 5,
-        COMMAND_ON_APP_STOP = 6
+        COMMAND_ON_APP_STOP = 6,
+        COMMAND_ON_SYSTEM_UPDATE = 7
     };
 };
 } // namespace EDM

@@ -47,6 +47,8 @@ public:
     void OnAppStart(const std::string &bundleName) override;
 
     void OnAppStop(const std::string &bundleName) override;
+
+    void OnSystemUpdate(const UpdateInfo &updateInfo) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };
