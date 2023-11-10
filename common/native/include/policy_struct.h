@@ -13,30 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-#define TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
+#ifndef COMMON_NATIVE_INCLUDE_POLICY_STRUCT_H
+#define COMMON_NATIVE_INCLUDE_POLICY_STRUCT_H
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
-#include "executer_utils.h"
+#include <string>
 
 namespace OHOS {
 namespace EDM {
-namespace IPTABLES {
-namespace TEST {
-
-class ExecuterUtilsMock final: public IPTABLES::ExecuterUtils {
-public:
-    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result), (override));
+struct UpdateInfo {
+    std::string version;
+    int64_t firstReceivedTime;
+    std::string packageType;
 };
-
-ErrCode PrintExecRule(const std::string &rule, std::string &result);
-
-} // namespace TEST
-} // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
 
-#endif // TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-
+#endif // COMMON_NATIVE_INCLUDE_POLICY_STRUCT_H

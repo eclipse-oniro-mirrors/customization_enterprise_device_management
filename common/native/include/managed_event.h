@@ -25,6 +25,7 @@ enum class ManagedEvent : uint32_t {
     BUNDLE_REMOVED = 1,
     APP_START = 2,
     APP_STOP = 3,
+    SYSTEM_UPDATE = 4
 };
 } // namespace EDM
 } // namespace OHOS

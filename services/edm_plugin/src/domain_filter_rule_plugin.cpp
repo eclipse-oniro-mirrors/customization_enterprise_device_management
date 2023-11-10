@@ -32,7 +32,7 @@ void DomainFilterRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DomainFilterRulePlugin, IPTABLES::DomainFilterRuleParcel>> ptr)
 {
     EDMLOGD("DomainFilterRulePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "firewall_rule",
+    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "domain_filter_rule",
         "ohos.permission.ENTERPRISE_MANAGE_NETWORK", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(DomainFilterRuleSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DomainFilterRulePlugin::OnSetPolicy, FuncOperateType::SET);
