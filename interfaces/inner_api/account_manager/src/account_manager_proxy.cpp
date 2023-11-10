@@ -73,7 +73,8 @@ int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName 
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName &admin, int32_t userId, bool &result)
+int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName &admin, int32_t userId,
+    bool &result)
 {
     EDMLOGD("AccountManagerProxy::IsAddOsAccountByUserDisallowed");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -122,8 +123,6 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     if (ret != EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED) {
         OHOS::AccountSA::OsAccountInfo *result = OHOS::AccountSA::OsAccountInfo::Unmarshalling(reply);
         accountInfo = *result;
-        EDMLOGD("hyy ----  AccountManagerProxy::AddOsAccount: done.. accountInfo -- %{public}s",
-            accountInfo.ToString().c_str());
     }
     return ret;
 }

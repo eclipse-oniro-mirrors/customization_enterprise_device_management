@@ -98,6 +98,7 @@ napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_ca
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
     if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
+        return nullptr;
     }
     int32_t ret = accountManagerProxy->DisallowAddOsAccountByUser(elementName, userId, disallow);
     if (FAILED(ret)) {
@@ -128,16 +129,14 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
     if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
+        return nullptr;
     }
     bool isDisallowed;
     int32_t ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(elementName, userId, isDisallowed);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-        EDMLOGE("NAPI_IsAddOsAccountByUserDisallowed failed!");
     }
     napi_value result = nullptr;
-    EDMLOGD("hyy ----  AccountManagerAddon::IsAddOsAccountByUserDisallowed: done.. result: %{public}s, ",
-        isDisallowed ? "true" : "false");
     napi_get_boolean(env, isDisallowed, &result);
     return result;
 }
@@ -159,7 +158,7 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "parameter admin parse error");
     std::string name;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, name, argv[ARR_INDEX_ONE]), "parameter userid name error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, name, argv[ARR_INDEX_ONE]), "parameter name parse error");
     int32_t type;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, type, argv[ARR_INDEX_TWO]), "parameter type parse error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckOsAccountType(type), "parameter type unknown");
@@ -167,15 +166,15 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
     if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
+        return nullptr;
     }
     OHOS::AccountSA::OsAccountInfo accountInfo;
     int32_t ret = accountManagerProxy->AddOsAccount(elementName, name, type, accountInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-        EDMLOGE("NAPI_AddOsAccount failed!");
+        return nullptr;
     }
-    napi_value result = ConvertOsAccountInfoToJs(env, accountInfo);
-    return result;
+    return ConvertOsAccountInfoToJs(env, accountInfo);
 }
 
 void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data)
@@ -198,9 +197,8 @@ void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data
 
 bool AccountManagerAddon::CheckOsAccountType(int32_t type)
 {
-    if (type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
-        || type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::NORMAL)
-        || type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::GUEST)) {
+    if (type >= static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
+        && type < static_cast<int32_t>(OHOS::AccountSA::OsAccountType::END)) {
         return true;
     }
     return false;
@@ -208,7 +206,6 @@ bool AccountManagerAddon::CheckOsAccountType(int32_t type)
 
 napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info)
 {
-    EDMLOGD("hyy ----  ConvertOsAccountInfoToJs: OsAccountInfo: %{public}s, ", info.ToString().c_str());
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
 
@@ -290,7 +287,7 @@ napi_value AccountManagerAddon::MakeArrayToJs(napi_env env, const std::vector<st
     napi_value jsArray)
 {
     uint32_t index = 0;
-    for (auto item : constraints) {
+    for (const auto &item : constraints) {
         napi_value constraint = nullptr;
         NAPI_CALL(env, napi_create_string_utf8(env, item.c_str(), NAPI_AUTO_LENGTH, &constraint));
         NAPI_CALL(env, napi_set_element(env, jsArray, index, constraint));

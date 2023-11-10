@@ -38,15 +38,27 @@ ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std:
 {
     auto it = data.begin();
     int32_t userId = atoi(it -> first.c_str());
+    bool isIdExist = false;
+    AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
+    if (!isIdExist) {
+        EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     bool disallow = it -> second == "true";
     return SetSpecificOsAccountConstraints(userId, disallow);
 }
 
-ErrCode DisallowAddOsAccountByUserPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+ErrCode DisallowAddOsAccountByUserPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
     EDMLOGD("DisallowAddOsAccountByUserPlugin OnGetPolicy.");
     int32_t targetUserId = data.ReadInt32();
+    bool isIdExist = false;
+    AccountSA::OsAccountManager::IsOsAccountExists(targetUserId, isIdExist);
+    if (!isIdExist) {
+        EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::vector<std::string> constraints;
     ErrCode ret = AccountSA::OsAccountManager::GetOsAccountAllConstraints(targetUserId, constraints);
     if (FAILED(ret)) {
@@ -72,9 +84,9 @@ ErrCode DisallowAddOsAccountByUserPlugin::SetSpecificOsAccountConstraints(int32_
         EDMLOGE("DisallowAddOsAccountByUserPlugin QueryActiveOsAccountIds failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    EDMLOGD("hyy ----  DisallowAddOsAccountByUserPlugin::SetSpecificOsAccountConstraints: "
-            "disallow: %{public}s, targetId: %{public}d, enforceId: %{public}d",
-            disallow ? "true" : "false", userId, ids.at(0));
+    EDMLOGI("DisallowAddOsAccountByUserPlugin SetSpecificOsAccountConstraints: "
+        "disallow: %{public}s, targetId: %{public}d, enforceId: %{public}d",
+        disallow ? "true" : "false", userId, ids.at(0));
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, disallow, userId,
         ids.at(0), true);
     if (FAILED(ret)) {

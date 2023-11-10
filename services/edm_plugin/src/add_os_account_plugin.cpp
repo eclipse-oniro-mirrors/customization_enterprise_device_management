@@ -40,8 +40,12 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
     std::string accountName = it -> first;
     int32_t type = atoi(it -> second.c_str());
     OHOS::AccountSA::OsAccountType accountType = ParseOsAccountType(type);
-    EDMLOGD("hyy ----  AddOsAccountPlugin::OnSetPolicy: name -- %{public}s, type -- %{public}d, ",
-        accountName.c_str(), type);
+    if (accountType == OHOS::AccountSA::OsAccountType::END) {
+        EDMLOGE("AddOsAccountPlugin accountType invalid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name -- %{public}c***%{public}c, type -- %{public}d, ",
+        accountName[0], accountName[accountName.length() - 1], type);
     OHOS::AccountSA::OsAccountInfo accountInfo;
     ErrCode ret = AccountSA::OsAccountManager::CreateOsAccount(accountName, accountType, accountInfo);
     if (FAILED(ret)) {
@@ -49,6 +53,7 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
         reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
         return EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED;
     }
+    reply.WriteInt32(ERR_OK);
     accountInfo.Marshalling(reply);
     EDMLOGI("AddOsAccountPlugin OnSetPolicy end");
     return ERR_OK;
@@ -56,9 +61,8 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
 
 OHOS::AccountSA::OsAccountType AddOsAccountPlugin::ParseOsAccountType(int32_t type)
 {
-    if (type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
-        || type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::NORMAL)
-        || type == static_cast<int32_t>(OHOS::AccountSA::OsAccountType::GUEST)) {
+    if (type >= static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
+        && type < static_cast<int32_t>(OHOS::AccountSA::OsAccountType::END)) {
         return static_cast<OHOS::AccountSA::OsAccountType>(type);
     }
     return OHOS::AccountSA::OsAccountType::END;
