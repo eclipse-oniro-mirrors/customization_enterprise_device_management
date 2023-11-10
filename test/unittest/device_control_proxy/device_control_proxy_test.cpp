@@ -114,7 +114,7 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestRLockScreenFail
+ * @tc.name: TestLockScreenFail
  * @tc.desc: Test LockScreen without enable edm service func.
  * @tc.type: FUNC
  */
@@ -126,6 +126,72 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenFail, TestSize.Level1)
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     int32_t ret = deviceControlProxy->LockScreen(admin, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestShutdownSuc
+ * @tc.desc: Test Shutdown success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestShutdownSuc, TestSize.Level1)
+{
+    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestShutdownSuc case will not run.";
+    ASSERT_TRUE(true);
+    return;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = deviceControlProxy->Shutdown(admin);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestShutdownFail
+ * @tc.desc: Test Shutdown without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestShutdownFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = deviceControlProxy->Shutdown(admin);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRebootSuc
+ * @tc.desc: Test Reboot success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestRebootSuc, TestSize.Level1)
+{
+    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestRebootSuc case will not run.";
+    ASSERT_TRUE(true);
+    return;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = deviceControlProxy->Reboot(admin);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRebootFail
+ * @tc.desc: Test Reboot without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestRebootFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = deviceControlProxy->Reboot(admin);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

@@ -27,7 +27,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(RebootPlug
 void RebootPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<RebootPlugin, int32_t>> ptr)
 {
     EDMLOGD("RebootPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::REBOOT, "reboot", "ohos.permission.ENTERPRISE_RESET_DEVICE",
+    ptr->InitAttribute(EdmInterfaceCode::REBOOT, "reboot", "ohos.permission.ENTERPRISE_REBOOT",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&RebootPlugin::OnSetPolicy, FuncOperateType::SET);
@@ -36,9 +36,9 @@ void RebootPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<RebootPlugin, int3
 ErrCode RebootPlugin::OnSetPolicy()
 {
     auto& powerMgrClient = PowerMgr::PowerMgrClient::GetInstance();
-    auto ret = powerMgrClient.RebootDevice("edm_Reboot");
+    PowerMgr::PowerErrors ret = powerMgrClient.RebootDevice("edm_Reboot");
     if (ret != PowerMgr::PowerErrors::ERR_OK) {
-        EDMLOGE("RebootPlugin:OnSetPolicy send request fail. %{public}d", ret);
+        EDMLOGE("RebootPlugin:OnSetPolicy send request fail. %{public}d", int32_t(ret));
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
