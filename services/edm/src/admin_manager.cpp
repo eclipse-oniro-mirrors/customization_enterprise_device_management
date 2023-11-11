@@ -258,6 +258,20 @@ bool AdminManager::IsSuperAdminExist()
         [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
 }
 
+bool AdminManager::IsSuperAdmin(const std::string &bundleName)
+{
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
+    if (admin == nullptr) {
+        EDMLOGW("IsSuperAdmin: admin == nullptr.");
+        return false;
+    }
+    if (admin->adminInfo_.adminType_ == AdminType::ENT) {
+        EDMLOGW("IsSuperAdmin: admin->adminInfo_.adminType_ == AdminType::ENT.");
+        return true;
+    }
+    return false;
+}
+
 bool AdminManager::IsAdminExist()
 {
     return !admins_.empty();
@@ -472,6 +486,18 @@ ErrCode AdminManager::SaveAuthorizedAdmin(const std::string &bundleName, const s
     adminItem->adminInfo_.permission_ = permissions;
     adminItem->adminInfo_.parentAdminName_ = parentName;
     return ERR_OK;
+}
+
+std::shared_ptr<Admin> AdminManager::GetSuperAdmin()
+{
+    if (admins_.find(DEFAULT_USER_ID) != admins_.end()) {
+        auto item = std::find_if(admins_[DEFAULT_USER_ID].begin(), admins_[DEFAULT_USER_ID].end(),
+            [&](const std::shared_ptr<Admin>& admin) { return admin->GetAdminType() == AdminType::ENT; });
+        if (item != admins_[DEFAULT_USER_ID].end()) {
+            return *item;
+        }
+    }
+    return nullptr;
 }
 
 // init

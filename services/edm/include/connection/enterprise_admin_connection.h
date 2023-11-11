@@ -16,14 +16,17 @@
 #ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_CONNECTION_H
 #define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_CONNECTION_H
 
+#include "ability_manager_death_recipient.h"
 #include "ienterprise_connection.h"
 
 namespace OHOS {
 namespace EDM {
 class EnterpriseAdminConnection : public IEnterpriseConnection {
 public:
-    EnterpriseAdminConnection(const AAFwk::Want &want,
-        uint32_t code, uint32_t userId) : IEnterpriseConnection(want, code, userId) {};
+    EnterpriseAdminConnection(const AAFwk::Want& want, uint32_t code, uint32_t userId, bool isOnAdminEnabled)
+        : IEnterpriseConnection(want, code, userId), isOnAdminEnabled_(isOnAdminEnabled) {};
+
+    void SetIsOnAdminEnabled(bool isOnAdminEnabled);
 
     ~EnterpriseAdminConnection() override;
 
@@ -34,8 +37,8 @@ public:
      * @param remoteObject, Indicates the session proxy of service ability.
      * @param resultCode, Returns ERR_OK on success, others on failure.
      */
-    void OnAbilityConnectDone(const AppExecFwk::ElementName& element,
-        const sptr<IRemoteObject>& remoteObject, int32_t resultCode) override;
+    void OnAbilityConnectDone(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject,
+        int32_t resultCode) override;
 
     /**
      * OnAbilityDisconnectDone, Ability Manager Service notify caller ability the result of disconnect.
@@ -44,6 +47,11 @@ public:
      * @param resultCode, Returns ERR_OK on success, others on failure.
      */
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode) override;
+
+private:
+    bool isOnAdminEnabled_;
+    sptr<IRemoteObject> extensionRemoteObject_;
+    sptr<AbilityManagerDeathRecipient> deathRecipient_{nullptr};
 };
 } // namespace EDM
 } // namespace OHOS

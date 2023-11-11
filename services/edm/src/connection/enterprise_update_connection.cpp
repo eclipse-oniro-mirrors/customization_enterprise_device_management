@@ -14,8 +14,9 @@
  */
 
 #include "enterprise_update_connection.h"
+
+#include "edm_log.h"
 #include "enterprise_conn_manager.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace EDM {
@@ -24,20 +25,20 @@ EnterpriseUpdateConnection::~EnterpriseUpdateConnection() {}
 void EnterpriseUpdateConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseUpdateConnection OnAbilityConnectDone");
+    EDMLOGI("EnterpriseUpdateConnection OnAbilityConnectDone");
     proxy_ = (new (std::nothrow) EnterpriseAdminProxy(remoteObject));
     if (proxy_ == nullptr) {
-        HILOG_INFO("EnterpriseUpdateConnection get enterpriseAdminProxy failed.");
+        EDMLOGI("EnterpriseUpdateConnection get enterpriseAdminProxy failed.");
         return;
     }
     proxy_->OnSystemUpdate(updateInfo_);
 
-    HILOG_INFO("EnterpriseUpdateConnection OnAbilityConnectDone over");
+    EDMLOGI("EnterpriseUpdateConnection OnAbilityConnectDone over");
 }
 
 void EnterpriseUpdateConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseUpdateConnection OnAbilityDisconnectDone");
+    EDMLOGI("EnterpriseUpdateConnection OnAbilityDisconnectDone");
 }
 }  // namespace EDM
 }  // namespace OHOS

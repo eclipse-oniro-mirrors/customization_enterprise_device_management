@@ -20,16 +20,22 @@
 
 namespace OHOS {
 namespace EDM {
+class EnterpriseAdminConnection;
 class AbilityManagerDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
+    explicit AbilityManagerDeathRecipient(const sptr<EnterpriseAdminConnection>& extensionConnection)
+        : extensionConnection_(extensionConnection) {}
     /**
      * Called back when the remote object is died.
      *
      * @param wptrDeath Indicates the died object.
      */
     void OnRemoteDied(const wptr<IRemoteObject>& wptrDeath) override;
-};
-}  // namespace EDM
-}  // namespace OHOS
 
-#endif  // SERVICES_EDM_INCLUDE_ABILITY_MANAGER_DEATH_RECIPIENT_H
+private:
+    sptr<EnterpriseAdminConnection> extensionConnection_;
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_INCLUDE_ABILITY_MANAGER_DEATH_RECIPIENT_H
