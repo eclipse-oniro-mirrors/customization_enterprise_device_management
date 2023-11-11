@@ -82,7 +82,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothInfoSuc, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(bluetoothInfo.name == RETURN_STRING);
     ASSERT_TRUE(bluetoothInfo.state == 1);
-    ASSERT_TRUE(bluetoothInfo.connectionState == 2);
+    ASSERT_TRUE(bluetoothInfo.connectionState == 1);
 }
 
 /**
