@@ -48,11 +48,10 @@ void GetBluetoothInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetBluet
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-int32_t GetBluetoothInfoPlugin::TransformBluetoothState(int32_t state) 
+int32_t GetBluetoothInfoPlugin::TransformBluetoothState(int32_t state)
 {
     int32_t realState;
-    switch(state)
-    {
+    switch (state){
         case static_cast<int32_t>(Bluetooth::BTStateID::STATE_TURNING_ON):
             realState = BluetoothState::TURNING_ON;
             break;
@@ -71,11 +70,10 @@ int32_t GetBluetoothInfoPlugin::TransformBluetoothState(int32_t state)
     return realState;
 }
 
-int32_t GetBluetoothInfoPlugin::TransformBluetoothConnectionState(int32_t connectionState) 
+int32_t GetBluetoothInfoPlugin::TransformBluetoothConnectionState(int32_t connectionState)
 {
     int32_t realConnectionState;
-    switch(connectionState)
-    {
+    switch (connectionState){
         case static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTING):
             realConnectionState = BluetoothConnectionState::CONNECTING;
             break;
