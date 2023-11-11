@@ -74,6 +74,7 @@ ohos_shared_library("edmservice_kits") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "netmanager_base:net_conn_manager_if",
+    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]

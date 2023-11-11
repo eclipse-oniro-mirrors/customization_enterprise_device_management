@@ -70,6 +70,8 @@ enum EdmInterfaceCode : uint32_t {
     DOMAIN_FILTER_RULE = 1035,
     SHUTDOWN = 1036,
     REBOOT = 1037,
+    DISALLOW_ADD_OS_ACCOUNT_BY_USER = 1038,
+    ADD_OS_ACCOUNT = 1039,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

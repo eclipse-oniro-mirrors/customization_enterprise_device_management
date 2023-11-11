@@ -31,8 +31,12 @@ ohos_shared_library("accountmanager") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
+    "os_account:domain_account_innerkits",
+    "os_account:libaccountkits",
+    "os_account:os_account_innerkits",
   ]
 
   relative_install_dir = "module/enterprise"
