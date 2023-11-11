@@ -20,6 +20,7 @@
 
 #include "enterprise_admin_extension.h"
 #include "js_runtime.h"
+#include "policy_struct.h"
 
 namespace OHOS {
 namespace EDM {
@@ -64,12 +65,16 @@ public:
     void OnAppStart(const std::string &bundleName);
 
     void OnAppStop(const std::string &bundleName);
+
+    void OnSystemUpdate(const UpdateInfo &updateInfo);
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 
     void JsEnterpriseAdminExtensionContextInit();
 
     void GetSrcPath(std::string& srcPath);
+
+    napi_value CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo);
 
     AbilityRuntime::JsRuntime& jsRuntime_;
 

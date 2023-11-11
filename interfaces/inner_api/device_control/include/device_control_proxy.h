@@ -26,6 +26,8 @@ public:
     ~DeviceControlProxy();
     static std::shared_ptr<DeviceControlProxy> GetDeviceControlProxy();
     int32_t ResetFactory(AppExecFwk::ElementName &admin);
+    int32_t Shutdown(AppExecFwk::ElementName &admin);
+    int32_t Reboot(AppExecFwk::ElementName &admin);
     int32_t LockScreen(AppExecFwk::ElementName &admin, int32_t userId);
 private:
     static std::shared_ptr<DeviceControlProxy> instance_;

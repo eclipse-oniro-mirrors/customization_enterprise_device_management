@@ -468,6 +468,104 @@ HWTEST_F(NetworkManagerProxyTest, TestGetFirewallRulesFail, TestSize.Level1)
     int32_t ret = networkManagerProxy->GetFirewallRules(admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestAddAddDomainFilterRuleSuc
+ * @tc.desc: Test AddDomainFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddAddDomainFilterRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDomainFilterRuleFail
+ * @tc.desc: Test AddDomainFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveDomainFilterRuleSuc
+ * @tc.desc: Test RemoveDomainFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDomainFilterRuleFail
+ * @tc.desc: Test RemoveDomainFilterRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDomainFilterRulesSuc
+ * @tc.desc: Test GetDomainFilterRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetDomainFilterRulesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetDomainFilterRules));
+    std::vector<IPTABLES::DomainFilterRule> result;
+    int32_t ret = networkManagerProxy->GetDomainFilterRules(admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetDomainFilterRulesFail
+ * @tc.desc: Test GetDomainFilterRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetDomainFilterRulesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<IPTABLES::DomainFilterRule> result;
+    int32_t ret = networkManagerProxy->GetDomainFilterRules(admin, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

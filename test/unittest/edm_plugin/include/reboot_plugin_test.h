@@ -13,30 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-#define TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
+#ifndef EDM_UNIT_TEST_REBOOT_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_REBOOT_PLUGIN_TEST_H
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include "executer_utils.h"
+#include "iplugin_manager.h"
+#include "reboot_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-namespace IPTABLES {
 namespace TEST {
+class RebootPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
 
-class ExecuterUtilsMock final: public IPTABLES::ExecuterUtils {
-public:
-    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result), (override));
+    static void TearDownTestSuite(void);
 };
-
-ErrCode PrintExecRule(const std::string &rule, std::string &result);
-
 } // namespace TEST
-} // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS
-
-#endif // TEST_UNITTEST_EDM_PLUGIN_INCLUDE_NETWORK_EXECUTER_UTILS_MOCK_H
-
+#endif // EDM_UNIT_TEST_REBOOT_PLUGIN_TEST_H
