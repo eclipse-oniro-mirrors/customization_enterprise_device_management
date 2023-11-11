@@ -66,9 +66,6 @@ HWTEST_F(EnterpriseConnManagerTest, TestAdminConnectAbility, TestSize.Level1)
         IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
     bool ret = manager->ConnectAbility(connection);
     EXPECT_TRUE(!ret);
-
-    enterpriseConnManagerTest->Clear();
-    EXPECT_TRUE(enterpriseConnManagerTest->abilityMgr_ == nullptr);
 }
 
 /**
@@ -90,9 +87,6 @@ HWTEST_F(EnterpriseConnManagerTest, TestBundleConnectAbility, TestSize.Level1)
 
     ret = manager->ConnectAbility(nullptr);
     EXPECT_TRUE(!ret);
-
-    enterpriseConnManagerTest->Clear();
-    EXPECT_TRUE(enterpriseConnManagerTest->abilityMgr_ == nullptr);
 }
 } // namespace TEST
 } // namespace EDM

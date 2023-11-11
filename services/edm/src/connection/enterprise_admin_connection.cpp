@@ -14,38 +14,58 @@
  */
 
 #include "enterprise_admin_connection.h"
+
+#include "admin_manager.h"
+#include "edm_log.h"
 #include "enterprise_conn_manager.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace EDM {
 EnterpriseAdminConnection::~EnterpriseAdminConnection() {}
 
+void EnterpriseAdminConnection::SetIsOnAdminEnabled(bool isOnAdminEnabled)
+{
+    isOnAdminEnabled_ = isOnAdminEnabled;
+}
+
 void EnterpriseAdminConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseAdminConnection OnAbilityConnectDone");
+    EDMLOGI("EnterpriseAdminConnection OnAbilityConnectDone");
     proxy_ = (new (std::nothrow) EnterpriseAdminProxy(remoteObject));
-    if (proxy_ == nullptr) {
-        HILOG_INFO("EnterpriseAdminConnection get enterpriseAdminProxy failed.");
+    if (!proxy_) {
+        EDMLOGE("EnterpriseAdminConnection get enterpriseAdminProxy failed.");
         return;
     }
     switch (code_) {
         case IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED:
-            proxy_->OnAdminEnabled();
+            if (isOnAdminEnabled_) {
+                proxy_->OnAdminEnabled();
+            }
+            if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
+                if (!deathRecipient_) {
+                    deathRecipient_ = (new (std::nothrow) AbilityManagerDeathRecipient(this));
+                }
+                if (!deathRecipient_) {
+                    EDMLOGE("EnterpriseAdminConnection get enterpriseAdminProxy failed.");
+                    return;
+                }
+                proxy_->AddDeathRecipient(deathRecipient_);
+            }
             break;
         case IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED:
             proxy_->OnAdminDisabled();
+            proxy_->RemoveDeathRecipient(deathRecipient_);
             break;
         default:
             return;
     }
-    HILOG_INFO("EnterpriseAdminConnection OnAbilityConnectDone over");
+    EDMLOGI("EnterpriseAdminConnection OnAbilityConnectDone over");
 }
 
 void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode)
 {
-    HILOG_INFO("EnterpriseAdminConnection OnAbilityDisconnectDone");
+    EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
 }
 }  // namespace EDM
 }  // namespace OHOS
