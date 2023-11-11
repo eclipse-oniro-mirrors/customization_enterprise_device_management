@@ -188,6 +188,7 @@ group("unittest") {
     ":EdmServicesUnitTest",
     "account_manager_proxy:unittest",
     "application_manager_proxy:unittest",
+    "bluetooth_manager_proxy:unittest",
     "browser_proxy:unittest",
     "bundle_manager_proxy:unittest",
     "datetime_manager_proxy:unittest",

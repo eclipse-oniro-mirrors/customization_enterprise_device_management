@@ -72,6 +72,7 @@ enum EdmInterfaceCode : uint32_t {
     REBOOT = 1037,
     DISALLOW_ADD_OS_ACCOUNT_BY_USER = 1038,
     ADD_OS_ACCOUNT = 1039,
+    GET_BLUETOOTH_INFO = 1040,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

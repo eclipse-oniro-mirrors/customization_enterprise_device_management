@@ -156,5 +156,18 @@ int EnterpriseDeviceMgrStubMock::InvokeHttpProxySendRequestGetPolicy(uint32_t co
     httpProxy.Marshalling(reply);
     return ERR_OK;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeBluetoothProxySendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBluetoothProxySendRequestGetPolicy code :" << code;
+    EntInfo entInfo;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(RETURN_STRING);
+    reply.WriteInt32(1);
+    reply.WriteInt32(1);
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS

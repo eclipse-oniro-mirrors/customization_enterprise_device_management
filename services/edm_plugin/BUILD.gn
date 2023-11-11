@@ -258,3 +258,15 @@ edm_plugin_shared_library("security_manager_plugin") {
     "init:libbegetutil",
   ]
 }
+
+edm_plugin_shared_library("bluetooth_manager_plugin") {
+  sources = [ "./src/get_bluetooth_info_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [
+    "bluetooth:btframework",
+    "c_utils:utils",
+    "init:libbegetutil",
+  ]
+}

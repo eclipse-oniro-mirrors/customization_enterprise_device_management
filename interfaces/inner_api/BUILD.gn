@@ -17,6 +17,7 @@ config("edmservice_kits_config") {
   include_dirs = [
     "account_manager/include",
     "application_manager/include",
+    "bluetooth_manager/include",
     "browser/include",
     "bundle_manager/include",
     "common/include",
@@ -39,6 +40,7 @@ ohos_shared_library("edmservice_kits") {
   sources = [
     "./account_manager/src/account_manager_proxy.cpp",
     "./application_manager/src/application_manager_proxy.cpp",
+    "./bluetooth_manager/src/bluetooth_manager_proxy.cpp",
     "./browser/src/browser_proxy.cpp",
     "./bundle_manager/src/bundle_manager_proxy.cpp",
     "./common/src/edm_load_callback.cpp",
