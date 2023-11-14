@@ -26,6 +26,8 @@ public:
     int32_t SetHdcDisabled(const AppExecFwk::ElementName &admin, bool isDisabled);
     int32_t IsPrinterDisabled(AppExecFwk::ElementName *admin, bool &result);
     int32_t IsHdcDisabled(AppExecFwk::ElementName *admin, bool &result);
+    int32_t DisallowScreenShot(const AppExecFwk::ElementName &admin, bool isDisabled);
+    int32_t IsScreenShotDisallowed(AppExecFwk::ElementName *admin, bool &result);
 
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
