@@ -47,10 +47,11 @@ private:
     static napi_value IsAddOsAccountByUserDisallowed(napi_env env, napi_callback_info info);
     static napi_value AddOsAccount(napi_env env, napi_callback_info info);
     static bool CheckOsAccountType(int32_t type);
-    static napi_value ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info);
+    static napi_value ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
+        std::string distributedInfoName, std::string distributedInfoId);
     static napi_value MakeArrayToJs(napi_env env, const std::vector<std::string> &constraints, napi_value jsArray);
-    static napi_value CreateJsDistributedInfo(napi_env env, const OHOS::AccountSA::OhosAccountInfo &info,
-        napi_value &result);
+    static napi_value CreateJsDistributedInfo(napi_env env, const std::string distributedInfoName,
+        const std::string distributedInfoId, napi_value &result);
     static napi_value CreateJsDomainInfo(napi_env env, const OHOS::AccountSA::DomainAccountInfo &info,
         napi_value &result);
 };

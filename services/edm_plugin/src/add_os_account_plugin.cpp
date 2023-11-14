@@ -15,9 +15,12 @@
 
 #include "add_os_account_plugin.h"
 
+#include "account_info.h"
 #include "edm_ipc_interface_code.h"
+#include "ohos_account_kits.h"
 #include "os_account_info.h"
 #include "os_account_manager.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
@@ -53,8 +56,22 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
         reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
         return EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED;
     }
+    std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo = OHOS::AccountSA::OhosAccountKits::GetInstance()
+        .QueryOhosAccountInfo();
+    if (!dbAccountInfo.first) {
+        EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::string distributedInfoName = dbAccountInfo.second.name_;
+    std::string distributedInfoId = dbAccountInfo.second.uid_;
+    if (distributedInfoName.empty() || distributedInfoId.empty()) {
+        EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo empty.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     reply.WriteInt32(ERR_OK);
     accountInfo.Marshalling(reply);
+    reply.WriteString(distributedInfoName);
+    reply.WriteString(distributedInfoId);
     EDMLOGI("AddOsAccountPlugin OnSetPolicy end");
     return ERR_OK;
 }

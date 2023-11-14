@@ -32,8 +32,10 @@ edm_plugin_shared_library("account_manager_plugin") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
+    "os_account:libaccountkits",
     "os_account:os_account_innerkits",
   ]
 }
