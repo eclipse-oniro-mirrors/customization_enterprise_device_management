@@ -118,6 +118,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
     addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAppManagerServiceStart;
     addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnCommonEventServiceStart;
+    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart;
 }
 
 EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
@@ -327,16 +328,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddOnAddSystemAbilityFuncMap();
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
-
-    auto superAdmin = adminMgr_->GetSuperAdmin();
-    if (superAdmin != nullptr) {
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
-            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
-        manager->ConnectAbility(connection);
-    }
+    AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
@@ -378,6 +370,20 @@ void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart(int32_t systemAbilityI
     if (!subAdmins.empty()) {
         EDMLOGI("the admin that listened the APP_START or APP_STOP event is existed");
         SubscribeAppState();
+    }
+}
+
+void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("OnAbilityManagerServiceStart");
+    auto superAdmin = adminMgr_->GetSuperAdmin();
+    if (superAdmin != nullptr) {
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+        manager->ConnectAbility(connection);
     }
 }
 
