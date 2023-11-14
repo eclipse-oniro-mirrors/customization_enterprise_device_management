@@ -29,7 +29,7 @@ void DisallowScreenShotPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disall
 {
     EDMLOGD("DisallowScreenShotPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_SCREEN_SHOT, "disallow_screen_shot",
-        "ohos.permission.ENTERPRISE_RESTRICT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowScreenShotPlugin::OnSetPolicy, FuncOperateType::SET);
 }
@@ -49,7 +49,6 @@ ErrCode DisallowScreenShotPlugin::OnSetPolicy(bool &isDisallow)
 ErrCode DisallowScreenShotPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisallowScreenShotPlugin OnGetPolicy %{public}s...", policyData.c_str());
     bool isDisabled = false;
     pluginInstance_->serializer_->Deserialize(policyData, isDisabled);
     reply.WriteInt32(ERR_OK);

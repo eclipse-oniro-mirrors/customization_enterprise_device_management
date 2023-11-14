@@ -44,6 +44,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallow_screen_shot_plugin_test.cpp",
     "./src/disallowed_running_bundles_plugin_test.cpp",
+    "./src/display_manager_mock.cpp",
     "./src/domain_filter_rule_plugin_test.cpp",
     "./src/edm_data_ability_utils_mock.cpp",
     "./src/firewall_rule_plugin_test.cpp",
