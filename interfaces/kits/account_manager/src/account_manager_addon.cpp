@@ -170,12 +170,15 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
         return nullptr;
     }
     OHOS::AccountSA::OsAccountInfo accountInfo;
-    int32_t ret = accountManagerProxy->AddOsAccount(elementName, name, type, accountInfo);
+    std::string distributedInfoName;
+    std::string distributedInfoId;
+    int32_t ret = accountManagerProxy->AddOsAccount(elementName, name, type, accountInfo,
+        distributedInfoName, distributedInfoId);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    return ConvertOsAccountInfoToJs(env, accountInfo);
+    return ConvertOsAccountInfoToJs(env, accountInfo, distributedInfoName, distributedInfoId);
 }
 
 void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data)
@@ -205,7 +208,8 @@ bool AccountManagerAddon::CheckOsAccountType(int32_t type)
     return false;
 }
 
-napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info)
+napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
+    std::string distributedInfoName, std::string distributedInfoId)
 {
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -268,11 +272,7 @@ napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::Acc
 
     // distributedInfo: distributedAccount.DistributedInfo
     napi_value dbInfoToJs = nullptr;
-    std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo = OHOS::AccountSA::OhosAccountKits::GetInstance()
-        .QueryOhosAccountInfo();
-    if (dbAccountInfo.first) {
-        CreateJsDistributedInfo(env, dbAccountInfo.second, dbInfoToJs);
-    }
+    CreateJsDistributedInfo(env, distributedInfoName, distributedInfoId, dbInfoToJs);
     NAPI_CALL(env, napi_set_named_property(env, result, "distributedInfo", dbInfoToJs));
 
     // domainInfo: domainInfo.DomainAccountInfo
@@ -297,17 +297,17 @@ napi_value AccountManagerAddon::MakeArrayToJs(napi_env env, const std::vector<st
     return jsArray;
 }
 
-napi_value AccountManagerAddon::CreateJsDistributedInfo(napi_env env, const OHOS::AccountSA::OhosAccountInfo &info,
-    napi_value &result)
+napi_value AccountManagerAddon::CreateJsDistributedInfo(napi_env env, const std::string distributedInfoName,
+    const std::string distributedInfoId, napi_value &result)
 {
     napi_create_object(env, &result);
     napi_value value = nullptr;
     // name
-    NAPI_CALL(env, napi_create_string_utf8(env, info.name_.c_str(), info.name_.size(), &value));
+    NAPI_CALL(env, napi_create_string_utf8(env, distributedInfoName.c_str(), NAPI_AUTO_LENGTH, &value));
     NAPI_CALL(env, napi_set_named_property(env, result, "name", value));
 
     // id
-    NAPI_CALL(env, napi_create_string_utf8(env, info.uid_.c_str(), info.uid_.size(), &value));
+    NAPI_CALL(env, napi_create_string_utf8(env, distributedInfoId.c_str(), NAPI_AUTO_LENGTH, &value));
     NAPI_CALL(env, napi_set_named_property(env, result, "id", value));
 
     // event

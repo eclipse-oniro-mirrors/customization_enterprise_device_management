@@ -101,7 +101,7 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
 }
 
 int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
-    OHOS::AccountSA::OsAccountInfo &accountInfo)
+    OHOS::AccountSA::OsAccountInfo &accountInfo, std::string &distributedInfoName, std::string &distributedInfoId)
 {
     EDMLOGD("AccountManagerProxy::AddOsAccount");
     MessageParcel data;
@@ -120,9 +120,11 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ADD_OS_ACCOUNT);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
-    if (ret != EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED) {
+    if (ret == ERR_OK) {
         OHOS::AccountSA::OsAccountInfo *result = OHOS::AccountSA::OsAccountInfo::Unmarshalling(reply);
         accountInfo = *result;
+        distributedInfoName = reply.ReadString();
+        distributedInfoId = reply.ReadString();
     }
     return ret;
 }
