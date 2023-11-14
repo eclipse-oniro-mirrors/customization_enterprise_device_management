@@ -40,7 +40,7 @@ ErrCode DisallowScreenShotPlugin::OnSetPolicy(bool &isDisallow)
     auto &displayManager = OHOS::Rosen::DisplayManager::GetInstance();
     OHOS::Rosen::DMError ret = displayManager.DisableScreenshot(isDisallow);
     if (ret != OHOS::Rosen::DMError::DM_OK) {
-        EDMLOGI("DisallowScreenShotPlugin OnSetPolicy result %{public}d", ret);
+        EDMLOGE("DisallowScreenShotPlugin displayManager DisableScreenshot result %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -52,7 +52,6 @@ ErrCode DisallowScreenShotPlugin::OnGetPolicy(std::string &policyData, MessagePa
     EDMLOGI("DisallowScreenShotPlugin OnGetPolicy %{public}s...", policyData.c_str());
     bool isDisabled = false;
     pluginInstance_->serializer_->Deserialize(policyData, isDisabled);
-    EDMLOGI("DisallowScreenShotPlugin isDisabled = %{public}d...", isDisabled);
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(isDisabled);
     return ERR_OK;
