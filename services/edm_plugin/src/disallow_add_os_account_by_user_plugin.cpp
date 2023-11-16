@@ -29,7 +29,7 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
 {
     EDMLOGD("DisallowAddOsAccountByUserPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, "disallow_add_os_account_by_user",
-        "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddOsAccountByUserPlugin::OnSetPolicy, FuncOperateType::SET);
 }
