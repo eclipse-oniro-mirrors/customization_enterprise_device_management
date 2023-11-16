@@ -407,6 +407,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
     bool ret = false;
     AppExecFwk::BundleInfo bundleInfo;
     auto bundleManager = GetBundleMgr();
+    if (!bundleManager) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin GetBundleMgr failed.");
+        return ERR_EDM_BMS_ERROR;
+    }
     permissionList.clear();
     EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s userid %{public}d",
         bundleInfoName.c_str(), userId);
@@ -731,6 +735,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleNam
     // super admin can be removed by itself
     int uid = GetCallingUid();
     auto bundleManager = GetBundleMgr();
+    if (!bundleManager) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::CheckCallingUid GetBundleMgr failed.");
+        return ERR_EDM_BMS_ERROR;
+    }
     std::string callingBundleName;
     if (bundleManager->GetNameForUid(uid, callingBundleName) != ERR_OK) {
         EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
