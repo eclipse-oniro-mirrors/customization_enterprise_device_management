@@ -45,7 +45,12 @@ ErrCode BundleInstallPlugin::OnSetPolicy(std::vector<std::string> &data, std::ve
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
-    ErrCode res = GetAppControlProxy()->AddAppInstallControlRule(data, controlRuleType_, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("BundleInstallPlugin OnSetPolicy GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode res = appControlProxy->AddAppInstallControlRule(data, controlRuleType_, userId);
     if (res != ERR_OK) {
         EDMLOGE("BundleInstallPlugin OnSetPolicyDone Faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -75,7 +80,12 @@ ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data, std:
 
     std::vector<std::string> mergeData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
-    ErrCode res = GetAppControlProxy()->DeleteAppInstallControlRule(controlRuleType_, data, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("BundleInstallPlugin OnRemovePolicy GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode res = appControlProxy->DeleteAppInstallControlRule(controlRuleType_, data, userId);
     if (res != ERR_OK) {
         EDMLOGE("BundleInstallPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -89,7 +99,12 @@ void BundleInstallPlugin::OnAdminRemoveDone(const std::string &adminName, std::v
 {
     EDMLOGI("AllowedInstallBundlesPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d",
         adminName.c_str(), userId);
-    ErrCode res = GetAppControlProxy()->DeleteAppInstallControlRule(controlRuleType_, data, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("BundleInstallPlugin OnAdminRemoveDone GetAppControlProxy failed.");
+        return;
+    }
+    ErrCode res = appControlProxy->DeleteAppInstallControlRule(controlRuleType_, data, userId);
     EDMLOGD("BundleInstallPlugin OnAdminRemoveDone result %{public}d:", res);
 }
 

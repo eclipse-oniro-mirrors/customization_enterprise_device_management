@@ -61,7 +61,12 @@ ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &da
         controlRules.push_back(controlRule);
     });
 
-    ErrCode res = GetAppControlProxy()->AddAppRunningControlRule(controlRules, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode res = appControlProxy->AddAppRunningControlRule(controlRules, userId);
     if (res != ERR_OK) {
         EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicyDone Faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -99,7 +104,12 @@ ErrCode DisallowedRunningBundlesPlugin::OnRemovePolicy(std::vector<std::string> 
         controlRule.appId = str;
         controlRules.push_back(controlRule);
     });
-    ErrCode res = GetAppControlProxy()->DeleteAppRunningControlRule(controlRules, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("DisallowedRunningBundlesPlugin OnRemovePolicy GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode res = appControlProxy->DeleteAppRunningControlRule(controlRules, userId);
     if (res != ERR_OK) {
         EDMLOGE("DisallowedRunningBundlesPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -126,7 +136,12 @@ void DisallowedRunningBundlesPlugin::OnAdminRemoveDone(const std::string &adminN
         controlRule.appId = str;
         controlRules.push_back(controlRule);
     });
-    ErrCode res = GetAppControlProxy()->DeleteAppRunningControlRule(controlRules, userId);
+    auto appControlProxy = GetAppControlProxy();
+    if (!appControlProxy) {
+        EDMLOGE("DisallowedRunningBundlesPlugin OnAdminRemoveDone GetAppControlProxy failed.");
+        return;
+    }
+    ErrCode res = appControlProxy->DeleteAppRunningControlRule(controlRules, userId);
     EDMLOGI("DisallowedRunningBundlesPlugin OnAdminRemoveDone result %{public}d:", res);
 }
 } // namespace EDM
