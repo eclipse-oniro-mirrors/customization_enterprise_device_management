@@ -272,3 +272,16 @@ edm_plugin_shared_library("bluetooth_manager_plugin") {
     "init:libbegetutil",
   ]
 }
+
+edm_plugin_shared_library("location_manager_plugin") {
+  sources = [ "./src/location_policy_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "location:locator_sdk",
+  ]
+}
