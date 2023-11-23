@@ -102,12 +102,10 @@ bool ResetFactoryPlugin::CheckUpdaterSaLoaded()
 {
     int32_t retry = RETRY_TIMES;
     EDMLOGI("Waiting for CheckUpdaterSaLoaded");
-    while (retry--)
-    {
+    while (retry--) {
         usleep(SLEEP_TIME);
         LoadUpdaterSaStatus loadUpdaterSaStatus = loadUpdaterSaStatus_;
-        if (loadUpdaterSaStatus != LoadUpdaterSaStatus::WAIT_RESULT)
-        {
+        if (loadUpdaterSaStatus != LoadUpdaterSaStatus::WAIT_RESULT) {
             bool isUpdaterSaLoaded = loadUpdaterSaStatus == LoadUpdaterSaStatus::SUCCESS;
             EDMLOGI("found OnLoad result: %{public}s", isUpdaterSaLoaded ? "succeed" : "failed");
             return isUpdaterSaLoaded;
@@ -125,20 +123,17 @@ void ResetFactoryPlugin::WaitUpdaterSaInit()
 bool ResetFactoryPlugin::LoadUpdaterSa()
 {
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr)
-    {
+    if (samgr == nullptr) {
         EDMLOGE("GetSystemAbilityManager samgr object null!");
         return false;
     }
     int32_t result = samgr->LoadSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID, this);
-    if (result != ERR_OK)
-    {
+    if (result != ERR_OK) {
         EDMLOGE("systemAbilityId: %{public}d, load failed, result code: %{public}d", UPDATE_DISTRIBUTED_SERVICE_ID,
                 result);
         return false;
     }
-    if (!CheckUpdaterSaLoaded())
-    {
+    if (!CheckUpdaterSaLoaded()) {
         EDMLOGE("systemAbilityId: %{public}d, CheckUpdaterSaLoaded failed", UPDATE_DISTRIBUTED_SERVICE_ID);
         return false;
     }
