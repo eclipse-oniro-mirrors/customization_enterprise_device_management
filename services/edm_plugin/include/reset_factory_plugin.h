@@ -23,8 +23,7 @@
 
 namespace OHOS {
 namespace EDM {
-enum class LoadUpdaterSaStatus
-{
+enum class LoadUpdaterSaStatus {
     WAIT_RESULT = 0,
     SUCCESS,
     FAIL,
