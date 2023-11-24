@@ -23,11 +23,13 @@ using namespace OHOS::EDM;
 std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::memberSetFuncMap_ = {
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
+    {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::DisallowScreenShot},
 };
 
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
+    {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::IsScreenShotDisallowed},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -37,6 +39,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isPrinterDisabled", IsPrinterDisabled),
         DECLARE_NAPI_FUNCTION("setHdcDisabled", SetHdcDisabled),
         DECLARE_NAPI_FUNCTION("isHdcDisabled", IsHdcDisabled),
+        DECLARE_NAPI_FUNCTION("disallowScreenShot", DisallowScreenShot),
+        DECLARE_NAPI_FUNCTION("isScreenShotDisallowed", IsScreenShotDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -190,6 +194,99 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
         EDMLOGE("NativeIsPolicyDisabled error");
         asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
+}
+
+napi_value RestrictionsAddon::DisallowScreenShot(napi_env env, napi_callback_info info)
+{
+    return SetPolicyDisabledSync(env, info, EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
+}
+
+napi_value RestrictionsAddon::IsScreenShotDisallowed(napi_env env, napi_callback_info info)
+{
+    return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
+}
+
+napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
+{
+    EDMLOGI("NAPI_SetPolicyDisabledSync called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean), "parameter bool error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    bool isDisallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisallow, argv[ARR_INDEX_ONE]), "bool name param error");
+    auto func = memberSetFuncMap_.find(policyCode);
+    if (func != memberSetFuncMap_.end()) {
+        auto memberFunc = func->second;
+        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+        ErrCode ret = (proxy.get()->*memberFunc)(elementName, isDisallow);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+            EDMLOGE("SetPolicyDisabledSync failed!");
+            return nullptr;
+        }
+    } else {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    }
+    return nullptr;
+}
+
+napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
+{
+    EDMLOGI("NAPI_IsPolicyDisabled called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = false;
+    bool matchFlag = false;
+    if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null)) {
+        hasAdmin = false;
+        matchFlag = true;
+    } else if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        hasAdmin = true;
+        matchFlag = true;
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "param type need be null or want");
+    OHOS::AppExecFwk::ElementName elementName;
+    if (hasAdmin) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+            "element name param error");
+    }
+    ErrCode ret = ERR_OK;
+    bool boolRet = false;
+    auto func = memberIsFuncMap_.find(policyCode);
+    if (func != memberIsFuncMap_.end()) {
+        auto memberFunc = func->second;
+        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+        if (hasAdmin) {
+            ret = (proxy.get()->*memberFunc)(&(elementName), boolRet);
+        } else {
+            ret = (proxy.get()->*memberFunc)(nullptr, boolRet);
+        }
+    } else {
+        EDMLOGE("IsPolicyDisabledSync error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetPolicyDisabledSync failed!");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, boolRet, &result);
+    return result;
 }
 
 static napi_module g_restrictionsModule = {

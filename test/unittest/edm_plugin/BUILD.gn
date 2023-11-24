@@ -42,7 +42,9 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_printer_plugin_test.cpp",
     "./src/disallow_add_local_account_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
+    "./src/disallow_screen_shot_plugin_test.cpp",
     "./src/disallowed_running_bundles_plugin_test.cpp",
+    "./src/display_manager_mock.cpp",
     "./src/domain_filter_rule_plugin_test.cpp",
     "./src/edm_data_ability_utils_mock.cpp",
     "./src/firewall_rule_plugin_test.cpp",
@@ -106,6 +108,7 @@ ohos_unittest("EdmPluginTest") {
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
     "common_event_service:cesfwk_innerkits",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -116,6 +119,7 @@ ohos_unittest("EdmPluginTest") {
     "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
     "wifi:wifi_sdk",
+    "window_manager:libdm",
   ]
 
   if (defined(global_parts_info) &&
@@ -149,6 +153,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
+    "../../../services/edm_plugin/src/disallow_screen_shot_plugin.cpp",
     "../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
     "../../../services/edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
@@ -228,6 +233,7 @@ ohos_static_library("edm_all_plugin_static") {
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
     "common_event_service:cesfwk_innerkits",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -239,6 +245,7 @@ ohos_static_library("edm_all_plugin_static") {
     "power_manager:powermgr_client",
     "screenlock_mgr:screenlock_client",
     "wifi:wifi_sdk",
+    "window_manager:libdm",
   ]
 
   if (defined(global_parts_info) &&

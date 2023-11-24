@@ -187,6 +187,81 @@ HWTEST_F(RestrictionsProxyTest, TestIsPrinterDisabledFail, TestSize.Level1)
     int32_t ret = proxy_->IsPrinterDisabled(&admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestDisallowScreenShotSucc
+ * @tc.desc: Test DisallowScreenShot success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestDisallowScreenShotSucc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->DisallowScreenShot(admin, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowScreenShotFail
+ * @tc.desc: Test DisallowScreenShot without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestDisallowScreenShotFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->DisallowScreenShot(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsScreenShotDisallowedSuc
+ * @tc.desc: Test IsScreenShotDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsScreenShotDisallowedSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = proxy_->IsScreenShotDisallowed(&admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsScreenShotDisallowedFail
+ * @tc.desc: Test IsScreenShotDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsScreenShotDisallowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool result = false;
+    int32_t ret = proxy_->IsScreenShotDisallowed(&admin, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsScreenShotDisallowedNullptr
+ * @tc.desc: Test IsScreenShotDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsScreenShotDisallowedNullptr, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    int32_t ret = proxy_->IsScreenShotDisallowed(nullptr, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
