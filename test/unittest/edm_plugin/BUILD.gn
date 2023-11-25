@@ -125,8 +125,6 @@ ohos_unittest("EdmPluginTest") {
   if (defined(global_parts_info) &&
       defined(global_parts_info.updater_update_service)) {
     external_deps += [ "update_service:updateservicekits" ]
-  } else {
-    external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 
   sanitize = {
@@ -251,8 +249,6 @@ ohos_static_library("edm_all_plugin_static") {
   if (defined(global_parts_info) &&
       defined(global_parts_info.updater_update_service)) {
     external_deps += [ "update_service:updateservicekits" ]
-  } else {
-    external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 
   sanitize = {
