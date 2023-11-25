@@ -73,7 +73,7 @@ napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothIn
     return objBluetoothInfo;
 }
 
-static napi_module g_securityModule = {
+static napi_module g_bluetoothModule = {
     .nm_version = 1,
     .nm_flags = 0,
     .nm_filename = nullptr,
@@ -85,5 +85,5 @@ static napi_module g_securityModule = {
 
 extern "C" __attribute__((constructor)) void BluetoothManagerRegister()
 {
-    napi_module_register(&g_securityModule);
+    napi_module_register(&g_bluetoothModule);
 }

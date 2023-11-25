@@ -198,6 +198,7 @@ group("unittest") {
     "edm_plugin:unittest",
     "enterprise_device_mgr_ability:unittest",
     "enterprise_device_mgr_proxy:unittest",
+    "location_manager_proxy:unittest",
     "network_manager_proxy:unittest",
     "restrictions_proxy:unittest",
     "security_manager_proxy:unittest",
