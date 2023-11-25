@@ -112,7 +112,7 @@ HWTEST_F(LocationManagerProxyTest, TestGetLocationPolicySuc, TestSize.Level1)
     LocationPolicy locationPolicy;
     int32_t ret = proxy_->GetLocationPolicy(admin, locationPolicy);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(locationPolicy == 0);
+    ASSERT_TRUE(locationPolicy == LocationPolicy::DEFAULT_LOCATION_SERVICE);
 }
 
 /**
