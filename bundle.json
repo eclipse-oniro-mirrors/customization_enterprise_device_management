@@ -62,6 +62,7 @@
         "c_utils",
         "data_share",
         "dupdate_engine",
+        "graphic_2d",
         "netmanager_base",
         "netmanager_ext",
         "hilog",
@@ -77,6 +78,7 @@
         "time_service",
         "update_service",
         "wifi",
+        "window_manager",
         "eventhandler",
         "screenlock_mgr",
         "power_manager"

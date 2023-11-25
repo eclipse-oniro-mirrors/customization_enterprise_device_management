@@ -42,9 +42,13 @@ private:
     static napi_value IsPrinterDisabled(napi_env env, napi_callback_info info);
     static napi_value SetHdcDisabled(napi_env env, napi_callback_info info);
     static napi_value IsHdcDisabled(napi_env env, napi_callback_info info);
+    static napi_value DisallowScreenShot(napi_env env, napi_callback_info info);
+    static napi_value IsScreenShotDisallowed(napi_env env, napi_callback_info info);
 
     static napi_value SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
     static napi_value IsPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
+    static napi_value SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
+    static napi_value IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
     static std::map<int, RestrictionsProxySetFunc> memberSetFuncMap_;
