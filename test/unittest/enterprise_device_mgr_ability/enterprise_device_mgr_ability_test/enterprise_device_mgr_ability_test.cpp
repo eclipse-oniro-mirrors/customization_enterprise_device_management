@@ -43,7 +43,7 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t ADMIN_TYPE_MAX = 999;
 constexpr int32_t ERROR_USER_ID_REMOVE = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 3;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 4;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -63,6 +63,7 @@ protected:
     // Tears down the test fixture.
     void TearDown() override;
 
+    static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
     sptr<EnterpriseDeviceMgrAbility> edmMgr_;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
@@ -105,8 +106,14 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
 
+void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
+{
+    Utils::SetEdmInitialEnv();
+}
+
 void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
 {
+    Utils::ResetTokenTypeAndUid();
     ASSERT_FALSE(Utils::GetEdmServiceState());
     std::cout<< "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
@@ -317,14 +324,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin22, TestSize.Level
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res != ERR_OK);
 
+    Utils::ResetTokenTypeAndUid();
     bundleName = "";
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    Utils::SetEdmInitialEnv();
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
