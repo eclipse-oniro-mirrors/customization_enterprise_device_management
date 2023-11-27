@@ -35,8 +35,7 @@ void LockScreenPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlug
 ErrCode LockScreenPlugin::OnSetPolicy(int32_t &userId)
 {
     EDMLOGD("LockScreenPlugin OnSetPolicy userId = %{public}d.", userId);
-    int32_t ret = ScreenLock::E_SCREENLOCK_OK;
-    ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(userId);
+    int32_t ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(userId);
     if (ret != ScreenLock::E_SCREENLOCK_OK) {
         EDMLOGE("LockScreenPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

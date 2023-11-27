@@ -42,20 +42,9 @@ void EnterpriseAdminConnection::OnAbilityConnectDone(
             if (isOnAdminEnabled_) {
                 proxy_->OnAdminEnabled();
             }
-            if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
-                if (!deathRecipient_) {
-                    deathRecipient_ = (new (std::nothrow) AbilityManagerDeathRecipient(this));
-                }
-                if (!deathRecipient_) {
-                    EDMLOGE("EnterpriseAdminConnection get enterpriseAdminProxy failed.");
-                    return;
-                }
-                proxy_->AddDeathRecipient(deathRecipient_);
-            }
             break;
         case IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED:
             proxy_->OnAdminDisabled();
-            proxy_->RemoveDeathRecipient(deathRecipient_);
             break;
         default:
             return;
@@ -66,6 +55,12 @@ void EnterpriseAdminConnection::OnAbilityConnectDone(
 void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode)
 {
     EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
+    if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        sptr<IEnterpriseConnection> connection =
+            manager->CreateAdminConnection(want_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+        manager->ConnectAbility(connection);
+    }
 }
 }  // namespace EDM
 }  // namespace OHOS
