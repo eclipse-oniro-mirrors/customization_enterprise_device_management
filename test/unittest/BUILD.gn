@@ -33,7 +33,6 @@ config("edm_config") {
 ohos_static_library("edmservice_static") {
   testonly = true
   sources = [
-    "../../services/edm/src/ability_manager_death_recipient.cpp",
     "../../services/edm/src/admin.cpp",
     "../../services/edm/src/admin_manager.cpp",
     "../../services/edm/src/admin_policies_storage_rdb.cpp",

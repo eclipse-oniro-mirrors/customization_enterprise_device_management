@@ -63,8 +63,7 @@ ErrCode ResetFactoryPlugin::OnSetPolicy()
     parcel.WriteInterfaceToken(u"OHOS.Updater.IUpdateService");
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = ERR_OK;
-    ret = remoteObject->SendRequest(RESET_FACTORY_CODE, parcel, reply, option);
+    int32_t ret = remoteObject->SendRequest(RESET_FACTORY_CODE, parcel, reply, option);
     if (FAILED(ret)) {
         EDMLOGE("ResetFactoryPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -74,9 +73,7 @@ ErrCode ResetFactoryPlugin::OnSetPolicy()
 
 void ResetFactoryPlugin::InitStatus()
 {
-    if (loadUpdaterSaStatus_ != LoadUpdaterSaStatus::WAIT_RESULT) {
-        loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
-    }
+    loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
 }
 
 bool ResetFactoryPlugin::TryLoadUpdaterSa()

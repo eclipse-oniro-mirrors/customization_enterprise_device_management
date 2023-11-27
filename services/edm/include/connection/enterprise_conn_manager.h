@@ -20,7 +20,6 @@
 #include <string>
 #include <memory>
 
-#include "ability_manager_death_recipient.h"
 #include "ability_manager_interface.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
