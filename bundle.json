@@ -81,7 +81,8 @@
         "window_manager",
         "eventhandler",
         "screenlock_mgr",
-        "power_manager"
+        "power_manager",
+        "audio_framework"
       ],
       "third_party": [
         "bounds_checking_function",

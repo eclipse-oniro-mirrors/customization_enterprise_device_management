@@ -41,6 +41,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_hdc_plugin_test.cpp",
     "./src/disable_printer_plugin_test.cpp",
     "./src/disallow_add_local_account_plugin_test.cpp",
+    "./src/disallow_microphone_plugin.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallow_screen_shot_plugin_test.cpp",
     "./src/disallowed_running_bundles_plugin_test.cpp",
@@ -100,6 +101,7 @@ ohos_unittest("EdmPluginTest") {
 
   external_deps = [
     "ability_base:want",
+    "audio_framework:audio_client",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -150,6 +152,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
     "../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
+    "../../../services/edm_plugin/src/disallow_microphone_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_screen_shot_plugin.cpp",
     "../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -225,6 +228,7 @@ ohos_static_library("edm_all_plugin_static") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "audio_framework:audio_client",
     "bluetooth:btframework",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

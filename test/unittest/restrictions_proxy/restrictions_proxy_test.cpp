@@ -262,6 +262,65 @@ HWTEST_F(RestrictionsProxyTest, TestIsScreenShotDisallowedNullptr, TestSize.Leve
     int32_t ret = proxy_->IsScreenShotDisallowed(nullptr, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestDisallowMicrophoneFail
+ * @tc.desc: Test DisallowMicrophone without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestDisallowMicrophoneFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->DisallowMicrophone(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsMicrophoneDisallowedSuc
+ * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = proxy_->IsMicrophoneDisallowed(&admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsMicrophoneDisallowedFail
+ * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool result = false;
+    int32_t ret = proxy_->IsMicrophoneDisallowed(&admin, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsMicrophoneDisallowedNullptr
+ * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedNullptr, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    int32_t ret = proxy_->IsMicrophoneDisallowed(nullptr, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

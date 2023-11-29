@@ -69,5 +69,17 @@ int32_t RestrictionsProxy::IsScreenShotDisallowed(AppExecFwk::ElementName *admin
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_SCREEN_SHOT,
         result);
 }
+
+int32_t RestrictionsProxy::DisallowMicrophone(const AppExecFwk::ElementName &admin, bool isDisabled)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
+        EdmInterfaceCode::DISALLOW_MICROPHONE);
+}
+
+int32_t RestrictionsProxy::IsMicrophoneDisallowed(AppExecFwk::ElementName *admin, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MICROPHONE,
+        result);
+}
 } // namespace EDM
 } // namespace OHOS
