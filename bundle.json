@@ -61,6 +61,7 @@
         "common_event_service",
         "c_utils",
         "data_share",
+        "drivers_interface_usb",
         "graphic_2d",
         "netmanager_base",
         "netmanager_ext",
@@ -81,7 +82,8 @@
         "window_manager",
         "eventhandler",
         "screenlock_mgr",
-        "power_manager"
+        "power_manager",
+        "usb_manager"
       ],
       "third_party": [
         "bounds_checking_function",

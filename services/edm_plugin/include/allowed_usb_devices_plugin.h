@@ -13,22 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOW_USB_DEVICE_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_ALLOW_USB_DEVICE_PLUGIN_H
 
+#include "iplugin_manager.h"
 #include "plugin_singleton.h"
+#include "usb_device_id.h"
 
 namespace OHOS {
 namespace EDM {
-class UsbReadOnlyPlugin : public PluginSingleton<UsbReadOnlyPlugin, int32_t> {
+class AllowUsbDevicesPlugin : public PluginSingleton<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, int32_t>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr) override;
 
-    ErrCode SetPolicy(int32_t &policyValue);
+    ErrCode OnSetPolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode OnAdminRemove(const std::string &adminName, int32_t &data, int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_ALLOW_USB_DEVICE_PLUGIN_H

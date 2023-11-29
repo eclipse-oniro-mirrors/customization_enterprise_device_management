@@ -75,6 +75,8 @@ enum EdmInterfaceCode : uint32_t {
     GET_BLUETOOTH_INFO = 1040,
     DISALLOW_SCREEN_SHOT = 1041,
     LOCATION_POLICY = 1042,
+    DISABLE_USB = 1043,
+    ALLOWED_USB_DEVICES = 1044,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

@@ -13,22 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
 
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class UsbReadOnlyPlugin : public PluginSingleton<UsbReadOnlyPlugin, int32_t> {
+class DisableUsbPlugin : public PluginSingleton<DisableUsbPlugin, bool> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, int32_t>> ptr) override;
-
-    ErrCode SetPolicy(int32_t &policyValue);
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr) override;
+    ErrCode OnSetPolicy(bool &data);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode OnAdminRemove(const std::string &adminName, int32_t &data, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H

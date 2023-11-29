@@ -21,6 +21,7 @@
 #include "napi/native_node_api.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
+#include "usb_device_id.h"
 #include "want.h"
 
 namespace OHOS {
@@ -32,7 +33,8 @@ struct AsyncSetUsbPolicyCallbackInfo : AsyncCallbackInfo {
 
 constexpr int32_t READ_WRITE = 0;
 constexpr int32_t READ_ONLY = 1;
-constexpr int32_t USB_POLICY[] = {READ_WRITE, READ_ONLY};
+constexpr int32_t DISABLED = 2;
+constexpr int32_t USB_POLICY[] = {READ_WRITE, READ_ONLY, DISABLED};
 
 class UsbManagerAddon {
 public:
@@ -42,6 +44,17 @@ private:
     static napi_value SetUsbPolicy(napi_env env, napi_callback_info info);
     static void CreateUsbPolicyEnum(napi_env env, napi_value value);
     static void NativeSetUsbPolicy(napi_env env, void *data);
+    static napi_value DisableUsb(napi_env env, napi_callback_info info);
+    static napi_value IsUsbDisabled(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static bool ParseUsbDevicesArray(napi_env env, std::vector<UsbDeviceId> &usbDeviceIds, napi_value object);
+    static bool GetUsbDeviceIdFromNAPI(napi_env env, napi_value value, UsbDeviceId &usbDeviceId);
+    static napi_value GetAllowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value UsbDeviceIdToJsObj(napi_env env, const UsbDeviceId &usbDeviceId);
+    static napi_value SetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
