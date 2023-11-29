@@ -124,7 +124,7 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall)
         for (const auto& chainName : chainNameList) {
             auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
             if (executer == nullptr) {
-                EDMLOGE("GetFirewallRules:GetExecuter fail, this should not happen.");
+                EDMLOGE("RemoveFirewallRule:GetExecuter fail, this should not happen.");
                 continue;
             }
             executer->Remove(nullptr);
@@ -210,7 +210,7 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
         EDMLOGE("AddDomainFilterRule:GetExecuter fail, this should not happen.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (action == Action::DENY) {
+    if (action == Action::ALLOW) {
         EDMLOGD("AddDomainFilterRule:GetExecuter before SetDefaultDomainDenyChain.");
         SetDefaultDomainDenyChain();
     }
@@ -239,7 +239,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     }
 
     if (action == Action::INVALID && (!appUid.empty() || !domainName.empty())) {
-        EDMLOGE("RemoveFirewallRule: illegal parameter: Too many parameters set");
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: Too many parameters set");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
