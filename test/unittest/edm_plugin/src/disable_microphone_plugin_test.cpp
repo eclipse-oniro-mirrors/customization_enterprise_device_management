@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "disallow_microphone_plugin.h"
+#include "disable_microphone_plugin.h"
 
 #include <gtest/gtest.h>
 
@@ -28,19 +28,19 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class DisallowMicrophonePluginTest : public testing::Test {
+class DisableMicrophonePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void DisallowMicrophonePluginTest::SetUpTestSuite(void)
+void DisableMicrophonePluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowMicrophonePluginTest::TearDownTestSuite(void)
+void DisableMicrophonePluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
@@ -48,19 +48,19 @@ void DisallowMicrophonePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisallowMicrophonePluginTestSet
- * @tc.desc: Test DisallowMicrophonePluginTest::OnSetPolicy function.
+ * @tc.name: TestDisableMicrophonePluginTestSet
+ * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowMicrophonePluginTest, TestDisallowMicrophonePluginTestSet, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSet, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisallowMicrophonePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
     std::string policyData{"false"};
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MICROPHONE);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
     bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -68,13 +68,13 @@ HWTEST_F(DisallowMicrophonePluginTest, TestDisallowMicrophonePluginTestSet, Test
 }
 
 /**
- * @tc.name: TestDisallowMicrophonePluginTestGet
- * @tc.desc: Test DisallowMicrophonePluginTest::OnGetPolicy function.
+ * @tc.name: TestDisableMicrophonePluginTestGet
+ * @tc.desc: Test DisableMicrophonePluginTest::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowMicrophonePluginTest, TestDisallowMicrophonePluginTestGet, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestGet, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowMicrophonePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
     std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;

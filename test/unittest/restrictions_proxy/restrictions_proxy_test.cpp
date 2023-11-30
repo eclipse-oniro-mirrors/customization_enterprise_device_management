@@ -264,25 +264,25 @@ HWTEST_F(RestrictionsProxyTest, TestIsScreenShotDisallowedNullptr, TestSize.Leve
 }
 
 /**
- * @tc.name: TestDisallowMicrophoneFail
- * @tc.desc: Test DisallowMicrophone without enable edm service func.
+ * @tc.name: TestDisableMicrophoneFail
+ * @tc.desc: Test DisableMicrophone without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestDisallowMicrophoneFail, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestDisableMicrophoneFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->DisallowMicrophone(admin, true);
+    int32_t ret = proxy_->DisableMicrophone(admin, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestIsMicrophoneDisallowedSuc
- * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.name: TestIsMicrophoneDisabledSuc
+ * @tc.desc: Test IsMicrophoneDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedSuc, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -290,35 +290,35 @@ HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisallowed(&admin, result);
+    int32_t ret = proxy_->IsMicrophoneDisabled(&admin, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestIsMicrophoneDisallowedFail
- * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.name: TestIsMicrophoneDisabledFail
+ * @tc.desc: Test IsMicrophoneDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedFail, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisallowed(&admin, result);
+    int32_t ret = proxy_->IsMicrophoneDisabled(&admin, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestIsMicrophoneDisallowedNullptr
- * @tc.desc: Test IsMicrophoneDisallowed func.
+ * @tc.name: TestIsMicrophoneDisabledNullptr
+ * @tc.desc: Test IsMicrophoneDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisallowedNullptr, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledNullptr, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisallowed(nullptr, result);
+    int32_t ret = proxy_->IsMicrophoneDisabled(nullptr, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

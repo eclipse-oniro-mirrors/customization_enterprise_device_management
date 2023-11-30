@@ -70,15 +70,15 @@ int32_t RestrictionsProxy::IsScreenShotDisallowed(AppExecFwk::ElementName *admin
         result);
 }
 
-int32_t RestrictionsProxy::DisallowMicrophone(const AppExecFwk::ElementName &admin, bool isDisabled)
+int32_t RestrictionsProxy::DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
-        EdmInterfaceCode::DISALLOW_MICROPHONE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disable,
+        EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
-int32_t RestrictionsProxy::IsMicrophoneDisallowed(AppExecFwk::ElementName *admin, bool &result)
+int32_t RestrictionsProxy::IsMicrophoneDisabled(AppExecFwk::ElementName *admin, bool &result)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MICROPHONE,
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_MICROPHONE,
         result);
 }
 } // namespace EDM
