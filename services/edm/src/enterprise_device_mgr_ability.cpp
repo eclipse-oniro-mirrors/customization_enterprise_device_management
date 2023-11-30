@@ -881,6 +881,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+#ifndef EDM_FUZZ_TEST
     bool isUserExist = false;
     AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
@@ -914,6 +915,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     CreateSecurityContent(deviceAdmin, plugin);
+#endif
     return UpdateDevicePolicy(code, admin, data, reply, userId);
 }
 
