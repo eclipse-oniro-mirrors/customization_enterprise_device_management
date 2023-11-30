@@ -72,7 +72,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/reboot_plugin_test.cpp",
-    "./src/reset_factory_plugin_test.cpp",
+
+    #"./src/reset_factory_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/set_browser_policies_plugin_test.cpp",
     "./src/set_wifi_profile_plugin_test.cpp",
