@@ -38,7 +38,6 @@ const std::string PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTE
 const std::string PERMISSION_ENTERPRISE_MANAGE_LOCATION = "ohos.permission.ENTERPRISE_MANAGE_LOCATION";
 const std::string PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER = "ohos.permission.ACCESS_SCREEN_LOCK_INNER";
 const std::string PERMISSION_REBOOT = "ohos.permission.REBOOT";
-const std::string PERMISSION_MICROPHONE = "ohos.permission.MICROPHONE";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -90,8 +89,7 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH.c_str(),
         PERMISSION_ENTERPRISE_MANAGE_LOCATION.c_str(),
         PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER.c_str(),
-        PERMISSION_REBOOT.c_str(),
-        PERMISSION_MICROPHONE.c_str()
+        PERMISSION_REBOOT.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);

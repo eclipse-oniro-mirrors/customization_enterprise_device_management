@@ -100,7 +100,6 @@ ohos_unittest("EdmPluginTest") {
 
   external_deps = [
     "ability_base:want",
-    "audio_framework:audio_client",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -226,7 +225,6 @@ ohos_static_library("edm_all_plugin_static") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
-    "audio_framework:audio_client",
     "bluetooth:btframework",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
