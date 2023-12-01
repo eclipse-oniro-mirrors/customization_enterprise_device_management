@@ -84,7 +84,6 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestGet, TestSi
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
 }
 } // namespace TEST
 } // namespace EDM

@@ -292,6 +292,7 @@ HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledSuc, TestSize.Level1)
     bool result = false;
     int32_t ret = proxy_->IsMicrophoneDisabled(&admin, result);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
 }
 
 /**

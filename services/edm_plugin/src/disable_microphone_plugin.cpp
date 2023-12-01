@@ -15,13 +15,13 @@
 
 #include "disable_microphone_plugin.h"
 
+#include "../../audiocommon/include/audio_errors.h"
+#include "audio_system_manager.h"
 #include "bool_serializer.h"
 #include "dm_common.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
-#include "audio_errors.h"
-#include "audio_system_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -46,9 +46,9 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
             EDMLOGE("DisableMicrophonePlugin displayManager DisableMicrophone result %{public}d", ret);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        system::SetParameter(PARAM_EDM_MIC_DISABLE, "true");
+        system::SetBoolParameter(PARAM_EDM_MIC_DISABLE, true);
     } else {
-    	system::SetParameter(PARAM_EDM_MIC_DISABLE, "false");
+        system::SetBoolParameter(PARAM_EDM_MIC_DISABLE, false);
     }
     return ERR_OK;
 }
@@ -56,12 +56,11 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
 ErrCode DisableMicrophonePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisableMicrophonePlugin OnGetPolicy");
     bool isMicDisabled = system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false);
     EDMLOGI("DisableMicrophonePlugin OnGetPolicy isMicDisabled = %{public}d", isMicDisabled);
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(isMicDisabled);
-	return ERR_OK;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
