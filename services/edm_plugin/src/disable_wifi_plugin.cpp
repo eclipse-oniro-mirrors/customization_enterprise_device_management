@@ -30,7 +30,7 @@ void DisableWifiPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableWifiPl
 {
     EDMLOGD("DisableWifiPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi",
-        "ohos.permission.ENTERPRISE_MANAGE_SYSTEM", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        "ohos.permission.ENTERPRISE_MANAGE_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableWifiPlugin::OnSetPolicy, FuncOperateType::SET);
 }
