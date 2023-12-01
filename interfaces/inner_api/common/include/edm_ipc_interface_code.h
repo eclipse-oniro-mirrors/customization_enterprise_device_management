@@ -74,7 +74,9 @@ enum EdmInterfaceCode : uint32_t {
     ADD_OS_ACCOUNT = 1039,
     GET_BLUETOOTH_INFO = 1040,
     DISALLOW_SCREEN_SHOT = 1041,
+    LOCATION_POLICY = 1042,
     DISABLE_WIFI = 1046,
+    DISABLE_MICROPHONE = 1047,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

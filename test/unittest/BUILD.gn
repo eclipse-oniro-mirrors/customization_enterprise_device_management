@@ -173,6 +173,7 @@ ohos_unittest("EdmServicesUnitTest") {
     debug = false
     integer_overflow = true
     ubsan = true
+    blocklist = "./cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   subsystem_name = "customization"
@@ -198,6 +199,7 @@ group("unittest") {
     "edm_plugin:unittest",
     "enterprise_device_mgr_ability:unittest",
     "enterprise_device_mgr_proxy:unittest",
+    "location_manager_proxy:unittest",
     "network_manager_proxy:unittest",
     "restrictions_proxy:unittest",
     "security_manager_proxy:unittest",

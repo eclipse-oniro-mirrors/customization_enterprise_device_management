@@ -65,15 +65,15 @@ edm_plugin_shared_library("device_control_plugin") {
 
   external_deps = [
     "c_utils:utils",
+    "ipc:ipc_core",
     "power_manager:powermgr_client",
+    "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
   ]
 
   if (defined(global_parts_info) &&
       defined(global_parts_info.updater_update_service)) {
     external_deps += [ "update_service:updateservicekits" ]
-  } else {
-    external_deps += [ "dupdate_engine:updateservicekits" ]
   }
 }
 
@@ -228,11 +228,13 @@ edm_plugin_shared_library("usb_manager_plugin") {
 edm_plugin_shared_library("restrictions_plugin") {
   sources = [
     "./src/disable_hdc_plugin.cpp",
+    "./src/disable_microphone_plugin.cpp",
     "./src/disable_printer_plugin.cpp",
     "./src/disallow_screen_shot_plugin.cpp",
   ]
 
   external_deps = [
+    "audio_framework:audio_client",
     "c_utils:utils",
     "graphic_2d:surface",
     "init:libbegetutil",
@@ -275,5 +277,18 @@ edm_plugin_shared_library("bluetooth_manager_plugin") {
     "bluetooth:btframework",
     "c_utils:utils",
     "init:libbegetutil",
+  ]
+}
+
+edm_plugin_shared_library("location_manager_plugin") {
+  sources = [ "./src/location_policy_plugin.cpp" ]
+
+  deps = [ "../../common/native:edm_commom" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "location:locator_sdk",
   ]
 }
