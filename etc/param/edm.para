@@ -13,3 +13,4 @@
 
 persist.edm.edm_enable=false
 persist.edm.location_policy=none
+persist.edm.mic_disable=false
