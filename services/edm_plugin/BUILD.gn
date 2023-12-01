@@ -226,8 +226,8 @@ edm_plugin_shared_library("usb_manager_plugin") {
 edm_plugin_shared_library("restrictions_plugin") {
   sources = [
     "./src/disable_hdc_plugin.cpp",
-    "./src/disable_printer_plugin.cpp",
     "./src/disable_microphone_plugin.cpp",
+    "./src/disable_printer_plugin.cpp",
     "./src/disallow_screen_shot_plugin.cpp",
   ]
 
