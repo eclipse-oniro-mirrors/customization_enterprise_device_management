@@ -34,6 +34,8 @@ public:
 private:
     static napi_value GetBluetoothInfo(napi_env env, napi_callback_info info);
     static napi_value ConvertBluetoothInfo(napi_env env, BluetoothInfo &bluetoothInfo);
+    static napi_value SetBluetoothDisabled(napi_env env, napi_callback_info info);
+    static napi_value IsBluetoothDisabled(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
