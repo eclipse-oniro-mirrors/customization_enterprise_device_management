@@ -48,11 +48,31 @@ void DisableMicrophonePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSet
+ * @tc.name: TestDisableMicrophonePluginTestSetFalse
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSet, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
+    std::string policyData{"false"};
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
+    bool isChanged = false;
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isChanged);
+}
+
+/**
+ * @tc.name: TestDisableMicrophonePluginTestSetTrue
+ * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;

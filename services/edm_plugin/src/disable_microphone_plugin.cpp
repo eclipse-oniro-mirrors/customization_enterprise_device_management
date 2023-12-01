@@ -15,7 +15,6 @@
 
 #include "disable_microphone_plugin.h"
 
-#include "../../audiocommon/include/audio_errors.h"
 #include "audio_system_manager.h"
 #include "bool_serializer.h"
 #include "dm_common.h"
@@ -27,6 +26,7 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
+const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr)
 {
     EDMLOGD("DisableMicrophonePlugin InitPlugin...");
@@ -42,13 +42,13 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
     if (isDisallow) {
         auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
         int32_t ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-        if (!(ret == OHOS::AudioStandard::SUCCESS || ret == OHOS::AudioStandard::ERR_MICROPHONE_DISABLED_BY_EDM)) {
+        if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
             EDMLOGE("DisableMicrophonePlugin displayManager DisableMicrophone result %{public}d", ret);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        system::SetBoolParameter(PARAM_EDM_MIC_DISABLE, true);
+        system::SetParameter(PARAM_EDM_MIC_DISABLE, "true");
     } else {
-        system::SetBoolParameter(PARAM_EDM_MIC_DISABLE, false);
+        system::SetParameter(PARAM_EDM_MIC_DISABLE, "false");
     }
     return ERR_OK;
 }
