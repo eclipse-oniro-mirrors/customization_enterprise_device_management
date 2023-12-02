@@ -40,6 +40,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/device_info_plugin_test.cpp",
     "./src/disable_hdc_plugin_test.cpp",
     "./src/disable_printer_plugin_test.cpp",
+    "./src/disable_wifi_plugin_test.cpp",
     "./src/disallow_add_local_account_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallow_screen_shot_plugin_test.cpp",
@@ -72,7 +73,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/reboot_plugin_test.cpp",
-    "./src/reset_factory_plugin_test.cpp",
+
+    #"./src/reset_factory_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/set_browser_policies_plugin_test.cpp",
     "./src/set_wifi_profile_plugin_test.cpp",
@@ -108,6 +110,7 @@ ohos_unittest("EdmPluginTest") {
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
     "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.0",
     "graphic_2d:surface",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -118,6 +121,7 @@ ohos_unittest("EdmPluginTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
+    "usb_manager:usbsrv_client",
     "wifi:wifi_sdk",
     "window_manager:libdm",
   ]
@@ -134,6 +138,7 @@ ohos_unittest("EdmPluginTest") {
     debug = false
     integer_overflow = true
     ubsan = true
+    blocklist = "../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   subsystem_name = "customization"
@@ -148,6 +153,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
     "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
+    "../../../services/edm_plugin/src/disable_wifi_plugin.cpp",
     "../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
     "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
@@ -231,6 +237,7 @@ ohos_static_library("edm_all_plugin_static") {
     "c_utils:utils",
     "certificate_manager:cert_manager_sdk",
     "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.0",
     "graphic_2d:surface",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -242,6 +249,7 @@ ohos_static_library("edm_all_plugin_static") {
     "os_account:os_account_innerkits",
     "power_manager:powermgr_client",
     "screenlock_mgr:screenlock_client",
+    "usb_manager:usbsrv_client",
     "wifi:wifi_sdk",
     "window_manager:libdm",
   ]

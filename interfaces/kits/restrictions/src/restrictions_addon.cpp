@@ -24,12 +24,14 @@ std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::me
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::DisallowScreenShot},
+    {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::DisableMicrophone},
 };
 
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::IsScreenShotDisallowed},
+    {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::IsMicrophoneDisabled},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -41,6 +43,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isHdcDisabled", IsHdcDisabled),
         DECLARE_NAPI_FUNCTION("disallowScreenShot", DisallowScreenShot),
         DECLARE_NAPI_FUNCTION("isScreenShotDisallowed", IsScreenShotDisallowed),
+        DECLARE_NAPI_FUNCTION("disableMicrophone", DisableMicrophone),
+        DECLARE_NAPI_FUNCTION("IsMicrophoneDisabled", IsMicrophoneDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -204,6 +208,16 @@ napi_value RestrictionsAddon::DisallowScreenShot(napi_env env, napi_callback_inf
 napi_value RestrictionsAddon::IsScreenShotDisallowed(napi_env env, napi_callback_info info)
 {
     return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
+}
+
+napi_value RestrictionsAddon::DisableMicrophone(napi_env env, napi_callback_info info)
+{
+    return SetPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
+}
+
+napi_value RestrictionsAddon::IsMicrophoneDisabled(napi_env env, napi_callback_info info)
+{
+    return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
 napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)

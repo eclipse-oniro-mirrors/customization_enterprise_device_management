@@ -81,6 +81,7 @@ edm_plugin_shared_library("wifi_manager_plugin") {
   include_dirs = [ "./include/utils" ]
 
   sources = [
+    "./src/disable_wifi_plugin.cpp",
     "./src/is_wifi_active_plugin.cpp",
     "./src/set_wifi_profile_plugin.cpp",
     "./src/utils/wifi_device_config_serializer.cpp",
@@ -90,6 +91,7 @@ edm_plugin_shared_library("wifi_manager_plugin") {
 
   external_deps = [
     "c_utils:utils",
+    "init:libbegetutil",
     "wifi:wifi_sdk",
   ]
 }
@@ -241,11 +243,13 @@ edm_plugin_shared_library("usb_manager_plugin") {
 edm_plugin_shared_library("restrictions_plugin") {
   sources = [
     "./src/disable_hdc_plugin.cpp",
+    "./src/disable_microphone_plugin.cpp",
     "./src/disable_printer_plugin.cpp",
     "./src/disallow_screen_shot_plugin.cpp",
   ]
 
   external_deps = [
+    "audio_framework:audio_client",
     "c_utils:utils",
     "graphic_2d:surface",
     "init:libbegetutil",
