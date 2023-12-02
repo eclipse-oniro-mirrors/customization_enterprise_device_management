@@ -82,5 +82,18 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
     MessageParcelUtils::WriteWifiDeviceConfig(config, data);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t WifiManagerProxy::DisableWifi(const AppExecFwk::ElementName &admin, const bool &isDisabled)
+{
+    EDMLOGD("WifiManagerProxy::DisableWifi. isDisable: %{public}d", isDisabled);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
+        EdmInterfaceCode::DISABLE_WIFI);
+}
+
+int32_t WifiManagerProxy::IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result)
+{
+    EDMLOGD("WifiManagerProxy::IsWifiDisabled");
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_WIFI, result);
+}
 } // namespace EDM
 } // namespace OHOS
