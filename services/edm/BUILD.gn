@@ -25,7 +25,6 @@ config("edm_config") {
 
 ohos_shared_library("edmservice") {
   sources = [
-    "./src/ability_manager_death_recipient.cpp",
     "./src/admin.cpp",
     "./src/admin_manager.cpp",
     "./src/admin_policies_storage_rdb.cpp",
