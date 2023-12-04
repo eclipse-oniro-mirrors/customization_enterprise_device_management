@@ -24,6 +24,8 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getBluetoothInfo", GetBluetoothInfo),
+        DECLARE_NAPI_FUNCTION("setBluetoothDisabled", SetBluetoothDisabled),
+        DECLARE_NAPI_FUNCTION("isBluetoothDisabled", IsBluetoothDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -71,6 +73,69 @@ napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothIn
     NAPI_CALL(env, napi_set_named_property(env, objBluetoothInfo, "state", napi_state));
     NAPI_CALL(env, napi_set_named_property(env, objBluetoothInfo, "connectionState", napi_connectionState));
     return objBluetoothInfo;
+}
+
+napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetBluetoothDisabled called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "The first parameter must be want.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
+        "The second parameter must be bool.");
+
+    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    bool disabled = false;
+    ret = ParseBool(env, disabled, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'disabled' parse error");
+
+    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
+    int32_t retCode = bluetoothManagerProxy->SetBluetoothDisabled(elementName, disabled);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsBluetoothDisabled called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "parameter 'admin' type error.");
+
+    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
+
+    bool isDisabled;
+    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
+    int32_t retCode = bluetoothManagerProxy->IsBluetoothDisabled(elementName, isDisabled);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    napi_get_boolean(env, isDisabled, &result);
+    return result;
 }
 
 static napi_module g_bluetoothModule = {
