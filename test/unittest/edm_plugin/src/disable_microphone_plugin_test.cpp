@@ -48,7 +48,7 @@ void DisableMicrophonePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSet
+ * @tc.name: TestDisableMicrophonePluginTestSetFalse
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
@@ -68,7 +68,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, T
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSet
+ * @tc.name: TestDisableMicrophonePluginTestSetTrue
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
