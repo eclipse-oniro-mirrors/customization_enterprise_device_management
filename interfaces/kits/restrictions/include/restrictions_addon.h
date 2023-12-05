@@ -46,6 +46,8 @@ private:
     static napi_value IsScreenShotDisallowed(napi_env env, napi_callback_info info);
     static napi_value DisableMicrophone(napi_env env, napi_callback_info info);
     static napi_value IsMicrophoneDisabled(napi_env env, napi_callback_info info);
+    static napi_value DisallowFingerprintAuth(napi_env env, napi_callback_info info);
+    static napi_value IsFingerprintAuthDisallowed(napi_env env, napi_callback_info info);
 
     static napi_value SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
     static napi_value IsPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);

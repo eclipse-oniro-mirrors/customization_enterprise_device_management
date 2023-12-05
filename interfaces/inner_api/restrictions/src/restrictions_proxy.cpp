@@ -81,5 +81,17 @@ int32_t RestrictionsProxy::IsMicrophoneDisabled(AppExecFwk::ElementName *admin, 
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_MICROPHONE,
         result);
 }
+
+int32_t RestrictionsProxy::DisallowFingerprintAuth(const AppExecFwk::ElementName &admin, bool disable)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disable,
+        EdmInterfaceCode::FINGER_PRINT_AUTH);
+}
+
+int32_t RestrictionsProxy::IsFingerprintAuthDisallowed(AppExecFwk::ElementName *admin, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::FINGER_PRINT_AUTH,
+        result);
+}
 } // namespace EDM
 } // namespace OHOS
