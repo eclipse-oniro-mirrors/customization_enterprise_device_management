@@ -163,19 +163,17 @@ napi_value UsbManagerAddon::IsUsbDisabled(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-
-    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
-    if (usbManagerProxy == nullptr) {
-        EDMLOGE("can not get usbManagerProxy");
-        return nullptr;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = UsbManagerProxy::GetUsbManagerProxy()->IsUsbDisabled(&elementName, isDisabled);
+    } else {
+        ret = UsbManagerProxy::GetUsbManagerProxy()->IsUsbDisabled(nullptr, isDisabled);
     }
-    bool isDisabled;
-    int32_t ret = usbManagerProxy->IsUsbDisabled(&elementName, isDisabled, true);
     EDMLOGI("UsbManagerAddon::IsUsbDisabled return: %{public}d", isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));

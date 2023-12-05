@@ -83,18 +83,18 @@ napi_value LocationManagerAddon::GetLocationPolicy(napi_env env, napi_callback_i
     
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    bool boolret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, boolret, "element name param error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     LocationPolicy res;
     auto locationManagerProxy = LocationManagerProxy::GetLocationManagerProxy();
-    int32_t ret = locationManagerProxy->GetLocationPolicy(elementName, res);
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = locationManagerProxy->GetLocationPolicy(&elementName, res);
+    } else {
+        ret = locationManagerProxy->GetLocationPolicy(nullptr, res);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

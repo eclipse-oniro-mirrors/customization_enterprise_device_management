@@ -66,11 +66,11 @@ int32_t BluetoothManagerProxy::SetBluetoothDisabled(const AppExecFwk::ElementNam
     return proxy->SetPolicyDisabled(admin, disabled, EdmInterfaceCode::DISABLE_BLUETOOTH);
 }
 
-int32_t BluetoothManagerProxy::IsBluetoothDisabled(const AppExecFwk::ElementName &admin, bool &result)
+int32_t BluetoothManagerProxy::IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("BluetoothManagerProxy::IsBluetoothDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    return proxy->IsPolicyDisabled(&admin, EdmInterfaceCode::DISABLE_BLUETOOTH, result);
+    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_BLUETOOTH, result);
 }
 
 } // namespace EDM

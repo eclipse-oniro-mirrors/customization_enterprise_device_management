@@ -263,20 +263,9 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool hasAdmin = false;
-    bool matchFlag = false;
-    if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null)) {
-        hasAdmin = false;
-        matchFlag = true;
-    } else if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        hasAdmin = true;
-        matchFlag = true;
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "param type need be null or want");
     OHOS::AppExecFwk::ElementName elementName;
-    if (hasAdmin) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-            "element name param error");
-    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     ErrCode ret = ERR_OK;
     bool boolRet = false;
     auto func = memberIsFuncMap_.find(policyCode);

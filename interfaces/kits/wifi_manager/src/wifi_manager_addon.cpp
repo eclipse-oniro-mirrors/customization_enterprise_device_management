@@ -235,17 +235,17 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "IsWifiDisabled: elementName.bundlename: %{public}s, "
-        "elementName.abilityname: %{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    bool isDisabled;
-    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(&elementName, isDisabled);
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(&elementName, isDisabled);
+    } else {
+        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(nullptr, isDisabled);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
