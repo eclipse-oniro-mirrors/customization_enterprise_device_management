@@ -53,11 +53,10 @@ napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callb
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncDisallowAddLocalAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
+    std::unique_ptr<AsyncDisallowAddLocalAccountCallbackInfo> callbackPtr {asyncCallbackInfo};
     bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD(
-        "DisallowAddLocalAccount: asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD("DisallowAddLocalAccount: asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());

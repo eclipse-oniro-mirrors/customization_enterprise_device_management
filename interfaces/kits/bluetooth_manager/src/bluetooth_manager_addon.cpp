@@ -35,7 +35,7 @@ napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_i
 {
     EDMLOGI("NAPI_GetBluetoothInfo called");
     size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
     napi_value thisArg = nullptr;
     void* data = nullptr;
     OHOS::AppExecFwk::ElementName elementName;
@@ -47,7 +47,8 @@ napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_i
     EDMLOGD(
         "EnableAdmin: elementName.bundlename %{public}s, "
         "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+        elementName.GetBundleName().c_str(),
+        elementName.GetAbilityName().c_str());
     BluetoothInfo bluetoothInfo;
     auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
     int32_t ret = bluetoothManagerProxy->GetBluetoothInfo(elementName, bluetoothInfo);
@@ -58,7 +59,7 @@ napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_i
     return ConvertBluetoothInfo(env, bluetoothInfo);
 }
 
-napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothInfo& bluetoothInfo)
+napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothInfo &bluetoothInfo)
 {
     napi_value objBluetoothInfo = nullptr;
     NAPI_CALL(env, napi_create_object(env, &objBluetoothInfo));
@@ -78,7 +79,7 @@ napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callba
 {
     EDMLOGI("NAPI_SetBluetoothDisabled called");
     size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
     napi_value thisArg = nullptr;
     void* data = nullptr;
     OHOS::AppExecFwk::ElementName elementName;
@@ -111,7 +112,7 @@ napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callbac
 {
     EDMLOGI("NAPI_IsBluetoothDisabled called");
     size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
