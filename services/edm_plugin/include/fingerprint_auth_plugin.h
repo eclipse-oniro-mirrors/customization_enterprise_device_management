@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
 
+#include "iplugin_manager.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
@@ -26,9 +27,10 @@ public:
 
     ErrCode OnSetPolicy(bool &data);
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
+
 
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H

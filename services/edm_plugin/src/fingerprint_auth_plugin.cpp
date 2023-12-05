@@ -15,9 +15,9 @@
 
 #include "fingerprint_auth_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
+#include "bool_serializer.h"
 #include "parameters.h"
 
 namespace OHOS {
@@ -40,16 +40,17 @@ ErrCode FingerprintAuthPlugin::OnSetPolicy(bool &data)
 {
     EDMLOGI("FingerprintAuthPlugin OnSetPolicy %{public}d", data);
     std::string value = data ? "false" : "true";
-    return system::SetParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return OHOS::system::SetParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 ErrCode FingerprintAuthPlugin::OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("FingerprintAuthPlugin OnGetPolicy");
-    bool ret = system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true);
+    bool ret = OHOS::system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true);
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(!ret);
     return ERR_OK;
 }
+
 } // namespace EDM
 } // namespace OHOS
