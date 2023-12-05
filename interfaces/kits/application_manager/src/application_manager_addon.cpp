@@ -26,9 +26,104 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundles", AddDisallowedRunningBundles),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundles", RemoveDisallowedRunningBundles),
         DECLARE_NAPI_FUNCTION("getDisallowedRunningBundles", GetDisallowedRunningBundles),
+        DECLARE_NAPI_FUNCTION("addAutoStartApps", AddAutoStartApps),
+        DECLARE_NAPI_FUNCTION("removeAutoStartApps", RemoveAutoStartApps),
+        DECLARE_NAPI_FUNCTION("getAutoStartApps", GetAutoStartApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveAutoStartApps(env, info, "AddAutoStartApps");
+}
+
+napi_value ApplicationManagerAddon::RemoveAutoStartApps(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveAutoStartApps(env, info, "RemoveAutoStartApps");
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveAutoStartApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::vector<AppExecFwk::ElementName> autoStartApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
+        "Parameter autoStartApps error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    if (function == "AddAutoStartApps") {
+        ret = applicationManagerProxy->AddAutoStartApps(elementName, autoStartApps);
+    } else {
+        ret = applicationManagerProxy->RemoveAutoStartApps(elementName, autoStartApps);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAutoStartApps called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
+    int32_t ret = applicationManagerProxy->GetAutoStartApps(elementName, autoStartApps);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiAutoStartApps = nullptr;
+    napi_create_array(env, &napiAutoStartApps);
+    size_t idx = 0;
+    for (const auto &element : autoStartApps) {
+        napi_value objAutoStartApps = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &objAutoStartApps));
+        napi_value napi_bundleName;
+        napi_value napi_abilityName;
+        NAPI_CALL(env, napi_create_string_utf8(env, element.GetBundleName().c_str(),
+            element.GetBundleName().size(), &napi_bundleName));
+        NAPI_CALL(env, napi_create_string_utf8(env, element.GetAbilityName().c_str(),
+            element.GetAbilityName().size(), &napi_abilityName));
+        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "bundleName", napi_bundleName));
+        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "abilityName", napi_abilityName));
+        napi_set_element(env, napiAutoStartApps, idx, objAutoStartApps);
+        idx++;
+    }
+    return napiAutoStartApps;
 }
 
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, napi_callback_info info)

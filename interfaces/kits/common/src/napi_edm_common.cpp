@@ -170,9 +170,6 @@ napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray,
     EDMLOGD("begin to parse string array");
     bool isArray = false;
     NAPI_CALL(env, napi_is_array(env, args, &isArray));
-    if (!isArray) {
-        return nullptr;
-    }
     uint32_t arrayLength = 0;
     NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
     EDMLOGD("length=%{public}ud", arrayLength);
@@ -188,6 +185,36 @@ napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray,
         std::string str;
         GetStringFromNAPI(env, value, str);
         stringArray.push_back(str);
+    }
+    // create result code
+    napi_value result;
+    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    return result;
+}
+
+napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> &elementArray, napi_value args)
+{
+    EDMLOGD("begin to parse element array");
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
+    EDMLOGD("length=%{public}ud", arrayLength);
+    for (uint32_t j = 0; j < arrayLength; j++) {
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_get_element(env, args, j, &value));
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, value, &valueType));
+        if (valueType != napi_object) {
+            elementArray.clear();
+            return nullptr;
+        }
+        AppExecFwk::ElementName element;
+        ParseElementName(env, element, value);
+        elementArray.push_back(element);
     }
     // create result code
     napi_value result;
