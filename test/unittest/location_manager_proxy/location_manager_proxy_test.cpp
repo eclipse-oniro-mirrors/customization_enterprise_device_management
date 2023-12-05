@@ -110,7 +110,7 @@ HWTEST_F(LocationManagerProxyTest, TestGetLocationPolicySuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
     LocationPolicy locationPolicy;
-    int32_t ret = proxy_->GetLocationPolicy(admin, locationPolicy);
+    int32_t ret = proxy_->GetLocationPolicy(&admin, locationPolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(locationPolicy == LocationPolicy::DEFAULT_LOCATION_SERVICE);
 }
@@ -126,7 +126,7 @@ HWTEST_F(LocationManagerProxyTest, TestGetLocationPolicyFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     LocationPolicy locationPolicy;
-    int32_t ret = proxy_->GetLocationPolicy(admin, locationPolicy);
+    int32_t ret = proxy_->GetLocationPolicy(&admin, locationPolicy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
