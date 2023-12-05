@@ -19,7 +19,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "parameters.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -28,6 +28,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
 class DisableMicrophonePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -104,6 +105,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestGet, TestSi
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result == system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 }
 } // namespace TEST
 } // namespace EDM
