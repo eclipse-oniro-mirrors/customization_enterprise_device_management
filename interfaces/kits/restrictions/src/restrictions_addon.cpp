@@ -47,6 +47,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isScreenShotDisallowed", IsScreenShotDisallowed),
         DECLARE_NAPI_FUNCTION("disableMicrophone", DisableMicrophone),
         DECLARE_NAPI_FUNCTION("isMicrophoneDisabled", IsMicrophoneDisabled),
+        DECLARE_NAPI_FUNCTION("disableFingerprintAuth", DisableFingerprintAuth),
+        DECLARE_NAPI_FUNCTION("isFingerprintAuthDisabled", IsFingerprintAuthDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
