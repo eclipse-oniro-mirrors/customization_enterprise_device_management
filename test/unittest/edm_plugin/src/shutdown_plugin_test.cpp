@@ -42,6 +42,7 @@ void ShutdownPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(ShutdownPluginTest, TestShutdown, TestSize.Level1)
 {
+    Utils::ResetTokenTypeAndUid();
     std::shared_ptr<IPlugin> plugin = ShutdownPlugin::GetPlugin();
     bool isChanged = false;
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SHUTDOWN);
