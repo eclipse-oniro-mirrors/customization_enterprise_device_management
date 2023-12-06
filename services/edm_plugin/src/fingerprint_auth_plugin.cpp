@@ -22,10 +22,8 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PERSIST_FINGERPRINTAUTH_CONTROL = "persist.useriam.enable.fingerprintauth";
-
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(FingerprintAuthPlugin::GetPlugin());
-
+const std::string PERSIST_FINGERPRINTAUTH_CONTROL = "persist.useriam.enable.fingerprintauth";
 void FingerprintAuthPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FingerprintAuthPlugin, bool>> ptr)
 {

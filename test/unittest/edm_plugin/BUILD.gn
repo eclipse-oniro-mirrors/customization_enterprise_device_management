@@ -168,6 +168,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
     "../../../services/edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
     "../../../services/edm_plugin/src/domain_filter_rule_plugin.cpp",
+    "../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
     "../../../services/edm_plugin/src/firewall_rule_plugin.cpp",
     "../../../services/edm_plugin/src/get_all_network_interfaces_plugin.cpp",
     "../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",

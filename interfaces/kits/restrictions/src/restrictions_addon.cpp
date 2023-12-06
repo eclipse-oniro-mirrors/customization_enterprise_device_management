@@ -25,7 +25,7 @@ std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::me
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::DisallowScreenShot},
     {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::DisableMicrophone},
-    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::DisableFingerprintAuth},
+    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::SetFingerprintAuthDisabled},
 };
 
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
