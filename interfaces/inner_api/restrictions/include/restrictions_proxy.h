@@ -30,7 +30,7 @@ public:
     int32_t IsScreenShotDisallowed(AppExecFwk::ElementName *admin, bool &result);
     int32_t DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable);
     int32_t IsMicrophoneDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t DisableFingerprintAuth(const AppExecFwk::ElementName &admin, bool disable);
+    int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disable);
     int32_t IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result);
 
 private:

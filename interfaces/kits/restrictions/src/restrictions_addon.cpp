@@ -25,7 +25,7 @@ std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::me
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::DisallowScreenShot},
     {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::DisableMicrophone},
-    {EdmInterfaceCode::FINGER_PRINT_AUTH, &RestrictionsProxy::DisableFingerprintAuth},
+    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::DisableFingerprintAuth},
 };
 
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
@@ -33,7 +33,7 @@ std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::mem
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::IsScreenShotDisallowed},
     {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::IsMicrophoneDisabled},
-    {EdmInterfaceCode::FINGER_PRINT_AUTH, &RestrictionsProxy::IsFingerprintAuthDisabled},
+    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::IsFingerprintAuthDisabled},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -47,7 +47,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isScreenShotDisallowed", IsScreenShotDisallowed),
         DECLARE_NAPI_FUNCTION("disableMicrophone", DisableMicrophone),
         DECLARE_NAPI_FUNCTION("isMicrophoneDisabled", IsMicrophoneDisabled),
-        DECLARE_NAPI_FUNCTION("disableFingerprintAuth", DisableFingerprintAuth),
+        DECLARE_NAPI_FUNCTION("setFingerprintAuthDisabled", SetFingerprintAuthDisabled),
         DECLARE_NAPI_FUNCTION("isFingerprintAuthDisabled", IsFingerprintAuthDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
@@ -224,14 +224,14 @@ napi_value RestrictionsAddon::IsMicrophoneDisabled(napi_env env, napi_callback_i
     return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
-napi_value RestrictionsAddon::DisableFingerprintAuth(napi_env env, napi_callback_info info)
+napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
-    return SetPolicyDisabledSync(env, info, EdmInterfaceCode::FINGER_PRINT_AUTH);
+    return SetPolicyDisabledSync(env, info, EdmInterfaceCode::FINGERPRINT_AUTH);
 }
 
 napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
-    return IsPolicyDisabledSync(env, info, EdmInterfaceCode::FINGER_PRINT_AUTH);
+    return IsPolicyDisabledSync(env, info, EdmInterfaceCode::FINGERPRINT_AUTH);
 }
 
 napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)

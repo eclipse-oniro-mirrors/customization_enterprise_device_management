@@ -32,5 +32,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
