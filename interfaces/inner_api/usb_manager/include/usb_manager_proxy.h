@@ -26,7 +26,7 @@ public:
     static std::shared_ptr<UsbManagerProxy> GetUsbManagerProxy();
     int32_t SetUsbReadOnly(const AppExecFwk::ElementName &admin, bool readOnly);
     int32_t DisableUsb(const AppExecFwk::ElementName &admin, bool disable);
-    int32_t IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result, bool hasAdmin);
+    int32_t IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result);
     int32_t AddAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
     int32_t RemoveAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
     int32_t GetAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> &result, bool hasAdmin);

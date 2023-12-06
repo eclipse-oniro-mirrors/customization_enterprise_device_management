@@ -92,6 +92,8 @@ private:
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
         std::string &adminName, const int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
+    bool IsSystemServiceCalling();
+    bool IsSystemAppCalling();
     sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(

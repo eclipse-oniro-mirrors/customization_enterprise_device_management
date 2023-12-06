@@ -146,7 +146,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestIsBluetoothDisabledSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
 
     bool isDisable = false;
-    int32_t ret = proxy_->IsBluetoothDisabled(admin, isDisable);
+    int32_t ret = proxy_->IsBluetoothDisabled(&admin, isDisable);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isDisable);
 }
@@ -163,7 +163,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestIsBluetoothDisabledFail, TestSize.Level1
     admin.SetBundleName(ADMIN_PACKAGENAME);
 
     bool isDisable = false;
-    int32_t ret = proxy_->IsBluetoothDisabled(admin, isDisable);
+    int32_t ret = proxy_->IsBluetoothDisabled(&admin, isDisable);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isDisable);
 }

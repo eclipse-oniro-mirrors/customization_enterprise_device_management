@@ -115,24 +115,23 @@ napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callbac
     napi_value argv[ARGS_SIZE_ONE] = { nullptr };
     napi_value thisArg = nullptr;
     void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "parameter 'admin' type error.");
-
-    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
-
-    bool isDisabled;
-    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
-    int32_t retCode = bluetoothManagerProxy->IsBluetoothDisabled(elementName, isDisabled);
-    if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = BluetoothManagerProxy::GetBluetoothManagerProxy()->IsBluetoothDisabled(&elementName, isDisabled);
+    } else {
+        ret = BluetoothManagerProxy::GetBluetoothManagerProxy()->IsBluetoothDisabled(nullptr, isDisabled);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-
     napi_value result = nullptr;
     napi_get_boolean(env, isDisabled, &result);
     return result;

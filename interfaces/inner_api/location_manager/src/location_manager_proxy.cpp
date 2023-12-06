@@ -48,15 +48,23 @@ int32_t LocationManagerProxy::SetLocationPolicy(const AppExecFwk::ElementName &a
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t LocationManagerProxy::GetLocationPolicy(const AppExecFwk::ElementName &admin, LocationPolicy &locationPolicy)
+int32_t LocationManagerProxy::GetLocationPolicy(const AppExecFwk::ElementName *admin, LocationPolicy &locationPolicy)
 {
     EDMLOGD("LocationManagerProxy::GetLocationPolicy");
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
+            locationPolicy = LocationPolicy::DEFAULT_LOCATION_SERVICE;
+            return ERR_OK;
+        }
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::LOCATION_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);

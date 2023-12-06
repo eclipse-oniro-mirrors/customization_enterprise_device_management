@@ -93,7 +93,7 @@ int32_t UsbManagerProxy::DisableUsb(const AppExecFwk::ElementName &admin, bool d
     return proxy->SetPolicyDisabled(admin, disable, EdmInterfaceCode::DISABLE_USB);
 }
 
-int32_t UsbManagerProxy::IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result, bool hasAdmin)
+int32_t UsbManagerProxy::IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("UsbManagerProxy::IsUsbDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -281,7 +281,7 @@ int32_t UsbManagerProxy::GetUsbPolicy(const AppExecFwk::ElementName &admin, bool
         return ERR_OK;
     }
 
-    ret = IsUsbDisabled(&admin, isGlobalDisabled, false);
+    ret = IsUsbDisabled(&admin, isGlobalDisabled);
     if (isGlobalDisabled) {
         return ERR_OK;
     }

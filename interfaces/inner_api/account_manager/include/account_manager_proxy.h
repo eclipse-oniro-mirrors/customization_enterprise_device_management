@@ -28,7 +28,7 @@ public:
     static std::shared_ptr<AccountManagerProxy> GetAccountManagerProxy();
     int32_t DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow);
     int32_t DisallowAddOsAccountByUser(AppExecFwk::ElementName &admin, int32_t userId, bool isDisallow);
-    int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
+    int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
         OHOS::AccountSA::OsAccountInfo &accountInfo, std::string &distributedInfoName, std::string &distributedInfoId);
 
