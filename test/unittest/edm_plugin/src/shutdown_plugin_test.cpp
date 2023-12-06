@@ -37,7 +37,7 @@ void ShutdownPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestShutdown
- * @tc.desc: Test ShutdownPlugin::OnSetPolicy function success.
+ * @tc.desc: Test ShutdownPlugin::OnSetPolicy function fail.
  * @tc.type: FUNC
  */
 HWTEST_F(ShutdownPluginTest, TestShutdown, TestSize.Level1)
