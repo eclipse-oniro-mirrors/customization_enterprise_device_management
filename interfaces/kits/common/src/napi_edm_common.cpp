@@ -634,7 +634,7 @@ bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     if (MatchValueType(env, value, napi_null)) {
         hasAdmin = false;
         return true;
-    } 
+    }
     if (MatchValueType(env, value, napi_object)) {
         hasAdmin = true;
         if (ParseElementName(env, elementName, value)) {
