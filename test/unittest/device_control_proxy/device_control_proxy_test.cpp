@@ -136,9 +136,6 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenFail, TestSize.Level1)
  */
 HWTEST_F(DeviceControlProxyTest, TestShutdownSuc, TestSize.Level1)
 {
-    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestShutdownSuc case will not run.";
-    ASSERT_TRUE(true);
-    return;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
@@ -169,9 +166,6 @@ HWTEST_F(DeviceControlProxyTest, TestShutdownFail, TestSize.Level1)
  */
 HWTEST_F(DeviceControlProxyTest, TestRebootSuc, TestSize.Level1)
 {
-    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestRebootSuc case will not run.";
-    ASSERT_TRUE(true);
-    return;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))

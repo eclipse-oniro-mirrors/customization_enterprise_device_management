@@ -26,7 +26,6 @@ namespace EDM {
 namespace TEST {
 void ShutdownPluginTest::SetUpTestSuite(void)
 {
-    Utils::SetEdmInitialEnv();
 }
 
 void ShutdownPluginTest::TearDownTestSuite(void)
@@ -38,17 +37,20 @@ void ShutdownPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestShutdown
- * @tc.desc: Test ShutdownPlugin::OnSetPolicy function success.
+ * @tc.desc: Test ShutdownPlugin::OnSetPolicy function fail.
  * @tc.type: FUNC
  */
 HWTEST_F(ShutdownPluginTest, TestShutdown, TestSize.Level1)
 {
-    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestShutdown case will not run.";
-    ASSERT_TRUE(true);
-    return;
-    ShutdownPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy();
-    ASSERT_TRUE(ret == ERR_OK);
+    Utils::ResetTokenTypeAndUid();
+    std::shared_ptr<IPlugin> plugin = ShutdownPlugin::GetPlugin();
+    bool isChanged = false;
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SHUTDOWN);
+    std::string policyData{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST
 } // namespace EDM
