@@ -31,7 +31,7 @@ void FingerprintAuthPlugin::InitPlugin(
 {
     EDMLOGD("FingerprintAuthPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::FINGER_PRINT_AUTH, "FINGER_PRINT_AUTH",
-        "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN", IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&FingerprintAuthPlugin::OnSetPolicy, FuncOperateType::SET);
 }
