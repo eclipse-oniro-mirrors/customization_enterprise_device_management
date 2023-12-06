@@ -26,7 +26,6 @@ namespace EDM {
 namespace TEST {
 void RebootPluginTest::SetUpTestSuite(void)
 {
-    Utils::SetEdmInitialEnv();
 }
 
 void RebootPluginTest::TearDownTestSuite(void)
@@ -43,12 +42,14 @@ void RebootPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(RebootPluginTest, TestReboot, TestSize.Level1)
 {
-    GTEST_LOG_(WARNING) << "warning: to avoid affectd others case, TestReboot case will not run.";
-    ASSERT_TRUE(true);
-    return;
-    RebootPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy();
-    ASSERT_TRUE(ret == ERR_OK);
+    std::shared_ptr<IPlugin> plugin = RebootPlugin::GetPlugin();
+    bool isChanged = false;
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::REBOOT);
+    std::string policyData{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST
 } // namespace EDM
