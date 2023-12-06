@@ -50,6 +50,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/display_manager_mock.cpp",
     "./src/domain_filter_rule_plugin_test.cpp",
     "./src/edm_data_ability_utils_mock.cpp",
+    "./src/fingerprint_auth_plugin_test.cpp",
     "./src/firewall_rule_plugin_test.cpp",
     "./src/get_bluetooth_info_plugin_test.cpp",
     "./src/get_device_encryption_status_plugin_test.cpp",
