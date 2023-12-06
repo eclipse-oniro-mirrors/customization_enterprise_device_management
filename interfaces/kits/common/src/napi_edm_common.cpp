@@ -631,21 +631,17 @@ bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, 
 bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName)
 {
-    bool matchFlag = false;
     if (MatchValueType(env, value, napi_null)) {
         hasAdmin = false;
-        matchFlag = true;
-    } else if (MatchValueType(env, value, napi_object)) {
+        return true;
+    } 
+    if (MatchValueType(env, value, napi_object)) {
         hasAdmin = true;
-        matchFlag = true;
-    } else {
-        hasAdmin = false;
-        matchFlag = false;
+        if (ParseElementName(env, elementName, value)) {
+            return true;
+        }
     }
-    if (hasAdmin && !ParseElementName(env, elementName, value)) {
-        return false;
-    }
-    return matchFlag;
+    return false;
 }
 } // namespace EDM
 } // namespace OHOS
