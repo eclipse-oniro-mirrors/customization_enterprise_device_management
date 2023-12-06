@@ -87,7 +87,7 @@ napi_value LocationManagerAddon::GetLocationPolicy(napi_env env, napi_callback_i
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    LocationPolicy res;
+    LocationPolicy res = LocationPolicy::DEFAULT_LOCATION_SERVICE;;
     auto locationManagerProxy = LocationManagerProxy::GetLocationManagerProxy();
     int32_t ret = ERR_OK;
     if (hasAdmin) {

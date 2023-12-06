@@ -60,6 +60,7 @@ int32_t LocationManagerProxy::GetLocationPolicy(const AppExecFwk::ElementName *a
         data.WriteParcelable(admin);
     } else {
         if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
+            locationPolicy = LocationPolicy::DEFAULT_LOCATION_SERVICE;
             return ERR_OK;
         }
         data.WriteInt32(WITHOUT_ADMIN);
