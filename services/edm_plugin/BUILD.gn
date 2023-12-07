@@ -175,11 +175,16 @@ edm_plugin_shared_library("disallow_modify_datetime_plugin") {
 }
 
 edm_plugin_shared_library("application_manager_plugin") {
-  sources = [ "./src/disallowed_running_bundles_plugin.cpp" ]
+  sources = [
+    "./src/disallowed_running_bundles_plugin.cpp",
+    "./src/manage_auto_start_apps_plugin.cpp",
+  ]
 
   deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
