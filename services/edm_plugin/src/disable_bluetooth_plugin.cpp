@@ -39,17 +39,25 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
 
 ErrCode DisableBluetoothPlugin::OnSetPolicy(bool &disable)
 {
+    std::string originalPara = system::GetParameter(PERSIST_BLUETOOTH_CONTROL, "false");
+    std::string newPara = disable ? "true" : "false";
+    bool setParaRet = system::SetParameter(PERSIST_BLUETOOTH_CONTROL, newPara);
+    if (!setParaRet) {
+        EDMLOGW("DisableBluetoothPlugin failed when set system para: %{public}d", disable);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     if (disable && Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled()) {
         int ret = Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
         if (ret != Bluetooth::BT_NO_ERROR) {
-            EDMLOGW("DisableBluetoothPlugin failed when disable bt: %{public}d", ret);
+            setParaRet = system::SetParameter(PERSIST_BLUETOOTH_CONTROL, originalPara);
+            EDMLOGW("DisableBluetoothPlugin failed when disable bt: %{public}d, rollback: %{public}d", ret, setParaRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
 
-    bool setParaRet = system::SetParameter(PERSIST_BLUETOOTH_CONTROL, (disable ? "true" : "false"));
-    EDMLOGI("DisableBluetoothPlugin set system para: %{public}d, ret: %{public}d", disable, setParaRet);
-    return setParaRet ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    EDMLOGI("DisableBluetoothPlugin set system para: %{public}d", disable);
+    return ERR_OK;
 }
 
 ErrCode DisableBluetoothPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
