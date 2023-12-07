@@ -37,6 +37,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED, "authorize permission to the application failed."},
     {EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, "a conflicting policy has been configured."},
     {EdmReturnErrCode::APPLICATION_INSTALL_FAILED, "application install failed $."},
+    {EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED, "add os account failed."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)
