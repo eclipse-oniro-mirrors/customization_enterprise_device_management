@@ -55,17 +55,11 @@ void FingerprintAuthPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestSetFalse, TestSize.Level1)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = FingerprintAuthPlugin::GetPlugin();
-    std::string policyData{"false"};
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::FINGERPRINT_AUTH);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    bool policyValue = false;
+    FingerprintAuthPlugin plugin;
+    ErrCode ret = plugin.OnSetPolicy(policyValue);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(policyValue != system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true));
 }
 
 /**
@@ -75,17 +69,11 @@ HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestSetFalse, TestS
  */
 HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestSetTrue, TestSize.Level1)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = FingerprintAuthPlugin::GetPlugin();
-    std::string policyData{"true"};
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::FINGERPRINT_AUTH);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    bool policyValue = true;
+    FingerprintAuthPlugin plugin;
+    ErrCode ret = plugin.OnSetPolicy(policyValue);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(policyValue != system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true));
 }
 
 /**
