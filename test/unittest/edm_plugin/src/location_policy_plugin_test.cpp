@@ -44,6 +44,10 @@ void LocationPolicyPluginTest::SetUpTestSuite(void)
 
 void LocationPolicyPluginTest::TearDownTestSuite(void)
 {
+    LocationPolicyPlugin plugin;
+    int32_t defaultPolicy = static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE);
+    ErrCode code = plugin.OnSetPolicy(defaultPolicy);
+    EXPECT_TRUE(code == ERR_OK);
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
