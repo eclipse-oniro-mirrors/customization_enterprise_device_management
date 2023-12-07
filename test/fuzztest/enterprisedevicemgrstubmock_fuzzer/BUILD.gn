@@ -1,0 +1,156 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/features.gni")
+import("//build/ohos.gni")
+import("//build/test.gni")
+module_output_path = "enterprise_device_management/enterprise_device_management"
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "../" ]
+}
+
+config("edm_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "../../../services/edm/include",
+    "../../../services/edm/include/connection",
+    "../../../services/edm/include/database",
+    "../../../framework/extension/include",
+  ]
+}
+
+ohos_static_library("edmservice_static") {
+  testonly = true
+  sources = [
+    "../../../services/edm/src/admin.cpp",
+    "../../../services/edm/src/admin_manager.cpp",
+    "../../../services/edm/src/admin_policies_storage_rdb.cpp",
+    "../../../services/edm/src/application_state_observer.cpp",
+    "../../../services/edm/src/connection/enterprise_admin_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
+    "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../../services/edm/src/connection/enterprise_update_connection.cpp",
+    "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
+    "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
+    "../../../services/edm/src/device_policies_storage_rdb.cpp",
+    "../../../services/edm/src/enterprise_device_mgr_ability.cpp",
+    "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../../services/edm/src/permission_manager.cpp",
+    "../../../services/edm/src/plugin_manager.cpp",
+    "../../../services/edm/src/policy_manager.cpp",
+    "../../../services/edm/src/super_admin.cpp",
+  ]
+
+  public_configs = [
+    ":edm_config",
+    "../../../common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
+  }
+
+  defines += [ "EDM_FUZZ_TEST" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "ability_runtime:extension_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "os_account:os_account_innerkits",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  deps = [
+    "../../../common/native:edm_commom",
+    "../../../interfaces/inner_api:edmservice_kits",
+    "../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "."
+
+  cflags = [
+    "-g",
+    "-fno-omit-frame-pointer",
+  ]
+
+  include_dirs = [
+    "../../unittest/include",
+    "../../../interfaces/inner_api/common/include",
+  ]
+
+  sources = [
+    "../../unittest/src/utils.cpp",
+    "enterprise_device_mgr_stub_mock_fuzzer.cpp",
+  ]
+
+  configs = [ "../../../common/config:coverage_flags" ]
+
+  deps = [
+    ":edmservice_static",
+    "../../../common/native:edm_commom",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

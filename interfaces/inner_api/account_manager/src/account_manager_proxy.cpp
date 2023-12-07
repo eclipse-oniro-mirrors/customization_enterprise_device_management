@@ -73,27 +73,35 @@ int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName 
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName &admin, int32_t userId,
+int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId,
     bool &result)
 {
     EDMLOGD("AccountManagerProxy::IsAddOsAccountByUserDisallowed");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
+            result = false;
+            return ERR_OK;
+        }
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    data.WriteInt32(userId);
+    MessageParcel reply;
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteInt32(userId);
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("AccountManagerProxy: IsAddOsAccountByUserDisallowed fail. %{public}d", ret);
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        EDMLOGE("IsAddOsAccountByUserDisallowed:GetPolicy fail. %{public}d", ret);
         return ret;
     }
     reply.ReadBool(result);

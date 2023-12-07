@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_CONNECTION_H
 #define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_CONNECTION_H
 
-#include "ability_manager_death_recipient.h"
 #include "ienterprise_connection.h"
 
 namespace OHOS {
@@ -50,8 +49,6 @@ public:
 
 private:
     bool isOnAdminEnabled_;
-    sptr<IRemoteObject> extensionRemoteObject_;
-    sptr<AbilityManagerDeathRecipient> deathRecipient_{nullptr};
 };
 } // namespace EDM
 } // namespace OHOS

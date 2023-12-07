@@ -20,11 +20,13 @@
 
 namespace OHOS {
 namespace EDM {
-class UsbReadOnlyPlugin : public PluginSingleton<UsbReadOnlyPlugin, bool> {
+class UsbReadOnlyPlugin : public PluginSingleton<UsbReadOnlyPlugin, int32_t> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, int32_t>> ptr) override;
 
-    ErrCode SetPolicy(bool &policyValue);
+    ErrCode SetPolicy(int32_t &policyValue);
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, int32_t &data, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

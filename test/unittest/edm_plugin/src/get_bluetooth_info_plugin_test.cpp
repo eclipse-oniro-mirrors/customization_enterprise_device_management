@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 
-#include "get_bluetooth_info_plugin.h"
 #include <gtest/gtest.h>
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
+#include "get_bluetooth_info_plugin.h"
 #include "iplugin_manager.h"
 #include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
+
+const int BLUETOOTH_TURN_ON = 2;
 
 namespace OHOS {
 namespace EDM {
@@ -60,8 +62,12 @@ HWTEST_F(GetBluetoothInfoPluginTest, GetBluetoothInfoSuc, TestSize.Level1)
     MessageParcel reply;
     plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadString() == "" && reply.ReadInt32() == 0 && reply.ReadInt32() == 0 ||
-    reply.ReadString() != "" && reply.ReadInt32() == 2);
+
+    std::string name = reply.ReadString();
+    int state = reply.ReadInt32();
+    int connectionState = reply.ReadInt32();
+    ASSERT_TRUE(((name == "") && (state == 0) && (connectionState == 0)) ||
+        ((name != "") && (state == BLUETOOTH_TURN_ON)));
 }
 
 } // namespace TEST

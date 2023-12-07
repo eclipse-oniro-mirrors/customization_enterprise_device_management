@@ -30,6 +30,8 @@ class BluetoothManagerProxy {
 public:
     static std::shared_ptr<BluetoothManagerProxy> GetBluetoothManagerProxy();
     int32_t GetBluetoothInfo(const AppExecFwk::ElementName &admin, BluetoothInfo &bluetoothInfo);
+    int32_t SetBluetoothDisabled(const AppExecFwk::ElementName &admin, bool disabled);
+    int32_t IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result);
 
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;

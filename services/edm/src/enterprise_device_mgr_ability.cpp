@@ -44,6 +44,7 @@
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "security_report.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace EDM {
@@ -509,6 +510,23 @@ bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &perm
     return false;
 }
 
+bool EnterpriseDeviceMgrAbility::IsSystemServiceCalling()
+{
+    const auto tokenId = IPCSkeleton::GetCallingTokenID();
+    const auto flag = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (flag == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EDMLOGI("system service calling, tokenId: %{public}u, flag: %{public}u", tokenId, flag);
+        return true;
+    }
+    return false;
+}
+
+bool EnterpriseDeviceMgrAbility::IsSystemAppCalling()
+{
+    uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
+}
+
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type,
     int32_t userId)
 {
@@ -881,6 +899,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+#ifndef EDM_FUZZ_TEST
     bool isUserExist = false;
     AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
@@ -914,6 +933,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     CreateSecurityContent(deviceAdmin, plugin);
+#endif
     return UpdateDevicePolicy(code, admin, data, reply, userId);
 }
 
@@ -955,7 +975,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
             return ret;
         }
     }
-    if (!getPermission.empty() && !VerifyCallingPermission(getPermission)) {
+    if (!IsSystemServiceCalling() && !IsSystemAppCalling() && !getPermission.empty() &&
+        !VerifyCallingPermission(getPermission)) {
         EDMLOGW("GetDevicePolicy: VerifyCallingPermission failed");
         reply.WriteInt32(EdmReturnErrCode::PERMISSION_DENIED);
         return EdmReturnErrCode::PERMISSION_DENIED;

@@ -131,6 +131,72 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
     int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestDisableWifiSuc
+ * @tc.desc: Test DisableWifi func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestDisableWifiSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    bool isDisable = true;
+    int32_t ret = wifiManagerProxy->DisableWifi(admin, isDisable);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableWifiFail
+ * @tc.desc: Test DisableWifi func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestDisableWifiFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisable = true;
+    int32_t ret = wifiManagerProxy->DisableWifi(admin, isDisable);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsWifiDisabledSuc
+ * @tc.desc: Test IsWifiDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool isDisable = false;
+    int32_t ret = wifiManagerProxy->IsWifiDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisable);
+}
+
+/**
+ * @tc.name: TestIsWifiDisabledFail
+ * @tc.desc: Test IsWifiDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisable = false;
+    int32_t ret = wifiManagerProxy->IsWifiDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(isDisable);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

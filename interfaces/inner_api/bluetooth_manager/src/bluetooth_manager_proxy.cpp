@@ -58,5 +58,20 @@ int32_t BluetoothManagerProxy::GetBluetoothInfo(const AppExecFwk::ElementName &a
     reply.ReadInt32(bluetoothInfo.connectionState);
     return ERR_OK;
 }
+
+int32_t BluetoothManagerProxy::SetBluetoothDisabled(const AppExecFwk::ElementName &admin, bool disabled)
+{
+    EDMLOGD("BluetoothManagerProxy::SetBluetoothDisabled");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    return proxy->SetPolicyDisabled(admin, disabled, EdmInterfaceCode::DISABLE_BLUETOOTH);
+}
+
+int32_t BluetoothManagerProxy::IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result)
+{
+    EDMLOGD("BluetoothManagerProxy::IsBluetoothDisabled");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_BLUETOOTH, result);
+}
+
 } // namespace EDM
 } // namespace OHOS

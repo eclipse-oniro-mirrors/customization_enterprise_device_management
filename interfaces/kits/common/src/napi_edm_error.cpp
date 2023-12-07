@@ -31,10 +31,11 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::PARAM_ERROR, "invalid input parameter."},
     {EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED,
         "the administrator application does not have permission to manage the device."},
-    {EdmReturnErrCode::MANAGED_EVENTS_INVALID, "the specified managed event is is invalid."},
+    {EdmReturnErrCode::MANAGED_EVENTS_INVALID, "the specified managed event is invalid."},
     {EdmReturnErrCode::SYSTEM_API_DENIED, "not system application."},
     {EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED, "manage certificate failed $."},
     {EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED, "authorize permission to the application failed."},
+    {EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, "a conflicting policy has been configured."},
     {EdmReturnErrCode::APPLICATION_INSTALL_FAILED, "application install failed $."},
     {EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED, "add os account failed."},
 };

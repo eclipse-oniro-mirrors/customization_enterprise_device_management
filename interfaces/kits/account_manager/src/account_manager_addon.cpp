@@ -117,27 +117,27 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter userid error");
-
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter userid error");
     int32_t userId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "parameter userid parse error");
-
-    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
-    if (accountManagerProxy == nullptr) {
-        EDMLOGE("can not get AccountManagerProxy");
-        return nullptr;
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(&elementName, userId,
+            isDisabled);
+    } else {
+        ret =
+            AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(nullptr, userId, isDisabled);
     }
-    bool isDisallowed;
-    int32_t ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(elementName, userId, isDisallowed);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisallowed, &result);
+    napi_get_boolean(env, isDisabled, &result);
     return result;
 }
 

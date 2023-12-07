@@ -57,12 +57,14 @@ ErrCode DisallowAddOsAccountByUserPlugin::OnGetPolicy(std::string &policyData, M
     AccountSA::OsAccountManager::IsOsAccountExists(targetUserId, isIdExist);
     if (!isIdExist) {
         EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> constraints;
     ErrCode ret = AccountSA::OsAccountManager::GetOsAccountAllConstraints(targetUserId, constraints);
     if (FAILED(ret)) {
         EDMLOGE("DisallowAddOsAccountByUserPlugin GetOsAccountAllConstraints failed");
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     bool disallow =
