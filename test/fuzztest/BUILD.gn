@@ -18,7 +18,6 @@ group("fuzztest") {
   deps += [
     # deps file
     "disablesuperadmin_fuzzer:DisableSuperAdminFuzzTest",
-    "enterprisedevicemgrstub_fuzzer:EnterpriseDeviceMgrStubFuzzTest",
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
     "entinfo_fuzzer:EntInfoFuzzTest",
     "isadminenabled_fuzzer:IsAdminEnabledFuzzTest",

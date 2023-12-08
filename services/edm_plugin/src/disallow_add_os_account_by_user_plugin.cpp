@@ -16,6 +16,7 @@
 #include "disallow_add_os_account_by_user_plugin.h"
 
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "os_account_manager.h"
 
 namespace OHOS {
@@ -37,7 +38,14 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
 ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std::string> &data)
 {
     auto it = data.begin();
-    int32_t userId = atoi(it -> first.c_str());
+    if (it == data.end()) {
+        return ERR_OK;
+    }
+    int32_t userId = -1;
+    ErrCode parseRet = EdmUtils::ParseStringToInt(it -> first, userId);
+    if (FAILED(parseRet)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     bool isIdExist = false;
     AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
     if (!isIdExist) {

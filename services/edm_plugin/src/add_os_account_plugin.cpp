@@ -17,6 +17,7 @@
 
 #include "account_info.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "ohos_account_kits.h"
 #include "os_account_info.h"
 #include "os_account_manager.h"
@@ -40,8 +41,16 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
 {
     EDMLOGI("AddOsAccountPlugin OnSetPolicy");
     auto it = data.begin();
+    if (it == data.end()) {
+        return ERR_OK;
+    }
     std::string accountName = it -> first;
-    int32_t type = atoi(it -> second.c_str());
+    int32_t type = -1;
+    ErrCode parseRet = EdmUtils::ParseStringToInt(it -> second, type);
+    if (FAILED(parseRet)) {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     OHOS::AccountSA::OsAccountType accountType = ParseOsAccountType(type);
     if (accountType == OHOS::AccountSA::OsAccountType::END) {
         EDMLOGE("AddOsAccountPlugin accountType invalid");
