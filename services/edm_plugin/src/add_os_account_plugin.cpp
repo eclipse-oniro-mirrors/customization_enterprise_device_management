@@ -64,8 +64,8 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
             reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
             return EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED;
         }
-        std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo = OHOS::AccountSA::OhosAccountKits::GetInstance()
-            .QueryOhosAccountInfo();
+        std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo =
+            OHOS::AccountSA::OhosAccountKits::GetInstance().QueryOhosAccountInfo();
         if (!dbAccountInfo.first) {
             EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo failed.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
