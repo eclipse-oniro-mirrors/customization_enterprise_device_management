@@ -16,6 +16,7 @@
 #include "disallow_add_os_account_by_user_plugin.h"
 
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "os_account_manager.h"
 
 namespace OHOS {
@@ -23,7 +24,6 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT = "constraint.os.account.create";
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY = "constraint.os.account.create.directly";
-static constexpr int32_t DECIMAL = 10;
 
 void DisallowAddOsAccountByUserPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddOsAccountByUserPlugin, std::map<std::string, std::string>>> ptr)
@@ -38,24 +38,22 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
 ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std::string> &data)
 {
     auto it = data.begin();
-    if (it != data.end()) {
-        errno = 0;
-        const char* userIdPtr = it -> first.c_str();
-        char* end = nullptr;
-        int32_t userId = strtol(userIdPtr, &end, DECIMAL);
-        if (errno == ERANGE || end == userIdPtr || *end != '\0') {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        bool isIdExist = false;
-        AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
-        if (!isIdExist) {
-            EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        bool disallow = it -> second == "true";
-        return SetSpecificOsAccountConstraints(userId, disallow);
+    if (it == data.end()) {
+        return ERR_OK;
     }
-    return ERR_OK;
+    int32_t userId = -1;
+    ErrCode parseRet = EdmUtils::ParseStringToInt(it -> first, userId);
+    if (FAILED(parseRet)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    bool isIdExist = false;
+    AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
+    if (!isIdExist) {
+        EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    bool disallow = it -> second == "true";
+    return SetSpecificOsAccountConstraints(userId, disallow);
 }
 
 ErrCode DisallowAddOsAccountByUserPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
