@@ -29,6 +29,7 @@ class Utils {
 public:
     static constexpr int32_t EDM_UID = 3057;
     static constexpr int32_t ROOT_UID = 0;
+    static constexpr int32_t USERIAM_UID = 1088;
     static void ExecCmdSync(const std::string &cmd);
     static void SetNativeTokenTypeAndPermissions(const char* permissions[], int size);
     static void SetEdmInitialEnv();
