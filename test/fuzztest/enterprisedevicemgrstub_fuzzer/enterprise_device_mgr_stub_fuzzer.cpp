@@ -37,9 +37,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     uint32_t code = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-    if (code == EdmInterfaceCode::RESET_FACTORY || EdmInterfaceCode::SHUTDOWN ||
-        code == EdmInterfaceCode::REBOOT || EdmInterfaceCode::USB_READ_ONLY ||
-        code == EdmInterfaceCode::DISABLED_HDC || EdmInterfaceCode::DISABLE_USB) {
+    if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
+        code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
+        code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB) {
         return 0;
     }
     MessageParcel parcel;

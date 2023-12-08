@@ -23,6 +23,7 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT = "constraint.os.account.create";
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY = "constraint.os.account.create.directly";
+static constexpr int32_t DECIMAL = 10;
 
 void DisallowAddOsAccountByUserPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddOsAccountByUserPlugin, std::map<std::string, std::string>>> ptr)
@@ -41,7 +42,7 @@ ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std:
         errno = 0;
         const char* userIdPtr = it -> first.c_str();
         char* end = nullptr;
-        int32_t userId = strtol(userIdPtr, end, 10);
+        int32_t userId = strtol(userIdPtr, &end, DECIMAL);
         if (errno == ERANGE || end == userIdPtr || *end != '\0') {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }

@@ -25,6 +25,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
+static constexpr int32_t DECIMAL = 10;
 
 void AddOsAccountPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<AddOsAccountPlugin,
     std::map<std::string, std::string>>> ptr)
@@ -45,7 +46,7 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
         errno = 0;
         const char* typePtr = it -> second.c_str();
         char* end = nullptr;
-        int32_t type = strtol(typePtr, &end, 10);
+        int32_t type = strtol(typePtr, &end, DECIMAL);
         if (errno == ERANGE || end == typePtr || *end != '\0') {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
