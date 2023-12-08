@@ -37,15 +37,24 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
 ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std::string> &data)
 {
     auto it = data.begin();
-    int32_t userId = atoi(it -> first.c_str());
-    bool isIdExist = false;
-    AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
-    if (!isIdExist) {
-        EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
-        return EdmReturnErrCode::PARAM_ERROR;
+    if (it != data.end()) {
+        errno = 0;
+        const char* userIdPtr = it -> first.c_str();
+        char* end = nullptr;
+        int32_t userId = strtol(userIdPtr, end, 10);
+        if (errno == ERANGE || end == userIdPtr || *end != '\0') {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        bool isIdExist = false;
+        AccountSA::OsAccountManager::IsOsAccountExists(userId, isIdExist);
+        if (!isIdExist) {
+            EDMLOGE("DisallowAddOsAccountByUserPlugin userId invalid");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        bool disallow = it -> second == "true";
+        return SetSpecificOsAccountConstraints(userId, disallow);
     }
-    bool disallow = it -> second == "true";
-    return SetSpecificOsAccountConstraints(userId, disallow);
+    return ERR_OK;
 }
 
 ErrCode DisallowAddOsAccountByUserPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,

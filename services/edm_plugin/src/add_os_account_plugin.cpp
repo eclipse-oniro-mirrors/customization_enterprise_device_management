@@ -40,39 +40,48 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
 {
     EDMLOGI("AddOsAccountPlugin OnSetPolicy");
     auto it = data.begin();
-    std::string accountName = it -> first;
-    int32_t type = atoi(it -> second.c_str());
-    OHOS::AccountSA::OsAccountType accountType = ParseOsAccountType(type);
-    if (accountType == OHOS::AccountSA::OsAccountType::END) {
-        EDMLOGE("AddOsAccountPlugin accountType invalid");
-        return EdmReturnErrCode::PARAM_ERROR;
+    if (it != data.end()) {
+        std::string accountName = it -> first;
+        errno = 0;
+        const char* typePtr = it -> second.c_str();
+        char* end = nullptr;
+        int32_t type = strtol(typePtr, &end, 10);
+        if (errno == ERANGE || end == typePtr || *end != '\0') {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        OHOS::AccountSA::OsAccountType accountType = ParseOsAccountType(type);
+        if (accountType == OHOS::AccountSA::OsAccountType::END) {
+            EDMLOGE("AddOsAccountPlugin accountType invalid");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name -- %{public}c***%{public}c, type -- %{public}d, ",
+            accountName[0], accountName[accountName.length() - 1], type);
+        OHOS::AccountSA::OsAccountInfo accountInfo;
+        ErrCode ret = AccountSA::OsAccountManager::CreateOsAccount(accountName, accountType, accountInfo);
+        if (FAILED(ret)) {
+            EDMLOGE("AddOsAccountPlugin CreateOsAccount failed");
+            reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
+            return EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED;
+        }
+        std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo = OHOS::AccountSA::OhosAccountKits::GetInstance()
+            .QueryOhosAccountInfo();
+        if (!dbAccountInfo.first) {
+            EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        std::string distributedInfoName = dbAccountInfo.second.name_;
+        std::string distributedInfoId = dbAccountInfo.second.uid_;
+        if (distributedInfoName.empty() || distributedInfoId.empty()) {
+            EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo empty.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        reply.WriteInt32(ERR_OK);
+        accountInfo.Marshalling(reply);
+        reply.WriteString(distributedInfoName);
+        reply.WriteString(distributedInfoId);
+        EDMLOGI("AddOsAccountPlugin OnSetPolicy end");
+        return ERR_OK;
     }
-    EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name -- %{public}c***%{public}c, type -- %{public}d, ",
-        accountName[0], accountName[accountName.length() - 1], type);
-    OHOS::AccountSA::OsAccountInfo accountInfo;
-    ErrCode ret = AccountSA::OsAccountManager::CreateOsAccount(accountName, accountType, accountInfo);
-    if (FAILED(ret)) {
-        EDMLOGE("AddOsAccountPlugin CreateOsAccount failed");
-        reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
-        return EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED;
-    }
-    std::pair<bool, OHOS::AccountSA::OhosAccountInfo> dbAccountInfo = OHOS::AccountSA::OhosAccountKits::GetInstance()
-        .QueryOhosAccountInfo();
-    if (!dbAccountInfo.first) {
-        EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::string distributedInfoName = dbAccountInfo.second.name_;
-    std::string distributedInfoId = dbAccountInfo.second.uid_;
-    if (distributedInfoName.empty() || distributedInfoId.empty()) {
-        EDMLOGE("AddOsAccountPlugin::QueryOhosAccountInfo empty.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    reply.WriteInt32(ERR_OK);
-    accountInfo.Marshalling(reply);
-    reply.WriteString(distributedInfoName);
-    reply.WriteString(distributedInfoId);
-    EDMLOGI("AddOsAccountPlugin OnSetPolicy end");
     return ERR_OK;
 }
 
