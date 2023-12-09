@@ -39,11 +39,15 @@ protected:
 void FingerprintAuthPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
+    setegid(Utils::USERIAM_UID);
+    ASSERT_TRUE(getegid() == Utils::USERIAM_UID);
 }
 
 void FingerprintAuthPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
+    setegid(Utils::EDM_UID);
+    ASSERT_TRUE(getegid() == Utils::EDM_UID);
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
