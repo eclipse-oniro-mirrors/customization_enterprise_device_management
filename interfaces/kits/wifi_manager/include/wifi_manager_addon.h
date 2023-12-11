@@ -36,6 +36,12 @@ struct AsyncSetWifiProfileCallbackInfo : AsyncCallbackInfo {
     OHOS::Wifi::WifiDeviceConfig wifiDeviceConfig;
 };
 
+enum class IpType {
+    STATIC = 0,
+    DHCP,
+    UNKNOWN,
+};
+
 enum class SecurityType {
     // Invalid security type.
     SEC_TYPE_INVALID = 0,
