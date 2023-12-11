@@ -29,11 +29,9 @@ public:
     int32_t IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result);
     int32_t AddAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
     int32_t RemoveAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
-    int32_t GetAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> &result, bool hasAdmin);
+    int32_t GetAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> &result);
     int32_t SetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t usbPolicy);
-    int32_t GetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t &result, bool hasAdmin);
-    int32_t GetUsbPolicy(const AppExecFwk::ElementName &admin, bool &isGlobalDisabled,
-        std::unordered_map<int32_t, bool> &typeDisableMap, std::vector<UsbDeviceId> &trustUsbDeviceIds);
+    int32_t GetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t &result);
 
 private:
     static std::shared_ptr<UsbManagerProxy> instance_;
