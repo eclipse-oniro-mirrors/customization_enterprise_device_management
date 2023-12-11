@@ -44,10 +44,6 @@ public:
 
     void OnSystemUpdate(const UpdateInfo &updateInfo) override;
 
-    void AddDeathRecipient(const sptr<OHOS::IRemoteObject::DeathRecipient> &recipient);
-
-    void RemoveDeathRecipient(const sptr<OHOS::IRemoteObject::DeathRecipient> &recipient);
-
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

@@ -69,5 +69,29 @@ int32_t RestrictionsProxy::IsScreenShotDisallowed(AppExecFwk::ElementName *admin
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_SCREEN_SHOT,
         result);
 }
+
+int32_t RestrictionsProxy::DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disable,
+        EdmInterfaceCode::DISABLE_MICROPHONE);
+}
+
+int32_t RestrictionsProxy::IsMicrophoneDisabled(AppExecFwk::ElementName *admin, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_MICROPHONE,
+        result);
+}
+
+int32_t RestrictionsProxy::SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disable)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disable,
+        EdmInterfaceCode::FINGERPRINT_AUTH);
+}
+
+int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::FINGERPRINT_AUTH,
+        result);
+}
 } // namespace EDM
 } // namespace OHOS

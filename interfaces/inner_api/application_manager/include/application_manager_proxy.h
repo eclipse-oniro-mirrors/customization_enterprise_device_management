@@ -28,6 +28,12 @@ public:
         int32_t userId);
     int32_t GetDisallowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles);
+    int32_t AddAutoStartApps(const AppExecFwk::ElementName &admin,
+        const std::vector<AppExecFwk::ElementName> &autoStartApps);
+    int32_t RemoveAutoStartApps(const AppExecFwk::ElementName &admin,
+        const std::vector<AppExecFwk::ElementName> &autoStartApps);
+    int32_t GetAutoStartApps(const AppExecFwk::ElementName &admin, std::vector<AppExecFwk::ElementName> &autoStartApps);
+
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::mutex mutexLock_;

@@ -71,6 +71,7 @@ bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
 bool ParseCallback(napi_env env, napi_ref &param, napi_value args);
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
+napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> &elementArray, napi_value args);
 bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result);
@@ -93,7 +94,9 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
-bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value* argv, bool &hasCallback, bool &hasUserId);
+bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId);
+bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
+    OHOS::AppExecFwk::ElementName &elementName);
 } // namespace EDM
 } // namespace OHOS
 

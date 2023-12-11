@@ -99,6 +99,75 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothInfoFail, TestSize.Level1)
     int32_t ret = proxy_->GetBluetoothInfo(admin, bluetoothInfo);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetBluetoothDisabledSuc
+ * @tc.desc: Test SetBluetoothDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestSetBluetoothDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->SetBluetoothDisabled(admin, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetBluetoothDisabledFail
+ * @tc.desc: Test SetBluetoothDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestSetBluetoothDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+
+    int32_t ret = proxy_->SetBluetoothDisabled(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsBluetoothDisabledSuc
+ * @tc.desc: Test IsBluetoothDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestIsBluetoothDisabledSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+
+    bool isDisable = false;
+    int32_t ret = proxy_->IsBluetoothDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisable);
+}
+
+/**
+ * @tc.name: TestIsBluetoothDisabledFail
+ * @tc.desc: Test IsBluetoothDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestIsBluetoothDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+
+    bool isDisable = false;
+    int32_t ret = proxy_->IsBluetoothDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(isDisable);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

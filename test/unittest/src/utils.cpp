@@ -35,8 +35,10 @@ const std::string PERMISSION_INSTALL_BUNDLE = "ohos.permission.INSTALL_BUNDLE";
 const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const std::string PERMISSION_ENTERPRISE_MANAGE_SECURITY = "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
 const std::string PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
-const std::string PERMISSION_ENTERPRISE_LOCK_DEVICE = "ohos.permission.ENTERPRISE_LOCK_DEVICE";
-const std::string PERMISSION_ENTERPRISE_REBOOT = "ohos.permission.ENTERPRISE_REBOOT";
+const std::string PERMISSION_ENTERPRISE_MANAGE_LOCATION = "ohos.permission.ENTERPRISE_MANAGE_LOCATION";
+const std::string PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER = "ohos.permission.ACCESS_SCREEN_LOCK_INNER";
+const std::string PERMISSION_REBOOT = "ohos.permission.REBOOT";
+const std::string PERMISSION_MICROPHONE = "ohos.permission.MICROPHONE";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -86,8 +88,10 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_RUNNING_STATE_OBSERVER.c_str(),
         PERMISSION_ENTERPRISE_MANAGE_SECURITY.c_str(),
         PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH.c_str(),
-        PERMISSION_ENTERPRISE_LOCK_DEVICE.c_str(),
-        PERMISSION_ENTERPRISE_REBOOT.c_str()
+        PERMISSION_ENTERPRISE_MANAGE_LOCATION.c_str(),
+        PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER.c_str(),
+        PERMISSION_REBOOT.c_str(),
+        PERMISSION_MICROPHONE.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);

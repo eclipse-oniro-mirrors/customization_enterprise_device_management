@@ -43,15 +43,18 @@ public:
     static napi_value AddDisallowedRunningBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedRunningBundles(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedRunningBundles(napi_env env, napi_callback_info info);
+    static napi_value AddAutoStartApps(napi_env env, napi_callback_info info);
+    static napi_value RemoveAutoStartApps(napi_env env, napi_callback_info info);
+    static napi_value GetAutoStartApps(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemovellowedRunningBundles(napi_env env, napi_callback_info info,
         const std::string &workName, napi_async_execute_callback execute);
+    static napi_value AddOrRemoveAutoStartApps(napi_env env, napi_callback_info info, std::string function);
 
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);
     static void NativeRemoveDisallowedRunningBundles(napi_env env, void *data);
     static void NativeGetDisallowedRunningBundles(napi_env env, void *data);
-
     static bool CheckAddDisallowedRunningBundlesParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_;

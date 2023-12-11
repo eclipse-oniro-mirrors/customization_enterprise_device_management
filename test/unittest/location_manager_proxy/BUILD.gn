@@ -11,55 +11,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/config/features.gni")
-import("//build/ohos.gni")
 import("//build/test.gni")
+
 module_output_path = "enterprise_device_management/enterprise_device_management"
 
-ohos_fuzztest("EnterpriseDeviceMgrStubFuzzTest") {
+ohos_unittest("EdmLocationManagerUnitTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "."
-
-  cflags = [
-    "-g",
-    "-fno-omit-frame-pointer",
-  ]
-
   include_dirs = [
-    "../../unittest/include",
-    "../../../interfaces/inner_api/common/include",
+    "../include",
+    "../mock/include",
+    "../enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test",
   ]
 
   sources = [
-    "../../unittest/src/utils.cpp",
-    "enterprise_device_mgr_stub_fuzzer.cpp",
+    "../enterprise_device_mgr_proxy/enterprise_device_mgr_proxy_test/enterprise_device_mgr_stub_mock.cpp",
+    "../mock/src/edm_sys_manager_mock.cpp",
+    "../src/utils.cpp",
+    "./location_manager_proxy_test.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
-    "../../../common/native:edm_commom",
-    "../../unittest:edmservice_static",
+    "../../../interfaces/inner_api:edmservice_kits",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "relational_store:native_rdb",
-    "safwk:system_ability_fwk",
+    "netmanager_base:net_conn_manager_if",
     "samgr:samgr_proxy",
   ]
 
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+    blocklist = "../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [
+    # deps file
+    ":EdmLocationManagerUnitTest",
+  ]
 }

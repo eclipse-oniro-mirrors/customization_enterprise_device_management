@@ -108,5 +108,96 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     reply.ReadStringVector(&bundles);
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::AddAutoStartApps(const AppExecFwk::ElementName &admin,
+    const std::vector<AppExecFwk::ElementName> &autoStartApps)
+{
+    EDMLOGD("ApplicationManagerProxy::AddAutoStartApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    std::vector<std::string> autoStartAppsString;
+    for (size_t i = 0; i < autoStartApps.size(); i++) {
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
+        autoStartAppsString.push_back(appWant);
+    }
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(autoStartAppsString);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::RemoveAutoStartApps(const AppExecFwk::ElementName &admin,
+    const std::vector<AppExecFwk::ElementName> &autoStartApps)
+{
+    EDMLOGD("ApplicationManagerProxy::RemoveAutoStartApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    std::vector<std::string> autoStartAppsString;
+    for (size_t i = 0; i < autoStartApps.size(); i++) {
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
+        autoStartAppsString.push_back(appWant);
+    }
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(autoStartAppsString);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetAutoStartApps(const AppExecFwk::ElementName &admin,
+    std::vector<AppExecFwk::ElementName> &autoStartApps)
+{
+    EDMLOGD("ApplicationManagerProxy::GetAutoStartApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_AUTO_START_APPS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    std::vector<std::string> autoStartAppsString;
+    reply.ReadStringVector(&autoStartAppsString);
+    for (size_t i = 0; i < autoStartAppsString.size(); i++) {
+        size_t index = autoStartAppsString[i].find("/");
+        std::string bundleName;
+        std::string abilityName;
+        if (index != autoStartAppsString[i].npos) {
+            bundleName = autoStartAppsString[i].substr(0, index);
+            abilityName = autoStartAppsString[i].substr(index + 1);
+        } else {
+            EDMLOGE("GetAutoStartApps parse auto start app want failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        AppExecFwk::ElementName element;
+        element.SetBundleName(bundleName);
+        element.SetAbilityName(abilityName);
+        autoStartApps.push_back(element);
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

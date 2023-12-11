@@ -24,6 +24,10 @@
             "virtual thunk to OHOS::EDM::PowerPolicy::~PowerPolicy()";
             VTT?for?OHOS::EDM::PowerPolicy;
             vtable?for?OHOS::EDM::PowerPolicy;
+            OHOS::EDM::UsbDeviceId::*;
+            "virtual thunk to OHOS::EDM::UsbDeviceId::~UsbDeviceId()";
+            VTT?for?OHOS::EDM::UsbDeviceId;
+            vtable?for?OHOS::EDM::UsbDeviceId;
         };
     local:
         *;

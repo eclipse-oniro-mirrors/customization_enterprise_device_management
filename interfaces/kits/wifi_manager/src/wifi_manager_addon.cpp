@@ -150,6 +150,8 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("isWifiActive", IsWifiActive),
         DECLARE_NAPI_FUNCTION("setWifiProfile", SetWifiProfile),
+        DECLARE_NAPI_FUNCTION("disableWifi", DisableWifi),
+        DECLARE_NAPI_FUNCTION("isWifiDisabled", IsWifiDisabled),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
@@ -193,6 +195,64 @@ napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
         NativeIsWifiActive, NativeBoolCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+}
+
+napi_value WifiManagerAddon::DisableWifi(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::DisableWifi called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean), "parameter bool error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "DisableWifi: elementName.bundlename: %{public}s, "
+        "elementName.abilityname: %{public}s",
+        elementName.GetBundleName().c_str(),
+        elementName.GetAbilityName().c_str());
+    bool isDisabled = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisabled, argv[ARR_INDEX_ONE]),
+        "parameter isDisabled error");
+    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->DisableWifi(elementName, isDisabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::IsWifiDisabled called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(&elementName, isDisabled);
+    } else {
+        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(nullptr, isDisabled);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, isDisabled, &result);
+    return result;
 }
 
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)

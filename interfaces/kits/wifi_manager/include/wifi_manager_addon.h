@@ -93,6 +93,8 @@ private:
     static void CreateIpTypeObject(napi_env env, napi_value value);
     static void CreateEapMethodObject(napi_env env, napi_value value);
     static void CreatePhase2MethodObject(napi_env env, napi_value value);
+    static napi_value DisableWifi(napi_env env, napi_callback_info info);
+    static napi_value IsWifiDisabled(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
