@@ -29,6 +29,7 @@ namespace OHOS {
 namespace EDM {
 constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 const std::string RETURN_STRING = "test_string";
+const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgr> {
 public:
     EnterpriseDeviceMgrStubMock() = default;
@@ -68,6 +69,9 @@ public:
     int InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int InvokeArrayStringSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeArrayElementSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,

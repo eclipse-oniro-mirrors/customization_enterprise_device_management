@@ -156,6 +156,97 @@ HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundlesFail, TestSize.
     ErrCode ret = applicationManagerProxy_->GetDisallowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestAddAutoStartAppsFail
+ * @tc.desc: Test AddAutoStartApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    ErrCode ret = applicationManagerProxy_->AddAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddAutoStartAppsSuc
+ * @tc.desc: Test AddAutoStartApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddAutoStartAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveAutoStartAppsFail
+ * @tc.desc: Test RemoveAutoStartApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    ErrCode ret = applicationManagerProxy_->RemoveAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveAutoStartAppsSuc
+ * @tc.desc: Test RemoveAutoStartApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->RemoveAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAutoStartAppsSuc
+ * @tc.desc: Test GetAutoStartApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(apps.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetAutoStartAppsFail
+ * @tc.desc: Test GetAutoStartApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    ErrCode ret = applicationManagerProxy_->GetAutoStartApps(admin, apps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
