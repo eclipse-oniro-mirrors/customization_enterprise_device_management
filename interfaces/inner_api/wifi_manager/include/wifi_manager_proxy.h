@@ -28,7 +28,7 @@ public:
     static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
     int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
     int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config);
-    int32_t DisableWifi(const AppExecFwk::ElementName &admin, const bool &isDisabled);
+    int32_t SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled);
     int32_t IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result);
 private:
     static std::shared_ptr<WifiManagerProxy> instance_;

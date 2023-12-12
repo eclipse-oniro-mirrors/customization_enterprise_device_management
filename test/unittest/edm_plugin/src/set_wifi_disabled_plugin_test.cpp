@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "disable_wifi_plugin.h"
+#include "set_wifi_disabled_plugin.h"
 
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -29,20 +29,20 @@ namespace EDM {
 namespace TEST {
 const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 
-class DisableWifiPluginTest : public testing::Test {
+class SetWifiDisabledPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void DisableWifiPluginTest::SetUpTestSuite(void)
+void SetWifiDisabledPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void DisableWifiPluginTest::TearDownTestSuite(void)
+void SetWifiDisabledPluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -51,16 +51,16 @@ void DisableWifiPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableWifiPluginTestSetTrue
- * @tc.desc: Test DisableWifiPluginTest::OnSetPolicy function.
+ * @tc.name: TestSetWifiDisabledPluginTestSetTrue
+ * @tc.desc: Test SetWifiDisabledPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableWifiPluginTest, TestDisableWifiPluginTestSetTrue, TestSize.Level1)
+HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
     std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     bool isChanged = false;
@@ -70,16 +70,16 @@ HWTEST_F(DisableWifiPluginTest, TestDisableWifiPluginTestSetTrue, TestSize.Level
 }
 
 /**
- * @tc.name: TestDisableWifiPluginTestSetFalse
- * @tc.desc: Test DisableWifiPluginTest::OnSetPolicy function.
+ * @tc.name: TestSetWifiDisabledPluginTestSetFalse
+ * @tc.desc: Test SetWifiDisabledPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableWifiPluginTest, TestDisableWifiPluginTestSetFalse, TestSize.Level1)
+HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalse, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
     std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     bool isChanged = false;
@@ -89,13 +89,13 @@ HWTEST_F(DisableWifiPluginTest, TestDisableWifiPluginTestSetFalse, TestSize.Leve
 }
 
 /**
- * @tc.name: TestDisableWifiPluginTestGet
- * @tc.desc: Test DisableWifiPluginTest::OnGetPolicy function.
+ * @tc.name: TestSetWifiDisabledPluginTestGet
+ * @tc.desc: Test SetWifiDisabledPluginTest::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableWifiPluginTest, TestDisableWifiPluginTestGet, TestSize.Level1)
+HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestGet, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisableWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
     std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;

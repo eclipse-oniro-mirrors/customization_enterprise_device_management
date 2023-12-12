@@ -133,11 +133,11 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestDisableWifiSuc
- * @tc.desc: Test DisableWifi func.
+ * @tc.name: TestSetWifiDisabledSuc
+ * @tc.desc: Test SetWifiDisabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(WifiManagerProxyTest, TestDisableWifiSuc, TestSize.Level1)
+HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -145,22 +145,22 @@ HWTEST_F(WifiManagerProxyTest, TestDisableWifiSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     bool isDisable = true;
-    int32_t ret = wifiManagerProxy->DisableWifi(admin, isDisable);
+    int32_t ret = wifiManagerProxy->SetWifiDisabled(admin, isDisable);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestDisableWifiFail
- * @tc.desc: Test DisableWifi func without enable edm service.
+ * @tc.name: TestSetWifiDisabledFail
+ * @tc.desc: Test SetWifiDisabled func without enable edm service.
  * @tc.type: FUNC
  */
-HWTEST_F(WifiManagerProxyTest, TestDisableWifiFail, TestSize.Level1)
+HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool isDisable = true;
-    int32_t ret = wifiManagerProxy->DisableWifi(admin, isDisable);
+    int32_t ret = wifiManagerProxy->SetWifiDisabled(admin, isDisable);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

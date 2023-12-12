@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_WIFI_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_WIFI_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_DISABLED_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_DISABLED_PLUGIN_H
 
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableWifiPlugin : public PluginSingleton<DisableWifiPlugin, bool> {
+class SetWifiDisabledPlugin : public PluginSingleton<SetWifiDisabledPlugin, bool> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableWifiPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr) override;
 
     ErrCode OnSetPolicy(bool &isDisable);
 
@@ -31,4 +31,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_WIFI_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_DISABLED_PLUGIN_H
