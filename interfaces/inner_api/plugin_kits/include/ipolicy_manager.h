@@ -31,6 +31,10 @@ public:
     {
         return ERR_OK;
     }
+    virtual ErrCode GetPolicy(const std::string &adminName, const std::string &policyName, std::string &policyValue)
+    {
+        return ERR_OK;
+    }
     virtual ~IPolicyManager() {}
 
     static IPolicyManager* policyManagerInstance_;

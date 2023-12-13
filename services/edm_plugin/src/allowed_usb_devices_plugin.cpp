@@ -21,6 +21,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
+#include "edm_utils.h"
 #include "usb_device.h"
 #include "usb_device_id.h"
 #include "usb_srv_client.h"
@@ -49,6 +50,18 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
         return ERR_OK;
     }
+
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string disableUsbPolicy;
+    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    if (disableUsbPolicy == "true" || usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy: CONFLICT! isUsbDisabled: %{public}s, usbStoragePolicy: %{public}s",
+            disableUsbPolicy.c_str(), usbStoragePolicy.c_str());
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+
     std::vector<UsbDeviceId> mergeData = ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(data,
         currentData);
     if (mergeData.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {

@@ -16,7 +16,9 @@
 #include "disable_usb_plugin.h"
 
 #include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "iplugin_manager.h"
 #include "usb_srv_client.h"
 
@@ -37,6 +39,18 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
 ErrCode DisableUsbPlugin::OnSetPolicy(bool &data)
 {
     EDMLOGI("DisableUsbPlugin OnSetPolicy...disable = %{public}d", data);
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string allowUsbDevicePolicy;
+    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    if (data && (!allowUsbDevicePolicy.empty() ||
+        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED))) {
+        EDMLOGE("DisableUsbPlugin OnSetPolicy: CONFLICT! allowedUsbDevice: %{public}s, usbStoragePolicy: %{public}s",
+            allowUsbDevicePolicy.c_str(), usbStoragePolicy.c_str());
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     int32_t usbRet = srvClient.ManageGlobalInterface(data);
     if (usbRet != ERR_OK) {

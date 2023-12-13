@@ -42,15 +42,15 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
 void UsbManagerAddon::CreateUsbPolicyEnum(napi_env env, napi_value value)
 {
     napi_value readWrite;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, READ_WRITE, &readWrite));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, EdmConstants::STORAGE_USB_POLICY_READ_WRITE, &readWrite));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "READ_WRITE", readWrite));
 
     napi_value readOnly;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, READ_ONLY, &readOnly));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, EdmConstants::STORAGE_USB_POLICY_READ_ONLY, &readOnly));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "READ_ONLY", readOnly));
 
     napi_value disabled;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, DISABLED, &disabled));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, EdmConstants::STORAGE_USB_POLICY_DISABLED, &disabled));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISABLED", disabled));
 }
 
@@ -108,11 +108,11 @@ void UsbManagerAddon::NativeSetUsbPolicy(napi_env env, void *data)
     }
     AsyncSetUsbPolicyCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetUsbPolicyCallbackInfo *>(data);
     switch (asyncCallbackInfo->policy) {
-        case READ_WRITE:
+        case EdmConstants::STORAGE_USB_POLICY_READ_WRITE:
             asyncCallbackInfo->ret =
                 UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, false);
             break;
-        case READ_ONLY:
+        case EdmConstants::STORAGE_USB_POLICY_READ_ONLY:
             asyncCallbackInfo->ret =
                 UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, true);
             break;
@@ -138,7 +138,7 @@ napi_value UsbManagerAddon::DisableUsb(napi_env env, napi_callback_info info)
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "parameter admin parse error");
-    bool disable;
+    bool disable = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disable, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
@@ -219,7 +219,7 @@ napi_value UsbManagerAddon::AddOrRemoveAllowedUsbDevices(napi_env env, napi_call
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    int32_t ret;
+    int32_t ret = ERR_OK;
     if (isAdd) {
         ret = usbManagerProxy->AddAllowedUsbDevices(elementName, usbDeviceIds);
     } else {
@@ -261,7 +261,7 @@ bool UsbManagerAddon::ParseUsbDevicesArray(napi_env env, std::vector<UsbDeviceId
 
 bool UsbManagerAddon::GetUsbDeviceIdFromNAPI(napi_env env, napi_value value, UsbDeviceId &usbDeviceId)
 {
-    int32_t vendorId;
+    int32_t vendorId = 0;
     if (!JsObjectToInt(env, value, "vendorId", true, vendorId)) {
         EDMLOGE("Add/RemoveAllowedUsbDevices vendorId parse error!");
         return false;
@@ -298,7 +298,7 @@ napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_inf
         return nullptr;
     }
     std::vector<UsbDeviceId> usbDeviceIds;
-    int32_t ret = usbManagerProxy->GetAllowedUsbDevices(elementName, usbDeviceIds, true);
+    int32_t ret = usbManagerProxy->GetAllowedUsbDevices(elementName, usbDeviceIds);
     EDMLOGI("UsbManagerAddon::GetAllowedUsbDevices usbDeviceIds return size: %{public}d", usbDeviceIds.size());
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -344,7 +344,7 @@ napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "parameter admin parse error");
-    int32_t usbPolicy;
+    int32_t usbPolicy = EdmConstants::STORAGE_USB_POLICY_READ_WRITE;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, usbPolicy, argv[ARR_INDEX_ONE]), "parameter type parse error");
     bool existUsbPolicy = std::any_of(std::begin(USB_POLICY), std::end(USB_POLICY),
         [&](int item) { return item == usbPolicy; });
@@ -377,13 +377,13 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "parameter admin parse error");
 
-    int32_t usbPolicy;
+    int32_t usbPolicy = EdmConstants::STORAGE_USB_POLICY_READ_WRITE;
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    int32_t ret = usbManagerProxy->GetUsbStorageDeviceAccessPolicy(elementName, usbPolicy, true);
+    int32_t ret = usbManagerProxy->GetUsbStorageDeviceAccessPolicy(elementName, usbPolicy);
     EDMLOGI("UsbManagerAddon::GetUsbStorageDeviceAccessPolicy return: %{public}d", usbPolicy);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));

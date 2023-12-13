@@ -16,6 +16,7 @@
 #ifndef INTERFACES_KITS_USB_MANAGER_INCLUDE_USB_MANAGER_ADDON_H
 #define INTERFACES_KITS_USB_MANAGER_INCLUDE_USB_MANAGER_ADDON_H
 
+#include "edm_constants.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -31,10 +32,11 @@ struct AsyncSetUsbPolicyCallbackInfo : AsyncCallbackInfo {
     int32_t policy;
 };
 
-constexpr int32_t READ_WRITE = 0;
-constexpr int32_t READ_ONLY = 1;
-constexpr int32_t DISABLED = 2;
-constexpr int32_t USB_POLICY[] = {READ_WRITE, READ_ONLY, DISABLED};
+constexpr int32_t USB_POLICY[] = {
+    EdmConstants::STORAGE_USB_POLICY_READ_WRITE,
+    EdmConstants::STORAGE_USB_POLICY_READ_ONLY,
+    EdmConstants::STORAGE_USB_POLICY_DISABLED
+};
 
 class UsbManagerAddon {
 public:
