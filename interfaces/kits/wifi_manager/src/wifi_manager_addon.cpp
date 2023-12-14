@@ -59,14 +59,14 @@ void WifiManagerAddon::CreateWifiSecurityTypeObject(napi_env env, napi_value val
 void WifiManagerAddon::CreateIpTypeObject(napi_env env, napi_value value)
 {
     napi_value nStatic;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(Wifi::AssignIpMethod::STATIC), &nStatic));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IpType::STATIC), &nStatic));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "STATIC", nStatic));
     napi_value nDhcp;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(Wifi::AssignIpMethod::DHCP), &nDhcp));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IpType::DHCP), &nDhcp));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DHCP", nDhcp));
     napi_value nUnknown;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
-        static_cast<int32_t>(Wifi::AssignIpMethod::UNASSIGNED), &nUnknown));
+        static_cast<int32_t>(IpType::UNKNOWN), &nUnknown));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UNKNOWN", nUnknown));
 }
 
@@ -270,7 +270,7 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
 bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config)
 {
     int32_t type = static_cast<int32_t>(SecurityType::SEC_TYPE_INVALID);
-    int32_t ipType = static_cast<int32_t>(Wifi::AssignIpMethod::UNASSIGNED);
+    int32_t ipType = static_cast<int32_t>(IpType::UNKNOWN);
     /* "creatorUid" "disableReason" "randomMacType" "randomMacAddr" is not supported currently */
     if (!JsObjectToString(env, object, "ssid", true, config.ssid) ||
         !JsObjectToString(env, object, "bssid", false, config.bssid) ||
@@ -318,8 +318,18 @@ void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDev
 
 bool WifiManagerAddon::ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig)
 {
-    MessageParcelUtils::ProcessAssignIpMethod(ipType, ipConfig);
-    if (ipType == static_cast<int32_t>(Wifi::AssignIpMethod::STATIC) && !ConfigStaticIp(env, object, ipConfig)) {
+    switch (ipType) {
+        case static_cast<int32_t>(IpType::DHCP):
+            ipConfig.assignMethod = Wifi::AssignIpMethod::DHCP;
+            break;
+        case static_cast<int32_t>(IpType::STATIC):
+            ipConfig.assignMethod = Wifi::AssignIpMethod::STATIC;
+            break;
+        default:
+            ipConfig.assignMethod = Wifi::AssignIpMethod::UNASSIGNED;
+            break;
+    }
+    if (ipType == static_cast<int32_t>(IpType::STATIC) && !ConfigStaticIp(env, object, ipConfig)) {
         return false;
     }
     return true;
