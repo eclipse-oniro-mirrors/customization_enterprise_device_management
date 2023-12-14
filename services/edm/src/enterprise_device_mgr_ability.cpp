@@ -25,6 +25,7 @@
 #include <system_ability_definition.h>
 
 #include "accesstoken_kit.h"
+#include "audio_system_manager.h"
 #include "application_state_observer.h"
 #include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
@@ -45,7 +46,6 @@
 #include "parameters.h"
 #include "security_report.h"
 #include "tokenid_kit.h"
-#include "audio_system_manager.h"
 
 namespace OHOS {
 namespace EDM {
