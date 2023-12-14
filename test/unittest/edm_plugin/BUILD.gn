@@ -125,6 +125,7 @@ ohos_unittest("EdmPluginTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
+    "storage_service:storage_manager_sa_proxy",
     "usb_manager:usbsrv_client",
     "wifi:wifi_sdk",
     "window_manager:libdm",
