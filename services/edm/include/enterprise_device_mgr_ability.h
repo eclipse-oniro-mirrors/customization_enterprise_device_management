@@ -62,7 +62,6 @@ protected:
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
 private:
-    bool IsHdc();
     void AddCommonEventFuncMap();
     ErrCode CheckCallingUid(std::string &bundleName);
     ErrCode RemoveAdminItem(std::string adminName, std::string policyName, std::string policyValue);
