@@ -31,7 +31,7 @@ config("edm_config") {
   ]
 }
 
-ohos_static_library("edmservice_static") {
+ohos_static_library("edmservice_fuzz_static") {
   testonly = true
   sources = [
     "../../../services/edm/src/admin.cpp",
@@ -130,7 +130,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
-    ":edmservice_static",
+    ":edmservice_fuzz_static",
     "../../../common/native:edm_commom",
   ]
 

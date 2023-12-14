@@ -136,6 +136,16 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy(uint32_t 
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteStringVector(std::vector<std::string>{ELEMENT_STRING});
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
