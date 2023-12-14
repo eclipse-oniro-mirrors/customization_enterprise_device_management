@@ -75,6 +75,8 @@ private:
     void AddOnAddSystemAbilityFuncMap();
     bool SubscribeAppState();
     bool UnsubscribeAppState();
+    void StartAutorun();
+    void AutorunDisableMicrophone();
     ErrCode CheckCallingUid(const std::string &bundleName);
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);

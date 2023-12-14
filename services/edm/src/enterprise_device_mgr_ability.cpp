@@ -45,6 +45,7 @@
 #include "parameters.h"
 #include "security_report.h"
 #include "tokenid_kit.h"
+#include "audio_system_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -60,6 +61,7 @@ const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
+const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
 
 const std::vector<uint32_t> codeList = {
     EdmInterfaceCode::RESET_FACTORY,
@@ -330,6 +332,8 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
+
+    StartAutorun();
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
@@ -1202,6 +1206,21 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
     return ERR_OK;
+}
+
+void EnterpriseDeviceMgrAbility::StartAutorun()
+{
+    EDMLOGD("EnableAdmin: StartAutorun.");
+    AutorunDisableMicrophone();
+}
+
+void EnterpriseDeviceMgrAbility::AutorunDisableMicrophone()
+{
+    EDMLOGD("EnableAdmin: AutorunDisableMicrophone.");
+    if (system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false)) {
+        auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
+        audioSystemManager->SetMicrophoneMute(true);
+    }
 }
 } // namespace EDM
 } // namespace OHOS
