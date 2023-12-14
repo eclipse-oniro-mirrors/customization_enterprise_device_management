@@ -83,8 +83,8 @@ edm_plugin_shared_library("wifi_manager_plugin") {
   include_dirs = [ "./include/utils" ]
 
   sources = [
-    "./src/set_wifi_disabled_plugin.cpp",
     "./src/is_wifi_active_plugin.cpp",
+    "./src/set_wifi_disabled_plugin.cpp",
     "./src/set_wifi_profile_plugin.cpp",
     "./src/utils/wifi_device_config_serializer.cpp",
   ]
