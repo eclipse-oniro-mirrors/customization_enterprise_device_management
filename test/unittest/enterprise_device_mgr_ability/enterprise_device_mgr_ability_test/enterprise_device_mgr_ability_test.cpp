@@ -105,10 +105,13 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     edmSysManager_ = std::make_shared<EdmSysManager>();
     sptr<IRemoteObject> object = new (std::nothrow) AppExecFwk::BundleMgrService();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, object);
+    const char *perms[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
+    NativeTokenGet(perms, 1);
 }
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
+    NativeTokenGet(nullptr, 0);
     edmMgr_ = nullptr;
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
 }
@@ -311,6 +314,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdmin22, TestSize.Level
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res != ERR_OK);
 
+    NativeTokenGet(nullptr, 0);
     bundleName = "";
     res = edmMgr_->DisableSuperAdmin(bundleName);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
