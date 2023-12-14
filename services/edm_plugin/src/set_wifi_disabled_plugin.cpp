@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "disable_wifi_plugin.h"
+#include "set_wifi_disabled_plugin.h"
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
@@ -23,21 +23,21 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableWifiPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
 const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 
-void DisableWifiPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableWifiPlugin, bool>> ptr)
+void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
 {
-    EDMLOGD("DisableWifiPlugin InitPlugin...");
+    EDMLOGD("SetWifiDisabledPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi",
         "ohos.permission.ENTERPRISE_MANAGE_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableWifiPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&SetWifiDisabledPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode DisableWifiPlugin::OnSetPolicy(bool &isDisable) __attribute__((no_sanitize("cfi")))
+ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable) __attribute__((no_sanitize("cfi")))
 {
-    EDMLOGI("DisableWifiPlugin OnSetPolicy %{public}d", isDisable);
+    EDMLOGI("SetWifiDisabledPlugin OnSetPolicy %{public}d", isDisable);
     std::string value = isDisable ? "true" : "false";
     if (isDisable) {
         ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->DisableWifi();
@@ -48,10 +48,10 @@ ErrCode DisableWifiPlugin::OnSetPolicy(bool &isDisable) __attribute__((no_saniti
     return system::SetParameter(KEY_DISABLE_WIFI, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode DisableWifiPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+ErrCode SetWifiDisabledPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisableWifiPlugin OnGetPolicy.");
+    EDMLOGI("SetWifiDisabledPlugin OnGetPolicy.");
     bool ret = system::GetBoolParameter(KEY_DISABLE_WIFI, false);
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(ret);

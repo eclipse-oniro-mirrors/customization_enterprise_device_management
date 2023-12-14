@@ -150,7 +150,7 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("isWifiActive", IsWifiActive),
         DECLARE_NAPI_FUNCTION("setWifiProfile", SetWifiProfile),
-        DECLARE_NAPI_FUNCTION("disableWifi", DisableWifi),
+        DECLARE_NAPI_FUNCTION("setWifiDisabled", SetWifiDisabled),
         DECLARE_NAPI_FUNCTION("isWifiDisabled", IsWifiDisabled),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
@@ -197,9 +197,9 @@ napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
-napi_value WifiManagerAddon::DisableWifi(napi_env env, napi_callback_info info)
+napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("WifiManagerAddon::DisableWifi called");
+    EDMLOGI("WifiManagerAddon::SetWifiDisabled called");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -212,14 +212,14 @@ napi_value WifiManagerAddon::DisableWifi(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     EDMLOGD(
-        "DisableWifi: elementName.bundlename: %{public}s, "
+        "SetWifiDisabled: elementName.bundlename: %{public}s, "
         "elementName.abilityname: %{public}s",
         elementName.GetBundleName().c_str(),
         elementName.GetAbilityName().c_str());
     bool isDisabled = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisabled, argv[ARR_INDEX_ONE]),
         "parameter isDisabled error");
-    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->DisableWifi(elementName, isDisabled);
+    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->SetWifiDisabled(elementName, isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

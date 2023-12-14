@@ -83,9 +83,9 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t WifiManagerProxy::DisableWifi(const AppExecFwk::ElementName &admin, const bool &isDisabled)
+int32_t WifiManagerProxy::SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled)
 {
-    EDMLOGD("WifiManagerProxy::DisableWifi. isDisable: %{public}d", isDisabled);
+    EDMLOGD("WifiManagerProxy::SetWifiDisabled. isDisable: %{public}d", isDisabled);
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
         EdmInterfaceCode::DISABLE_WIFI);
 }
