@@ -34,6 +34,14 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMicrophonePlugin::OnSetPolicy, FuncOperateType::SET);
+
+    if (system::GetBoolParameter("persist.edm.mic_disable", false)) {
+        auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
+        int32_t ret = audioSystemManager->SetMicrophoneMute(true);
+        if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
+            EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
+        }
+    }
 }
 
 ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
@@ -43,7 +51,7 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
         auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
         int32_t ret = audioSystemManager->SetMicrophoneMute(isDisallow);
         if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
-            EDMLOGE("DisableMicrophonePlugin displayManager DisableMicrophone result %{public}d", ret);
+            EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         system::SetParameter(PARAM_EDM_MIC_DISABLE, "true");
