@@ -80,6 +80,7 @@
         "samgr",
         "screenlock_mgr",
         "security_guard",
+        "storage_service",
         "time_service",
         "update_service",
         "usb_manager",

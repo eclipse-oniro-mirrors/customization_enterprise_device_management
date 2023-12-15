@@ -17,6 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
 
 #include "plugin_singleton.h"
+#include "istorage_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,6 +28,9 @@ public:
     ErrCode SetPolicy(int32_t &policyValue);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnAdminRemove(const std::string &adminName, int32_t &data, int32_t userId);
+private:
+    OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
+    ErrCode ReloadUsbDevice();
 };
 } // namespace EDM
 } // namespace OHOS

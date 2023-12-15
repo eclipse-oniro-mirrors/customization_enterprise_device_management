@@ -20,12 +20,15 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "iplugin_manager.h"
+#include "iservice_registry.h"
 #include "parameters.h"
 #include "usb_srv_client.h"
+#include "volume_external.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(UsbReadOnlyPlugin::GetPlugin());
+constexpr int32_t STORAGE_MANAGER_MANAGER_ID = 5003;
 
 void UsbReadOnlyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, int32_t>> ptr)
 {
@@ -66,7 +69,7 @@ ErrCode UsbReadOnlyPlugin::SetPolicy(int32_t &policyValue)
     int32_t usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
     EDMLOGI("UsbReadOnlyPlugin SetPolicy sysParam: readonly value:%{public}s  ret:%{public}d usbRet:%{public}d",
         usbValue.c_str(), ret, usbRet);
-    return (ret && usbRet == ERR_OK) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return (ret && usbRet == ERR_OK) ? ReloadUsbDevice() : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 ErrCode UsbReadOnlyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -102,6 +105,53 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, int32_t &
     std::string usbValue = "false";
     bool ret = OHOS::system::SetParameter(usbKey, usbValue);
     return ret ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+OHOS::sptr<OHOS::StorageManager::IStorageManager> UsbReadOnlyPlugin::GetStorageManager()
+{
+    auto samgr = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        EDMLOGE("UsbReadOnlyPlugin GetStorageManager:get samgr fail");
+        return nullptr;
+    }
+    sptr<IRemoteObject> obj = samgr->GetSystemAbility(STORAGE_MANAGER_MANAGER_ID);
+    if (obj == nullptr) {
+        EDMLOGE("UsbReadOnlyPlugin GetStorageManager:get storage manager client fail");
+        return nullptr;
+    }
+    auto storageMgrProxy = iface_cast<OHOS::StorageManager::IStorageManager>(obj);
+    if (storageMgrProxy == nullptr) {
+        EDMLOGE("UsbReadOnlyPlugin GetStorageManager:get storageMgrProxy fail");
+    }
+    return storageMgrProxy;
+}
+
+ErrCode UsbReadOnlyPlugin::ReloadUsbDevice()
+{
+    auto storageMgrProxy = GetStorageManager();
+    if (storageMgrProxy == nullptr) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::vector<StorageManager::VolumeExternal> volList;
+    int32_t storageRet = storageMgrProxy->GetAllVolumes(volList);
+    if (storageRet != ERR_OK) {
+        EDMLOGE("UsbReadOnlyPlugin SetPolicy storageMgrProxy GetAllVolumes failed! ret:%{public}d", storageRet);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (volList.empty()) {
+        return ERR_OK;
+    }
+    for (auto &vol : volList) {
+        if (storageMgrProxy->Unmount(vol.GetId()) != ERR_OK) {
+            EDMLOGE("UsbReadOnlyPlugin SetPolicy storageMgrProxy Unmount failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (storageMgrProxy->Mount(vol.GetId()) != ERR_OK) {
+            EDMLOGE("UsbReadOnlyPlugin SetPolicy storageMgrProxy Mount failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

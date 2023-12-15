@@ -243,6 +243,9 @@ edm_plugin_shared_library("usb_manager_plugin") {
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
     "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "storage_service:storage_manager_sa_proxy",
     "usb_manager:usbsrv_client",
   ]
 }
