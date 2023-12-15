@@ -62,6 +62,7 @@ const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
+const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 
 const std::vector<uint32_t> codeList = {
     EdmInterfaceCode::RESET_FACTORY,
@@ -1219,7 +1220,10 @@ void EnterpriseDeviceMgrAbility::AutorunDisableMicrophone()
     EDMLOGD("EnableAdmin: AutorunDisableMicrophone.");
     if (system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false)) {
         auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
-        audioSystemManager->SetMicrophoneMute(true);
+        int32_t ret = audioSystemManager->SetMicrophoneMute(true);
+        if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
+            EDMLOGE("EnterpriseDeviceMgrAbility DisableMicrophone result %{public}d", ret);
+        }
     }
 }
 } // namespace EDM
