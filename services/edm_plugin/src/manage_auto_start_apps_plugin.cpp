@@ -56,7 +56,12 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, s
         EDMLOGI("ManageAutoStartAppsPlugin checkBundleAndAbilityExited failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
+    std::vector<std::string> mergeData =
+        ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
+    if (mergeData.size() > EdmConstants::AUTO_START_APPS_MAX_SIZE) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy data is too large:");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     auto autoStartUpclient = AAFwk::AbilityAutoStartupClient::GetInstance();
     if (!autoStartUpclient) {
         EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy GetAppControlProxy failed.");
@@ -189,7 +194,7 @@ bool ManageAutoStartAppsPlugin::ParseAutoStartAppWant(std::string appWant, std::
         bundleName = appWant.substr(0, index);
         abilityName = appWant.substr(index + 1);
     } else {
-        EDMLOGE("ManageAutoStartAppsPlugin OnAdminRemoveDone parse auto start app want failed");
+        EDMLOGE("ManageAutoStartAppsPlugin ParseAutoStartAppWant parse auto start app want failed");
         return false;
     }
     return true;
