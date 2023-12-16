@@ -170,6 +170,10 @@ napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray,
     EDMLOGD("begin to parse string array");
     bool isArray = false;
     NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        EDMLOGE("napi object is not array.");
+        return nullptr;
+    }
     uint32_t arrayLength = 0;
     NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
     EDMLOGD("length=%{public}ud", arrayLength);
@@ -200,6 +204,10 @@ napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> 
     EDMLOGD("begin to parse element array");
     bool isArray = false;
     NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        EDMLOGE("napi object is not array.");
+        return nullptr;
+    }
     uint32_t arrayLength = 0;
     NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
     EDMLOGD("length=%{public}ud", arrayLength);
