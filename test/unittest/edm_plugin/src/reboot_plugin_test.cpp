@@ -26,6 +26,7 @@ namespace EDM {
 namespace TEST {
 void RebootPluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmInitialEnv();
 }
 
 void RebootPluginTest::TearDownTestSuite(void)
@@ -42,7 +43,8 @@ void RebootPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(RebootPluginTest, TestReboot, TestSize.Level1)
 {
-    Utils::ResetTokenTypeAndUid();
+    uint64_t selfTokenId = GetSelfTokenID();
+    SetSelfTokenID(0);
     std::shared_ptr<IPlugin> plugin = RebootPlugin::GetPlugin();
     bool isChanged = false;
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::REBOOT);
@@ -51,6 +53,7 @@ HWTEST_F(RebootPluginTest, TestReboot, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST
 } // namespace EDM
