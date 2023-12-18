@@ -28,6 +28,7 @@ namespace EdmConstants {
     static constexpr int32_t STORAGE_USB_POLICY_READ_WRITE = 0;
     static constexpr int32_t STORAGE_USB_POLICY_READ_ONLY = 1;
     static constexpr int32_t STORAGE_USB_POLICY_DISABLED = 2;
+    static constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
 }
 } // namespace EDM
 } // namespace OHOS
