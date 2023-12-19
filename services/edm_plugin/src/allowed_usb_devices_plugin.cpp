@@ -116,7 +116,7 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
         currentData = mergeData;
         return ERR_OK;
     }
-    EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: remove data size: %{public}d", data.size());
+    EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: remove data size: %{public}zu", data.size());
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     std::for_each(data.begin(), data.end(), [&](const auto usbDeviceId) {
         if (srvClient.ManageDevice(usbDeviceId.GetVendorId(), usbDeviceId.GetProductId(), true) != ERR_OK) {
@@ -153,14 +153,24 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
-    EDMLOGI("AllowUsbDevicesPlugin OnAdminRemove: remove data size: %{public}d", data.size());
+    std::vector<OHOS::USB::UsbDevice> allDevices;
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::for_each(data.begin(), data.end(), [&](const auto usbDeviceId) {
-        if (srvClient.ManageDevice(usbDeviceId.GetVendorId(), usbDeviceId.GetProductId(), false) != ERR_OK) {
-            EDMLOGW("AllowUsbDevicesPlugin OnAdminRemove ManageDevice vid: %{public}d, pid: %{public}d failed!",
-                usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());
+    int32_t getRet = srvClient.GetDevices(allDevices);
+    if (getRet != ERR_OK) {
+        EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove getDevices failed: %{public}d", getRet);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice which is not in the list of allowed usb device.");
+    for (const auto &item : allDevices) {
+        if (std::find_if(data.begin(), data.end(), [item](UsbDeviceId trustItem) {
+            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
+        }) == data.end()) {
+            if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), false) != ERR_OK) {
+                EDMLOGW("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice vid:%{public}d pid:%{public}d failed!",
+                    item.GetVendorId(), item.GetProductId());
+            }
         }
-    });
+    }
     return ERR_OK;
 }
 } // namespace EDM
