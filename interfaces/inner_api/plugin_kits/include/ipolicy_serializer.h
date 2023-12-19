@@ -20,10 +20,12 @@
 #include <message_parcel.h>
 #include <set>
 #include <string>
-#include <edm_log.h>
 #include <string_ex.h>
+
 #include "json/json.h"
 #include "singleton.h"
+
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
@@ -92,15 +94,17 @@ public:
 template<typename DT, typename T_ARRAY = std::vector<DT>>
 class ArraySerializer : public IPolicySerializer<T_ARRAY> {
 public:
-    virtual bool Deserialize(const std::string &jsonString, T_ARRAY &dataObj) override;
+    bool Deserialize(const std::string &jsonString, T_ARRAY &dataObj) override;
 
-    virtual bool Serialize(const T_ARRAY &dataObj, std::string &jsonString) override;
+    bool Serialize(const T_ARRAY &dataObj, std::string &jsonString) override;
 
-    virtual bool GetPolicy(MessageParcel &data, T_ARRAY &result) override;
+    bool GetPolicy(MessageParcel &data, T_ARRAY &result) override;
 
-    virtual bool WritePolicy(MessageParcel &reply, T_ARRAY &result) override;
+    bool WritePolicy(MessageParcel &reply, T_ARRAY &result) override;
 
-    virtual bool MergePolicy(std::vector<T_ARRAY> &data, T_ARRAY &result) override;
+    bool MergePolicy(std::vector<T_ARRAY> &data, T_ARRAY &result) override;
+
+    virtual void Deduplication(T_ARRAY &dataObj);
 
 protected:
     std::shared_ptr<IPolicySerializer<DT>> serializerInner_;
@@ -176,6 +180,7 @@ bool ArraySerializer<DT, T_ARRAY>::GetPolicy(MessageParcel &data, T_ARRAY &resul
             result.push_back(item);
         }
     }
+    Deduplication(result);
     return true;
 }
 
@@ -204,6 +209,14 @@ bool ArraySerializer<DT, T_ARRAY>::MergePolicy(std::vector<T_ARRAY> &data, T_ARR
     }
     result.assign(stData.begin(), stData.end());
     return true;
+}
+
+template<typename DT, typename T_ARRAY>
+void ArraySerializer<DT, T_ARRAY>::Deduplication(T_ARRAY &dataObj)
+{
+    std::sort(dataObj.begin(), dataObj.end());
+    auto iter = std::unique(dataObj.begin(), dataObj.end());
+    dataObj.erase(iter, dataObj.end());
 }
 } // namespace EDM
 } // namespace OHOS
