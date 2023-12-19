@@ -24,8 +24,6 @@ constexpr int32_t ESCAPED_STRING_SUFFIX_LENGTH = 4;
 std::vector<UsbDeviceId> ArrayUsbDeviceIdSerializer::SetUnionPolicyData(std::vector<UsbDeviceId> &data,
     std::vector<UsbDeviceId> &currentData)
 {
-    std::set<UsbDeviceId> dataSet;
-
     std::vector<UsbDeviceId> mergeData;
     std::sort(data.begin(), data.end(), Comp());
     std::sort(currentData.begin(), currentData.end(), Comp());
