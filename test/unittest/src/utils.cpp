@@ -40,6 +40,11 @@ const std::string PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER = "ohos.permiss
 const std::string PERMISSION_REBOOT = "ohos.permission.REBOOT";
 const std::string PERMISSION_MICROPHONE = "ohos.permission.MICROPHONE";
 const std::string PERMISSION_MANAGE_APP_BOOT_INTERNAL = "ohos.permission.MANAGE_APP_BOOT_INTERNAL";
+const std::string PERMISSION_CONNECTIVITY_INTERNAL = "ohos.permission.CONNECTIVITY_INTERNAL";
+const std::string PERMISSION_MANAGE_USB_CONFIG = "ohos.permission.MANAGE_USB_CONFIG";
+const std::string PERMISSION_STORAGE_MANAGER = "ohos.permission.STORAGE_MANAGER";
+const std::string PERMISSION_MOUNT_UNMOUNT_MANAGER = "ohos.permission.MOUNT_UNMOUNT_MANAGER";
+const std::string PERMISSION_GET_BUNDLE_INFO = "ohos.permission.GET_BUNDLE_INFO";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -93,7 +98,12 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER.c_str(),
         PERMISSION_REBOOT.c_str(),
         PERMISSION_MICROPHONE.c_str(),
-        PERMISSION_MANAGE_APP_BOOT_INTERNAL.c_str()
+        PERMISSION_MANAGE_APP_BOOT_INTERNAL.c_str(),
+        PERMISSION_CONNECTIVITY_INTERNAL.c_str(),
+        PERMISSION_MANAGE_USB_CONFIG.c_str(),
+        PERMISSION_STORAGE_MANAGER.c_str(),
+        PERMISSION_MOUNT_UNMOUNT_MANAGER.c_str(),
+        PERMISSION_GET_BUNDLE_INFO.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
