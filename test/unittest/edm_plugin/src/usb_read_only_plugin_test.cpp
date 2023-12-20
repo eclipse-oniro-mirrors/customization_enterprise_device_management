@@ -64,7 +64,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin001, TestSize.Level1)
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(policyData == "true");
+    ASSERT_TRUE(policyData == "1");
     ASSERT_TRUE(isChanged);
 }
 } // namespace TEST
