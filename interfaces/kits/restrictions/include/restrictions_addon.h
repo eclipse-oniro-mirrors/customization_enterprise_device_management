@@ -42,8 +42,6 @@ private:
     static napi_value IsPrinterDisabled(napi_env env, napi_callback_info info);
     static napi_value SetHdcDisabled(napi_env env, napi_callback_info info);
     static napi_value IsHdcDisabled(napi_env env, napi_callback_info info);
-    static napi_value DisallowScreenShot(napi_env env, napi_callback_info info);
-    static napi_value IsScreenShotDisallowed(napi_env env, napi_callback_info info);
     static napi_value DisableMicrophone(napi_env env, napi_callback_info info);
     static napi_value IsMicrophoneDisabled(napi_env env, napi_callback_info info);
     static napi_value SetFingerprintAuthDisabled(napi_env env, napi_callback_info info);

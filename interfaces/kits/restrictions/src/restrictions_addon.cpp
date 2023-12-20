@@ -23,7 +23,6 @@ using namespace OHOS::EDM;
 std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::memberSetFuncMap_ = {
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
-    {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::DisallowScreenShot},
     {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::DisableMicrophone},
     {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::SetFingerprintAuthDisabled},
 };
@@ -31,7 +30,6 @@ std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::me
 std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
     {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
     {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
-    {EdmInterfaceCode::DISALLOW_SCREEN_SHOT, &RestrictionsProxy::IsScreenShotDisallowed},
     {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::IsMicrophoneDisabled},
     {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::IsFingerprintAuthDisabled},
 };
@@ -43,8 +41,6 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isPrinterDisabled", IsPrinterDisabled),
         DECLARE_NAPI_FUNCTION("setHdcDisabled", SetHdcDisabled),
         DECLARE_NAPI_FUNCTION("isHdcDisabled", IsHdcDisabled),
-        DECLARE_NAPI_FUNCTION("disallowScreenShot", DisallowScreenShot),
-        DECLARE_NAPI_FUNCTION("isScreenShotDisallowed", IsScreenShotDisallowed),
         DECLARE_NAPI_FUNCTION("disableMicrophone", DisableMicrophone),
         DECLARE_NAPI_FUNCTION("isMicrophoneDisabled", IsMicrophoneDisabled),
         DECLARE_NAPI_FUNCTION("setFingerprintAuthDisabled", SetFingerprintAuthDisabled),
@@ -202,16 +198,6 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
         EDMLOGE("NativeIsPolicyDisabled error");
         asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-}
-
-napi_value RestrictionsAddon::DisallowScreenShot(napi_env env, napi_callback_info info)
-{
-    return SetPolicyDisabledSync(env, info, EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
-}
-
-napi_value RestrictionsAddon::IsScreenShotDisallowed(napi_env env, napi_callback_info info)
-{
-    return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
 }
 
 napi_value RestrictionsAddon::DisableMicrophone(napi_env env, napi_callback_info info)

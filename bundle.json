@@ -64,7 +64,6 @@
         "data_share",
         "drivers_interface_usb",
         "eventhandler",
-        "graphic_2d",
         "netmanager_base",
         "netmanager_ext",
         "hilog",
