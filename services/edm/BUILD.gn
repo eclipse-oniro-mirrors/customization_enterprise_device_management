@@ -63,6 +63,8 @@ ohos_shared_library("edmservice") {
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
     print("defines _ARM64_")
+  } else if (target_cpu == "riscv64") {
+    defines += [ "_RISCV64_" ]
   }
 
   external_deps = [
