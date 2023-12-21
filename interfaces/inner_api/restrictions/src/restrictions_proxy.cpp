@@ -58,18 +58,6 @@ int32_t RestrictionsProxy::IsHdcDisabled(AppExecFwk::ElementName *admin, bool &r
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLED_HDC, result);
 }
 
-int32_t RestrictionsProxy::DisallowScreenShot(const AppExecFwk::ElementName &admin, bool isDisabled)
-{
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
-        EdmInterfaceCode::DISALLOW_SCREEN_SHOT);
-}
-
-int32_t RestrictionsProxy::IsScreenShotDisallowed(AppExecFwk::ElementName *admin, bool &result)
-{
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_SCREEN_SHOT,
-        result);
-}
-
 int32_t RestrictionsProxy::DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disable,

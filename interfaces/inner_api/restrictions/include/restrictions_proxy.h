@@ -26,8 +26,6 @@ public:
     int32_t SetHdcDisabled(const AppExecFwk::ElementName &admin, bool isDisabled);
     int32_t IsPrinterDisabled(AppExecFwk::ElementName *admin, bool &result);
     int32_t IsHdcDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t DisallowScreenShot(const AppExecFwk::ElementName &admin, bool isDisabled);
-    int32_t IsScreenShotDisallowed(AppExecFwk::ElementName *admin, bool &result);
     int32_t DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable);
     int32_t IsMicrophoneDisabled(AppExecFwk::ElementName *admin, bool &result);
     int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disable);
