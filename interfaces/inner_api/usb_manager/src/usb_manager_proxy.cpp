@@ -50,7 +50,8 @@ int32_t UsbManagerProxy::SetUsbReadOnly(const AppExecFwk::ElementName &admin, bo
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteInt32(readOnly ? 1 : 0);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    return ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED ? EdmReturnErrCode::SYSTEM_ABNORMALLY : ret;
 }
 
 int32_t UsbManagerProxy::DisableUsb(const AppExecFwk::ElementName &admin, bool disable)

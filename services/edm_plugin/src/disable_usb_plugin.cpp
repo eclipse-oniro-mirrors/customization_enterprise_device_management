@@ -45,7 +45,8 @@ ErrCode DisableUsbPlugin::OnSetPolicy(bool &data)
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
     if (data && (!allowUsbDevicePolicy.empty() ||
-        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED))) {
+        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
+        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY))) {
         EDMLOGE("DisableUsbPlugin OnSetPolicy: CONFLICT! allowedUsbDevice: %{public}s, usbStoragePolicy: %{public}s",
             allowUsbDevicePolicy.c_str(), usbStoragePolicy.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
