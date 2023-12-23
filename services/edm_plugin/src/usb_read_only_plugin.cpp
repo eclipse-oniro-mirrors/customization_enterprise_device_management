@@ -44,18 +44,20 @@ ErrCode UsbReadOnlyPlugin::SetPolicy(int32_t &policyValue)
 {
     EDMLOGI("UsbReadOnlyPlugin SetPolicy: %{public}d", policyValue);
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string disableUsbPolicy;
+    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
+    std::string allowUsbDevicePolicy;
+    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
+    if (disableUsbPolicy == "true") {
+        EDMLOGE("OnSetPolicy: CONFLICT! isUsbDisabled: %{public}s", disableUsbPolicy.c_str());
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
     if (policyValue == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
-        auto policyManager = IPolicyManager::GetInstance();
-        std::string disableUsbPolicy;
-        policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
-        std::string allowUsbDevicePolicy;
-        policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
-        if ((disableUsbPolicy == "true" || !allowUsbDevicePolicy.empty())) {
-            EDMLOGE("OnSetPolicy: CONFLICT! isUsbDisabled: %{public}s, allowedUsbDevice: %{public}s",
-                disableUsbPolicy.c_str(), allowUsbDevicePolicy.c_str());
+        if (!allowUsbDevicePolicy.empty()) {
+            EDMLOGE("OnSetPolicy: CONFLICT! allowedUsbDevice: %{public}s", allowUsbDevicePolicy.c_str());
             return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
         }
-
         int32_t usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, true);
         if (usbRet != ERR_OK) {
             EDMLOGE("UsbReadOnlyPlugin SetPolicy: ManageInterfaceType failed! ret:%{public}d", usbRet);
@@ -66,7 +68,10 @@ ErrCode UsbReadOnlyPlugin::SetPolicy(int32_t &policyValue)
     std::string usbKey = "persist.filemanagement.usb.readonly";
     std::string usbValue = (policyValue == EdmConstants::STORAGE_USB_POLICY_READ_ONLY) ? "true" : "false";
     bool ret = OHOS::system::SetParameter(usbKey, usbValue);
-    int32_t usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
+    int32_t usbRet = ERR_OK;
+    if (allowUsbDevicePolicy.empty()) {
+        usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
+    }
     EDMLOGI("UsbReadOnlyPlugin SetPolicy sysParam: readonly value:%{public}s  ret:%{public}d usbRet:%{public}d",
         usbValue.c_str(), ret, usbRet);
     return (ret && usbRet == ERR_OK) ? ReloadUsbDevice() : EdmReturnErrCode::SYSTEM_ABNORMALLY;
