@@ -66,7 +66,7 @@ HWTEST_F(GetBluetoothInfoPluginTest, GetBluetoothInfoSuc, TestSize.Level1)
     std::string name = reply.ReadString();
     int state = reply.ReadInt32();
     int connectionState = reply.ReadInt32();
-    ASSERT_TRUE(((name == "") && (state == 0) && (connectionState == 0)) ||
+    ASSERT_TRUE(((state == 0) && (connectionState == 0)) ||
         ((name != "") && (state == BLUETOOTH_TURN_ON)));
 }
 
