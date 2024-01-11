@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
-#define SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H
 
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
@@ -32,4 +32,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif /* SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H_ */
+#endif /* SERVICES_EDM_PLUGIN_INCLUDE_LOCK_SCREEN_PLUGIN_H */
