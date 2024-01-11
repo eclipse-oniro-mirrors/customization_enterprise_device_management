@@ -510,23 +510,6 @@ bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &perm
     return false;
 }
 
-bool EnterpriseDeviceMgrAbility::IsSystemServiceCalling()
-{
-    const auto tokenId = IPCSkeleton::GetCallingTokenID();
-    const auto flag = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (flag == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        EDMLOGI("system service calling, tokenId: %{public}u, flag: %{public}u", tokenId, flag);
-        return true;
-    }
-    return false;
-}
-
-bool EnterpriseDeviceMgrAbility::IsSystemAppCalling()
-{
-    uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
-    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
-}
-
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type,
     int32_t userId)
 {
@@ -974,12 +957,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         if (FAILED(ret)) {
             return ret;
         }
-    }
-    if (!IsSystemServiceCalling() && !IsSystemAppCalling() && !getPermission.empty() &&
-        !VerifyCallingPermission(getPermission)) {
-        EDMLOGW("GetDevicePolicy: VerifyCallingPermission failed");
-        reply.WriteInt32(EdmReturnErrCode::PERMISSION_DENIED);
-        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
