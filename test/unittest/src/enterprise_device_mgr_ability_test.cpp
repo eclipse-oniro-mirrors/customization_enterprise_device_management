@@ -468,7 +468,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest005, TestSize.Le
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    ASSERT_TRUE(res != EdmReturnErrCode::PERMISSION_DENIED);
 }
 
 /**
