@@ -464,8 +464,9 @@ bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wif
 bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
 {
     eapConfig.eap = Wifi::EAP_METHOD_TLS;
+    std::tuple<int, bool> charArrayProp = {WIFI_PASSWORD_LEN, true};
     if (!JsObjectToString(env, object, "identity", true, eapConfig.identity) ||
-        !JsObjectToCharArray(env, object, "certPassword", WIFI_PASSWORD_LEN, true, eapConfig.certPassword) ||
+        !JsObjectToCharArray(env, object, "certPassword", charArrayProp, eapConfig.certPassword) ||
         !JsObjectToU8Vector(env, object, "certEntry", eapConfig.certEntry)) {
         return false;
     }

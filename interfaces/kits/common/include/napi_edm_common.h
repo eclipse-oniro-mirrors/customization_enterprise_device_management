@@ -79,7 +79,7 @@ bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool 
 bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, bool &result);
 bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::string &resultStr);
-bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength, bool isNecessaryProp,
+bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
     char *result);
 bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
