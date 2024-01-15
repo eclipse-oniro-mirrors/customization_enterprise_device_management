@@ -302,7 +302,7 @@ bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, boo
     return true;
 }
 
-bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, int maxLength, bool isNecessaryProp,
+bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
     char *result)
 {
     bool hasProperty = false;
@@ -310,6 +310,9 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
         EDMLOGE("get js property failed.");
         return false;
     }
+    int maxLength = 0;
+    bool isNecessaryProp = false;
+    std::tie(maxLength, isNecessaryProp) = charArrayProp;
     if (isNecessaryProp && !hasProperty) {
         return false;
     }
