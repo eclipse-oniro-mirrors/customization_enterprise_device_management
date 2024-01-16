@@ -106,6 +106,12 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 
+    isDisallow = true;
+    seteuid(Utils::ROOT_UID);
+    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
+    seteuid(euid);
+    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
+
     isDisallow = false;
     euid = geteuid();
     seteuid(Utils::ROOT_UID);
@@ -118,12 +124,6 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
-
-    isDisallow = true;
-    seteuid(Utils::ROOT_UID);
-    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-    seteuid(euid);
-    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 
     isDisallow = false;
     seteuid(Utils::ROOT_UID);
