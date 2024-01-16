@@ -17,6 +17,7 @@
 
 #include <gtest/gtest.h>
 
+#include "audio_system_manager.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
@@ -29,6 +30,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
+const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 class DisableMicrophonePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -49,11 +51,34 @@ void DisableMicrophonePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSetFalse
+ * @tc.name: TestDisableMicrophonePluginTestSetFail
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFail, TestSize.Level1)
+{
+    uint64_t selfTokenId = GetSelfTokenID();
+    SetSelfTokenID(0);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    bool isChanged = false;
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
+    std::string policyData{"false"};
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    SetSelfTokenID(selfTokenId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
+}
+
+/**
+ * @tc.name: TestDisableMicrophonePluginTestSetMix
+ * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function and audioSystemManager::SetMicrophoneMute.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -65,27 +90,46 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, T
     bool isChanged = false;
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
-}
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 
-/**
- * @tc.name: TestDisableMicrophonePluginTestSetTrue
- * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetTrue, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
-    std::string policyData{"true"};
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    bool isDisallow = true;
+    auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
+    uid_t euid = geteuid();
+    seteuid(Utils::ROOT_UID);
+    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
+    seteuid(euid);
+    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
+
+    data.WriteBool(true);
+    isChanged = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
+
+    isDisallow = true;
+    seteuid(Utils::ROOT_UID);
+    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
+    seteuid(euid);
+    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
+
+    isDisallow = false;
+    euid = geteuid();
+    seteuid(Utils::ROOT_UID);
+    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
+    seteuid(euid);
+    ASSERT_TRUE(ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
+
+    data.WriteBool(false);
+    isChanged = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
+
+    isDisallow = false;
+    seteuid(Utils::ROOT_UID);
+    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
+    seteuid(euid);
+    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 }
 
 /**

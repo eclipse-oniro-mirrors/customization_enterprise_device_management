@@ -37,11 +37,27 @@ void LockScreenPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestLockScreen
+ * @tc.name: TestLockScreenFail
+ * @tc.desc: Test LockScreenPlugin::OnSetPolicy function fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LockScreenPluginTest, TestLockScreenFail, TestSize.Level1)
+{
+    LockScreenPlugin plugin;
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    uint64_t selfTokenId = GetSelfTokenID();
+    SetSelfTokenID(0);
+    ErrCode ret = plugin.OnSetPolicy(userId);
+    SetSelfTokenID(selfTokenId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+/**
+ * @tc.name: TestLockScreenSuccess
  * @tc.desc: Test LockScreenPlugin::OnSetPolicy function success.
  * @tc.type: FUNC
  */
-HWTEST_F(LockScreenPluginTest, TestLockScreen, TestSize.Level1)
+HWTEST_F(LockScreenPluginTest, TestLockScreenSuccess, TestSize.Level1)
 {
     LockScreenPlugin plugin;
     int32_t userId = 0;
