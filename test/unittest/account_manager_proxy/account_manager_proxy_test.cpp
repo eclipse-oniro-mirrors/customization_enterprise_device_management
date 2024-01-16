@@ -91,6 +91,112 @@ HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountFail, TestSize.Leve
     ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestDisallowAddOsAccountByUserSuc
+ * @tc.desc: Test DisallowAddOsAccountByUser success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestDisallowAddOsAccountByUserSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(admin, DEFAULT_USER_ID, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowAddOsAccountByUserFail
+ * @tc.desc: Test DisallowAddOsAccountByUser without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestDisallowAddOsAccountByUserFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(admin, DEFAULT_USER_ID, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAddOsAccountByUserDisallowedSuc
+ * @tc.desc: Test IsAddOsAccountByUserDisallowed success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisabled);
+}
+
+/**
+ * @tc.name: TestIsAddOsAccountByUserDisallowedFail
+ * @tc.desc: Test IsAddOsAccountByUserDisallowed without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddOsAccountSuc
+ * @tc.desc: Test AddOsAccount success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestAddOsAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeAccountProxySendRequestAddOsAccount));
+    std::string name = "ut_user_1";
+    int32_t type = 1;
+    OHOS::AccountSA::OsAccountInfo accountInfo;
+    std::string distributedInfoName;
+    std::string distributedInfoId;
+    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo, distributedInfoName,
+        distributedInfoId);
+    ASSERT_TRUE(ret == ERR_OK);
+    GTEST_LOG_(INFO) << "AccountManagerProxyTest TestAddOsAccountSuc code :" << accountInfo.GetLocalName();
+    ASSERT_TRUE(accountInfo.GetLocalName() == RETURN_STRING);
+    ASSERT_TRUE(distributedInfoName == RETURN_STRING);
+    ASSERT_TRUE(distributedInfoId == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestAddOsAccountFail
+ * @tc.desc: Test AddOsAccount without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestAddOsAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::string name = "ut_user_2";
+    int32_t type = 1;
+    OHOS::AccountSA::OsAccountInfo accountInfo;
+    std::string distributedInfoName;
+    std::string distributedInfoId;
+    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo, distributedInfoName,
+        distributedInfoId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(accountInfo.GetLocalName().empty());
+    ASSERT_TRUE(distributedInfoName.empty());
+    ASSERT_TRUE(distributedInfoId.empty());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

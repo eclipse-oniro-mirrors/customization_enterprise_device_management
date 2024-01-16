@@ -34,6 +34,7 @@ ohos_unittest("EdmUsbManagerUnitTest") {
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
+    "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -49,6 +50,7 @@ ohos_unittest("EdmUsbManagerUnitTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "netmanager_base:net_conn_manager_if",
+    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
   ]
 

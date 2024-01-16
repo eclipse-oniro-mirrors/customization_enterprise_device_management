@@ -20,6 +20,7 @@
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "usb_device_id.h"
 #include "usb_manager_proxy.h"
 #include "utils.h"
 
@@ -92,6 +93,252 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbReadOnlyFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = proxy_->SetUsbReadOnly(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestDisableUsbSuc
+ * @tc.desc: Test DisableUsb success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestDisableUsbSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->DisableUsb(admin, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableUsbFail
+ * @tc.desc: Test DisableUsb without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestDisableUsbFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->DisableUsb(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsUsbDisabledSuc
+ * @tc.desc: Test IsUsbDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+
+    bool isDisable = false;
+    int32_t ret = proxy_->IsUsbDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisable);
+}
+
+/**
+ * @tc.name: TestIsUsbDisabledFail
+ * @tc.desc: Test IsUsbDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+
+    bool isDisable = false;
+    int32_t ret = proxy_->IsUsbDisabled(&admin, isDisable);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(isDisable);
+}
+
+/**
+ * @tc.name: TestAddAllowedUsbDevicesSuc
+ * @tc.desc: Test AddAllowedUsbDevices success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<UsbDeviceId> usbDeviceIds;
+    UsbDeviceId id1;
+    id1.SetVendorId(1);
+    id1.SetProductId(9);
+    usbDeviceIds.push_back(id1);
+    int32_t ret = proxy_->AddAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddAllowedUsbDevicesFail
+ * @tc.desc: Test AddAllowedUsbDevices without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    UsbDeviceId id1;
+    id1.SetVendorId(1);
+    id1.SetProductId(9);
+    usbDeviceIds.push_back(id1);
+    int32_t ret = proxy_->AddAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedUsbDevicesSuc
+ * @tc.desc: Test RemoveAllowedUsbDevices success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<UsbDeviceId> usbDeviceIds;
+    UsbDeviceId id1;
+    id1.SetVendorId(1);
+    id1.SetProductId(9);
+    usbDeviceIds.push_back(id1);
+    int32_t ret = proxy_->RemoveAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedUsbDevicesFail
+ * @tc.desc: Test RemoveAllowedUsbDevices without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    UsbDeviceId id1;
+    id1.SetVendorId(1);
+    id1.SetProductId(9);
+    usbDeviceIds.push_back(id1);
+    int32_t ret = proxy_->RemoveAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedUsbDevicesSuc
+ * @tc.desc: Test GetAllowedUsbDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeAllowedUsbDevicesSendRequestGetPolicy));
+
+    std::vector<UsbDeviceId> usbDeviceIds;
+    int32_t ret = proxy_->GetAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(usbDeviceIds.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetAllowedUsbDevicesFail
+ * @tc.desc: Test GetAllowedUsbDevices func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    int32_t ret = proxy_->GetAllowedUsbDevices(admin, usbDeviceIds);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(usbDeviceIds.empty());
+}
+
+/**
+ * @tc.name: TestSetUsbStorageDeviceAccessPolicySuc
+ * @tc.desc: Test SetUsbStorageDeviceAccessPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(admin, 2);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUsbStorageDeviceAccessPolicyFail
+ * @tc.desc: Test SetUsbStorageDeviceAccessPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(admin, 2);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUsbStorageDeviceAccessPolicySuc
+ * @tc.desc: Test GetUsbStorageDeviceAccessPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+
+    int32_t policy = 0;
+    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(admin, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy == 0);
+}
+
+/**
+ * @tc.name: TestGetUsbStorageDeviceAccessPolicyFail
+ * @tc.desc: Test GetUsbStorageDeviceAccessPolicy func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t policy = 0;
+    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(admin, policy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

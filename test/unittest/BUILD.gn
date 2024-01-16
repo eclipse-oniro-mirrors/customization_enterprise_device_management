@@ -120,6 +120,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/edm_data_ability_utils_test.cpp",
     "./src/edm_permission_test.cpp",
     "./src/edm_sys_manager_test.cpp",
+    "./src/edm_utils_test.cpp",
     "./src/ent_info_test.cpp",
     "./src/enterprise_admin_connection_test.cpp",
     "./src/enterprise_bundle_connection_test.cpp",
