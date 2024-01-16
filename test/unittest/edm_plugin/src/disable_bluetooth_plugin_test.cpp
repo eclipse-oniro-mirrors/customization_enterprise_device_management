@@ -15,6 +15,9 @@
 
 #include <gtest/gtest.h>
 #include "disable_bluetooth_plugin.h"
+#include "bluetooth_def.h"
+#include "bluetooth_errorcode.h"
+#include "bluetooth_host.h"
 #include "parameters.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -49,12 +52,15 @@ void DisableBluetoothPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableBluetoothPluginTestSet
+ * @tc.name: TestDisableBluetoothPluginTestCloseSetTrue
  * @tc.desc: Test DisableBluetoothPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSet, TestSize.Level1)
+HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestCloseSetTrue, TestSize.Level1)
 {
+    if (Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled()) {
+        Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
+    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
@@ -62,19 +68,57 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSet, TestSize
     std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
     bool isChanged = false;
-
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isChanged);
     ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
+}
 
-    MessageParcel dataForClose;
-    dataForClose.WriteBool(false);
-    isChanged = false;
-    ret = plugin->OnHandlePolicy(funcCode, dataForClose, reply, policyData, isChanged, DEFAULT_USER_ID);
+/**
+ * @tc.name: TestDisableBluetoothPluginTestSetFalse
+ * @tc.desc: Test DisableBluetoothPluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSetFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::string policyData{"false"};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
+    bool isChanged = false;
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isChanged);
     ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
+}
+
+/**
+ * @tc.name: TestDisableBluetoothPluginTestOpenSetTrue
+ * @tc.desc: Test DisableBluetoothPluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::string policyData{"false"};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
+    bool isChanged = false;
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isChanged);
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
+    Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
+    data.WriteBool(true);
+    isChanged = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
 }
 
 /**
