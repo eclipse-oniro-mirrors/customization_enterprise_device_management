@@ -17,11 +17,11 @@
 
 #include <gtest/gtest.h>
 
+#include "audio_system_manager.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 #include "utils.h"
-#include "audio_system_manager.h"
 
 using namespace testing::ext;
 using namespace testing;
