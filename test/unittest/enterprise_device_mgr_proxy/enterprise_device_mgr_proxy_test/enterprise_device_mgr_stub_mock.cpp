@@ -19,6 +19,8 @@
 #include "firewall_rule.h"
 #include "http_proxy.h"
 #include "iptables_utils.h"
+#include "os_account_info.h"
+#include "usb_device_id.h"
 
 namespace OHOS {
 namespace EDM {
@@ -177,6 +179,40 @@ int EnterpriseDeviceMgrStubMock::InvokeBluetoothProxySendRequestGetPolicy(uint32
     reply.WriteString(RETURN_STRING);
     reply.WriteInt32(1);
     reply.WriteInt32(1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeAccountProxySendRequestAddOsAccount(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOsAccountProxySendRequestGetPolicy code :" << code;
+    OHOS::AccountSA::OsAccountInfo accountInfo;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    accountInfo.SetLocalName(RETURN_STRING);
+    accountInfo.Marshalling(reply);
+    reply.WriteString(RETURN_STRING);
+    reply.WriteString(RETURN_STRING);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeAllowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeAllowedUsbDevicesSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    UsbDeviceId id1;
+    int32_t testVid = 1;
+    int32_t testPid = 9;
+    id1.SetVendorId(testVid);
+    id1.SetProductId(testPid);
+    usbDeviceIds.push_back(id1);
+    reply.WriteInt32(usbDeviceIds.size());
+    std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
+        usbDeviceId.Marshalling(reply);
+    });
     return 0;
 }
 } // namespace EDM
