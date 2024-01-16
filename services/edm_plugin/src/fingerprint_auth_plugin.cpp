@@ -38,10 +38,12 @@ ErrCode FingerprintAuthPlugin::OnSetPolicy(bool &data)
 {
     EDMLOGI("FingerprintAuthPlugin OnSetPolicy %{public}d", data);
     std::string value = data ? "false" : "true";
-    return OHOS::system::SetParameter(PERSIST_FINGERPRINTAUTH_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return OHOS::system::SetParameter(PERSIST_FINGERPRINTAUTH_CONTROL, value) ?
+        ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode FingerprintAuthPlugin::OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode FingerprintAuthPlugin::OnGetPolicy(
+    std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("FingerprintAuthPlugin OnGetPolicy");
     bool ret = OHOS::system::GetBoolParameter(PERSIST_FINGERPRINTAUTH_CONTROL, true);
