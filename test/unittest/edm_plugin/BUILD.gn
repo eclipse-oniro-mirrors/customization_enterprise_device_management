@@ -130,7 +130,6 @@ ohos_unittest("EdmPluginTest") {
     "storage_service:storage_manager_sa_proxy",
     "usb_manager:usbsrv_client",
     "wifi:wifi_sdk",
-    "window_manager:libdm",
   ]
 
   if (defined(global_parts_info) &&
@@ -270,7 +269,6 @@ ohos_static_library("edm_all_plugin_static") {
     "storage_service:storage_manager_sa_proxy",
     "usb_manager:usbsrv_client",
     "wifi:wifi_sdk",
-    "window_manager:libdm",
   ]
 
   if (defined(global_parts_info) &&
