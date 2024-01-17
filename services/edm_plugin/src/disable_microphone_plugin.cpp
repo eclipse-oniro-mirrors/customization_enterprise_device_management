@@ -17,7 +17,6 @@
 
 #include "audio_system_manager.h"
 #include "bool_serializer.h"
-#include "dm_common.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"

@@ -83,8 +83,7 @@
         "time_service",
         "update_service",
         "usb_manager",
-        "wifi",
-        "window_manager"
+        "wifi"
       ],
       "third_party": [
         "bounds_checking_function",

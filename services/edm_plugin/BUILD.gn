@@ -262,7 +262,6 @@ edm_plugin_shared_library("restrictions_plugin") {
     "audio_framework:audio_client",
     "c_utils:utils",
     "init:libbegetutil",
-    "window_manager:libdm",
   ]
 }
 
