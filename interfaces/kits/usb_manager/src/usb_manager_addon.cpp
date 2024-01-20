@@ -299,7 +299,7 @@ napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_inf
     }
     std::vector<UsbDeviceId> usbDeviceIds;
     int32_t ret = usbManagerProxy->GetAllowedUsbDevices(elementName, usbDeviceIds);
-    EDMLOGI("UsbManagerAddon::GetAllowedUsbDevices usbDeviceIds return size: %{public}d", usbDeviceIds.size());
+    EDMLOGI("UsbManagerAddon::GetAllowedUsbDevices usbDeviceIds return size: %{public}zu", usbDeviceIds.size());
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
