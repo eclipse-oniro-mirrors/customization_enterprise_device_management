@@ -408,6 +408,9 @@ class PluginTemplateTest : public testing::Test {
 protected:
     void SetUp() override;
     void TearDown() override;
+
+private:
+    std::shared_ptr<IPolicyManager> policyManager_;
 };
 } // namespace TEST
 } // namespace EDM

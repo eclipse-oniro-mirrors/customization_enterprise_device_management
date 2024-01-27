@@ -384,7 +384,10 @@ HWTEST_F(PluginTemplateTest, TestDestroyPlugin, TestSize.Level1)
 
 void PluginTemplateTest::SetUp()
 {
-    IPolicyManager::policyManagerInstance_ = new (std::nothrow) PolicyManager(DEFAULT_USER_ID);
+    if (policyManager_ == nullptr) {
+        policyManager_ = std::make_shared<PolicyManager>();
+    }
+    IPolicyManager::policyManagerInstance_ = policyManager_.get();
 }
 
 void PluginTemplateTest::TearDown()

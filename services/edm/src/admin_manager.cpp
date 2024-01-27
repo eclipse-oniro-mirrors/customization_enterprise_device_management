@@ -510,5 +510,20 @@ void AdminManager::Init()
         EDMLOGE("AdminManager::Init failed.");
     }
 }
+
+void AdminManager::Dump()
+{
+    for (const auto &entry : admins_) {
+        EDMLOGI("AdminManager::Dump %{public}d.", entry.first);
+        for (const auto &admin : entry.second) {
+            EDMLOGI("AdminManager::Dump admin info adminType_ %{public}d.",
+                admin->adminInfo_.adminType_);
+            EDMLOGI("AdminManager::Dump admin info packageName_ %{public}s.",
+                admin->adminInfo_.packageName_.c_str());
+            EDMLOGI("AdminManager::Dump admin info parentAdminName_ %{public}s.",
+                admin->adminInfo_.parentAdminName_.c_str());
+        }
+    }
+}
 } // namespace EDM
 } // namespace OHOS

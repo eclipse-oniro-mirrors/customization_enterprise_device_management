@@ -59,6 +59,7 @@ public:
     ErrCode GetSubOrSuperAdminByPkgName(const std::string &subAdminName, std::shared_ptr<Admin> &subOrSuperAdmin);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
     ~AdminManager();
+    void Dump();
 
 private:
     AdminManager();

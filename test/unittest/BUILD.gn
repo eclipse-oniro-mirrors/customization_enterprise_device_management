@@ -51,6 +51,7 @@ ohos_static_library("edmservice_static") {
     "../../services/edm/src/plugin_manager.cpp",
     "../../services/edm/src/policy_manager.cpp",
     "../../services/edm/src/super_admin.cpp",
+    "../../services/edm/src/user_policy_manager.cpp",
   ]
 
   public_configs = [
@@ -133,6 +134,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/plugin_manager_test.cpp",
     "./src/policy_manager_test.cpp",
     "./src/policy_serializer_test.cpp",
+    "./src/user_policy_manager_test.cpp",
     "./src/utils.cpp",
     "./src/utils_test.cpp",
   ]

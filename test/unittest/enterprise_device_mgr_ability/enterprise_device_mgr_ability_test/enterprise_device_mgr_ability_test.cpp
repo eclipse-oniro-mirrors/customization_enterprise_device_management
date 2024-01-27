@@ -88,7 +88,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
     edmMgr_ = EnterpriseDeviceMgrAbility::GetInstance();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->policyMgr_.reset(new (std::nothrow) PolicyManager(DEFAULT_USER_ID));
+    edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
     edmMgr_->pluginMgr_ = PluginManager::GetInstance();
 
     edmSysManager_ = std::make_shared<EdmSysManager>();
