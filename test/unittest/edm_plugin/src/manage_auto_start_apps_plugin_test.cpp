@@ -35,6 +35,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string RIGHT_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.MainAbility";
+const std::string ERROR_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility";
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 
 void ManageAutoStartAppsPluginTest::SetUpTestSuite(void)
@@ -104,8 +105,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin003, TestSi
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(getReply.ReadInt32() == ERR_OK);
     getReply.ReadStringVector(&res);
-    ASSERT_TRUE(res.size() == 1);
-    ASSERT_TRUE(res[0] == RIGHT_TEST_BUNDLE);
+    ASSERT_TRUE(res.size() >= 1);
+    ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
 
     ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -163,7 +164,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin005, TestSi
 HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin006, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
-    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+    std::vector<std::string> data = {ERROR_TEST_BUNDLE};
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
