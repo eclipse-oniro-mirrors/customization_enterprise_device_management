@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -43,6 +43,7 @@ ohos_shared_library("edmservice") {
     "./src/plugin_manager.cpp",
     "./src/policy_manager.cpp",
     "./src/super_admin.cpp",
+    "./src/user_policy_manager.cpp",
   ]
   public_configs = [
     ":edm_config",

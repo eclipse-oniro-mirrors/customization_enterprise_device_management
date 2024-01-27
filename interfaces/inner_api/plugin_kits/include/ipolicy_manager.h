@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include <string>
 #include <unordered_map>
+#include "edm_constants.h"
 #include "edm_errors.h"
 
 namespace OHOS {
@@ -27,15 +28,16 @@ using AdminValueItemsMap = std::unordered_map<std::string, std::string>;
 class IPolicyManager {
 public:
     static IPolicyManager *GetInstance();
-    virtual ErrCode GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems)
+    virtual ErrCode GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems,
+        int32_t userId = EdmConstants::DEFAULT_USER_ID)
     {
         return ERR_OK;
     }
-    virtual ErrCode GetPolicy(const std::string &adminName, const std::string &policyName, std::string &policyValue)
+    virtual ErrCode GetPolicy(const std::string &adminName, const std::string &policyName, std::string &policyValue,
+        int32_t userId = EdmConstants::DEFAULT_USER_ID)
     {
         return ERR_OK;
     }
-    virtual ~IPolicyManager() {}
 
     static IPolicyManager* policyManagerInstance_;
 };

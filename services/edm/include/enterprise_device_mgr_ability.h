@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,8 +78,13 @@ private:
     ErrCode CheckCallingUid(const std::string &bundleName);
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);
+    ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
-    ErrCode RemovePolicyAndAdmin(const std::string &bundleName);
+    ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
+    ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName);
+    ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
+    ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,
+        const std::vector<int32_t> &nonDefaultUserIds);
     ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, std::vector<std::string> &permissionList,
         int32_t userId);
     int32_t GetCurrentUserId();
@@ -105,7 +110,6 @@ private:
     void OnAbilityManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin, std::shared_ptr<IPlugin> plugin);
-    std::shared_ptr<PolicyManager> GetAndSwitchPolicyManagerByUserId(int32_t userId);
     void InitAllPolices();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
     void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
@@ -113,7 +117,6 @@ private:
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
-    std::map<std::int32_t, std::shared_ptr<PolicyManager>> policyMgrMap_;
     std::shared_ptr<AdminManager> adminMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;
