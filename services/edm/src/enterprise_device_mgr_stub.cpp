@@ -29,7 +29,7 @@ namespace OHOS {
 namespace EDM {
 constexpr int32_t DEFAULT_USER_ID = 100;
 
-EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub()
+EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
 {
     AddCallFuncMap();
     EDMLOGI("EnterpriseDeviceMgrStub()");
