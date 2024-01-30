@@ -648,19 +648,19 @@ bool NetworkManagerAddon::JsObjToFirewallRule(napi_env env, napi_value object, I
 {
     int32_t direction = -1;
     JsObjectToInt(env, object, "direction", false, direction);
-    EDMLOGI("JsObjToFirewallRule direction %{pubilc}d", direction);
+    EDMLOGI("JsObjToFirewallRule direction %{public}d", direction);
     IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
 
     int32_t action = -1;
     JsObjectToInt(env, object, "action", false, action);
-    EDMLOGI("JsObjToFirewallRule action %{pubilc}d", action);
+    EDMLOGI("JsObjToFirewallRule action %{public}d", action);
     IPTABLES::Action actionEnum = IPTABLES::Action::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);
 
     int32_t protocol = -1;
     JsObjectToInt(env, object, "protocol", false, protocol);
-    EDMLOGI("JsObjToFirewallRule protocol %{pubilc}d", protocol);
+    EDMLOGI("JsObjToFirewallRule protocol %{public}d", protocol);
     IPTABLES::Protocol protocolEnum = IPTABLES::Protocol::INVALID;
     IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, protocolEnum);
 
