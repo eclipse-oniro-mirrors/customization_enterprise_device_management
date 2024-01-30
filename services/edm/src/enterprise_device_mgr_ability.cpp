@@ -340,7 +340,7 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         EDMLOGW("OnAddSystemAbility::InitAllPolices:get rdbStore failed.");
         return;
     }
-    EDMLOGI("InitAllPolices userIds size %{public}d", userIds.size());
+    EDMLOGI("InitAllPolices userIds size %{public}zu", userIds.size());
     devicePolicies->QueryAllUserId(userIds);
     policyMgr_->Init(userIds);
 }
