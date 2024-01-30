@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,32 +13,36 @@
 
 import("//build/ohos.gni")
 
-ohos_shared_library("accountmanager") {
-  include_dirs = [
-    "include",
-    "../common/include",
-  ]
+config("edm_external_adapters_public_configs") {
+  include_dirs = [ "include" ]
+}
 
+ohos_shared_library("edm_external_adapters") {
   sources = [
-    "../common/src/napi_edm_common.cpp",
-    "../common/src/napi_edm_error.cpp",
-    "./src/account_manager_addon.cpp",
+    "./src/edm_app_manager_impl.cpp",
+    "./src/edm_bundle_manager_impl.cpp",
+    "./src/edm_os_account_manager_impl.cpp",
+    "./src/external_manager_factory.cpp",
   ]
 
-  configs = [ "../../../common/config:coverage_flags" ]
+  configs = [
+    ":edm_external_adapters_public_configs",
+    "../../common/config:coverage_flags",
+  ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  public_configs = [ ":edm_external_adapters_public_configs" ]
+
+  deps = [ "../native:edm_commom" ]
 
   external_deps = [
-    "ability_base:want",
+    "ability_runtime:app_manager",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
-    "napi:ace_napi",
-    "os_account:domain_account_innerkits",
+    "ipc:ipc_core",
     "os_account:os_account_innerkits",
   ]
 
-  relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true
     cfi = true

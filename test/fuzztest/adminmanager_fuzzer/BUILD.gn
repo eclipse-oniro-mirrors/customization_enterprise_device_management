@@ -30,22 +30,22 @@ ohos_fuzztest("AdminManagerFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "../../unittest/src/utils.cpp",
     "../common/src/common_fuzzer.cpp",
     "admin_manager_fuzzer.cpp",
   ]
 
   include_dirs = [
     "../common/include",
-    "../../unittest/include",
     "../../../interfaces/inner_api/common/include",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
+    "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
+    "../../unittest/utils:edm_unittest_utils",
     "../enterprisedevicemgrstubmock_fuzzer:edmservice_fuzz_static",
   ]
 

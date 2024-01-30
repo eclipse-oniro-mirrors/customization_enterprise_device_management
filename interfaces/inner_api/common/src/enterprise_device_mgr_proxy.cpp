@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,7 +83,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
         EDMLOGE("EnterpriseDeviceMgrProxy:EnableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:EnableAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -112,7 +112,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:DisableAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -140,7 +140,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(const std::string &bundleNam
         EDMLOGE("EnterpriseDeviceMgrProxy:DisableSuperAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:DisableSuperAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -168,7 +168,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<st
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnabledAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnabledAdmin get result code fail. %{public}d", resCode);
         return resCode;
@@ -197,7 +197,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGE("EnterpriseDeviceMgrProxy:GetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
@@ -230,7 +230,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(AppExecFwk::ElementName &adm
         EDMLOGE("EnterpriseDeviceMgrProxy:SetEnterpriseInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
@@ -264,7 +264,7 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
         EDMLOGE("EnterpriseDeviceMgrProxy:SubscribeManagedEvent send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t retCode;
+    int32_t retCode = ERR_INVALID_VALUE;
     reply.ReadInt32(retCode);
     return retCode;
 }
@@ -290,7 +290,7 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bo
         EDMLOGE("EnterpriseDeviceMgrProxy:IsSuperAdmin send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:SetEnterpriseInfo get result code fail. %{public}d", resCode);
         return resCode;
@@ -322,7 +322,7 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
         EDMLOGE("EnterpriseDeviceMgrProxy:IsAdminEnabled send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t resCode = ERR_OK;
+    int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
         EDMLOGW("EnterpriseDeviceMgrProxy:IsAdminEnabled get result code fail. %{public}d", resCode);
         return resCode;
