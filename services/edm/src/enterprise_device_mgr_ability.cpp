@@ -15,8 +15,6 @@
 
 #include "enterprise_device_mgr_ability.h"
 
-#include <bundle_info.h>
-#include <bundle_mgr_interface.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 #include <message_parcel.h>
@@ -26,11 +24,15 @@
 
 #include "accesstoken_kit.h"
 #include "application_state_observer.h"
-#include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
+#include "matching_skills.h"
+#include "parameters.h"
+#include "security_report.h"
+#include "tokenid_kit.h"
+
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -40,11 +42,6 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
-#include "matching_skills.h"
-#include "os_account_manager.h"
-#include "parameters.h"
-#include "security_report.h"
-#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace EDM {
@@ -402,15 +399,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
 {
     bool ret = false;
     AppExecFwk::BundleInfo bundleInfo;
-    auto bundleManager = GetBundleMgr();
-    if (!bundleManager) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin GetBundleMgr failed.");
-        return ERR_EDM_BMS_ERROR;
-    }
     permissionList.clear();
     EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s userid %{public}d",
         bundleInfoName.c_str(), userId);
-    ret = bundleManager->GetBundleInfo(bundleInfoName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION,
+    ret = GetBundleMgr()->GetBundleInfo(bundleInfoName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION,
         bundleInfo, userId);
     if (!ret) {
         EDMLOGW("GetAllPermissionsByAdmin: GetBundleInfo failed %{public}d", ret);
@@ -432,17 +424,24 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
     return ERR_OK;
 }
 
-sptr<AppExecFwk::IAppMgr> EnterpriseDeviceMgrAbility::GetAppMgr()
+std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrAbility::GetExternalManagerFactory()
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
-    return iface_cast<AppExecFwk::IAppMgr>(remoteObject);
+    return externalManagerFactory_;
 }
 
-sptr<AppExecFwk::IBundleMgr> EnterpriseDeviceMgrAbility::GetBundleMgr()
+std::shared_ptr<IEdmBundleManager> EnterpriseDeviceMgrAbility::GetBundleMgr()
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    return proxy;
+    return GetExternalManagerFactory()->CreateBundleManager();
+}
+
+std::shared_ptr<IEdmAppManager> EnterpriseDeviceMgrAbility::GetAppMgr()
+{
+    return GetExternalManagerFactory()->CreateAppManager();
+}
+
+std::shared_ptr<IEdmOsAccountManager> EnterpriseDeviceMgrAbility::GetOsAccountMgr()
+{
+    return GetExternalManagerFactory()->CreateOsAccountManager();
 }
 
 bool EnterpriseDeviceMgrAbility::SubscribeAppState()
@@ -451,17 +450,12 @@ bool EnterpriseDeviceMgrAbility::SubscribeAppState()
         EDMLOGD("appStateObserver has subscribed");
         return true;
     }
-    sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
-    if (!appMgr) {
-        EDMLOGE("GetAppMgr failed");
-        return false;
-    }
     appStateObserver_ = new (std::nothrow) ApplicationStateObserver(*this);
     if (!appStateObserver_) {
         EDMLOGE("new ApplicationStateObserver failed");
         return false;
     }
-    if (appMgr->RegisterApplicationStateObserver(appStateObserver_) != ERR_OK) {
+    if (GetAppMgr()->RegisterApplicationStateObserver(appStateObserver_)) {
         EDMLOGE("RegisterApplicationStateObserver fail!");
         appStateObserver_.clear();
         appStateObserver_ = nullptr;
@@ -482,8 +476,7 @@ bool EnterpriseDeviceMgrAbility::UnsubscribeAppState()
     if (!subAdmins.empty()) {
         return true;
     }
-    sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
-    if (!appMgr || appMgr->UnregisterApplicationStateObserver(appStateObserver_) != ERR_OK) {
+    if (GetAppMgr()->UnregisterApplicationStateObserver(appStateObserver_)) {
         EDMLOGE("UnregisterApplicationStateObserver fail!");
         return false;
     }
@@ -557,14 +550,9 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
-    auto bundleManager = GetBundleMgr();
-    if (!bundleManager) {
-        EDMLOGW("can not get iBundleMgr");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     AAFwk::Want want;
     want.SetElement(admin);
-    if (!bundleManager->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+    if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
         AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo) ||
         abilityInfo.empty()) {
         EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed");
@@ -768,13 +756,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleNam
 {
     // super admin can be removed by itself
     int uid = GetCallingUid();
-    auto bundleManager = GetBundleMgr();
-    if (!bundleManager) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::CheckCallingUid GetBundleMgr failed.");
-        return ERR_EDM_BMS_ERROR;
-    }
     std::string callingBundleName;
-    if (bundleManager->GetNameForUid(uid, callingBundleName) != ERR_OK) {
+    if (GetBundleMgr()->GetNameForUid(uid, callingBundleName) != ERR_OK) {
         EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
         return ERR_EDM_PERMISSION_ERROR;
     }
@@ -837,7 +820,7 @@ bool EnterpriseDeviceMgrAbility::IsAdminEnabled(AppExecFwk::ElementName &admin, 
 int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
 {
     std::vector<int32_t> ids;
-    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    ErrCode ret = GetOsAccountMgr()->QueryActiveOsAccountIds(ids);
     if (FAILED(ret) || ids.empty()) {
         EDMLOGE("EnterpriseDeviceMgrAbility GetCurrentUserId failed");
         return -1;
@@ -888,7 +871,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     std::lock_guard<std::mutex> autoLock(mutexLock_);
 #ifndef EDM_FUZZ_TEST
     bool isUserExist = false;
-    AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
+    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -942,7 +925,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isUserExist = false;
-    AccountSA::OsAccountManager::IsOsAccountExists(userId, isUserExist);
+    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return EdmReturnErrCode::PARAM_ERROR;
@@ -1172,11 +1155,11 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
     if (FAILED(GetAllPermissionsByAdmin(bundleName, permissionList, DEFAULT_USER_ID))) {
-        EDMLOGW("EnableAdmin: GetAllPermissionsByAdmin failed.");
+        EDMLOGW("AuthorizeAdmin: GetAllPermissionsByAdmin failed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
     if (FAILED(adminMgr_->SaveAuthorizedAdmin(bundleName, permissionList, admin.GetBundleName()))) {
-        EDMLOGW("EnableAdmin: SaveAuthorizedAdmin failed.");
+        EDMLOGW("AuthorizeAdmin: SaveAuthorizedAdmin failed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
     return ERR_OK;

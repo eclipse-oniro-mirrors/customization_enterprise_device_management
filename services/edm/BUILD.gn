@@ -64,19 +64,17 @@ ohos_shared_library("edmservice") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "os_account:os_account_innerkits",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   deps = [
+    "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",

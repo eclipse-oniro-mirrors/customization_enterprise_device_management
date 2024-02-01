@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -35,7 +35,6 @@ edm_plugin_shared_library("account_manager_plugin") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "os_account:libaccountkits",
     "os_account:os_account_innerkits",
@@ -67,9 +66,7 @@ edm_plugin_shared_library("device_control_plugin") {
 
   external_deps = [
     "c_utils:utils",
-    "ipc:ipc_core",
     "power_manager:powermgr_client",
-    "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
   ]
 
@@ -168,12 +165,7 @@ edm_plugin_shared_library("bundle_manager_plugin") {
 edm_plugin_shared_library("disallow_modify_datetime_plugin") {
   sources = [ "./src/disallow_modify_datetime_plugin.cpp" ]
 
-  deps = [ "../../common/native:edm_commom" ]
-
-  external_deps = [
-    "c_utils:utils",
-    "ipc:ipc_core",
-  ]
+  external_deps = [ "c_utils:utils" ]
 }
 
 edm_plugin_shared_library("application_manager_plugin") {
@@ -215,8 +207,6 @@ edm_plugin_shared_library("device_settings_plugin") {
 
 edm_plugin_shared_library("system_manager_plugin") {
   sources = [ "./src/ntp_server_plugin.cpp" ]
-
-  deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
     "c_utils:utils",
@@ -283,8 +273,6 @@ edm_plugin_shared_library("security_manager_plugin") {
     "./src/get_security_patch_tag_plugin.cpp",
   ]
 
-  deps = [ "../../common/native:edm_commom" ]
-
   external_deps = [
     "c_utils:utils",
     "init:libbegetutil",
@@ -297,8 +285,6 @@ edm_plugin_shared_library("bluetooth_manager_plugin") {
     "./src/get_bluetooth_info_plugin.cpp",
   ]
 
-  deps = [ "../../common/native:edm_commom" ]
-
   external_deps = [
     "bluetooth:btframework",
     "c_utils:utils",
@@ -308,8 +294,6 @@ edm_plugin_shared_library("bluetooth_manager_plugin") {
 
 edm_plugin_shared_library("location_manager_plugin") {
   sources = [ "./src/location_policy_plugin.cpp" ]
-
-  deps = [ "../../common/native:edm_commom" ]
 
   external_deps = [
     "c_utils:utils",

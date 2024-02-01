@@ -16,16 +16,16 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 
-#include <bundle_mgr_interface.h>
-
+#include <memory>
 #include <string>
 
 #include "admin_manager.h"
-#include "app_mgr_interface.h"
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
+#include "external_manager_factory.h"
 #include "hilog/log.h"
+#include "iexternal_manager_factory.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "policy_struct.h"
@@ -69,6 +69,7 @@ protected:
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
 
 private:
     void AddCommonEventFuncMap();
@@ -97,8 +98,6 @@ private:
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
         std::string &adminName, const int32_t userId);
     bool VerifyCallingPermission(const std::string &permissionName);
-    sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgr();
-    sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
@@ -113,6 +112,9 @@ private:
     void InitAllPolices();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
     void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
+    std::shared_ptr<IEdmBundleManager> GetBundleMgr();
+    std::shared_ptr<IEdmAppManager> GetAppMgr();
+    std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
@@ -122,6 +124,7 @@ private:
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:

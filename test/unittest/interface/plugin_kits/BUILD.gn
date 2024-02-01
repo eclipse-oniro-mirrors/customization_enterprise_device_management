@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,34 +11,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/test.gni")
 
-ohos_shared_library("accountmanager") {
-  include_dirs = [
-    "include",
-    "../common/include",
-  ]
+module_output_path = "enterprise_device_management/enterprise_device_management"
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "./mock" ]
+}
+
+ohos_unittest("EdmPluginKitsUnitTest") {
+  module_out_path = module_output_path
 
   sources = [
-    "../common/src/napi_edm_common.cpp",
-    "../common/src/napi_edm_error.cpp",
-    "./src/account_manager_addon.cpp",
+    "./iplugin_test.cpp",
+    "./policy_serializer_test.cpp",
+    "./utils_test.cpp",
   ]
 
-  configs = [ "../../../common/config:coverage_flags" ]
+  configs = [
+    ":module_private_config",
+    "../../../../common/config:coverage_flags",
+  ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  deps = [
+    "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
-    "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "napi:ace_napi",
-    "os_account:domain_account_innerkits",
-    "os_account:os_account_innerkits",
+    "ipc:ipc_core",
   ]
 
-  relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -50,4 +58,14 @@ ohos_shared_library("accountmanager") {
   branch_protector_ret = "pac_ret"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+
+  deps += [
+    # deps file
+    ":EdmPluginKitsUnitTest",
+  ]
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@ enum {
     EDM_MODULE_ADMINMGR = 0x02,
     EDM_MODULE_POLICYMGR = 0x03,
     EDM_MODULE_PLUGINMGR = 0x04,
+    EDM_MODULE_EXTERNAL = 0x05,
     // Reserved 0x04 ~ 0x0f for new modules, Event related modules start from 0x10
 };
 
@@ -108,6 +109,13 @@ enum {
     ERR_EDM_OPERATE_PARCEL = EDM_PLUGINMGR_ERR_OFFSET + 4,
     ERR_EDM_NOT_EXIST_POLICY = EDM_PLUGINMGR_ERR_OFFSET + 5,
     ERR_EDM_NOT_EXIST_FUNC = EDM_PLUGINMGR_ERR_OFFSET + 6,
+};
+
+// Error code for EXTERNAL_MGR: 0x2050000,value:33882112
+constexpr ErrCode EDM_EXTERNAL_ERR_OFFSET = ErrCodeOffset(SUBSYS_CUSTOMIZATION, EDM_MODULE_EXTERNAL);
+enum {
+    ERR_BUNDLE_SERVICE_ABNORMALLY = EDM_EXTERNAL_ERR_OFFSET + 1,
+    ERR_APPLICATION_SERVICE_ABNORMALLY = EDM_EXTERNAL_ERR_OFFSET + 2,
 };
 
 #define RETURN_IF_FAILED(errcode) if (FAILED(errcode)) { return errcode; }
