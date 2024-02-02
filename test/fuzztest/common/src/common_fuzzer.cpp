@@ -19,36 +19,50 @@
 
 #define protected public
 #define private public
-#include "edm_ipc_interface_code.h"
 #include "enterprise_device_mgr_ability.h"
-#include "element_name.h"
 #undef protected
 #undef private
 #include "func_code.h"
-#include "parcel.h"
+#include "ienterprise_device_mgr.h"
 #include "utils.h"
 
 namespace OHOS {
 namespace EDM {
-void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size)
+constexpr int32_t NUM_24 = 24;
+constexpr int32_t NUM_16 = 16;
+constexpr int32_t NUM_8 = 8;
+constexpr int32_t NUM_INDEX_ZERO = 0;
+constexpr int32_t NUM_INDEX_FIRST = 1;
+constexpr int32_t NUM_INDEX_SECOND = 2;
+constexpr int32_t NUM_INDEX_THIRD = 3;
+
+void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel &parcel)
 {
     TEST::Utils::SetEdmInitialEnv();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     enterpriseDeviceMgrAbility->OnStart();
-    AppExecFwk::ElementName admin;
-    admin.bundleName_ = "com.example.edmtest";
-    admin.abilityName_ = "com.example.edmtest.EnterpriseAdminAbility";
 
-    MessageParcel parcel;
-    parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
-    parcel.WriteParcelable(&admin);
-    parcel.WriteBuffer(data, size);
-    
     MessageParcel reply;
     MessageOption option;
 
     enterpriseDeviceMgrAbility->OnRemoteRequest(code, parcel, reply, option);
     TEST::Utils::ResetTokenTypeAndUid();
+}
+
+void CommonFuzzer::SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.example.edmtest");
+    admin.SetAbilityName("com.example.edmtest.EnterpriseAdminAbility");
+    parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
+    parcel.WriteParcelable(&admin);
+    parcel.WriteBuffer(data, size);
+}
+
+uint32_t CommonFuzzer::GetU32Data(const uint8_t* ptr)
+{
+    return (ptr[NUM_INDEX_ZERO] << NUM_24) | (ptr[NUM_INDEX_FIRST] << NUM_16) | (ptr[NUM_INDEX_SECOND] << NUM_8) |
+        ptr[NUM_INDEX_THIRD];
 }
 } // namespace EDM
 } // namespace OHOS
