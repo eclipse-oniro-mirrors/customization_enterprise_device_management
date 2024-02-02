@@ -17,15 +17,16 @@
 
 #include "edm_ipc_interface_code.h"
 #include "os_account_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
 
 void DisallowAddLocalAccountPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr)
 {
-    EDMLOGD("DisallowAddLocalAccountPlugin InitPlugin...");
+    EDMLOGI("DisallowAddLocalAccountPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, "disallow_add_local_account",
         "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

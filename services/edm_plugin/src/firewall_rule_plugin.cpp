@@ -19,19 +19,19 @@
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "firewall_rule_serializer.h"
-#include "iplugin_manager.h"
 #include "iptables_manager.h"
+#include "plugin_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
 
 void FirewallRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FirewallRulePlugin, IPTABLES::FirewallRuleParcel>> ptr)
 {
-    EDMLOGD("FirewallRulePlugin InitPlugin...");
+    EDMLOGI("FirewallRulePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::FIREWALL_RULE, "firewall_rule", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(FirewallRuleSerializer::GetInstance());

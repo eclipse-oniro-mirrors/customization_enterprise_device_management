@@ -17,17 +17,17 @@
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameters.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
 const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
 
 void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr)
 {
-    EDMLOGD("DisableHdcPlugin InitPlugin...");
+    EDMLOGI("DisableHdcPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC, "disabled_hdc", "ohos.permission.ENTERPRISE_RESTRICT_POLICY",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());

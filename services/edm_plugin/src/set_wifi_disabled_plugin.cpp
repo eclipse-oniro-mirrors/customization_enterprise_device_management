@@ -17,18 +17,18 @@
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameters.h"
 #include "wifi_device.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
 const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 
 void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
 {
-    EDMLOGD("SetWifiDisabledPlugin InitPlugin...");
+    EDMLOGI("SetWifiDisabledPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi",
         "ohos.permission.ENTERPRISE_MANAGE_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());

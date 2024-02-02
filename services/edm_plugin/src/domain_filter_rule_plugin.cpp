@@ -19,19 +19,19 @@
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "domain_filter_rule_serializer.h"
-#include "iplugin_manager.h"
 #include "iptables_manager.h"
+#include "plugin_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
 
 void DomainFilterRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DomainFilterRulePlugin, IPTABLES::DomainFilterRuleParcel>> ptr)
 {
-    EDMLOGD("DomainFilterRulePlugin InitPlugin...");
+    EDMLOGI("DomainFilterRulePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "domain_filter_rule",
         "ohos.permission.ENTERPRISE_MANAGE_NETWORK", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(DomainFilterRuleSerializer::GetInstance());

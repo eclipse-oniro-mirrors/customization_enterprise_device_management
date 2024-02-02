@@ -20,14 +20,15 @@
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "wifi_device.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
 
 void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
 {
-    EDMLOGD("IsWifiActivePlugin InitPlugin...");
+    EDMLOGI("IsWifiActivePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active",
         "ohos.permission.ENTERPRISE_SET_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());

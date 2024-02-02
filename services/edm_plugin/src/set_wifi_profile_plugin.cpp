@@ -18,18 +18,18 @@
 #include <system_ability_definition.h>
 
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "wifi_device.h"
 #include "wifi_device_config_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
 
 void SetWifiProfilePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<SetWifiProfilePlugin, Wifi::WifiDeviceConfig>> ptr)
 {
-    EDMLOGD("SetWifiProfilePlugin InitPlugin...");
+    EDMLOGI("SetWifiProfilePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SET_WIFI_PROFILE, "set_wifi_profile", "ohos.permission.ENTERPRISE_SET_WIFI",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(WifiDeviceConfigSerializer::GetInstance());

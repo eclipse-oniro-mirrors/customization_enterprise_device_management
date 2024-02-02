@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "map_string_serializer.h"
 #include "plugin_singleton.h"
 

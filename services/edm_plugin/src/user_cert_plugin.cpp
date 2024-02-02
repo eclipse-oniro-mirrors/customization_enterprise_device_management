@@ -20,14 +20,14 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
-#include "iplugin_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 static constexpr uint32_t MAX_URI_LEN = 256;
 static constexpr uint32_t MAX_ALIAS_LEN = 40;
 static constexpr uint32_t MAX_CERT_URI_LEN = 64;
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
 
 UserCertPlugin::UserCertPlugin()
 {

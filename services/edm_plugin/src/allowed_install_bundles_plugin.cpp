@@ -17,16 +17,17 @@
 
 #include "array_string_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
+
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowedInstallBundlesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AllowedInstallBundlesPlugin::GetPlugin());
 
 void AllowedInstallBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowedInstallBundlesPlugin, std::vector<std::string>>> ptr)
 {
-    EDMLOGD("AllowedInstallBundlesPlugin InitPlugin...");
+    EDMLOGI("AllowedInstallBundlesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES, "allowed_install_bundles",
         "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());

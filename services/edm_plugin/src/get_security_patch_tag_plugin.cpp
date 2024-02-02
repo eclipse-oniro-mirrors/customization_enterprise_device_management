@@ -16,13 +16,13 @@
 #include "get_security_patch_tag_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameter.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetSecurityPatchTagPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetSecurityPatchTagPlugin::GetPlugin());
 
 void GetSecurityPatchTagPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetSecurityPatchTagPlugin, std::string>> ptr)
 {

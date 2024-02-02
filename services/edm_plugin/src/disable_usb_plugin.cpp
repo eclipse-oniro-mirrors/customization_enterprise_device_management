@@ -19,16 +19,16 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
-#include "iplugin_manager.h"
 #include "usb_srv_client.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
 
 void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr)
 {
-    EDMLOGD("DisableUsbPlugin InitPlugin...");
+    EDMLOGI("DisableUsbPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, "disable_usb",
         "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

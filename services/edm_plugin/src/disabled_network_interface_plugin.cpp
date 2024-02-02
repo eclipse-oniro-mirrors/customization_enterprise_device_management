@@ -17,18 +17,18 @@
 
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
-#include "iplugin_manager.h"
 #include "map_string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string IF_CFG_DOWN = "down";
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
 
 void DisabledNetworkInterfacePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisabledNetworkInterfacePlugin, std::map<std::string, std::string>>> ptr)
 {
-    EDMLOGD("DisabledNetworkInterfacePlugin InitPlugin...");
+    EDMLOGI("DisabledNetworkInterfacePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "disabled_network_interface", false);
     ptr->InitPermission(FuncOperateType::SET, "ohos.permission.ENTERPRISE_SET_NETWORK",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);

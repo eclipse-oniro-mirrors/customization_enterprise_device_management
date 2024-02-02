@@ -17,15 +17,16 @@
 #include "locator_impl.h"
 #include "parameters.h"
 #include "int_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
 const std::string PARAM_EDM_LOCATION_POLICY = "persist.edm.location_policy";
 void LocationPolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LocationPolicyPlugin, int32_t>> ptr)
 {
-    EDMLOGD("LocationPolicyPlugin InitPlugin...");
+    EDMLOGI("LocationPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::LOCATION_POLICY, "location_policy",
         "ohos.permission.ENTERPRISE_MANAGE_LOCATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());

@@ -18,14 +18,15 @@
 #include "edm_ipc_interface_code.h"
 #include "parameter.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDisplayVersionPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDisplayVersionPlugin::GetPlugin());
 
 void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr)
 {
-    EDMLOGD("GetDisplayVersionPlugin InitPlugin...");
+    EDMLOGI("GetDisplayVersionPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GET_DISPLAY_VERSION, "get_display_version",
         "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());

@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_NAME_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_NAME_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "plugin_singleton.h"
 #include "string_serializer.h"
 

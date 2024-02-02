@@ -16,13 +16,13 @@
 #include "get_device_encryption_status_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameters.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
 
 void GetDeviceEncryptionStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceEncryptionStatusPlugin,
     std::string>> ptr)

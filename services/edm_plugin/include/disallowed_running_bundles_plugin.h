@@ -18,7 +18,6 @@
 
 #include <bundle_mgr_interface.h>
 #include <vector>
-#include "iplugin_manager.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {

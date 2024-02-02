@@ -155,6 +155,8 @@ ohos_static_library("edm_all_plugin_static") {
   visibility = [ ":*" ]
   testonly = true
   sources = [
+    "../../../../services/edm/src/plugin_manager.cpp",
+    "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm_plugin/src/add_os_account_plugin.cpp",
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/allowed_usb_devices_plugin.cpp",
@@ -225,6 +227,7 @@ ohos_static_library("edm_all_plugin_static") {
   configs = [ "../../../../common/config:coverage_flags" ]
 
   include_dirs = [
+    "../../../../services/edm/include",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
     "../../../../services/edm_plugin/include/network",

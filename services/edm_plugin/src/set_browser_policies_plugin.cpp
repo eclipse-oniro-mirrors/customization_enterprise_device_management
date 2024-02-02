@@ -19,13 +19,13 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "map_string_serializer.h"
 #include "want.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetBrowserPoliciesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetBrowserPoliciesPlugin::GetPlugin());
 const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.browserpolicychanged";
 
 void SetBrowserPoliciesPlugin::InitPlugin(

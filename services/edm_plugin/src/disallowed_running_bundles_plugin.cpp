@@ -22,15 +22,16 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
 
 void DisallowedRunningBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin, std::vector<std::string>>> ptr)
 {
-    EDMLOGD("DisallowedRunningBundlesPlugin InitPlugin...");
+    EDMLOGI("DisallowedRunningBundlesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles",
         "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());

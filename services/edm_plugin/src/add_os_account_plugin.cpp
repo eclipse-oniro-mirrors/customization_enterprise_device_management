@@ -22,15 +22,16 @@
 #include "os_account_info.h"
 #include "os_account_manager.h"
 #include "want.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
 
 void AddOsAccountPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<AddOsAccountPlugin,
     std::map<std::string, std::string>>> ptr)
 {
-    EDMLOGD("AddOsAccountPlugin InitPlugin...");
+    EDMLOGI("AddOsAccountPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::ADD_OS_ACCOUNT, "add_os_account",
         "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(MapStringSerializer::GetInstance());

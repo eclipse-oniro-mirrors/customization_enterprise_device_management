@@ -17,15 +17,16 @@
 #include "power_mgr_client.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ShutdownPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ShutdownPlugin::GetPlugin());
 
 void ShutdownPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, int32_t>> ptr)
 {
-    EDMLOGD("ShutdownPlugin InitPlugin...");
+    EDMLOGI("ShutdownPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SHUTDOWN, "shutdown_device", "ohos.permission.ENTERPRISE_REBOOT",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
