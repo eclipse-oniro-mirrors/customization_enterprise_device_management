@@ -18,15 +18,16 @@
 
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(RebootPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(RebootPlugin::GetPlugin());
 
 void RebootPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<RebootPlugin, int32_t>> ptr)
 {
-    EDMLOGD("RebootPlugin InitPlugin...");
+    EDMLOGI("RebootPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::REBOOT, "reboot", "ohos.permission.ENTERPRISE_REBOOT",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());

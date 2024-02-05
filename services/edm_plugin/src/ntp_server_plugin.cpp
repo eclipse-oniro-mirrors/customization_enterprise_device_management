@@ -18,16 +18,17 @@
 #include "edm_ipc_interface_code.h"
 #include "string_serializer.h"
 #include "parameters.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_NTP_SERVER = "persist.time.ntpserver_specific";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
 
 void NTPServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr)
 {
-    EDMLOGD("NTPServerPlugin InitPlugin...");
+    EDMLOGI("NTPServerPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::NTP_SERVER, "ntp_server",
         "ohos.permission.ENTERPRISE_MANAGE_SYSTEM", IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(StringSerializer::GetInstance());

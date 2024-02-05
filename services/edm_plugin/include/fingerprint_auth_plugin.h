@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {

@@ -18,6 +18,7 @@
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,11 +27,11 @@ static constexpr int32_t SCREEN_OFF_TIME_NEVER_VALUE = -1;
 
 const std::string KEY_SCREEN_OFF_TIME = "settings.display.screen_off_timeout";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ScreenOffTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ScreenOffTimePlugin::GetPlugin());
 
 void ScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ScreenOffTimePlugin, int32_t>> ptr)
 {
-    EDMLOGD("ScreenOffTimePlugin InitPlugin...");
+    EDMLOGI("ScreenOffTimePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SCREEN_OFF_TIME, "screen_off_time", false);
     ptr->InitPermission(FuncOperateType::SET, "ohos.permission.ENTERPRISE_SET_SCREENOFF_TIME",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);

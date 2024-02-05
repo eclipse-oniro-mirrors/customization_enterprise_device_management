@@ -18,17 +18,17 @@
 #include "audio_system_manager.h"
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameters.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
 const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr)
 {
-    EDMLOGD("DisableMicrophonePlugin InitPlugin...");
+    EDMLOGI("DisableMicrophonePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone",
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

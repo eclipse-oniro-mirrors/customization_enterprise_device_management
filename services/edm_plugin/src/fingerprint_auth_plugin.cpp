@@ -19,15 +19,16 @@
 #include "edm_ipc_interface_code.h"
 #include "bool_serializer.h"
 #include "parameters.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(FingerprintAuthPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(FingerprintAuthPlugin::GetPlugin());
 const std::string PERSIST_FINGERPRINTAUTH_CONTROL = "persist.useriam.enable.fingerprintauth";
 void FingerprintAuthPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FingerprintAuthPlugin, bool>> ptr)
 {
-    EDMLOGD("FingerprintAuthPlugin InitPlugin...");
+    EDMLOGI("FingerprintAuthPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::FINGERPRINT_AUTH, "fingerprint_auth",
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());

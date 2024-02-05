@@ -25,16 +25,17 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
 const std::string SPERATOR = "/";
 
 void ManageAutoStartAppsPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<ManageAutoStartAppsPlugin, std::vector<std::string>>> ptr)
 {
-    EDMLOGD("ManageAutoStartAppsPlugin InitPlugin...");
+    EDMLOGI("ManageAutoStartAppsPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, "manage_auto_start_apps",
         "ohos.permission.ENTERPRISE_MANAGE_APPLICATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());

@@ -19,16 +19,17 @@
 #include "edm_ipc_interface_code.h"
 #include "parameter.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_DEVICE_NAME = "settings.general.device_name";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
 
 void GetDeviceNamePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceNamePlugin, std::string>> ptr)
 {
-    EDMLOGD("GetDeviceNamePlugin InitPlugin...");
+    EDMLOGI("GetDeviceNamePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_NAME, "get_device_name",
         "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());

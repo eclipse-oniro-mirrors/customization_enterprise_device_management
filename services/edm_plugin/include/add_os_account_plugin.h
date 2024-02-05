@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADD_OS_ACCOUNT_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ADD_OS_ACCOUNT_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "map_string_serializer.h"
 #include "plugin_singleton.h"
 #include "os_account_info.h"

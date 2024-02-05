@@ -18,14 +18,15 @@
 #include "edm_ipc_interface_code.h"
 #include "long_serializer.h"
 #include "time_service_client.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
 
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {
-    EDMLOGD("SetDateTimePlugin InitPlugin...");
+    EDMLOGI("SetDateTimePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", "ohos.permission.ENTERPRISE_SET_DATETIME",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(LongSerializer::GetInstance());

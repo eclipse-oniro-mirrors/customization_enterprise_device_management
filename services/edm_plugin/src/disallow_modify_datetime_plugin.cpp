@@ -16,15 +16,15 @@
 #include "disallow_modify_datetime_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
 
 void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
 {
-    EDMLOGD("DisallModifyDateTimePlugin InitPlugin...");
+    EDMLOGI("DisallModifyDateTimePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime",
         "ohos.permission.ENTERPRISE_SET_DATETIME", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

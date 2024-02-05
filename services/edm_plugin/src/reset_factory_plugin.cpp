@@ -16,10 +16,11 @@
 #include "reset_factory_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "update_service_kits.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
 
 void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr)
 {

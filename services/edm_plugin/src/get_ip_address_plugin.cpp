@@ -18,12 +18,12 @@
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
-#include "iplugin_manager.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());
 
 void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddressPlugin, std::string>> ptr)
 {

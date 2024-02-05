@@ -27,11 +27,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "installer_callback.h"
-#include "iplugin_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string RELATIVE_PATH = "../";
 const std::string CURRENT_PATH = "./";
@@ -41,7 +41,7 @@ constexpr int32_t EDM_GID = 3057;
 
 void InstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstallPlugin, InstallParam>> ptr)
 {
-    EDMLOGD("InstallPlugin InitPlugin...");
+    EDMLOGI("InstallPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::INSTALL, "install", "ohos.permission.ENTERPRISE_INSTALL_BUNDLE",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(InstallParamSerializer::GetInstance());

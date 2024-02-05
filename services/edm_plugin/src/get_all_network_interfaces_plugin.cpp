@@ -19,11 +19,11 @@
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
-#include "iplugin_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
 
 void GetAllNetworkInterfacesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<GetAllNetworkInterfacesPlugin, std::vector<std::string>>> ptr)

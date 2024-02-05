@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOW_USB_DEVICE_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ALLOW_USB_DEVICE_PLUGIN_H
 
-#include "iplugin_manager.h"
 #include "plugin_singleton.h"
 #include "usb_device_id.h"
 

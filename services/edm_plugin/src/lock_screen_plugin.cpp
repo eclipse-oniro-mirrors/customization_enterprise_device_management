@@ -17,15 +17,16 @@
 #include "screenlock_manager.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
 
 void LockScreenPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlugin, int32_t>> ptr)
 {
-    EDMLOGD("LockScreenPlugin InitPlugin...");
+    EDMLOGI("LockScreenPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::LOCK_SCREEN, "lock_screen", "ohos.permission.ENTERPRISE_LOCK_DEVICE",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());

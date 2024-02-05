@@ -19,17 +19,17 @@
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "http_proxy_serializer.h"
-#include "iplugin_manager.h"
 #include "net_conn_client.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 
 void GlobalProxyPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, NetManagerStandard::HttpProxy>> ptr)
 {
-    EDMLOGD("GlobalProxyPlugin InitPlugin...");
+    EDMLOGI("GlobalProxyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GLOBAL_PROXY, "global_proxy", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(HttpProxySerializer::GetInstance());

@@ -25,15 +25,16 @@
 #include "usb_device.h"
 #include "usb_device_id.h"
 #include "usb_srv_client.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowUsbDevicesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AllowUsbDevicesPlugin::GetPlugin());
 
 void AllowUsbDevicesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr)
 {
-    EDMLOGD("AllowUsbDevicesPlugin InitPlugin...");
+    EDMLOGI("AllowUsbDevicesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_USB_DEVICES, "allowed_usb_devices",
         "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayUsbDeviceIdSerializer::GetInstance());

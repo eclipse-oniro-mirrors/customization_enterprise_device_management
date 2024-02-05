@@ -18,17 +18,18 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "os_account_manager.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT = "constraint.os.account.create";
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY = "constraint.os.account.create.directly";
 
 void DisallowAddOsAccountByUserPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddOsAccountByUserPlugin, std::map<std::string, std::string>>> ptr)
 {
-    EDMLOGD("DisallowAddOsAccountByUserPlugin InitPlugin...");
+    EDMLOGI("DisallowAddOsAccountByUserPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, "disallow_add_os_account_by_user",
         "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(MapStringSerializer::GetInstance());

@@ -20,17 +20,17 @@
 #include "bluetooth_host.h"
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "parameters.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
 const std::string DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 
 void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
 {
-    EDMLOGD("DisableBluetoothPlugin InitPlugin...");
+    EDMLOGI("DisableBluetoothPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, "disabled_bluetooth",
         "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());

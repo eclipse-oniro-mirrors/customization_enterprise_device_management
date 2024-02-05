@@ -18,7 +18,6 @@
 
 #include "string_serializer.h"
 #include "plugin_singleton.h"
-#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {

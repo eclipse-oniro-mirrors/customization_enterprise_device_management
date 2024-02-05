@@ -18,14 +18,15 @@
 #include "edm_ipc_interface_code.h"
 #include "parameter.h"
 #include "string_serializer.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
 
 void GetDeviceSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceSerialPlugin, std::string>> ptr)
 {
-    EDMLOGD("GetDeviceSerialPlugin InitPlugin...");
+    EDMLOGI("GetDeviceSerialPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_SERIAL, "get_device_serial",
         "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());

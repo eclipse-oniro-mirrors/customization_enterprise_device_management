@@ -19,20 +19,20 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
-#include "iplugin_manager.h"
 #include "iservice_registry.h"
 #include "parameters.h"
 #include "usb_srv_client.h"
 #include "volume_external.h"
+#include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(UsbReadOnlyPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(UsbReadOnlyPlugin::GetPlugin());
 constexpr int32_t STORAGE_MANAGER_MANAGER_ID = 5003;
 
 void UsbReadOnlyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UsbReadOnlyPlugin, int32_t>> ptr)
 {
-    EDMLOGD("UsbReadOnlyPlugin InitPlugin...");
+    EDMLOGI("UsbReadOnlyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::USB_READ_ONLY, "usb_read_only", "ohos.permission.ENTERPRISE_MANAGE_USB",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(IntSerializer::GetInstance());
