@@ -75,6 +75,7 @@ ohos_unittest("EdmPluginTest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -128,9 +129,7 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
-    external_deps += [
-      "netmanager_base:net_conn_manager_if",
-    ]
+    external_deps += [ "netmanager_base:net_conn_manager_if" ]
     sources += [
       "./src/domain_filter_rule_plugin_test.cpp",
       "./src/firewall_rule_plugin_test.cpp",
@@ -265,6 +264,7 @@ ohos_static_library("edm_all_plugin_static") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
