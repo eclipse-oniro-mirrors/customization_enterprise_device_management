@@ -16,24 +16,37 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_BROWSER_POLICIES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_BROWSER_POLICIES_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
+#include "cJSON.h"
 
 namespace OHOS {
 namespace EDM {
-class SetBrowserPoliciesPlugin : public PluginSingleton<SetBrowserPoliciesPlugin, std::map<std::string, std::string>> {
+class SetBrowserPoliciesPlugin : public IPlugin {
 public:
-    void InitPlugin(
-        std::shared_ptr<IPluginTemplate<SetBrowserPoliciesPlugin, std::map<std::string, std::string>>> ptr) override;
+    SetBrowserPoliciesPlugin();
 
-    ErrCode OnSetPolicy(std::map<std::string, std::string> &policies, std::map<std::string, std::string> &currentData,
-        int32_t userId);
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 
-    void OnSetPolicyDone(bool isGlobalChanged);
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override;
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    {
+        return ERR_OK;
+    };
+
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
     void NotifyBrowserPolicyChanged();
+    ErrCode SetRootPolicy(const std::string policyData, std::string appid, std::string policyValue,
+        std::string &afterHandle);
+    ErrCode SetPolicy(const std::string policyData, std::string appid, std::string policyName,
+        std::string policyValue, std::string &afterHandle);
+    ErrCode SetPolicies(std::map<std::string, std::string> &policies, std::map<std::string, std::string> &currentData);
 };
 } // namespace EDM
 } // namespace OHOS

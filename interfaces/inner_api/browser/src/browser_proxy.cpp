@@ -51,6 +51,7 @@ int32_t BrowserProxy::SetPolicies(const AppExecFwk::ElementName &admin, const st
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
     std::vector<std::string> key{appId};
     std::vector<std::string> value{policies};
     data.WriteStringVector(key);
@@ -101,6 +102,26 @@ int32_t BrowserProxy::GetPolicies(AppExecFwk::ElementName *admin, const std::str
     }
     reply.ReadString(policies);
     return ERR_OK;
+}
+
+int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std::string &appId,
+    const std::string &policyName, const std::string &policyValue)
+{
+    EDMLOGI("BrowserProxy::SetPolicy");
+    if (appId.empty()) {
+        EDMLOGE("BrowserProxy::SetPolicy appId is empty");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_BROWSER_POLICIES);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
+    std::vector<std::string> params{appId, policyName, policyValue};
+    data.WriteStringVector(params);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS
