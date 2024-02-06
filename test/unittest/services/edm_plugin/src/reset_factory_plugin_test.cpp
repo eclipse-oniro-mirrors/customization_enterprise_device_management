@@ -44,12 +44,11 @@ HWTEST_F(DeviceControlPluginTest, TestRestFactory, TestSize.Level1)
 {
     Utils::ResetTokenTypeAndUid();
     std::shared_ptr<IPlugin> plugin = ResetFactoryPlugin::GetPlugin();
-    bool isChanged = false;
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::RESET_FACTORY);
-    std::string policyData{""};
+    HandlePolicyData handlePolicyData;
     MessageParcel data;
     MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST

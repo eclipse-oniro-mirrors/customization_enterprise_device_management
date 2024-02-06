@@ -20,7 +20,7 @@ IPluginTemplate<CT, DT>::IPluginTemplate()
 
 template <class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-    std::string &policyData, bool &isChanged, int32_t userId)
+    HandlePolicyData &policyData, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
@@ -28,7 +28,7 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (entry == handlePolicyFuncMap_.end() || entry->second.handlePolicy_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = entry->second.handlePolicy_(data, reply, policyData, isChanged, type, userId);
+    ErrCode res = entry->second.handlePolicy_(data, reply, policyData.policyData_, policyData.isChanged_, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
 }

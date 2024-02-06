@@ -39,7 +39,7 @@ UserCertPlugin::UserCertPlugin()
 }
 
 ErrCode UserCertPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-    std::string &policyData, bool &isChanged, int32_t userId)
+    HandlePolicyData &policyData, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);

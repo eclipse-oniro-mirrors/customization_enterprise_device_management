@@ -56,12 +56,11 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
-    std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    HandlePolicyData handlePolicyData{"false", false};
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(handlePolicyData.isChanged_);
 }
 
 /**
@@ -75,10 +74,9 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
     MessageParcel reply;
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
-    std::string policyData{"false"};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    HandlePolicyData handlePolicyData{"false", false};
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

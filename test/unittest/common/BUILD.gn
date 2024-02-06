@@ -46,6 +46,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utilsbase",
+    "ipc:ipc_core",
   ]
 
   sanitize = {

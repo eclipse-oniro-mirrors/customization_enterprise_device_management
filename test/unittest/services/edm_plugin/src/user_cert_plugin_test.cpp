@@ -113,11 +113,10 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyGet, TestSize.Level1)
     std::shared_ptr<UserCertPlugin> plugin = std::make_shared<UserCertPlugin>();
     MessageParcel data;
     MessageParcel reply;
-    std::string policyData{"TestString"};
+    HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL_CERTIFICATE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -136,11 +135,10 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall, TestSize.Level1)
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     MessageParcel reply;
-    std::string policyData{"TestString"};
+    HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     int32_t replyCode = ERR_INVALID_VALUE;
     reply.ReadInt32(replyCode);
@@ -159,11 +157,10 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyUninstall, TestSize.Level1)
     MessageParcel data;
     data.WriteString(alias);
     MessageParcel reply;
-    std::string policyData{"TestString"};
+    HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::INSTALL_CERTIFICATE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     int32_t replyCode = ERR_INVALID_VALUE;
     reply.ReadInt32(replyCode);
@@ -184,11 +181,10 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstallSuccess, TestSize.Level1)
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     MessageParcel reply;
-    std::string policyData{"TestString"};
+    HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     int32_t replyCode = ERR_INVALID_VALUE;
     reply.ReadInt32(replyCode);
@@ -199,7 +195,7 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstallSuccess, TestSize.Level1)
     MessageParcel dataUninstall;
     dataUninstall.WriteString(result);
     MessageParcel replyUninstall;
-    ret = plugin->OnHandlePolicy(funcCode, dataUninstall, replyUninstall, policyData, isChanged, DEFAULT_USER_ID);
+    ret = plugin->OnHandlePolicy(funcCode, dataUninstall, replyUninstall, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     replyCode = ERR_INVALID_VALUE;
     replyUninstall.ReadInt32(replyCode);

@@ -58,14 +58,13 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin001, TestSize.Level1)
     data.WriteInt32(1);
     std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
     // origin policy is allowed to read write
-    std::string policyData{"0"};
+    HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(policyData == "1");
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(handlePolicyData.policyData_ == "1");
+    ASSERT_TRUE(handlePolicyData.isChanged_);
 }
 
 /**
@@ -81,14 +80,13 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin002, TestSize.Level1)
     data.WriteInt32(0);
     std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
     // origin policy is allowed to read write
-    std::string policyData{"0"};
+    HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(policyData == "0");
-    ASSERT_FALSE(isChanged);
+    ASSERT_TRUE(handlePolicyData.policyData_ == "0");
+    ASSERT_FALSE(handlePolicyData.isChanged_);
 }
 
 /**
@@ -104,14 +102,13 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin003, TestSize.Level1)
     data.WriteInt32(2);
     std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
     // origin policy is allowed to read write
-    std::string policyData{"0"};
+    HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(policyData == "2");
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(handlePolicyData.policyData_ == "2");
+    ASSERT_TRUE(handlePolicyData.isChanged_);
 }
 
 /**

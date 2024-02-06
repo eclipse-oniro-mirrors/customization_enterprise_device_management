@@ -18,6 +18,7 @@
 #include <vector>
 #include "edm_permission.h"
 #include "func_code.h"
+#include "message_parcel.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -58,7 +59,7 @@ HWTEST_F(EdmPermissionTest, TestEdmPermissionEqual, TestSize.Level1)
 HWTEST_F(EdmPermissionTest, TestMarshalling, TestSize.Level1)
 {
     EdmPermission permission1("ohos.permission.EDM_TEST_PERMISSION", AdminType::NORMAL);
-    Parcel parcel;
+    MessageParcel parcel;
     permission1.Marshalling(parcel);
     EdmPermission permission2;
     EXPECT_TRUE(EdmPermission::Unmarshalling(parcel, permission2));

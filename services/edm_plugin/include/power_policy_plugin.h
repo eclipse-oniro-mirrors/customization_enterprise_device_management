@@ -27,8 +27,8 @@ namespace EDM {
 class PowerPolicyPlugin : public IPlugin {
 public:
     PowerPolicyPlugin();
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply, std::string &policyData,
-        bool &isChanged, int32_t userId) override;
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override{};

@@ -56,12 +56,11 @@ HWTEST_F(DisableHdcPluginTest, TestDisableHdcPluginTestSet, TestSize.Level1)
     MessageParcel reply;
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableHdcPlugin::GetPlugin();
-    std::string policyData{"false"};
+    HandlePolicyData handlePolicyData{"false", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_HDC);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(handlePolicyData.isChanged_);
 }
 
 /**

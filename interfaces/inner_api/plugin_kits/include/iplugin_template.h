@@ -38,8 +38,8 @@ namespace EDM {
 template<class CT, class DT>
 class IPluginTemplate : public IPlugin {
 public:
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply, std::string &policyData,
-        bool &isChanged, int32_t userId) override;
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 
     ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
 

@@ -62,12 +62,11 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFail, Te
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    bool isChanged = false;
+    HandlePolicyData handlePolicyData{"false", false};
     std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
-    std::string policyData{"false"};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     SetSelfTokenID(selfTokenId);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
@@ -84,11 +83,10 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     MessageParcel reply;
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
-    std::string policyData{"false"};
+    HandlePolicyData handlePolicyData{"false", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 
@@ -101,8 +99,8 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 
     data.WriteBool(true);
-    isChanged = false;
-    ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    handlePolicyData.isChanged_ = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 
@@ -120,8 +118,8 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ASSERT_TRUE(ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 
     data.WriteBool(false);
-    isChanged = false;
-    ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    handlePolicyData.isChanged_ = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 
