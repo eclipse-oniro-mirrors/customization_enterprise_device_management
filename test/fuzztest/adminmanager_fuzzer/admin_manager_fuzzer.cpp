@@ -18,6 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "common_fuzzer.h"
 #include "func_code.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
@@ -34,9 +35,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     for (uint32_t code = EdmInterfaceCode::ADD_DEVICE_ADMIN; code <= EdmInterfaceCode::AUTHORIZE_ADMIN; code++) {
-        CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size);
+        MessageParcel parcel;
+        CommonFuzzer::SetParcelContent(parcel, data, size);
+        CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
-    uint32_t code = ((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]) % 3100;
+    uint32_t code = (CommonFuzzer::GetU32Data(data)) % 3100;
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
@@ -45,7 +48,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
     uint32_t operateType = data[4] % 3;
     code = POLICY_FUNC_CODE(operateType, code);
-    CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size);
+    MessageParcel parcel;
+    CommonFuzzer::SetParcelContent(parcel, data, size);
+    CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     return 0;
 }
 } // namespace EDM
