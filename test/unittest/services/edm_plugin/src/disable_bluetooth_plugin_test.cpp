@@ -69,7 +69,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestCloseSetTrue,
     HandlePolicyData handlePolicyData{"false", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
 }
 
@@ -88,7 +88,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSetFalse, Tes
     HandlePolicyData handlePolicyData{"false", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
 }
 
@@ -107,14 +107,14 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     HandlePolicyData handlePolicyData{"false", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
     Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
     data.WriteBool(true);
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.isChanged = false;
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
 }
 

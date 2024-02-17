@@ -840,25 +840,25 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, AppExecFwk
 
     std::string policyName = plugin->GetPolicyName();
     HandlePolicyData handlePolicyData{"", false};
-    policyMgr_->GetPolicy(admin.GetBundleName(), policyName, handlePolicyData.policyData_, userId);
+    policyMgr_->GetPolicy(admin.GetBundleName(), policyName, handlePolicyData.policyData, userId);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("UpdateDevicePolicy: OnHandlePolicy failed");
         return ret;
     }
-    EDMLOGD("UpdateDevicePolicy: isChanged:%{public}d, needSave:%{public}d", handlePolicyData.isChanged_,
+    EDMLOGD("UpdateDevicePolicy: isChanged:%{public}d, needSave:%{public}d", handlePolicyData.isChanged,
         plugin->NeedSavePolicy());
     std::string oldCombinePolicy;
     policyMgr_->GetPolicy("", policyName, oldCombinePolicy, userId);
-    std::string mergedPolicy = handlePolicyData.policyData_;
+    std::string mergedPolicy = handlePolicyData.policyData;
     bool isGlobalChanged = false;
-    if (plugin->NeedSavePolicy() && handlePolicyData.isChanged_) {
+    if (plugin->NeedSavePolicy() && handlePolicyData.isChanged) {
         ret = plugin->MergePolicyData(admin.GetBundleName(), mergedPolicy);
         if (FAILED(ret)) {
             EDMLOGW("UpdateDevicePolicy: MergePolicyData failed error:%{public}d", ret);
             return ret;
         }
-        policyMgr_->SetPolicy(admin.GetBundleName(), policyName, handlePolicyData.policyData_, mergedPolicy, userId);
+        policyMgr_->SetPolicy(admin.GetBundleName(), policyName, handlePolicyData.policyData, mergedPolicy, userId);
         isGlobalChanged = (oldCombinePolicy != mergedPolicy);
     }
     plugin->OnHandlePolicyDone(code, admin.GetBundleName(), isGlobalChanged, userId);

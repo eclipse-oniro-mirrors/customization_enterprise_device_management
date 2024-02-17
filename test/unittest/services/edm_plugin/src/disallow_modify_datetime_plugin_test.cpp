@@ -55,8 +55,8 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, 
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is disallow to modify date time.
-    ASSERT_TRUE(handlePolicyData.policyData_ == "true");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "true");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**

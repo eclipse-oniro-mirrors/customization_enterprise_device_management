@@ -28,7 +28,7 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (entry == handlePolicyFuncMap_.end() || entry->second.handlePolicy_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = entry->second.handlePolicy_(data, reply, policyData.policyData_, policyData.isChanged_, type, userId);
+    ErrCode res = entry->second.handlePolicy_(data, reply, policyData.policyData, policyData.isChanged, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
 }
