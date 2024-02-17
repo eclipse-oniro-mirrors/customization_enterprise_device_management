@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include "ent_info.h"
+#include "message_parcel.h"
 
 using namespace testing::ext;
 
@@ -53,7 +54,7 @@ void EntInfoTest::TearDown()
  */
 HWTEST_F(EntInfoTest, TestMarshalling, TestSize.Level1)
 {
-    Parcel parcel;
+    MessageParcel parcel;
     bool ret = entInfoTest->Marshalling(parcel);
     EXPECT_TRUE(ret);
 

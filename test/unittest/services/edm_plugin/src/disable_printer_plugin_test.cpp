@@ -56,13 +56,12 @@ HWTEST_F(DisablePrinterPluginTest, TestDisablePrinterPluginTestSet, TestSize.Lev
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisablePrinterPlugin::GetPlugin();
-    std::string policyData{"false"};
+    HandlePolicyData handlePolicyData{"false", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_PRINTER);
-    bool isChanged = false;
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, isChanged, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyData == "true");
-    ASSERT_TRUE(isChanged);
+    ASSERT_TRUE(handlePolicyData.policyData_ == "true");
+    ASSERT_TRUE(handlePolicyData.isChanged_);
 }
 
 /**

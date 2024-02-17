@@ -26,6 +26,45 @@
 
 namespace OHOS {
 namespace EDM {
+static void NativeCallbackComplete(napi_env env, napi_status status, AsyncCallbackInfo *asyncCallbackInfo,
+    napi_value result)
+{
+    EDMLOGD("NativeCallbackComplete asyncCallbackInfo->ret is %{public}d", asyncCallbackInfo->ret);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("NativeCallbackComplete asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+        } else {
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
+            }
+        }
+    } else {
+        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
+            callbackValue[ARR_INDEX_ONE] = result;
+        } else {
+            if (asyncCallbackInfo->innerCodeMsg.empty()) {
+                callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
+            } else {
+                callbackValue[ARR_INDEX_ZERO] =
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg);
+            }
+            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
+        }
+        napi_value callback = nullptr;
+        napi_value result = nullptr;
+        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
+        napi_delete_reference(env, asyncCallbackInfo->callback);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+}
+
 bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType)
 {
     napi_valuetype valueType = napi_undefined;
@@ -456,36 +495,9 @@ void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data)
         return;
     }
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-    if (asyncCallbackInfo->deferred != nullptr) {
-        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            EDMLOGD("asyncCallbackInfo->boolRet = %{public}d", asyncCallbackInfo->boolRet);
-            napi_value result = nullptr;
-            napi_get_boolean(env, asyncCallbackInfo->boolRet, &result);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
-        } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
-        }
-    } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
-            EDMLOGD("asyncCallbackInfo->boolRet = %{public}d", asyncCallbackInfo->boolRet);
-            napi_get_boolean(env, asyncCallbackInfo->boolRet, &callbackValue[ARR_INDEX_ONE]);
-        } else {
-            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
-                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
-                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
-            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
-            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
-        }
-        napi_value callback = nullptr;
-        napi_value result = nullptr;
-        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
-        napi_delete_reference(env, asyncCallbackInfo->callback);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_value result = nullptr;
+    napi_get_boolean(env, asyncCallbackInfo->boolRet, &result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
     delete asyncCallbackInfo;
 }
 
@@ -496,36 +508,9 @@ void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data)
         return;
     }
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-    if (asyncCallbackInfo->deferred != nullptr) {
-        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            EDMLOGD("asyncCallbackInfo->intRet = %{public}d", asyncCallbackInfo->intRet);
-            napi_value result = nullptr;
-            napi_create_int32(env, asyncCallbackInfo->intRet, &result);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
-        } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
-        }
-    } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
-            EDMLOGD("asyncCallbackInfo->intRet = %{public}d", asyncCallbackInfo->intRet);
-            napi_create_int32(env, asyncCallbackInfo->intRet, &callbackValue[ARR_INDEX_ONE]);
-        } else {
-            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
-                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
-                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
-            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
-            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
-        }
-        napi_value callback = nullptr;
-        napi_value result = nullptr;
-        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
-        napi_delete_reference(env, asyncCallbackInfo->callback);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_value result = nullptr;
+    napi_create_int32(env, asyncCallbackInfo->intRet, &result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
     delete asyncCallbackInfo;
 }
 
@@ -536,47 +521,9 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data)
         return;
     }
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-    if (asyncCallbackInfo->deferred != nullptr) {
-        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            EDMLOGD("asyncCallbackInfo->stringRet = %{public}s", asyncCallbackInfo->stringRet.c_str());
-            napi_value result = nullptr;
-            napi_create_string_utf8(env, asyncCallbackInfo->stringRet.c_str(), NAPI_AUTO_LENGTH, &result);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
-        } else {
-            if (asyncCallbackInfo->innerCodeMsg.empty()) {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
-            } else {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
-            }
-        }
-    } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
-            EDMLOGD("asyncCallbackInfo->stringRet = %{public}s", asyncCallbackInfo->stringRet.c_str());
-            napi_create_string_utf8(env, asyncCallbackInfo->stringRet.c_str(), NAPI_AUTO_LENGTH,
-                &callbackValue[ARR_INDEX_ONE]);
-        } else {
-            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
-                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
-                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
-            if (asyncCallbackInfo->innerCodeMsg.empty()) {
-                callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
-            } else {
-                callbackValue[ARR_INDEX_ZERO] =
-                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg);
-            }
-            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
-        }
-        napi_value callback = nullptr;
-        napi_value result = nullptr;
-        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
-        napi_delete_reference(env, asyncCallbackInfo->callback);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_value result = nullptr;
+    napi_create_string_utf8(env, asyncCallbackInfo->stringRet.c_str(), NAPI_AUTO_LENGTH, &result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
     delete asyncCallbackInfo;
 }
 
@@ -587,36 +534,10 @@ void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *d
         return;
     }
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-    if (asyncCallbackInfo->deferred != nullptr) {
-        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_value result = nullptr;
-            napi_create_array(env, &result);
-            ConvertStringVectorToJS(env, asyncCallbackInfo->arrayStringRet, result);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
-        } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
-        }
-    } else {
-        napi_value callbackValue[ARGS_SIZE_TWO] = {0};
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &callbackValue[ARR_INDEX_ZERO]);
-            napi_create_array(env, &callbackValue[ARGS_SIZE_ONE]);
-            ConvertStringVectorToJS(env, asyncCallbackInfo->arrayStringRet, callbackValue[ARGS_SIZE_ONE]);
-        } else {
-            EDMLOGD("asyncCallbackInfo->first = %{public}u, second = %{public}s ",
-                GetMessageFromReturncode(asyncCallbackInfo->ret).first,
-                GetMessageFromReturncode(asyncCallbackInfo->ret).second.c_str());
-            callbackValue[ARR_INDEX_ZERO] = CreateError(env, asyncCallbackInfo->ret);
-            napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
-        }
-        napi_value callback = nullptr;
-        napi_value result = nullptr;
-        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
-        napi_delete_reference(env, asyncCallbackInfo->callback);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertStringVectorToJS(env, asyncCallbackInfo->arrayStringRet, result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
     delete asyncCallbackInfo;
 }
 

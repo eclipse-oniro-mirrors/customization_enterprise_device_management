@@ -27,6 +27,11 @@ namespace OHOS {
 namespace EDM {
 constexpr int32_t DEFAULT_USER_ID = 100;
 
+struct HandlePolicyData {
+    std::string policyData_;
+    bool isChanged_ = false;
+};
+
 class IPlugin {
 public:
     enum class PermissionType {
@@ -42,11 +47,10 @@ public:
      * @param data Data sent from the IPC
      * @param reply Reply return to the IPC
      * @param policyData Policy data after processing
-     * @param isChanged Whether the data is changed
      * @return If the operation is successful, ERR_OK is returned.
      */
     virtual ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-        std::string &policyData, bool &isChanged, int32_t userId) = 0;
+        HandlePolicyData &policyData, int32_t userId) = 0;
 
     /*
      * Merge policy data

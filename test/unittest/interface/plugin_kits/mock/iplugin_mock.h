@@ -29,8 +29,8 @@ public:
 
     virtual ~IPluginMock() {}
 
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply, std::string &policyData,
-        bool &isChanged, int32_t userId) override
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
     {
         return 0;
     }
