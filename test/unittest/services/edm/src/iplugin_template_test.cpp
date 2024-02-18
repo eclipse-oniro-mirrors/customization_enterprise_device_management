@@ -88,18 +88,18 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicySupplier, TestSize.Level1)
     g_visit = false;
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res != ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_.empty());
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_TRUE(g_visit);
 
     setPolicyValue = R"({"k1":"v1","k2":"v2","k3":3})";
-    handlePolicyData.policyData_ = "";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     g_visit = false;
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::REMOVE, policyCode);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res != ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_.empty());
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_TRUE(g_visit);
 }
 
@@ -127,29 +127,29 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_ == "newTestValue");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "newTestValue");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 
     setPolicyValue = "";
-    handlePolicyData.policyData_ = "";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_ == "testValue");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "testValue");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::REMOVE, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     ASSERT_TRUE(plugin != nullptr);
     setPolicyValue = "";
-    handlePolicyData.policyData_ = "testValue";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "testValue";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_.empty());
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**
@@ -176,38 +176,38 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_ == "testValue");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "testValue");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 
     setPolicyValue = "testValue";
-    handlePolicyData.policyData_ = "testValue";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "testValue";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_ == "testValue");
-    ASSERT_TRUE(!handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "testValue");
+    ASSERT_TRUE(!handlePolicyData.isChanged);
 
     setPolicyValue = "";
-    handlePolicyData.policyData_ = "testValue";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "testValue";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_.empty());
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
+    ASSERT_TRUE(handlePolicyData.isChanged);
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::REMOVE, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     ASSERT_TRUE(plugin != nullptr);
     setPolicyValue = "";
-    handlePolicyData.policyData_ = "testValue";
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.policyData = "testValue";
+    handlePolicyData.isChanged = false;
     data.WriteString(setPolicyValue);
     res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_.empty());
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**
@@ -354,8 +354,8 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyReplyFunctionPlg, TestSize.Level1)
     MessageParcel reply;
     ErrCode res = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData_ == "testValue");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "testValue");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**

@@ -28,8 +28,8 @@ namespace EDM {
 constexpr int32_t DEFAULT_USER_ID = 100;
 
 struct HandlePolicyData {
-    std::string policyData_;
-    bool isChanged_ = false;
+    std::string policyData;
+    bool isChanged = false;
 };
 
 class IPlugin {

@@ -63,8 +63,8 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin001, TestSize.Level1)
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(handlePolicyData.policyData_ == "1");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "1");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**
@@ -85,8 +85,8 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin002, TestSize.Level1)
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(handlePolicyData.policyData_ == "0");
-    ASSERT_FALSE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "0");
+    ASSERT_FALSE(handlePolicyData.isChanged);
 }
 
 /**
@@ -107,8 +107,8 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin003, TestSize.Level1)
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     // current policy is read only
-    ASSERT_TRUE(handlePolicyData.policyData_ == "2");
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.policyData == "2");
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**

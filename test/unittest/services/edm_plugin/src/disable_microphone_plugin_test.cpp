@@ -99,7 +99,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 
     data.WriteBool(true);
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.isChanged = false;
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
@@ -118,7 +118,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
     ASSERT_TRUE(ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
 
     data.WriteBool(false);
-    handlePolicyData.isChanged_ = false;
+    handlePolicyData.isChanged = false;
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));

@@ -60,7 +60,7 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     HandlePolicyData handlePolicyData{"false", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged_);
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**
