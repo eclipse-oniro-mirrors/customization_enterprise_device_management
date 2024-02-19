@@ -13,28 +13,24 @@
  * limitations under the License.
  */
 
-#include "external_manager_factory.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<IEdmAppManager> ExternalManagerFactory::CreateAppManager()
-{
-    return appMgr_;
-}
+namespace TEST {
+class EdmCommandTest : public testing::Test {
+public:
+    static void SetUpTestCase() {}
 
-std::shared_ptr<IEdmBundleManager> ExternalManagerFactory::CreateBundleManager()
-{
-    return bundleMgr_;
-}
+    static void TearDownTestCase() {}
 
-std::shared_ptr<IEdmOsAccountManager> ExternalManagerFactory::CreateOsAccountManager()
-{
-    return osAccountMgr_;
-}
+protected:
+    // Sets up the test fixture.
+    void SetUp() override;
 
-std::shared_ptr<IEdmAccessTokenManager> ExternalManagerFactory::CreateAccessTokenManager()
-{
-    return accessTokenMgr_;
-}
-} // namespace EDM
-} // namespace OHOS
+    // Tears down the test fixture.
+    void TearDown() override {}
+};
+} // TEST
+} // EDM
+} // OHOS

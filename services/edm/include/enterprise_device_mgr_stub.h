@@ -19,8 +19,10 @@
 #include <map>
 
 #include "edm_log.h"
+#include "external_manager_factory.h"
 #include "func_code.h"
 #include "ienterprise_device_mgr.h"
+#include "iexternal_manager_factory.h"
 #include "iremote_stub.h"
 
 namespace OHOS {
@@ -29,6 +31,10 @@ class EnterpriseDeviceMgrStub : public IRemoteStub<IEnterpriseDeviceMgr> {
 public:
     EnterpriseDeviceMgrStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+protected:
+    virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
+    std::shared_ptr<IEdmAccessTokenManager> GetAccessTokenMgr();
 
 private:
     using EnterpriseDeviceManagerFunc = int32_t (EnterpriseDeviceMgrStub::*)(MessageParcel &data, MessageParcel &reply);
@@ -48,6 +54,8 @@ private:
     ErrCode UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
     ErrCode AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply);
+
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
 } // namespace OHOS

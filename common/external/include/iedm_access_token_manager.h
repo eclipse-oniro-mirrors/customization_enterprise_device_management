@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_EXTERNAL_INCLUDE_EDM_WIFI_MANAGER_IMPL_H
-#define COMMON_EXTERNAL_INCLUDE_EDM_WIFI_MANAGER_IMPL_H
+#ifndef COMMON_EXTERNAL_INCLUDE_IEDM_ACCESS_TOKEN_MANAGER_H
+#define COMMON_EXTERNAL_INCLUDE_IEDM_ACCESS_TOKEN_MANAGER_H
 
-#include "iedm_wifi_manager.h"
+#include <string>
 
 namespace OHOS {
 namespace EDM {
-class EdmWifiManagerImpl : public IEdmWifiManager {
+class IEdmAccessTokenManager {
 public:
-    ~EdmWifiManagerImpl() override = default;
-    ErrCode ConnectToDevice(const Wifi::WifiDeviceConfig &config) override;
-    ErrCode DisableWifi() override;
-    ErrCode IsWifiActive(bool &isActive) override;
+    virtual ~IEdmAccessTokenManager() = default;
+    virtual bool IsDebug() = 0;
+    virtual bool IsSystemAppOrNative() = 0;
+    virtual bool VerifyCallingPermission(const std::string &permissionName) = 0;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_EXTERNAL_INCLUDE_EDM_WIFI_MANAGER_IMPL_H
+#endif // COMMON_EXTERNAL_INCLUDE_IEDM_ACCESS_TOKEN_MANAGER_H

@@ -78,6 +78,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     appMgrMock_ = std::make_shared<EdmAppManagerImplMock>();
     bundleMgrMock_ = std::make_shared<EdmBundleManagerImplMock>();
     osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
+    accessTokenMgrMock_ = std::make_shared<EdmAccessTokenManagerImplMock>();
     factoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
     edmMgr_ = new (std::nothrow) EnterpriseDeviceMgrAbilityMock();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
@@ -87,6 +88,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     EXPECT_CALL(*factoryMock_, CreateBundleManager).WillRepeatedly(DoAll(Return(bundleMgrMock_)));
     EXPECT_CALL(*factoryMock_, CreateAppManager).WillRepeatedly(DoAll(Return(appMgrMock_)));
     EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    EXPECT_CALL(*factoryMock_, CreateAccessTokenManager).WillRepeatedly(DoAll(Return(accessTokenMgrMock_)));
 }
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
@@ -153,12 +155,31 @@ void EnterpriseDeviceMgrAbilityTest::SetPolicy(const std::string& adminName, con
     edmMgr_->policyMgr_->SetPolicy(adminName, policyName, TEST_POLICY_VALUE, TEST_POLICY_VALUE, TEST_USER_ID);
 }
 
-void EnterpriseDeviceMgrAbilityTest::EnableAdminSuc(AppExecFwk::ElementName &admin, AdminType adminType, int userId)
+void EnterpriseDeviceMgrAbilityTest::EnableAdminSuc(AppExecFwk::ElementName &admin, AdminType adminType, int userId,
+    bool isDebug)
 {
     EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(isDebug)));
+    if (!isDebug) {
+        EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    }
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
     EXPECT_TRUE(SUCCEEDED(edmMgr_->EnableAdmin(admin, entInfo, adminType, userId)));
+}
+
+void EnterpriseDeviceMgrAbilityTest::DisableAdminSuc(AppExecFwk::ElementName &admin, int32_t userId)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableAdmin(admin, userId)));
+}
+
+void EnterpriseDeviceMgrAbilityTest::DisableSuperAdminSuc(const std::string &bundleName)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(bundleName)));
 }
 
 void EnterpriseDeviceMgrAbilityTest::AuthorizeAdminSuc(const AppExecFwk::ElementName &admin,
@@ -167,6 +188,7 @@ void EnterpriseDeviceMgrAbilityTest::AuthorizeAdminSuc(const AppExecFwk::Element
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(admin, subSuperAdminBundleName)));
 }
 
@@ -201,8 +223,6 @@ void EnterpriseDeviceMgrAbilityTest::GetBundleInfoMock(bool ret, const std::stri
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
 
@@ -213,7 +233,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
     MessageParcel reply;
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -224,6 +243,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithoutAdmin, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
+
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
@@ -245,8 +265,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithoutAdmin, Tes
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFailed, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -260,7 +278,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
     MessageParcel reply;
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -271,6 +288,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithInvalidPlugin, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
+
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
@@ -339,6 +357,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -357,14 +376,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -373,7 +391,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
     MessageParcel reply;
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 
@@ -388,8 +405,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -402,6 +418,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -411,7 +428,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     data.WriteString("ErrorData");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_EDM_OPERATE_JSON);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -424,8 +440,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -438,6 +452,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -459,7 +474,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     data.WriteString("{\"name\" : \"testValue\"}");
     res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -473,8 +487,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -487,6 +499,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -498,7 +511,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     ASSERT_TRUE(res == ERR_OK);
     res = edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, plugin_->GetPolicyName(), "", "", DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -620,6 +632,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicySuc, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
+
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
 
@@ -640,9 +653,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicySuc, TestSize.Level1
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, TestSize.Level1)
 {
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
@@ -653,7 +663,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -665,8 +674,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Level1)
 {
-    const char* permissions[] = {EDM_MANAGE_DATETIME_PERMISSION.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
@@ -687,7 +694,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -724,8 +730,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     // enable super admin
     AppExecFwk::ElementName superAdmin;
     superAdmin.SetBundleName(ADMIN_PACKAGENAME);
@@ -750,8 +754,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy,
     GetPolicySuccess(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
     GetPolicySuccess(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(superAdmin.GetBundleName());
 }
 
 /**
@@ -761,8 +764,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy,
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedNormal, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     // enable normal admin with userId = 100 and 101
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -786,7 +787,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedNormal, 
     // get naormal admin under userId = 100 and 101
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), TEST_USER_ID) == nullptr);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -796,8 +796,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedNormal, 
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     // enable super admin
     AppExecFwk::ElementName superAdmin;
     superAdmin.SetBundleName(ADMIN_PACKAGENAME);
@@ -836,8 +834,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     // get sub-super admin policy of sub-super admin with userId = 100
     GetPolicyFailed(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(superAdmin.GetBundleName());
 }
 
 /**
@@ -847,8 +844,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     // enable super admin
     AppExecFwk::ElementName superAdmin;
     superAdmin.SetBundleName(ADMIN_PACKAGENAME);
@@ -893,7 +888,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     // get policy of super and sub-super admin with userId = 101
     GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
     GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -903,8 +897,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     // enable super admin
     AppExecFwk::ElementName superAdmin;
     superAdmin.SetBundleName(ADMIN_PACKAGENAME);
@@ -919,7 +913,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSi
     SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(superAdmin.GetBundleName())));
+    DisableSuperAdminSuc(superAdmin.GetBundleName());
     // get sub-super admin and super admin
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(superAdmin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
     ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(subSuperAdmin, DEFAULT_USER_ID) == nullptr);
@@ -929,7 +923,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSi
     // get policy of sub-super admin with userId = 100
     GetPolicyFailed(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
     GetPolicyFailed(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -942,7 +935,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutPermisson, Tes
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
+    
     ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
@@ -953,15 +949,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutPermisson, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -971,24 +965,22 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutAdmin, TestSiz
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutSDA, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
+
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
 
-    ASSERT_TRUE(SUCCEEDED(edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID)));
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
     std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
     EXPECT_TRUE(normalAdmin == nullptr);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -998,14 +990,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutSDA, TestSize.
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
@@ -1013,10 +1003,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Lev
     ErrCode res = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
     EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1026,15 +1015,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Lev
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
@@ -1043,10 +1030,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
     EXPECT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
 
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
     EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1056,9 +1042,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminSuc, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1066,11 +1049,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminSuc, TestSize.Level1)
 
     AuthorizeAdminSuc(admin, ADMIN_PACKAGENAME_1);
 
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
+    DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> subOrSuperAdmin;
     EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(ADMIN_PACKAGENAME_1, subOrSuperAdmin)));
     EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetAbilityName(), subOrSuperAdmin)));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1080,9 +1062,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminSuc, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1095,7 +1074,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicy, TestSize
     EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID)));
     auto normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
     EXPECT_TRUE(normalAdmin == nullptr);
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1105,9 +1083,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicy, TestSize
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1122,8 +1097,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminPolicy, TestSize.Level1)
     EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminPolicy(admin.GetBundleName(), TEST_USER_ID)));
     GetPolicyFailed(TEST_USER_ID, admin.GetBundleName(), plugin->GetPolicyName());
     GetPolicySuccess(DEFAULT_USER_ID, admin.GetBundleName(), plugin->GetPolicyName());
-
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1133,9 +1106,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminPolicy, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1156,7 +1126,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, 
     superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(subSuperBundleName, TEST_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
     EXPECT_FALSE(edmMgr_->adminMgr_->IsSuperOrSubSuperAdmin(subSuperBundleName));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1166,9 +1135,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, 
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1187,7 +1153,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, Tes
     superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), TEST_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
     EXPECT_FALSE(edmMgr_->adminMgr_->IsSuperAdmin(admin.GetBundleName()));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1197,9 +1162,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubOrSuperAdminAndAdminPolicy, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1219,7 +1181,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubOrSuperAdminAndAdminPolicy
     superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), TEST_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
     EXPECT_FALSE(edmMgr_->adminMgr_->IsSuperAdmin(admin.GetBundleName()));
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1234,6 +1195,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAmdinCallingPermissionFailed,
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, 0);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
@@ -1245,13 +1209,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAmdinCallingPermissionFailed,
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminQueryExtensionAbilityInfosFailed, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(false, "");
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, 1);
     EXPECT_TRUE(res == EdmReturnErrCode::COMPONENT_INVALID);
 }
@@ -1263,13 +1229,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminQueryExtensionAbilityIn
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminQueryExtensionAbilityInfosEmpty, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, "", true);
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, 1);
     EXPECT_TRUE(res == EdmReturnErrCode::COMPONENT_INVALID);
 }
@@ -1281,14 +1249,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminQueryExtensionAbilityIn
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminVerifyConditionFailed, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::UNKNOWN, 1);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 }
@@ -1300,14 +1269,15 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleAdminVerifyConditionFailed, 
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperWithErrorUserId, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, TEST_USER_ID);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 }
@@ -1319,20 +1289,20 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperWithErrorUserId, TestSi
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminToNormalAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
-
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableSuperAdmin(ADMIN_PACKAGENAME);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
 }
 
 /**
@@ -1342,21 +1312,20 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminToNormalAdmin, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminToOtherUserId, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
-
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
 
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, TEST_USER_ID);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableSuperAdmin(ADMIN_PACKAGENAME);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
 }
 
 /**
@@ -1366,13 +1335,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminToOtherUserId, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminWithOtherEntInfo, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(true, "");
 
@@ -1380,8 +1349,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminWithOtherEntInfo, 
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(res == ERR_OK);
 
-    res = edmMgr_->DisableSuperAdmin(ADMIN_PACKAGENAME);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
 }
 
 /**
@@ -1391,23 +1359,22 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminWithOtherEntInfo, 
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleMultipleSuperAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
     admin.SetBundleName(ADMIN_PACKAGENAME_1);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
     EntInfo entInfo("test", "this is test");
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableSuperAdmin(ADMIN_PACKAGENAME);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
 }
 
 /**
@@ -1417,22 +1384,20 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleMultipleSuperAdmin, TestSize
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminWithOtherAbility, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
     EntInfo entInfo("test", "this is test");
     ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableSuperAdmin(ADMIN_PACKAGENAME);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
 }
 
 /**
@@ -1442,14 +1407,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnabaleSuperAdminWithOtherAbility, 
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAllPermissionsByAdminFail, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(false, "");
 
@@ -1464,14 +1428,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAllPermissionsByAdminFail, TestS
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithQueryExtensionAdbilityInfosEmptyBundleName, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission(EDM_TEST_PERMISSION, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
-    PermissionManager::GetInstance()->AddPermission(EDM_TEST_ENT_PERMISSION,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, "");
     GetBundleInfoMock(true, "");
 
@@ -1498,14 +1461,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithQueryExtensionAdbili
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableNormalAdminWithDefaultUserId, TestSize.Level1)
 {
-    PermissionManager::GetInstance()->AddPermission(EDM_TEST_PERMISSION, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
-    PermissionManager::GetInstance()->AddPermission(EDM_TEST_ENT_PERMISSION,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
 
@@ -1526,14 +1488,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableNormalAdminWithDefaultUserId,
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithPermissionEmpty, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(true, "");
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
@@ -1567,8 +1528,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithPermissionEmpty, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
 
     std::vector<std::u16string> args;
     ErrCode res = edmMgr_->Dump(-1, args);
@@ -1592,18 +1553,19 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
     admin1.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
     EnableAdminSuc(admin1, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     res = edmMgr_->DisableSuperAdmin(admin1.GetBundleName());
-    EXPECT_TRUE(res != ERR_OK);
+    EXPECT_TRUE(res == EdmReturnErrCode::DISABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableAdmin(admin1, DEFAULT_USER_ID);
-    EXPECT_TRUE(res == ERR_OK);
+    DisableAdminSuc(admin1, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID); // admintype is super
-    EXPECT_TRUE(res != ERR_OK);
+    EXPECT_TRUE(res == EdmReturnErrCode::DISABLE_ADMIN_FAILED);
 
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -1613,15 +1575,140 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminIpcSuc, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(edmMgr_->IsSuperAdmin(admin.GetBundleName()));
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableSuperAdmin(admin.GetBundleName())));
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestEnableNormalAdminToDebug
+ * @tc.desc: Test hdc enable normal admin to debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableNormalAdminToDebug, TestSize.Level1)
+{
+    // enable normal admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+    // shell enable debug admin
+    EntInfo entInfo("test", "this is test");
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+    // disable normal admin
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestEnableSuperAdminToDebug
+ * @tc.desc: Test hdc enable super admin to debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableSuperAdminToDebug, TestSize.Level1)
+{
+    // enable super admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    // shell enable debug admin
+    EntInfo entInfo("test", "this is test");
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+    // disable normal admin
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestEnableDebugSuperAdmin
+ * @tc.desc: Test enable debug super admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableDebugSuperAdmin, TestSize.Level1)
+{
+    // enable super admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    // hdc enable debug super admin1
+    AppExecFwk::ElementName admin1;
+    admin1.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin1.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EnableAdminSuc(admin1, AdminType::ENT, DEFAULT_USER_ID, true);
+    // disable super admin
+    DisableSuperAdminSuc(admin.GetBundleName());
+    // hdc disable debug super admin1
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->DisableSuperAdmin(admin1.GetBundleName());
+    EXPECT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: TestHdcDisableNormalAdmin
+ * @tc.desc: Test hdc disable normal admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHdcDisableNormalAdmin, TestSize.Level1)
+{
+    // enable normal admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+    // hdc disable normal admin
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
+    EXPECT_TRUE(res == EdmReturnErrCode::DISABLE_ADMIN_FAILED);
+    // disable normal admin
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestHdcDisableSuperAdmin
+ * @tc.desc: Test hdc disable super admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHdcDisableSuperAdmin, TestSize.Level1)
+{
+    // enable super admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    // hdc disable super admin
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
+    EXPECT_TRUE(res == EdmReturnErrCode::DISABLE_ADMIN_FAILED);
+    // disable super admin
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestDisableDebugSuperAdmin
+ * @tc.desc: Test disable debug super admin with debug = false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableDebugSuperAdmin, TestSize.Level1)
+{
+    // hdc enbale debug super admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID, true);
+    // disable debug super admin
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -1640,6 +1727,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoWithoutPermission,
     EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 
     EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     res = edmMgr_->SetEnterpriseInfo(admin, entInfo);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
@@ -1651,8 +1739,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoWithoutPermission,
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoWithoutActiveAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_SET_ENTERPRISE_INFO_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -1665,8 +1752,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoWithoutActiveAdmin
     EntInfo entInfo("test", "this is test");
     res = edmMgr_->SetEnterpriseInfo(admin, entInfo);
     EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
-
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1676,10 +1761,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoWithoutActiveAdmin
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoCheckCallingUidFailed, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_SET_ENTERPRISE_INFO_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1691,12 +1772,11 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoCheckCallingUidFai
     EXPECT_TRUE(res == ERR_OK);
 
     EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     res = edmMgr_->SetEnterpriseInfo(admin, entInfo);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -1706,10 +1786,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoCheckCallingUidFai
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoSuc, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_SET_ENTERPRISE_INFO_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1717,6 +1793,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoSuc, TestSize.Leve
 
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
     EntInfo entInfo("test", "this is test");
     ErrCode res = edmMgr_->SetEnterpriseInfo(admin, entInfo);
@@ -1726,9 +1803,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoSuc, TestSize.Leve
     res = edmMgr_->GetEnterpriseInfo(admin, reply);
     EXPECT_TRUE(res == ERR_OK);
 
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -1782,12 +1857,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
-    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    abilityInfo.bundleName = ADMIN_PACKAGENAME_1;
-    abilityInfo.name = ADMIN_PACKAGENAME_ABILITY_1;
-    entInfo.enterpriseName = "company1";
-    entInfo.description = "technology company in wuhan";
-    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, ERROR_USER_ID_REMOVE);
+    Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
+    edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
+    edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
+    edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID_REMOVE, edmAdmin);
 
     EventFwk::CommonEventData data;
     std::string action = "usual.event.USER_REMOVED";
@@ -1805,7 +1881,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.
     isExist = edmMgr_->adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     EXPECT_TRUE(!isExist);
 
-    ErrCode ret = edmMgr_->adminMgr_->DeleteAdmin(abilityInfo.bundleName, ERROR_USER_ID_REMOVE);
+    ErrCode ret = edmMgr_->adminMgr_->DeleteAdmin(edmAdmin.adminInfo_.packageName_, ERROR_USER_ID_REMOVE);
     EXPECT_TRUE(ret == ERR_OK);
 }
 
@@ -1841,13 +1917,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
-    edmMgr_->adminMgr_->SetAdminValue(abilityInfo, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
-    AppExecFwk::ExtensionAbilityInfo abilityInfo1;
-    abilityInfo1.bundleName = ADMIN_PACKAGENAME_1;
-    abilityInfo1.name = ADMIN_PACKAGENAME_ABILITY_1;
-    entInfo.enterpriseName = "company1";
-    entInfo.description = "technology company in wuhan1";
-    edmMgr_->adminMgr_->SetAdminValue(abilityInfo1, entInfo, AdminType::NORMAL, permissions, DEFAULT_USER_ID);
+    Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+
+    edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
+    edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
+    edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
+    edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan1";
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
     const std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     edmMgr_->adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
 
@@ -1868,7 +1945,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     EXPECT_TRUE(func != edmMgr_->commonEventFuncMap_.end());
 
     EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(abilityInfo.bundleName, DEFAULT_USER_ID), ERR_OK);
-    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(abilityInfo1.bundleName, DEFAULT_USER_ID), ERR_OK);
+    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID), ERR_OK);
 }
 
 /**
@@ -1878,6 +1955,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithoutPermission, TestSize.Level1)
 {
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -1897,18 +1975,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithoutPermiss
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithoutActiveAdmin, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-
     std::vector<uint32_t> event;
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
-
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**
@@ -1918,15 +1992,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithoutActiveA
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventCheckCallingUidFailed, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
@@ -1935,9 +2006,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventCheckCallingUi
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 
-    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
 }
 
 /**
@@ -1947,24 +2016,19 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventCheckCallingUi
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithEmptyEvents, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     std::vector<uint32_t> event;
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
 
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -1974,24 +2038,19 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithEmptyEvent
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventWithInvalidEvents, TestSize.Level1)
 {
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
-
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     std::vector<uint32_t> event = {INVALID_MANAGED_EVENT_TEST};
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, event);
     EXPECT_TRUE(res == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
 
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -2005,19 +2064,16 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEvent, TestSize.Lev
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str(), PERMISSION_RUNNING_STATE_OBSERVER.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -2031,11 +2087,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Le
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EntInfo entInfo("test", "this is test");
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str(), PERMISSION_RUNNING_STATE_OBSERVER.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
@@ -2044,9 +2098,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, SubscribeAppStartStopEvent, TestSize.Le
     std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
     ErrCode res = edmMgr_->SubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
-    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
 }
 
 /**
@@ -2059,19 +2111,16 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEvent, TestSize.L
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     ErrCode res = edmMgr_->UnsubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
-    res = edmMgr_->DisableSuperAdmin(admin.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -2084,11 +2133,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-    const char* permissions[] = {PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST.c_str(),
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST.c_str()};
-    Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
@@ -2097,9 +2144,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
     ErrCode res = edmMgr_->UnsubscribeManagedEvent(admin, events);
     EXPECT_TRUE(res == ERR_OK);
-    res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID);
-    EXPECT_TRUE(res == ERR_OK);
-    Utils::ResetTokenTypeAndUid();
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
 }
 } // namespace TEST
 } // namespace EDM

@@ -48,8 +48,7 @@ public:
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     std::shared_ptr<Admin> GetSuperAdmin();
     void Init();
-    ErrCode SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
-        std::vector<std::string> &permissions, int32_t userId);
+    ErrCode SetAdminValue(int32_t userId, Admin &adminItem);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
     ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);

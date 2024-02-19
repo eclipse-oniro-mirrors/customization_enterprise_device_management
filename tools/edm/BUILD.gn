@@ -13,39 +13,36 @@
 
 import("//build/ohos.gni")
 
-config("edm_external_adapters_public_configs") {
+config("tools_edm_config") {
   include_dirs = [ "include" ]
 }
 
-ohos_shared_library("edm_external_adapters") {
+ohos_source_set("tools_edm_source_set") {
   sources = [
-    "./src/edm_access_token_manager_impl.cpp",
-    "./src/edm_app_manager_impl.cpp",
-    "./src/edm_bundle_manager_impl.cpp",
-    "./src/edm_os_account_manager_impl.cpp",
-    "./src/external_manager_factory.cpp",
+    "src/edm_command.cpp",
+    "src/main.cpp",
+    "src/shell_command.cpp",
   ]
 
-  configs = [
-    ":edm_external_adapters_public_configs",
+  public_configs = [
+    ":tools_edm_config",
     "../../common/config:coverage_flags",
   ]
 
-  public_configs = [ ":edm_external_adapters_public_configs" ]
-
-  deps = [ "../native:edm_commom" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
 
   external_deps = [
-    "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libtokenid_sdk",
-    "bundle_framework:appexecfwk_core",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
-    "init:libbegetutil",
     "ipc:ipc_core",
-    "os_account:os_account_innerkits",
   ]
+
+  deps = [ "../../interfaces/inner_api:edmservice_kits" ]
 
   sanitize = {
     boundary_sanitize = true
@@ -55,7 +52,27 @@ ohos_shared_library("edm_external_adapters") {
     integer_overflow = true
     ubsan = true
   }
-  branch_protector_ret = "pac_ret"
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
+}
+
+ohos_executable("edm") {
+  deps = [ ":tools_edm_source_set" ]
+
+  install_enable = true
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+group("tools_edm") {
+  deps = [ ":edm" ]
 }

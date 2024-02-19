@@ -13,28 +13,13 @@
  * limitations under the License.
  */
 
-#include "external_manager_factory.h"
+#include <iostream>
 
-namespace OHOS {
-namespace EDM {
-std::shared_ptr<IEdmAppManager> ExternalManagerFactory::CreateAppManager()
-{
-    return appMgr_;
-}
+#include "edm_command.h"
 
-std::shared_ptr<IEdmBundleManager> ExternalManagerFactory::CreateBundleManager()
+int main(int argc, char *argv[])
 {
-    return bundleMgr_;
+    OHOS::EDM::EdmCommand cmd(argc, argv);
+    std::cout << cmd.ExecCommand();
+    return 0;
 }
-
-std::shared_ptr<IEdmOsAccountManager> ExternalManagerFactory::CreateOsAccountManager()
-{
-    return osAccountMgr_;
-}
-
-std::shared_ptr<IEdmAccessTokenManager> ExternalManagerFactory::CreateAccessTokenManager()
-{
-    return accessTokenMgr_;
-}
-} // namespace EDM
-} // namespace OHOS

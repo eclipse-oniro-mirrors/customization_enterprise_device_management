@@ -13,27 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
-#define COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
+#ifndef COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_MOCK_H
+#define COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_MOCK_H
 
-#include <memory>
+#include <gmock/gmock.h>
 
 #include "iedm_access_token_manager.h"
-#include "iedm_app_manager.h"
-#include "iedm_bundle_manager.h"
-#include "iedm_os_account_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class IExternalManagerFactory {
+class EdmAccessTokenManagerImplMock : public IEdmAccessTokenManager {
 public:
-    virtual ~IExternalManagerFactory() = default;
-    virtual std::shared_ptr<IEdmAppManager> CreateAppManager() = 0;
-    virtual std::shared_ptr<IEdmBundleManager> CreateBundleManager() = 0;
-    virtual std::shared_ptr<IEdmOsAccountManager> CreateOsAccountManager() = 0;
-    virtual std::shared_ptr<IEdmAccessTokenManager> CreateAccessTokenManager() = 0;
+    ~EdmAccessTokenManagerImplMock() override = default;
+    MOCK_METHOD(bool, IsDebug, (), (override));
+    MOCK_METHOD(bool, IsSystemAppOrNative, (), (override));
+    MOCK_METHOD(bool, VerifyCallingPermission, (const std::string &permissionName), (override));
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
+#endif // COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_MOCK_H
