@@ -104,6 +104,11 @@ private:
     static void NativeSetGlobalHttpProxy(napi_env env, void *data);
     static void NativeGetGlobalHttpProxy(napi_env env, void *data);
     static void NativeHttpProxyCallbackComplete(napi_env env, napi_status status, void *data);
+    static bool JsObjectToSecureData(napi_env env, napi_value object, const char *paramStr,
+        OHOS::NetManagerStandard::SecureData &secureData);
+    static bool ParseSecureData(napi_env env, OHOS::NetManagerStandard::SecureData &secureData, napi_value object);
+    static bool GetSecureDataFromNAPI(napi_env env, napi_value object,
+        OHOS::NetManagerStandard::SecureData &secureData);
 };
 } // namespace EDM
 } // namespace OHOS

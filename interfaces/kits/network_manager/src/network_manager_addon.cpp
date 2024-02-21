@@ -24,6 +24,8 @@ using namespace OHOS::EDM::IPTABLES;
 
 const char *const HOST_PROP_NAME = "host";
 const char *const PORT_PROP_NAME = "port";
+const char *const PROXY_USER_NAME = "username";
+const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
@@ -885,28 +887,93 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
 bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, AsyncHttpProxyCallbackInfo *callbackInfo)
 {
     std::string host;
-    if (!JsObjectToString(env, argv, HOST_PROP_NAME, false, host)) {
+    if (!JsObjectToString(env, argv, HOST_PROP_NAME, true, host)) {
         EDMLOGE("error host value");
         return false;
     }
     std::int32_t port = 0;
-    if (!JsObjectToInt(env, argv, PORT_PROP_NAME, false, port)) {
+    if (!JsObjectToInt(env, argv, PORT_PROP_NAME, true, port)) {
         EDMLOGE("error port value");
         return false;
     }
+    OHOS::NetManagerStandard::SecureData username;
+    if (!JsObjectToSecureData(env, argv, PROXY_USER_NAME, username)) {
+        EDMLOGE("error username value");
+        return false;
+    }
+    OHOS::NetManagerStandard::SecureData password;
+    if (!JsObjectToSecureData(env, argv, PROXY_PASSWORD, password)) {
+        EDMLOGE("error password value");
+        return false;
+    }
+    if (!username.empty() && !password.empty()) {
+        EDMLOGD("NetworkManagerAddon username and password is not empty.");
+    } else {
+        EDMLOGD("NetworkManagerAddon username or password is empty.");
+    }
     std::vector<std::string> exclusionList;
-    if (!JsObjectToStringVector(env, argv, EXCLUSION_LIST_PROP_NAME, false, exclusionList)) {
+    if (!JsObjectToStringVector(env, argv, EXCLUSION_LIST_PROP_NAME, true, exclusionList)) {
         EDMLOGE("error exclusionList value");
         return false;
     }
 
     callbackInfo->httpProxy.SetHost(host.c_str());
     callbackInfo->httpProxy.SetPort(port);
+    callbackInfo->httpProxy.SetUserName(username);
+    callbackInfo->httpProxy.SetPassword(password);
     std::list<std::string> dataList;
     for (const auto &item : exclusionList) {
         dataList.emplace_back(item);
     }
     callbackInfo->httpProxy.SetExclusionList(dataList);
+    return true;
+}
+
+bool NetworkManagerAddon::JsObjectToSecureData(napi_env env, napi_value object, const char *paramStr,
+    OHOS::NetManagerStandard::SecureData &secureData)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, paramStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (hasProperty) {
+        napi_value prop = nullptr;
+        return napi_get_named_property(env, object, paramStr, &prop) == napi_ok &&
+            ParseSecureData(env, secureData, prop);
+    }
+    return true;
+}
+
+bool NetworkManagerAddon::ParseSecureData(napi_env env, OHOS::NetManagerStandard::SecureData &secureData,
+    napi_value object)
+{
+    napi_valuetype valuetype;
+    if (napi_typeof(env, object, &valuetype) != napi_ok || valuetype != napi_string ||
+        !GetSecureDataFromNAPI(env, object, secureData)) {
+        EDMLOGE("can not get string value");
+        return false;
+    }
+    return true;
+}
+
+bool NetworkManagerAddon::GetSecureDataFromNAPI(napi_env env, napi_value object,
+    OHOS::NetManagerStandard::SecureData &secureData)
+{
+    OHOS::NetManagerStandard::SecureData result;
+    size_t size = 0;
+
+    if (napi_get_value_string_utf8(env, object, nullptr, NAPI_RETURN_ZERO, &size) != napi_ok) {
+        EDMLOGE("can not get string size");
+        return false;
+    }
+    result.reserve(size + NAPI_RETURN_ONE);
+    result.resize(size);
+    if (napi_get_value_string_utf8(env, object, result.data(), (size + NAPI_RETURN_ONE), &size) != napi_ok) {
+        EDMLOGE("can not get string value");
+        return false;
+    }
+    secureData = result;
     return true;
 }
 
