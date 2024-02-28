@@ -17,7 +17,9 @@
 #define INTERFACES_INNER_API_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -29,8 +31,10 @@ public:
     int32_t DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow);
     int32_t DisallowAddOsAccountByUser(AppExecFwk::ElementName &admin, int32_t userId, bool isDisallow);
     int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
+#ifdef OS_ACCOUNT_EDM_ENABLE
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
         OHOS::AccountSA::OsAccountInfo &accountInfo, std::string &distributedInfoName, std::string &distributedInfoId);
+#endif
 
 private:
     static std::shared_ptr<AccountManagerProxy> instance_;

@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("../../../../common/config/common.gni")
 
 module_output_path = "enterprise_device_management/enterprise_device_management"
 
@@ -26,24 +27,6 @@ ohos_unittest("EdmInnerApiUnitTest") {
   sources = [
     "../../common/mock/src/edm_sys_manager_mock.cpp",
     "./common/ent_info_test.cpp",
-    "./proxy/account_manager_proxy_test.cpp",
-    "./proxy/application_manager_proxy_test.cpp",
-    "./proxy/bluetooth_manager_proxy_test.cpp",
-    "./proxy/browser_proxy_test.cpp",
-    "./proxy/bundle_manager_proxy_test.cpp",
-    "./proxy/datetime_manager_proxy_test.cpp",
-    "./proxy/device_control_proxy_test.cpp",
-    "./proxy/device_info_proxy_test.cpp",
-    "./proxy/device_settings_proxy_test.cpp",
-    "./proxy/enterprise_device_mgr_proxy_test.cpp",
-    "./proxy/location_manager_proxy_test.cpp",
-    "./proxy/mock/src/enterprise_device_mgr_stub_mock.cpp",
-    "./proxy/network_manager_proxy_test.cpp",
-    "./proxy/restrictions_proxy_test.cpp",
-    "./proxy/security_manager_proxy_test.cpp",
-    "./proxy/system_manager_proxy_test.cpp",
-    "./proxy/usb_manager_proxy_test.cpp",
-    "./proxy/wifi_manager_proxy_test.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
@@ -67,11 +50,85 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "netmanager_base:net_conn_manager_if",
-    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
-    "wifi:wifi_sdk",
   ]
+
+  defines = []
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable) {
+    external_deps += [
+      "netmanager_base:net_conn_manager_if",
+      "os_account:os_account_innerkits",
+    ]
+    sources += [
+      "./proxy/account_manager_proxy_test.cpp",
+      "./proxy/bundle_manager_proxy_test.cpp",
+      "./proxy/device_info_proxy_test.cpp",
+      "./proxy/enterprise_device_mgr_proxy_test.cpp",
+      "./proxy/mock/src/enterprise_device_mgr_stub_mock.cpp",
+      "./proxy/network_manager_proxy_test.cpp",
+      "./proxy/security_manager_proxy_test.cpp",
+      "./proxy/system_manager_proxy_test.cpp",
+    ]
+    defines += [
+      "OS_ACCOUNT_EDM_ENABLE",
+      "NETMANAGER_BASE_EDM_ENABLE",
+    ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && ability_runtime_edm_enable) {
+    sources += [ "./proxy/application_manager_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && bluetooth_edm_enable) {
+    sources += [ "./proxy/bluetooth_manager_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && common_event_service_edm_enable) {
+    sources += [ "./proxy/browser_proxy_test.cpp" ]
+  }
+
+  if (time_service_edm_enable && os_account_edm_enable &&
+      netmanager_base_edm_enable && netmanager_ext_edm_enable) {
+    sources += [ "./proxy/datetime_manager_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && screenlock_mgr_edm_enable &&
+      power_manager_edm_enable && update_service_edm_enable) {
+    sources += [ "./proxy/device_control_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && certificate_manager_edm_enable) {
+    sources += [ "./proxy/device_settings_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && location_edm_enable) {
+    sources += [ "./proxy/location_manager_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && audio_framework_edm_enable) {
+    sources += [ "./proxy/restrictions_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && drivers_interface_usb_edm_enable &&
+      usb_manager_edm_enable && storage_service_edm_enable) {
+    sources += [ "./proxy/usb_manager_proxy_test.cpp" ]
+  }
+
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && wifi_edm_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    sources += [ "./proxy/wifi_manager_proxy_test.cpp" ]
+    defines += [ "WIFI_EDM_ENABLE" ]
+  }
 
   sanitize = {
     boundary_sanitize = true

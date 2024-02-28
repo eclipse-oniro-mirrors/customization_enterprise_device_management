@@ -14,19 +14,31 @@
  */
 
 #include "edm_os_account_manager_impl.h"
+#include "edm_log.h"
 
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
-
+#endif
 namespace OHOS {
 namespace EDM {
 ErrCode EdmOsAccountManagerImpl::QueryActiveOsAccountIds(std::vector<int32_t> &ids)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     return AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+#else
+    EDMLOGW("EdmOsAccountManagerImpl::QueryActiveOsAccountIds Unsupported Capabilities.");
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+#endif
 }
 
 ErrCode EdmOsAccountManagerImpl::IsOsAccountExists(int32_t id, bool &isExist)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     return AccountSA::OsAccountManager::IsOsAccountExists(id, isExist);
+#else
+    EDMLOGW("EdmOsAccountManagerImpl::IsOsAccountExists Unsupported Capabilities.");
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+#endif
 }
 } // namespace EDM
 } // namespace OHOS

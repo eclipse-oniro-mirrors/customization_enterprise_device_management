@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace EDM {
+#ifdef WIFI_EDM_ENABLE
 void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data)
 {
     data.WriteInt32(config.networkId);
@@ -65,12 +66,6 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteInt32(config.wifiProxyconfig.manualProxyConfig.serverPort);
     data.WriteString(config.wifiProxyconfig.manualProxyConfig.exclusionObjectList);
     data.WriteInt32(static_cast<int32_t>(config.wifiPrivacySetting));
-}
-
-void MessageParcelUtils::WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data)
-{
-    data.WriteInt32(installParam.userId);
-    data.WriteInt32(static_cast<int>(installParam.installFlag));
 }
 
 void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address)
@@ -212,6 +207,13 @@ void MessageParcelUtils::ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress 
     for (size_t i = 0; i < size; i++) {
         address.addressIpv6.push_back(data.ReadUint8());
     }
+}
+#endif
+
+void MessageParcelUtils::WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data)
+{
+    data.WriteInt32(installParam.userId);
+    data.WriteInt32(static_cast<int>(installParam.installFlag));
 }
 } // namespace EDM
 } // namespace OHOS

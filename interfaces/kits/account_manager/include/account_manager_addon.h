@@ -16,7 +16,10 @@
 #ifndef INTERFACES_KITS_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_ADDON_H
 #define INTERFACES_KITS_ACCOUNT_MANAGER_INCLUDE_ACCOUNT_MANAGER_ADDON_H
 
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "account_info.h"
+#include "os_account_info.h"
+#endif
 #include "account_manager_proxy.h"
 #include "edm_errors.h"
 #include "napi_edm_error.h"
@@ -24,7 +27,6 @@
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
-#include "os_account_info.h"
 #include "want.h"
 
 namespace OHOS {
@@ -47,13 +49,15 @@ private:
     static napi_value IsAddOsAccountByUserDisallowed(napi_env env, napi_callback_info info);
     static napi_value AddOsAccount(napi_env env, napi_callback_info info);
     static bool CheckOsAccountType(int32_t type);
-    static napi_value ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
-        std::string distributedInfoName, std::string distributedInfoId);
     static napi_value MakeArrayToJs(napi_env env, const std::vector<std::string> &constraints, napi_value jsArray);
     static napi_value CreateJsDistributedInfo(napi_env env, const std::string distributedInfoName,
         const std::string distributedInfoId, napi_value &result);
+#ifdef OS_ACCOUNT_EDM_ENABLE
     static napi_value CreateJsDomainInfo(napi_env env, const OHOS::AccountSA::DomainAccountInfo &info,
         napi_value &result);
+    static napi_value ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
+        std::string distributedInfoName, std::string distributedInfoId);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

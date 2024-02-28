@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../config/common.gni")
 
 config("edm_external_adapters_public_configs") {
   include_dirs = [ "include" ]
@@ -40,8 +41,13 @@ ohos_shared_library("edm_external_adapters") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "os_account:os_account_innerkits",
   ]
+
+  defines = []
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
 
   sanitize = {
     boundary_sanitize = true

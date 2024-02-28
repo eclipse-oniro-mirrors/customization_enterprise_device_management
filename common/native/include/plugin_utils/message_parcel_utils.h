@@ -21,14 +21,16 @@
 #include "edm_errors.h"
 #include "install_param.h"
 #include "message_parcel.h"
+#ifdef WIFI_EDM_ENABLE
 #include "wifi_msg.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
 class MessageParcelUtils {
 public:
-    static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data);
     static void WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data);
+    static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data);
     static void WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address);
     static void ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config);
     static void ProcessAssignIpMethod(int32_t ipMethod, Wifi::WifiIpConfig &ipConfig);

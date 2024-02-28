@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../config/common.gni")
 
 config("edm_commom_all_dependent_configs") {
   include_dirs = [
@@ -50,11 +51,19 @@ ohos_shared_library("edm_commom") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
-    "wifi:wifi_sdk",
   ]
 
+  defines = []
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
+
+  if (wifi_edm_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    defines += [ "WIFI_EDM_ENABLE" ]
+  }
   if (!defined(global_parts_info) ||
       defined(global_parts_info.security_security_guard)) {
     external_deps += [ "security_guard:libsg_collect_sdk" ]

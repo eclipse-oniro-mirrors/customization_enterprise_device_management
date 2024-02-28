@@ -1,0 +1,107 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+declare_args() {
+  ability_runtime_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.ability_ability_runtime)) {
+    ability_runtime_edm_enable = true
+  }
+  audio_framework_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.multimedia_audio_framework)) {
+    audio_framework_edm_enable = true
+  }
+  bluetooth_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.communication_bluetooth)) {
+    bluetooth_edm_enable = true
+  }
+  bundle_framework_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.bundlemanager_bundle_framework)) {
+    bundle_framework_edm_enable = true
+  }
+  certificate_manager_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.security_certificate_manager)) {
+    certificate_manager_edm_enable = true
+  }
+  common_event_service_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.notification_common_event_service)) {
+    common_event_service_edm_enable = true
+  }
+  drivers_interface_usb_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.hdf_drivers_interface_usb)) {
+    drivers_interface_usb_edm_enable = true
+  }
+  location_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.location_location)) {
+    location_edm_enable = true
+  }
+  netmanager_base_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.communication_netmanager_base)) {
+    netmanager_base_edm_enable = true
+  }
+  netmanager_ext_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.communication_netmanager_ext)) {
+    netmanager_ext_edm_enable = true
+  }
+  os_account_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.account_os_account)) {
+    os_account_edm_enable = true
+  }
+  power_manager_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.powermgr_power_manager)) {
+    power_manager_edm_enable = true
+  }
+  screenlock_mgr_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.theme_screenlock_mgr)) {
+    screenlock_mgr_edm_enable = true
+  }
+  storage_service_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.filemanagement_storage_service)) {
+    storage_service_edm_enable = true
+  }
+  time_service_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.time_time_service)) {
+    time_service_edm_enable = true
+  }
+  update_service_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.updater_update_service)) {
+    update_service_edm_enable = true
+  }
+  usb_manager_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.usb_usb_manager)) {
+    usb_manager_edm_enable = true
+  }
+  wifi_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.communication_wifi)) {
+    wifi_edm_enable = true
+  }
+}

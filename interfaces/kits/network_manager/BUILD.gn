@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../common/config/common.gni")
 
 ohos_shared_library("networkmanager") {
   include_dirs = [
@@ -37,8 +38,13 @@ ohos_shared_library("networkmanager") {
     "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
-    "netmanager_base:net_conn_manager_if",
   ]
+
+  defines = []
+  if (netmanager_base_edm_enable) {
+    external_deps += [ "netmanager_base:net_conn_manager_if" ]
+    defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
+  }
 
   relative_install_dir = "module/enterprise"
   sanitize = {

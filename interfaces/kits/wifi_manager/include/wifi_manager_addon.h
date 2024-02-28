@@ -23,7 +23,10 @@
 #include "napi/native_api.h"
 #include "want.h"
 #include "wifi_manager_proxy.h"
+
+#ifdef WIFI_EDM_ENABLE
 #include "wifi_msg.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -31,10 +34,12 @@ struct AsyncIsWifiActiveCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
 };
 
+#ifdef WIFI_EDM_ENABLE
 struct AsyncSetWifiProfileCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     OHOS::Wifi::WifiDeviceConfig wifiDeviceConfig;
 };
+#endif
 
 enum class IpType {
     STATIC = 0,
@@ -84,6 +89,7 @@ public:
 
     static napi_value Init(napi_env env, napi_value exports);
 private:
+#ifdef WIFI_EDM_ENABLE
     static bool JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config);
     static void ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config);
     static bool ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
@@ -91,6 +97,7 @@ private:
     static bool ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
     static bool ProcessEapPeapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
     static bool ProcessEapTlsConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
+#endif
     static napi_value IsWifiActive(napi_env env, napi_callback_info info);
     static napi_value SetWifiProfile(napi_env env, napi_callback_info info);
     static void NativeIsWifiActive(napi_env env, void *data);

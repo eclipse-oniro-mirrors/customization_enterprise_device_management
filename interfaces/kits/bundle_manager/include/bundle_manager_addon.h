@@ -18,7 +18,6 @@
 
 #include "bundle_manager_proxy.h"
 #include "edm_errors.h"
-#include "install_param.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -42,11 +41,13 @@ struct AsyncUninstallCallbackInfo : AsyncCallbackInfo {
     bool isKeepData = false;
 };
 
+#ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
 struct AsyncInstallCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::vector<std::string> hapFilePaths;
     OHOS::AppExecFwk::InstallParam installParam;
 };
+#endif
 
 class BundleManagerAddon {
 public:
@@ -84,9 +85,11 @@ private:
         bool &hasUserId);
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
+#ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);
     static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
