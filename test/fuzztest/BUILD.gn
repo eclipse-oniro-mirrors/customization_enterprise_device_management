@@ -18,9 +18,15 @@ group("fuzztest") {
   deps += [
     # deps file
     "adminmanager_fuzzer:AdminManagerFuzzTest",
+    "adminpoliciesstoragerdb_fuzzer:AdminPoliciesStorageRdbFuzzTest",
+    "adminserviceinterface_fuzzer:AdminServiceInterfaceFuzzTest",
+    "allowedusbdevicesplugin_fuzzer:AllowedUsbDevicesPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
+    "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
     "firewallruleplugin_fuzzer:FireWallRulePluginFuzzTest",
+    "iptablesruleplugin_fuzzer:IptablesRulePluginFuzzTest",
     "manageautostartappsplugin_fuzzer:ManageAutoStartAppsPluginFuzzTest",
+    "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
   ]
 }

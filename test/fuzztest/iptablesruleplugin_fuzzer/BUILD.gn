@@ -1,0 +1,71 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/ohos.gni")
+import("//build/test.gni")
+module_output_path = "enterprise_device_management/enterprise_device_management"
+
+##############################fuzztest##########################################
+ohos_fuzztest("IptablesRulePluginFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "."
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [
+    "../common/src/common_fuzzer.cpp",
+    "iptables_rule_plugin_fuzzer.cpp",
+  ]
+
+  include_dirs = [
+    "../common/include",
+    "../../../interfaces/inner_api/common/include",
+  ]
+
+  configs = [ "../../../common/config:coverage_flags" ]
+
+  deps = [
+    "../../../common/external:edm_external_adapters",
+    "../../../common/native:edm_commom",
+    "../../../interfaces/inner_api:edmservice_kits",
+    "../../unittest/utils:edm_unittest_utils",
+    "../enterprisedevicemgrstubmock_fuzzer:edmservice_fuzz_static",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}

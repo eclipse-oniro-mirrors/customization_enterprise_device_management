@@ -12,21 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
-#define COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
+#ifndef COMMON_FUZZER_GET_DATA_TEMPLATE_TEST_H
+#define COMMON_FUZZER_GET_DATA_TEMPLATE_TEST_H
 
 #include <iostream>
 
-#include "message_parcel.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace EDM {
-class CommonFuzzer {
-public:
-    static void OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel &parcel);
-    static void SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size);
-    static uint32_t GetU32Data(const uint8_t* ptr);
-};
+namespace {
+    const uint8_t* g_data = nullptr;
+    size_t g_size = 0;
+    size_t g_pos = 0;
+} // namespace
+
+
+template <class T>
+T GetData()
+{
+    T object{};
+    size_t objectSize = sizeof(object);
+    if (g_data == nullptr || objectSize > g_size - g_pos) {
+        return object;
+    }
+    errno_t ret = memcpy_s(&object, objectSize, g_data + g_pos, objectSize);
+    if (ret != EOK) {
+        return {};
+    }
+    g_pos += objectSize;
+    return object;
+}
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
+#endif // COMMON_FUZZER_GET_DATA_TEMPLATE_TEST_H
