@@ -12,21 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
-#define COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
+#ifndef TEST_FUZZTEST_ADMIN_POLICIES_STORAGE_RDB_FUZZER_H
+#define TEST_FUZZTEST_ADMIN_POLICIES_STORAGE_RDB_FUZZER_H
 
-#include <iostream>
+#define FUZZ_PROJECT_NAME "admin_policies_storage_rdb_fuzzer"
 
-#include "message_parcel.h"
-
-namespace OHOS {
-namespace EDM {
-class CommonFuzzer {
-public:
-    static void OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel &parcel);
-    static void SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size);
-    static uint32_t GetU32Data(const uint8_t* ptr);
-};
-} // namespace EDM
-} // namespace OHOS
-#endif // COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
+#endif // TEST_FUZZTEST_ADMIN_POLICIES_STORAGE_RDB_FUZZER_H

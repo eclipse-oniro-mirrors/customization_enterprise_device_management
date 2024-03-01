@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef EDM_UNIT_TEST_TOOLS_INCLUDE_EDM_COMMAND_TEST_H
+#define EDM_UNIT_TEST_TOOLS_INCLUDE_EDM_COMMAND_TEST_H
+
 #include <gtest/gtest.h>
 
 namespace OHOS {
@@ -34,3 +37,4 @@ protected:
 } // TEST
 } // EDM
 } // OHOS
+#endif // EDM_UNIT_TEST_TOOLS_INCLUDE_EDM_COMMAND_TEST_H
