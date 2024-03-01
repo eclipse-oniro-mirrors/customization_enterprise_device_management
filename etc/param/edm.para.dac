@@ -12,3 +12,4 @@
 # limitations under the License.
 
 persist.edm.="edm:edm:775"
+const.edm.is_enterprise_device="edm:edm:555"
