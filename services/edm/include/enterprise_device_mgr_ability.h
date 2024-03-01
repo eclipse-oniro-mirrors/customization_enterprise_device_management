@@ -94,7 +94,6 @@ private:
         int32_t userId);
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
         std::string &adminName, const int32_t userId);
-    bool VerifyCallingPermission(const std::string &permissionName);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
