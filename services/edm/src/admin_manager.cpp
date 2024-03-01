@@ -90,8 +90,7 @@ void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
     }
 }
 
-ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInfo, EntInfo &entInfo, AdminType role,
-    std::vector<std::string> &permissions, int32_t userId)
+ErrCode AdminManager::SetAdminValue(int32_t userId, Admin &adminItem)
 {
     auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     if (adminPoliciesStorageRdb == nullptr) {
@@ -100,44 +99,37 @@ ErrCode AdminManager::SetAdminValue(AppExecFwk::ExtensionAbilityInfo &abilityInf
     }
     std::vector<AdminPermission> reqPermission;
     std::vector<std::string> permissionNames;
-    std::vector<std::shared_ptr<Admin>> admin;
-    PermissionManager::GetInstance()->GetReqPermission(permissions, reqPermission);
+    PermissionManager::GetInstance()->GetReqPermission(adminItem.adminInfo_.permission_, reqPermission);
     if (reqPermission.empty()) {
         EDMLOGW("SetAdminValue::the application is requesting useless permissions");
     }
     for (const auto &it : reqPermission) {
-        if (role == AdminType::NORMAL && it.adminType == AdminType::ENT) {
+        if (adminItem.adminInfo_.adminType_ == AdminType::NORMAL && it.adminType == AdminType::ENT) {
             return ERR_EDM_DENY_PERMISSION;
         }
         permissionNames.push_back(it.permissionName);
     }
-
-    std::shared_ptr<Admin> adminItem = GetAdminByPkgName(abilityInfo.bundleName, userId);
-    if (!adminItem && !adminPoliciesStorageRdb->InsertAdmin(userId, abilityInfo, entInfo, role, permissions)) {
-        EDMLOGE("AdminManager::SetAdminValue failed.");
+    std::shared_ptr<Admin> getAdmin = GetAdminByPkgName(adminItem.adminInfo_.packageName_, userId);
+    if (getAdmin != nullptr) {
+        if (!adminPoliciesStorageRdb->UpdateAdmin(userId, adminItem)) {
+            EDMLOGE("AdminManager::SetAdminValue update failed.");
+            return ERR_EDM_ADD_ADMIN_FAILED;
+        }
+        getAdmin->adminInfo_.adminType_ = adminItem.adminInfo_.adminType_;
+        getAdmin->adminInfo_.entInfo_ = adminItem.adminInfo_.entInfo_;
+        getAdmin->adminInfo_.permission_ = permissionNames;
+        return ERR_OK;
+    }
+    if (!adminPoliciesStorageRdb->InsertAdmin(userId, adminItem)) {
+        EDMLOGE("AdminManager::SetAdminValue insert failed.");
         return ERR_EDM_ADD_ADMIN_FAILED;
-    } else if (adminItem && !adminPoliciesStorageRdb->UpdateAdmin(userId, abilityInfo, entInfo, role, permissions)) {
-        EDMLOGE("AdminManager::SetAdminValue failed.");
-        return ERR_EDM_ADD_ADMIN_FAILED;
     }
-    bool ret = GetAdminByUserId(userId, admin);
-    if (role == AdminType::NORMAL) {
-        admin.emplace_back(std::make_shared<Admin>());
-    } else {
-        admin.emplace_back(std::make_shared<SuperAdmin>());
-    }
-    if (!ret) {
-        admins_.insert(std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(userId, admin));
-        adminItem = admin.back();
-    } else if (ret && !adminItem) {
-        admins_[userId] = admin;
-        adminItem = admin.back();
-    }
-    adminItem->adminInfo_.adminType_ = role;
-    adminItem->adminInfo_.entInfo_ = entInfo;
-    adminItem->adminInfo_.permission_ = permissionNames;
-    adminItem->adminInfo_.packageName_ = abilityInfo.bundleName;
-    adminItem->adminInfo_.className_ = abilityInfo.name;
+    std::vector<std::shared_ptr<Admin>> admins;
+    GetAdminByUserId(userId, admins);
+    adminItem.adminInfo_.permission_ = permissionNames;
+    std::shared_ptr<Admin> admin = std::make_shared<Admin>(adminItem);
+    admins.emplace_back(admin);
+    admins_[userId] = admins;
     return ERR_OK;
 }
 

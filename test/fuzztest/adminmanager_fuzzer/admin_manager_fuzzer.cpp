@@ -49,7 +49,9 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     EntInfo entInfo = GetData<EntInfo>();
     AdminType role = GetData<AdminType>();
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    adminManager->SetAdminValue(abilityInfo, entInfo, role, permissions, userId);
+    bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
+    Admin admin(abilityInfo, role, entInfo, permissions, isDebug);
+    adminManager->SetAdminValue(userId, admin);
 
     std::string packageName(reinterpret_cast<const char*>(data), size);
     adminManager->GetAdminByPkgName(packageName, userId);

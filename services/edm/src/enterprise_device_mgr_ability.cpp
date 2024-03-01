@@ -15,23 +15,22 @@
 
 #include "enterprise_device_mgr_ability.h"
 
-#include <ipc_skeleton.h>
+#include <cstring>
 #include <iservice_registry.h>
 #include <message_parcel.h>
 #include <string_ex.h>
 #include <system_ability.h>
 #include <system_ability_definition.h>
 
-#include "accesstoken_kit.h"
 #include "application_state_observer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
 #include "matching_skills.h"
+#include "parameter.h"
 #include "parameters.h"
 #include "security_report.h"
-#include "tokenid_kit.h"
 
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -57,6 +56,7 @@ const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
+const char* const DEVELOP_MODE_STATE = "const.security.developermode.state";
 
 const std::vector<uint32_t> codeList = {
     EdmInterfaceCode::RESET_FACTORY,
@@ -424,11 +424,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
     return ERR_OK;
 }
 
-std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrAbility::GetExternalManagerFactory()
-{
-    return externalManagerFactory_;
-}
-
 std::shared_ptr<IEdmBundleManager> EnterpriseDeviceMgrAbility::GetBundleMgr()
 {
     return GetExternalManagerFactory()->CreateBundleManager();
@@ -485,21 +480,8 @@ bool EnterpriseDeviceMgrAbility::UnsubscribeAppState()
     return true;
 }
 
-bool EnterpriseDeviceMgrAbility::VerifyCallingPermission(const std::string &permissionName)
-{
-    EDMLOGD("VerifyCallingPermission permission %{public}s", permissionName.c_str());
-    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        EDMLOGI("permission %{public}s: PERMISSION_GRANTED", permissionName.c_str());
-        return true;
-    }
-    EDMLOGW("verify AccessToken failed");
-    return false;
-}
-
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type,
-    int32_t userId)
+    int32_t userId, bool isDebug)
 {
     if (type == AdminType::UNKNOWN) {
         EDMLOGW("EnableAdmin: admin type is invalid.");
@@ -525,13 +507,17 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
             EDMLOGW("EnableAdmin: an exist super admin can't be enabled twice with different role or user id.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
+        if (isDebug != existAdmin->adminInfo_.isDebug_) {
+            EDMLOGW("EnableAdmin: debug parameter can not be changed.");
+            return ERR_EDM_ADD_ADMIN_FAILED;
+        }
         /* An application can't be enabled twice with different ability name */
         if (existAdmin->adminInfo_.className_ != admin.GetAbilityName()) {
             EDMLOGW("EnableAdmin: There is another admin ability enabled with the same package name.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
     }
-    if (type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
+    if (!isDebug && type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
         if (existAdmin == nullptr || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
             EDMLOGW("EnableAdmin: There is another super admin enabled.");
             return ERR_EDM_ADD_ADMIN_FAILED;
@@ -545,7 +531,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    bool isDebug = GetAccessTokenMgr()->IsDebug();
+    if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -558,7 +545,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
-    if (FAILED(VerifyEnableAdminCondition(admin, type, userId))) {
+    if (FAILED(VerifyEnableAdminCondition(admin, type, userId, isDebug))) {
         EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
@@ -575,11 +562,15 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         // permission verify, should throw exception if failed
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
-    if (FAILED(adminMgr_->SetAdminValue(abilityInfo.at(0), entInfo, type, permissionList, userId))) {
+    Admin edmAdmin(abilityInfo.at(0), type, entInfo, permissionList, isDebug);
+    if (FAILED(adminMgr_->SetAdminValue(userId, edmAdmin))) {
         EDMLOGE("EnableAdmin: SetAdminValue failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
+    if (isDebug) {
+        WatchParameter(DEVELOP_MODE_STATE, &EnterpriseDeviceMgrAbility::OnDevelopModeChanged, this);
+    }
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
     AAFwk::Want connectWant;
@@ -589,6 +580,28 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
     manager->ConnectAbility(connection);
     return ERR_OK;
+}
+
+void EnterpriseDeviceMgrAbility::OnDevelopModeChanged(const char* key, const char* value, void* context)
+{
+    if (key == nullptr || value == nullptr) {
+        return;
+    }
+    if (strcmp(key, DEVELOP_MODE_STATE)) {
+        return;
+    }
+    if (strcmp(value, "false")) {
+        return;
+    }
+    EnterpriseDeviceMgrAbility* impl = static_cast<EnterpriseDeviceMgrAbility*>(context);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    AdminManager::GetInstance()->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    for (auto item : userAdmin) {
+        if (item->adminInfo_.isDebug_) {
+            std::lock_guard<std::mutex> autoLock(mutexLock_);
+            impl->RemoveSuperAdminAndAdminPolicy(item->adminInfo_.packageName_);
+        }
+    }
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
@@ -722,13 +735,18 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    bool isDebug = GetAccessTokenMgr()->IsDebug();
+    if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
 
     std::shared_ptr<Admin> adminPtr = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (adminPtr == nullptr) {
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    }
+    if (isDebug && !adminPtr->adminInfo_.isDebug_) {
+        EDMLOGW("DisableAdmin: shell command can only remove debug admin.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     if (adminPtr->adminInfo_.adminType_ != AdminType::NORMAL) {
@@ -744,7 +762,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
         system::SetParameter(PARAM_EDM_ENABLE, "false");
     }
     AAFwk::Want want;
-    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetElementName(adminPtr->adminInfo_.packageName_, adminPtr->adminInfo_.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     sptr<IEnterpriseConnection> connection =
         manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
@@ -771,12 +789,17 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleNam
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleName)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    bool isDebug = GetAccessTokenMgr()->IsDebug();
+    if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::DisableSuperAdmin check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
     if (admin == nullptr) {
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    }
+    if (isDebug && !admin->adminInfo_.isDebug_) {
+        EDMLOGW("DisableSuperAdmin: shell command can only remove debug super admin.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     if (admin->adminInfo_.adminType_ != AdminType::ENT) {
@@ -898,7 +921,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: admin check permission failed");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    if (!VerifyCallingPermission(plugin->GetPermission(FuncOperateType::SET))) {
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(plugin->GetPermission(FuncOperateType::SET))) {
         EDMLOGW("HandleDevicePolicy: VerifyCallingPermission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1035,7 +1058,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_SET_ENTERPRISE_INFO)) {
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_SET_ENTERPRISE_INFO)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::SetEnterpriseInfo: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1093,7 +1116,7 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
 ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    if (!VerifyCallingPermission(PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT)) {
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::VerifyManagedEvent: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1135,7 +1158,7 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
-    if (!VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::AuthorizeAdmin: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }

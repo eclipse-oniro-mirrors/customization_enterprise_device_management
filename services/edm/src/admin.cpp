@@ -21,6 +21,16 @@
 
 namespace OHOS {
 namespace EDM {
+Admin::Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
+    const std::vector<std::string> &permissions, bool isDebug)
+{
+    adminInfo_.adminType_ = type;
+    adminInfo_.entInfo_ = entInfo;
+    adminInfo_.permission_ = permissions;
+    adminInfo_.packageName_ = abilityInfo.bundleName;
+    adminInfo_.className_ = abilityInfo.name;
+    adminInfo_.isDebug_ = isDebug;
+}
 bool Admin::CheckPermission(const std::string &permission)
 {
     EDMLOGD("Admin::CheckPermission");

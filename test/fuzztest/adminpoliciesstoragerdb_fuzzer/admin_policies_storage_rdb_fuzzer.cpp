@@ -51,9 +51,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     AdminType role = GetData<AdminType>();
     std::string permission(reinterpret_cast<const char*>(data), size);
     std::vector<std::string> permissions = { permission };
-    adminPoliciesStorageRdb->InsertAdmin(userId, abilityInfo, entInfo, role, permissions);
-    adminPoliciesStorageRdb->UpdateAdmin(userId, abilityInfo, entInfo, role, permissions);
-    adminPoliciesStorageRdb->CreateValuesBucket(userId, abilityInfo, entInfo, role, permissions);
+    bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
+    Admin admin(abilityInfo, role, entInfo, permissions, isDebug);
+    adminPoliciesStorageRdb->InsertAdmin(userId, admin);
+    adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
+    adminPoliciesStorageRdb->CreateValuesBucket(userId, admin);
 
     std::string packageName(reinterpret_cast<const char*>(data), size);
     adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);

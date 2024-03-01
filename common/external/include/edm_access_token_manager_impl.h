@@ -13,27 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
-#define COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
-
-#include <memory>
+#ifndef COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
+#define COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
 
 #include "iedm_access_token_manager.h"
-#include "iedm_app_manager.h"
-#include "iedm_bundle_manager.h"
-#include "iedm_os_account_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class IExternalManagerFactory {
+class EdmAccessTokenManagerImpl : public IEdmAccessTokenManager {
 public:
-    virtual ~IExternalManagerFactory() = default;
-    virtual std::shared_ptr<IEdmAppManager> CreateAppManager() = 0;
-    virtual std::shared_ptr<IEdmBundleManager> CreateBundleManager() = 0;
-    virtual std::shared_ptr<IEdmOsAccountManager> CreateOsAccountManager() = 0;
-    virtual std::shared_ptr<IEdmAccessTokenManager> CreateAccessTokenManager() = 0;
+    ~EdmAccessTokenManagerImpl() override = default;
+    bool IsDebug() override;
+    bool IsSystemAppOrNative() override;
+    bool VerifyCallingPermission(const std::string &permissionName) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_EXTERNAL_INCLUDE_IEXTERNAL_MANAGER_FACTORY_H
+#endif // COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
