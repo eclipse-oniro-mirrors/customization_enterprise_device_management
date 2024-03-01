@@ -24,7 +24,9 @@ namespace EDM {
 std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::instance_ = nullptr;
 std::mutex NetworkManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 constexpr int32_t MAX_SIZE = 16;
+#endif
 
 NetworkManagerProxy::NetworkManagerProxy() {}
 
@@ -45,6 +47,7 @@ std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::GetNetworkManagerProxy
 int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin,
     std::vector<std::string> &networkInterface)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetAllNetworkInterfaces");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -71,11 +74,16 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     }
     reply.ReadStringVector(&networkInterface);
     return ERR_OK;
+#else
+    EDMLOGW("NetworkManagerProxy::GetAllNetworkInterfaces Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &admin,
     const std::string &networkInterface, int policyCode, std::string &info)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetIpOrMacAddress");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -98,11 +106,16 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
     }
     reply.ReadString(info);
     return ERR_OK;
+#else
+    EDMLOGW("NetworkManagerProxy::GetIpOrMacAddress Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
     const std::string &networkInterface, bool isDisabled)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::SetNetworkInterfaceDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -120,11 +133,16 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
     data.WriteStringVector(key);
     data.WriteStringVector(value);
     return proxy->HandleDevicePolicy(funcCode, data);
+#else
+    EDMLOGW("NetworkManagerProxy::SetNetworkInterfaceDisabled Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
     const std::string &networkInterface, bool &status)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::IsNetworkInterfaceDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -147,6 +165,10 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
     }
     reply.ReadBool(status);
     return ERR_OK;
+#else
+    EDMLOGW("NetworkManagerProxy::IsNetworkInterfaceDisabled Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t NetworkManagerProxy::AddIptablesFilterRule(const AppExecFwk::ElementName &admin,
@@ -319,6 +341,7 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
     return ERR_OK;
 }
 
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
     const NetManagerStandard::HttpProxy &httpProxy)
 {
@@ -367,5 +390,6 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
     }
     return ERR_OK;
 }
+#endif
 } // namespace EDM
 } // namespace OHOS

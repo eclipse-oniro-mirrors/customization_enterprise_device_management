@@ -21,12 +21,15 @@
 
 #include "edm_log.h"
 #include "edm_sys_manager.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
 ErrCode BundleManagerUtils::GetAppIdByCallingUid(std::string &appId)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> bundleManager = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (bundleManager == nullptr) {
@@ -42,6 +45,10 @@ ErrCode BundleManagerUtils::GetAppIdByCallingUid(std::string &appId)
     }
     appId = bundleManager->GetAppIdByBundleName(callingBundleName, userId);
     return ERR_OK;
+#else
+    EDMLOGW("BundleManagerUtils::GetAppIdByCallingUid Unsupported Capabilities.");
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+#endif
 }
 } // namespace EDM
 } // namespace OHOS

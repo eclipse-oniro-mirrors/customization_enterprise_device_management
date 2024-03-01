@@ -103,6 +103,7 @@ void WifiManagerAddon::CreateEapMethodObject(napi_env env, napi_value value)
 
 void WifiManagerAddon::CreatePhase2MethodObject(napi_env env, napi_value value)
 {
+#ifdef WIFI_EDM_ENABLE
     napi_value nNone;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(Wifi::Phase2Method::NONE), &nNone));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PHASE2_NONE", nNone));
@@ -127,6 +128,7 @@ void WifiManagerAddon::CreatePhase2MethodObject(napi_env env, napi_value value)
     napi_value nAkaPrime;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(Wifi::Phase2Method::AKA_PRIME), &nAkaPrime));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PHASE2_AKA_PRIME", nAkaPrime));
+#endif
 }
 
 napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
@@ -257,6 +259,7 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
 
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)
 {
+#ifdef WIFI_EDM_ENABLE
     EDMLOGI("WifiManagerAddon::SetWifiProfile called");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -291,8 +294,14 @@ napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info inf
         NativeSetWifiProfile, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+#else
+    EDMLOGW("WifiManagerAddon::SetWifiProfile Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
+#ifdef WIFI_EDM_ENABLE
 void WifiManagerAddon::NativeSetWifiProfile(napi_env env, void *data)
 {
     EDMLOGI("NAPI_NativeSetWifiProfile called");
@@ -309,6 +318,7 @@ void WifiManagerAddon::NativeSetWifiProfile(napi_env env, void *data)
     asyncCallbackInfo->ret = wifiManagerProxy->SetWifiProfile(asyncCallbackInfo->elementName,
         asyncCallbackInfo->wifiDeviceConfig);
 }
+#endif
 
 void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
 {
@@ -326,7 +336,7 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
     asyncCallbackInfo->ret = wifiManagerProxy->IsWifiActive(asyncCallbackInfo->elementName,
         asyncCallbackInfo->boolRet);
 }
-
+#ifdef WIFI_EDM_ENABLE
 bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config)
 {
     int32_t type = static_cast<int32_t>(SecurityType::SEC_TYPE_INVALID);
@@ -472,7 +482,7 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
     }
     return true;
 }
-
+#endif
 static napi_module g_wifiManagerModule = {
     .nm_version = 1,
     .nm_flags = 0,

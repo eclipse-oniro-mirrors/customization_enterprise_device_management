@@ -17,7 +17,9 @@
 
 #include "edm_log.h"
 #include "func_code.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -43,6 +45,7 @@ std::shared_ptr<AccountManagerProxy> AccountManagerProxy::GetAccountManagerProxy
 
 int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::DisallowAddLocalAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -50,10 +53,15 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return proxy->SetPolicyDisabled(admin, isDisallow, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT);
+#else
+    EDMLOGW("AccountManagerProxy::DisallowAddLocalAccount Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName &admin, int32_t userId, bool isDisallow)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::DisallowAddOsAccountByUser");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
@@ -71,11 +79,16 @@ int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName 
     data.WriteStringVector(key);
     data.WriteStringVector(value);
     return proxy->HandleDevicePolicy(funcCode, data);
+#else
+    EDMLOGW("AccountManagerProxy::DisallowAddOsAccountByUser Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId,
     bool &result)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::IsAddOsAccountByUserDisallowed");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -106,8 +119,13 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
     }
     reply.ReadBool(result);
     return ERR_OK;
+#else
+    EDMLOGW("AccountManagerProxy::DisallowAddOsAccountByUser Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
+#ifdef OS_ACCOUNT_EDM_ENABLE
 int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
     OHOS::AccountSA::OsAccountInfo &accountInfo, std::string &distributedInfoName, std::string &distributedInfoId)
 {
@@ -136,5 +154,6 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     }
     return ret;
 }
+#endif
 } // namespace EDM
 } // namespace OHOS

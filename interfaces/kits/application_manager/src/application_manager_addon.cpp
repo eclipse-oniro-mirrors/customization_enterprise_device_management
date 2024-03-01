@@ -16,7 +16,9 @@
 #include "application_manager_addon.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
+#endif
 
 using namespace OHOS::EDM;
 
@@ -155,7 +157,9 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, na
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
     } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+#endif
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env,
@@ -285,7 +289,9 @@ napi_value ApplicationManagerAddon::AddOrRemovellowedRunningBundles(napi_env env
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
             "Parameter user id error");
     } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+#endif
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env,

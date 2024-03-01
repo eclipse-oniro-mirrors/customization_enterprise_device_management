@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 #include "account_manager_addon.h"
-
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "account_info.h"
-#include "domain_account_common.h"
-#include "edm_log.h"
-#include "ohos_account_kits.h"
 #include "os_account_info.h"
+#include "domain_account_common.h"
+#include "ohos_account_kits.h"
+#endif
+#include "edm_log.h"
 
 using namespace OHOS::EDM;
 
@@ -143,6 +144,7 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
 
 napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info info)
 {
+#ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGI("NAPI_AddOsAccount called");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -179,6 +181,11 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
         return nullptr;
     }
     return ConvertOsAccountInfoToJs(env, accountInfo, distributedInfoName, distributedInfoId);
+#else
+    EDMLOGW("AccountManagerAddon::AddOsAccount Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
 void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data)
@@ -199,6 +206,7 @@ void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data
         asyncCallbackInfo->isDisallow);
 }
 
+#ifdef OS_ACCOUNT_EDM_ENABLE
 bool AccountManagerAddon::CheckOsAccountType(int32_t type)
 {
     if (type >= static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
@@ -349,7 +357,7 @@ napi_value AccountManagerAddon::CreateJsDomainInfo(napi_env env, const OHOS::Acc
     NAPI_CALL(env, napi_set_named_property(env, result, "isAuthenticated", value));
     return result;
 }
-
+#endif
 static napi_module g_accountManagerModule = {
     .nm_version = 1,
     .nm_flags = 0,

@@ -19,7 +19,9 @@
 #include "hisysevent_adapter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
+#endif
 #include "system_ability_definition.h"
 
 using namespace OHOS::EDM;
@@ -50,8 +52,7 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO]),
         "Parameter admin type error");
 
-    EDMLOGD(
-        "EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
+    EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s , adminType:%{public}d",
         asyncCallbackInfo->elementName.GetBundleName().c_str(), asyncCallbackInfo->elementName.GetAbilityName().c_str(),
         asyncCallbackInfo->adminType);
@@ -59,13 +60,13 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE]),
             "Parameter user id error");
     } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+#endif
     }
     if (hasCallback) {
-        ASSERT_AND_THROW_PARAM_ERROR(env,
-            ParseCallback(env, asyncCallbackInfo->callback,
-                argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]),
-            "Parameter callback error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
+            argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]), "Parameter callback error");
     }
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "EnableAdmin", NativeEnableAdmin, NativeVoidCallbackComplete);
@@ -170,7 +171,9 @@ napi_value AdminManager::DisableAdmin(napi_env env, napi_callback_info info)
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
     } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+#endif
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env,
@@ -456,7 +459,9 @@ napi_value AdminManager::IsAdminEnabled(napi_env env, napi_callback_info info)
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
     } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
         AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
+#endif
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env,

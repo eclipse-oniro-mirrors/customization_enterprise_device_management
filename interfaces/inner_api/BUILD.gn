@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../common/config/common.gni")
 
 config("edmservice_kits_config") {
   include_dirs = [
@@ -76,11 +77,25 @@ ohos_shared_library("edmservice_kits") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "netmanager_base:net_conn_manager_if",
-    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
-    "wifi:wifi_sdk",
   ]
+
+  defines = []
+
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
+
+  if (netmanager_base_edm_enable) {
+    external_deps += [ "netmanager_base:net_conn_manager_if" ]
+    defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
+  }
+
+  if (wifi_edm_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    defines += [ "WIFI_EDM_ENABLE" ]
+  }
 
   sanitize = {
     boundary_sanitize = true

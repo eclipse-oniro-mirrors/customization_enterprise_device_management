@@ -14,7 +14,9 @@
  */
 
 #include "device_control_addon.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
+#endif
 #include "edm_log.h"
 
 using namespace OHOS::EDM;
@@ -85,8 +87,12 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
         elementName.GetBundleName().c_str(),
         elementName.GetAbilityName().c_str());
     int32_t userId = 0;
+#ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     EDMLOGI("NAPI_lockScreen called userId :%{public}d", userId);
+#else
+    EDMLOGI("NAPI_lockScreen don't call userId");
+#endif
     int32_t result = DeviceControlProxy::GetDeviceControlProxy()->LockScreen(elementName, userId);
     if (FAILED(result)) {
         napi_throw(env, CreateError(env, result));

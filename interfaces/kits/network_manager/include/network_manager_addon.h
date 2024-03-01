@@ -52,11 +52,13 @@ struct AsyncIptablesCallbackInfo : AsyncCallbackInfo {
     IPTABLES::RemoveFilter removeFilter;
 };
 
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     OHOS::NetManagerStandard::HttpProxy httpProxy;
     bool hasAdmin = false;
 };
+#endif
 
 class NetworkManagerAddon {
 public:
@@ -98,6 +100,7 @@ private:
 
     static napi_value SetGlobalHttpProxy(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxy(napi_env env, napi_callback_info info);
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     static bool ParseHttpProxyParam(napi_env env, napi_value argv,
         AsyncHttpProxyCallbackInfo *asyncHttpProxyCallbackInfo);
     static napi_value ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy);
@@ -109,6 +112,7 @@ private:
     static bool ParseSecureData(napi_env env, OHOS::NetManagerStandard::SecureData &secureData, napi_value object);
     static bool GetSecureDataFromNAPI(napi_env env, napi_value object,
         OHOS::NetManagerStandard::SecureData &secureData);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

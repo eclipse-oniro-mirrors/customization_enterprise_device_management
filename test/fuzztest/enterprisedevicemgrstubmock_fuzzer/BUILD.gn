@@ -68,6 +68,7 @@ ohos_static_library("edmservice_fuzz_static") {
   }
 
   defines += [ "EDM_FUZZ_TEST" ]
+  defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
 
   external_deps = [
     "ability_base:want",

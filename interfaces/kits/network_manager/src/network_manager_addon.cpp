@@ -22,11 +22,13 @@
 using namespace OHOS::EDM;
 using namespace OHOS::EDM::IPTABLES;
 
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 const char *const HOST_PROP_NAME = "host";
 const char *const PORT_PROP_NAME = "port";
 const char *const PROXY_USER_NAME = "username";
 const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
+#endif
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
@@ -847,6 +849,7 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_info info)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -882,8 +885,14 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
         HandleAsyncWork(env, asyncCallbackInfo, "setGlobalProxy", NativeSetGlobalHttpProxy, NativeVoidCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+#else
+    EDMLOGW("NetworkManagerAddon::SetGlobalHttpProxy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, AsyncHttpProxyCallbackInfo *callbackInfo)
 {
     std::string host;
@@ -1015,9 +1024,11 @@ napi_value NetworkManagerAddon::ConvertHttpProxyToJS(napi_env env, const OHOS::N
     NAPI_CALL(env, napi_set_named_property(env, proxy, EXCLUSION_LIST_PROP_NAME, list));
     return proxy;
 }
+#endif
 
 napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_info info)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -1058,8 +1069,14 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_i
         NativeGetGlobalHttpProxy, NativeHttpProxyCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
+#else
+    EDMLOGW("NetworkManagerAddon::GetGlobalHttpProxy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
 {
     EDMLOGI("NAPI_NativeGetGlobalHttpProxy called");
@@ -1112,6 +1129,7 @@ void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_sta
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
 }
+#endif
 
 static napi_module g_networkManagerModule = {
     .nm_version = 1,

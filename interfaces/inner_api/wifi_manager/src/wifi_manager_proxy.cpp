@@ -65,7 +65,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     reply.ReadBool(result);
     return ERR_OK;
 }
-
+#ifdef WIFI_EDM_ENABLE
 int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config)
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
@@ -82,6 +82,7 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
     MessageParcelUtils::WriteWifiDeviceConfig(config, data);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
+#endif
 
 int32_t WifiManagerProxy::SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled)
 {

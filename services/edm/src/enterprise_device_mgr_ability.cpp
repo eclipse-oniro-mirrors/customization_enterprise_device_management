@@ -119,6 +119,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart;
 }
 
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
     const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
     EnterpriseDeviceMgrAbility &listener) : EventFwk::CommonEventSubscriber(subscribeInfo), listener_(listener) {}
@@ -150,6 +151,7 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
     EventFwk::CommonEventSubscribeInfo info(skill);
     return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
 }
+#endif
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
 {
@@ -382,9 +384,14 @@ void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart(int32_t systemAbil
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId)
 {
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     commonEventSubscriber = CreateEnterpriseDeviceEventSubscriber(*this);
     EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber);
     EDMLOGI("create commonEventSubscriber success");
+#else
+    EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
+    return;
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}

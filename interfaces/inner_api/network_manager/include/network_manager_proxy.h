@@ -17,9 +17,9 @@
 #define INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
-
+#ifdef NETMANAGER_BASE_EDM_ENABLE
 #include "http_proxy.h"
-
+#endif
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
 #include "iptables_utils.h"
@@ -47,9 +47,10 @@ public:
     int32_t AddDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
     int32_t RemoveDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
     int32_t GetDomainFilterRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::DomainFilterRule> &rule);
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin, const NetManagerStandard::HttpProxy &httpProxy);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy);
-
+#endif
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;
     static std::mutex mutexLock_;

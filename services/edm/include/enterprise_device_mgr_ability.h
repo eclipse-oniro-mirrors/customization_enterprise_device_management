@@ -94,8 +94,10 @@ private:
         int32_t userId);
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
         std::string &adminName, const int32_t userId);
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
+#endif
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
@@ -122,6 +124,7 @@ private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
 };
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
     EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
@@ -133,6 +136,7 @@ public:
 private:
     EnterpriseDeviceMgrAbility &listener_;
 };
+#endif
 } // namespace EDM
 } // namespace OHOS
 #endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
