@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include "iedm_access_token_manager.h"
 #include "iedm_app_manager.h"
 #include "iedm_bundle_manager.h"
 #include "iedm_os_account_manager.h"
@@ -30,6 +31,7 @@ public:
     virtual std::shared_ptr<IEdmAppManager> CreateAppManager() = 0;
     virtual std::shared_ptr<IEdmBundleManager> CreateBundleManager() = 0;
     virtual std::shared_ptr<IEdmOsAccountManager> CreateOsAccountManager() = 0;
+    virtual std::shared_ptr<IEdmAccessTokenManager> CreateAccessTokenManager() = 0;
 };
 } // namespace EDM
 } // namespace OHOS

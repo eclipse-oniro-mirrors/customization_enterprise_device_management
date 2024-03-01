@@ -36,10 +36,14 @@ struct AdminInfo {
     std::vector<std::string> permission_;
     std::vector<ManagedEvent> managedEvents_;
     std::string parentAdminName_;
+    bool isDebug_;
 };
 
 class Admin {
 public:
+    Admin() = default;
+    Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
+        const std::vector<std::string> &permissions, bool isDebug);
     virtual bool CheckPermission(const std::string &permission);
     virtual AdminType GetAdminType();
     virtual std::string GetParentAdminName() const;

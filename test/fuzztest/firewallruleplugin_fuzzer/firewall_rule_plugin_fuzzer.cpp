@@ -19,8 +19,9 @@
 
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
-#include "ienterprise_device_mgr.h"
+#include "firewall_rule.h"
 #include "func_code.h"
+#include "ienterprise_device_mgr.h"
 #include "iptables_utils.h"
 #include "message_parcel.h"
 
@@ -52,23 +53,20 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
         parcel.WriteInt32(WITHOUT_USERID);
         parcel.WriteParcelable(&admin);
-        IPTABLES::AddFilter addFilter;
-        addFilter.ruleNo = CommonFuzzer::GetU32Data(data);
+        IPTABLES::FirewallRule firewall;
         std::string srcAddr(reinterpret_cast<const char*>(data), size);
         std::string destAddr(reinterpret_cast<const char*>(data), size);
         std::string srcPort(reinterpret_cast<const char*>(data), size);
         std::string destPort(reinterpret_cast<const char*>(data), size);
         std::string uid(reinterpret_cast<const char*>(data), size);
-        addFilter.srcAddr = srcAddr;
-        addFilter.destAddr = destAddr;
-        addFilter.srcPort = srcPort;
-        addFilter.destPort = destPort;
-        addFilter.uid = uid;
-        addFilter.method = static_cast<IPTABLES::AddMethod>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
-        addFilter.direction = static_cast<IPTABLES::Direction>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
-        addFilter.action = static_cast<IPTABLES::Action>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
-        addFilter.protocol = static_cast<IPTABLES::Protocol>(CommonFuzzer::GetU32Data(data) % MAX_PROTOCOL_LENGTH);
-        IPTABLES::IptablesUtils::WriteAddFilterConfig(addFilter, parcel);
+        IPTABLES::Direction directionEnum =
+            static_cast<IPTABLES::Direction>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
+        IPTABLES::Action actionEnum = static_cast<IPTABLES::Action>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
+        IPTABLES::Protocol protocolEnum =
+            static_cast<IPTABLES::Protocol>(CommonFuzzer::GetU32Data(data) % MAX_PROTOCOL_LENGTH);
+        firewall = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, uid};
+        IPTABLES::FirewallRuleParcel firewallRuleParcel{firewall};
+        firewallRuleParcel.Marshalling(parcel);
 
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }

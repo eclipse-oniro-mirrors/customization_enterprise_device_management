@@ -28,6 +28,7 @@ public:
     MOCK_METHOD(std::shared_ptr<IEdmAppManager>, CreateAppManager, (), (override));
     MOCK_METHOD(std::shared_ptr<IEdmBundleManager>, CreateBundleManager, (), (override));
     MOCK_METHOD(std::shared_ptr<IEdmOsAccountManager>, CreateOsAccountManager, (), (override));
+    MOCK_METHOD(std::shared_ptr<IEdmAccessTokenManager>, CreateAccessTokenManager, (), (override));
 };
 } // namespace EDM
 } // namespace OHOS

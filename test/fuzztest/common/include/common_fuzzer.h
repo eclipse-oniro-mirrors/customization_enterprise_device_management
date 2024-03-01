@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_FUZZER_INCLUDE_ON_REMOTE_REQUEST_FUZZER_TEST_H
-#define COMMON_FUZZER_INCLUDE_ON_REMOTE_REQUEST_FUZZER_TEST_H
+#ifndef COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
+#define COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H
 
 #include <iostream>
 
@@ -29,4 +29,4 @@ public:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_FUZZER_INCLUDE_ON_REMOTE_REQUEST_FUZZER_TEST_H
+#endif // COMMON_FUZZER_INCLUDE_COMMON_FUZZER_TEST_H

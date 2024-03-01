@@ -79,6 +79,7 @@ ohos_shared_library("edm_commom") {
     ubsan = true
   }
   branch_protector_ret = "pac_ret"
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

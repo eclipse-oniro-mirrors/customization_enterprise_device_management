@@ -24,5 +24,6 @@ group("unittest") {
     "interface/plugin_kits:unittest",
     "services/edm:unittest",
     "services/edm_plugin:unittest",
+    "tools:unittest",
   ]
 }

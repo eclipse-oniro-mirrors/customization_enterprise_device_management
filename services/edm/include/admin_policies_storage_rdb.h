@@ -28,10 +28,8 @@ class AdminPoliciesStorageRdb {
 public:
     AdminPoliciesStorageRdb();
     static std::shared_ptr<AdminPoliciesStorageRdb> GetInstance();
-    bool InsertAdmin(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo, const EntInfo &entInfo,
-        AdminType role, const std::vector<std::string> &permissions);
-    bool UpdateAdmin(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo, const EntInfo &entInfo,
-        AdminType role, const std::vector<std::string> &permissions);
+    bool InsertAdmin(int32_t userId, const Admin &admin);
+    bool UpdateAdmin(int32_t userId, const Admin &admin);
     bool DeleteAdmin(int32_t userId, const std::string &packageName);
     bool UpdateAdmin(int32_t userId, const std::string &packageName, const std::string &className,
         const std::vector<std::string> &permissions);
@@ -45,8 +43,7 @@ public:
         const std::string &parentName);
 
 private:
-    NativeRdb::ValuesBucket CreateValuesBucket(int32_t userId, const AppExecFwk::ExtensionAbilityInfo &abilityInfo,
-        const EntInfo &entInfo, AdminType role, const std::vector<std::string> &permissions);
+    NativeRdb::ValuesBucket CreateValuesBucket(int32_t userId, const Admin &admin);
     void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
     void ConvertStrToJson(const std::string &str, Json::Value &json);
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;

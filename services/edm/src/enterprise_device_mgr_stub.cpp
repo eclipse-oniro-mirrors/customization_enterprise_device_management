@@ -15,13 +15,9 @@
 
 #include "enterprise_device_mgr_stub.h"
 
-#include <ipc_skeleton.h>
-
-#include "accesstoken_kit.h"
 #include "admin.h"
 #include "ent_info.h"
 #include "string_ex.h"
-#include "tokenid_kit.h"
 
 using namespace OHOS::HiviewDFX;
 
@@ -54,11 +50,7 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    bool isSystemApp =
-        Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
-    Security::AccessToken::ATokenTypeEnum tokenType =
-        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-    if (!isSystemApp && tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+    if (!GetAccessTokenMgr()->IsSystemAppOrNative()) {
         EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
         return EdmReturnErrCode::SYSTEM_API_DENIED;
@@ -100,6 +92,16 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrStub::GetExternalManagerFactory()
+{
+    return externalManagerFactory_;
+}
+
+std::shared_ptr<IEdmAccessTokenManager> EnterpriseDeviceMgrStub::GetAccessTokenMgr()
+{
+    return GetExternalManagerFactory()->CreateAccessTokenManager();
 }
 
 ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessageParcel &reply)

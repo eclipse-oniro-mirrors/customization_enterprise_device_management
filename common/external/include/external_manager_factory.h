@@ -16,6 +16,7 @@
 #ifndef COMMON_EXTERNAL_INCLUDE_EXTERNAL_MANAGER_FACTORY_H
 #define COMMON_EXTERNAL_INCLUDE_EXTERNAL_MANAGER_FACTORY_H
 
+#include "edm_access_token_manager_impl.h"
 #include "edm_app_manager_impl.h"
 #include "edm_bundle_manager_impl.h"
 #include "edm_os_account_manager_impl.h"
@@ -29,10 +30,13 @@ public:
     std::shared_ptr<IEdmAppManager> CreateAppManager() override;
     std::shared_ptr<IEdmBundleManager> CreateBundleManager() override;
     std::shared_ptr<IEdmOsAccountManager> CreateOsAccountManager() override;
+    std::shared_ptr<IEdmAccessTokenManager> CreateAccessTokenManager() override;
+
 private:
     std::shared_ptr<IEdmAppManager> appMgr_ = std::make_shared<EdmAppManagerImpl>();
     std::shared_ptr<IEdmBundleManager> bundleMgr_ = std::make_shared<EdmBundleManagerImpl>();
     std::shared_ptr<IEdmOsAccountManager> osAccountMgr_ = std::make_shared<EdmOsAccountManagerImpl>();
+    std::shared_ptr<IEdmAccessTokenManager> accessTokenMgr_ = std::make_shared<EdmAccessTokenManagerImpl>();
 };
 } // namespace EDM
 } // namespace OHOS

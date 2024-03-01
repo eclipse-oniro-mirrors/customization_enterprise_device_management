@@ -31,5 +31,10 @@ std::shared_ptr<IEdmOsAccountManager> ExternalManagerFactory::CreateOsAccountMan
 {
     return osAccountMgr_;
 }
+
+std::shared_ptr<IEdmAccessTokenManager> ExternalManagerFactory::CreateAccessTokenManager()
+{
+    return accessTokenMgr_;
+}
 } // namespace EDM
 } // namespace OHOS

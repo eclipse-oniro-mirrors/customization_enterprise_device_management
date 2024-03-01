@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+#include "edm_access_token_manager_impl_mock.h"
 #include "edm_app_manager_impl_mock.h"
 #include "edm_bundle_manager_impl_mock.h"
 #include "edm_os_account_manager_impl_mock.h"
@@ -36,8 +37,11 @@ public:
     void GetPolicySuccess(int32_t userId, const std::string& adminName, const std::string& policyName);
     void GetPolicyFailed(int32_t userId, const std::string& adminName, const std::string& policyName);
     void SetPolicy(const std::string& adminName, const std::string& policyName);
-    void EnableAdminSuc(AppExecFwk::ElementName& admin, AdminType adminType, int userId);
+    void EnableAdminSuc(AppExecFwk::ElementName& admin, AdminType adminType, int userId, bool isDebug = false);
     void AuthorizeAdminSuc(const AppExecFwk::ElementName& admin, const std::string& subSuperAdminBundleName);
+    void DisableAdminSuc(AppExecFwk::ElementName &admin, int32_t userId);
+    void DisableSuperAdminSuc(const std::string &bundleName);
+
     void GetBundleInfoMock(bool ret, const std::string& permission);
     void QueryExtensionAbilityInfosMock(bool ret, const std::string& bundleName, bool isExtensionInfoEmpty = false);
     int HandleDevicePolicyFuncTest001(void);
@@ -62,6 +66,7 @@ protected:
     std::shared_ptr<EdmAppManagerImplMock> appMgrMock_ = nullptr;
     std::shared_ptr<EdmBundleManagerImplMock> bundleMgrMock_ = nullptr;
     std::shared_ptr<EdmOsAccountManagerImplMock> osAccountMgrMock_ = nullptr;
+    std::shared_ptr<EdmAccessTokenManagerImplMock> accessTokenMgrMock_ = nullptr;
     std::shared_ptr<ExternalManagerFactoryMock> factoryMock_ = nullptr;
     std::shared_ptr<IPlugin> plugin_ = nullptr;
 };

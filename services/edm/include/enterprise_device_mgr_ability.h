@@ -23,9 +23,7 @@
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
-#include "external_manager_factory.h"
 #include "hilog/log.h"
-#include "iexternal_manager_factory.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "policy_struct.h"
@@ -69,7 +67,6 @@ protected:
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
 
 private:
     void AddCommonEventFuncMap();
@@ -91,7 +88,7 @@ private:
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
-    ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
     ErrCode UpdateDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
@@ -117,6 +114,7 @@ private:
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
+    static void OnDevelopModeChanged(const char* key, const char* value, void* context);
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
@@ -126,7 +124,6 @@ private:
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
-    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {

@@ -153,7 +153,8 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityDisconnectDoneWithSuperAdmi
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
-    AdminManager::GetInstance()->SetAdminValue(abilityInfo, entInfo, AdminType::ENT, permissions, DEFAULT_USER_ID);
+    Admin edmAdmin(abilityInfo, AdminType::ENT, entInfo, permissions, false);
+    AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
 
     AAFwk::Want connectWant;
     connectWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
