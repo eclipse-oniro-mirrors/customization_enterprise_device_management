@@ -175,7 +175,7 @@ ErrCode EdmCommand::RunAsEnableCommandParseOptionArgument(int option, std::strin
 ErrCode EdmCommand::ReportMessage(int32_t code, bool isEnable)
 {
     if (code == ERR_OK) {
-        resultReceiver_.append(cmd_ + " success.");
+        resultReceiver_.append(cmd_ + " success.\n");
         return ERR_OK;
     }
     if (code != ERR_EDM_TOOLS_COMMAND_HELP) {
