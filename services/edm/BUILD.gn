@@ -143,7 +143,6 @@ ohos_shared_library("edmservice") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "hilog:libhilog",
-    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "location:locator_sdk",

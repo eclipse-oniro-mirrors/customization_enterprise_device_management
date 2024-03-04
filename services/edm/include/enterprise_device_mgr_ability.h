@@ -106,12 +106,12 @@ private:
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin, std::shared_ptr<IPlugin> plugin);
     void InitAllPolices();
+    void RemoveAllDebugAdmin();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
     void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
-    static void OnDevelopModeChanged(const char* key, const char* value, void* context);
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
