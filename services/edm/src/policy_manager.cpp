@@ -100,10 +100,10 @@ void PolicyManager::GetPolicyUserIds(std::vector<int32_t> &userIds)
 
 void PolicyManager::Dump()
 {
-    auto userPolicyMgr = GetUserPolicyMgr(EdmConstants::DEFAULT_USER_ID);
-    userPolicyMgr->DumpAdminPolicy();
-    userPolicyMgr->DumpAdminList();
-    userPolicyMgr->DumpCombinedPolicy();
+    auto defaultUserPolicyMgr = GetUserPolicyMgr(EdmConstants::DEFAULT_USER_ID);
+    defaultUserPolicyMgr->DumpAdminPolicy();
+    defaultUserPolicyMgr->DumpAdminList();
+    defaultUserPolicyMgr->DumpCombinedPolicy();
 
     std::vector<int32_t> userIds;
     GetPolicyUserIds(userIds);
