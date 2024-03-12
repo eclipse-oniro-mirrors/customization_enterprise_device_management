@@ -18,6 +18,7 @@
 #include <string>
 
 #include "ability_handler.h"
+#include "edm_log.h"
 #include "enterprise_admin_extension.h"
 #include "enterprise_admin_stub_impl.h"
 #include "js_enterprise_admin_extension_context.h"
@@ -38,7 +39,7 @@ JsEnterpriseAdminExtension* JsEnterpriseAdminExtension::Create(const std::unique
 JsEnterpriseAdminExtension::JsEnterpriseAdminExtension(AbilityRuntime::JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsEnterpriseAdminExtension::~JsEnterpriseAdminExtension()
 {
-    HILOG_DEBUG("Js enterprise admin extension destructor.");
+    EDMLOGD("Js enterprise admin extension destructor.");
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
 }
 
@@ -51,23 +52,23 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
     std::string srcPath;
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
-        HILOG_INFO("JsEnterpriseAdminExtension Failed to get srcPath");
+        EDMLOGI("JsEnterpriseAdminExtension Failed to get srcPath");
         return;
     }
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_INFO("JsEnterpriseAdminExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
+    EDMLOGI("JsEnterpriseAdminExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
 
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo_->hapPath,
         Extension::abilityInfo_->compileMode == AbilityRuntime::CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        HILOG_INFO("JsEnterpriseAdminExtension Failed to get jsObj_");
+        EDMLOGI("JsEnterpriseAdminExtension Failed to get jsObj_");
         return;
     }
-    HILOG_INFO("JsEnterpriseAdminExtension::Init ConvertNativeValueTo.");
+    EDMLOGI("JsEnterpriseAdminExtension::Init ConvertNativeValueTo.");
     JsEnterpriseAdminExtensionContextInit();
 }
 
@@ -78,33 +79,33 @@ void JsEnterpriseAdminExtension::JsEnterpriseAdminExtensionContextInit()
     auto env = jsRuntime_.GetNapiEnv();
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_INFO("JsEnterpriseAdminExtension Failed to get context");
+        EDMLOGI("JsEnterpriseAdminExtension Failed to get context");
         return;
     }
-    HILOG_INFO("JsEnterpriseAdminExtension::Init CreateJsEnterpriseAdminExtensionContext.");
+    EDMLOGI("JsEnterpriseAdminExtension::Init CreateJsEnterpriseAdminExtensionContext.");
     napi_value contextObj = CreateJsEnterpriseAdminExtensionContext(env, context);
     auto shellContextRef = jsRuntime_.LoadSystemModule("enterprise.EnterpriseAdminExtensionContext",
         &contextObj, JS_NAPI_ARGC_ONE);
     contextObj = shellContextRef->GetNapiValue();
-    HILOG_INFO("JsEnterpriseAdminExtension::Init Bind.");
+    EDMLOGI("JsEnterpriseAdminExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
-    HILOG_INFO("JsEnterpriseAdminExtension::SetProperty.");
+    EDMLOGI("JsEnterpriseAdminExtension::SetProperty.");
     napi_set_named_property(env, obj, "context", contextObj);
 
-    HILOG_INFO("Set enterprise admin extension context");
+    EDMLOGI("Set enterprise admin extension context");
 
     napi_wrap(env, contextObj, new std::weak_ptr<AbilityRuntime::Context>(context),
         [](napi_env env, void* data, void*) {
-            HILOG_INFO("Finalizer for weak_ptr service extension context is called");
+            EDMLOGI("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
         }, nullptr, nullptr);
 
-    HILOG_INFO("JsEnterpriseAdminExtension::Init end.");
+    EDMLOGI("JsEnterpriseAdminExtension::Init end.");
 }
 
 void JsEnterpriseAdminExtension::OnStart(const AAFwk::Want& want)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension OnStart begin");
+    EDMLOGI("JsEnterpriseAdminExtension OnStart begin");
     AbilityRuntime::Extension::OnStart(want);
     auto task = [this]() {
         CallObjectMethod("onStart", nullptr, JS_NAPI_ARGC_ZERO);
@@ -115,33 +116,33 @@ void JsEnterpriseAdminExtension::OnStart(const AAFwk::Want& want)
 void JsEnterpriseAdminExtension::OnStop()
 {
     AbilityRuntime::Extension::OnStop();
-    HILOG_INFO("JsEnterpriseAdminExtension %{public}s end.", __func__);
+    EDMLOGI("JsEnterpriseAdminExtension %{public}s end.", __func__);
 }
 
 sptr<IRemoteObject> JsEnterpriseAdminExtension::OnConnect(const AAFwk::Want& want)
 {
     AbilityRuntime::Extension::OnConnect(want);
-    HILOG_INFO("EnterpriseAdminExtension %{public}s begin.", __func__);
+    EDMLOGI("EnterpriseAdminExtension %{public}s begin.", __func__);
     sptr<EnterpriseAdminStubImpl> remoteObject = new (std::nothrow) EnterpriseAdminStubImpl(
         std::static_pointer_cast<JsEnterpriseAdminExtension>(shared_from_this()));
-        
+
     if (remoteObject == nullptr) {
-        HILOG_INFO("OnConnect get null");
+        EDMLOGI("OnConnect get null");
         return remoteObject;
     }
-    HILOG_INFO("JsEnterpriseAdminExtension %{public}s end. ", __func__);
+    EDMLOGI("JsEnterpriseAdminExtension %{public}s end. ", __func__);
     return remoteObject->AsObject();
 }
 
 void JsEnterpriseAdminExtension::OnDisconnect(const AAFwk::Want& want)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension %{public}s begin.", __func__);
+    EDMLOGI("JsEnterpriseAdminExtension %{public}s begin.", __func__);
     AbilityRuntime::Extension::OnDisconnect(want);
 }
 
 void JsEnterpriseAdminExtension::OnAdminEnabled()
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnAdminEnabled");
+    EDMLOGI("JsEnterpriseAdminExtension::OnAdminEnabled");
     auto task = [this]() {
         CallObjectMethod("onAdminEnabled", nullptr, JS_NAPI_ARGC_ZERO);
     };
@@ -150,7 +151,7 @@ void JsEnterpriseAdminExtension::OnAdminEnabled()
 
 void JsEnterpriseAdminExtension::OnAdminDisabled()
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnAdminDisabled");
+    EDMLOGI("JsEnterpriseAdminExtension::OnAdminDisabled");
     auto task = [this]() {
         CallObjectMethod("onAdminDisabled", nullptr, JS_NAPI_ARGC_ZERO);
     };
@@ -159,7 +160,7 @@ void JsEnterpriseAdminExtension::OnAdminDisabled()
 
 void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnBundleAdded");
+    EDMLOGI("JsEnterpriseAdminExtension::OnBundleAdded");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -170,7 +171,7 @@ void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
 
 void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnBundleRemoved");
+    EDMLOGI("JsEnterpriseAdminExtension::OnBundleRemoved");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -181,7 +182,7 @@ void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
 
 void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnAppStart");
+    EDMLOGI("JsEnterpriseAdminExtension::OnAppStart");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -192,7 +193,7 @@ void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
 
 void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnAppStop");
+    EDMLOGI("JsEnterpriseAdminExtension::OnAppStop");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -203,7 +204,7 @@ void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
 
 void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::OnSystemUpdate");
+    EDMLOGI("JsEnterpriseAdminExtension::OnSystemUpdate");
     auto task = [updateInfo, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { CreateUpdateInfoObject(env, updateInfo) };
@@ -234,10 +235,10 @@ napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, cons
 
 napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_value* argv, size_t argc)
 {
-    HILOG_INFO("JsEnterpriseAdminExtension::CallObjectMethod(%{public}s), begin", name);
+    EDMLOGI("JsEnterpriseAdminExtension::CallObjectMethod(%{public}s), begin", name);
 
     if (!jsObj_) {
-        HILOG_WARN("Not found EnterpriseAdminExtension.js");
+        EDMLOGW("Not found EnterpriseAdminExtension.js");
         return nullptr;
     }
 
@@ -246,22 +247,22 @@ napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_v
 
     napi_value value = jsObj_->GetNapiValue();
     if (value == nullptr) {
-        HILOG_ERROR("Failed to get EnterpriseAdminExtension object");
+        EDMLOGE("Failed to get EnterpriseAdminExtension object");
         return nullptr;
     }
     napi_value method = nullptr;
     napi_get_named_property(env, value, name, &method);
 
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get '%{public}s' from EnterpriseAdminExtension object", name);
+        EDMLOGE("Failed to get '%{public}s' from EnterpriseAdminExtension object", name);
         return nullptr;
     }
 
-    HILOG_INFO("JsEnterpriseAdminExtension::CallFunction(%{public}s), success", name);
+    EDMLOGI("JsEnterpriseAdminExtension::CallFunction(%{public}s), success", name);
     napi_value result = nullptr;
     napi_status status = napi_call_function(env, value, method, argc, argv, &result);
     if (status != napi_ok) {
-        HILOG_ERROR("Failed to call function");
+        EDMLOGE("Failed to call function");
     }
     return result;
 }
