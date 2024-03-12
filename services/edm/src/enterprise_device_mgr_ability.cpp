@@ -28,7 +28,6 @@
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
 #include "matching_skills.h"
-#include "parameter.h"
 #include "parameters.h"
 #include "security_report.h"
 
@@ -56,7 +55,7 @@ const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
-const char* const DEVELOP_MODE_STATE = "const.security.developermode.state";
+const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 
 const std::vector<uint32_t> codeList = {
     EdmInterfaceCode::RESET_FACTORY,
@@ -329,6 +328,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
+    RemoveAllDebugAdmin();
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
@@ -342,6 +342,21 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
     EDMLOGI("InitAllPolices userIds size %{public}zu", userIds.size());
     devicePolicies->QueryAllUserId(userIds);
     policyMgr_->Init(userIds);
+}
+
+void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
+{
+    bool isDebug = system::GetBoolParameter(DEVELOP_MODE_STATE, false);
+    if (!isDebug) {
+        std::vector<std::shared_ptr<Admin>> userAdmin;
+        adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+        for (const auto &item: userAdmin) {
+            if (item->adminInfo_.isDebug_) {
+                EDMLOGD("remove debug admin %{public}s", item->adminInfo_.packageName_.c_str());
+                RemoveSuperAdminAndAdminPolicy(item->adminInfo_.packageName_);
+            }
+        }
+    }
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -575,9 +590,6 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
-    if (isDebug) {
-        WatchParameter(DEVELOP_MODE_STATE, &EnterpriseDeviceMgrAbility::OnDevelopModeChanged, this);
-    }
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
     AAFwk::Want connectWant;
@@ -587,28 +599,6 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
     manager->ConnectAbility(connection);
     return ERR_OK;
-}
-
-void EnterpriseDeviceMgrAbility::OnDevelopModeChanged(const char* key, const char* value, void* context)
-{
-    if (key == nullptr || value == nullptr) {
-        return;
-    }
-    if (strcmp(key, DEVELOP_MODE_STATE)) {
-        return;
-    }
-    if (strcmp(value, "false")) {
-        return;
-    }
-    EnterpriseDeviceMgrAbility* impl = static_cast<EnterpriseDeviceMgrAbility*>(context);
-    std::vector<std::shared_ptr<Admin>> userAdmin;
-    AdminManager::GetInstance()->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
-    for (auto item : userAdmin) {
-        if (item->adminInfo_.isDebug_) {
-            std::lock_guard<std::mutex> autoLock(mutexLock_);
-            impl->RemoveSuperAdminAndAdminPolicy(item->adminInfo_.packageName_);
-        }
-    }
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
