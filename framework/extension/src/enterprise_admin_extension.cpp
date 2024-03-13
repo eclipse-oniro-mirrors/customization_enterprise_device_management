@@ -15,8 +15,8 @@
 
 #include "enterprise_admin_extension.h"
 
+#include "edm_log.h"
 #include "enterprise_admin_extension_context.h"
-#include "hilog_wrapper.h"
 #include "js_enterprise_admin_extension.h"
 #include "runtime.h"
 
@@ -28,7 +28,7 @@ EnterpriseAdminExtension* EnterpriseAdminExtension::Create(const std::unique_ptr
     if (!runtime) {
         return new EnterpriseAdminExtension();
     }
-    HILOG_INFO("EnterpriseAdminExtension::Create runtime");
+    EDMLOGI("EnterpriseAdminExtension::Create runtime");
     switch (runtime->GetLanguage()) {
         case AbilityRuntime::Runtime::Language::JS:
             return JsEnterpriseAdminExtension::Create(runtime);
@@ -42,7 +42,7 @@ void EnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLoc
     std::shared_ptr<AppExecFwk::AbilityHandler>& handler,
     const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("EnterpriseAdminExtension begin init");
+    EDMLOGI("EnterpriseAdminExtension begin init");
     ExtensionBase<EnterpriseAdminExtensionContext>::Init(record, application, handler, token);
 }
 
@@ -55,7 +55,7 @@ std::shared_ptr<EnterpriseAdminExtensionContext> EnterpriseAdminExtension::Creat
     std::shared_ptr<EnterpriseAdminExtensionContext> context =
         ExtensionBase<EnterpriseAdminExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (record == nullptr) {
-        HILOG_ERROR("EnterpriseAdminExtension::CreateAndInitContext record is nullptr");
+        EDMLOGE("EnterpriseAdminExtension::CreateAndInitContext record is nullptr");
         return context;
     }
     return context;
