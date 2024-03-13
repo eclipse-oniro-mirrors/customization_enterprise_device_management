@@ -29,6 +29,7 @@ ohos_shared_library("plugin_kits") {
     "./src/utils/array_map_serializer.cpp",
     "./src/utils/array_string_serializer.cpp",
     "./src/utils/bool_serializer.cpp",
+    "./src/utils/cjson_serializer.cpp",
     "./src/utils/func_code_utils.cpp",
     "./src/utils/int_serializer.cpp",
     "./src/utils/json_serializer.cpp",
@@ -52,6 +53,7 @@ ohos_shared_library("plugin_kits") {
   ]
 
   external_deps = [
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
   ]

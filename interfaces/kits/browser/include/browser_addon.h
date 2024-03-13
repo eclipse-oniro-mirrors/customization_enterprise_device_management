@@ -29,6 +29,7 @@ struct AsyncBrowserCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::string appId;
     std::string policies;
+    std::string policyValue;
 };
 
 class BrowserAddon {
@@ -37,10 +38,14 @@ public:
 
     static napi_value SetPolicies(napi_env env, napi_callback_info info);
     static napi_value GetPolicies(napi_env env, napi_callback_info info);
+    static napi_value SetPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetPoliciesSync(napi_env env, napi_callback_info info);
 
 private:
     static void NativeSetPolicies(napi_env env, void *data);
     static void NativeGetPolicies(napi_env env, void *data);
+    static napi_value SetPolicyCommon(napi_env env, napi_callback_info info, AsyncBrowserCallbackInfo* callbackInfo);
+    static napi_value GetPoliciesCommon(napi_env env, napi_callback_info info, AsyncBrowserCallbackInfo* callbackInfo);
 };
 } // namespace EDM
 } // namespace OHOS

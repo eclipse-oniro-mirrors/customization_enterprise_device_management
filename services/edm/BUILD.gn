@@ -90,6 +90,7 @@ ohos_shared_library("edmservice") {
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
