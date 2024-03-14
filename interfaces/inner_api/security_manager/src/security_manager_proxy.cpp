@@ -44,6 +44,7 @@ int32_t SecurityManagerProxy::GetSecurityPatchTag(const AppExecFwk::ElementName 
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_SECURITY_PATCH_TAG, data, reply);
@@ -65,6 +66,7 @@ int32_t SecurityManagerProxy::GetDeviceEncryptionStatus(const AppExecFwk::Elemen
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_DEVICE_ENCRYPTION_STATUS, data, reply);

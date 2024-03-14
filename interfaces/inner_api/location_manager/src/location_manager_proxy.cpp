@@ -43,6 +43,7 @@ int32_t LocationManagerProxy::SetLocationPolicy(const AppExecFwk::ElementName &a
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(static_cast<int32_t>(locationPolicy));
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCATION_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
@@ -55,6 +56,7 @@ int32_t LocationManagerProxy::GetLocationPolicy(const AppExecFwk::ElementName *a
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);

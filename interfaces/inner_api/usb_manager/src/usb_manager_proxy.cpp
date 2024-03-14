@@ -49,6 +49,7 @@ int32_t UsbManagerProxy::SetUsbReadOnly(const AppExecFwk::ElementName &admin, bo
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(readOnly ? 1 : 0);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
     return ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED ? EdmReturnErrCode::SYSTEM_ABNORMALLY : ret;
@@ -91,6 +92,7 @@ int32_t UsbManagerProxy::AddAllowedUsbDevices(const AppExecFwk::ElementName &adm
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(data);
@@ -113,6 +115,7 @@ int32_t UsbManagerProxy::RemoveAllowedUsbDevices(const AppExecFwk::ElementName &
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(data);
@@ -132,6 +135,7 @@ int32_t UsbManagerProxy::GetAllowedUsbDevices(const AppExecFwk::ElementName &adm
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::ALLOWED_USB_DEVICES, data, reply);
@@ -172,6 +176,7 @@ int32_t UsbManagerProxy::SetUsbStorageDeviceAccessPolicy(const AppExecFwk::Eleme
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(usbPolicy);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -188,6 +193,7 @@ int32_t UsbManagerProxy::GetUsbStorageDeviceAccessPolicy(const AppExecFwk::Eleme
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::USB_READ_ONLY, data, reply);

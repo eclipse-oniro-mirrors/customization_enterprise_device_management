@@ -43,6 +43,7 @@ int32_t DeviceSettingsProxy::SetScreenOffTime(const AppExecFwk::ElementName &adm
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(value);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SCREEN_OFF_TIME);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
@@ -60,6 +61,7 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &adm
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::SCREEN_OFF_TIME, data, reply);
@@ -84,6 +86,7 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(const AppExecFwk::ElementNam
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
@@ -109,6 +112,7 @@ int32_t DeviceSettingsProxy::UninstallUserCertificate(const AppExecFwk::ElementN
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(alias);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
@@ -129,6 +133,7 @@ int32_t DeviceSettingsProxy::SetPowerPolicy(const AppExecFwk::ElementName &admin
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteUint32(static_cast<uint32_t>(powerScene));
     if (!powerPolicy.Marshalling(data)) {
         EDMLOGE("DeviceSettingsProxy::SetPowerPolicy Marshalling proxy fail.");
@@ -145,6 +150,7 @@ int32_t DeviceSettingsProxy::GetPowerPolicy(const AppExecFwk::ElementName &admin
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteUint32(static_cast<uint32_t>(powerScene));
