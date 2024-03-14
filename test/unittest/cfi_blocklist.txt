@@ -12,6 +12,7 @@
 # limitations under the License.
 
 [cfi]
+type:*OHOS::Parcel*
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/location_policy_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/screen_off_time_plugin_test.cpp
 src:*/third_party/googletest/googlemock/include/gmock/gmock-cardinalities.h
