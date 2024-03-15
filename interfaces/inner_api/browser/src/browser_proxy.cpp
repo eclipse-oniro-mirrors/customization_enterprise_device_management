@@ -108,7 +108,7 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
     const std::string &policyName, const std::string &policyValue)
 {
     EDMLOGI("BrowserProxy::SetPolicy");
-    if (appId.empty() || policyName.empty()) {
+    if (appId.empty()) {
         EDMLOGE("BrowserProxy::SetPolicy appId is empty");
         return EdmReturnErrCode::PARAM_ERROR;
     }

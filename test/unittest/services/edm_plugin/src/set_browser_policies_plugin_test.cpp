@@ -28,7 +28,6 @@ const std::string TEST_APP_ID = "test_app_id";
 const std::string TEST_APP_ID_1 = "test_app_id_1";
 const std::string TEST_POLICIES = "test_policies";
 const std::string TEST_POLICY_NAME = "test_policy_name";
-const std::string TEST_POLICY_NAME_ROOT = "root";
 const std::string TEST_POLICY_VALUE = "\"test_policy_value\"";
 const std::string TEST_POLICY_VALUE2 = "\"test_policy_value2\"";
 const std::string TEST_POLICY_DATA1 = "{\"test_app_id\": \"{\\\"test_policy_name\\\":\\\"test_policy_value\\\"}\"}";
@@ -290,7 +289,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyRoot, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     int32_t userid = 0;
-    std::vector<std::string> params{TEST_APP_ID, TEST_POLICY_NAME_ROOT, TEST_POLICY_VALUE2};
+    std::vector<std::string> params{TEST_APP_ID, "", TEST_POLICY_VALUE2};
     data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 
@@ -318,7 +317,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyRootEmptyValue, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     int32_t userid = 0;
-    std::vector<std::string> params{TEST_APP_ID, TEST_POLICY_NAME_ROOT, ""};
+    std::vector<std::string> params{TEST_APP_ID, "", ""};
     data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 

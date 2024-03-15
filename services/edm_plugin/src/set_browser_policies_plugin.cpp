@@ -29,7 +29,6 @@ static constexpr int32_t SET_POLICY_PARAM_NUM = 3;
 static constexpr int32_t SET_POLICY_APPID_INDEX = 0;
 static constexpr int32_t SET_POLICY_POLICY_NAME_INDEX = 1;
 static constexpr int32_t SET_POLICY_POLICY_VALUE_INDEX = 2;
-static const std::string ROOT = "root";
 
 namespace OHOS {
 namespace EDM {
@@ -63,7 +62,7 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
         std::string appid = params[SET_POLICY_APPID_INDEX];
         std::string policyName = params[SET_POLICY_POLICY_NAME_INDEX];
         std::string policyValue = params[SET_POLICY_POLICY_VALUE_INDEX];
-        if (appid.empty() || policyName.empty()) {
+        if (appid.empty()) {
             EDMLOGD("SetBrowserPolicyPlugin param invalid.");
             return EdmReturnErrCode::PARAM_ERROR;
         }
@@ -72,7 +71,7 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
             beforeHandle = "{}";
         }
 
-        if (policyName == ROOT) {
+        if (policyName.empty()) {
             errCode = SetRootPolicy(beforeHandle, appid, policyValue, afterHandle);
         } else {
             errCode = SetPolicy(beforeHandle, appid, policyName, policyValue, afterHandle);
