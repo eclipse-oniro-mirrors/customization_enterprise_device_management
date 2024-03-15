@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -101,8 +101,7 @@ private:
     static napi_value SetGlobalHttpProxy(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxy(napi_env env, napi_callback_info info);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-    static bool ParseHttpProxyParam(napi_env env, napi_value argv,
-        AsyncHttpProxyCallbackInfo *asyncHttpProxyCallbackInfo);
+    static bool ParseHttpProxyParam(napi_env env, napi_value argv, NetManagerStandard::HttpProxy &httpProxy);
     static napi_value ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy);
     static void NativeSetGlobalHttpProxy(napi_env env, void *data);
     static void NativeGetGlobalHttpProxy(napi_env env, void *data);
@@ -113,6 +112,15 @@ private:
     static bool GetSecureDataFromNAPI(napi_env env, napi_value object,
         OHOS::NetManagerStandard::SecureData &secureData);
 #endif
+
+    static napi_value GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info);
+    static napi_value GetIpAddressSync(napi_env env, napi_callback_info info);
+    static napi_value GetMacSync(napi_env env, napi_callback_info info);
+    static napi_value GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int policyCode);
+    static napi_value SetNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
+    static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
+    static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxySync(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

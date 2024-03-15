@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,6 +67,15 @@ public:
     static napi_value GetDisallowedUninstallBundles(napi_env env, napi_callback_info info);
     static napi_value Uninstall(napi_env env, napi_callback_info info);
     static napi_value Install(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedInstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
@@ -85,6 +94,10 @@ private:
         bool &hasUserId);
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
+    static napi_value AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info, const std::string &workName);
+    static void InitPolicyType(const std::string &workName, int32_t &policyType);
+    static napi_value GetAllowedOrDisallowedInstallBundlesSync(napi_env env, napi_callback_info info,
+        const std::string &workName);
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);

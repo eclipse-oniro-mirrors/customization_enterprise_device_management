@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -119,6 +119,14 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 
         DECLARE_NAPI_FUNCTION("setGlobalProxy", SetGlobalHttpProxy),
         DECLARE_NAPI_FUNCTION("getGlobalProxy", GetGlobalHttpProxy),
+
+        DECLARE_NAPI_FUNCTION("getAllNetworkInterfacesSync", GetAllNetworkInterfacesSync),
+        DECLARE_NAPI_FUNCTION("getIpAddressSync", GetIpAddressSync),
+        DECLARE_NAPI_FUNCTION("getMacSync", GetMacSync),
+        DECLARE_NAPI_FUNCTION("setNetworkInterfaceDisabledSync", SetNetworkInterfaceDisabledSync),
+        DECLARE_NAPI_FUNCTION("isNetworkInterfaceDisabledSync", IsNetworkInterfaceDisabledSync),
+        DECLARE_NAPI_FUNCTION("setGlobalProxySync", SetGlobalHttpProxySync),
+        DECLARE_NAPI_FUNCTION("getGlobalProxySync", GetGlobalHttpProxySync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -875,7 +883,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
     std::unique_ptr<AsyncHttpProxyCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "parameter element name error");
-    bool parseRet = ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], asyncCallbackInfo);
+    bool parseRet = ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->httpProxy);
     ASSERT_AND_THROW_PARAM_ERROR(env, parseRet, "ParseHttpProxyParam error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
@@ -893,7 +901,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
 }
 
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, AsyncHttpProxyCallbackInfo *callbackInfo)
+bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, NetManagerStandard::HttpProxy &httpProxy)
 {
     std::string host;
     if (!JsObjectToString(env, argv, HOST_PROP_NAME, true, host)) {
@@ -926,15 +934,15 @@ bool NetworkManagerAddon::ParseHttpProxyParam(napi_env env, napi_value argv, Asy
         return false;
     }
 
-    callbackInfo->httpProxy.SetHost(host.c_str());
-    callbackInfo->httpProxy.SetPort(port);
-    callbackInfo->httpProxy.SetUserName(username);
-    callbackInfo->httpProxy.SetPassword(password);
+    httpProxy.SetHost(host.c_str());
+    httpProxy.SetPort(port);
+    httpProxy.SetUserName(username);
+    httpProxy.SetPassword(password);
     std::list<std::string> dataList;
     for (const auto &item : exclusionList) {
         dataList.emplace_back(item);
     }
-    callbackInfo->httpProxy.SetExclusionList(dataList);
+    httpProxy.SetExclusionList(dataList);
     return true;
 }
 
@@ -1130,6 +1138,254 @@ void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_sta
     delete asyncCallbackInfo;
 }
 #endif
+
+napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAllNetworkInterfacesSync called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("GetAllNetworkInterfacesSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    std::vector<std::string> networkInterface;
+    int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(elementName, networkInterface);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertStringVectorToJS(env, networkInterface, result);
+    return result;
+}
+
+napi_value NetworkManagerAddon::GetIpAddressSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetIpAddressSync called");
+    return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_IP_ADDRESS);
+}
+
+napi_value NetworkManagerAddon::GetMacSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetMacSync called");
+    return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_MAC);
+}
+
+napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int policyCode)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter networkInterface error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::string networkInterface;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
+        "parameter networkInterface parse error");
+    EDMLOGD("GetIpOrMacAddressSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    std::string ipOrMacInfo;
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(elementName, networkInterface, policyCode, ipOrMacInfo);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_string_utf8(env, ipOrMacInfo.c_str(), NAPI_AUTO_LENGTH, &result);
+    return result;
+}
+
+napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetNetworkInterfaceDisabledSync called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter networkInterface error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
+        "parameter isDisabled error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::string networkInterface;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
+        "parameter networkInterface parse error");
+    bool isDisabled = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisabled, argv[ARR_INDEX_TWO]),
+        "parameter isDisabled parse error");
+    EDMLOGD("SetNetworkInterfaceDisabledSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(elementName, networkInterface, isDisabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsNetworkInterfaceDisabledSync called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter networkInterface error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::string networkInterface;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
+        "parameter networkInterface parse error");
+    EDMLOGD("IsNetworkInterfaceDisabledSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    bool isDisabled = false;
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(elementName, networkInterface, isDisabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, isDisabled, &result);
+    return result;
+}
+
+napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetGlobalHttpProxySync called");
+#ifdef NETMANAGER_BASE_EDM_ENABLE
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "parameter httpProxy error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    NetManagerStandard::HttpProxy httpProxy;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], httpProxy),
+        "parameter httpProxy parse error");
+    EDMLOGD("SetGlobalHttpProxySync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(elementName, httpProxy);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::SetGlobalHttpProxy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetGlobalHttpProxySync called");
+#ifdef NETMANAGER_BASE_EDM_ENABLE
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    if (hasAdmin) {
+        EDMLOGD("GetGlobalHttpProxySync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+            elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    } else {
+        EDMLOGD("GetGlobalHttpProxySync: elementName is null");
+    }
+
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get GetNetworkManagerProxy");
+        return nullptr;
+    }
+    NetManagerStandard::HttpProxy httpProxy;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = networkManagerProxy->GetGlobalHttpProxy(&elementName, httpProxy);
+    } else {
+        ret = networkManagerProxy->GetGlobalHttpProxy(nullptr, httpProxy);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    return ConvertHttpProxyToJS(env, httpProxy);
+#else
+    EDMLOGW("NetworkManagerAddon::GetGlobalHttpProxy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
 
 static napi_module g_networkManagerModule = {
     .nm_version = 1,
