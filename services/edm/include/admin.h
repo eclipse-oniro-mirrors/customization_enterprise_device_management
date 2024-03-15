@@ -29,14 +29,14 @@
 namespace OHOS {
 namespace EDM {
 struct AdminInfo {
-    AdminType adminType_;
+    AdminType adminType_ = AdminType::UNKNOWN;
     std::string packageName_;
     std::string className_;
     EntInfo entInfo_;
     std::vector<std::string> permission_;
     std::vector<ManagedEvent> managedEvents_;
     std::string parentAdminName_;
-    bool isDebug_;
+    bool isDebug_ = false;
 };
 
 class Admin {

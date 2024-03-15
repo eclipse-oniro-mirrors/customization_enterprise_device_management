@@ -80,7 +80,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
-    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_rdb",
