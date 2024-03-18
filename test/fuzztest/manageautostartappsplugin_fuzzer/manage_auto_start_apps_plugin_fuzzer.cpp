@@ -52,8 +52,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteParcelable(&admin);
 
         std::vector<std::string> autoStartAppsString;
-        std::string bundleName((const char*) data, size / 2);
-        std::string abilityName((const char*) data + size / 2, size / 2);
+        std::string bundleName(reinterpret_cast<const char*>(data), size / 2);
+        std::string abilityName(reinterpret_cast<const char*>(data) + size / 2, size / 2);
         autoStartAppsString.push_back(bundleName + "/" + abilityName);
         parcel.WriteStringVector(autoStartAppsString);
 
