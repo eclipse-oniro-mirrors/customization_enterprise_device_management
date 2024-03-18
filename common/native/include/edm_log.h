@@ -19,28 +19,35 @@
 #include "errors.h"
 #include "hilog/log.h"
 
+#ifndef LOG_DOMAIN_EDM
+#define LOG_DOMAIN_EDM 0xD001E00
+#endif
+
+#ifndef LOG_TAG_EDM
+#define LOG_TAG_EDM "EDM"
+#endif
+
 namespace OHOS {
 namespace EDM {
-static constexpr int LOG_DOMAIN_ID_EDM = 0xD001E00;
-static constexpr OHOS::HiviewDFX::HiLogLabel EDM_LABEL = { LOG_CORE, LOG_DOMAIN_ID_EDM, "EDM" };
+
 #ifndef EDMLOGD
-#define EDMLOGD(...) (void)OHOS::HiviewDFX::HiLog::Debug(EDM_LABEL, __VA_ARGS__)
+#define EDMLOGD(...) HILOG_IMPL(LOG_CORE, LOG_DEBUG, LOG_DOMAIN_EDM, LOG_TAG_EDM, __VA_ARGS__)
 #endif
 
 #ifndef EDMLOGE
-#define EDMLOGE(...) (void)OHOS::HiviewDFX::HiLog::Error(EDM_LABEL, __VA_ARGS__)
+#define EDMLOGE(...) HILOG_IMPL(LOG_CORE, LOG_ERROR, LOG_DOMAIN_EDM, LOG_TAG_EDM, __VA_ARGS__)
 #endif
 
 #ifndef EDMLOGF
-#define EDMLOGF(...) (void)OHOS::HiviewDFX::HiLog::Fatal(EDM_LABEL, __VA_ARGS__)
+#define EDMLOGF(...) HILOG_IMPL(LOG_CORE, LOG_FATAL, LOG_DOMAIN_EDM, LOG_TAG_EDM, __VA_ARGS__)
 #endif
 
 #ifndef EDMLOGI
-#define EDMLOGI(...) (void)OHOS::HiviewDFX::HiLog::Info(EDM_LABEL, __VA_ARGS__)
+#define EDMLOGI(...) HILOG_IMPL(LOG_CORE, LOG_INFO, LOG_DOMAIN_EDM, LOG_TAG_EDM, __VA_ARGS__)
 #endif
 
 #ifndef EDMLOGW
-#define EDMLOGW(...) (void)OHOS::HiviewDFX::HiLog::Warn(EDM_LABEL, __VA_ARGS__)
+#define EDMLOGW(...) HILOG_IMPL(LOG_CORE, LOG_WARN, LOG_DOMAIN_EDM, LOG_TAG_EDM, __VA_ARGS__)
 #endif
 } // namespace EDM
 } // namespace OHOS
