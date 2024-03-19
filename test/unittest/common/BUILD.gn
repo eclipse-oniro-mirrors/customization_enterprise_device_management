@@ -25,7 +25,6 @@ ohos_unittest("EdmCommonUnitTest") {
   include_dirs = []
 
   sources = [
-    "./edm_data_ability_utils_test.cpp",
     "./edm_permission_test.cpp",
     "./edm_sys_manager_test.cpp",
     "./edm_utils_test.cpp",
