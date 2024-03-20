@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,8 +27,12 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDisplayV
 void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr)
 {
     EDMLOGI("GetDisplayVersionPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_DISPLAY_VERSION, "get_display_version",
-        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    IPlugin::PolicyPermissionConfig config = {
+        .permission = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
+        .permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        .apiType = IPlugin::ApiType::SYSTEM
+    };
+    ptr->InitAttribute(EdmInterfaceCode::GET_DISPLAY_VERSION, "get_display_version", config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

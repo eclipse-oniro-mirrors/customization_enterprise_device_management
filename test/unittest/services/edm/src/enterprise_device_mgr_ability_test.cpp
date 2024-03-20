@@ -231,6 +231,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
     elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
 }
@@ -253,6 +254,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithoutAdmin, Tes
     elementName.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 }
@@ -276,6 +278,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
@@ -299,6 +302,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithInvalidPlugin
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
@@ -328,6 +332,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
 }
@@ -364,6 +369,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
 }
@@ -389,6 +395,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
@@ -425,6 +432,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteString("ErrorData");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_EDM_OPERATE_JSON);
@@ -459,6 +467,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteString("testValue");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
@@ -471,6 +480,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
+    data.WriteString("");
     data.WriteString("{\"name\" : \"testValue\"}");
     res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
@@ -506,6 +516,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteString("{\"name\" : \"testValue\"}");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
@@ -563,6 +574,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithAdminInactive, T
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
@@ -593,6 +605,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
@@ -618,6 +631,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
@@ -641,6 +655,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicySuc, TestSize.Level1
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
@@ -690,6 +705,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
@@ -717,6 +733,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
     admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("");
     data.WriteInt32(0);
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);

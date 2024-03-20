@@ -58,6 +58,7 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::GET_NETWORK_INTERFACES, data, reply);
@@ -94,6 +95,7 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);
@@ -128,6 +130,7 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     std::vector<std::string> key{networkInterface};
     std::vector<std::string> value{isDisabled ? "true" : "false"};
     data.WriteStringVector(key);
@@ -153,6 +156,7 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);
@@ -180,6 +184,7 @@ int32_t NetworkManagerProxy::AddIptablesFilterRule(const AppExecFwk::ElementName
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::IptablesUtils::WriteAddFilterConfig(filter, data);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
@@ -193,6 +198,7 @@ int32_t NetworkManagerProxy::RemoveIptablesFilterRule(const AppExecFwk::ElementN
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
@@ -204,6 +210,7 @@ int32_t NetworkManagerProxy::ListIptablesFilterRules(const AppExecFwk::ElementNa
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::IPTABLES_RULE, data, reply);
@@ -224,6 +231,7 @@ int32_t NetworkManagerProxy::AddFirewallRule(const AppExecFwk::ElementName &admi
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
     if (!firewallRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::AddFirewallRule Marshalling rule fail.");
@@ -240,6 +248,7 @@ int32_t NetworkManagerProxy::RemoveFirewallRule(const AppExecFwk::ElementName &a
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
     if (!firewallRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::RemoveFirewallRule Marshalling rule fail.");
@@ -256,6 +265,7 @@ int32_t NetworkManagerProxy::GetFirewallRules(const AppExecFwk::ElementName &adm
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::FIREWALL_RULE, data, reply);
@@ -285,6 +295,7 @@ int32_t NetworkManagerProxy::AddDomainFilterRule(const AppExecFwk::ElementName &
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
     if (!domainFilterRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::AddDomainFilterRule Marshalling rule fail.");
@@ -302,6 +313,7 @@ int32_t NetworkManagerProxy::RemoveDomainFilterRule(const AppExecFwk::ElementNam
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
     if (!domainFilterRuleParcel.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::RemoveDomainFilterRule Marshalling rule fail.");
@@ -319,6 +331,7 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DOMAIN_FILTER_RULE, data, reply);
@@ -351,6 +364,7 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (!httpProxy.Marshalling(data)) {
         EDMLOGE("NetworkManagerProxy::SetGlobalHttpProxy Marshalling proxy fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -368,6 +382,7 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);

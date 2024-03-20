@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,8 +35,9 @@ IptablesRulePlugin::IptablesRulePlugin()
 {
     policyCode_ = EdmInterfaceCode::IPTABLES_RULE;
     policyName_ = "iptables_rule";
-    permission_ = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
+    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.apiType = IPlugin::ApiType::SYSTEM;
     needSave_ = false;
 }
 

@@ -53,6 +53,7 @@ int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -69,6 +70,7 @@ int32_t DeviceControlProxy::Shutdown(AppExecFwk::ElementName &admin)
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -85,6 +87,7 @@ int32_t DeviceControlProxy::Reboot(AppExecFwk::ElementName &admin)
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -101,6 +104,7 @@ int32_t DeviceControlProxy::LockScreen(AppExecFwk::ElementName &admin, int32_t u
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(userId);
     EDMLOGD("DeviceControlProxy LockScreen userId = %{public}d.", userId);
     return proxy->HandleDevicePolicy(funcCode, data);

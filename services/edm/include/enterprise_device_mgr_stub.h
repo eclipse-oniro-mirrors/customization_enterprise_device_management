@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,7 +39,9 @@ protected:
 private:
     using EnterpriseDeviceManagerFunc = int32_t (EnterpriseDeviceMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, EnterpriseDeviceManagerFunc> memberFuncMap_;
+    std::vector<uint32_t> systemCodeList;
     void AddCallFuncMap();
+    void InitSystemCodeList();
     ErrCode EnableAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode DisableAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
