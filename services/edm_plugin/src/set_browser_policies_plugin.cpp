@@ -39,8 +39,9 @@ SetBrowserPoliciesPlugin::SetBrowserPoliciesPlugin()
 {
     policyCode_ = EdmInterfaceCode::SET_BROWSER_POLICIES;
     policyName_ = "set_browser_policies";
-    permission_ = "ohos.permission.ENTERPRISE_SET_BROWSER_POLICY";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionMap_.insert(std::make_pair(
+        FuncOperateType::SET, IPlugin::PolicyPermissionConfig("ohos.permission.ENTERPRISE_SET_BROWSER_POLICY",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC)));
     needSave_ = true;
 }
 
