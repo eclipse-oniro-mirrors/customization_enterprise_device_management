@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,8 +34,9 @@ PowerPolicyPlugin::PowerPolicyPlugin()
 {
     policyCode_ = EdmInterfaceCode::POWER_POLICY;
     policyName_ = "power_policy";
-    permission_ = "ohos.permission.ENTERPRISE_MANAGE_SETTINGS";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_SETTINGS";
+    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }
 

@@ -53,6 +53,7 @@ int32_t ApplicationManagerProxy::AddDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -73,6 +74,7 @@ int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::Elem
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -91,6 +93,7 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, data, reply);
@@ -129,6 +132,7 @@ int32_t ApplicationManagerProxy::AddAutoStartApps(const AppExecFwk::ElementName 
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(autoStartAppsString);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -153,6 +157,7 @@ int32_t ApplicationManagerProxy::RemoveAutoStartApps(const AppExecFwk::ElementNa
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(autoStartAppsString);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -170,6 +175,7 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(const AppExecFwk::ElementName 
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::MANAGE_AUTO_START_APPS, data, reply);

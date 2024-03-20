@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,20 +33,49 @@ bool IPlugin::IsGlobalPolicy()
     return isGlobal_;
 }
 
-std::string IPlugin::GetPermission(FuncOperateType operaType)
+IPlugin::PolicyPermissionConfig IPlugin::GetAllPermission(FuncOperateType operaType)
 {
-    if (permission_.empty() && permissionMap_.count(operaType) > 0) {
-        return permissionMap_[operaType].first;
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+        return permissionMap_[operaType];
     }
-    return permission_;
+    return permissionConfig_;
+}
+
+std::string IPlugin::GetPermission(FuncOperateType operaType, std::string permissionTag)
+{
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+        PolicyPermissionConfig config = permissionMap_[operaType];
+        return CheckAndGetPermissionFromConfig(permissionTag, config.tagPermissions, config.permission);
+    }
+    return CheckAndGetPermissionFromConfig(permissionTag, permissionConfig_.tagPermissions,
+        permissionConfig_.permission);
+}
+
+std::string IPlugin::CheckAndGetPermissionFromConfig(const std::string &permissionTag,
+    std::map<std::string, std::string> tagPermissions, const std::string &commonPermission)
+{
+    if (permissionTag.empty()) {
+        return tagPermissions.empty() ? commonPermission : NONE_PERMISSION_MATCH;
+    } else {
+        return (!tagPermissions.empty() && tagPermissions.count(permissionTag) > 0 ?
+            tagPermissions[permissionTag] : NONE_PERMISSION_MATCH);
+    }
 }
 
 IPlugin::PermissionType IPlugin::GetPermissionType(FuncOperateType operaType)
 {
-    if (permissionType_ == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
-        return permissionMap_[operaType].second;
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+        return permissionMap_[operaType].permissionType;
     }
-    return permissionType_;
+    return permissionConfig_.permissionType;
+}
+
+IPlugin::ApiType IPlugin::GetApiType(FuncOperateType operaType)
+{
+    if (permissionConfig_.apiType == ApiType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+        return permissionMap_[operaType].apiType;
+    }
+    return permissionConfig_.apiType;
 }
 
 std::uint32_t IPlugin::GetCode()

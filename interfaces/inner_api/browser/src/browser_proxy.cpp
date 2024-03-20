@@ -51,6 +51,7 @@ int32_t BrowserProxy::SetPolicies(const AppExecFwk::ElementName &admin, const st
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
     std::vector<std::string> key{appId};
     std::vector<std::string> value{policies};
@@ -86,6 +87,7 @@ int32_t BrowserProxy::GetPolicies(AppExecFwk::ElementName *admin, const std::str
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin == nullptr) {
         data.WriteInt32(WITHOUT_ADMIN);
     } else {
@@ -108,7 +110,7 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
     const std::string &policyName, const std::string &policyValue)
 {
     EDMLOGI("BrowserProxy::SetPolicy");
-    if (appId.empty() || policyName.empty()) {
+    if (appId.empty()) {
         EDMLOGE("BrowserProxy::SetPolicy appId is empty");
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -118,6 +120,7 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     std::vector<std::string> params{appId, policyName, policyValue};
     data.WriteStringVector(params);

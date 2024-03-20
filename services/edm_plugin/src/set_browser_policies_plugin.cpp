@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,6 @@ static constexpr int32_t SET_POLICY_PARAM_NUM = 3;
 static constexpr int32_t SET_POLICY_APPID_INDEX = 0;
 static constexpr int32_t SET_POLICY_POLICY_NAME_INDEX = 1;
 static constexpr int32_t SET_POLICY_POLICY_VALUE_INDEX = 2;
-static const std::string ROOT = "root";
 
 namespace OHOS {
 namespace EDM {
@@ -40,8 +39,9 @@ SetBrowserPoliciesPlugin::SetBrowserPoliciesPlugin()
 {
     policyCode_ = EdmInterfaceCode::SET_BROWSER_POLICIES;
     policyName_ = "set_browser_policies";
-    permission_ = "ohos.permission.ENTERPRISE_SET_BROWSER_POLICY";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.permission = "ohos.permission.ENTERPRISE_SET_BROWSER_POLICY";
+    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }
 
@@ -63,7 +63,7 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
         std::string appid = params[SET_POLICY_APPID_INDEX];
         std::string policyName = params[SET_POLICY_POLICY_NAME_INDEX];
         std::string policyValue = params[SET_POLICY_POLICY_VALUE_INDEX];
-        if (appid.empty() || policyName.empty()) {
+        if (appid.empty()) {
             EDMLOGD("SetBrowserPolicyPlugin param invalid.");
             return EdmReturnErrCode::PARAM_ERROR;
         }
@@ -72,7 +72,7 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
             beforeHandle = "{}";
         }
 
-        if (policyName == ROOT) {
+        if (policyName.empty()) {
             errCode = SetRootPolicy(beforeHandle, appid, policyValue, afterHandle);
         } else {
             errCode = SetPolicy(beforeHandle, appid, policyName, policyValue, afterHandle);

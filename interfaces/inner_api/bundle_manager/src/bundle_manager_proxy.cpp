@@ -81,6 +81,7 @@ int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::strin
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(bundleName);
     data.WriteInt32(userId);
     data.WriteBool(isKeepData);
@@ -113,6 +114,7 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -138,6 +140,7 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
@@ -156,6 +159,7 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     if (policyTypeMap_.count(policyType) > 0) {
@@ -207,6 +211,7 @@ int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(realPaths);
     MessageParcelUtils::WriteInstallParam(installParam, data);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
@@ -275,6 +280,7 @@ ErrCode BundleManagerProxy::WriteFileToStream(AppExecFwk::ElementName &admin, co
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(fileName);

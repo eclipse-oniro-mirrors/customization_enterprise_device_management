@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,8 +33,9 @@ UserCertPlugin::UserCertPlugin()
 {
     policyCode_ = EdmInterfaceCode::INSTALL_CERTIFICATE;
     policyName_ = "install_certificate";
-    permission_ = "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE";
-    permissionType_ = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE";
+    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }
 

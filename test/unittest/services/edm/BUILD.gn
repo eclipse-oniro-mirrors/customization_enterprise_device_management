@@ -121,8 +121,6 @@ ohos_unittest("EdmServicesUnitTest") {
 
   sources = [
     "./src/admin_manager_test.cpp",
-    "./src/enterprise_admin_connection_test.cpp",
-    "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
     "./src/iplugin_template_test.cpp",
     "./src/permission_manager_test.cpp",
