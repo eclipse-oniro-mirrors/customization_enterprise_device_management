@@ -25,6 +25,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
+        DECLARE_NAPI_FUNCTION("setPasswordPolicy", SetPasswordPolicy),
+        DECLARE_NAPI_FUNCTION("getPasswordPolicy", GetPasswordPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -98,6 +100,73 @@ napi_value SecurityManagerAddon::ConvertDeviceEncryptionStatus(napi_env env,
     napi_get_boolean(env, deviceEncryptionStatus.isEncrypted, &nIsEncrypted);
     napi_set_named_property(env, objDeviceEncryptionStatus, "isEncrypted", nIsEncrypted);
     return objDeviceEncryptionStatus;
+}
+
+napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetPasswordPolicy called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "passwordPolicy type error");
+
+    PasswordPolicy policy;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        JsObjectToString(env, argv[ARR_INDEX_ONE], "complexityReg", false, policy.complexityReg),
+        "Parameter passwordPolicy error");
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        JsObjectToInt(env, argv[ARR_INDEX_ONE], "validityPeriod", false, policy.validityPeriod),
+        "Parameter passwordPolicy error");
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        JsObjectToString(env, argv[ARR_INDEX_ONE], "additionalDescription", false, policy.additionalDescription),
+        "Parameter passwordPolicy error");
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetPasswordPolicy(elementName, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetPasswordPolicy called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+
+    PasswordPolicy policy;
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(elementName, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value ret;
+    napi_value complexityReg;
+    napi_value validityPeriod;
+    napi_value additionalDescription;
+    napi_create_object(env, &ret);
+    napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg);
+    napi_create_int32(env, policy.validityPeriod, &validityPeriod);
+    napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription);
+    napi_set_named_property(env, ret, "complexityReg", complexityReg);
+    napi_set_named_property(env, ret, "validityPeriod", validityPeriod);
+    napi_set_named_property(env, ret, "additionalDescription", additionalDescription);
+    return ret;
 }
 
 static napi_module g_securityModule = {
