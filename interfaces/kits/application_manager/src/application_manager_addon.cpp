@@ -346,7 +346,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveDisallowedRunningBundlesSync(napi
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
-    bool hasAccountId = argc == ARGS_SIZE_THREE;
+    bool hasAccountId = (argc == ARGS_SIZE_THREE);
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter appIds error");
@@ -378,9 +378,9 @@ napi_value ApplicationManagerAddon::AddOrRemoveDisallowedRunningBundlesSync(napi
     }
     int32_t ret = ERR_OK;
     if (isAdd) {
-        ret = applicationManagerProxy->AddDisallowedRunningBundles(elementName, appIds, accountId);
+        ret = applicationManagerProxy->AddDisallowedRunningBundles(elementName, appIds, accountId, true);
     } else {
-        ret = applicationManagerProxy->RemoveDisallowedRunningBundles(elementName, appIds, accountId);
+        ret = applicationManagerProxy->RemoveDisallowedRunningBundles(elementName, appIds, accountId, true);
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -397,7 +397,7 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAccountId = argc == ARGS_SIZE_TWO;
+    bool hasAccountId = (argc == ARGS_SIZE_TWO);
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
@@ -422,9 +422,10 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
         return nullptr;
     }
     std::vector<std::string> appIds;
-    int32_t ret = applicationManagerProxy->GetDisallowedRunningBundles(elementName, accountId, appIds);
+    int32_t ret = applicationManagerProxy->GetDisallowedRunningBundles(elementName, accountId, appIds, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
+        return nullptr;
     }
     napi_value result = nullptr;
     napi_create_array(env, &result);

@@ -180,8 +180,8 @@ void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret =
-        networkManagerProxy->GetAllNetworkInterfaces(asyncCallbackInfo->elementName, asyncCallbackInfo->arrayStringRet);
+    asyncCallbackInfo->ret = networkManagerProxy->GetAllNetworkInterfaces(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->arrayStringRet);
 }
 
 napi_value NetworkManagerAddon::GetIpAddress(napi_env env, napi_callback_info info)
@@ -1162,7 +1162,7 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_c
         return nullptr;
     }
     std::vector<std::string> networkInterface;
-    int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(elementName, networkInterface);
+    int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(elementName, networkInterface, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1212,7 +1212,7 @@ napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callbac
         return nullptr;
     }
     std::string ipOrMacInfo;
-    int32_t ret = networkManagerProxy->GetIpOrMacAddress(elementName, networkInterface, policyCode, ipOrMacInfo);
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(elementName, networkInterface, policyCode, ipOrMacInfo, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1254,7 +1254,7 @@ napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, na
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
-    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(elementName, networkInterface, isDisabled);
+    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(elementName, networkInterface, isDisabled, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1290,7 +1290,7 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, nap
         return nullptr;
     }
     bool isDisabled = false;
-    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(elementName, networkInterface, isDisabled);
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(elementName, networkInterface, isDisabled, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

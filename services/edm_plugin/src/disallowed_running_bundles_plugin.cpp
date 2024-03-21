@@ -32,8 +32,14 @@ void DisallowedRunningBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("DisallowedRunningBundlesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles",
-        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles", config, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);

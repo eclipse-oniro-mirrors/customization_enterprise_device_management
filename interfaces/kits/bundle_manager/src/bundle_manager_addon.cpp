@@ -499,7 +499,7 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
-                argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]), "Parameter callback error");
+            argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]), "Parameter callback error");
     }
     InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
     EDMLOGI("AddOrRemoveInstallBundles::%{public}s policyType = %{public}d", workName.c_str(),
@@ -588,7 +588,7 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundlesSync(napi_env env, napi_
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
-    bool hasAccountId = argc == ARGS_SIZE_THREE;
+    bool hasAccountId = (argc == ARGS_SIZE_THREE);
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter appIds error");
@@ -666,7 +666,7 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    bool hasAccountId = argc == ARGS_SIZE_TWO;
+    bool hasAccountId = (argc == ARGS_SIZE_TWO);
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     OHOS::AppExecFwk::ElementName elementName;

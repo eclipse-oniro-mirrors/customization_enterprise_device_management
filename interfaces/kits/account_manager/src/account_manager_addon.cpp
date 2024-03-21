@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,8 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disallowAddOsAccountByUser", DisallowAddOsAccountByUser),
         DECLARE_NAPI_FUNCTION("isAddOsAccountByUserDisallowed", IsAddOsAccountByUserDisallowed),
         DECLARE_NAPI_FUNCTION("addOsAccount", AddOsAccount),
+        DECLARE_NAPI_FUNCTION("disallowAddOsAccount", DisallowAddOsAccount),
+        DECLARE_NAPI_FUNCTION("isAddOsAccountDisallowed", IsAddOsAccountDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -136,6 +138,7 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
+        return nullptr;
     }
     napi_value result = nullptr;
     napi_get_boolean(env, isDisabled, &result);
@@ -358,6 +361,98 @@ napi_value AccountManagerAddon::CreateJsDomainInfo(napi_env env, const OHOS::Acc
     return result;
 }
 #endif
+
+napi_value AccountManagerAddon::DisallowAddOsAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_DisallowAddOsAccount called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    bool hasAccountId = (argc == ARGS_SIZE_THREE);
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
+        "parameter disallow error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    bool disallow;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
+
+    int32_t accountId = 0;
+    if (hasAccountId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+            "parameter accountId error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+            "parameter accountId parse error");
+    }
+
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        EDMLOGE("can not get AccountManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = ERR_OK;
+    if (hasAccountId) {
+        ret = accountManagerProxy->DisallowAddOsAccountByUser(elementName, accountId, disallow);
+    } else {
+        ret = accountManagerProxy->DisallowAddLocalAccount(elementName, disallow);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("NAPI_DisallowAddOsAccount failed!");
+    }
+    return nullptr;
+}
+
+napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsAddOsAccountDisallowed called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    bool hasAccountId = (argc == ARGS_SIZE_TWO);
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error");
+
+    bool isDisabled = false;
+    int32_t ret = ERR_OK;
+    if (hasAccountId) {
+        int32_t accountId;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+            "parameter accountId parse error");
+        if (hasAdmin) {
+            ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(&elementName,
+                accountId, isDisabled);
+        } else {
+            ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(nullptr,
+                accountId, isDisabled);
+        }
+    } else {
+        if (hasAdmin) {
+            ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddLocalAccountDisallowed(&elementName, isDisabled);
+        } else {
+            ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddLocalAccountDisallowed(nullptr, isDisabled);
+        }
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, isDisabled, &result);
+    return result;
+}
+
 static napi_module g_accountManagerModule = {
     .nm_version = 1,
     .nm_flags = 0,

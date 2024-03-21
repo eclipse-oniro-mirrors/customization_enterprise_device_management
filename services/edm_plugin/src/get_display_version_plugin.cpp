@@ -27,11 +27,9 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDisplayV
 void GetDisplayVersionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDisplayVersionPlugin, std::string>> ptr)
 {
     EDMLOGI("GetDisplayVersionPlugin InitPlugin...");
-    IPlugin::PolicyPermissionConfig config = {
-        .permission = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
-        .permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        .apiType = IPlugin::ApiType::SYSTEM
-    };
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(
+        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::SYSTEM);
     ptr->InitAttribute(EdmInterfaceCode::GET_DISPLAY_VERSION, "get_display_version", config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }

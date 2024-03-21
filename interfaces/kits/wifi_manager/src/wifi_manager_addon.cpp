@@ -509,7 +509,7 @@ napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info i
         return nullptr;
     }
     bool isActive = false;
-    int32_t ret = wifiManagerProxy->IsWifiActive(elementName, isActive);
+    int32_t ret = wifiManagerProxy->IsWifiActive(elementName, isActive, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -546,7 +546,7 @@ napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info
         EDMLOGE("can not get WifiManagerProxy");
         return nullptr;
     }
-    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config);
+    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

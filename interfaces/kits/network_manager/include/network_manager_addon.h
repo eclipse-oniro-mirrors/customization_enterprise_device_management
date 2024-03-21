@@ -112,7 +112,6 @@ private:
     static bool GetSecureDataFromNAPI(napi_env env, napi_value object,
         OHOS::NetManagerStandard::SecureData &secureData);
 #endif
-
     static napi_value GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info);
     static napi_value GetIpAddressSync(napi_env env, napi_callback_info info);
     static napi_value GetMacSync(napi_env env, napi_callback_info info);
