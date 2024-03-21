@@ -24,7 +24,10 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "../../common/mock/include",
   ]
 
-  sources = [ "../../common/mock/src/edm_sys_manager_mock.cpp" ]
+  sources = [
+    "../../common/mock/src/edm_sys_manager_mock.cpp",
+    "./common/ent_info_test.cpp",
+  ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
 

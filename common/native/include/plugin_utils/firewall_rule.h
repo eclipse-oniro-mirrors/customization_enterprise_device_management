@@ -19,7 +19,7 @@
 #include <tuple>
 
 #include "iptables_utils.h"
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,16 +36,16 @@ const int32_t FIREWALL_APPUID_IND = 7;
 
 using FirewallRule = std::tuple<Direction, Action, Protocol, std::string /*srcAddr*/, std::string /*destAddr*/,
     std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/>;
-class FirewallRuleParcel : public Parcelable {
+class FirewallRuleParcel {
 public:
     FirewallRuleParcel() = default;
     explicit FirewallRuleParcel(FirewallRule rule);
 
     FirewallRule GetRule() const;
 
-    bool Marshalling(Parcel& parcel) const override;
+    bool Marshalling(MessageParcel& parcel) const;
 
-    static bool Unmarshalling(Parcel& parcel, FirewallRuleParcel& firewallRuleParcel);
+    static bool Unmarshalling(MessageParcel& parcel, FirewallRuleParcel& firewallRuleParcel);
 
 private:
     FirewallRule rule_;

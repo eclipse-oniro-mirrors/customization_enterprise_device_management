@@ -113,7 +113,8 @@ HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyTypeUnavailable, TestSize
     AddOsAccountPlugin plugin;
     MessageParcel reply;
     std::map<std::string, std::string> policies;
-    policies.insert(std::make_pair("ut_test_user_name", "99"));
+    policies.insert(std::make_pair("ut_test_user_name",
+        std::to_string(static_cast<int>(AccountSA::OsAccountType::END))));
     ErrCode ret = plugin.OnSetPolicy(policies, reply);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }

@@ -19,14 +19,14 @@
 
 namespace OHOS {
 namespace EDM {
-bool UsbDeviceId::Marshalling(Parcel &parcel) const
+bool UsbDeviceId::Marshalling(MessageParcel &parcel) const
 {
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, vendorId_);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, productId_);
     return true;
 }
 
-bool UsbDeviceId::Unmarshalling(Parcel &parcel, UsbDeviceId &usbDeviceId)
+bool UsbDeviceId::Unmarshalling(MessageParcel &parcel, UsbDeviceId &usbDeviceId)
 {
     int32_t vendorId = parcel.ReadInt32();
     int32_t productId = parcel.ReadInt32();

@@ -20,14 +20,14 @@
 
 namespace OHOS {
 namespace EDM {
-bool PowerPolicy::Marshalling(Parcel &parcel) const
+bool PowerPolicy::Marshalling(MessageParcel &parcel) const
 {
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, static_cast<uint32_t>(powerPolicyAction_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, delayTime_);
     return true;
 }
 
-bool PowerPolicy::Unmarshalling(Parcel &parcel, PowerPolicy &powerPolicy)
+bool PowerPolicy::Unmarshalling(MessageParcel &parcel, PowerPolicy &powerPolicy)
 {
     uint32_t action = parcel.ReadUint32();
     uint32_t delayTime = parcel.ReadUint32();

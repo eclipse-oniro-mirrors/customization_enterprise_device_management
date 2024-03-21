@@ -126,7 +126,7 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     adminVec.push_back(std::make_shared<Admin>(testAdmin));
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 }
 
@@ -347,7 +347,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     edmMgr_->adminMgr_->admins_.clear();
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permission_ = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -407,7 +407,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     PrepareBeforeHandleDevicePolicy();
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -441,7 +441,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -466,7 +466,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     ASSERT_TRUE(res == ERR_OK);
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -488,7 +488,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -557,7 +557,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithAdminInactive, T
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
@@ -582,7 +582,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permission_ = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -607,7 +607,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissionFailed, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permission_ = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -659,7 +659,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
@@ -676,7 +676,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permission_ = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -706,7 +706,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permission_ = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));

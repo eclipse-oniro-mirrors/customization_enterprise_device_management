@@ -17,20 +17,20 @@
 #define INTERFACES_INNER_API_INCLUDE_ENT_INFO_H
 
 #include <string>
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
-struct EntInfo : public Parcelable {
+struct EntInfo {
     EntInfo(const std::string &enterpriseName, const std::string &description);
     EntInfo();
     ~EntInfo();
 
     std::string enterpriseName;
     std::string description;
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static bool Unmarshalling(Parcel &parcel, EntInfo &entInfo);
+    bool ReadFromParcel(MessageParcel &parcel);
+    bool Marshalling(MessageParcel &parcel) const;
+    static bool Unmarshalling(MessageParcel &parcel, EntInfo &entInfo);
 };
 } // namespace EDM
 } // namespace OHOS
