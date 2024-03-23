@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,8 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "js_native_api.h"
+#include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
 
@@ -26,6 +28,9 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getBluetoothInfo", GetBluetoothInfo),
         DECLARE_NAPI_FUNCTION("setBluetoothDisabled", SetBluetoothDisabled),
         DECLARE_NAPI_FUNCTION("isBluetoothDisabled", IsBluetoothDisabled),
+        DECLARE_NAPI_FUNCTION("addAllowedBluetoothDevices", SetBluetoothWhitelist),
+        DECLARE_NAPI_FUNCTION("getAllowedBluetoothDevices", GetBluetoothWhitelist),
+        DECLARE_NAPI_FUNCTION("removeAllowedBluetoothDevices", RemoveBluetoothWhitelist),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -135,6 +140,95 @@ napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callbac
     napi_value result = nullptr;
     napi_get_boolean(env, isDisabled, &result);
     return result;
+}
+
+napi_value BluetoothManagerAddon::SetBluetoothWhitelist(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetBluetoothWhitelist called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
+    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
+    std::vector<std::string> whitelist;
+    ret = ParseStringArray(env, whitelist, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'whitelist' parse error");
+    int32_t retCode = bluetoothManagerProxy->SetBluetoothWhitelist(elementName, whitelist);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value BluetoothManagerAddon::GetBluetoothWhitelist(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetBluetoothWhitelist called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
+    std::vector<std::string> whitelist;
+    int32_t ret = bluetoothManagerProxy->GetBluetoothWhitelist(elementName, whitelist);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    for (size_t i = 0; i < whitelist.size(); i++) {
+        napi_value whiteMac = nullptr;
+        napi_create_string_utf8(env, whitelist[i].c_str(), NAPI_AUTO_LENGTH, &whiteMac);
+        napi_set_element(env, result, i, whiteMac);
+    }
+    return result;
+}
+
+napi_value BluetoothManagerAddon::RemoveBluetoothWhitelist(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveBluetoothWhitelist called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
+    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
+    std::vector<std::string> whitelist;
+    ret = ParseStringArray(env, whitelist, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'whitelist' parse error");
+    int32_t retCode = bluetoothManagerProxy->RemoveBluetoothWhitelist(elementName, whitelist);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
 }
 
 static napi_module g_bluetoothModule = {

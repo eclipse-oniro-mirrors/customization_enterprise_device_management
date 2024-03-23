@@ -83,6 +83,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_MICROPHONE = 1047,
     DISABLE_BLUETOOTH = 1048,
     FINGERPRINT_AUTH = 1049,
+    ALLOWED_BLUETOOTH_WHITELIST = 1050,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
