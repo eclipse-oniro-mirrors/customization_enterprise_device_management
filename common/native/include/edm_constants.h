@@ -39,6 +39,12 @@ namespace EdmConstants {
         static const std::string DEVICE_NAME = "deviceName";
         static const std::string DEVICE_SERIAL = "deviceSerial";
     }
+
+    namespace SecurityManager {
+        static const std::string PATCH = "patch";
+        static const std::string ENCRYPTION = "encryption";
+        static const std::string ROOT = "root";
+    } // namespace SecurityManager
 }
 } // namespace EDM
 } // namespace OHOS

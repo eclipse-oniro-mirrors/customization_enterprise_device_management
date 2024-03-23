@@ -130,6 +130,39 @@ HWTEST_F(SecurityManagerProxyTest, TestGetDeviceEncryptionStatusFail, TestSize.L
     int32_t ret = proxy_->GetDeviceEncryptionStatus(admin, deviceEncryptionStatus);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetRootCheckStatusSuc
+ * @tc.desc: Test TestGetRootCheckStatusSuc success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetRootCheckStatusSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::string res;
+    int32_t ret = proxy_->GetRootCheckStatus(admin, res);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(res == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TesGetRootCheckStatusFail
+ * @tc.desc: Test GetRootCheckStatus without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetRootCheckStatusFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string res;
+    int32_t ret = proxy_->GetRootCheckStatus(admin, res);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
