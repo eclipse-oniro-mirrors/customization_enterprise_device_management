@@ -14,6 +14,8 @@
  */
 
 #include "device_info_plugin_test.h"
+
+#include "edm_data_ability_utils_mock.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -62,6 +64,89 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDisplayVersion, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithDeviceName
+ * @tc.desc: Test GetDeviceInfoPlugin::OnGetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceName, TestSize.Level1)
+{
+    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+    EdmDataAbilityUtils::SetResult("test Failed");
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithDeviceNameEmpty
+ * @tc.desc: Test OnPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceNameEmpty, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyValue;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+    EdmDataAbilityUtils::SetResult("test value nullptr");
+    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    EXPECT_TRUE(code == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithDeviceNameSuc
+ * @tc.desc: Test OnPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceNameSuc, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyValue;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+    EdmDataAbilityUtils::SetResult("test success");
+    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    EXPECT_TRUE(code == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithDeviceSerial
+ * @tc.desc: Test GetDeviceInfoPlugin::OnGetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceSerial, TestSize.Level1)
+{
+    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_SERIAL);
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithInvalidLabel
+ * @tc.desc: Test GetDeviceInfoPlugin::OnGetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithInvalidLabel, TestSize.Level1)
+{
+    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("invalid");
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 } // namespace TEST
 } // namespace EDM

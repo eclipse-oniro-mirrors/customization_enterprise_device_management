@@ -80,5 +80,32 @@ int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::stri
     reply.ReadString(info);
     return ERR_OK;
 }
+
+int32_t DeviceInfoProxy::GetDeviceInfoSync(AppExecFwk::ElementName &admin, const std::string &label, std::string &info)
+{
+    EDMLOGI("DeviceInfoProxy::GetDeviceInfoSync %{pubilc}s", label.c_str());
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(label);
+    proxy->GetPolicy(EdmInterfaceCode::GET_DEVICE_INFO, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetDeviceInfoSync fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(info);
+    return ERR_OK;
+}
 }  // namespace EDM
 }  // namespace OHOS

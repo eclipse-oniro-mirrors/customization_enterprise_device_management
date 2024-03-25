@@ -861,7 +861,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, AppExecFwk
     std::string policyName = plugin->GetPolicyName();
     HandlePolicyData handlePolicyData{"", false};
     policyMgr_->GetPolicy(admin.GetBundleName(), policyName, handlePolicyData.policyData, userId);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, userId);
+    ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(code, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("UpdateDevicePolicy: OnHandlePolicy failed");
         return ret;
@@ -992,7 +992,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     if (plugin->NeedSavePolicy()) {
         policyMgr_->GetPolicy(adminName, policyName, policyValue, userId);
     }
-    return plugin->OnGetPolicy(policyValue, data, reply, userId);
+    return plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, userId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply,
