@@ -910,15 +910,26 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
+    std::string permissionTag = data.ReadString();
+    std::string setPermission = plugin->GetPermission(FuncOperateType::SET, permissionTag);
+    if (setPermission == NONE_PERMISSION_MATCH) {
+        EDMLOGE("HandleDevicePolicy: GetPermission failed!");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     EDMLOGD("HandleDevicePolicy: plugin info:%{public}d , %{public}s , %{public}s", plugin->GetCode(),
-        plugin->GetPolicyName().c_str(), plugin->GetPermission(FuncOperateType::SET).c_str());
-    if (!deviceAdmin->CheckPermission(plugin->GetPermission(FuncOperateType::SET)) ||
+        plugin->GetPolicyName().c_str(), setPermission.c_str());
+    if (plugin->GetApiType(FuncOperateType::SET) == IPlugin::ApiType::SYSTEM &&
+        !GetAccessTokenMgr()->IsSystemAppOrNative()) {
+        EDMLOGE("HandleDevicePolicy: not system app or native process");
+        return EdmReturnErrCode::SYSTEM_API_DENIED;
+    }
+    if (!deviceAdmin->CheckPermission(setPermission) ||
         (deviceAdmin->adminInfo_.adminType_ != AdminType::ENT &&
             deviceAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN && userId != GetCurrentUserId())) {
         EDMLOGW("HandleDevicePolicy: admin check permission failed");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    if (!GetAccessTokenMgr()->VerifyCallingPermission(plugin->GetPermission(FuncOperateType::SET))) {
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(setPermission)) {
         EDMLOGW("HandleDevicePolicy: VerifyCallingPermission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -956,10 +967,20 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
+    if (plugin->GetApiType(FuncOperateType::GET) == IPlugin::ApiType::SYSTEM &&
+        !GetAccessTokenMgr()->IsSystemAppOrNative()) {
+        EDMLOGE("GetDevicePolicy: not system app or native process");
+        return EdmReturnErrCode::SYSTEM_API_DENIED;
+    }
+    std::string permissionTag = data.ReadString();
     std::string adminName;
-    std::string getPermission = plugin->GetPermission(FuncOperateType::GET);
+    std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
     // has admin
     if (data.ReadInt32() == 0) {
+        if (getPermission == NONE_PERMISSION_MATCH) {
+            EDMLOGE("GetDevicePolicy: GetPermission failed!");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
         ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, adminName, userId);
         if (FAILED(ret)) {
             return ret;

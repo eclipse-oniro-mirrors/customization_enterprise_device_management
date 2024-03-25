@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -211,10 +211,15 @@ protected:
 
     void SetSerializer(std::shared_ptr<IPolicySerializer<DT>> serializer);
 
+    void InitAttribute(uint32_t policyCode, const std::string &policyName, PolicyPermissionConfig config,
+        bool needSave = true, bool global = true);
+
     void InitAttribute(uint32_t policyCode, const std::string &policyName, const std::string &permission,
         IPlugin::PermissionType permissionType, bool needSave = true, bool global = true);
 
     void InitAttribute(uint32_t policyCode, const std::string &policyName, bool needSave = true, bool global = true);
+
+    void InitPermission(FuncOperateType operateType, PolicyPermissionConfig config);
 
     void InitPermission(FuncOperateType operateType, const std::string &permission,
         IPlugin::PermissionType permissionType);

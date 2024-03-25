@@ -39,7 +39,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
-         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
+        operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::USB_READ_ONLY;
         code = POLICY_FUNC_CODE(operateType, code);
 
@@ -49,7 +49,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         MessageParcel parcel;
         parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
         parcel.WriteInt32(WITHOUT_USERID);
-        parcel.WriteParcelable(&admin);
+        if (operateType) {
+            parcel.WriteParcelable(&admin);
+            parcel.WriteString("");
+        } else {
+            parcel.WriteString("");
+            parcel.WriteInt32(0);
+            parcel.WriteParcelable(&admin);
+        }
         int32_t isReadOnly = CommonFuzzer::GetU32Data(data) % 2;
         parcel.WriteInt32(isReadOnly);
 

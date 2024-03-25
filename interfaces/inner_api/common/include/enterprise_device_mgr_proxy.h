@@ -33,6 +33,7 @@ constexpr int32_t HAS_ADMIN = 0;
 constexpr int32_t WITHOUT_ADMIN = 1;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t HAS_USERID = 1;
+constexpr const char *WITHOUT_PERMISSION_TAG = "";
 
 class EnterpriseDeviceMgrProxy {
 public:

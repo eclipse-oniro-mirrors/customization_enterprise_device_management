@@ -337,6 +337,7 @@ int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
@@ -477,6 +478,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
@@ -588,6 +590,7 @@ int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(const AppExecFwk::ElementNam
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteBool(isDisabled);
     return HandleDevicePolicy(funcCode, data);
 }

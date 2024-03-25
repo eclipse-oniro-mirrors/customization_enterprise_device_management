@@ -42,7 +42,9 @@ napi_value BrowserAddon::SetPolicies(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
     napi_value ret = SetPolicyCommon(env, info, asyncCallbackInfo);
-    if (ret == nullptr) {
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
         return nullptr;
     }
     if (asyncCallbackInfo->value != nullptr) {
@@ -77,7 +79,9 @@ napi_value BrowserAddon::GetPolicies(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
     napi_value ret = GetPoliciesCommon(env, info, asyncCallbackInfo);
-    if (ret == nullptr) {
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
         return nullptr;
     }
     if (asyncCallbackInfo->value != nullptr) {
@@ -113,7 +117,9 @@ napi_value BrowserAddon::SetPolicy(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
     napi_value ret = SetPolicyCommon(env, info, asyncCallbackInfo);
-    if (ret == nullptr) {
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
         return nullptr;
     }
     ASSERT_AND_THROW_PARAM_ERROR(env,
@@ -135,7 +141,12 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
-    GetPoliciesCommon(env, info, asyncCallbackInfo);
+    napi_value ret = GetPoliciesCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
     std::string policies;
     int32_t retCode = BrowserProxy::GetBrowserProxy()->GetPolicies(asyncCallbackInfo->elementName,
         asyncCallbackInfo->appId, policies);

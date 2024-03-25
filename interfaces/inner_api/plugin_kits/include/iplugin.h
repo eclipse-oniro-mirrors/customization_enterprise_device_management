@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,7 @@
 namespace OHOS {
 namespace EDM {
 constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr const char *NONE_PERMISSION_MATCH = "NA";
 
 struct HandlePolicyData {
     std::string policyData;
@@ -38,6 +39,34 @@ public:
         NORMAL_DEVICE_ADMIN = 0,
         SUPER_DEVICE_ADMIN,
         UNKNOWN,
+    };
+
+    enum class ApiType {
+        PUBLIC = 0,
+        SYSTEM,
+        TEST,
+        UNKNOWN,
+    };
+
+    struct PolicyPermissionConfig {
+        std::string permission;
+        std::map<std::string, std::string> tagPermissions;
+        PermissionType permissionType;
+        ApiType apiType;
+
+        PolicyPermissionConfig()
+        {
+            permissionType = PermissionType::UNKNOWN;
+            apiType = ApiType::UNKNOWN;
+        }
+
+        PolicyPermissionConfig(std::string _permission, PermissionType _permissionType, ApiType _apiType)
+            : permission(std::move(_permission)), permissionType(std::move(_permissionType)),
+            apiType(std::move(_apiType)) {}
+
+        PolicyPermissionConfig(std::map<std::string, std::string> _tagPermissions,
+            PermissionType _permissionType, ApiType _apiType) : tagPermissions(std::move(_tagPermissions)),
+            permissionType(std::move(_permissionType)), apiType(std::move(_apiType)) {}
     };
 
     /*
@@ -73,18 +102,23 @@ public:
     std::string GetPolicyName();
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
-    std::string GetPermission(FuncOperateType operaType);
+    PolicyPermissionConfig GetAllPermission(FuncOperateType operaType);
+    std::string GetPermission(FuncOperateType operaType, std::string permissionTag = "");
     IPlugin::PermissionType GetPermissionType(FuncOperateType operaType);
+    IPlugin::ApiType GetApiType(FuncOperateType operaType);
     virtual ~IPlugin();
 
 protected:
     std::uint32_t policyCode_ = 0;
     std::string policyName_;
-    std::string permission_;
-    PermissionType permissionType_ = PermissionType::UNKNOWN;
-    std::map<FuncOperateType, std::pair<std::string, IPlugin::PermissionType>> permissionMap_;
+    PolicyPermissionConfig permissionConfig_;
+    std::map<FuncOperateType, PolicyPermissionConfig> permissionMap_;
     bool needSave_ = true;
     bool isGlobal_ = true;
+
+private:
+    std::string CheckAndGetPermissionFromConfig(const std::string &permissionTag,
+        std::map<std::string, std::string> tagPermissions, const std::string &commonPermission);
 };
 } // namespace EDM
 } // namespace OHOS
