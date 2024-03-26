@@ -29,7 +29,7 @@ struct AsyncBrowserCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::string appId;
     std::string policies;
-    std::string policyValue;
+    napi_value value;
 };
 
 class BrowserAddon {
