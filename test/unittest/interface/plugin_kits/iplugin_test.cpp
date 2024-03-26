@@ -49,6 +49,33 @@ HWTEST_F(IPluginTest, TestIsGlobalPolicy, TestSize.Level1)
     err = iplugin1.WritePolicyToParcel("name:test", reply);
     EXPECT_TRUE(err == ERR_OK);
 }
+
+/**
+ * @tc.name: TestPolicyPermissionConfig
+ * @tc.desc: Test PolicyPermissionConfig struct.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestPolicyPermissionConfig, TestSize.Level1)
+{
+    IPlugin::PolicyPermissionConfig config1 = IPlugin::PolicyPermissionConfig();
+    EXPECT_TRUE(config1.permissionType == IPlugin::PermissionType::UNKNOWN);
+    EXPECT_TRUE(config1.apiType == IPlugin::ApiType::UNKNOWN);
+
+    IPlugin::PolicyPermissionConfig config2 = IPlugin::PolicyPermissionConfig("test_permission",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    EXPECT_TRUE(config2.permission == "test_permission");
+    EXPECT_TRUE(config2.permissionType == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+    EXPECT_TRUE(config2.apiType == IPlugin::ApiType::PUBLIC);
+
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair("tag1", "permission1"));
+    perms.insert(std::make_pair("tag2", "permission2"));
+    IPlugin::PolicyPermissionConfig config3 = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::SYSTEM);
+    EXPECT_TRUE(config3.tagPermissions.size() == 2);
+    EXPECT_TRUE(config3.permissionType == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    EXPECT_TRUE(config3.apiType == IPlugin::ApiType::SYSTEM);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

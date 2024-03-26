@@ -48,11 +48,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<ArrayTestPlugin, std::vector<std::string>>> ptr) override
     {
         int policyCode = 10;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "ArrayTestPlugin", config);
         ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     }
@@ -68,11 +65,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<BoolTestPlugin, bool>> ptr) override
     {
         int policyCode = 11;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "BoolTestPlugin", config);
         ptr->SetSerializer(BoolSerializer::GetInstance());
     }
@@ -88,11 +82,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<MapTestPlugin, std::map<std::string, std::string>>> ptr) override
     {
         int policyCode = 12;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "MapTestPlugin", config);
         ptr->SetSerializer(MapStringSerializer::GetInstance());
     }
@@ -109,11 +100,8 @@ public:
         std::vector<std::map<std::string, std::string>>>> ptr) override
     {
         int policyCode = 13;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "ArrayMapTestPlugin", config);
         ptr->SetSerializer(ArrayMapSerializer::GetInstance());
     }
@@ -129,11 +117,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<JsonTestPlugin, Json::Value>> ptr) override
     {
         int policyCode = 14;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "JsonTestPlugin", config);
         ptr->SetSerializer(JsonSerializer::GetInstance());
     }
@@ -149,11 +134,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<StringTestPlugin, std::string>> ptr) override
     {
         int policyCode = 15;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "StringTestPlugin", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
     }
@@ -166,11 +148,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<InitAttributePlg, Json::Value>> ptr) override
     {
         int policyCode = 20;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "InitAttributePlg", config);
     }
 };
@@ -192,11 +171,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicySupplierPlg, Json::Value>> ptr) override
     {
         int policyCode = 21;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicySupplierPlg", config);
         ptr->SetSerializer(JsonSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicySupplierPlg::SetSupplier, FuncOperateType::SET);
@@ -225,11 +201,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyFunctionPlg, std::string>> ptr) override
     {
         int policyCode = 22;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyFunctionPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyFunctionPlg::SetFunction, FuncOperateType::SET);
@@ -258,11 +231,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionPlg, std::string>> ptr) override
     {
         int policyCode = 23;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionPlg::SetFunction, FuncOperateType::SET);
@@ -279,11 +249,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBoolConsumerPlg, std::string>> ptr) override
     {
         int policyCode = 24;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandleDoneBoolConsumerPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnHandlePolicyDoneListener(&HandleDoneBoolConsumerPlg::SetDone, FuncOperateType::SET);
@@ -300,11 +267,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBiBoolConsumerPlg, std::string>> ptr) override
     {
         int policyCode = 25;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandleDoneBiBoolConsumerPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnHandlePolicyDoneListener(&HandleDoneBiBoolConsumerPlg::SetDone, FuncOperateType::SET);
@@ -323,11 +287,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveSupplierPlg, std::string>> ptr) override
     {
         int policyCode = 26;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "AdminRemoveSupplierPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnAdminRemoveListener(&AdminRemoveSupplierPlg::RemoveAdmin);
@@ -345,11 +306,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveBiFunctionPlg, std::string>> ptr) override
     {
         int policyCode = 27;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "AdminRemoveBiFunctionPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnAdminRemoveListener(&AdminRemoveBiFunctionPlg::RemoveAdmin);
@@ -363,11 +321,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneRunnerPlg, std::string>> ptr) override
     {
         int policyCode = 28;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "AdminRemoveDoneRunnerPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnAdminRemoveDoneListener(&AdminRemoveDoneRunnerPlg::RemoveAdminDone);
@@ -381,11 +336,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneBiBiConsumerPlg, std::string>> ptr) override
     {
         int policyCode = 29;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "AdminRemoveDoneBiBiConsumerPlg", config);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnAdminRemoveDoneListener(&AdminRemoveDoneBiBiConsumerPlg::RemoveAdminDone);
@@ -409,11 +361,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyJsonBiFunctionPlg, Json::Value>> ptr) override
     {
         int policyCode = 30;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyJsonBiFunctionPlg", config);
         ptr->SetSerializer(JsonSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::SetFunction, FuncOperateType::SET);
@@ -438,11 +387,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionUnsavePlg, Json::Value>> ptr) override
     {
         int policyCode = 31;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionUnsavePlg", config, false, true);
         ptr->SetSerializer(JsonSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::SetFunction, FuncOperateType::SET);
@@ -467,11 +413,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyReplyFunctionPlg, std::string>> ptr) override
     {
         int policyCode = 32;
-        IPlugin::PolicyPermissionConfig config = {
-            .permission = "ohos.permission.EDM_TEST_PERMISSION",
-            .permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
-            .apiType = IPlugin::ApiType::PUBLIC
-        };
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyReplyFunctionPlg", config, false, true);
         ptr->SetSerializer(StringSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::SetFunction, FuncOperateType::SET);

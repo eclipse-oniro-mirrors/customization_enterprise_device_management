@@ -436,11 +436,8 @@ template <class CT, class DT>
 void IPluginTemplate<CT, DT>::InitAttribute(uint32_t policyCode, const std::string &policyName,
     const std::string &permission, IPlugin::PermissionType permissionType, bool needSave, bool global)
 {
-    IPlugin::PolicyPermissionConfig config = {
-        .permission = permission,
-        .permissionType = permissionType,
-        .apiType = IPlugin::ApiType::PUBLIC
-    };
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(permission,
+        permissionType, IPlugin::ApiType::PUBLIC);
     InitAttribute(policyCode, policyName, config, needSave, global);
 }
 
@@ -467,11 +464,8 @@ template <class CT, class DT>
 void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const std::string &permission,
     IPlugin::PermissionType permissionType)
 {
-    IPlugin::PolicyPermissionConfig config = {
-        .permission = permission,
-        .permissionType = permissionType,
-        .apiType = IPlugin::ApiType::PUBLIC
-    };
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(permission,
+        permissionType, IPlugin::ApiType::PUBLIC);
     InitPermission(operateType, config);
 }
 

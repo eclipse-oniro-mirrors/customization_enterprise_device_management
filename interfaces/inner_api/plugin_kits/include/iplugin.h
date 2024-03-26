@@ -51,8 +51,22 @@ public:
     struct PolicyPermissionConfig {
         std::string permission;
         std::map<std::string, std::string> tagPermissions;
-        PermissionType permissionType = PermissionType::UNKNOWN;
-        ApiType apiType = ApiType::UNKNOWN;
+        PermissionType permissionType;
+        ApiType apiType;
+
+        PolicyPermissionConfig()
+        {
+            permissionType = PermissionType::UNKNOWN;
+            apiType = ApiType::UNKNOWN;
+        }
+
+        PolicyPermissionConfig(std::string _permission, PermissionType _permissionType, ApiType _apiType)
+            : permission(std::move(_permission)), permissionType(std::move(_permissionType)),
+            apiType(std::move(_apiType)) {}
+
+        PolicyPermissionConfig(std::map<std::string, std::string> _tagPermissions,
+            PermissionType _permissionType, ApiType _apiType) : tagPermissions(std::move(_tagPermissions)),
+            permissionType(std::move(_permissionType)), apiType(std::move(_apiType)) {}
     };
 
     /*
