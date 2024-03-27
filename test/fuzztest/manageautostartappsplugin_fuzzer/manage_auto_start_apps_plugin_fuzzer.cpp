@@ -39,7 +39,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
-         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
+        operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::MANAGE_AUTO_START_APPS;
         code = POLICY_FUNC_CODE(operateType, code);
 
@@ -49,11 +49,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         MessageParcel parcel;
         parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
         parcel.WriteInt32(WITHOUT_USERID);
-        parcel.WriteParcelable(&admin);
+        if (operateType) {
+            parcel.WriteParcelable(&admin);
+            parcel.WriteString("");
+        } else {
+            parcel.WriteString("");
+            parcel.WriteInt32(0);
+            parcel.WriteParcelable(&admin);
+        }
 
         std::vector<std::string> autoStartAppsString;
-        std::string bundleName((const char*) data, size / 2);
-        std::string abilityName((const char*) data + size / 2, size / 2);
+        std::string bundleName(reinterpret_cast<const char*>(data), size / 2);
+        std::string abilityName(reinterpret_cast<const char*>(data) + size / 2, size / 2);
         autoStartAppsString.push_back(bundleName + "/" + abilityName);
         parcel.WriteStringVector(autoStartAppsString);
 

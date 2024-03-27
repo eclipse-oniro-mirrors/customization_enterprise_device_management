@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 0;
 constexpr uint32_t MAX_EDMEXT_INTERAFCE_CODE = 3100;
 constexpr uint32_t MAX_EDM_INTERFACE_CODE = 1100;
 constexpr uint32_t MIN_EDMEXT_INTERFACE_CODE = 3000;
@@ -30,9 +29,6 @@ constexpr uint32_t MIN_EDMEXT_INTERFACE_CODE = 3000;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     if (data == nullptr) {
-        return 0;
-    }
-    if (size < MIN_SIZE) {
         return 0;
     }
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);

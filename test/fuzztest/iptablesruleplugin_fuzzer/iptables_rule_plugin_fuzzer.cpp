@@ -35,14 +35,11 @@ constexpr int32_t MAX_PROTOCOL_LENGTH = 4;
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (data == nullptr) {
-        return 0;
-    }
-    if (size < MIN_SIZE) {
+    if (data == nullptr || size < MIN_SIZE) {
         return 0;
     }
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
-         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
+        operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::IPTABLES_RULE;
         code = POLICY_FUNC_CODE(operateType, code);
 
@@ -52,7 +49,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         MessageParcel parcel;
         parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
         parcel.WriteInt32(WITHOUT_USERID);
-        parcel.WriteParcelable(&admin);
+        if (operateType) {
+            parcel.WriteParcelable(&admin);
+            parcel.WriteString("");
+        } else {
+            parcel.WriteString("");
+            parcel.WriteInt32(0);
+            parcel.WriteParcelable(&admin);
+        }
         IPTABLES::AddFilter addFilter;
         addFilter.ruleNo = CommonFuzzer::GetU32Data(data);
         std::string srcAddr(reinterpret_cast<const char*>(data), size);

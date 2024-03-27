@@ -14,6 +14,7 @@
  */
 
 #include "array_usb_device_id_serializer.h"
+#include "edm_constants.h"
 #include "json/json.h"
 #include "usb_device_id.h"
 
@@ -107,10 +108,14 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
 bool ArrayUsbDeviceIdSerializer::GetPolicy(MessageParcel &data, std::vector<UsbDeviceId> &result)
 {
     int32_t size = data.ReadInt32();
+    if (size > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("ArrayUsbDeviceIdSerializer:GetPolicy size=[%{public}d] is too large", size);
+        return false;
+    }
     for (int32_t i = 0; i < size; i++) {
         UsbDeviceId usbDeviceId;
         if (!UsbDeviceId::Unmarshalling(data, usbDeviceId)) {
-            EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
+            EDMLOGE("ArrayUsbDeviceIdSerializer::GetPolicy read parcel fail");
             return false;
         }
         result.emplace_back(usbDeviceId);

@@ -74,6 +74,7 @@ int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName 
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     std::vector<std::string> key {std::to_string(userId)};
     std::vector<std::string> value {isDisallow ? "true" : "false"};
     data.WriteStringVector(key);
@@ -93,6 +94,7 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
@@ -135,6 +137,7 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     std::vector<std::string> key {name};
     std::vector<std::string> value {std::to_string(type)};
     data.WriteStringVector(key);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -423,14 +423,22 @@ void IPluginTemplate<CT, DT>::SetSerializer(std::shared_ptr<IPolicySerializer<DT
 
 template <class CT, class DT>
 void IPluginTemplate<CT, DT>::InitAttribute(uint32_t policyCode, const std::string &policyName,
-    const std::string &permission, IPlugin::PermissionType permissionType, bool needSave, bool global)
+    PolicyPermissionConfig config, bool needSave, bool global)
 {
     policyCode_ = policyCode;
     policyName_ = policyName;
-    permission_ = permission;
-    permissionType_ = permissionType;
+    permissionConfig_ = config;
     needSave_ = needSave;
     isGlobal_ = global;
+}
+
+template <class CT, class DT>
+void IPluginTemplate<CT, DT>::InitAttribute(uint32_t policyCode, const std::string &policyName,
+    const std::string &permission, IPlugin::PermissionType permissionType, bool needSave, bool global)
+{
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(permission,
+        permissionType, IPlugin::ApiType::PUBLIC);
+    InitAttribute(policyCode, policyName, config, needSave, global);
 }
 
 template <class CT, class DT>
@@ -444,13 +452,21 @@ void IPluginTemplate<CT, DT>::InitAttribute(uint32_t policyCode, const std::stri
 }
 
 template <class CT, class DT>
-void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const std::string &permission,
-    IPlugin::PermissionType permissionType)
+void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, PolicyPermissionConfig config)
 {
     if (static_cast<int32_t>(operateType) >= static_cast<int32_t>(FuncOperateType::GET) &&
         static_cast<int32_t>(operateType) <= static_cast<int32_t>(FuncOperateType::REMOVE)) {
-        permissionMap_.insert(std::make_pair(operateType, std::make_pair(permission, permissionType)));
+        permissionMap_.insert(std::make_pair(operateType, config));
     }
+}
+
+template <class CT, class DT>
+void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const std::string &permission,
+    IPlugin::PermissionType permissionType)
+{
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(permission,
+        permissionType, IPlugin::ApiType::PUBLIC);
+    InitPermission(operateType, config);
 }
 
 template <class CT, class DT>

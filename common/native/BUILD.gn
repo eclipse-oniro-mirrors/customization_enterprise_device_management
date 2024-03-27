@@ -77,7 +77,6 @@ ohos_shared_library("edm_commom") {
     debug = false
     integer_overflow = true
     ubsan = true
-    blocklist = "../../test/unittest/cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   innerapi_tags = [ "platformsdk" ]

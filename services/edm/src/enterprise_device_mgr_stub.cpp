@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,7 @@ constexpr int32_t DEFAULT_USER_ID = 100;
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
 {
     AddCallFuncMap();
+    InitSystemCodeList();
     EDMLOGI("EnterpriseDeviceMgrStub()");
 }
 
@@ -47,14 +48,26 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
     memberFuncMap_[EdmInterfaceCode::AUTHORIZE_ADMIN] = &EnterpriseDeviceMgrStub::AuthorizeAdminInner;
 }
 
+void EnterpriseDeviceMgrStub::InitSystemCodeList()
+{
+    systemCodeList = {
+        EdmInterfaceCode::ADD_DEVICE_ADMIN,
+        EdmInterfaceCode::REMOVE_DEVICE_ADMIN,
+        EdmInterfaceCode::REMOVE_SUPER_ADMIN,
+        EdmInterfaceCode::GET_ENABLED_ADMIN,
+        EdmInterfaceCode::GET_ENT_INFO,
+        EdmInterfaceCode::SET_ENT_INFO,
+        EdmInterfaceCode::IS_SUPER_ADMIN,
+        EdmInterfaceCode::IS_ADMIN_ENABLED,
+        EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT,
+        EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT,
+        EdmInterfaceCode::AUTHORIZE_ADMIN,
+    };
+}
+
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    if (!GetAccessTokenMgr()->IsSystemAppOrNative()) {
-        EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
-        return EdmReturnErrCode::SYSTEM_API_DENIED;
-    }
     std::u16string descriptor = GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     EDMLOGI("EnterpriseDeviceMgrStub code %{public}u", code);
@@ -64,6 +77,12 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         return EdmReturnErrCode::PARAM_ERROR;
     }
     if (SERVICE_FLAG(code)) {
+        if (std::find(systemCodeList.begin(), systemCodeList.end(), code) != systemCodeList.end() &&
+            !GetAccessTokenMgr()->IsSystemAppOrNative()) {
+            EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
+            reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
+            return EdmReturnErrCode::SYSTEM_API_DENIED;
+        }
         auto func = memberFuncMap_.find(code);
         if (func != memberFuncMap_.end()) {
             auto memberFunc = func->second;

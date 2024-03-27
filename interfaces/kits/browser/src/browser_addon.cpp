@@ -41,10 +41,16 @@ napi_value BrowserAddon::SetPolicies(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
-    napi_value callback = SetPolicyCommon(env, info, asyncCallbackInfo);
-    if (callback != nullptr) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, callback, napi_function), "Parameter callback error");
-        napi_create_reference(env, callback, NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    napi_value ret = SetPolicyCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
+    if (asyncCallbackInfo->value != nullptr) {
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            MatchValueType(env, asyncCallbackInfo->value, napi_function), "Parameter callback error");
+        napi_create_reference(env, asyncCallbackInfo->value, NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "setPolicies", NativeSetPolicies, NativeVoidCallbackComplete);
@@ -72,10 +78,16 @@ napi_value BrowserAddon::GetPolicies(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
-    napi_value callback = GetPoliciesCommon(env, info, asyncCallbackInfo);
-    if (callback != nullptr) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, callback, napi_function), "Parameter callback error");
-        napi_create_reference(env, callback, NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+    napi_value ret = GetPoliciesCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
+    if (asyncCallbackInfo->value != nullptr) {
+        ASSERT_AND_THROW_PARAM_ERROR(env,
+            MatchValueType(env, asyncCallbackInfo->value, napi_function), "Parameter callback error");
+        napi_create_reference(env, asyncCallbackInfo->value, NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "getPolicies", NativeGetPolicies, NativeStringCallbackComplete);
@@ -104,8 +116,14 @@ napi_value BrowserAddon::SetPolicy(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
-    napi_value value = SetPolicyCommon(env, info, asyncCallbackInfo);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, policyValue, value), "Parameter policyValue error");
+    napi_value ret = SetPolicyCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        ParseString(env, policyValue, asyncCallbackInfo->value), "Parameter policyValue error");
 
     int32_t retCode = BrowserProxy::GetBrowserProxy()->SetPolicy(asyncCallbackInfo->elementName,
         asyncCallbackInfo->appId, asyncCallbackInfo->policies, policyValue);
@@ -123,7 +141,12 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncBrowserCallbackInfo> callbackPtr{asyncCallbackInfo};
-    GetPoliciesCommon(env, info, asyncCallbackInfo);
+    napi_value ret = GetPoliciesCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, ret, &errCode);
+    if (ret == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
     std::string policies;
     int32_t retCode = BrowserProxy::GetBrowserProxy()->GetPolicies(asyncCallbackInfo->elementName,
         asyncCallbackInfo->appId, policies);
@@ -161,10 +184,12 @@ napi_value BrowserAddon::SetPolicyCommon(napi_env env, napi_callback_info info, 
         callbackInfo->elementName.GetAbilityName().c_str());
     
     if (argc > ARGS_SIZE_THREE) {
-        return argv[ARR_INDEX_THREE];
+        callbackInfo->value = argv[ARR_INDEX_THREE];
     }
     
-    return nullptr;
+    napi_value ret;
+    napi_create_int32(env, ERR_OK, &ret);
+    return ret;
 }
 
 napi_value BrowserAddon::GetPoliciesCommon(napi_env env, napi_callback_info info,
@@ -192,9 +217,11 @@ napi_value BrowserAddon::GetPoliciesCommon(napi_env env, napi_callback_info info
     if (argc > ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_function),
             "callback type error");
-        return argv[ARR_INDEX_TWO];
+    asyncCallbackInfo->value = argv[ARR_INDEX_TWO];
     }
-    return nullptr;
+    napi_value ret;
+    napi_create_int32(env, ERR_OK, &ret);
+    return ret;
 }
 
 static napi_module g_browserModule = {
