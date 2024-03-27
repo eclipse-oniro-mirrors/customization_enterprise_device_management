@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,6 +50,15 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundles", GetDisallowedUninstallBundles),
         DECLARE_NAPI_FUNCTION("uninstall", Uninstall),
         DECLARE_NAPI_FUNCTION("install", Install),
+        DECLARE_NAPI_FUNCTION("addAllowedInstallBundlesSync", AddAllowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("removeAllowedInstallBundlesSync", RemoveAllowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("getAllowedInstallBundlesSync", GetAllowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("addDisallowedInstallBundlesSync", AddDisallowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("removeDisallowedInstallBundlesSync", RemoveDisallowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("getDisallowedInstallBundlesSync", GetDisallowedInstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("addDisallowedUninstallBundlesSync", AddDisallowedUninstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundlesSync", RemoveDisallowedUninstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundlesSync", GetDisallowedUninstallBundlesSync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -490,7 +499,7 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundles(napi_env env, napi_call
     }
     if (hasCallback) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
-                argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]), "Parameter callback error");
+            argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARR_INDEX_THREE]), "Parameter callback error");
     }
     InitCallbackInfoPolicyType(workName, asyncCallbackInfo);
     EDMLOGI("AddOrRemoveInstallBundles::%{public}s policyType = %{public}d", workName.c_str(),
@@ -532,6 +541,168 @@ void BundleManagerAddon::NativeAddBundlesByPolicyType(napi_env env, void *data)
     }
     asyncCallbackInfo->ret = bundleManagerProxy->AddBundlesByPolicyType(asyncCallbackInfo->elementName,
         asyncCallbackInfo->bundles, asyncCallbackInfo->userId, asyncCallbackInfo->policyType);
+}
+
+napi_value BundleManagerAddon::AddAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddAllowedInstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddAllowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::AddDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddDisallowedInstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::AddDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddDisallowedUninstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedUninstallBundles");
+}
+
+napi_value BundleManagerAddon::RemoveAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveAllowedInstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveAllowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::RemoveDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveDisallowedInstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveDisallowedUninstallBundlesSync called");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedUninstallBundles");
+}
+
+napi_value BundleManagerAddon::AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info,
+    const std::string &workName)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    bool hasAccountId = (argc == ARGS_SIZE_THREE);
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter appIds error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::vector<std::string> appIds;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, appIds, argv[ARR_INDEX_ONE]),
+        "parameter appIds parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, appIds.size() <= EdmConstants::APPID_MAX_SIZE,
+        "parameter appIds too large");
+    EDMLOGD("CheckAddOrRemoveInstallBundlesParam: "
+        "elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    int32_t accountId = 0;
+    if (hasAccountId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+            "parameter accountId error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+            "parameter accountId parse error");
+    } else {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
+    }
+    int32_t policyType = 0;
+    InitPolicyType(workName, policyType);
+    EDMLOGI("AddOrRemoveInstallBundlesSync::%{public}s policyType = %{public}d", workName.c_str(), policyType);
+
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = bundleManagerProxy->AddBundlesByPolicyType(elementName, appIds, accountId, policyType);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+void BundleManagerAddon::InitPolicyType(const std::string &workName, int32_t &policyType)
+{
+    auto iter = POLICY_TYPE_MAP.find(workName);
+    if (iter != POLICY_TYPE_MAP.end()) {
+        policyType = iter->second;
+    } else {
+        EDMLOGI("policy type map get error");
+        policyType = static_cast<int32_t>(PolicyType::INVALID_TYPE);
+    }
+}
+
+napi_value BundleManagerAddon::GetAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAllowedInstallBundles called");
+    return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetAllowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::GetDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedInstallBundles called");
+    return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetDisallowedInstallBundles");
+}
+
+napi_value BundleManagerAddon::GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
+    return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetDisallowedUninstallBundles");
+}
+
+napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env env, napi_callback_info info,
+    const std::string &workName)
+{
+    EDMLOGI("NAPI_GetAllowedOrDisallowedInstallBundlesSync called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    bool hasAccountId = (argc == ARGS_SIZE_TWO);
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("GetAllowedOrDisallowedInstallBundlesSync: "
+        "elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    int32_t accountId = 0;
+    if (hasAccountId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+            "parameter accountId error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+            "parameter accountId parse error");
+    } else {
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
+    }
+    int32_t policyType = 0;
+    InitPolicyType(workName, policyType);
+    EDMLOGI("GetAllowedOrDisallowedInstallBundlesSync::%{public}s "
+        "policyType = %{public}d", workName.c_str(), policyType);
+
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return nullptr;
+    }
+    std::vector<std::string> appIds;
+    int32_t ret = bundleManagerProxy->GetBundlesByPolicyType(elementName, accountId, appIds, policyType);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertStringVectorToJS(env, appIds, result);
+    return result;
 }
 
 static napi_module g_bundleManagerModule = {

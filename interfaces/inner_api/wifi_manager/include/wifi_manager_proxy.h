@@ -28,9 +28,9 @@ public:
     WifiManagerProxy();
     ~WifiManagerProxy();
     static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
-    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result);
+    int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result, bool isSync = false);
 #ifdef WIFI_EDM_ENABLE
-    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config);
+    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config, bool isSync = false);
 #endif
     int32_t SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled);
     int32_t IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result);

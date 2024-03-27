@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <system_ability_definition.h>
 
 #include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "wifi_device.h"
 #include "plugin_manager.h"
@@ -29,8 +30,12 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(IsWifiActiv
 void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
 {
     EDMLOGI("IsWifiActivePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active",
-        "ohos.permission.ENTERPRISE_SET_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_SET_WIFI"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_WIFI"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active", config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }
 

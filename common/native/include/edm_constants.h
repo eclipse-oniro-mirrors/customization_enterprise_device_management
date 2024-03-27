@@ -31,6 +31,9 @@ namespace EdmConstants {
     static constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
     static constexpr int32_t SET_POLICIES_TYPE = 1;
     static constexpr int32_t SET_POLICY_TYPE = 2;
+
+    static constexpr const char *PERMISSION_TAG_VERSION_11 = "version_11";
+    static constexpr const char *PERMISSION_TAG_VERSION_12 = "version_12";
 }
 } // namespace EDM
 } // namespace OHOS
