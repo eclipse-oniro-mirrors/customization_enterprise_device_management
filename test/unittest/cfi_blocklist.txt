@@ -14,5 +14,10 @@
 [cfi]
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/location_policy_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/screen_off_time_plugin_test.cpp
+src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_admin_connection_test.cpp
+src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_bundle_connection_test.cpp
 src:*/third_party/googletest/googlemock/include/gmock/gmock-cardinalities.h
 src:*/third_party/googletest/googletest/include/gtest/internal/gtest-port.h
+src:*/commonlibrary/c_utils/base
+src:*/third_party/bounds_checking_function
+src:*/third_party/cJSON

@@ -50,7 +50,7 @@ bool EdmPermission::operator == (const EdmPermission &permission) const
     return (permissionName_ == permission.getPermissionName() && adminType_ == permission.getAdminType());
 }
 
-bool EdmPermission::ReadFromParcel(Parcel &parcel)
+bool EdmPermission::ReadFromParcel(MessageParcel &parcel)
 {
     permissionName_ = parcel.ReadString();
     int32_t type = parcel.ReadInt32();
@@ -61,14 +61,14 @@ bool EdmPermission::ReadFromParcel(Parcel &parcel)
     return false;
 }
 
-bool EdmPermission::Marshalling(Parcel &parcel) const
+bool EdmPermission::Marshalling(MessageParcel &parcel) const
 {
     parcel.WriteString(permissionName_);
     parcel.WriteInt32(static_cast<int32_t>(adminType_));
     return true;
 }
 
-bool EdmPermission::Unmarshalling(Parcel &parcel, EdmPermission &edmPermission)
+bool EdmPermission::Unmarshalling(MessageParcel &parcel, EdmPermission &edmPermission)
 {
     return edmPermission.ReadFromParcel(parcel);
 }

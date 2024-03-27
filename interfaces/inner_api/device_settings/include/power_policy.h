@@ -16,7 +16,7 @@
 #ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_POWER_POLICY_H
 #define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_POWER_POLICY_H
 
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,10 +32,10 @@ enum class PowerPolicyAction : uint32_t {
     SHUTDOWN,
 };
 
-class PowerPolicy : public Parcelable {
+class PowerPolicy {
 public:
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static bool Unmarshalling(Parcel &parcel, PowerPolicy &powerPolicy);
+    bool Marshalling(MessageParcel &parcel) const;
+    static bool Unmarshalling(MessageParcel &parcel, PowerPolicy &powerPolicy);
 
     void SetDelayTime(uint32_t delayTime);
     bool SetPowerPolicyAction(uint32_t action);

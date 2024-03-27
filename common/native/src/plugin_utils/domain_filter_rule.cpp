@@ -21,7 +21,7 @@ namespace IPTABLES {
 
 DomainFilterRuleParcel::DomainFilterRuleParcel(DomainFilterRule rule) : rule_(std::move(rule)) {}
 
-bool DomainFilterRuleParcel::Marshalling(Parcel& parcel) const
+bool DomainFilterRuleParcel::Marshalling(MessageParcel& parcel) const
 {
     parcel.WriteUint32(static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule_)));
     parcel.WriteString(std::get<DOMAIN_APPUID_IND>(rule_));
@@ -29,7 +29,7 @@ bool DomainFilterRuleParcel::Marshalling(Parcel& parcel) const
     return true;
 }
 
-bool DomainFilterRuleParcel::Unmarshalling(Parcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel)
+bool DomainFilterRuleParcel::Unmarshalling(MessageParcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel)
 {
     IPTABLES::Action action = IPTABLES::Action::INVALID;
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
