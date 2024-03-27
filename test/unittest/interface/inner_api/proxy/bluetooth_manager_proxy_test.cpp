@@ -233,6 +233,21 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothWhitelistFail, TestSize.Leve
 }
 
 /**
+ * @tc.name: TestGetBluetoothWhitelistWithoutAdminSuc
+ * @tc.desc: Test GetBluetoothWhitelist func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothWhitelistWithoutAdminSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<std::string> whitelist;
+    int32_t ret = proxy_->GetBluetoothWhitelist(whitelist);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestRemoveBluetoothWhitelistSuc
  * @tc.desc: Test RemoveBluetoothWhitelist func.
  * @tc.type: FUNC

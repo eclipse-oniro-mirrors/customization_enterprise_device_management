@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -154,6 +154,8 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setWifiProfile", SetWifiProfile),
         DECLARE_NAPI_FUNCTION("setWifiDisabled", SetWifiDisabled),
         DECLARE_NAPI_FUNCTION("isWifiDisabled", IsWifiDisabled),
+        DECLARE_NAPI_FUNCTION("isWifiActiveSync", IsWifiActiveSync),
+        DECLARE_NAPI_FUNCTION("setWifiProfileSync", SetWifiProfileSync),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
@@ -483,6 +485,79 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
     return true;
 }
 #endif
+
+napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::IsWifiActiveSync called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("IsWifiActiveSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get WifiManagerProxy");
+        return nullptr;
+    }
+    bool isActive = false;
+    int32_t ret = wifiManagerProxy->IsWifiActive(elementName, isActive, true);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, isActive, &result);
+    return result;
+}
+
+napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info info)
+{
+#ifdef WIFI_EDM_ENABLE
+    EDMLOGI("WifiManagerAddon::SetWifiProfileSync called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter profile error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("SetWifiProfileSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    Wifi::WifiDeviceConfig config;
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], config),
+        "parameter profile parse error");
+
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get WifiManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config, true);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("WifiManagerAddon::SetWifiProfileSync Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
 static napi_module g_wifiManagerModule = {
     .nm_version = 1,
     .nm_flags = 0,

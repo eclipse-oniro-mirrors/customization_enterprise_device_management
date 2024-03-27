@@ -722,12 +722,59 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("subscribeManagedEvent", SubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),
+        DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
+        DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value AdminManager::SubscribeManagedEventSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SubscribeManagedEvent called");
+    return HandleManagedEventSync(env, info, true);
+}
+
+napi_value AdminManager::UnsubscribeManagedEventSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UnsubscribeManagedEvent called");
+    return HandleManagedEventSync(env, info, false);
+}
+
+napi_value AdminManager::HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "parameter managedEvents error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::vector<uint32_t> managedEvent;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseManagedEvent(env, managedEvent, argv[ARR_INDEX_ONE]),
+        "parameter managedEvent parse error");
+    EDMLOGD("HandleManagedEventSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return nullptr;
+    }
+    int32_t ret = proxy->HandleManagedEvent(elementName, managedEvent, subscribe);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
 }
 
 static napi_module g_edmServiceModule = {

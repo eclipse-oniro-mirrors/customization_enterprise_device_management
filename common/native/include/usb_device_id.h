@@ -17,14 +17,14 @@
 #define INTERFACES_INNER_API_INCLUDE_USB_DEVICE_ID_H
 
 #include <string>
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
-class UsbDeviceId : public Parcelable {
+class UsbDeviceId {
 public:
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static bool Unmarshalling(Parcel &parcel, UsbDeviceId &usbDeviceId);
+    bool Marshalling(MessageParcel &parcel) const;
+    static bool Unmarshalling(MessageParcel &parcel, UsbDeviceId &usbDeviceId);
 
     void SetVendorId(int32_t vendorId);
     void SetProductId(int32_t productId);

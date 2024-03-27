@@ -31,13 +31,14 @@ public:
     NetworkManagerProxy();
     ~NetworkManagerProxy();
     static std::shared_ptr<NetworkManagerProxy> GetNetworkManagerProxy();
-    int32_t GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin, std::vector<std::string> &networkInterface);
+    int32_t GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin, std::vector<std::string> &networkInterface,
+        bool isSync = false);
     int32_t GetIpOrMacAddress(const AppExecFwk::ElementName &admin, const std::string &networkInterface, int policyCode,
-        std::string &info);
+        std::string &info, bool isSync = false);
     int32_t SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
-        bool isDisabled);
+        bool isDisabled, bool isSync = false);
     int32_t IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
-        bool &status);
+        bool &status, bool isSync = false);
     int32_t AddIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::AddFilter &filter);
     int32_t RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::RemoveFilter &filter);
     int32_t ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -89,6 +89,37 @@ HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountFail, TestSize.Leve
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAddLocalAccountDisallowedSuc
+ * @tc.desc: Test IsAddLocalAccountDisallowed success.
+ * @tc.type: FUNC
+ */
+    HWTEST_F(AccountManagerProxyTest, TestIsAddLocalAccountDisallowedSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddLocalAccountDisallowed(&admin, isDisabled);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisabled);
+}
+
+/**
+ * @tc.name: TestIsAddLocalAccountDisallowedFail
+ * @tc.desc: Test IsAddLocalAccountDisallowed without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddLocalAccountDisallowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddLocalAccountDisallowed(&admin, isDisabled);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

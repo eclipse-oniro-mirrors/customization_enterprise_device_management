@@ -15,6 +15,7 @@
 
 #include "network_manager_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code.h"
@@ -45,7 +46,7 @@ std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::GetNetworkManagerProxy
 }
 
 int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin,
-    std::vector<std::string> &networkInterface)
+    std::vector<std::string> &networkInterface, bool isSync)
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetAllNetworkInterfaces");
@@ -58,7 +59,7 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::GET_NETWORK_INTERFACES, data, reply);
@@ -82,7 +83,7 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
 }
 
 int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &admin,
-    const std::string &networkInterface, int policyCode, std::string &info)
+    const std::string &networkInterface, int policyCode, std::string &info, bool isSync)
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetIpOrMacAddress");
@@ -95,7 +96,7 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);
@@ -115,7 +116,7 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
 }
 
 int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
-    const std::string &networkInterface, bool isDisabled)
+    const std::string &networkInterface, bool isDisabled, bool isSync)
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::SetNetworkInterfaceDisabled");
@@ -130,7 +131,7 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     std::vector<std::string> key{networkInterface};
     std::vector<std::string> value{isDisabled ? "true" : "false"};
     data.WriteStringVector(key);
@@ -143,7 +144,7 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
 }
 
 int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin,
-    const std::string &networkInterface, bool &status)
+    const std::string &networkInterface, bool &status, bool isSync)
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::IsNetworkInterfaceDisabled");
@@ -156,7 +157,7 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(networkInterface);

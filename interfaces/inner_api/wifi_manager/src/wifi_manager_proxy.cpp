@@ -15,6 +15,7 @@
 
 #include "wifi_manager_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
@@ -41,7 +42,7 @@ std::shared_ptr<WifiManagerProxy> WifiManagerProxy::GetWifiManagerProxy()
     return instance_;
 }
 
-int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, bool &result)
+int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, bool &result, bool isSync)
 {
     EDMLOGD("WifiManagerProxy::IsWifiActive");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -53,7 +54,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::IS_WIFI_ACTIVE, data, reply);
@@ -67,7 +68,8 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     return ERR_OK;
 }
 #ifdef WIFI_EDM_ENABLE
-int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config)
+int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config,
+    bool isSync)
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -80,7 +82,7 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     MessageParcelUtils::WriteWifiDeviceConfig(config, data);
     return proxy->HandleDevicePolicy(funcCode, data);
 }

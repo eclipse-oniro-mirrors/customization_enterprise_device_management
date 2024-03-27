@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,17 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
 ErrCode DisallowAddLocalAccountPlugin::OnSetPolicy(bool &data)
 {
     return SetGlobalOsAccountConstraints(data);
+}
+
+ErrCode DisallowAddLocalAccountPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    EDMLOGI("DisallowAddLocalAccountPlugin OnGetPolicy %{public}s...", policyData.c_str());
+    bool isDisallowed = false;
+    pluginInstance_->serializer_->Deserialize(policyData, isDisallowed);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(isDisallowed);
+    return ERR_OK;
 }
 
 ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
