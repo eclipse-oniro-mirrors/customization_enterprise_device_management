@@ -143,6 +143,7 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/set_wifi_profile_plugin.cpp",
       "../edm_plugin/src/utils/wifi_device_config_serializer.cpp",
     ]
+    defines += [ "WIFI_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {

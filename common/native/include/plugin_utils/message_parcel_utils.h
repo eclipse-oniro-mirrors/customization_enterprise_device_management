@@ -30,6 +30,7 @@ namespace EDM {
 class MessageParcelUtils {
 public:
     static void WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data);
+#ifdef WIFI_EDM_ENABLE
     static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data);
     static void WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address);
     static void ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config);
@@ -38,6 +39,7 @@ public:
     static void ProcessConfigureProxyMethod(int32_t proxyMethod, Wifi::WifiProxyConfig &proxyConfig);
     static void ProcessPrivacyConfig(int32_t privacyConfig, Wifi::WifiDeviceConfig &config);
     static void ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress &address);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
