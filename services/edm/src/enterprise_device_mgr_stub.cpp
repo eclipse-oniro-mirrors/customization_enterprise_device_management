@@ -59,8 +59,6 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::SET_ENT_INFO,
         EdmInterfaceCode::IS_SUPER_ADMIN,
         EdmInterfaceCode::IS_ADMIN_ENABLED,
-        EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT,
-        EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT,
         EdmInterfaceCode::AUTHORIZE_ADMIN,
     };
 }

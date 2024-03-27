@@ -124,7 +124,10 @@ ohos_unittest("EdmServicesUnitTest") {
 
   sources = [
     "./src/admin_manager_test.cpp",
+    "./src/enterprise_admin_connection_test.cpp",
+    "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
+    "./src/enterprise_device_mgr_ability_test.cpp",
     "./src/iplugin_template_test.cpp",
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
@@ -176,6 +179,7 @@ ohos_unittest("EdmServicesUnitTest") {
     debug = false
     integer_overflow = true
     ubsan = true
+    blocklist = "../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   subsystem_name = "customization"

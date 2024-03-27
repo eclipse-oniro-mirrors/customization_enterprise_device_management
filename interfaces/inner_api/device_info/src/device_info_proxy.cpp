@@ -57,7 +57,7 @@ int32_t DeviceInfoProxy::GetDeviceName(AppExecFwk::ElementName &admin, std::stri
 
 int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode)
 {
-    EDMLOGD("DeviceInfoProxy::GetDeviceInfo %{pubilc}d", policyCode);
+    EDMLOGD("DeviceInfoProxy::GetDeviceInfo %{public}d", policyCode);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -83,7 +83,7 @@ int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::stri
 
 int32_t DeviceInfoProxy::GetDeviceInfoSync(AppExecFwk::ElementName &admin, const std::string &label, std::string &info)
 {
-    EDMLOGI("DeviceInfoProxy::GetDeviceInfoSync %{pubilc}s", label.c_str());
+    EDMLOGI("DeviceInfoProxy::GetDeviceInfoSync %{public}s", label.c_str());
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");

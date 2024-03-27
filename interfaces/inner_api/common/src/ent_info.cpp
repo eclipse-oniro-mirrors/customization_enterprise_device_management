@@ -36,19 +36,19 @@ EntInfo::~EntInfo()
     EDMLOGD("ent info instance is destroyed");
 }
 
-bool EntInfo::Marshalling(Parcel &parcel) const
+bool EntInfo::Marshalling(MessageParcel &parcel) const
 {
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, enterpriseName);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, description);
     return true;
 }
 
-bool EntInfo::Unmarshalling(Parcel &parcel, EntInfo &entInfo)
+bool EntInfo::Unmarshalling(MessageParcel &parcel, EntInfo &entInfo)
 {
     return entInfo.ReadFromParcel(parcel);
 }
 
-bool EntInfo::ReadFromParcel(Parcel &parcel)
+bool EntInfo::ReadFromParcel(MessageParcel &parcel)
 {
     enterpriseName = parcel.ReadString();
     description = parcel.ReadString();

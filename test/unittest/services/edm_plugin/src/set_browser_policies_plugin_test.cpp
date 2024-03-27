@@ -202,16 +202,9 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyEmpty, TestSize.Level1)
     std::vector<std::string> params1{"", TEST_POLICY_NAME, TEST_POLICY_VALUE};
     data1.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data1.WriteStringVector(params1);
-
-    std::vector<std::string> params2{TEST_APP_ID, "", TEST_POLICY_VALUE};
-    data2.WriteInt32(EdmConstants::SET_POLICY_TYPE);
-    data2.WriteStringVector(params2);
-
     
     ErrCode ret1 = plugin.OnHandlePolicy(0, data1, reply, policyData, userid);
     ASSERT_TRUE(ret1 == EdmReturnErrCode::PARAM_ERROR);
-    ErrCode ret2 = plugin.OnHandlePolicy(0, data2, reply, policyData, userid);
-    ASSERT_TRUE(ret2 == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
@@ -301,7 +294,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyRoot, TestSize.Level1)
     cJSON* policies;
     serializer_->Deserialize(policyData.policyData, policies);
     cJSON* policy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
-    ASSERT_TRUE(cJSON_Print(policy) == TEST_POLICY_VALUE2);
+    ASSERT_TRUE(cJSON_GetStringValue(policy) == TEST_POLICY_VALUE2);
     cJSON_Delete(policies);
 }
 

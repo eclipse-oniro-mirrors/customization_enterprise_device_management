@@ -109,7 +109,7 @@ bool ArrayUsbDeviceIdSerializer::GetPolicy(MessageParcel &data, std::vector<UsbD
 {
     int32_t size = data.ReadInt32();
     if (size > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("ArrayUsbDeviceIdSerializer:GetPolicy size=[%{public}zu] is too large", size);
+        EDMLOGE("ArrayUsbDeviceIdSerializer:GetPolicy size=[%{public}d] is too large", size);
         return false;
     }
     for (int32_t i = 0; i < size; i++) {

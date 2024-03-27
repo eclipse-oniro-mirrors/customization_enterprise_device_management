@@ -20,7 +20,7 @@ namespace EDM {
 namespace IPTABLES {
 FirewallRuleParcel::FirewallRuleParcel(FirewallRule rule) : rule_(std::move(rule)) {}
 
-bool FirewallRuleParcel::Marshalling(Parcel& parcel) const
+bool FirewallRuleParcel::Marshalling(MessageParcel& parcel) const
 {
     parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_DICECTION_IND>(rule_)));
     parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_ACTION_IND>(rule_)));
@@ -33,7 +33,7 @@ bool FirewallRuleParcel::Marshalling(Parcel& parcel) const
     return true;
 }
 
-bool FirewallRuleParcel::Unmarshalling(Parcel& parcel, FirewallRuleParcel& firewallRuleParcel)
+bool FirewallRuleParcel::Unmarshalling(MessageParcel& parcel, FirewallRuleParcel& firewallRuleParcel)
 {
     IPTABLES::Direction direction = IPTABLES::Direction::INVALID;
     IptablesUtils::ProcessFirewallDirection(parcel.ReadInt32(), direction);

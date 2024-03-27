@@ -93,6 +93,8 @@ public:
     static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEvent(napi_env env, napi_callback_info info);
     static napi_value AuthorizeAdmin(napi_env env, napi_callback_info info);
+    static napi_value SubscribeManagedEventSync(napi_env env, napi_callback_info info);
+    static napi_value UnsubscribeManagedEventSync(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -116,6 +118,7 @@ private:
     static bool CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
         bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
+    static napi_value HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe);
 };
 } // namespace EDM
 } // namespace OHOS

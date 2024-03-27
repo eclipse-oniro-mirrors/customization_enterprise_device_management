@@ -15,6 +15,7 @@
 
 #include "get_mac_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
@@ -28,8 +29,13 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetMacPlugi
 void GetMacPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std::string>> ptr)
 {
     EDMLOGI("GetMacPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_MAC, "get_mac", "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_NETWORK"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::GET_MAC, "get_mac", config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
