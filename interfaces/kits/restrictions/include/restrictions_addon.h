@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,6 +46,8 @@ private:
     static napi_value IsMicrophoneDisabled(napi_env env, napi_callback_info info);
     static napi_value SetFingerprintAuthDisabled(napi_env env, napi_callback_info info);
     static napi_value IsFingerprintAuthDisabled(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPolicy(napi_env env, napi_callback_info info);
 
     static napi_value SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
     static napi_value IsPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);

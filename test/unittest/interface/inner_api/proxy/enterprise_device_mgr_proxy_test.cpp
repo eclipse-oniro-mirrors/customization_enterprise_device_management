@@ -275,6 +275,50 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledFuncCodeFail, TestSiz
 }
 
 /**
+ * @tc.name: TestIsPolicyDisabledWithTagSuc
+ * @tc.desc: Test IsPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledWithTagSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
+    bool isDisabled = false;
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled, "version_11");
+    EXPECT_TRUE(!isDisabled);
+}
+
+/**
+ * @tc.name: TestIsPolicyDisabledWithTagFail
+ * @tc.desc: Test IsPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledWithTagFail, TestSize.Level1)
+{
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
+    bool isDisabled = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, funcCode, isDisabled, "version_11");
+    EXPECT_TRUE(!isDisabled);
+}
+
+/**
+ * @tc.name: TestIsPolicyDisabledWithTagFuncCodeFail
+ * @tc.desc: Test IsPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsPolicyDisabledWithTagFuncCodeFail, TestSize.Level1)
+{
+    bool isDisabled = false;
+    enterpriseDeviceMgrProxyTest->IsPolicyDisabled(nullptr, FUNC_CODE_ERR, isDisabled, "version_11");
+    EXPECT_TRUE(!isDisabled);
+}
+
+/**
  * @tc.name: TestSetPolicyDisabledSuc
  * @tc.desc: Test SetPolicyDisabled func.
  * @tc.type: FUNC
@@ -324,6 +368,59 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledFuncCodeFail, TestSi
     admin.SetAbilityName("com.edm.test.demo.Ability");
     bool isDisabled = true;
     int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, FUNC_CODE_ERR, isDisabled);
+    EXPECT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPolicyDisabledWithTagSuc
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledWithTagSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_PRINTER);
+    bool isDisabled = true;
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, funcCode, isDisabled, "version_11");
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPolicyDisabledWithTagFail
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledWithTagFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_PRINTER);
+    bool isDisabled = true;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, funcCode, isDisabled, "version_11");
+    EXPECT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPolicyDisabledWithTagFuncCodeFail
+ * @tc.desc: Test SetPolicyDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetPolicyDisabledWithTagFuncCodeFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    bool isDisabled = true;
+    int32_t ret = enterpriseDeviceMgrProxyTest->SetPolicyDisabled(admin, FUNC_CODE_ERR, isDisabled, "version_11");
     EXPECT_TRUE(ret != ERR_OK);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,23 +15,35 @@
 
 #include "restrictions_addon.h"
 
+#include <algorithm>
+#include <vector>
+
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 
 using namespace OHOS::EDM;
 
-std::map<int, RestrictionsAddon::RestrictionsProxySetFunc> RestrictionsAddon::memberSetFuncMap_ = {
-    {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::SetPrinterDisabled},
-    {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::SetHdcDisabled},
-    {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::DisableMicrophone},
-    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::SetFingerprintAuthDisabled},
+std::unordered_map<std::string, uint32_t> labelCodeMap = {
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BLUETOOTH, EdmInterfaceCode::DISABLE_BLUETOOTH},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_DATETIME, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINTER, EdmInterfaceCode::DISABLED_PRINTER},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_HDC, EdmInterfaceCode::DISABLED_HDC},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MIC, EdmInterfaceCode::DISABLE_MICROPHONE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB, EdmInterfaceCode::DISABLE_USB},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_WIFI, EdmInterfaceCode::DISABLE_WIFI},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREENSHOT, EdmInterfaceCode::POLICY_CODE_END + 11},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD, EdmInterfaceCode::POLICY_CODE_END + 12},
 };
 
-std::map<int, RestrictionsAddon::RestrictionsProxyIsFunc> RestrictionsAddon::memberIsFuncMap_ = {
-    {EdmInterfaceCode::DISABLED_PRINTER, &RestrictionsProxy::IsPrinterDisabled},
-    {EdmInterfaceCode::DISABLED_HDC, &RestrictionsProxy::IsHdcDisabled},
-    {EdmInterfaceCode::DISABLE_MICROPHONE, &RestrictionsProxy::IsMicrophoneDisabled},
-    {EdmInterfaceCode::FINGERPRINT_AUTH, &RestrictionsProxy::IsFingerprintAuthDisabled},
+std::vector<uint32_t> multiPermCodes = {
+    EdmInterfaceCode::DISABLE_BLUETOOTH,
+    EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
+    EdmInterfaceCode::DISABLED_PRINTER,
+    EdmInterfaceCode::DISABLED_HDC,
+    EdmInterfaceCode::DISABLE_USB,
+    EdmInterfaceCode::DISABLE_WIFI,
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -45,6 +57,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isMicrophoneDisabled", IsMicrophoneDisabled),
         DECLARE_NAPI_FUNCTION("setFingerprintAuthDisabled", SetFingerprintAuthDisabled),
         DECLARE_NAPI_FUNCTION("isFingerprintAuthDisabled", IsFingerprintAuthDisabled),
+        DECLARE_NAPI_FUNCTION("setDisallowedPolicy", SetDisallowedPolicy),
+        DECLARE_NAPI_FUNCTION("getDisallowedPolicy", GetDisallowedPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -110,16 +124,11 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
         return;
     }
     AsyncRestrictionsCallbackInfo *asyncCallbackInfo = static_cast<AsyncRestrictionsCallbackInfo *>(data);
-    auto func = memberSetFuncMap_.find(asyncCallbackInfo->policyCode);
-    if (func != memberSetFuncMap_.end()) {
-        auto memberFunc = func->second;
-        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-        asyncCallbackInfo->ret =
-            (proxy.get()->*memberFunc)(asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled);
-    } else {
-        EDMLOGE("NativeSetPolicyDisabled failed");
-        asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
+        WITHOUT_PERMISSION_TAG;
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled, asyncCallbackInfo->policyCode, permissionTag);
 }
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
@@ -184,19 +193,16 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
         return;
     }
     AsyncRestrictionsCallbackInfo *asyncCallbackInfo = static_cast<AsyncRestrictionsCallbackInfo *>(data);
-    auto func = memberIsFuncMap_.find(asyncCallbackInfo->policyCode);
-    if (func != memberIsFuncMap_.end()) {
-        auto memberFunc = func->second;
-        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-        if (asyncCallbackInfo->hasAdmin) {
-            asyncCallbackInfo->ret =
-                (proxy.get()->*memberFunc)(&(asyncCallbackInfo->elementName), asyncCallbackInfo->boolRet);
-        } else {
-            asyncCallbackInfo->ret = (proxy.get()->*memberFunc)(nullptr, asyncCallbackInfo->boolRet);
-        }
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
+        WITHOUT_PERMISSION_TAG;
+    if (asyncCallbackInfo->hasAdmin) {
+        asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(
+            &(asyncCallbackInfo->elementName), asyncCallbackInfo->policyCode, asyncCallbackInfo->boolRet,
+            permissionTag);
     } else {
-        EDMLOGE("NativeIsPolicyDisabled error");
-        asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(
+            nullptr, asyncCallbackInfo->policyCode, asyncCallbackInfo->boolRet, permissionTag);
     }
 }
 
@@ -231,24 +237,18 @@ napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean), "parameter bool error");
-
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     bool isDisallow = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisallow, argv[ARR_INDEX_ONE]), "bool name param error");
-    auto func = memberSetFuncMap_.find(policyCode);
-    if (func != memberSetFuncMap_.end()) {
-        auto memberFunc = func->second;
-        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-        ErrCode ret = (proxy.get()->*memberFunc)(elementName, isDisallow);
-        if (FAILED(ret)) {
-            napi_throw(env, CreateError(env, ret));
-            EDMLOGE("SetPolicyDisabledSync failed!");
-            return nullptr;
-        }
-    } else {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 : WITHOUT_PERMISSION_TAG;
+    ErrCode ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(elementName, isDisallow, policyCode,
+        permissionTag);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
 }
@@ -268,19 +268,14 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
         "param admin need be null or want");
     ErrCode ret = ERR_OK;
     bool boolRet = false;
-    auto func = memberIsFuncMap_.find(policyCode);
-    if (func != memberIsFuncMap_.end()) {
-        auto memberFunc = func->second;
-        auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-        if (hasAdmin) {
-            ret = (proxy.get()->*memberFunc)(&(elementName), boolRet);
-        } else {
-            ret = (proxy.get()->*memberFunc)(nullptr, boolRet);
-        }
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 : WITHOUT_PERMISSION_TAG;
+    if (hasAdmin) {
+        ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(&elementName, policyCode, boolRet,
+            permissionTag);
     } else {
-        EDMLOGE("IsPolicyDisabledSync error");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
+        ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(nullptr, policyCode, boolRet,
+            permissionTag);
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -289,6 +284,101 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
     }
     napi_value result = nullptr;
     napi_get_boolean(env, boolRet, &result);
+    return result;
+}
+
+napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDisallowedPolicy called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
+        "parameter disallow error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string feature;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        return nullptr;
+    }
+    auto labelCode = labelCodeMap.find(feature);
+    if (labelCode == labelCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = labelCode->second;
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        ipcCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_12 : WITHOUT_PERMISSION_TAG;
+    ErrCode ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedPolicy called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
+    std::string feature;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    if (hasAdmin) {
+        EDMLOGD("GetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+            elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    } else {
+        EDMLOGD("GetDisallowedPolicy: elementName is null");
+    }
+
+    bool disallow = false;
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        return nullptr;
+    }
+    auto labelCode = labelCodeMap.find(feature);
+    if (labelCode == labelCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = labelCode->second;
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        ipcCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_12 : WITHOUT_PERMISSION_TAG;
+    ErrCode ret = ERR_OK;
+    if (hasAdmin) {
+        ret = proxy->GetDisallowedPolicy(&elementName, ipcCode, disallow, permissionTag);
+    } else {
+        ret = proxy->GetDisallowedPolicy(nullptr, ipcCode, disallow, permissionTag);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, disallow, &result);
     return result;
 }
 

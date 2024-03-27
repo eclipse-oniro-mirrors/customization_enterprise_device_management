@@ -15,6 +15,7 @@
 
 #include "disallow_modify_datetime_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_manager.h"
 
@@ -24,9 +25,15 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallModif
 
 void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
 {
-    EDMLOGI("DisallModifyDateTimePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime",
-        "ohos.permission.ENTERPRISE_SET_DATETIME", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    EDMLOGI("DisallowModifyDateTimePlugin InitPlugin...");
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_SET_DATETIME"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallModifyDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
 }

@@ -16,6 +16,7 @@
 #include "disable_printer_plugin.h"
 
 #include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_manager.h"
 
@@ -26,8 +27,13 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisablePrin
 void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrinterPlugin, bool>> ptr)
 {
     EDMLOGI("DisablePrinterPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, "disabled_printer",
-        "ohos.permission.ENTERPRISE_RESTRICT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_RESTRICT_POLICY"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, "disabled_printer", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisablePrinterPlugin::OnSetPolicy, FuncOperateType::SET);
 }

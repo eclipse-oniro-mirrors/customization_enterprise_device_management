@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,19 +17,17 @@
 #define INTERFACES_INNER_API_RESTRICTIONS_INCLUDE_RESTRICTIONS_PROXY_H
 #include "enterprise_device_mgr_proxy.h"
 
+#include "edm_constants.h"
+
 namespace OHOS {
 namespace EDM {
 class RestrictionsProxy {
 public:
     static std::shared_ptr<RestrictionsProxy> GetRestrictionsProxy();
-    int32_t SetPrinterDisabled(const AppExecFwk::ElementName &admin, bool isDisabled);
-    int32_t SetHdcDisabled(const AppExecFwk::ElementName &admin, bool isDisabled);
-    int32_t IsPrinterDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t IsHdcDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t DisableMicrophone(const AppExecFwk::ElementName &admin, bool disable);
-    int32_t IsMicrophoneDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disable);
-    int32_t IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result);
+    int32_t SetDisallowedPolicy(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
+        std::string permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
+    int32_t GetDisallowedPolicy(AppExecFwk::ElementName *admin, int policyCode, bool &result,
+        std::string permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
 
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
