@@ -14,6 +14,8 @@
  */
 #include "device_settings_addon.h"
 
+#include "cJSON.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 
 using namespace OHOS::EDM;
@@ -67,6 +69,8 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
         DECLARE_NAPI_PROPERTY("PowerScene", nTimeOut),
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
+        DECLARE_NAPI_FUNCTION("setValue", SetValue),
+        DECLARE_NAPI_FUNCTION("getValue", GetValue)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -378,6 +382,176 @@ bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCe
         return false;
     }
     return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->alias);
+}
+
+napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetValue called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter item error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_string), "parameter value error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::string item;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, item, argv[ARR_INDEX_ONE]), "param 'item' error");
+    std::string value;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, value, argv[ARR_INDEX_TWO]), "param 'value' error");
+    int32_t ret = ERR_OK;
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
+        int32_t time;
+        ret = ParseScreenOffTime(value, time);
+        if (SUCCEEDED(ret)) {
+            ret = proxy->SetScreenOffTime(elementName, time);
+        }
+    } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
+        PowerScene powerScene;
+        ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerScene(env, value, powerScene), "param 'powerScene' error");
+        PowerPolicy powerPolicy;
+        ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerPolicy(env, value, powerPolicy), "param 'powerPolicy' error");
+        proxy->SetPowerPolicy(elementName, powerScene, powerPolicy);
+    } else {
+        ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetValue failed! item is %{public}s", item.c_str());
+    }
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetValue called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter item error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::string item;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, item, argv[ARR_INDEX_ONE]), "param 'item' error");
+    int32_t ret = ERR_OK;
+    std::string stringRet;
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
+        int32_t screenOffTime;
+        proxy->GetScreenOffTime(elementName, screenOffTime);
+        stringRet = std::to_string(screenOffTime);
+    } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
+        PowerScene powerScene = PowerScene::TIME_OUT;
+        PowerPolicy powerPolicy;
+        ret = proxy->GetPowerPolicy(elementName, powerScene, powerPolicy);
+        if (SUCCEEDED(ret)) {
+            ret = ConvertPowerPolicyToJsStr(env, powerScene, powerPolicy, stringRet);
+        }
+    } else {
+        ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("GetValue failed! item is %{public}s", item.c_str());
+        return nullptr;
+    }
+    napi_value result;
+    napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result);
+    return result;
+}
+
+int32_t DeviceSettingsAddon::ParseScreenOffTime(std::string timeStr, int32_t &time)
+{
+    char *end = nullptr;
+    const char *p = timeStr.c_str();
+    errno = 0;
+    time = strtol(p, &end, EdmConstants::DECIMAL);
+    if (errno == ERANGE || end == p || *end != '\0') {
+        EDMLOGE("ParseScreenOffTime: parse str failed: %{public}s", p);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return ERR_OK;
+}
+
+bool DeviceSettingsAddon::JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene)
+{
+    cJSON *json = cJSON_Parse(jsStr.c_str());
+    if (json == nullptr) {
+        return false;
+    }
+    cJSON *itemPowerScene = cJSON_GetObjectItem(json, "powerScene");
+    if (!cJSON_IsNumber(itemPowerScene)) {
+        cJSON_Delete(json);
+        return false;
+    }
+    powerScene = PowerScene(itemPowerScene->valueint);
+    cJSON_Delete(json);
+    return true;
+}
+
+bool DeviceSettingsAddon::JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy)
+{
+    cJSON *json = cJSON_Parse(jsStr.c_str());
+    if (json == nullptr) {
+        return false;
+    }
+    cJSON *itemPowerPolicy = cJSON_GetObjectItem(json, "powerPolicy");
+    if (!cJSON_IsObject(itemPowerPolicy)) {
+        cJSON_Delete(json);
+        return false;
+    }
+    cJSON *delayTime = cJSON_GetObjectItem(itemPowerPolicy, "delayTime");
+    if (!cJSON_IsNumber(delayTime)) {
+        cJSON_Delete(json);
+        return false;
+    }
+    powerPolicy.SetDelayTime(delayTime->valueint);
+    cJSON *powerPolicyAction = cJSON_GetObjectItem(itemPowerPolicy, "powerPolicyAction");
+    if (!cJSON_IsNumber(powerPolicyAction)) {
+        cJSON_Delete(json);
+        return false;
+    }
+    bool setActionRet = powerPolicy.SetPowerPolicyAction(powerPolicyAction->valueint);
+    cJSON_Delete(json);
+    return setActionRet;
+}
+
+int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene &powerScene, PowerPolicy &powerPolicy,
+    std::string &info)
+{
+    cJSON *json = cJSON_CreateObject();
+    if (json == nullptr) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    cJSON *powerPoilcyJs = cJSON_CreateObject();
+    if (powerPoilcyJs == nullptr) {
+        cJSON_Delete(json);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    cJSON_AddNumberToObject(powerPoilcyJs, "powerPolicyAction",
+        static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
+    cJSON_AddNumberToObject(powerPoilcyJs, "delayTime", powerPolicy.GetDealyTime());
+    cJSON_AddItemToObject(json, std::to_string(static_cast<uint32_t>(powerScene)).c_str(), powerPoilcyJs);
+    char *jsonStr = cJSON_PrintUnformatted(json);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(json);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    info = jsonStr;
+    cJSON_Delete(json);
+    cJSON_free(jsonStr);
+    return ERR_OK;
 }
 
 static napi_module g_deviceSettingsModule = {

@@ -58,6 +58,11 @@ namespace EdmConstants {
         static const std::string ENCRYPTION = "encryption";
         static const std::string ROOT = "root";
     } // namespace SecurityManager
+
+    namespace DeviceSettings {
+        const std::string SCREEN_OFF = "screenOff";
+        const std::string POWER_POLICY = "powerPolicy";
+    } // namespace DeviceSettings
 }
 } // namespace EDM
 } // namespace OHOS
