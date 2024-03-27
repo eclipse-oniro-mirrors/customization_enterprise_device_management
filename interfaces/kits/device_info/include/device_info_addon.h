@@ -42,6 +42,7 @@ private:
     static napi_value GetDeviceSerial(napi_env env, napi_callback_info info);
     static napi_value GetDisplayVersion(napi_env env, napi_callback_info info);
     static napi_value GetDeviceName(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceInfoSync(napi_env env, napi_callback_info info);
     static napi_value GetDeviceInfo(napi_env env, napi_callback_info info, int code);
     static void NativeGetDeviceInfo(napi_env env, void *data);
 };

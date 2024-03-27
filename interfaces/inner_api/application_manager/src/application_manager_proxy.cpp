@@ -38,7 +38,7 @@ std::shared_ptr<ApplicationManagerProxy> ApplicationManagerProxy::GetApplication
 }
 
 int32_t ApplicationManagerProxy::AddDisallowedRunningBundles(AppExecFwk::ElementName &admin,
-    std::vector<std::string> &bundles, int32_t userId)
+    std::vector<std::string> &bundles, int32_t userId, bool isSync)
 {
     EDMLOGD("ApplicationManagerProxy::AddDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -53,13 +53,13 @@ int32_t ApplicationManagerProxy::AddDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::ElementName &admin,
-    std::vector<std::string> &bundles, int32_t userId)
+    std::vector<std::string> &bundles, int32_t userId, bool isSync)
 {
     EDMLOGD("ApplicationManagerProxy::RemoveDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -74,13 +74,13 @@ int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::Elem
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteStringVector(bundles);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
-    std::vector<std::string> &bundles)
+    std::vector<std::string> &bundles, bool isSync)
 {
     EDMLOGD("ApplicationManagerProxy::GetDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -93,7 +93,7 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, data, reply);

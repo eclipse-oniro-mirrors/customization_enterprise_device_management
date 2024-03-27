@@ -21,6 +21,8 @@
 #include <string>
 #include "edm_errors.h"
 #include "func_code.h"
+#include "handle_policy_data.h"
+#include "iplugin_execute_strategy.h"
 #include "message_parcel.h"
 
 namespace OHOS {
@@ -28,13 +30,13 @@ namespace EDM {
 constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr const char *NONE_PERMISSION_MATCH = "NA";
 
-struct HandlePolicyData {
-    std::string policyData;
-    bool isChanged = false;
-};
-
 class IPlugin {
 public:
+    enum class PluginType {
+        BASIC = 0,
+        EXTENSION,
+    };
+
     enum class PermissionType {
         NORMAL_DEVICE_ADMIN = 0,
         SUPER_DEVICE_ADMIN,
@@ -106,6 +108,12 @@ public:
     std::string GetPermission(FuncOperateType operaType, std::string permissionTag = "");
     IPlugin::PermissionType GetPermissionType(FuncOperateType operaType);
     IPlugin::ApiType GetApiType(FuncOperateType operaType);
+    void SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin);
+    std::shared_ptr<IPlugin> GetExtensionPlugin();
+    void SetExecuteStrategy(std::shared_ptr<IPluginExecuteStrategy> strategy);
+    std::shared_ptr<IPluginExecuteStrategy> GetExecuteStrategy();
+    void SetPluginType(IPlugin::PluginType type);
+    IPlugin::PluginType GetPluginType();
     virtual ~IPlugin();
 
 protected:
@@ -113,8 +121,11 @@ protected:
     std::string policyName_;
     PolicyPermissionConfig permissionConfig_;
     std::map<FuncOperateType, PolicyPermissionConfig> permissionMap_;
+    std::shared_ptr<IPlugin> extensionPlugin_ = nullptr;
+    std::shared_ptr<IPluginExecuteStrategy> strategy_ = std::make_shared<IPluginExecuteStrategy>();
     bool needSave_ = true;
     bool isGlobal_ = true;
+    IPlugin::PluginType type_ = PluginType::BASIC;
 
 private:
     std::string CheckAndGetPermissionFromConfig(const std::string &permissionTag,

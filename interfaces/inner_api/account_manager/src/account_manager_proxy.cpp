@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,6 +55,22 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
     return proxy->SetPolicyDisabled(admin, isDisallow, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT);
 #else
     EDMLOGW("AccountManagerProxy::DisallowAddLocalAccount Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
+int32_t AccountManagerProxy::IsAddLocalAccountDisallowed(AppExecFwk::ElementName *admin, bool &result)
+{
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    EDMLOGD("AccountManagerProxy::IsAddLocalAccountDisallowed");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, result);
+#else
+    EDMLOGW("AccountManagerProxy::IsAddLocalAccountDisallowed Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
@@ -122,7 +138,7 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
     reply.ReadBool(result);
     return ERR_OK;
 #else
-    EDMLOGW("AccountManagerProxy::DisallowAddOsAccountByUser Unsupported Capabilities.");
+    EDMLOGW("AccountManagerProxy::IsAddOsAccountByUserDisallowed Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }

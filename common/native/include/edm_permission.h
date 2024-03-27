@@ -18,11 +18,11 @@
 
 #include <string>
 #include "admin_type.h"
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
-class EdmPermission : public Parcelable {
+class EdmPermission {
 public:
     EdmPermission();
     EdmPermission(const std::string &name, AdminType type);
@@ -30,11 +30,11 @@ public:
 
     bool operator == (const EdmPermission &permission) const;
 
-    bool ReadFromParcel(Parcel &parcel);
+    bool ReadFromParcel(MessageParcel &parcel);
 
-    virtual bool Marshalling(Parcel &parcel) const override;
+    bool Marshalling(MessageParcel &parcel) const;
 
-    static bool Unmarshalling(Parcel &parcel, EdmPermission &edmPermission);
+    static bool Unmarshalling(MessageParcel &parcel, EdmPermission &edmPermission);
 
     const std::string &getPermissionName() const;
 

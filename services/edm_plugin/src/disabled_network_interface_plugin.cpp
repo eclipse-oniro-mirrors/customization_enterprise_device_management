@@ -15,6 +15,7 @@
 
 #include "disabled_network_interface_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "map_string_serializer.h"
@@ -30,10 +31,21 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
 {
     EDMLOGI("DisabledNetworkInterfacePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "disabled_network_interface", false);
-    ptr->InitPermission(FuncOperateType::SET, "ohos.permission.ENTERPRISE_SET_NETWORK",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
-    ptr->InitPermission(FuncOperateType::GET, "ohos.permission.ENTERPRISE_GET_NETWORK_INFO",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+    std::map<std::string, std::string> setPerms;
+    setPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_SET_NETWORK"));
+    setPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_NETWORK"));
+    IPlugin::PolicyPermissionConfig setConfig = IPlugin::PolicyPermissionConfig(setPerms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitPermission(FuncOperateType::SET, setConfig);
+    std::map<std::string, std::string> getPerms;
+    getPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO"));
+    getPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_NETWORK"));
+    IPlugin::PolicyPermissionConfig getConfig = IPlugin::PolicyPermissionConfig(getPerms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitPermission(FuncOperateType::GET, getConfig);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisabledNetworkInterfacePlugin::OnSetPolicy, FuncOperateType::SET);
 }

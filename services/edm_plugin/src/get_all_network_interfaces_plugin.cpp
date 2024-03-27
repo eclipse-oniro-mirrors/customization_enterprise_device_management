@@ -16,6 +16,7 @@
 #include "get_all_network_interfaces_plugin.h"
 
 #include "array_string_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
@@ -29,8 +30,13 @@ void GetAllNetworkInterfacesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<GetAllNetworkInterfacesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("GetAllNetworkInterfacesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_NETWORK_INTERFACES, "get_network_interfaces",
-        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_NETWORK"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::GET_NETWORK_INTERFACES, "get_network_interfaces", config, false);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
 }
 

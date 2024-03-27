@@ -96,6 +96,39 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoFail, TestSize.Level1)
     int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncSuc
+ * @tc.desc: Test GetDeviceInfoSync func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::string info;
+    int32_t ret = deviceInfoProxy->GetDeviceInfoSync(admin, "device_name", info);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(info == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncFail
+ * @tc.desc: Test GetDeviceInfoSync func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string info;
+    int32_t ret = deviceInfoProxy->GetDeviceInfoSync(admin, "device_name", info);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -70,6 +70,52 @@ public:
     ~TestPlugin() override = default;
 };
 
+class TestExtensionPlugin : public IPlugin {
+public:
+    TestExtensionPlugin()
+    {
+        policyCode_ = 1;
+        policyName_ = "TestExtensionPlugin";
+        permissionConfig_.permission = "ohos.permission.EDM_TEST_PERMISSION";
+        permissionConfig_.permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN;
+        permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+        EDMLOGD("TestExtensionPlugin constructor");
+    }
+
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
+    {
+        return ERR_OK;
+    }
+
+    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override
+    {
+        return IPlugin::MergePolicyData(adminName, policyData);
+    }
+
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override {}
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    {
+        return ERR_OK;
+    }
+
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &policyData, int32_t userId) override {}
+
+    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override
+    {
+        return IPlugin::WritePolicyToParcel(policyData, reply);
+    }
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+    {
+        return ERR_OK;
+    }
+
+    ~TestExtensionPlugin() override = default;
+};
+
 class PluginManagerTest : public testing::Test {
 protected:
     virtual void SetUp() override;

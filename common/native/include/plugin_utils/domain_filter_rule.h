@@ -19,7 +19,7 @@
 #include <tuple>
 
 #include "iptables_utils.h"
-#include "parcel.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
@@ -31,16 +31,16 @@ const int32_t DOMAIN_DOMAINNAME_IND = 2;
 
 using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/>;
 
-class DomainFilterRuleParcel : public Parcelable {
+class DomainFilterRuleParcel {
 public:
     DomainFilterRuleParcel() = default;
     explicit DomainFilterRuleParcel(DomainFilterRule rule);
 
     [[nodiscard]] DomainFilterRule GetRule() const;
 
-    bool Marshalling(Parcel& parcel) const override;
+    bool Marshalling(MessageParcel& parcel) const;
 
-    static bool Unmarshalling(Parcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel);
+    static bool Unmarshalling(MessageParcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel);
 
 private:
     DomainFilterRule rule_;

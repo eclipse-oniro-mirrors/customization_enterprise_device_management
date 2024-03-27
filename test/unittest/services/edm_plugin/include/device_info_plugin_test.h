@@ -17,6 +17,8 @@
 #define EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "get_device_info_plugin.h"
 #include "get_device_name_plugin.h"
 #include "get_device_serial_plugin.h"
 #include "get_display_version_plugin.h"

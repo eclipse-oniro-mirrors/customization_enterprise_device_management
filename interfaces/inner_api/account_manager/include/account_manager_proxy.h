@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@ public:
     ~AccountManagerProxy();
     static std::shared_ptr<AccountManagerProxy> GetAccountManagerProxy();
     int32_t DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow);
+    int32_t IsAddLocalAccountDisallowed(AppExecFwk::ElementName *admin, bool &result);
     int32_t DisallowAddOsAccountByUser(AppExecFwk::ElementName &admin, int32_t userId, bool isDisallow);
     int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
 #ifdef OS_ACCOUNT_EDM_ENABLE

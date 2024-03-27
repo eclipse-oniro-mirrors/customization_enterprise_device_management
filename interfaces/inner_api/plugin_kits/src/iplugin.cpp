@@ -93,6 +93,36 @@ ErrCode IPlugin::WritePolicyToParcel(const std::string &policyJsonData, MessageP
     return reply.WriteString(policyJsonData) ? ERR_OK : ERR_EDM_OPERATE_PARCEL;
 }
 
+void IPlugin::SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin)
+{
+    extensionPlugin_ = extensionPlugin;
+}
+
+std::shared_ptr<IPlugin> IPlugin::GetExtensionPlugin()
+{
+    return extensionPlugin_;
+}
+
+void IPlugin::SetExecuteStrategy(std::shared_ptr<IPluginExecuteStrategy> strategy)
+{
+    strategy_ = strategy;
+}
+
+std::shared_ptr<IPluginExecuteStrategy> IPlugin::GetExecuteStrategy()
+{
+    return strategy_;
+}
+
+void IPlugin::SetPluginType(IPlugin::PluginType type)
+{
+    type_ = type;
+}
+
+IPlugin::PluginType IPlugin::GetPluginType()
+{
+    return type_;
+}
+
 IPlugin::~IPlugin() {}
 } // namespace EDM
 } // namespace OHOS
