@@ -30,8 +30,8 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disallowAddOsAccountByUser", DisallowAddOsAccountByUser),
         DECLARE_NAPI_FUNCTION("isAddOsAccountByUserDisallowed", IsAddOsAccountByUserDisallowed),
         DECLARE_NAPI_FUNCTION("addOsAccount", AddOsAccount),
-        DECLARE_NAPI_FUNCTION("disallowAddOsAccount", DisallowAddOsAccount),
-        DECLARE_NAPI_FUNCTION("isAddOsAccountDisallowed", IsAddOsAccountDisallowed),
+        DECLARE_NAPI_FUNCTION("disallowOsAccountAddition", DisallowAddOsAccount),
+        DECLARE_NAPI_FUNCTION("isOsAccountAdditionDisallowed", IsAddOsAccountDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
