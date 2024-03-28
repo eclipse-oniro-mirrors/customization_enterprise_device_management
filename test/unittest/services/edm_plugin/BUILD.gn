@@ -275,7 +275,7 @@ ohos_static_library("edm_all_plugin_static") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-
+  defines = []
   if (update_service_edm_enable) {
     external_deps += [ "update_service:updateservicekits" ]
     sources +=
@@ -315,6 +315,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
     ]
+    defines += [ "WIFI_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
