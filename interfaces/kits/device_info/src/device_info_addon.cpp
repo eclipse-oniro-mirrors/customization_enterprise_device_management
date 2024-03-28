@@ -25,6 +25,7 @@ napi_value DeviceInfoAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDeviceSerial", GetDeviceSerial),
         DECLARE_NAPI_FUNCTION("getDisplayVersion", GetDisplayVersion),
         DECLARE_NAPI_FUNCTION("getDeviceName", GetDeviceName),
+        DECLARE_NAPI_FUNCTION("getDeviceInfo", GetDeviceInfoSync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -46,6 +47,39 @@ napi_value DeviceInfoAddon::GetDeviceName(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDeviceName called");
     return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DEVICE_NAME);
+}
+
+napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDeviceInfoSync called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+
+    AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "GetDeviceInfo: elementName.bundlename %{public}s, abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string label;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, label, argv[ARR_INDEX_ONE]), "label param error");
+
+    std::string deviceInfo;
+    int32_t ret = DeviceInfoProxy::GetDeviceInfoProxy()->GetDeviceInfoSync(elementName, label, deviceInfo);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiInfo;
+    napi_create_string_utf8(env, deviceInfo.c_str(), NAPI_AUTO_LENGTH, &napiInfo);
+    return napiInfo;
 }
 
 napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info, int code)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,8 @@
 #include <dlfcn.h>
 #include <map>
 #include <memory>
+
+#include "execute_strategy.h"
 #include "iplugin.h"
 
 namespace OHOS {
@@ -27,6 +29,12 @@ class IPluginManager {
 public:
     static IPluginManager* GetInstance();
     virtual bool AddPlugin(std::shared_ptr<IPlugin> plugin)
+    {
+        return true;
+    }
+
+    virtual bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
+        ExecuteStrategy strategy)
     {
         return true;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,29 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
-
-#include <gtest/gtest.h>
-
-#include "get_device_info_plugin.h"
-#include "get_device_name_plugin.h"
-#include "get_device_serial_plugin.h"
-#include "get_display_version_plugin.h"
-#include "iplugin_manager.h"
+#ifndef INTERFACES_INNER_API_PLUGIN_KITS_EXECUTE_STRATEGY_H
+#define INTERFACES_INNER_API_PLUGIN_KITS_EXECUTE_STRATEGY_H
 
 namespace OHOS {
 namespace EDM {
-namespace TEST {
-class DeviceInfoPluginTest : public testing::Test {
-protected:
-    static void SetUpTestSuite(void);
-
-    static void TearDownTestSuite(void);
-
-    std::shared_ptr<IPlugin> plugin_;
+enum class ExecuteStrategy {
+    SINGLE = 0,
+    ENHANCE,
+    REPLACE
 };
-} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
+
+#endif // INTERFACES_INNER_API_PLUGIN_KITS_EXECUTE_STRATEGY_H

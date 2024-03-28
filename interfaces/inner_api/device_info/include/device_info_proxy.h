@@ -27,6 +27,7 @@ public:
     int32_t GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &info);
     int32_t GetDisplayVersion(AppExecFwk::ElementName &admin, std::string &info);
     int32_t GetDeviceName(AppExecFwk::ElementName &admin, std::string &info);
+    int32_t GetDeviceInfoSync(AppExecFwk::ElementName &admin, const std::string &label, std::string &info);
 private:
     int32_t GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode);
     static std::shared_ptr<DeviceInfoProxy> instance_;

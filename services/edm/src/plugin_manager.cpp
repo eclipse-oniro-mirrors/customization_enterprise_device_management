@@ -14,6 +14,7 @@
  */
 
 #include "plugin_manager.h"
+
 #include <cstring>
 #include <dirent.h>
 #include <dlfcn.h>
@@ -22,6 +23,7 @@
 #include <mutex>
 #include <string_ex.h>
 #include <unistd.h>
+
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "permission_manager.h"
@@ -88,9 +90,28 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByPolicyName(const std::string 
     return nullptr;
 }
 
+std::shared_ptr<IPlugin> PluginManager::GetPluginByCode(std::uint32_t code)
+{
+    EDMLOGD("PluginManager::code %{public}u", code);
+    auto it = pluginsCode_.find(code);
+    if (it != pluginsCode_.end()) {
+        return it->second;
+    }
+    EDMLOGD("GetPluginByCode::return nullptr");
+    return nullptr;
+}
+
+std::shared_ptr<IPluginExecuteStrategy> PluginManager::CreateExecuteStrategy(ExecuteStrategy strategy)
+{
+    if (strategy == ExecuteStrategy::ENHANCE) {
+        return enhanceStrategy_;
+    }
+    return singleStrategy_;
+}
+
 bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
 {
-    EDMLOGD("AddPlugin");
+    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     if (plugin == nullptr) {
         return false;
     }
@@ -115,6 +136,35 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         }
         pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
         pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+        if (extensionPluginMap_.count(plugin->GetCode()) > 0) {
+            EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
+                extensionPluginMap_[plugin->GetCode()]);
+            plugin->SetExtensionPlugin(GetPluginByCode(extensionPluginMap_[plugin->GetCode()]));
+        }
+        if (executeStrategyMap_.count(plugin->GetCode()) > 0) {
+            plugin->SetExecuteStrategy(CreateExecuteStrategy(executeStrategyMap_[plugin->GetCode()]));
+        } else {
+            plugin->SetExecuteStrategy(CreateExecuteStrategy(ExecuteStrategy::SINGLE));
+        }
+        return true;
+    }
+    return false;
+}
+
+bool PluginManager::AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
+    ExecuteStrategy strategy)
+{
+    if (AddPlugin(extensionPlugin)) {
+        auto basicPlugin = GetPluginByCode(basicPluginCode);
+        if (basicPlugin != nullptr) {
+            EDMLOGD("PluginManager::AddExtensionPlugin %{public}d add extension plugin %{public}d", basicPluginCode,
+                extensionPlugin->GetCode());
+            basicPlugin->SetExtensionPlugin(extensionPlugin);
+            basicPlugin->SetExecuteStrategy(CreateExecuteStrategy(strategy));
+        }
+        extensionPlugin->SetPluginType(IPlugin::PluginType::EXTENSION);
+        extensionPluginMap_.insert(std::make_pair(basicPluginCode, extensionPlugin->GetCode()));
+        executeStrategyMap_.insert(std::make_pair(basicPluginCode, strategy));
         return true;
     }
     return false;
