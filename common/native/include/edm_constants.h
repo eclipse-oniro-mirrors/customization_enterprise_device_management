@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,6 +38,19 @@ namespace EdmConstants {
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
         static const std::string DEVICE_SERIAL = "deviceSerial";
+    }
+
+    namespace Restrictions {
+        const std::string LABEL_DISALLOWED_POLICY_BLUETOOTH = "bt";
+        const std::string LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyTime";
+        const std::string LABEL_DISALLOWED_POLICY_PRINTER = "printer";
+        const std::string LABEL_DISALLOWED_POLICY_HDC = "hdc";
+        const std::string LABEL_DISALLOWED_POLICY_MIC = "mic";
+        const std::string LABEL_DISALLOWED_POLICY_FINGER_PRINT = "finger";
+        const std::string LABEL_DISALLOWED_POLICY_SCREENSHOT = "screenshot";
+        const std::string LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
+        const std::string LABEL_DISALLOWED_POLICY_USB = "usb";
+        const std::string LABEL_DISALLOWED_POLICY_WIFI = "wifi";
     }
 
     namespace SecurityManager {

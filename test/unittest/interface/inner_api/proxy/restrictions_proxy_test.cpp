@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,71 +65,41 @@ void RestrictionsProxyTest::TearDownTestSuite()
 }
 
 /**
- * @tc.name: TestSetHdcDisabledSuc
- * @tc.desc: Test setHdcDisabled success func.
+ * @tc.name: TestSetDisallowedPolicySuc
+ * @tc.desc: Test SetDisallowedPolicy success func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestSetHdcDisabledSuc, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicySuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetHdcDisabled(admin, true);
+    int32_t ret = proxy_->SetDisallowedPolicy(admin, true, EdmInterfaceCode::DISABLED_HDC);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestSetPrinterDisabledSuc
- * @tc.desc: Test setPrinterDisabled success func.
+ * @tc.name: TestSetDisallowedPolicyFail
+ * @tc.desc: Test SetDisallowedPolicy without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestSetPrinterDisabledSuc, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetPrinterDisabled(admin, true);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestSetHdcDisabledFail
- * @tc.desc: Test setHdcDisabled without enable edm service func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestSetHdcDisabledFail, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetHdcDisabled(admin, true);
+    int32_t ret = proxy_->SetDisallowedPolicy(admin, true, EdmInterfaceCode::DISABLED_HDC);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestSetPrinterDisabledFail
- * @tc.desc: Test setPrinterDisabled without enable edm service func.
+ * @tc.name: TestGetDisallowedPolicySuc
+ * @tc.desc: Test GetDisallowedPolicy func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestSetPrinterDisabledFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetPrinterDisabled(admin, true);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestIsHdcDisabledSuc
- * @tc.desc: Test IsHdcDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsHdcDisabledSuc, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicySuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -137,206 +107,36 @@ HWTEST_F(RestrictionsProxyTest, TestIsHdcDisabledSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool result = false;
-    int32_t ret = proxy_->IsHdcDisabled(&admin, result);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestIsPrinterDisabledSuc
- * @tc.desc: Test IsPrinterDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsPrinterDisabledSuc, TestSize.Level1)
-{
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
-    bool result = false;
-    int32_t ret = proxy_->IsPrinterDisabled(&admin, result);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestIsHdcDisabledFail
- * @tc.desc: Test IsHdcDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsHdcDisabledFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    bool result = false;
-    int32_t ret = proxy_->IsHdcDisabled(&admin, result);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestIsPrinterDisabledFail
- * @tc.desc: Test IsPrinterDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsPrinterDisabledFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    bool result = false;
-    int32_t ret = proxy_->IsPrinterDisabled(&admin, result);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestDisableMicrophoneSuc
- * @tc.desc: Test DisableMicrophone success func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestDisableMicrophoneSuc, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->DisableMicrophone(admin, true);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestDisableMicrophoneFail
- * @tc.desc: Test DisableMicrophone without enable edm service func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestDisableMicrophoneFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->DisableMicrophone(admin, true);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestIsMicrophoneDisabledSuc
- * @tc.desc: Test IsMicrophoneDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledSuc, TestSize.Level1)
-{
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
-    bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisabled(&admin, result);
+    int32_t ret = proxy_->GetDisallowedPolicy(&admin, EdmInterfaceCode::DISABLED_HDC, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result);
 }
 
 /**
- * @tc.name: TestIsMicrophoneDisabledFail
- * @tc.desc: Test IsMicrophoneDisabled func.
+ * @tc.name: TestGetDisallowedPolicyFail
+ * @tc.desc: Test GetDisallowedPolicy func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledFail, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisabled(&admin, result);
+    int32_t ret = proxy_->GetDisallowedPolicy(&admin, EdmInterfaceCode::DISABLED_HDC, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestIsMicrophoneDisabledNullptr
- * @tc.desc: Test IsMicrophoneDisabled func.
+ * @tc.name: TestGetDisallowedPolicyNullptr
+ * @tc.desc: Test GetDisallowedPolicy func.
  * @tc.type: FUNC
  */
-HWTEST_F(RestrictionsProxyTest, TestIsMicrophoneDisabledNullptr, TestSize.Level1)
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyNullptr, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     bool result = false;
-    int32_t ret = proxy_->IsMicrophoneDisabled(nullptr, result);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestSetFingerprintAuthDisabledSuc
- * @tc.desc: Test SetFingerprintAuthDisabled success func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestSetFingerprintAuthDisabledSuc, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetFingerprintAuthDisabled(admin, true);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestSetFingerprintAuthDisabledFail
- * @tc.desc: Test SetFingerprintAuthDisabled without enable edm service func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestSetFingerprintAuthDisabledFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetFingerprintAuthDisabled(admin, true);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestIsFingerprintAuthDisabledSuc
- * @tc.desc: Test IsFingerprintAuthDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsFingerprintAuthDisabledSuc, TestSize.Level1)
-{
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
-    bool result = false;
-    int32_t ret = proxy_->IsFingerprintAuthDisabled(&admin, result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(result);
-}
-
-/**
- * @tc.name: TestIsFingerprintAuthDisabledFail
- * @tc.desc: Test IsFingerprintAuthDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsFingerprintAuthDisabledFail, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    bool result = false;
-    int32_t ret = proxy_->IsFingerprintAuthDisabled(&admin, result);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
-}
-
-/**
- * @tc.name: TestIsFingerprintAuthDisabledNullptr
- * @tc.desc: Test IsFingerprintAuthDisabled func.
- * @tc.type: FUNC
- */
-HWTEST_F(RestrictionsProxyTest, TestIsFingerprintAuthDisabledNullptr, TestSize.Level1)
-{
-    Utils::SetEdmServiceDisable();
-    bool result = false;
-    int32_t ret = proxy_->IsFingerprintAuthDisabled(nullptr, result);
+    int32_t ret = proxy_->GetDisallowedPolicy(nullptr, EdmInterfaceCode::DISABLED_HDC, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

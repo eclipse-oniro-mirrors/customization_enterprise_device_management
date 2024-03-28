@@ -29,8 +29,14 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableUsbP
 void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr)
 {
     EDMLOGI("DisableUsbPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, "disable_usb",
-        "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_MANAGE_USB"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, "disable_usb", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableUsbPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableUsbPlugin::OnAdminRemove);

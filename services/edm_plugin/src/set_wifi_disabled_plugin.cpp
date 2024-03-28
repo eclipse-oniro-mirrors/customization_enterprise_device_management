@@ -16,6 +16,7 @@
 #include "set_wifi_disabled_plugin.h"
 
 #include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "wifi_device.h"
@@ -29,8 +30,14 @@ const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
 {
     EDMLOGI("SetWifiDisabledPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi",
-        "ohos.permission.ENTERPRISE_MANAGE_WIFI", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
+        "ohos.permission.ENTERPRISE_MANAGE_WIFI"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi", config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetWifiDisabledPlugin::OnSetPolicy, FuncOperateType::SET);
 }

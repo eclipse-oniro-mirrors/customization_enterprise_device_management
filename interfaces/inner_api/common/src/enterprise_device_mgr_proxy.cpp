@@ -332,12 +332,13 @@ ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin,
     return ERR_OK;
 }
 
-int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result)
+int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result,
+    std::string permissionTag)
 {
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
@@ -583,14 +584,14 @@ void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std:
 }
 
 int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled,
-    uint32_t policyCode)
+    uint32_t policyCode, std::string permissionTag)
 {
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteBool(isDisabled);
     return HandleDevicePolicy(funcCode, data);
 }

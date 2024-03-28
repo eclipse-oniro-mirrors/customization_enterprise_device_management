@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,8 +57,10 @@ public:
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
-    int32_t SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled, uint32_t policyCode);
-    int32_t IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result);
+    int32_t SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled, uint32_t policyCode,
+        std::string permissionTag = WITHOUT_PERMISSION_TAG);
+    int32_t IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result,
+        std::string permissionTag = WITHOUT_PERMISSION_TAG);
     bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
         int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData,
