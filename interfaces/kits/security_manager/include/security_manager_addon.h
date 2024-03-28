@@ -37,6 +37,9 @@ private:
     static napi_value ConvertDeviceEncryptionStatus(napi_env env, DeviceEncryptionStatus &deviceEncryptionStatus);
     static napi_value SetPasswordPolicy(napi_env env, napi_callback_info info);
     static napi_value GetPasswordPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetSecurityStatus(napi_env env, napi_callback_info info);
+    static int32_t ConvertDeviceEncryptionToJson(napi_env env, DeviceEncryptionStatus &deviceEncryptionStatus,
+        std::string &stringRet);
 };
 } // namespace EDM
 } // namespace OHOS

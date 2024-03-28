@@ -34,6 +34,7 @@ public:
     int32_t SetPasswordPolicy(const AppExecFwk::ElementName &admin, const PasswordPolicy &policy);
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
+    int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
 
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
