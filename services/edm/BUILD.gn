@@ -233,7 +233,7 @@ ohos_shared_library("edmservice") {
   if (bluetooth_edm_enable) {
     external_deps += [ "bluetooth:btframework" ]
     sources += [
-      "../edm_plugin/src/allowed_bluetooth_whitelist_plugin.cpp",
+      "../edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
       "../edm_plugin/src/disable_bluetooth_plugin.cpp",
       "../edm_plugin/src/get_bluetooth_info_plugin.cpp",
     ]

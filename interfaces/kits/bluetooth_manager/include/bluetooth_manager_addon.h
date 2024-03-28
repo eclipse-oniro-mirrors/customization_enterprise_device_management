@@ -36,9 +36,10 @@ private:
     static napi_value ConvertBluetoothInfo(napi_env env, BluetoothInfo &bluetoothInfo);
     static napi_value SetBluetoothDisabled(napi_env env, napi_callback_info info);
     static napi_value IsBluetoothDisabled(napi_env env, napi_callback_info info);
-    static napi_value SetBluetoothWhitelist(napi_env env, napi_callback_info info);
-    static napi_value GetBluetoothWhitelist(napi_env env, napi_callback_info info);
-    static napi_value RemoveBluetoothWhitelist(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info, std::string function);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#include "allowed_bluetooth_whitelist_plugin.h"
+#include <gtest/gtest.h>
+
+#include "allowed_bluetooth_devices_plugin.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "utils.h"
-#include <gtest/gtest.h>
 
 using namespace testing::ext;
 using namespace testing;
@@ -27,20 +28,20 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class AllowedBluetoothWhitelistPluginTest : public testing::Test {
+class AllowedBluetoothDevicesPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void AllowedBluetoothWhitelistPluginTest::SetUpTestSuite(void)
+void AllowedBluetoothDevicesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void AllowedBluetoothWhitelistPluginTest::TearDownTestSuite(void)
+void AllowedBluetoothDevicesPluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -49,14 +50,14 @@ void AllowedBluetoothWhitelistPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistEmpty
- * @tc.desc: Test set bluetooth whitelist function.
+ * @tc.name: TestSetBluetoothDevicesEmpty
+ * @tc.desc: Test set bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistEmpty, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesEmpty, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
@@ -64,14 +65,14 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistEmpty, Te
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistWithDataAndCurrentData
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnSetPolicy function.
+ * @tc.name: TestSetBluetoothDevicesWithDataAndCurrentData
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataAndCurrentData, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData = { "00:00:5E:00:53:00", "FF:FF:FF:FF:FF:FF" };
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
@@ -79,14 +80,14 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataA
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistWithDataWithoutCurrentData
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnSetPolicy function.
+ * @tc.name: TestSetBluetoothDevicesWithDataWithoutCurrentData
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataWithoutCurrentData, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataWithoutCurrentData, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
@@ -94,49 +95,49 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataW
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistFail
- * @tc.desc: Test set bluetooth whitelist function.
+ * @tc.name: TestSetBluetoothDevicesFail
+ * @tc.desc: Test set bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistFail, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSize.Level1)
 {
     Utils::SetBluetoothDisable();
-    AllowedBluetoothWhitelistPlugin whitelistPlugin;
+    AllowedBluetoothDevicesPlugin devicesPlugin;
     std::vector<std::string> policyData{ "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
-    ErrCode ret = whitelistPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    ErrCode ret = devicesPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistFail
- * @tc.desc: Test set bluetooth whitelist function.
+ * @tc.name: TestSetBluetoothDevicesFail
+ * @tc.desc: Test set bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistCountFail, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothWhitelistPlugin whitelistPlugin;
+    AllowedBluetoothDevicesPlugin devicesPlugin;
     std::vector<std::string> policyData(EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1);
     for (int i = 0; i < EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1; ++i) {
         std::stringstream ss;
         ss << i;
-        policyData[i] = ss.str(); 
+        policyData[i] = ss.str();
     }
     std::vector<std::string> currentData;
-    ErrCode ret = whitelistPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    ErrCode ret = devicesPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
- * @tc.name: TestGetBluetoothWhitelistSuc
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnGetPolicy function.
+ * @tc.name: TestGetBluetoothDevicesSuc
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestGetBluetoothWhitelistSuc, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestGetBluetoothDevicesSuc, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = AllowedBluetoothWhitelistPlugin::GetPlugin();
-    std::string policyValue{ "GetBluetoothWhitelist" };
+    std::shared_ptr<IPlugin> plugin = AllowedBluetoothDevicesPlugin::GetPlugin();
+    std::string policyValue{ "GetBluetoothDevices" };
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
@@ -146,13 +147,13 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestGetBluetoothWhitelistSuc, Test
 }
 
 /**
- * @tc.name: TestRemoveBluetoothWhitelistEmpty
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnRemovePolicy function.
+ * @tc.name: TestRemoveBluetoothDevicesEmpty
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestRemoveBluetoothWhitelistEmpty, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, TestSize.Level1)
 {
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);
@@ -160,13 +161,13 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestRemoveBluetoothWhitelistEmpty,
 }
 
 /**
- * @tc.name: TestRemoveBluetoothWhitelistWithDataAndCurrentData
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnRemovePolicy function.
+ * @tc.name: TestRemoveBluetoothDevicesWithDataAndCurrentData
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestRemoveBluetoothWhitelistWithDataAndCurrentData, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
 {
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);
@@ -174,13 +175,13 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestRemoveBluetoothWhitelistWithDa
 }
 
 /**
- * @tc.name: TestRemoveBluetoothWhitelistWithDataWithoutCurrentData
- * @tc.desc: Test AllowedBluetoothWhitelistPluginTest::OnRemovePolicy function.
+ * @tc.name: TestRemoveBluetoothDevicesWithDataWithoutCurrentData
+ * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestRemoveBluetoothWhitelistWithDataWithoutCurrentData, TestSize.Level1)
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataWithoutCurrentData, TestSize.Level1)
 {
-    AllowedBluetoothWhitelistPlugin plugin;
+    AllowedBluetoothDevicesPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);

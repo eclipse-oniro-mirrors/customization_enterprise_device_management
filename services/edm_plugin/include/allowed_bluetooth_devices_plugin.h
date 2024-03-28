@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_WHITELIST_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_WHITELIST_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_DEVICES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_DEVICES_PLUGIN_H
 
 #include "plugin_singleton.h"
 #include <vector>
 
 namespace OHOS {
 namespace EDM {
-class AllowedBluetoothWhitelistPlugin : public PluginSingleton<AllowedBluetoothWhitelistPlugin,
+class AllowedBluetoothDevicesPlugin : public PluginSingleton<AllowedBluetoothDevicesPlugin,
     std::vector<std::string>> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedBluetoothWhitelistPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedBluetoothDevicesPlugin,
         std::vector<std::string>>> ptr) override;
     ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
@@ -32,9 +32,9 @@ public:
     void OnChangedPolicyDone(bool isGlobalChanged);
 
 private:
-    void NotifyBluetoothWhitelistChanged();
+    void NotifyBluetoothDevicesChanged();
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_WHITELIST_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_DEVICES_PLUGIN_H

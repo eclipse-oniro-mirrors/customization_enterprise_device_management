@@ -169,113 +169,113 @@ HWTEST_F(BluetoothManagerProxyTest, TestIsBluetoothDisabledFail, TestSize.Level1
 }
 
 /**
- * @tc.name: TestSetBluetoothWhitelistSuc
- * @tc.desc: Test SetBluetoothWhitelist func.
+ * @tc.name: TestAddAllowedBluetoothDevicesSuc
+ * @tc.desc: Test AddAllowedBluetoothDevices func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestSetBluetoothWhitelistSuc, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestAddAllowedBluetoothDevicesSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<std::string> whitelist = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
-    int32_t ret = proxy_->SetBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
+    int32_t ret = proxy_->AddAllowedBluetoothDevices(admin, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestGetBluetoothWhitelistFail
- * @tc.desc: Test SetBluetoothWhitelist without enable edm service func.
+ * @tc.name: TestGetAllowedBluetoothDevicesFail
+ * @tc.desc: Test AddAllowedBluetoothDevices without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestSetBluetoothWhitelistFail, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestAddAllowedBluetoothDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<std::string> whitelist;
-    int32_t ret = proxy_->SetBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->AddAllowedBluetoothDevices(admin, deviceIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestGetBluetoothWhitelistSuc
- * @tc.desc: Test GetBluetoothWhitelist func.
+ * @tc.name: TestGetAllowedBluetoothDevicesSuc
+ * @tc.desc: Test GetAllowedBluetoothDevices func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothWhitelistSuc, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBluetoothProxySendRequestGetPolicy));
-    std::vector<std::string> whitelist;
-    int32_t ret = proxy_->GetBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->GetAllowedBluetoothDevices(&admin, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestGetBluetoothWhitelistFail
- * @tc.desc: Test GetBluetoothWhitelist without enable edm service func.
+ * @tc.name: TestGetAllowedBluetoothDevicesFail
+ * @tc.desc: Test GetAllowedBluetoothDevices without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothWhitelistFail, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<std::string> whitelist;
-    int32_t ret = proxy_->GetBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->GetAllowedBluetoothDevices(&admin, deviceIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestGetBluetoothWhitelistWithoutAdminSuc
- * @tc.desc: Test GetBluetoothWhitelist func.
+ * @tc.name: TestGetAllowedBluetoothDevicesWithoutAdminSuc
+ * @tc.desc: Test GetAllowedBluetoothDevices func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestGetBluetoothWhitelistWithoutAdminSuc, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSuc, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<std::string> whitelist;
-    int32_t ret = proxy_->GetBluetoothWhitelist(whitelist);
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->GetAllowedBluetoothDevices(nullptr, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestRemoveBluetoothWhitelistSuc
- * @tc.desc: Test RemoveBluetoothWhitelist func.
+ * @tc.name: TestRemoveAllowedBluetoothDevicesSuc
+ * @tc.desc: Test RemoveAllowedBluetoothDevices func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestRemoveBluetoothWhitelistSuc, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<std::string> whitelist = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
-    int32_t ret = proxy_->RemoveBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
+    int32_t ret = proxy_->RemoveAllowedBluetoothDevices(admin, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestRemoveBluetoothWhitelistFail
- * @tc.desc: Test RemoveBluetoothWhitelist without enable edm service func.
+ * @tc.name: TestRemoveAllowedBluetoothDevicesFail
+ * @tc.desc: Test RemoveAllowedBluetoothDevices without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestRemoveBluetoothWhitelistFail, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<std::string> whitelist;
-    int32_t ret = proxy_->RemoveBluetoothWhitelist(admin, whitelist);
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->RemoveAllowedBluetoothDevices(admin, deviceIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
