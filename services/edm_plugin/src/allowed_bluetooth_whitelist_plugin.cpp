@@ -17,12 +17,15 @@
 #include "array_string_serializer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
+#include "parameters.h"
 #include "plugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AllowedBluetoothWhitelistPlugin::GetPlugin());
+const char *const PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 const char *const BLUETOOTH_WHITELIST_CHANGED_EVENT = "com.ohos.edm.bluetoothwhitelistchanged";
 
 void AllowedBluetoothWhitelistPlugin::InitPlugin(
@@ -44,6 +47,11 @@ ErrCode AllowedBluetoothWhitelistPlugin::OnSetPolicy(std::vector<std::string> &d
                                                      std::vector<std::string> &currentData, int32_t userId)
 {
     EDMLOGI("AllowedBluetoothWhitelistPlugin OnSetPolicy userId = %{public}d", userId);
+    bool isDisabled = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
+    if (isDisabled) {
+        EDMLOGE("AllowedBluetoothWhitelistPlugin OnSetPolicy failed, because bluetooth disabled:");
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
     if (data.empty()) {
         EDMLOGW("AllowedBluetoothWhitelistPlugin OnSetPolicy data is empty:");
         return ERR_OK;

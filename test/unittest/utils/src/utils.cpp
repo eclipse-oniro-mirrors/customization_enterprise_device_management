@@ -45,6 +45,7 @@ const std::string PERMISSION_MANAGE_USB_CONFIG = "ohos.permission.MANAGE_USB_CON
 const std::string PERMISSION_STORAGE_MANAGER = "ohos.permission.STORAGE_MANAGER";
 const std::string PERMISSION_MOUNT_UNMOUNT_MANAGER = "ohos.permission.MOUNT_UNMOUNT_MANAGER";
 const std::string PERMISSION_GET_BUNDLE_INFO = "ohos.permission.GET_BUNDLE_INFO";
+const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -134,6 +135,16 @@ void Utils::SetEdmServiceEnable()
 void Utils::SetEdmServiceDisable()
 {
     system::SetParameter(SET_EDM_SERVICE, "false");
+}
+
+void Utils::SetBluetoothEnable()
+{
+    system::SetParameter(PERSIST_BLUETOOTH_CONTROL, "false");
+}
+
+void Utils::SetBluetoothDisable()
+{
+    system::SetParameter(PERSIST_BLUETOOTH_CONTROL, "true");
 }
 } // namespace TEST
 } // namespace EDM

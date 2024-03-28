@@ -120,8 +120,8 @@ int32_t BluetoothManagerProxy::GetBluetoothWhitelist(const AppExecFwk::ElementNa
         return ret;
     }
     int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("bundles size=[%{public}d] is too large", size);
+    if (size > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
+        EDMLOGE("BluetoothManagerProxy:GetBluetoothWhitelist size=[%{public}d] is too large", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&whitelist);

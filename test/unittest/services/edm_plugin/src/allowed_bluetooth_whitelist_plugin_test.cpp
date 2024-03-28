@@ -14,6 +14,7 @@
  */
 
 #include "allowed_bluetooth_whitelist_plugin.h"
+#include "edm_constants.h"
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -54,6 +55,7 @@ void AllowedBluetoothWhitelistPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistEmpty, TestSize.Level1)
 {
+    Utils::SetBluetoothEnable();
     AllowedBluetoothWhitelistPlugin plugin;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
@@ -68,6 +70,7 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistEmpty, Te
  */
 HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataAndCurrentData, TestSize.Level1)
 {
+    Utils::SetBluetoothEnable();
     AllowedBluetoothWhitelistPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData = { "00:00:5E:00:53:00", "FF:FF:FF:FF:FF:FF" };
@@ -82,11 +85,47 @@ HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataA
  */
 HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistWithDataWithoutCurrentData, TestSize.Level1)
 {
+    Utils::SetBluetoothEnable();
     AllowedBluetoothWhitelistPlugin plugin;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetBluetoothWhitelistFail
+ * @tc.desc: Test set bluetooth whitelist function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistFail, TestSize.Level1)
+{
+    Utils::SetBluetoothDisable();
+    AllowedBluetoothWhitelistPlugin whitelistPlugin;
+    std::vector<std::string> policyData{ "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
+    std::vector<std::string> currentData;
+    ErrCode ret = whitelistPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+}
+
+/**
+ * @tc.name: TestSetBluetoothWhitelistFail
+ * @tc.desc: Test set bluetooth whitelist function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedBluetoothWhitelistPluginTest, TestSetBluetoothWhitelistCountFail, TestSize.Level1)
+{
+    Utils::SetBluetoothEnable();
+    AllowedBluetoothWhitelistPlugin whitelistPlugin;
+    std::vector<std::string> policyData(EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1);
+    for (int i = 0; i < EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1; ++i) {
+        std::stringstream ss;
+        ss << i;
+        policyData[i] = ss.str(); 
+    }
+    std::vector<std::string> currentData;
+    ErrCode ret = whitelistPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
