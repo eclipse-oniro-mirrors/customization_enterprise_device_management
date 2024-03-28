@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "password_policy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -30,8 +31,13 @@ public:
     int32_t GetSecurityPatchTag(const AppExecFwk::ElementName &admin, std::string &info);
     int32_t GetDeviceEncryptionStatus(const AppExecFwk::ElementName &admin,
         DeviceEncryptionStatus &deviceEncryptionStatus);
+    int32_t SetPasswordPolicy(const AppExecFwk::ElementName &admin, const PasswordPolicy &policy);
+    int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
+    int32_t GetPasswordPolicy(PasswordPolicy &policy);
+    int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
 
 private:
+    int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::mutex mutexLock_;
 };

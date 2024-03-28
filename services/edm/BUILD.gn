@@ -45,11 +45,13 @@ ohos_shared_library("edmservice") {
     "../edm_plugin/src/get_security_patch_tag_plugin.cpp",
     "../edm_plugin/src/install_plugin.cpp",
     "../edm_plugin/src/ntp_server_plugin.cpp",
+    "../edm_plugin/src/password_policy_plugin.cpp",
     "../edm_plugin/src/power_policy_plugin.cpp",
     "../edm_plugin/src/screen_off_time_plugin.cpp",
     "../edm_plugin/src/uninstall_plugin.cpp",
     "../edm_plugin/src/utils/install_param_serializer.cpp",
     "../edm_plugin/src/utils/installer_callback.cpp",
+    "../edm_plugin/src/utils/password_policy_serializer.cpp",
     "../edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "./src/admin.cpp",
     "./src/admin_manager.cpp",
@@ -147,6 +149,7 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/set_wifi_profile_plugin.cpp",
       "../edm_plugin/src/utils/wifi_device_config_serializer.cpp",
     ]
+    defines += [ "WIFI_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {

@@ -52,6 +52,12 @@ namespace EdmConstants {
         const std::string LABEL_DISALLOWED_POLICY_USB = "usb";
         const std::string LABEL_DISALLOWED_POLICY_WIFI = "wifi";
     }
+
+    namespace SecurityManager {
+        static const std::string PATCH = "patch";
+        static const std::string ENCRYPTION = "encryption";
+        static const std::string ROOT = "root";
+    } // namespace SecurityManager
 }
 } // namespace EDM
 } // namespace OHOS
