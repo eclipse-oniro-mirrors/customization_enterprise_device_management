@@ -12,6 +12,7 @@
 # limitations under the License.
 
 declare_args() {
+  enterprise_device_management_support_all = true
   enterprise_device_management_feature_coverage = false
 }
 
