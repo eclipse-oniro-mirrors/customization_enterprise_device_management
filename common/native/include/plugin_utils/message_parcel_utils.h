@@ -21,6 +21,7 @@
 #include "edm_errors.h"
 #include "install_param.h"
 #include "message_parcel.h"
+#include "operate_device_param.h"
 #ifdef WIFI_EDM_ENABLE
 #include "wifi_msg.h"
 #endif
@@ -40,6 +41,8 @@ public:
     static void ProcessPrivacyConfig(int32_t privacyConfig, Wifi::WifiDeviceConfig &config);
     static void ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress &address);
 #endif
+    static void WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data);
+    static void ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param);
 };
 } // namespace EDM
 } // namespace OHOS

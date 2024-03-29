@@ -85,6 +85,7 @@ enum EdmInterfaceCode : uint32_t {
     FINGERPRINT_AUTH = 1049,
     GET_DEVICE_INFO = 1050,
     PASSWORD_POLICY = 1051,
+    OPERATE_DEVICE = 1052,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

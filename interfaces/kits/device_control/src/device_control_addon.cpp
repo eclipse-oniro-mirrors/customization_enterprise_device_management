@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "device_control_addon.h"
+#include "operate_device_param.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -28,6 +29,7 @@ napi_value DeviceControlAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("shutdown", Shutdown),
         DECLARE_NAPI_FUNCTION("reboot", Reboot),
         DECLARE_NAPI_FUNCTION("lockScreen", LockScreen),
+        DECLARE_NAPI_FUNCTION("operateDevice", OperateDevice),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -164,6 +166,46 @@ void DeviceControlAddon::NativeResetFactory(napi_env env, void *data)
     }
     asyncCallbackInfo->ret =
         DeviceControlProxy::GetDeviceControlProxy()->ResetFactory(asyncCallbackInfo->elementName);
+}
+
+napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_OperateDevice called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    if (argc > ARGS_SIZE_TWO) {
+        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+
+    AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env,ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
+    EDMLOGD("resetFactory: elementName.bundlename %{public}s, abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    OperateDeviceParam param;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.operate, argv[ARR_INDEX_ONE]), "operate param error");
+    if (argc > ARGS_SIZE_TWO) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_ONE]),
+            "addition param error");
+    }
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(param.userId);
+    EDMLOGI("NAPI_lockScreen called userId :%{public}d", param.userId);
+#else
+    EDMLOGI("NAPI_lockScreen don't call userId");
+#endif
+    int32_t ret = DeviceControlProxy::GetDeviceControlProxy()->OperateDevice(elementName, param);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
 }
 
 static napi_module g_deviceControlModule = {

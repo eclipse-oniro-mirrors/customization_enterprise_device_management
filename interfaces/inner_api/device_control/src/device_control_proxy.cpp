@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "edm_log.h"
 #include "func_code.h"
+#include "message_parcel_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -107,6 +108,26 @@ int32_t DeviceControlProxy::LockScreen(AppExecFwk::ElementName &admin, int32_t u
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(userId);
     EDMLOGD("DeviceControlProxy LockScreen userId = %{public}d.", userId);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceControlProxy::OperateDevice(AppExecFwk::ElementName &admin, const OperateDeviceParam &param)
+{
+    EDMLOGD("DeviceControlProxy::OperateDevice");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::OPERATE_DEVICE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    MessageParcelUtils::WriteOperateDeviceParam(param, data);
+    EDMLOGD("DeviceControlProxy OperateDevice operate = %{public}s userId = %{public}d.", param.operate.c_str(),
+        param.userId);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
