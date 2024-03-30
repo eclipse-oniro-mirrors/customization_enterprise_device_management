@@ -25,6 +25,6 @@ struct OperateDeviceParam {
     std::string addition;
     int32_t userId = -1;
 };
-}
-}
+} // namespace EDM
+} // namespace OHOS
 #endif // COMMON_NATIVE_INCLUDE_OPERATE_DEVICE_PARAM_H

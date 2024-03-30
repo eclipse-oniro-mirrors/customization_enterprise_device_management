@@ -32,6 +32,7 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addOsAccount", AddOsAccount),
         DECLARE_NAPI_FUNCTION("disallowOsAccountAddition", DisallowAddOsAccount),
         DECLARE_NAPI_FUNCTION("isOsAccountAdditionDisallowed", IsAddOsAccountDisallowed),
+        DECLARE_NAPI_FUNCTION("addOsAccountAsync", AddOsAccountAsync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -149,26 +150,17 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
 {
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGI("NAPI_AddOsAccount called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter name error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "parameter type error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::string name;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, name, argv[ARR_INDEX_ONE]), "parameter name parse error");
-    int32_t type;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, type, argv[ARR_INDEX_TWO]), "parameter type parse error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, !name.empty(), "parameter name is empty");
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckOsAccountType(type), "parameter type unknown");
-
+    auto asyncCallbackInfo = new (std::nothrow) AsyncAddOsAccountCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncAddOsAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
+    napi_value checkRet = AddOsAccountCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, checkRet, &errCode);
+    if (checkRet == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
     if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
@@ -177,8 +169,8 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
     OHOS::AccountSA::OsAccountInfo accountInfo;
     std::string distributedInfoName;
     std::string distributedInfoId;
-    int32_t ret = accountManagerProxy->AddOsAccount(elementName, name, type, accountInfo,
-        distributedInfoName, distributedInfoId);
+    int32_t ret = accountManagerProxy->AddOsAccount(asyncCallbackInfo->elementName, asyncCallbackInfo->name,
+        asyncCallbackInfo->type, accountInfo, distributedInfoName, distributedInfoId);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -210,6 +202,34 @@ void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data
 }
 
 #ifdef OS_ACCOUNT_EDM_ENABLE
+napi_value AccountManagerAddon::AddOsAccountCommon(napi_env env, napi_callback_info info,
+    AsyncAddOsAccountCallbackInfo* callbackInfo)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter name error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, callbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("AddOsAccountCommon: callbackInfo->elementName.bundleName %{public}s, callbackInfo->abilityName:%{public}s",
+        callbackInfo->elementName.GetBundleName().c_str(), callbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, callbackInfo->name, argv[ARR_INDEX_ONE]),
+        "parameter name parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, callbackInfo->type, argv[ARR_INDEX_TWO]),
+        "parameter type parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, !callbackInfo->name.empty(), "parameter name is empty");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckOsAccountType(callbackInfo->type), "parameter type unknown");
+
+    napi_value ret;
+    napi_create_int32(env, ERR_OK, &ret);
+    return ret;
+}
+
 bool AccountManagerAddon::CheckOsAccountType(int32_t type)
 {
     if (type >= static_cast<int32_t>(OHOS::AccountSA::OsAccountType::ADMIN)
@@ -452,6 +472,74 @@ napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_call
     napi_get_boolean(env, isDisabled, &result);
     return result;
 }
+
+napi_value AccountManagerAddon::AddOsAccountAsync(napi_env env, napi_callback_info info)
+{
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    EDMLOGI("NAPI_AddOsAccountAsync called");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncAddOsAccountCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncAddOsAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
+    napi_value checkRet = AddOsAccountCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    napi_get_value_int32(env, checkRet, &errCode);
+    if (checkRet == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "AddOsAccountAsync",
+        NativeAddOsAccount, NativeAddOsAccountCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("AccountManagerAddon::AddOsAccountAsync Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+#ifdef OS_ACCOUNT_EDM_ENABLE
+void AccountManagerAddon::NativeAddOsAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeAddOsAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncAddOsAccountCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncAddOsAccountCallbackInfo *>(data);
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        EDMLOGE("can not get AccountManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = accountManagerProxy->AddOsAccount(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->name, asyncCallbackInfo->type, asyncCallbackInfo->accountInfo,
+        asyncCallbackInfo->distributedInfoName, asyncCallbackInfo->distributedInfoId);
+}
+
+void AccountManagerAddon::NativeAddOsAccountCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncAddOsAccountCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value accountValue = ConvertOsAccountInfoToJs(env, asyncCallbackInfo->accountInfo,
+                asyncCallbackInfo->distributedInfoName, asyncCallbackInfo->distributedInfoId);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, accountValue);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+#endif
 
 static napi_module g_accountManagerModule = {
     .nm_version = 1,

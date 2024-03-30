@@ -186,13 +186,13 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
 
     AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
-        env,ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
     EDMLOGD("resetFactory: elementName.bundlename %{public}s, abilityname:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     OperateDeviceParam param;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.operate, argv[ARR_INDEX_ONE]), "operate param error");
     if (argc > ARGS_SIZE_TWO) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_ONE]),
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
             "addition param error");
     }
 #ifdef OS_ACCOUNT_EDM_ENABLE

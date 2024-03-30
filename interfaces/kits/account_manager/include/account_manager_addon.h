@@ -36,6 +36,15 @@ struct AsyncDisallowAddLocalAccountCallbackInfo : AsyncCallbackInfo {
     bool isDisallow;
 };
 
+struct AsyncAddOsAccountCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string name;
+    int32_t type;
+    OHOS::AccountSA::OsAccountInfo accountInfo;
+    std::string distributedInfoName;
+    std::string distributedInfoId;
+};
+
 class AccountManagerAddon {
 public:
     AccountManagerAddon();
@@ -57,9 +66,14 @@ private:
         napi_value &result);
     static napi_value ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
         std::string distributedInfoName, std::string distributedInfoId);
+    static napi_value AddOsAccountCommon(napi_env env, napi_callback_info info,
+        AsyncAddOsAccountCallbackInfo* callbackInfo);
+    static void NativeAddOsAccount(napi_env env, void *data);
+    static void NativeAddOsAccountCallbackComplete(napi_env env, napi_status status, void *data);
 #endif
     static napi_value DisallowAddOsAccount(napi_env env, napi_callback_info info);
     static napi_value IsAddOsAccountDisallowed(napi_env env, napi_callback_info info);
+    static napi_value AddOsAccountAsync(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
