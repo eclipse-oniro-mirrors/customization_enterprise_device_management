@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,10 +32,16 @@ public:
     int32_t GetBluetoothInfo(const AppExecFwk::ElementName &admin, BluetoothInfo &bluetoothInfo);
     int32_t SetBluetoothDisabled(const AppExecFwk::ElementName &admin, bool disabled);
     int32_t IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result);
+    int32_t AddAllowedBluetoothDevices(const AppExecFwk::ElementName &admin, const std::vector<std::string> &deviceIds);
+    int32_t GetAllowedBluetoothDevices(const AppExecFwk::ElementName *admin, std::vector<std::string> &deviceIds);
+    int32_t RemoveAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,
+        const std::vector<std::string> &deviceIds);
 
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;
     static std::mutex mutexLock_;
+    int32_t AddOrRemoveAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,
+        const std::vector<std::string> &deviceIds, std::string function);
 };
 } // namespace EDM
 } // namespace OHOS

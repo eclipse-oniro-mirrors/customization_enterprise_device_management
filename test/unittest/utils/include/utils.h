@@ -38,6 +38,8 @@ public:
     static bool IsOriginalUTEnv();
     static void SetEdmServiceEnable();
     static void SetEdmServiceDisable();
+    static void SetBluetoothEnable();
+    static void SetBluetoothDisable();
 
 private:
     static uint64_t selfTokenId_;
