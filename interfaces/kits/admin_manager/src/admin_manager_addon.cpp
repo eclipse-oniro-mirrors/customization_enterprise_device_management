@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -701,6 +701,71 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_SYSTEM_UPDATE", nSystemUpdate));
 }
 
+napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetSuperAdmin called");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncGetSuperAdminCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncGetSuperAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "GetSuperAdmin", NativeGetSuperAdmin, NativeGetSuperAdminComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void AdminManager::NativeGetSuperAdmin(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetSuperAdmin called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncGetSuperAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetSuperAdminCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->GetSuperAdmin(asyncCallbackInfo->bundleName, asyncCallbackInfo->abilityName);
+}
+
+void AdminManager::NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncGetSuperAdminCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value accountValue = ConvertWantToJs(env, asyncCallbackInfo->bundleName,
+                asyncCallbackInfo->abilityName);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, accountValue);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+napi_value AdminManager::ConvertWantToJs(napi_env env, const std::string &bundleName,
+    const std::string &abilityName)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &result));
+    napi_value bundleNameToJs = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleNameToJs));
+    NAPI_CALL(env, napi_set_named_property(env, result, "bundleName", bundleNameToJs));
+    napi_value abilityNameToJs = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, abilityName.c_str(), NAPI_AUTO_LENGTH, &abilityNameToJs));
+    NAPI_CALL(env, napi_set_named_property(env, result, "abilityName", abilityNameToJs));
+    return result;
+}
+
 napi_value AdminManager::Init(napi_env env, napi_value exports)
 {
     napi_value nAdminType = nullptr;
@@ -724,6 +789,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),
+        DECLARE_NAPI_FUNCTION("getSuperAdmin", GetSuperAdmin),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),

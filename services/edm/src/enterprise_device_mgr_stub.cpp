@@ -46,13 +46,13 @@ void EnterpriseDeviceMgrStub::AddCallFuncMap()
     memberFuncMap_[EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT] =
         &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
     memberFuncMap_[EdmInterfaceCode::AUTHORIZE_ADMIN] = &EnterpriseDeviceMgrStub::AuthorizeAdminInner;
+    memberFuncMap_[EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO] = &EnterpriseDeviceMgrStub::GetSuperAdminInner;
 }
 
 void EnterpriseDeviceMgrStub::InitSystemCodeList()
 {
     systemCodeList = {
         EdmInterfaceCode::ADD_DEVICE_ADMIN,
-        EdmInterfaceCode::REMOVE_DEVICE_ADMIN,
         EdmInterfaceCode::REMOVE_SUPER_ADMIN,
         EdmInterfaceCode::GET_ENABLED_ADMIN,
         EdmInterfaceCode::GET_ENT_INFO,
@@ -60,6 +60,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::IS_SUPER_ADMIN,
         EdmInterfaceCode::IS_ADMIN_ENABLED,
         EdmInterfaceCode::AUTHORIZE_ADMIN,
+        EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO,
     };
 }
 
@@ -311,6 +312,15 @@ ErrCode EnterpriseDeviceMgrStub::AuthorizeAdminInner(MessageParcel &data, Messag
     std::string bundleName = data.ReadString();
     ErrCode ret = AuthorizeAdmin(*admin, bundleName);
     reply.WriteInt32(ret);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::GetSuperAdminInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:IsSuperAdminInner");
+    ErrCode ret = GetSuperAdmin(reply);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(ret);
     return ERR_OK;
 }
 } // namespace EDM

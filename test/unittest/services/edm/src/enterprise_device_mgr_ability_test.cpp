@@ -1580,9 +1580,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisableSuperAdminTwoAdmin, TestSize
     EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     res = edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID); // admintype is super
-    EXPECT_TRUE(res == EdmReturnErrCode::DISABLE_ADMIN_FAILED);
-
-    DisableSuperAdminSuc(admin.GetBundleName());
+    EXPECT_TRUE(res == ERR_OK);
 }
 
 /**
@@ -2163,6 +2161,21 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     EXPECT_TRUE(res == ERR_OK);
 
     DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestGetSuperAdmin
+ * @tc.desc: Test GetSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetSuperAdmin, TestSize.Level1)
+{
+    MessageParcel reply;
+    ErrCode res = edmMgr_->GetSuperAdmin(reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+    EXPECT_TRUE(reply.ReadString() == "");
+    EXPECT_TRUE(reply.ReadString() == "");
+    EXPECT_TRUE(res == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -88,6 +88,8 @@ public:
     int InvokeAllowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeSendRequestGetSuperAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
     int InvokeSendRequestReplyFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
         GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestReplyFail code :" << code;
@@ -144,6 +146,11 @@ public:
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override { return false; }
 
     ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override
+    {
+        return ERR_OK;
+    }
+
+    ErrCode GetSuperAdmin(MessageParcel &reply) override
     {
         return ERR_OK;
     }

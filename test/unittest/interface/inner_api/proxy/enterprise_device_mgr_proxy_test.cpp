@@ -878,6 +878,40 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableSuperAdmin, TestSize.Level1)
     errVal = enterpriseDeviceMgrProxyTest->DisableSuperAdmin("com.edm.test.demo");
     EXPECT_TRUE(errVal != ERR_OK);
 }
+
+/**
+ * @tc.name: TestGetSuperAdminSuccess
+ * @tc.desc: Test GetSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetSuperAdminSuccess, TestSize.Level1)
+{
+    std::string bundleName;
+    std::string abilityName;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetSuperAdmin));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetSuperAdmin(bundleName, abilityName);
+    EXPECT_TRUE(errVal == ERR_OK);
+    EXPECT_TRUE(bundleName == RETURN_STRING);
+    EXPECT_TRUE(abilityName == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetSuperAdminFail
+ * @tc.desc: Test GetSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetSuperAdminFail, TestSize.Level1)
+{
+    std::string bundleName;
+    std::string abilityName;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetSuperAdmin(bundleName, abilityName);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

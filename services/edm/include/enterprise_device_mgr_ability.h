@@ -60,6 +60,7 @@ public:
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event);
     std::unordered_map<std::string, CommonEventCallbackFunc> commonEventFuncMap_;
     std::unordered_map<int32_t, AddSystemAbilityFunc> addSystemAbilityFuncMap_;
+    ErrCode GetSuperAdmin(MessageParcel &reply) override;
 
 protected:
     void OnStart() override;
@@ -114,6 +115,7 @@ private:
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
+    ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
