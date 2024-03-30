@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "security_manager_addon.h"
 
 #include "cJSON.h"
+#include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 
@@ -28,7 +29,9 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
         DECLARE_NAPI_FUNCTION("setPasswordPolicy", SetPasswordPolicy),
         DECLARE_NAPI_FUNCTION("getPasswordPolicy", GetPasswordPolicy),
-        DECLARE_NAPI_FUNCTION("getSecurityStatus", GetSecurityStatus)
+        DECLARE_NAPI_FUNCTION("getSecurityStatus", GetSecurityStatus),
+        DECLARE_NAPI_FUNCTION("installUserCertificate", InstallUserCertificate),
+        DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -236,6 +239,116 @@ int32_t SecurityManagerAddon::ConvertDeviceEncryptionToJson(napi_env env,
     cJSON_Delete(json);
     cJSON_free(jsonStr);
     return ERR_OK;
+}
+
+napi_value SecurityManagerAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_InstallUserCertificate called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter want error");
+    matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter certblob error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
+    bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
+    EDMLOGD(
+        "InstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+
+    bool retCertBlob = ParseCertBlob(env, argv[ARR_INDEX_ONE], asyncCallbackInfo);
+    ASSERT_AND_THROW_PARAM_ERROR(env, retCertBlob, "element cert blob error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallUserCertificate",
+        NativeInstallUserCertificate, NativeStringCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeInstallUserCertificate called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->certArray, asyncCallbackInfo->alias,
+        asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+}
+
+napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_UninstallUserCertificate called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter want error");
+    matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter uri error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
+    bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
+    EDMLOGD(
+        "UninstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+
+    bool retAlias = ParseString(env, asyncCallbackInfo->alias, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, retAlias, "element alias error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
+        NativeUninstallUserCertificate, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void SecurityManagerAddon::NativeUninstallUserCertificate(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeUninstallUserCertificate called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->UninstallUserCertificate(
+        asyncCallbackInfo->elementName, asyncCallbackInfo->alias, asyncCallbackInfo->innerCodeMsg);
+}
+
+bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, object, &type), false);
+    if (type != napi_object) {
+        EDMLOGE("type of param certblob is not object");
+        return false;
+    }
+    if (!JsObjectToU8Vector(env, object, "inData", asyncCertCallbackInfo->certArray)) {
+        EDMLOGE("uint8Array to vector failed");
+        return false;
+    }
+    return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->alias);
 }
 
 static napi_module g_securityModule = {
