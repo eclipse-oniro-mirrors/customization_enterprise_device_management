@@ -59,6 +59,14 @@ private:
     static void CreatePowerSceneObject(napi_env env, napi_value value);
     static void CreatePowerPolicyActionObject(napi_env env, napi_value value);
     static napi_value ConvertPolicyPolicyToJs(napi_env env, PowerPolicy &powerPolicy);
+
+    static napi_value SetValue(napi_env env, napi_callback_info info);
+    static napi_value GetValue(napi_env env, napi_callback_info info);
+    static bool JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene);
+    static bool JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy);
+    static int32_t ConvertPowerPolicyToJsStr(
+        napi_env env, PowerScene &powerScene, PowerPolicy &powerPolicy, std::string &info);
+    static int32_t ParseScreenOffTime(std::string timeStr, int32_t &time);
 };
 } // namespace EDM
 } // namespace OHOS
