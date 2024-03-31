@@ -53,6 +53,7 @@ public:
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
     ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName);
+    ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

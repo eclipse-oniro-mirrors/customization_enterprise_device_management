@@ -56,6 +56,7 @@ private:
     ErrCode UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
     ErrCode AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode GetSuperAdminInner(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };

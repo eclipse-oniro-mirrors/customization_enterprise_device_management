@@ -731,40 +731,10 @@ bool EnterpriseDeviceMgrAbility::ShouldUnsubscribeAppState(const std::string &ad
 ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
-    bool isDebug = GetAccessTokenMgr()->IsDebug();
-    if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::DisableAdmin check permission failed");
-        return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-
-    std::shared_ptr<Admin> adminPtr = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
-    if (adminPtr == nullptr) {
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-    if (isDebug && !adminPtr->adminInfo_.isDebug_) {
-        EDMLOGW("DisableAdmin: shell command can only remove debug admin.");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-    if (adminPtr->adminInfo_.adminType_ != AdminType::NORMAL) {
-        EDMLOGW("DisableAdmin: only remove normal admin.");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-
-    if (FAILED(RemoveAdminAndAdminPolicy(admin.GetBundleName(), userId))) {
-        EDMLOGW("DisableAdmin: disable admin failed.");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-    if (!adminMgr_->IsAdminExist()) {
-        system::SetParameter(PARAM_EDM_ENABLE, "false");
-    }
-    AAFwk::Want want;
-    want.SetElementName(adminPtr->adminInfo_.packageName_, adminPtr->adminInfo_.className_);
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
-    manager->ConnectAbility(connection);
-    return ERR_OK;
+    bool isSDA = IsSuperAdmin(admin.GetBundleName());
+    userId = isSDA ? DEFAULT_USER_ID : userId;
+    AdminType adminType = isSDA ? AdminType::ENT : AdminType::NORMAL;
+    return DoDisableAdmin(admin.GetBundleName(), userId, adminType);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleName)
@@ -785,27 +755,35 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleNam
 
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleName)
 {
+    EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
+    return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType)
+{
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isDebug = GetAccessTokenMgr()->IsDebug();
     if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::DisableSuperAdmin check permission failed.");
+        EDMLOGW("DoDisableAdmin::DisableSuperAdmin check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, userId);
     if (admin == nullptr) {
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     if (isDebug && !admin->adminInfo_.isDebug_) {
-        EDMLOGW("DisableSuperAdmin: shell command can only remove debug super admin.");
+        EDMLOGW("DoDisableAdmin: shell command can only remove debug super admin.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
-    if (admin->adminInfo_.adminType_ != AdminType::ENT) {
-        EDMLOGW("DisableSuperAdmin: only remove super admin.");
+    if (admin->adminInfo_.adminType_ != adminType) {
+        EDMLOGW("DoDisableAdmin: only remove the certain admin.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
-    // disable super admin
-    if (FAILED(RemoveSuperAdminAndAdminPolicy(bundleName))) {
-        EDMLOGW("DisableSuperAdmin: remove super admin failed.");
+    if (adminType == AdminType::ENT && FAILED(RemoveSuperAdminAndAdminPolicy(bundleName))) {
+        EDMLOGW("DoDisableAdmin: remove admin failed.");
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    } else if (adminType == AdminType::NORMAL && FAILED(RemoveAdminAndAdminPolicy(bundleName, userId))) {
+        EDMLOGW("DoDisableAdmin: disable admin failed.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     if (!adminMgr_->IsAdminExist()) {
@@ -815,7 +793,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
     want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, DEFAULT_USER_ID);
+        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
     manager->ConnectAbility(connection);
     return ERR_OK;
 }
@@ -1202,6 +1180,21 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     if (FAILED(adminMgr_->SaveAuthorizedAdmin(bundleName, permissionList, admin.GetBundleName()))) {
         EDMLOGW("AuthorizeAdmin: SaveAuthorizedAdmin failed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(MessageParcel &reply)
+{
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    auto superAdmin = adminMgr_->GetSuperAdmin();
+    reply.WriteInt32(ERR_OK);
+    if (superAdmin == nullptr) {
+        reply.WriteString("");
+        reply.WriteString("");
+    } else {
+        reply.WriteString(superAdmin->adminInfo_.packageName_);
+        reply.WriteString(superAdmin->adminInfo_.className_);
     }
     return ERR_OK;
 }

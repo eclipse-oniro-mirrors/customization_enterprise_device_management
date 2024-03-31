@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,6 +79,11 @@ struct AsyncAuthorizeAdminCallbackInfo : AsyncCallbackInfo {
     std::string bundleName;
 };
 
+struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
+    std::string bundleName;
+    std::string abilityName;
+};
+
 class AdminManager {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -95,6 +100,7 @@ public:
     static napi_value AuthorizeAdmin(napi_env env, napi_callback_info info);
     static napi_value SubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEventSync(napi_env env, napi_callback_info info);
+    static napi_value GetSuperAdmin(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -112,6 +118,10 @@ public:
     static bool ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
     static void CreateManagedEventObject(napi_env env, napi_value value);
+
+    static void NativeGetSuperAdmin(napi_env env, void *data);
+    static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);
+    static napi_value ConvertWantToJs(napi_env env, const std::string &bundleName, const std::string &abilityName);
 
 private:
     static AdminType ParseAdminType(int32_t type);
