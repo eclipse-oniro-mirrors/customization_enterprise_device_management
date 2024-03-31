@@ -215,5 +215,19 @@ void MessageParcelUtils::WriteInstallParam(const AppExecFwk::InstallParam &insta
     data.WriteInt32(installParam.userId);
     data.WriteInt32(static_cast<int>(installParam.installFlag));
 }
+
+void MessageParcelUtils::WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data)
+{
+    data.WriteString(param.operate);
+    data.WriteString(param.addition);
+    data.WriteInt32(param.userId);
+}
+
+void MessageParcelUtils::ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param)
+{
+    param.operate = data.ReadString();
+    param.addition = data.ReadString();
+    param.userId = data.ReadInt32();
+}
 } // namespace EDM
 } // namespace OHOS

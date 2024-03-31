@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "operate_device_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,6 +30,8 @@ public:
     int32_t Shutdown(AppExecFwk::ElementName &admin);
     int32_t Reboot(AppExecFwk::ElementName &admin);
     int32_t LockScreen(AppExecFwk::ElementName &admin, int32_t userId);
+    int32_t OperateDevice(AppExecFwk::ElementName &admin, const OperateDeviceParam &param);
+
 private:
     static std::shared_ptr<DeviceControlProxy> instance_;
     static std::mutex mutexLock_;
