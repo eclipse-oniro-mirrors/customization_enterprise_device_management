@@ -65,14 +65,16 @@ int32_t BluetoothManagerProxy::SetBluetoothDisabled(const AppExecFwk::ElementNam
 {
     EDMLOGD("BluetoothManagerProxy::SetBluetoothDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    return proxy->SetPolicyDisabled(admin, disabled, EdmInterfaceCode::DISABLE_BLUETOOTH);
+    return proxy->SetPolicyDisabled(admin, disabled, EdmInterfaceCode::DISABLE_BLUETOOTH,
+        EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t BluetoothManagerProxy::IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("BluetoothManagerProxy::IsBluetoothDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_BLUETOOTH, result);
+    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_BLUETOOTH, result,
+        EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t BluetoothManagerProxy::AddAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,

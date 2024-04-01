@@ -92,13 +92,14 @@ int32_t WifiManagerProxy::SetWifiDisabled(const AppExecFwk::ElementName &admin, 
 {
     EDMLOGD("WifiManagerProxy::SetWifiDisabled. isDisable: %{public}d", isDisabled);
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
-        EdmInterfaceCode::DISABLE_WIFI);
+        EdmInterfaceCode::DISABLE_WIFI, EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t WifiManagerProxy::IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("WifiManagerProxy::IsWifiDisabled");
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_WIFI, result);
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_WIFI, result,
+        EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 } // namespace EDM
 } // namespace OHOS

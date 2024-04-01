@@ -15,6 +15,7 @@
 
 #include "datetime_manager_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 
@@ -57,14 +58,14 @@ int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &ad
 {
     EDMLOGD("DatetimeManagerProxy::DisallowModifyDateTime");
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow,
-        EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
+        EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("DatetimeManagerProxy::IsModifyDateTimeDisallowed");
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
-        result);
+        result, EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 } // namespace EDM
 } // namespace OHOS

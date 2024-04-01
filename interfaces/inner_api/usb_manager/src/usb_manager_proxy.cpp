@@ -63,7 +63,8 @@ int32_t UsbManagerProxy::DisableUsb(const AppExecFwk::ElementName &admin, bool d
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return proxy->SetPolicyDisabled(admin, disable, EdmInterfaceCode::DISABLE_USB);
+    return proxy->SetPolicyDisabled(admin, disable, EdmInterfaceCode::DISABLE_USB,
+        EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t UsbManagerProxy::IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result)
@@ -74,7 +75,8 @@ int32_t UsbManagerProxy::IsUsbDisabled(const AppExecFwk::ElementName *admin, boo
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_USB, result);
+    return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_USB, result,
+        EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t UsbManagerProxy::AddAllowedUsbDevices(const AppExecFwk::ElementName &admin,
