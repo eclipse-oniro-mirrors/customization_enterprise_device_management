@@ -235,6 +235,10 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
     std::shared_ptr<Admin> item)
 {
+    if (item == nullptr) {
+        EDMLOGE("AdminPoliciesStorageRdb::SetAdminItems failed.");
+        return;
+    }
     int32_t adminType = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWO, adminType);
     item->adminInfo_.adminType_ = static_cast<AdminType>(adminType);
