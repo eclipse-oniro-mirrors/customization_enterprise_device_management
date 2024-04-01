@@ -125,8 +125,8 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
     }
     AsyncRestrictionsCallbackInfo *asyncCallbackInfo = static_cast<AsyncRestrictionsCallbackInfo *>(data);
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
-        WITHOUT_PERMISSION_TAG;
+        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG :
+        EdmConstants::PERMISSION_TAG_VERSION_11;
     asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(
         asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled, asyncCallbackInfo->policyCode, permissionTag);
 }
@@ -194,8 +194,8 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
     }
     AsyncRestrictionsCallbackInfo *asyncCallbackInfo = static_cast<AsyncRestrictionsCallbackInfo *>(data);
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
-        WITHOUT_PERMISSION_TAG;
+        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG :
+        EdmConstants::PERMISSION_TAG_VERSION_11;
     if (asyncCallbackInfo->hasAdmin) {
         asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(
             &(asyncCallbackInfo->elementName), asyncCallbackInfo->policyCode, asyncCallbackInfo->boolRet,
@@ -244,7 +244,7 @@ napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisallow, argv[ARR_INDEX_ONE]), "bool name param error");
 
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 : WITHOUT_PERMISSION_TAG;
+        policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_11;
     ErrCode ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(elementName, isDisallow, policyCode,
         permissionTag);
     if (FAILED(ret)) {
@@ -269,7 +269,7 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
     ErrCode ret = ERR_OK;
     bool boolRet = false;
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        policyCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_11 : WITHOUT_PERMISSION_TAG;
+        policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_11;
     if (hasAdmin) {
         ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicy(&elementName, policyCode, boolRet,
             permissionTag);
@@ -322,7 +322,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     }
     std::uint32_t ipcCode = labelCode->second;
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        ipcCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_12 : WITHOUT_PERMISSION_TAG;
+        ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
     ErrCode ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -366,7 +366,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     }
     std::uint32_t ipcCode = labelCode->second;
     std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        ipcCode) == multiPermCodes.end()) ? EdmConstants::PERMISSION_TAG_VERSION_12 : WITHOUT_PERMISSION_TAG;
+        ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
     ErrCode ret = ERR_OK;
     if (hasAdmin) {
         ret = proxy->GetDisallowedPolicy(&elementName, ipcCode, disallow, permissionTag);
