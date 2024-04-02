@@ -99,7 +99,8 @@ private:
         AsyncInstallCallbackInfo *asyncCallbackInfo);
     static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
 #endif
-    static napi_value AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info, const std::string &workName);
+    static napi_value AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info, const std::string &workName,
+        bool isAdd);
     static void InitPolicyType(const std::string &workName, int32_t &policyType);
     static napi_value GetAllowedOrDisallowedInstallBundlesSync(napi_env env, napi_callback_info info,
         const std::string &workName);

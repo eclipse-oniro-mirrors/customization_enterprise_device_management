@@ -441,12 +441,12 @@ napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_call
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
-        "parameter accountId error");
 
     bool isDisabled = false;
     int32_t ret = ERR_OK;
     if (hasAccountId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+            "parameter accountId error");
         int32_t accountId;
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
             "parameter accountId parse error");
