@@ -63,6 +63,7 @@ namespace EdmConstants {
     namespace DeviceSettings {
         const std::string SCREEN_OFF = "screenOff";
         const std::string POWER_POLICY = "powerPolicy";
+        const std::string DATE_TIME = "dateTime";
     } // namespace DeviceSettings
 
     namespace DeviceControl {

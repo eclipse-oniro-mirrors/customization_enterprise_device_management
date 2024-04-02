@@ -15,6 +15,7 @@
 #include "device_settings_addon.h"
 
 #include "cJSON.h"
+#include "datetime_manager_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 
@@ -407,17 +408,19 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
     int32_t ret = ERR_OK;
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
-        int32_t time;
-        ret = ParseScreenOffTime(value, time);
-        if (SUCCEEDED(ret)) {
-            ret = proxy->SetScreenOffTime(elementName, time);
-        }
+        int32_t screenOffTime = 0;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToInt(value, screenOffTime), "param 'screenOffTime' error");
+        ret = proxy->SetScreenOffTime(elementName, screenOffTime);
     } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
         PowerScene powerScene;
         ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerScene(env, value, powerScene), "param 'powerScene' error");
         PowerPolicy powerPolicy;
         ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerPolicy(env, value, powerPolicy), "param 'powerPolicy' error");
         proxy->SetPowerPolicy(elementName, powerScene, powerPolicy);
+    } else if (item == EdmConstants::DeviceSettings::DATE_TIME) {
+        int64_t dateTime = 0;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToLong(value, dateTime), "param 'dateTime' error");
+        ret = DatetimeManagerProxy::GetDatetimeManagerProxy()->SetDateTime(elementName, dateTime);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -469,19 +472,6 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
     napi_value result;
     napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result);
     return result;
-}
-
-int32_t DeviceSettingsAddon::ParseScreenOffTime(std::string timeStr, int32_t &time)
-{
-    char *end = nullptr;
-    const char *p = timeStr.c_str();
-    errno = 0;
-    time = strtol(p, &end, EdmConstants::DECIMAL);
-    if (errno == ERANGE || end == p || *end != '\0') {
-        EDMLOGE("ParseScreenOffTime: parse str failed: %{public}s", p);
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    return ERR_OK;
 }
 
 bool DeviceSettingsAddon::JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene)
