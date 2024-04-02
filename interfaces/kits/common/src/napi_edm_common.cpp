@@ -57,9 +57,9 @@ static void NativeCallbackComplete(napi_env env, napi_status status, AsyncCallba
             napi_get_null(env, &callbackValue[ARR_INDEX_ONE]);
         }
         napi_value callback = nullptr;
-        napi_value result = nullptr;
+        napi_value ret = nullptr;
         napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &result);
+        napi_call_function(env, nullptr, callback, std::size(callbackValue), callbackValue, &ret);
         napi_delete_reference(env, asyncCallbackInfo->callback);
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
