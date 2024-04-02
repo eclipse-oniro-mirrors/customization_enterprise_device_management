@@ -39,7 +39,7 @@ namespace EdmConstants {
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
         static const std::string DEVICE_SERIAL = "deviceSerial";
-    }
+    } // namespace DeviceInfo
 
     namespace Restrictions {
         const std::string LABEL_DISALLOWED_POLICY_BLUETOOTH = "bt";
@@ -52,7 +52,7 @@ namespace EdmConstants {
         const std::string LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const std::string LABEL_DISALLOWED_POLICY_USB = "usb";
         const std::string LABEL_DISALLOWED_POLICY_WIFI = "wifi";
-    }
+    } // namespace Restrictions
 
     namespace SecurityManager {
         static const std::string PATCH = "patch";
@@ -64,7 +64,14 @@ namespace EdmConstants {
         const std::string SCREEN_OFF = "screenOff";
         const std::string POWER_POLICY = "powerPolicy";
     } // namespace DeviceSettings
-}
+
+    namespace DeviceControl {
+        static const std::string RESET_FACTORY = "resetFactory";
+        static const std::string REBOOT = "reboot";
+        static const std::string SHUT_DOWN = "shutDown";
+        static const std::string LOCK_SCREEN = "lockScreen";
+    } // namespace DeviceControl
+} // namespace EdmConstants
 } // namespace EDM
 } // namespace OHOS
 

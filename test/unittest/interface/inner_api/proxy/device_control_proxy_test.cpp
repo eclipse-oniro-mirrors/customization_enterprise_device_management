@@ -18,6 +18,7 @@
 #include <system_ability_definition.h>
 
 #include "device_control_proxy.h"
+#include "edm_constants.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
@@ -187,6 +188,38 @@ HWTEST_F(DeviceControlProxyTest, TestRebootFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = deviceControlProxy->Reboot(admin);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestOperateDeviceFail
+ * @tc.desc: Test OperateDevice without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestOperateDeviceFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    OperateDeviceParam param{EdmConstants::DeviceControl::RESET_FACTORY, "", 0};
+    int32_t ret = deviceControlProxy->OperateDevice(admin, param);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestOperateDeviceSuc
+ * @tc.desc: Test OperateDevice success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceControlProxyTest, TestOperateDeviceSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    OperateDeviceParam param{EdmConstants::DeviceControl::RESET_FACTORY, "", 0};
+    int32_t ret = deviceControlProxy->OperateDevice(admin, param);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

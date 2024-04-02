@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,7 @@ private:
     static napi_value Shutdown(napi_env env, napi_callback_info info);
     static napi_value Reboot(napi_env env, napi_callback_info info);
     static napi_value LockScreen(napi_env env, napi_callback_info info);
+    static napi_value OperateDevice(napi_env env, napi_callback_info info);
     static void NativeResetFactory(napi_env env, void *data);
 };
 } // namespace EDM
