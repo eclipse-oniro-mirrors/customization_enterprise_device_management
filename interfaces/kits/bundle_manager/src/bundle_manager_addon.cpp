@@ -546,41 +546,41 @@ void BundleManagerAddon::NativeAddBundlesByPolicyType(napi_env env, void *data)
 napi_value BundleManagerAddon::AddAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddAllowedInstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "AddAllowedInstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddAllowedInstallBundles", true);
 }
 
 napi_value BundleManagerAddon::AddDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddDisallowedInstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedInstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedInstallBundles", true);
 }
 
 napi_value BundleManagerAddon::AddDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddDisallowedUninstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedUninstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedUninstallBundles", true);
 }
 
 napi_value BundleManagerAddon::RemoveAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveAllowedInstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "RemoveAllowedInstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveAllowedInstallBundles", false);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveDisallowedInstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedInstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedInstallBundles", false);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveDisallowedUninstallBundlesSync called");
-    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedUninstallBundles");
+    return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedUninstallBundles", false);
 }
 
 napi_value BundleManagerAddon::AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info,
-    const std::string &workName)
+    const std::string &workName, bool isAdd)
 {
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -621,7 +621,12 @@ napi_value BundleManagerAddon::AddOrRemoveInstallBundlesSync(napi_env env, napi_
         EDMLOGE("can not get BundleManagerProxy");
         return nullptr;
     }
-    int32_t ret = bundleManagerProxy->AddBundlesByPolicyType(elementName, appIds, accountId, policyType);
+    int32_t ret = ERR_OK;
+    if (isAdd) {
+        ret = bundleManagerProxy->AddBundlesByPolicyType(elementName, appIds, accountId, policyType);
+    } else {
+        ret = bundleManagerProxy->RemoveBundlesByPolicyType(elementName, appIds, accountId, policyType);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
