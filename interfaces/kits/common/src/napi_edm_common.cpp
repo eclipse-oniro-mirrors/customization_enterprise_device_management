@@ -15,6 +15,7 @@
 
 #include "napi_edm_common.h"
 
+#include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "js_native_api.h"
@@ -601,6 +602,34 @@ bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
         }
     }
     return false;
+}
+
+bool ParseStringToInt(const std::string &strValue, int32_t &result)
+{
+    int64_t temp = 0;
+    if (!ParseStringToLong(strValue, temp)) {
+        EDMLOGE("ParseStringToInt: parse str failed");
+        return false;
+    }
+    if (temp < INT_MIN || temp > INT_MAX) {
+        EDMLOGE("ParseStringToInt: parse failed, int32 expected.");
+        return false;
+    }
+    result = temp;
+    return true;
+}
+
+bool ParseStringToLong(const std::string &strValue, int64_t &result)
+{
+    char *end = nullptr;
+    const char *p = strValue.c_str();
+    errno = 0;
+    result = strtoll(p, &end, EdmConstants::DECIMAL);
+    if (errno == ERANGE || end == p || *end != '\0') {
+        EDMLOGE("ParseStringToLong: parse str failed: %{public}s", p);
+        return false;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

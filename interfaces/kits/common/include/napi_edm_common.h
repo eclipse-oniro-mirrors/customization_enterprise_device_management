@@ -94,6 +94,8 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId);
 bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName);
+bool ParseStringToInt(const std::string &strValue, int32_t &result);
+bool ParseStringToLong(const std::string &strValue, int64_t &result);
 } // namespace EDM
 } // namespace OHOS
 

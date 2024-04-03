@@ -66,7 +66,6 @@ private:
     static bool JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy);
     static int32_t ConvertPowerPolicyToJsStr(
         napi_env env, PowerScene &powerScene, PowerPolicy &powerPolicy, std::string &info);
-    static int32_t ParseScreenOffTime(std::string timeStr, int32_t &time);
 };
 } // namespace EDM
 } // namespace OHOS
