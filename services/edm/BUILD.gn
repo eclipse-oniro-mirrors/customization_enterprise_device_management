@@ -103,6 +103,7 @@ ohos_shared_library("edmservice") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -251,7 +252,6 @@ ohos_shared_library("edmservice") {
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   shlib_type = "sa"

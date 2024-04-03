@@ -25,7 +25,6 @@
 #include "edm_permission.h"
 #include "ent_info.h"
 #include "json/json.h"
-#include "permission_manager.h"
 
 namespace OHOS {
 namespace EDM {

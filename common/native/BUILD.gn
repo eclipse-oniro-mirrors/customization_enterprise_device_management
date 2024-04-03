@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("../config/common.gni")
 
-config("edm_commom_all_dependent_configs") {
+config("edm_commom_public_configs") {
   include_dirs = [
     "include",
     "include/plugin_utils",
@@ -37,15 +37,15 @@ ohos_shared_library("edm_commom") {
   ]
 
   configs = [
-    ":edm_commom_all_dependent_configs",
+    ":edm_commom_public_configs",
     "../../common/config:coverage_flags",
   ]
 
-  all_dependent_configs = [ ":edm_commom_all_dependent_configs" ]
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_configs = [ ":edm_commom_public_configs" ]
 
   external_deps = [
     "ability_base:zuri",
+    "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "data_share:datashare_consumer",

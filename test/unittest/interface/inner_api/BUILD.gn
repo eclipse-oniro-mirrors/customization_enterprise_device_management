@@ -36,7 +36,6 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../utils:edm_unittest_utils",
     "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [

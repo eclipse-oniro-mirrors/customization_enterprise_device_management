@@ -16,6 +16,7 @@ import("../../common/config/common.gni")
 
 config("edmservice_kits_config") {
   include_dirs = [
+    "../../common/native/include",
     "account_manager/include",
     "application_manager/include",
     "bluetooth_manager/include",

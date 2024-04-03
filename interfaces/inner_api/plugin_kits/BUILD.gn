@@ -18,6 +18,7 @@ config("plugin_kits_config") {
     "include",
     "include/utils",
     "../common/include",
+    "../../../common/native/include",
   ]
 }
 
@@ -40,22 +41,17 @@ ohos_shared_library("plugin_kits") {
 
   version_script = "libplugin_kits.map"
 
-  all_dependent_configs = [
-    ":plugin_kits_config",
-    "//third_party/jsoncpp:jsoncpp_public_config",
-  ]
+  public_configs = [ ":plugin_kits_config" ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [
-    "../../../common/native:edm_commom",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "../../../common/native:edm_commom" ]
 
   external_deps = [
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
+    "jsoncpp:jsoncpp",
   ]
 
   sanitize = {

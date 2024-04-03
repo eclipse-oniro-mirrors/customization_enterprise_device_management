@@ -86,6 +86,7 @@ ohos_static_library("edmservice_static") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
   ]
@@ -95,7 +96,6 @@ ohos_static_library("edmservice_static") {
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   sanitize = {
@@ -153,8 +153,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../utils:edm_unittest_utils",
     "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -168,6 +166,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

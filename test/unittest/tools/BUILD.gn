@@ -39,10 +39,7 @@ ohos_unittest("EdmToolsUnitTest") {
     "../../../common/config:coverage_flags",
   ]
 
-  deps = [
-    "../../../interfaces/inner_api:edmservice_kits",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "../../../interfaces/inner_api:edmservice_kits" ]
 
   external_deps = [
     "ability_base:want",

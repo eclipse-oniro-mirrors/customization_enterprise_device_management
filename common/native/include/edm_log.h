@@ -16,7 +16,6 @@
 #ifndef COMMON_NATIVE_INCLUDE_EDM_LOG_H
 #define COMMON_NATIVE_INCLUDE_EDM_LOG_H
 
-#include "errors.h"
 #include "hilog/log.h"
 
 #ifndef LOG_DOMAIN_EDM

@@ -31,11 +31,11 @@ ohos_shared_library("wifimanager") {
   deps = [
     "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
-    "//third_party/bounds_checking_function:libsec_shared",
   ]
 
   external_deps = [
     "ability_base:want",
+    "bounds_checking_function:libsec_shared",
     "hilog:libhilog",
     "napi:ace_napi",
   ]

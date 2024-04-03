@@ -30,11 +30,11 @@ ohos_shared_library("usbmanager") {
   deps = [
     "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
-    "//third_party/bounds_checking_function:libsec_shared",
   ]
 
   external_deps = [
     "ability_base:want",
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",

@@ -85,6 +85,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
   ]
@@ -94,7 +95,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
     "../../../interfaces/inner_api/plugin_kits:plugin_kits",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   sanitize = {
@@ -136,6 +136,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     ":edmservice_fuzz_static",
     "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
+    "../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../unittest/utils:edm_unittest_utils",
   ]
 

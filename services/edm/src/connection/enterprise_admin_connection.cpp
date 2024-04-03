@@ -16,6 +16,7 @@
 #include "enterprise_admin_connection.h"
 
 #include "admin_manager.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "enterprise_conn_manager.h"
 
@@ -57,8 +58,8 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
     EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
     if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection =
-            manager->CreateAdminConnection(want_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(want_,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
         manager->ConnectAbility(connection);
     }
 }
