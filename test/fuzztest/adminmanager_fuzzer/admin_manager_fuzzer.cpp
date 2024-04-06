@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 4;
+constexpr size_t MIN_SIZE = 1024;
 
 void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
 {

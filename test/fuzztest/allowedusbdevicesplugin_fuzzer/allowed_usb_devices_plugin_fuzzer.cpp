@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 4;
+constexpr size_t MIN_SIZE = 32;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t USB_DEVICE_ID_SIZE = 1;
 

@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 4;
+constexpr size_t MIN_SIZE = 256;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t MAX_ENUM_LENGTH = 2;
 constexpr int32_t MAX_PROTOCOL_LENGTH = 4;
