@@ -39,6 +39,14 @@ namespace EdmConstants {
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
         static const std::string DEVICE_SERIAL = "deviceSerial";
+        static const std::string SIM_INFO = "simInfo";
+        static const std::string SIM_SLOT_ID = "slotId";
+        static const std::string SIM_MEID = "MEID";
+        static const std::string SIM_IMSI = "IMSI";
+        static const std::string SIM_ICCID = "ICCID";
+        static const std::string SIM_IMEI = "IMEI";
+        static constexpr int32_t SIM_SLOT_ID_0 = 0;
+        static constexpr int32_t SIM_SLOT_ID_1 = 1;
     } // namespace DeviceInfo
 
     namespace Restrictions {

@@ -134,6 +134,26 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceSerial, TestSize.L
 }
 
 /**
+ * @tc.name: TestGetDeviceInfoSyncWithSimInfo
+ * @tc.desc: Test GetDeviceInfoPlugin::OnGetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithSimInfo, TestSize.Level1)
+{
+    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::SIM_INFO);
+    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+#ifdef TELEPHONY_CORE_EDM_ENABLE_TEST
+    ASSERT_TRUE(ret == ERR_OK);
+#else
+    ASSERT_TRUE(ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
+}
+
+/**
  * @tc.name: TestGetDeviceInfoSyncWithInvalidLabel
  * @tc.desc: Test GetDeviceInfoPlugin::OnGetPolicy function.
  * @tc.type: FUNC

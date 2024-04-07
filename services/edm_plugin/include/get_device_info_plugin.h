@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_INFO_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_INFO_PLUGIN_H
 
+#include "cJSON.h"
 #include "plugin_singleton.h"
 #include "string_serializer.h"
 
@@ -26,6 +27,10 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceInfoPlugin, std::string>> ptr) override;
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+private:
+    ErrCode GetSimInfo(std::string &info);
+    void GetSimInfoBySlotId(int32_t slotId, cJSON *simJson);
 };
 } // namespace EDM
 } // namespace OHOS
