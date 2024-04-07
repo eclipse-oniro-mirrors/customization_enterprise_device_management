@@ -19,9 +19,9 @@
 #include "bool_serializer.h"
 #include "func_code_utils.h"
 #include "long_serializer.h"
-#include "json_serializer.h"
 #include "map_string_serializer.h"
 #include "string_serializer.h"
+#include "utils/json_serializer.h"
 
 using namespace testing::ext;
 using namespace OHOS;

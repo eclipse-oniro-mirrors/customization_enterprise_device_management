@@ -20,6 +20,7 @@
 
 #include "admin_manager.h"
 #include "iplugin.h"
+#include "permission_manager.h"
 #include "utils.h"
 
 using namespace testing::ext;

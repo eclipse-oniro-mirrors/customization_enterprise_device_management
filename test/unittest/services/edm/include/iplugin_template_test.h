@@ -27,8 +27,6 @@
 #include "bool_serializer.h"
 #include "func_code_utils.h"
 #include "iplugin.h"
-#include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "json_serializer.h"
 #include "map_string_serializer.h"
 #include "plugin_manager.h"

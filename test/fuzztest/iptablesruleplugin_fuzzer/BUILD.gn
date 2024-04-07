@@ -45,6 +45,7 @@ ohos_fuzztest("IptablesRulePluginFuzzTest") {
     "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
+    "../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../unittest/utils:edm_unittest_utils",
     "../enterprisedevicemgrstubmock_fuzzer:edmservice_fuzz_static",
   ]

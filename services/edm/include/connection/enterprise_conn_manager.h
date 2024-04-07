@@ -24,7 +24,6 @@
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
 #include "enterprise_update_connection.h"
-#include "errors.h"
 #include "ienterprise_connection.h"
 #include "singleton.h"
 

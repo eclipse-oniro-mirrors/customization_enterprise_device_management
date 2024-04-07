@@ -58,6 +58,7 @@
         "access_token",
         "audio_framework",
         "bluetooth",
+        "bounds_checking_function",
         "bundle_framework",
         "certificate_manager",
         "common_event_service",
@@ -72,6 +73,7 @@
         "hisysevent",
         "init",
         "ipc",
+        "jsoncpp",
         "location",
         "napi",
         "os_account",
@@ -86,10 +88,6 @@
         "update_service",
         "usb_manager",
         "wifi"
-      ],
-      "third_party": [
-        "bounds_checking_function",
-        "jsoncpp"
       ]
     },
     "build": {
