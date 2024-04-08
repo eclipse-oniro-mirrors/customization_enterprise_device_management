@@ -203,6 +203,10 @@ ohos_unittest("EdmPluginTest") {
     external_deps += [ "update_service:updateservicekits" ]
   }
 
+  if (pasteboard_edm_enable) {
+    sources += [ "./src/clipboard_policy_plugin_test.cpp" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -423,6 +427,15 @@ ohos_static_library("edm_all_plugin_static") {
   if (telephony_core_edm_enable) {
     external_deps += [ "core_service:tel_core_service_api" ]
     defines += [ "TELEPHONY_CORE_EDM_ENABLE_TEST" ]
+  }
+
+  if (pasteboard_edm_enable) {
+    external_deps += [ "pasteboard:pasteboard_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/clipboard_policy_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
   }
 
   sanitize = {
