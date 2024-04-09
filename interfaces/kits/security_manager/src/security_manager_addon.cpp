@@ -125,7 +125,7 @@ napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjectToString(env, argv[ARR_INDEX_ONE], "complexityReg", false, policy.complexityReg),
+        JsObjectToString(env, argv[ARR_INDEX_ONE], "complexityRegex", false, policy.complexityReg),
         "Parameter passwordPolicy error");
     ASSERT_AND_THROW_PARAM_ERROR(env,
         JsObjectToInt(env, argv[ARR_INDEX_ONE], "validityPeriod", false, policy.validityPeriod),
@@ -168,7 +168,7 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg);
     napi_create_int32(env, policy.validityPeriod, &validityPeriod);
     napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription);
-    napi_set_named_property(env, ret, "complexityReg", complexityReg);
+    napi_set_named_property(env, ret, "complexityRegex", complexityReg);
     napi_set_named_property(env, ret, "validityPeriod", validityPeriod);
     napi_set_named_property(env, ret, "additionalDescription", additionalDescription);
     return ret;
