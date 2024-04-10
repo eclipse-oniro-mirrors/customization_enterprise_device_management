@@ -416,7 +416,7 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
         ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerScene(env, value, powerScene), "param 'powerScene' error");
         PowerPolicy powerPolicy;
         ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerPolicy(env, value, powerPolicy), "param 'powerPolicy' error");
-        proxy->SetPowerPolicy(elementName, powerScene, powerPolicy);
+        ret = proxy->SetPowerPolicy(elementName, powerScene, powerPolicy);
     } else if (item == EdmConstants::DeviceSettings::DATE_TIME) {
         int64_t dateTime = 0;
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToLong(value, dateTime), "param 'dateTime' error");
@@ -452,7 +452,7 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
         int32_t screenOffTime;
-        proxy->GetScreenOffTime(elementName, screenOffTime);
+        ret = proxy->GetScreenOffTime(elementName, screenOffTime);
         stringRet = std::to_string(screenOffTime);
     } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
         PowerScene powerScene = PowerScene::TIME_OUT;
