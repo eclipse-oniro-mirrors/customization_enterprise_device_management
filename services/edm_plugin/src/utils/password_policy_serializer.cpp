@@ -37,6 +37,7 @@ bool PasswordSerializer::Deserialize(const std::string &jsonString, PasswordPoli
     cJSON* additionalDescription = cJSON_GetObjectItem(root, ADDITIONAL_DESCRIPTION.c_str());
     if (complexityReg == nullptr || validityPeriod == nullptr
         || additionalDescription == nullptr) {
+        cJSON_Delete(root);
         return false;
     }
     policy.complexityReg = cJSON_GetStringValue(complexityReg);
