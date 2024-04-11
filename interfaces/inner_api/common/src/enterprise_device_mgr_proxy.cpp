@@ -422,7 +422,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetSuperAdmin(std::string &bundleName, std::st
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetSuperAdmin");
     if (!IsEdmEnabled()) {
-        return EdmReturnErrCode::ADMIN_INACTIVE;
+        return ERR_OK;
     }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
