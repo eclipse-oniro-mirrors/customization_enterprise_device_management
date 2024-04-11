@@ -63,6 +63,7 @@
         "certificate_manager",
         "common_event_service",
         "cJSON",
+        "core_service",
         "c_utils",
         "data_share",
         "drivers_interface_usb",

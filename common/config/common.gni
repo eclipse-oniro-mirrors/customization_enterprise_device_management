@@ -104,4 +104,9 @@ declare_args() {
       defined(global_parts_info.communication_wifi)) {
     wifi_edm_enable = true
   }
+  telephony_core_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.telephony_core_service)) {
+    telephony_core_edm_enable = true
+  }
 }

@@ -15,11 +15,15 @@
 
 #include "edm_utils.h"
 
+#include <codecvt>
 #include "edm_constants.h"
 #include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
+const std::string ERROR_STRING = "error";
+const std::u16string ERROR_USTRING = u"error";
+
 ErrCode EdmUtils::ParseStringToInt(const std::string &str, int32_t &result)
 {
     int64_t tmp;
@@ -39,6 +43,16 @@ ErrCode EdmUtils::ParseStringToLong(const std::string &str, int64_t &result)
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
+}
+
+std::string EdmUtils::Utf16ToUtf8(const std::u16string &str16)
+{
+    if (str16 == ERROR_USTRING) {
+        return ERROR_STRING;
+    }
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(ERROR_STRING);
+    std::string result = convert.to_bytes(str16);
+    return result == ERROR_STRING ? "" : result;
 }
 } // namespace EDM
 } // namespace OHOS

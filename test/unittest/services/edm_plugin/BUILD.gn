@@ -419,6 +419,11 @@ ohos_static_library("edm_all_plugin_static") {
         [ "../../../../services/edm_plugin/src/location_policy_plugin.cpp" ]
   }
 
+  if (telephony_core_edm_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TELEPHONY_CORE_EDM_ENABLE_TEST" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

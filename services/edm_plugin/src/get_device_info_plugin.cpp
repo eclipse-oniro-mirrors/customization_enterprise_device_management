@@ -15,8 +15,12 @@
 
 #include "get_device_info_plugin.h"
 
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+#include "core_service_client.h"
+#endif
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "parameter.h"
 #include "plugin_manager.h"
 #include "string_serializer.h"
@@ -61,11 +65,85 @@ ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
         reply.WriteString(serial);
         return ERR_OK;
     }
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+    if (label == EdmConstants::DeviceInfo::SIM_INFO) {
+        std::string simInfo;
+        int32_t ret = GetSimInfo(simInfo);
+        if (FAILED(ret)) {
+            EDMLOGD("GetDeviceInfoPlugin::get sim info failed : %{public}d.", ret);
+            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        reply.WriteInt32(ERR_OK);
+        reply.WriteString(simInfo);
+        return ERR_OK;
+    }
+#endif
     reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
     if (GetPlugin()->GetExtensionPlugin() != nullptr) {
         reply.WriteString(label);
     }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
+
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+ErrCode GetDeviceInfoPlugin::GetSimInfo(std::string &info)
+{
+    cJSON *json = cJSON_CreateArray();
+    if (json == nullptr) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_0, json);
+    GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_1, json);
+    char *jsonStr = cJSON_PrintUnformatted(json);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(json);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    info = jsonStr;
+    cJSON_Delete(json);
+    cJSON_free(jsonStr);
+    return ERR_OK;
+}
+
+void GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
+{
+    cJSON *slotJson = cJSON_CreateObject();
+    if (slotJson == nullptr) {
+        return;
+    }
+    cJSON_AddNumberToObject(slotJson, EdmConstants::DeviceInfo::SIM_SLOT_ID.c_str(), slotId);
+    std::u16string meid;
+    auto &telephonyService = Telephony::CoreServiceClient::GetInstance();
+    int32_t meidRet = telephonyService.GetMeid(slotId, meid);
+    if (FAILED(meidRet)) {
+        EDMLOGD("GetDeviceInfoPlugin::get sim meid failed: %{public}d.", meidRet);
+    }
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_MEID.c_str(), EdmUtils::Utf16ToUtf8(meid).c_str());
+
+    std::u16string imsi;
+    int32_t imsiRet = telephonyService.GetIMSI(slotId, imsi);
+    if (FAILED(imsiRet)) {
+        EDMLOGD("GetDeviceInfoPlugin::get sim imsi failed: %{public}d.", imsiRet);
+    }
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMSI.c_str(), EdmUtils::Utf16ToUtf8(imsi).c_str());
+
+    std::u16string iccId;
+    int32_t iccIdRet = telephonyService.GetSimIccId(slotId, iccId);
+    if (FAILED(iccIdRet)) {
+        EDMLOGD("GetDeviceInfoPlugin::get sim iccid failed: %{public}d.", iccIdRet);
+    }
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_ICCID.c_str(),
+        EdmUtils::Utf16ToUtf8(iccId).c_str());
+
+    std::u16string imei;
+    int32_t imeiRet = telephonyService.GetImei(slotId, imei);
+    if (FAILED(imeiRet)) {
+        EDMLOGD("GetDeviceInfoPlugin::get sim imei failed: %{public}d.", imeiRet);
+    }
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI.c_str(), EdmUtils::Utf16ToUtf8(imei).c_str());
+    cJSON_AddItemToArray(simJson, slotJson);
+}
+#endif
 } // namespace EDM
 } // namespace OHOS
