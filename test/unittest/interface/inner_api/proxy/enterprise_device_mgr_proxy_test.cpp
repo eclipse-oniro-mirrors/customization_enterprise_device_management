@@ -910,7 +910,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetSuperAdminFail, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->GetSuperAdmin(bundleName, abilityName);
-    EXPECT_TRUE(errVal == ERR_OK);
+    EXPECT_TRUE(errVal != ERR_OK);
     EXPECT_TRUE(bundleName.empty());
     EXPECT_TRUE(abilityName.empty());
 }
