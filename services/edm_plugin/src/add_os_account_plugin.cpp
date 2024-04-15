@@ -57,8 +57,8 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
         EDMLOGE("AddOsAccountPlugin accountType invalid");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name -- %{public}c***%{public}c, type -- %{public}d, ",
-        accountName[0], accountName[accountName.length() - 1], type);
+    EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name.len -- %{public}zu, type -- %{public}d",
+        accountName.length(), type);
     OHOS::AccountSA::OsAccountInfo accountInfo;
     ErrCode ret = AccountSA::OsAccountManager::CreateOsAccount(accountName, accountType, accountInfo);
     if (FAILED(ret)) {

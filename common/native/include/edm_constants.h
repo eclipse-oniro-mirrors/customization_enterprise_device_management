@@ -33,8 +33,8 @@ namespace EdmConstants {
     static constexpr int32_t SET_POLICY_TYPE = 2;
     static constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
 
-    static constexpr const char *PERMISSION_TAG_VERSION_11 = "version_11";
-    static constexpr const char *PERMISSION_TAG_VERSION_12 = "version_12";
+    static const std::string PERMISSION_TAG_VERSION_11 = "version_11";
+    static const std::string PERMISSION_TAG_VERSION_12 = "version_12";
 
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
