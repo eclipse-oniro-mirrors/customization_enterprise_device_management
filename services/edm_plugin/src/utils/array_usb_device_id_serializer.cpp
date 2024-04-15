@@ -75,6 +75,10 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
             EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize reader can not parse, i = %{public}d", i);
             return false;
         }
+        if (!item["vendorId"].isConvertibleTo(Json::intValue) || !item["productId"].isConvertibleTo(Json::intValue)) {
+            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize vendorId or productId can not parse.");
+            return false;
+        }
         value.SetVendorId(item["vendorId"].asInt());
         value.SetProductId(item["productId"].asInt());
         dataObj.at(i) = value;

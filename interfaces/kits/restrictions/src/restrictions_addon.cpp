@@ -24,7 +24,7 @@
 
 using namespace OHOS::EDM;
 
-std::unordered_map<std::string, uint32_t> labelCodeMap = {
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BLUETOOTH, EdmInterfaceCode::DISABLE_BLUETOOTH},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_DATETIME, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINTER, EdmInterfaceCode::DISABLED_PRINTER},
@@ -38,7 +38,7 @@ std::unordered_map<std::string, uint32_t> labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY, EdmInterfaceCode::POLICY_CODE_END + 17},
 };
 
-std::vector<uint32_t> multiPermCodes = {
+std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
     EdmInterfaceCode::DISABLE_BLUETOOTH,
     EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
     EdmInterfaceCode::DISABLED_PRINTER,

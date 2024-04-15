@@ -58,6 +58,8 @@ private:
     static std::map<int, RestrictionsProxySetFunc> memberSetFuncMap_;
     static std::map<int, RestrictionsProxyIsFunc> memberIsFuncMap_;
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
+    static std::unordered_map<std::string, uint32_t> labelCodeMap;
+    static std::vector<uint32_t> multiPermCodes;
 };
 } // namespace EDM
 } // namespace OHOS
