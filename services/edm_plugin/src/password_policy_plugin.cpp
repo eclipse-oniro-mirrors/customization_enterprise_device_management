@@ -17,6 +17,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "plugin_manager.h"
+#include "user_auth_client.h"
 
 namespace OHOS {
 namespace EDM {
@@ -35,6 +36,14 @@ void PasswordPolicyPlugin::InitPlugin(
 
 ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy)
 {
+    EDMLOGI("PasswordPolicyPlugin OnSetPolicy...");
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
+    param.value.pinExpiredPeriod = policy.validityPeriod;
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != ERR_OK) {
+        EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
+    }
     return ERR_OK;
 }
 

@@ -107,6 +107,7 @@ ohos_shared_library("edmservice") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "user_auth_framework:userauth_client",
   ]
 
   if (time_service_edm_enable) {
