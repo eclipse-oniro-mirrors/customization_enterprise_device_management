@@ -111,10 +111,10 @@ std::shared_ptr<IPluginExecuteStrategy> PluginManager::CreateExecuteStrategy(Exe
 
 bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
 {
-    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     if (plugin == nullptr) {
         return false;
     }
+    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     IPlugin::PolicyPermissionConfig setConfig = plugin->GetAllPermission(FuncOperateType::SET);
     IPlugin::PolicyPermissionConfig getConfig = plugin->GetAllPermission(FuncOperateType::GET);
     IPlugin::PermissionType setType = plugin->GetPermissionType(FuncOperateType::SET);
