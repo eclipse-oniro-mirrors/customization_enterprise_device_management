@@ -25,6 +25,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
 
   sources = [
     "./iplugin_test.cpp",
+    "./ipolicy_manager_test.cpp",
     "./policy_serializer_test.cpp",
     "./utils_test.cpp",
   ]

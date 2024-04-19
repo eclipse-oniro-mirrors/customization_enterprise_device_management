@@ -19,6 +19,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
+#include "array_string_serializer.h"
 
 using namespace testing::ext;
 using namespace OHOS::EDM;
@@ -172,6 +173,72 @@ HWTEST_F(UtilsTest, Test_ArrayPolicyUtils_RemovePolicy_002, TestSize.Level1)
     };
     ArrayPolicyUtils::RemovePolicy(removeData, data);
     ASSERT_TRUE(data.size() == 2);
+}
+
+/**
+ * @tc.name: Test_ArrayStringSerializer_SetUnionPolicyData
+ * @tc.desc: Test ArrayStringSerializer::SetUnionPolicyData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UtilsTest, Test_ArrayStringSerializer_SetUnionPolicyData, TestSize.Level1)
+{
+    std::vector<std::string> data = {"1", "2", "3", "4", "5"};
+    std::vector<std::string> currentData = {"3", "4", "5", "6", "7"};
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<string> mergeData = serializer->SetUnionPolicyData(data, currentData);
+    std::vector<string> resultData;
+    size_t i = 0;
+    size_t j = 0;
+    while (i < data.size() && j < currentData.size()) {
+        if (data[i] == currentData[j]) {
+            resultData.push_back(data[i]);
+            i++;
+            j++;
+        } else if (data[i] < currentData[j]) {
+            resultData.push_back(data[i]);
+            i++;
+        } else {
+            resultData.push_back(currentData[j]);
+            j++;
+        }
+    }
+    while (i < data.size()) {
+        resultData.push_back(data[i]);
+        i++;
+    }
+    while (j < currentData.size()) {
+        resultData.push_back(currentData[j]);
+        j++;
+    }
+    ASSERT_TRUE(resultData.size() == mergeData.size());
+}
+
+/**
+ * @tc.name: Test_ArrayStringSerializer_SetDifferencePolicyData
+ * @tc.desc: Test ArrayStringSerializer::SetDifferencePolicyData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UtilsTest, Test_ArrayStringSerializer_SetDifferencePolicyData, TestSize.Level1)
+{
+    std::vector<std::string> data = {"1", "2", "3", "4", "5"};
+    std::vector<std::string> currentData = {"3", "4", "5", "6", "7"};
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<string> mergeData = serializer->SetDifferencePolicyData(currentData, data);
+    size_t len = 0;
+    for (size_t i = 0; i < data.size(); i++) {
+        bool same = false;
+        for (size_t j = 0; j < currentData.size(); j++) {
+            if (data[i] == currentData[j]) {
+                same = true;
+            }
+        }
+        if (!same) {
+            ASSERT_TRUE(len < mergeData.size());
+            ASSERT_TRUE(data[i] == mergeData[len]);
+            len++;
+        }
+    }
+    ASSERT_TRUE(len == mergeData.size());
 }
 } // namespace TEST
 } // namespace EDM
