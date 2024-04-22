@@ -96,15 +96,16 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(const AppExecFwk::Elem
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    int32_t adminFlag;
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
-        adminFlag = HAS_ADMIN;
+        data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
     } else {
-        adminFlag = WITHOUT_ADMIN;
+        if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
+            return ERR_OK;
+        }
+        data.WriteInt32(WITHOUT_ADMIN);
     }
-    data.WriteInt32(adminFlag);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     proxy->GetPolicy(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
