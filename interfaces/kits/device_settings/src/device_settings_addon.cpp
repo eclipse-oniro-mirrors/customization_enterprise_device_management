@@ -538,7 +538,7 @@ int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene 
         cJSON_Delete(json);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    info = jsonStr;
+    info = std::string(jsonStr);
     cJSON_Delete(json);
     cJSON_free(jsonStr);
     return ERR_OK;

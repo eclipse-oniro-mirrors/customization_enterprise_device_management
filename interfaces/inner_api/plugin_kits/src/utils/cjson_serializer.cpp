@@ -28,7 +28,11 @@ bool CjsonSerializer::Serialize(cJSON *const &dataObj, std::string &jsonString)
     if (dataObj == nullptr) {
         return false;
     }
-    jsonString = cJSON_Print(dataObj);
+    char *cJsonStr = cJSON_Print(dataObj);
+    if (cJsonStr != nullptr) {
+        jsonString = std::string(cJsonStr);
+        cJSON_free(cJsonStr);
+    }
     return !jsonString.empty();
 }
 
