@@ -135,6 +135,8 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.size() == 7);
+    serializer->Deduplication(value);
+    ASSERT_TRUE(value.size() == 7);
 
     MessageParcel messageParcel2;
     value = { "v1", "v2", "v3" };
@@ -229,6 +231,8 @@ HWTEST_F(PolicySerializerTest, ArrayMapStringGetPolicy, TestSize.Level1)
     messageParcel1.WriteStringVector(value2);
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
     ASSERT_TRUE(value.size() == 5);
+    serializer->Deduplication(value);
+    ASSERT_TRUE(value.size() == 5);
 }
 
 /**
@@ -256,6 +260,8 @@ HWTEST_F(PolicySerializerTest, ArrayMapStringWritePolicy, TestSize.Level1)
 
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel2, value));
+    ASSERT_TRUE(value.size() == 2);
+    serializer->Deduplication(value);
     ASSERT_TRUE(value.size() == 2);
 }
 
