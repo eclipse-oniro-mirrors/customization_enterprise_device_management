@@ -106,6 +106,9 @@ std::shared_ptr<IPluginExecuteStrategy> PluginManager::CreateExecuteStrategy(Exe
     if (strategy == ExecuteStrategy::ENHANCE) {
         return enhanceStrategy_;
     }
+    if (strategy == ExecuteStrategy::REPLACE) {
+        return replaceStrategy_;
+    }
     return singleStrategy_;
 }
 

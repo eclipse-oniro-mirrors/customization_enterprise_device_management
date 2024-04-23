@@ -17,6 +17,7 @@
 
 #include "edm_log.h"
 #include "func_code.h"
+#include "update_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -72,6 +73,79 @@ int32_t SystemManagerProxy::GetNTPServer(const AppExecFwk::ElementName &admin, s
         return ret;
     }
     reply.ReadString(value);
+    return ERR_OK;
+}
+
+int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy)
+{
+    EDMLOGD("SystemManagerProxy::SetOTAUpdatePolicy");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_OTA_UPDATE_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy)
+{
+    EDMLOGD("SystemManagerProxy::GetOTAUpdatePolicy");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_OTA_UPDATE_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    UpdatePolicyUtils::ReadUpdatePolicy(reply, updatePolicy);
+    return ERR_OK;
+}
+
+int32_t SystemManagerProxy::NotifyUpgradePackages(const AppExecFwk::ElementName &admin,
+    const UpgradePackageInfo &packageInfo)
+{
+    EDMLOGD("SystemManagerProxy::NotifyUpgradePackages");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    UpdatePolicyUtils::WriteUpgradePackageInfo(data, packageInfo);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,
+    UpgradeResult &upgradeResult)
+{
+    EDMLOGD("SystemManagerProxy::GetUpgradeResult");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(version);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    UpdatePolicyUtils::ReadUpgradeResult(reply, upgradeResult);
     return ERR_OK;
 }
 } // namespace EDM

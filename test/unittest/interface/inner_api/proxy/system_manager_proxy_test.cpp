@@ -127,6 +127,110 @@ HWTEST_F(SystemManagerProxyTest, TestGetNTPServerFail, TestSize.Level1)
     int32_t ret = systemmanagerProxy->GetNTPServer(admin, server);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetOTAUpdatePolicySuc
+ * @tc.desc: Test SetOTAUpdatePolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    UpdatePolicy updatePolicy;
+    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetOTAUpdatePolicyFail
+ * @tc.desc: Test GetOTAUpdatePolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    UpdatePolicy updatePolicy;
+    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(admin, updatePolicy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetOTAUpdatePolicySuc
+ * @tc.desc: Test GetOTAUpdatePolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicySuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetOTAUpdatePolicy));
+    UpdatePolicy updatePolicy;
+    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(admin, updatePolicy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(updatePolicy.type, UpdatePolicyType::PROHIBIT);
+    ASSERT_EQ(updatePolicy.version, UPGRADE_VERSION);
+}
+
+/**
+ * @tc.name: TestNotifyUpgradePackagesSuc
+ * @tc.desc: Test NotifyUpgradePackages func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestNotifyUpgradePackagesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    UpgradePackageInfo packageInfo;
+    int32_t ret = systemmanagerProxy->NotifyUpgradePackages(admin, packageInfo);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetUpgradeResultFail
+ * @tc.desc: Test GetUpgradeResult func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetUpgradeResultFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    UpgradeResult upgradeResult;
+    int32_t ret = systemmanagerProxy->GetUpgradeResult(admin, UPGRADE_VERSION, upgradeResult);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUpgradeResultSuc
+ * @tc.desc: Test GetUpgradeResult func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetUpgradeResultSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult));
+    UpgradeResult upgradeResult;
+    int32_t ret = systemmanagerProxy->GetUpgradeResult(admin, UPGRADE_VERSION, upgradeResult);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(upgradeResult.status == UpgradeStatus::UPGRADE_FAILURE);
+    ASSERT_EQ(upgradeResult.version, UPGRADE_VERSION);
+    ASSERT_EQ(upgradeResult.errorCode, UPGRADE_FAILED_CODE);
+    ASSERT_EQ(upgradeResult.errorMessage, UPGRADE_FAILED_MESSAGE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

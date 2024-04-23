@@ -30,6 +30,9 @@ namespace EDM {
 constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 const std::string RETURN_STRING = "test_string";
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
+const std::string UPGRADE_VERSION = "version_1.0";
+constexpr int32_t UPGRADE_FAILED_CODE = -1;
+const std::string UPGRADE_FAILED_MESSAGE = "upgrade failed";
 class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgr> {
 public:
     EnterpriseDeviceMgrStubMock() = default;
@@ -89,6 +92,12 @@ public:
         MessageOption &option);
 
     int InvokeSendRequestGetSuperAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetOTAUpdatePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetUpgradeResult(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeSendRequestReplyFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

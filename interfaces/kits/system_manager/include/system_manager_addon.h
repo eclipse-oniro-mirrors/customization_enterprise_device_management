@@ -16,8 +16,6 @@
 #ifndef INTERFACES_KITS_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_ADDON_H
 #define INTERFACES_KITS_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_ADDON_H
 
-#include "system_manager_proxy.h"
-#include "edm_errors.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -25,8 +23,17 @@
 #include "napi_edm_error.h"
 #include "want.h"
 
+#include "edm_errors.h"
+#include "system_manager_proxy.h"
+#include "update_policy_utils.h"
+
 namespace OHOS {
 namespace EDM {
+struct AsyncGetUpgradeResultCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string version;
+    UpgradeResult upgradeResult;
+};
 
 class SystemManagerAddon {
 public:
@@ -35,6 +42,22 @@ public:
 private:
     static napi_value SetNTPServer(napi_env env, napi_callback_info info);
     static napi_value GetNTPServer(napi_env env, napi_callback_info info);
+    static napi_value SetOTAUpdatePolicy(napi_env env, napi_callback_info info);
+    static napi_value GetOTAUpdatePolicy(napi_env env, napi_callback_info info);
+    static napi_value NotifyUpgradePackages(napi_env env, napi_callback_info info);
+    static napi_value GetUpgradeResult(napi_env env, napi_callback_info info);
+    static void CreatePolicyTypeObject(napi_env env, napi_value value);
+    static void CreatePackageTypeObject(napi_env env, napi_value value);
+    static void CreateUpgradeStatusObject(napi_env env, napi_value value);
+    static bool JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy);
+    static napi_value ConvertUpdatePolicyToJs(napi_env env, const UpdatePolicy &updatePolicy);
+    static napi_value ConvertUpdateResultToJs(napi_env env, const UpgradeResult &updateResult);
+    static bool JsObjToUpgradePackageInfo(napi_env env, napi_value object, UpgradePackageInfo &packageInfo);
+    static bool ParsePackages(napi_env env, napi_value object, std::vector<Package> &packages);
+    static bool ParsePackage(napi_env env, napi_value object, Package &package);
+    static bool ParseDescription(napi_env env, napi_value object, PackageDescription &description);
+    static void NativeGetUpgradeResult(napi_env env, void *data);
+    static void NativeUpgradeResultComplete(napi_env env, napi_status status, void *data);
 };
 } // namespace EDM
 } // namespace OHOS

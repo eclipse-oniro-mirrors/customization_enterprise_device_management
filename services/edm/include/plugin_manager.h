@@ -24,6 +24,7 @@
 #include "iplugin.h"
 #include "iplugin_execute_strategy.h"
 #include "iplugin_manager.h"
+#include "replace_execute_strategy.h"
 #include "single_execute_strategy.h"
 
 namespace OHOS {
@@ -55,6 +56,7 @@ private:
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> singleStrategy_ = std::make_shared<SingleExecuteStrategy>();
+    std::shared_ptr<IPluginExecuteStrategy> replaceStrategy_ = std::make_shared<ReplaceExecuteStrategy>();
 };
 } // namespace EDM
 } // namespace OHOS

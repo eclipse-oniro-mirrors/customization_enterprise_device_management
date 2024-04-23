@@ -20,6 +20,7 @@
 #include "http_proxy.h"
 #include "iptables_utils.h"
 #include "os_account_info.h"
+#include "update_policy_utils.h"
 #include "usb_device_id.h"
 
 namespace OHOS {
@@ -224,6 +225,34 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetSuperAdmin(uint32_t code, M
     reply.WriteInt32(ERR_OK);
     reply.WriteString(RETURN_STRING);
     reply.WriteString(RETURN_STRING);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetOTAUpdatePolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetOTAUpdatePolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    UpdatePolicy updatePolicy;
+    updatePolicy.type = UpdatePolicyType::PROHIBIT;
+    updatePolicy.version = UPGRADE_VERSION;
+    UpdatePolicyUtils::WriteUpdatePolicy(reply, updatePolicy);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetOTAUpdatePolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    UpgradeResult upgradeResult;
+    upgradeResult.status = UpgradeStatus::UPGRADE_FAILURE;
+    upgradeResult.version = UPGRADE_VERSION;
+    upgradeResult.errorCode = UPGRADE_FAILED_CODE;
+    upgradeResult.errorMessage = UPGRADE_FAILED_MESSAGE;
+    UpdatePolicyUtils::WriteUpgradeResult(reply, upgradeResult);
     return 0;
 }
 } // namespace EDM

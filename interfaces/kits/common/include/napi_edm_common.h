@@ -73,6 +73,7 @@ bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result);
 bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, uint32_t &result);
+bool JsObjectToLong(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int64_t &result);
 bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, bool &result);
 bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::string &resultStr);
