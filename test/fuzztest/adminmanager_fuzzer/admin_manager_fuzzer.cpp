@@ -28,53 +28,64 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 1024;
+constexpr size_t MIN_SIZE = 64;
+
+void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
+{
+    AdminInfo fuzzAdminInfo;
+    fuzzAdminInfo.packageName_ = fuzzString;
+    fuzzAdminInfo.className_ = fuzzString;
+    fuzzAdminInfo.entInfo_ = entInfo;
+    fuzzAdminInfo.permission_ = { fuzzString };
+    fuzzAdminInfo.managedEvents_ = { event };
+    fuzzAdminInfo.parentAdminName_ = fuzzString;
+    admin.adminInfo_ = fuzzAdminInfo;
+}
 
 void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
 {
     std::shared_ptr<AdminManager> adminManager = AdminManager::GetInstance();
     adminManager->Init();
-    std::string permission(reinterpret_cast<const char*>(data), size);
-    std::vector<std::string> permissions = { permission };
-    EdmPermission edmPermission = GetData<EdmPermission>();
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    std::vector<std::string> permissions = { fuzzString };
+    EdmPermission edmPermission;
+    edmPermission.permissionName_ = fuzzString;
     std::vector<EdmPermission> reqPermissions = { edmPermission };
-    adminManager->GetReqPermission(permissions, reqPermissions);
-
     ManagedEvent event = GetData<ManagedEvent>();
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subscribeAdmins =
-        GetData<std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>>>();
-    adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
-
-    AppExecFwk::ExtensionAbilityInfo abilityInfo = GetData<AppExecFwk::ExtensionAbilityInfo>();
-    EntInfo entInfo = GetData<EntInfo>();
-    AdminType role = GetData<AdminType>();
+    Admin admin;
+    EntInfo entInfo;
+    entInfo.enterpriseName = fuzzString;
+    entInfo.description = fuzzString;
+    InitAdminParam(admin, fuzzString, entInfo, event);
+    std::shared_ptr<Admin> adminPtr = std::make_shared<Admin>(admin);
+    std::vector<std::shared_ptr<Admin>> adminPtrVec = { adminPtr };
+    int32_t eventId = CommonFuzzer::GetU32Data(data);
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subscribeAdmins;
+    subscribeAdmins[eventId] = adminPtrVec;
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
-    Admin admin(abilityInfo, role, entInfo, permissions, isDebug);
-    adminManager->SetAdminValue(userId, admin);
-
+    std::string bundleName(reinterpret_cast<const char*>(data), size);
+    AdminType role = GetData<AdminType>();
     std::string packageName(reinterpret_cast<const char*>(data), size);
+    std::vector<std::string> packageNameList = { packageName };
+    std::string subAdminName(reinterpret_cast<const char*>(data), size);
+    std::shared_ptr<Admin> subOrSuperAdmin = std::make_shared<Admin>(admin);
+    std::string parentName(reinterpret_cast<const char*>(data), size);
+    std::vector<std::string> subAdmins = { fuzzString };
+    uint32_t fuzzEvent = GetData<uint32_t>();
+    std::vector<uint32_t> events = { fuzzEvent };
+    adminManager->SetAdminValue(userId, admin);
+    adminManager->GetReqPermission(permissions, reqPermissions);
     adminManager->GetAdminByPkgName(packageName, userId);
     adminManager->DeleteAdmin(packageName, userId);
     adminManager->GetGrantedPermission(permissions, role);
-    adminManager->UpdateAdmin(abilityInfo, permissions, userId);
     adminManager->IsSuperAdminExist();
-    std::string bundleName(reinterpret_cast<const char*>(data), size);
     adminManager->IsSuperAdmin(bundleName);
     adminManager->IsSuperOrSubSuperAdmin(bundleName);
-
-    std::vector<std::string> packageNameList = { packageName };
     adminManager->GetEnabledAdmin(role, packageNameList, userId);
-    std::string subAdminName(reinterpret_cast<const char*>(data), size);
-    std::shared_ptr<Admin> subOrSuperAdmin = GetData<std::shared_ptr<Admin>>();
     adminManager->GetSubOrSuperAdminByPkgName(subAdminName, subOrSuperAdmin);
-
-    std::string parentName(reinterpret_cast<const char*>(data), size);
-    std::vector<std::string> subAdmins = GetData<std::vector<std::string>>();
     adminManager->GetSubSuperAdminsByParentName(parentName, subAdmins);
     adminManager->GetEntInfo(packageName, entInfo, userId);
     adminManager->SetEntInfo(packageName, entInfo, userId);
-    std::vector<uint32_t> events = GetData<std::vector<uint32_t>>();
     adminManager->SaveSubscribeEvents(events, bundleName, userId);
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
     adminManager->SaveAuthorizedAdmin(bundleName, permissions, parentName);

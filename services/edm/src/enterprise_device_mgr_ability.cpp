@@ -421,7 +421,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
 {
     bool ret = false;
     AppExecFwk::BundleInfo bundleInfo;
-    permissionList.clear();
+    if (permissionList.size() > 0) {
+        permissionList.clear();
+    }
     EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s userid %{public}d",
         bundleInfoName.c_str(), userId);
     ret = GetBundleMgr()->GetBundleInfo(bundleInfoName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION,

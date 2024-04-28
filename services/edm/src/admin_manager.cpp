@@ -330,7 +330,9 @@ ErrCode AdminManager::GetSubOrSuperAdminByPkgName(const std::string &subAdminNam
 
 ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins)
 {
-    subAdmins.clear();
+    if (subAdmins.size() > 0) {
+        subAdmins.clear();
+    }
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(DEFAULT_USER_ID, userAdmin)) {
         EDMLOGE("GetSubSuperAdminsByParentName::not find Admin under default user id.");
