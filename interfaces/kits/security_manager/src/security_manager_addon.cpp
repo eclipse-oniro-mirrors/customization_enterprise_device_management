@@ -235,7 +235,7 @@ int32_t SecurityManagerAddon::ConvertDeviceEncryptionToJson(napi_env env,
         cJSON_Delete(json);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    stringRet = jsonStr;
+    stringRet = std::string(jsonStr);
     cJSON_Delete(json);
     cJSON_free(jsonStr);
     return ERR_OK;

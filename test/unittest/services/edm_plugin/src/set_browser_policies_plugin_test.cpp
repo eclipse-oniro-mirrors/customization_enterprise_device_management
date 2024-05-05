@@ -234,8 +234,15 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicy, TestSize.Level1)
     cJSON* policy;
     serializer_->Deserialize(cJSON_GetStringValue(beforeParsedPolicy), policy);
     cJSON* policyValue =  cJSON_GetObjectItem(policy, TEST_POLICY_NAME.c_str());
-    ASSERT_TRUE(cJSON_Print(policyValue) == TEST_POLICY_VALUE2);
+    char *cJsonstr = cJSON_Print(policyValue);
+    std::string testStr;
+    if (cJsonstr != nullptr) {
+        testStr = std::string(cJsonstr);
+        cJSON_free(cJsonstr);
+    }
+    ASSERT_TRUE(testStr == TEST_POLICY_VALUE2);
     cJSON_Delete(policies);
+    cJSON_Delete(policy);
 }
 
 /**
@@ -268,6 +275,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyEmptyValue, TestSize.Level1)
     cJSON* policyValue =  cJSON_GetObjectItem(policy, TEST_POLICY_NAME.c_str());
     ASSERT_TRUE(policyValue == nullptr);
     cJSON_Delete(policies);
+    cJSON_Delete(policy);
 }
 
 /**
