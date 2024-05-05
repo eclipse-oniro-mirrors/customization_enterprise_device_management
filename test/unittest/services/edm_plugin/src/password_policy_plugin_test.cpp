@@ -77,6 +77,18 @@ HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicy, TestSize.Level1)
     ASSERT_TRUE(policy.complexityReg == TEST_VALUE_COMPLEXITYREG);
 }
 
+/**
+ * @tc.name: TestOnSetPolicyEmpty
+ * @tc.desc: Test PasswordPolicyPlugin::OnSetPolicy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasswordPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
+{
+    PasswordPolicyPlugin plugin;
+    PasswordPolicy policy;
+    ErrCode ret = plugin.OnSetPolicy(policy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

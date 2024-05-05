@@ -28,6 +28,7 @@ config("edm_config") {
     "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
     "../../../../services/edm/include/strategy",
+    "../../../../services/edm_plugin/include/utils",
     "../../../../framework/extension/include",
   ]
 }
@@ -56,6 +57,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/super_admin.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
+    "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
   ]
 
   public_configs = [
@@ -81,6 +83,7 @@ ohos_static_library("edmservice_static") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
@@ -89,6 +92,7 @@ ohos_static_library("edmservice_static") {
     "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "user_auth_framework:userauth_client",
   ]
 
   deps = [
@@ -162,6 +166,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
@@ -169,6 +174,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "user_auth_framework:userauth_client",
   ]
 
   sanitize = {
