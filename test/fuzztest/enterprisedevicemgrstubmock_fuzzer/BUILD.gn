@@ -29,6 +29,7 @@ config("edm_config") {
     "../../../services/edm/include/connection",
     "../../../services/edm/include/database",
     "../../../services/edm/include/strategy",
+    "../../../services/edm_plugin/include/utils",
     "../../../framework/extension/include",
     "../../../services/edm_plugin/include",
     "../../../services/edm_plugin/include/network",
@@ -128,6 +129,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
@@ -136,6 +138,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "user_auth_framework:userauth_client",
   ]
 
   deps = [
