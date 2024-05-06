@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "screenlock_manager.h"
 #include "power_mgr_client.h"
 #include "reboot_plugin.h"
 

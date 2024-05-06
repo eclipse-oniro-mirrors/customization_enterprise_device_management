@@ -14,6 +14,8 @@
 import("//build/ohos.gni")
 
 declare_args() {
+  enterprise_device_management_support_all = true
+
   ability_runtime_edm_enable = false
   if (defined(global_parts_info) &&
       defined(global_parts_info.ability_ability_runtime)) {
