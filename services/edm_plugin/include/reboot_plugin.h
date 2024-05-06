@@ -18,7 +18,6 @@
 
 #include "plugin_singleton.h"
 #include "string_serializer.h"
-#include "screenlock_manager.h"
 #include "iremote_stub.h"
 
 namespace OHOS {

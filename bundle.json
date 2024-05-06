@@ -131,7 +131,7 @@
           "//base/customization/enterprise_device_management/etc/param:edm.para.dac"
         ]
       },
-      "inner_api": [
+      "inner_kits": [
         {
           "header": {
             "header_base":"//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits/include",
