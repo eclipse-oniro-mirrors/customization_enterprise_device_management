@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 1024;
+constexpr size_t MIN_SIZE = 64;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -44,15 +44,23 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    AppExecFwk::ExtensionAbilityInfo abilityInfo = GetData<AppExecFwk::ExtensionAbilityInfo>();
-    std::string enterpriseName(reinterpret_cast<const char*>(data), size);
-    std::string description(reinterpret_cast<const char*>(data), size);
-    EntInfo entInfo(enterpriseName, description);
-    AdminType role = GetData<AdminType>();
-    std::string permission(reinterpret_cast<const char*>(data), size);
-    std::vector<std::string> permissions = { permission };
-    bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
-    Admin admin(abilityInfo, role, entInfo, permissions, isDebug);
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    ManagedEvent event = GetData<ManagedEvent>();
+    Admin admin;
+    AdminInfo fuzzAdminInfo;
+    EntInfo entInfo;
+    entInfo.enterpriseName = fuzzString;
+    entInfo.description = fuzzString;
+    fuzzAdminInfo.packageName_ = fuzzString;
+    fuzzAdminInfo.className_ = fuzzString;
+    fuzzAdminInfo.entInfo_ = entInfo;
+    fuzzAdminInfo.permission_ = { fuzzString };
+    fuzzAdminInfo.managedEvents_ = { event };
+    fuzzAdminInfo.parentAdminName_ = fuzzString;
+    admin.adminInfo_ = fuzzAdminInfo;
+
+    std::vector<std::string> permissions = { fuzzString };
+
     adminPoliciesStorageRdb->InsertAdmin(userId, admin);
     adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
     adminPoliciesStorageRdb->CreateValuesBucket(userId, admin);
@@ -65,16 +73,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     
     adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
 
-    ManagedEvent event = GetData<ManagedEvent>();
     std::vector<ManagedEvent> managedEvents = {event};
     adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
 
-    std::shared_ptr<NativeRdb::ResultSet> resultSet = GetData<std::shared_ptr<NativeRdb::ResultSet>>();
-    std::shared_ptr<Admin> item = GetData<std::shared_ptr<Admin>>();
-    adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
-
     std::string str(reinterpret_cast<const char*>(data), size);
-    Json::Value json = GetData<Json::Value>();
+    Json::Value json;
+    json["test"] = str;
     adminPoliciesStorageRdb->ConvertStrToJson(str, json);
 
     std::string bundleName(reinterpret_cast<const char*>(data), size);

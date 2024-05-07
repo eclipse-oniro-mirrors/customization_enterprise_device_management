@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace EDM {
 
-constexpr uint32_t MAX_PACKAGES_SIZE = 200;
+constexpr uint32_t MAX_PACKAGES_SIZE = 10;
 bool UpdatePolicyUtils::ProcessUpdatePolicyType(int32_t type, UpdatePolicyType &updatePolicyType)
 {
     if (type >= static_cast<int32_t>(UpdatePolicyType::DEFAULT) &&

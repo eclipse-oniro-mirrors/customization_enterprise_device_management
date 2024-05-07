@@ -38,6 +38,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, "a conflicting policy has been configured."},
     {EdmReturnErrCode::APPLICATION_INSTALL_FAILED, "application install failed $."},
     {EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED, "add os account failed."},
+    {EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED, "the upgrade packages do not exist or analyzing failed"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

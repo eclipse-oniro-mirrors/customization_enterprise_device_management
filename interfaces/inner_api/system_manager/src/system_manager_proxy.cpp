@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -76,10 +76,12 @@ int32_t SystemManagerProxy::GetNTPServer(const AppExecFwk::ElementName &admin, s
     return ERR_OK;
 }
 
-int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy)
+int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
+    std::string &errorMsg)
 {
     EDMLOGD("SystemManagerProxy::SetOTAUpdatePolicy");
     MessageParcel data;
+    MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
@@ -87,7 +89,11 @@ int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &ad
     UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_OTA_UPDATE_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::PARAM_ERROR) {
+        errorMsg = reply.ReadString();
+    }
+    return ret;
 }
 
 int32_t SystemManagerProxy::GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -141,8 +141,28 @@ HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicySuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     UpdatePolicy updatePolicy;
-    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy);
+    std::string message;
+    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy, message);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetOTAUpdatePolicyParamError
+ * @tc.desc: Test SetOTAUpdatePolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicyParamError, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
+    UpdatePolicy updatePolicy;
+    std::string message;
+    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy, message);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(message, RETURN_STRING);
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,7 +49,7 @@ private:
     static void CreatePolicyTypeObject(napi_env env, napi_value value);
     static void CreatePackageTypeObject(napi_env env, napi_value value);
     static void CreateUpgradeStatusObject(napi_env env, napi_value value);
-    static bool JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy);
+    static bool JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy, std::string &errorMsg);
     static napi_value ConvertUpdatePolicyToJs(napi_env env, const UpdatePolicy &updatePolicy);
     static napi_value ConvertUpdateResultToJs(napi_env env, const UpgradeResult &updateResult);
     static bool JsObjToUpgradePackageInfo(napi_env env, napi_value object, UpgradePackageInfo &packageInfo);

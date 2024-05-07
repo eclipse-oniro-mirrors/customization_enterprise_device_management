@@ -32,7 +32,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 1024;
+constexpr size_t MIN_SIZE = 64;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -63,14 +63,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
     enterpriseDeviceMgrAbility->OnCommonEventServiceStart(systemAbilityId, deviceId);
 
-    std::string bundleInfoName(reinterpret_cast<const char*>(data), size);
-    std::string permission(reinterpret_cast<const char*>(data), size);
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    std::vector<std::string> permissionList = {permission};
-    enterpriseDeviceMgrAbility->GetAllPermissionsByAdmin(bundleInfoName, permissionList, userId);
     enterpriseDeviceMgrAbility->SubscribeAppState();
     enterpriseDeviceMgrAbility->UnsubscribeAppState();
-    AppExecFwk::ElementName admin = GetData<AppExecFwk::ElementName>();
+    AppExecFwk::ElementName admin;
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    admin.SetBundleName(fuzzString);
+    admin.SetAbilityName(fuzzString);
     AdminType type = GetData<AdminType>();
     bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
     enterpriseDeviceMgrAbility->VerifyEnableAdminCondition(admin, type, userId, isDebug);

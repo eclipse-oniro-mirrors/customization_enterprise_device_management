@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include <shutdown_plugin.h>
-#include "screenlock_manager.h"
 #include "power_mgr_client.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"

@@ -40,6 +40,8 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
+#include "password_policy_serializer.h"
+#include "user_auth_client.h"
 
 namespace OHOS {
 namespace EDM {
@@ -116,6 +118,8 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAppManagerServiceStart;
     addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnCommonEventServiceStart;
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart;
+    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
+        &EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart;
 }
 
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
@@ -328,6 +332,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
+    AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     RemoveAllDebugAdmin();
 }
 
@@ -409,6 +414,23 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbility
 #endif
 }
 
+void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("OnUserAuthFrameworkStart");
+    std::string policyData;
+    policyMgr_->GetPolicy("", "password_policy", policyData, EdmConstants::DEFAULT_USER_ID);
+    auto serializer_ = PasswordSerializer::GetInstance();
+    PasswordPolicy policy;
+    serializer_->Deserialize(policyData, policy);
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
+    param.value.pinExpiredPeriod = policy.validityPeriod;
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != 0) {
+        EDMLOGW("SetGlobalConfigParam Error");
+    }
+}
+
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
 
 void EnterpriseDeviceMgrAbility::OnStop()
@@ -421,7 +443,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &
 {
     bool ret = false;
     AppExecFwk::BundleInfo bundleInfo;
-    permissionList.clear();
+    if (permissionList.size() > 0) {
+        permissionList.clear();
+    }
     EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s userid %{public}d",
         bundleInfoName.c_str(), userId);
     ret = GetBundleMgr()->GetBundleInfo(bundleInfoName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION,

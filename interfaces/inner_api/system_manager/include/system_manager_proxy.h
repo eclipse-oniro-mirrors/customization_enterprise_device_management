@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,8 @@ public:
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
     int32_t SetNTPServer(const AppExecFwk::ElementName &admin, const std::string &value);
     int32_t GetNTPServer(const AppExecFwk::ElementName &admin, std::string &value);
-    int32_t SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy);
+    int32_t SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
+        std::string &errorMsg);
     int32_t GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy);
     int32_t NotifyUpgradePackages(const AppExecFwk::ElementName &admin, const UpgradePackageInfo &packageInfo);
     int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,

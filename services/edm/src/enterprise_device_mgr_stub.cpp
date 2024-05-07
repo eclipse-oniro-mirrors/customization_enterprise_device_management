@@ -23,8 +23,9 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace EDM {
+#ifdef EDM_SUPPORT_ALL_ENABLE
 constexpr int32_t DEFAULT_USER_ID = 100;
-
+#endif
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
 {
     AddCallFuncMap();
@@ -67,6 +68,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
 int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
+#ifdef EDM_SUPPORT_ALL_ENABLE
     std::u16string descriptor = GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     EDMLOGI("EnterpriseDeviceMgrStub code %{public}u", code);
@@ -110,6 +112,11 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+#else
+    EDMLOGI("EnterpriseDeviceMgrStub edm unsupport.");
+    reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrStub::GetExternalManagerFactory()

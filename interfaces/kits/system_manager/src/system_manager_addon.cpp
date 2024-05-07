@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -174,18 +174,23 @@ napi_value SystemManagerAddon::SetOTAUpdatePolicy(napi_env env, napi_callback_in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter policy error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "the admin parameter type is incorrect");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "the policy parameter type is incorrect");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
+        "the admin parameter parsing error");
     EDMLOGD("SetOTAUpdatePolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     UpdatePolicy updatePolicy;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, JsObjToUpdatePolicy(env, argv[ARR_INDEX_ONE], updatePolicy), "parameter policy parse error");
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOTAUpdatePolicy(elementName, updatePolicy);
-    if (FAILED(ret)) {
+    std::string errorMsg;
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToUpdatePolicy(env, argv[ARR_INDEX_ONE], updatePolicy, errorMsg), errorMsg);
+    std::string message;
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOTAUpdatePolicy(elementName, updatePolicy, message);
+    if (ret == EdmReturnErrCode::PARAM_ERROR) {
+        napi_throw(env, CreateError(env, ret, message));
+    } else if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
@@ -311,37 +316,42 @@ void SystemManagerAddon::NativeUpgradeResultComplete(napi_env env, napi_status s
     delete asyncCallbackInfo;
 }
 
-bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy)
+bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy,
+    std::string &errorMsg)
 {
     int32_t policyType = -1;
     if (!JsObjectToInt(env, object, "policyType", true, policyType) ||
         !UpdatePolicyUtils::ProcessUpdatePolicyType(policyType, updatePolicy.type)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdatePolicy updateType trans failed!");
+        errorMsg = "the property 'policyType' in type 'OtaUpdatePolicy' is necessary";
         return false;
     }
 
     if (!JsObjectToString(env, object, "version", true, updatePolicy.version)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdatePolicy version trans failed!");
+        errorMsg = "the property 'version' in type 'OtaUpdatePolicy' is necessary";
         return false;
     }
 
-    if (!JsObjectToLong(env, object, "latestUpdateTime", false, updatePolicy.installTime.latestUpdateTime)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdateTime latestUpdateTime trans failed!");
+    if (!JsObjectToLong(env, object, "latestUpdateTime", updatePolicy.type == UpdatePolicyType::FORCE_IMMEDIATE_UPDATE,
+        updatePolicy.installTime.latestUpdateTime)) {
+        errorMsg = "the property 'latestUpdateTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
 
-    if (!JsObjectToLong(env, object, "delayUpdateTime", false, updatePolicy.installTime.delayUpdateTime)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdateTime delayUpdateTime trans failed!");
+    if (!JsObjectToLong(env, object, "installStartTime", updatePolicy.type == UpdatePolicyType::WINDOWS,
+        updatePolicy.installTime.installWindowStart)) {
+        errorMsg = "the property 'installStartTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
 
-    if (!JsObjectToLong(env, object, "installStartTime", false, updatePolicy.installTime.installWindowStart)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdateTime installStartTime trans failed!");
+    if (!JsObjectToLong(env, object, "installEndTime", updatePolicy.type == UpdatePolicyType::WINDOWS,
+        updatePolicy.installTime.installWindowEnd)) {
+        errorMsg = "the property 'installEndTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
 
-    if (!JsObjectToLong(env, object, "installEndTime", false, updatePolicy.installTime.installWindowEnd)) {
-        EDMLOGE("SetOTAUpdatePolicy JsObjToUpdateTime installEndTime trans failed!");
+    if (!JsObjectToLong(env, object, "delayUpdateTime", updatePolicy.type == UpdatePolicyType::POSTPONE,
+        updatePolicy.installTime.delayUpdateTime)) {
+        errorMsg = "the property 'delayUpdateTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
     return true;
