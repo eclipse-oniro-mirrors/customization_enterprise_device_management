@@ -111,4 +111,9 @@ declare_args() {
       defined(global_parts_info.telephony_core_service)) {
     telephony_core_edm_enable = true
   }
+  pasteboard_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.distributeddatamgr_pasteboard)) {
+    pasteboard_edm_enable = true
+  }
 }

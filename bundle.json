@@ -78,6 +78,7 @@
         "location",
         "napi",
         "os_account",
+        "pasteboard",
         "power_manager",
         "relational_store",
         "safwk",

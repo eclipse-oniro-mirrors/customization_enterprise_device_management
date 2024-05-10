@@ -107,6 +107,9 @@ private:
     void OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnAbilityManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+#ifdef PASTEBOARD_EDM_ENABLE
+    void OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+#endif
     void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin, std::shared_ptr<IPlugin> plugin);
     void InitAllPolices();
