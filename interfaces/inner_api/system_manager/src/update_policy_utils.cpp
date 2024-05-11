@@ -73,6 +73,7 @@ void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, const Upgra
     for (auto package : packageInfo.packages) {
         data.WriteInt32(static_cast<int32_t>(package.type));
         data.WriteString(package.path);
+        data.WriteInt32(package.fd);
     }
     data.WriteString(packageInfo.description.notify.installTips);
     data.WriteString(packageInfo.description.notify.installTipsDetail);
@@ -89,6 +90,7 @@ void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePacka
         Package package;
         ProcessPackageType(data.ReadInt32(), package.type);
         data.ReadString(package.path);
+        data.ReadInt32(package.fd);
         packageInfo.packages.push_back(package);
     }
     data.ReadString(packageInfo.description.notify.installTips);

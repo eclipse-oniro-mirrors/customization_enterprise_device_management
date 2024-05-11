@@ -117,11 +117,12 @@ int32_t SystemManagerProxy::GetOTAUpdatePolicy(const AppExecFwk::ElementName &ad
     return ERR_OK;
 }
 
-int32_t SystemManagerProxy::NotifyUpgradePackages(const AppExecFwk::ElementName &admin,
-    const UpgradePackageInfo &packageInfo)
+int32_t SystemManagerProxy::NotifyUpdatePackages(const AppExecFwk::ElementName &admin,
+    const UpgradePackageInfo &packageInfo, std::string &errMsg)
 {
-    EDMLOGD("SystemManagerProxy::NotifyUpgradePackages");
+    EDMLOGD("SystemManagerProxy::NotifyUpdatePackages");
     MessageParcel data;
+    MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
@@ -129,7 +130,11 @@ int32_t SystemManagerProxy::NotifyUpgradePackages(const AppExecFwk::ElementName 
     UpdatePolicyUtils::WriteUpgradePackageInfo(data, packageInfo);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED) {
+        errMsg = reply.ReadString();
+    }
+    return ret;
 }
 
 int32_t SystemManagerProxy::GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,

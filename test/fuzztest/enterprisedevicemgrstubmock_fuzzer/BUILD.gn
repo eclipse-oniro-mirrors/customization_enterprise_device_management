@@ -313,6 +313,14 @@ ohos_static_library("edmservice_fuzz_static") {
     defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
   }
 
+  if (pasteboard_edm_enable) {
+    external_deps += [ "pasteboard:pasteboard_client" ]
+    sources += [
+      "../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
+      "../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPGRADE_PACKAGES_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPGRADE_PACKAGES_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPDATE_PACKAGES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPDATE_PACKAGES_PLUGIN_H
 
 #include "plugin_singleton.h"
 #include "update_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
-class NotifyUpgradePackagesPlugin : public PluginSingleton<NotifyUpgradePackagesPlugin, UpgradePackageInfo> {
+class NotifyUpdatePackagesPlugin : public PluginSingleton<NotifyUpdatePackagesPlugin, UpgradePackageInfo> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<NotifyUpgradePackagesPlugin, UpgradePackageInfo>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<NotifyUpdatePackagesPlugin, UpgradePackageInfo>> ptr) override;
 
     ErrCode OnSetPolicy(UpgradePackageInfo &packageInfo);
 
@@ -32,4 +32,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPGRADE_PACKAGES_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPDATE_PACKAGES_PLUGIN_H

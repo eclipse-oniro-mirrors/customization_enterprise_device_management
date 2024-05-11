@@ -58,6 +58,8 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/super_admin.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
+    "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
+    "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
   ]
 
@@ -91,6 +93,7 @@ ohos_static_library("edmservice_static") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
+    "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "user_auth_framework:userauth_client",

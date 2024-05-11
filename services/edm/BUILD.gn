@@ -109,11 +109,13 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/get_display_version_plugin.cpp",
       "../edm_plugin/src/get_security_patch_tag_plugin.cpp",
       "../edm_plugin/src/install_plugin.cpp",
+      "../edm_plugin/src/notify_update_packages_plugin.cpp",
       "../edm_plugin/src/ntp_server_plugin.cpp",
       "../edm_plugin/src/operate_device_plugin.cpp",
       "../edm_plugin/src/password_policy_plugin.cpp",
       "../edm_plugin/src/power_policy_plugin.cpp",
       "../edm_plugin/src/screen_off_time_plugin.cpp",
+      "../edm_plugin/src/set_update_policy_plugin.cpp",
       "../edm_plugin/src/uninstall_plugin.cpp",
     ]
     if (time_service_edm_enable) {
@@ -258,6 +260,16 @@ ohos_shared_library("edmservice") {
       external_deps += [ "core_service:tel_core_service_api" ]
       defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
     }
+  }
+
+  if (pasteboard_edm_enable) {
+    external_deps += [ "pasteboard:pasteboard_client" ]
+    defines += [ "PASTEBOARD_EDM_ENABLE" ]
+    sources += [
+      "../edm_plugin/src/clipboard_policy_plugin.cpp",
+      "../edm_plugin/src/utils/clipboard_policy_serializer.cpp",
+      "../edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
   }
 
   deps = [

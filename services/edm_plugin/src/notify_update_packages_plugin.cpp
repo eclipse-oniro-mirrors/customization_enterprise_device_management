@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "notify_upgrade_packages_plugin.h"
+#include "notify_update_packages_plugin.h"
 
 #include "edm_ipc_interface_code.h"
 #include "plugin_manager.h"
@@ -21,24 +21,24 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(NotifyUpgradePackagesPlugin::GetPlugin());
+const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(NotifyUpdatePackagesPlugin::GetPlugin());
 
-void NotifyUpgradePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NotifyUpgradePackagesPlugin,
+void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NotifyUpdatePackagesPlugin,
     UpgradePackageInfo>> ptr)
 {
-    EDMLOGI("NotifyUpgradePackagesPlugin InitPlugin...");
+    EDMLOGI("NotifyUpdatePackagesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, "notify_upgrade_packages",
         "ohos.permission.ENTERPRISE_MANAGE_SYSTEM", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(UpgradePackageInfoSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&NotifyUpgradePackagesPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&NotifyUpdatePackagesPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode NotifyUpgradePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
+ErrCode NotifyUpdatePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode NotifyUpgradePackagesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+ErrCode NotifyUpdatePackagesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

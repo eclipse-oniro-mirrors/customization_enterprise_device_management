@@ -137,7 +137,9 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     ASSERT_TRUE(value.size() == 7);
     serializer->Deduplication(value);
     ASSERT_TRUE(value.size() == 7);
-
+    ArraySerializer<std::string, std::vector<std::string>> testArraySerializer;
+    testArraySerializer.Deduplication(value);
+    ASSERT_TRUE(value.size() == 7);
     MessageParcel messageParcel2;
     value = { "v1", "v2", "v3" };
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));

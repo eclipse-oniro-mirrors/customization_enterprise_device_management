@@ -35,6 +35,11 @@ struct AsyncGetUpgradeResultCallbackInfo : AsyncCallbackInfo {
     UpgradeResult upgradeResult;
 };
 
+struct AsyncNotifyUpdatePackagesCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    UpgradePackageInfo packageInfo;
+};
+
 class SystemManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -44,7 +49,7 @@ private:
     static napi_value GetNTPServer(napi_env env, napi_callback_info info);
     static napi_value SetOTAUpdatePolicy(napi_env env, napi_callback_info info);
     static napi_value GetOTAUpdatePolicy(napi_env env, napi_callback_info info);
-    static napi_value NotifyUpgradePackages(napi_env env, napi_callback_info info);
+    static napi_value NotifyUpdatePackages(napi_env env, napi_callback_info info);
     static napi_value GetUpgradeResult(napi_env env, napi_callback_info info);
     static void CreatePolicyTypeObject(napi_env env, napi_value value);
     static void CreatePackageTypeObject(napi_env env, napi_value value);
@@ -56,6 +61,7 @@ private:
     static bool ParsePackages(napi_env env, napi_value object, std::vector<Package> &packages);
     static bool ParsePackage(napi_env env, napi_value object, Package &package);
     static bool ParseDescription(napi_env env, napi_value object, PackageDescription &description);
+    static void NativeNotifyUpdatePackages(napi_env env, void *data);
     static void NativeGetUpgradeResult(napi_env env, void *data);
     static void NativeUpgradeResultComplete(napi_env env, napi_status status, void *data);
 };

@@ -43,6 +43,11 @@
 #include "password_policy_serializer.h"
 #include "user_auth_client.h"
 
+#ifdef PASTEBOARD_EDM_ENABLE
+#include "clipboard_policy_serializer.h"
+#include "clipboard_utils.h"
+#endif
+
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
@@ -120,6 +125,9 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart;
     addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
         &EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart;
+#ifdef PASTEBOARD_EDM_ENABLE
+    addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnPasteboardServiceStart;
+#endif
 }
 
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
@@ -333,6 +341,9 @@ void EnterpriseDeviceMgrAbility::OnStart()
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
+#ifdef PASTEBOARD_EDM_ENABLE
+    AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
+#endif
     RemoveAllDebugAdmin();
 }
 
@@ -413,6 +424,19 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbility
     return;
 #endif
 }
+
+#ifdef PASTEBOARD_EDM_ENABLE
+void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("OnPasteboardServiceStart");
+    std::string policyData;
+    policyMgr_->GetPolicy("", "clipboard_policy", policyData, EdmConstants::DEFAULT_USER_ID);
+    auto clipboardSerializer_ = ClipboardSerializer::GetInstance();
+    std::map<int32_t, ClipboardPolicy> policyMap;
+    clipboardSerializer_->Deserialize(policyData, policyMap);
+    ClipboardUtils::HandlePasteboardPolicy(policyMap);
+}
+#endif
 
 void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
 {

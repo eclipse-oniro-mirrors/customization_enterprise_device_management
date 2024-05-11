@@ -36,7 +36,7 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
         DECLARE_NAPI_FUNCTION("setOtaUpdatePolicy", SetOTAUpdatePolicy),
         DECLARE_NAPI_FUNCTION("getOtaUpdatePolicy", GetOTAUpdatePolicy),
-        DECLARE_NAPI_FUNCTION("notifyUpgradePackages", NotifyUpgradePackages),
+        DECLARE_NAPI_FUNCTION("notifyUpdatePackages", NotifyUpdatePackages),
         DECLARE_NAPI_FUNCTION("getUpgradeResult", GetUpgradeResult),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
@@ -60,10 +60,6 @@ void SystemManagerAddon::CreatePolicyTypeObject(napi_env env, napi_value value)
         static_cast<int32_t>(UpdatePolicyType::UPDATE_TO_SPECIFIC_VERSION), &nUpdateToSpecificVersion));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPDATE_TO_SPECIFIC_VERSION",
         nUpdateToSpecificVersion));
-    napi_value nForceImmediate;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
-        static_cast<int32_t>(UpdatePolicyType::FORCE_IMMEDIATE_UPDATE), &nForceImmediate));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FORCE_IMMEDIATE_UPDATE", nForceImmediate));
     napi_value nWindows;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(UpdatePolicyType::WINDOWS), &nWindows));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WINDOWS", nWindows));
@@ -220,9 +216,9 @@ napi_value SystemManagerAddon::GetOTAUpdatePolicy(napi_env env, napi_callback_in
     return ConvertUpdatePolicyToJs(env, updatePolicy);
 }
 
-napi_value SystemManagerAddon::NotifyUpgradePackages(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::NotifyUpdatePackages(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_NotifyUpgradePackages called");
+    EDMLOGI("NAPI_NotifyUpdatePackages called");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -231,19 +227,42 @@ napi_value SystemManagerAddon::NotifyUpgradePackages(napi_env env, napi_callback
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter policy error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD("NotifyUpgradePackages: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    UpgradePackageInfo packageInfo;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, JsObjToUpgradePackageInfo(env, argv[ARR_INDEX_ONE], packageInfo), "parameter packageInfo parse error");
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->NotifyUpgradePackages(elementName, packageInfo);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncNotifyUpdatePackagesCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
     }
-    return nullptr;
+    std::unique_ptr<AsyncNotifyUpdatePackagesCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "IsAdminEnabled::asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToUpgradePackageInfo(env, argv[ARR_INDEX_ONE],
+        asyncCallbackInfo->packageInfo), "parameter packageInfo parse error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NotifyUpdatePackages",
+        NativeNotifyUpdatePackages, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void SystemManagerAddon::NativeNotifyUpdatePackages(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeNotifyUpdatePackages called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncNotifyUpdatePackagesCallbackInfo *>(data);
+    auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->NotifyUpdatePackages(asyncCallbackInfo->elementName, asyncCallbackInfo->packageInfo,
+        asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value SystemManagerAddon::GetUpgradeResult(napi_env env, napi_callback_info info)
@@ -331,8 +350,7 @@ bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, Up
         return false;
     }
 
-    if (!JsObjectToLong(env, object, "latestUpdateTime", updatePolicy.type == UpdatePolicyType::FORCE_IMMEDIATE_UPDATE,
-        updatePolicy.installTime.latestUpdateTime)) {
+    if (!JsObjectToLong(env, object, "latestUpdateTime", false, updatePolicy.installTime.latestUpdateTime)) {
         errorMsg = "the property 'latestUpdateTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
@@ -439,7 +457,8 @@ bool SystemManagerAddon::ParsePackage(napi_env env, napi_value object, Package &
         return false;
     }
     package.type = static_cast<PackageType>(type);
-    return JsObjectToString(env, object, "path", true, package.path);
+    return JsObjectToString(env, object, "path", true, package.path) &&
+        JsObjectToInt(env, object, "fd", false, package.fd);
 }
 
 bool SystemManagerAddon::ParseDescription(napi_env env, napi_value object, PackageDescription &description)

@@ -200,11 +200,11 @@ HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicySuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestNotifyUpgradePackagesSuc
- * @tc.desc: Test NotifyUpgradePackages func.
+ * @tc.name: TestNotifyUpdatePackagesSuc
+ * @tc.desc: Test NotifyUpdatePackages func.
  * @tc.type: FUNC
  */
-HWTEST_F(SystemManagerProxyTest, TestNotifyUpgradePackagesSuc, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestNotifyUpdatePackagesSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -212,7 +212,8 @@ HWTEST_F(SystemManagerProxyTest, TestNotifyUpgradePackagesSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     UpgradePackageInfo packageInfo;
-    int32_t ret = systemmanagerProxy->NotifyUpgradePackages(admin, packageInfo);
+    std::string errMsg;
+    int32_t ret = systemmanagerProxy->NotifyUpdatePackages(admin, packageInfo, errMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

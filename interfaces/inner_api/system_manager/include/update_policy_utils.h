@@ -27,7 +27,6 @@ enum class UpdatePolicyType {
     DEFAULT = 0,
     PROHIBIT,
     UPDATE_TO_SPECIFIC_VERSION,
-    FORCE_IMMEDIATE_UPDATE,
     WINDOWS,
     POSTPONE
 };
@@ -61,6 +60,7 @@ struct UpdatePolicy {
 struct Package {
     PackageType type = PackageType::UNKNOWN;
     std::string path;
+    int32_t fd = -1;
 };
 
 struct NotifyDescription {
