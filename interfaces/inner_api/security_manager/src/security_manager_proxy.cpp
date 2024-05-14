@@ -114,10 +114,11 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin == nullptr) {
+        data.WriteString(EdmConstants::PERMISSION_TAG_SYSTEM_API);
         data.WriteInt32(WITHOUT_ADMIN);
     } else {
+        data.WriteString(WITHOUT_PERMISSION_TAG);
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
     }
