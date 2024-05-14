@@ -35,6 +35,7 @@ namespace EdmConstants {
 
     static const std::string PERMISSION_TAG_VERSION_11 = "version_11";
     static const std::string PERMISSION_TAG_VERSION_12 = "version_12";
+    static const std::string PERMISSION_TAG_SYSTEM_API = "system";
 
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
