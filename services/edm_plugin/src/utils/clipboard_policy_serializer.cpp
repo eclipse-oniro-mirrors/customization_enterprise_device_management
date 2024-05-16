@@ -34,6 +34,9 @@ bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t,
             cJSON_Delete(root);
             return false;
         }
+        if (!cJSON_IsNumber(clipboardPolicy) || !cJSON_IsNumber(tokenId)) {
+            continue;
+        }
         auto policyEnum = ConvertToClipboardPolicy(clipboardPolicy->valueint);
         result.insert(std::make_pair(tokenId->valueint, policyEnum));
     }
