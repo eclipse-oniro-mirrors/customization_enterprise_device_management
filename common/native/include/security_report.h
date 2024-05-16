@@ -17,13 +17,33 @@
 #define COMMON_NATIVE_INCLUDE_SECURITY_REPORT_H
 
 #include <string>
+#include "func_code.h"
 
 namespace OHOS {
 namespace EDM {
+struct ReportInfo {
+    FuncOperateType operateType_;
+    int32_t subType_; // reserved
+    std::string policyName_;
+    std::string label_; // reserved
+    std::string outcome_;
+    std::string extra_;  // reserved
+
+    ReportInfo(FuncOperateType operateType, const std::string &policyName, const std::string &outcome)
+    {
+        operateType_ = operateType;
+        subType_ = 0;
+        policyName_ = policyName;
+        label_ = "";
+        outcome_ = outcome;
+        extra_ = "";
+    };
+};
+
 class SecurityReport {
 public:
     static void ReportSecurityInfo(const std::string &bundleName, const std::string &abilityName,
-        const std::string &policyName);
+        const ReportInfo &reportInfo);
 };
 } // namespace EDM
 } // namespace OHOS
