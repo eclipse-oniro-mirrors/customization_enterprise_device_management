@@ -177,7 +177,7 @@ void PluginManager::Init()
 
 void PluginManager::LoadPlugin()
 {
-#ifdef _ARM64_
+#if defined(_ARM64_) || defined(_X86_64_)
     std::string pluginDir = "/system/lib64/edm_plugin/";
 #else
     std::string pluginDir = "/system/lib/edm_plugin/";

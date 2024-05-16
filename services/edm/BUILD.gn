@@ -71,6 +71,11 @@ ohos_shared_library("edmservice") {
     print("defines _ARM64_")
   }
 
+  if (target_cpu == "x86_64") {
+    defines += [ "_X86_64_" ]
+    print("defines _X86_64_")
+  }
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_manager",
