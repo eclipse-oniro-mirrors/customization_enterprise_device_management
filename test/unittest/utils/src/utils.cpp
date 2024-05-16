@@ -48,6 +48,8 @@ const std::string PERMISSION_STORAGE_MANAGER = "ohos.permission.STORAGE_MANAGER"
 const std::string PERMISSION_MOUNT_UNMOUNT_MANAGER = "ohos.permission.MOUNT_UNMOUNT_MANAGER";
 const std::string PERMISSION_GET_BUNDLE_INFO = "ohos.permission.GET_BUNDLE_INFO";
 const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
+const std::string PERMISSION_ACCESS_USER_TRUSTED_CERT = "ohos.permission.ACCESS_USER_TRUSTED_CERT";
+const std::string PERMISSION_ACCESS_USER_AUTH_INTERNAL = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -108,7 +110,9 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_MANAGE_USB_CONFIG.c_str(),
         PERMISSION_STORAGE_MANAGER.c_str(),
         PERMISSION_MOUNT_UNMOUNT_MANAGER.c_str(),
-        PERMISSION_GET_BUNDLE_INFO.c_str()
+        PERMISSION_GET_BUNDLE_INFO.c_str(),
+        PERMISSION_ACCESS_USER_TRUSTED_CERT.c_str(),
+        PERMISSION_ACCESS_USER_AUTH_INTERNAL.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
