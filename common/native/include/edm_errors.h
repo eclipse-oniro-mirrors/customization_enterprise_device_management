@@ -52,6 +52,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;
     constexpr uint32_t ADD_OS_ACCOUNT_FAILED = 9201003;
+    constexpr uint32_t UPGRADE_PACKAGES_ANALYZE_FAILED = 9201004;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

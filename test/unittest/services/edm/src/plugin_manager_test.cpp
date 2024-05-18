@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -171,6 +171,44 @@ HWTEST_F(PluginManagerTest, TestSingleStrategyOnSetPolicy, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestReplaceStrategyOnGetPolicy
+ * @tc.desc: Test PluginManager CreateExecuteStrategy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestReplaceStrategyOnGetPolicy, TestSize.Level1)
+{
+    auto strategy = PluginManager::GetInstance()->CreateExecuteStrategy(ExecuteStrategy::REPLACE);
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = strategy->OnGetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, 0), policyData, data, reply, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+    ret = strategy->OnGetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, INVAILD_PLUGIN_CODE), policyData, data, reply, 0);
+    ASSERT_TRUE(ret == ERR_EDM_GET_POLICY_FAILED);
+}
+
+/**
+ * @tc.name: TestReplaceStrategyOnSetPolicy
+ * @tc.desc: Test PluginManager CreateExecuteStrategy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestReplaceStrategyOnSetPolicy, TestSize.Level1)
+{
+    auto strategy = PluginManager::GetInstance()->CreateExecuteStrategy(ExecuteStrategy::REPLACE);
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    ErrCode ret = strategy->OnSetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, 0), data, reply, policyData, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+    ret = strategy->OnSetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, INVAILD_PLUGIN_CODE), data, reply, policyData, 0);
+    ASSERT_TRUE(ret == ERR_EDM_HANDLE_POLICY_FAILED);
+}
+
+/**
  * @tc.name: TestEnhanceStrategyOnGetPolicyWithExtension
  * @tc.desc: Test PluginManager CreateExecuteStrategy func.
  * @tc.type: FUNC
@@ -201,6 +239,48 @@ HWTEST_F(PluginManagerTest, TestEnhanceStrategyOnSetPolicyWithExtension, TestSiz
     PluginManager::GetInstance()->AddExtensionPlugin(
         std::make_shared<TestExtensionPlugin>(), 0, ExecuteStrategy::ENHANCE);
     auto strategy = PluginManager::GetInstance()->CreateExecuteStrategy(ExecuteStrategy::ENHANCE);
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    ErrCode ret = strategy->OnSetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, 0), data, reply, policyData, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+    auto extensionPlugin = PluginManager::GetInstance()->pluginsCode_.find(1);
+    PluginManager::GetInstance()->pluginsCode_.erase(extensionPlugin);
+    ASSERT_TRUE(PluginManager::GetInstance()->GetPluginByCode(1) == nullptr);
+}
+
+/**
+ * @tc.name: TestReplaceStrategyOnGetPolicyWithExtension
+ * @tc.desc: Test PluginManager CreateExecuteStrategy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestReplaceStrategyOnGetPolicyWithExtension, TestSize.Level1)
+{
+    PluginManager::GetInstance()->AddExtensionPlugin(
+        std::make_shared<TestExtensionPlugin>(), 0, ExecuteStrategy::REPLACE);
+    auto strategy = PluginManager::GetInstance()->CreateExecuteStrategy(ExecuteStrategy::REPLACE);
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = strategy->OnGetExecute(
+        POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, 0), policyData, data, reply, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+    auto extensionPlugin = PluginManager::GetInstance()->pluginsCode_.find(1);
+    PluginManager::GetInstance()->pluginsCode_.erase(extensionPlugin);
+    ASSERT_TRUE(PluginManager::GetInstance()->GetPluginByCode(1) == nullptr);
+}
+
+/**
+ * @tc.name: TestReplaceStrategyOnSetPolicyWithExtension
+ * @tc.desc: Test PluginManager CreateExecuteStrategy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestReplaceStrategyOnSetPolicyWithExtension, TestSize.Level1)
+{
+    PluginManager::GetInstance()->AddExtensionPlugin(
+        std::make_shared<TestExtensionPlugin>(), 0, ExecuteStrategy::REPLACE);
+    auto strategy = PluginManager::GetInstance()->CreateExecuteStrategy(ExecuteStrategy::REPLACE);
     MessageParcel data;
     MessageParcel reply;
     HandlePolicyData policyData;

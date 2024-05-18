@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -303,6 +303,23 @@ bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool 
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseUint(env, result, prop);
+    }
+    return true;
+}
+
+bool JsObjectToLong(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int64_t &result)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
+        return false;
+    }
+    if (hasProperty) {
+        napi_value prop = nullptr;
+        return napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseLong(env, result, prop);
     }
     return true;
 }

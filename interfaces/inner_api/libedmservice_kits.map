@@ -28,6 +28,7 @@
             "virtual thunk to OHOS::EDM::UsbDeviceId::~UsbDeviceId()";
             VTT?for?OHOS::EDM::UsbDeviceId;
             vtable?for?OHOS::EDM::UsbDeviceId;
+            OHOS::EDM::UpdatePolicyUtils::*;
         };
     local:
         *;

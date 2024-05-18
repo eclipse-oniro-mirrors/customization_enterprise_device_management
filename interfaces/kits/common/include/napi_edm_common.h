@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -73,6 +73,7 @@ bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result);
 bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, uint32_t &result);
+bool JsObjectToLong(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int64_t &result);
 bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, bool &result);
 bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::string &resultStr);

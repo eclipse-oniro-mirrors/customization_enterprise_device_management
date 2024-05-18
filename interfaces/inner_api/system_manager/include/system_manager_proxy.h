@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,10 @@
 
 #ifndef INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_PROXY_H
+
 #include "enterprise_device_mgr_proxy.h"
+
+#include "update_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -24,6 +27,13 @@ public:
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
     int32_t SetNTPServer(const AppExecFwk::ElementName &admin, const std::string &value);
     int32_t GetNTPServer(const AppExecFwk::ElementName &admin, std::string &value);
+    int32_t SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
+        std::string &errorMsg);
+    int32_t GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy);
+    int32_t NotifyUpdatePackages(const AppExecFwk::ElementName &admin, const UpgradePackageInfo &packageInfo,
+        std::string &errMsg);
+    int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,
+        UpgradeResult &upgradeResult);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;
