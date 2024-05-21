@@ -73,6 +73,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     std::vector<std::string> subAdmins = { fuzzString };
     uint32_t fuzzEvent = GetData<uint32_t>();
     std::vector<uint32_t> events = { fuzzEvent };
+    adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
     adminManager->SetAdminValue(userId, admin);
     adminManager->GetReqPermission(permissions, reqPermissions);
     adminManager->GetAdminByPkgName(packageName, userId);
