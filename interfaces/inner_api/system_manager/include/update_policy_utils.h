@@ -96,6 +96,7 @@ public:
     static void ReadUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo);
     static void WriteUpgradeResult(MessageParcel &data, const UpgradeResult &result);
     static void ReadUpgradeResult(MessageParcel &data, UpgradeResult &result);
+    static void ClosePackagesFileHandle(const std::vector<Package> &packages);
 };
 } // namespace EDM
 } // namespace OHOS
