@@ -45,7 +45,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

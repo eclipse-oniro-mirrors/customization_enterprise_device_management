@@ -44,7 +44,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "ipc:ipc_core",
   ]
 
