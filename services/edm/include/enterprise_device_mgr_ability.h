@@ -27,6 +27,7 @@
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "policy_struct.h"
+#include "security_report.h"
 #include "system_ability.h"
 
 namespace OHOS {
@@ -94,7 +95,7 @@ private:
     ErrCode UpdateDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
     ErrCode CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply, const std::string &getPermission,
-        std::string &adminName, const int32_t userId);
+        const int32_t userId, AppExecFwk::ElementName &elementName);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
@@ -111,7 +112,8 @@ private:
     void OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId);
 #endif
     void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
-    void CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin, std::shared_ptr<IPlugin> plugin);
+    void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
+        uint32_t code, const std::string &policyName, ErrCode errorCode);
     void InitAllPolices();
     void RemoveAllDebugAdmin();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);

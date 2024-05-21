@@ -29,7 +29,6 @@
 #include "directory_ex.h"
 #include "matching_skills.h"
 #include "parameters.h"
-#include "security_report.h"
 
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -63,13 +62,6 @@ const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
-
-const std::vector<uint32_t> codeList = {
-    EdmInterfaceCode::RESET_FACTORY,
-    EdmInterfaceCode::DISABLED_PRINTER,
-    EdmInterfaceCode::DISABLED_HDC,
-    EdmInterfaceCode::NTP_SERVER,
-};
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -915,6 +907,11 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    if (plugin == nullptr) {
+        EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
 #ifndef EDM_FUZZ_TEST
     bool isUserExist = false;
     GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
@@ -931,13 +928,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: CheckCallingUid failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
-    if (plugin == nullptr) {
-        EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    std::string permissionTag = data.ReadString();
-    std::string setPermission = plugin->GetPermission(FuncOperateType::SET, permissionTag);
+    std::string setPermission = plugin->GetPermission(FuncOperateType::SET, data.ReadString());
     if (setPermission == NONE_PERMISSION_MATCH) {
         EDMLOGE("HandleDevicePolicy: GetPermission failed!");
         return EdmReturnErrCode::PERMISSION_DENIED;
@@ -959,22 +950,17 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGW("HandleDevicePolicy: VerifyCallingPermission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    CreateSecurityContent(deviceAdmin, plugin);
 #endif
-    return UpdateDevicePolicy(code, admin, data, reply, userId);
+    ErrCode ret = UpdateDevicePolicy(code, admin, data, reply, userId);
+    CreateSecurityContent(admin.GetBundleName(), admin.GetAbilityName(), code, plugin->GetPolicyName(), ret);
+    return ret;
 }
 
-void EnterpriseDeviceMgrAbility::CreateSecurityContent(std::shared_ptr<Admin> deviceAdmin,
-    std::shared_ptr<IPlugin> plugin)
+void EnterpriseDeviceMgrAbility::CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
+    uint32_t code, const std::string &policyName, ErrCode errorCode)
 {
-    if (std::find(codeList.begin(), codeList.end(), plugin->GetCode()) == codeList.end()) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::CreateSecurityContent code not in list: %{public}d", plugin->GetCode());
-        return;
-    }
-    std::string bundleName = deviceAdmin->adminInfo_.packageName_;
-    std::string abilityName = deviceAdmin->adminInfo_.className_;
-    std::string policyName = plugin->GetPolicyName();
-    SecurityReport::ReportSecurityInfo(bundleName, abilityName, policyName);
+    ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(errorCode));
+    SecurityReport::ReportSecurityInfo(bundleName, abilityName, reportInfo);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -1001,7 +987,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
         return EdmReturnErrCode::SYSTEM_API_DENIED;
     }
-    std::string adminName;
+    AppExecFwk::ElementName elementName;
     std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
     // has admin
     if (data.ReadInt32() == 0) {
@@ -1009,7 +995,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
             EDMLOGE("GetDevicePolicy: GetPermission failed!");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }
-        ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, adminName, userId);
+        ErrCode ret = CheckGetPolicyPermission(data, reply, getPermission, userId, elementName);
         if (FAILED(ret)) {
             return ret;
         }
@@ -1018,13 +1004,16 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     std::string policyValue;
 
     if (plugin->NeedSavePolicy()) {
-        policyMgr_->GetPolicy(adminName, policyName, policyValue, userId);
+        policyMgr_->GetPolicy(elementName.GetBundleName(), policyName, policyValue, userId);
     }
-    return plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, userId);
+    ErrCode getRet = plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, userId);
+    CreateSecurityContent(elementName.GetBundleName(), elementName.GetAbilityName(), code, plugin->GetPolicyName(),
+        getRet);
+    return getRet;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data, MessageParcel &reply,
-    const std::string &getPermission, std::string &adminName, const int32_t userId)
+    const std::string &getPermission, const int32_t userId, AppExecFwk::ElementName &elementName)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
@@ -1048,7 +1037,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data
         reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    adminName = admin->GetBundleName();
+    elementName.SetBundleName(admin->GetBundleName());
+    elementName.SetAbilityName(admin->GetAbilityName());
     return ERR_OK;
 }
 
