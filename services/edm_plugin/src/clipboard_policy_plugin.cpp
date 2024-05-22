@@ -54,7 +54,7 @@ ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardPolicy> &d
     if (currentData.size() > MAX_PASTEBOARD_POLICY_NUM) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    return ClipboardUtils::HandlePasteboardPolicy(currentData);
+    return ClipboardUtils::HandlePasteboardPolicy(data);
 }
 
 ErrCode ClipboardPolicyPlugin::OnGetPolicy(std::string &policyData,
