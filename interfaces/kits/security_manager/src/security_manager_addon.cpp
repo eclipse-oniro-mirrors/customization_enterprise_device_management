@@ -24,6 +24,9 @@ using namespace OHOS::EDM;
 
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nClipboardPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nClipboardPolicy));
+    CreateClipboardPolicyObject(env, nClipboardPolicy);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
@@ -34,6 +37,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
         DECLARE_NAPI_FUNCTION("setAppClipboardPolicy", SetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
+
+        DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -420,6 +425,24 @@ napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callba
     napi_value clipboardPolicy;
     napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &clipboardPolicy);
     return clipboardPolicy;
+}
+
+void SecurityManagerAddon::CreateClipboardPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::DEFAULT), &nDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+    napi_value nInApp;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::IN_APP), &nInApp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "IN_APP", nInApp));
+    napi_value nLocalDevice;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::LOCAL_DEVICE), &nLocalDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCAL_DEVICE", nLocalDevice));
+    napi_value nCrossDevice;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::CROSS_DEVICE), &nCrossDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CROSS_DEVICE", nCrossDevice));
 }
 
 static napi_module g_securityModule = {

@@ -52,6 +52,7 @@ private:
     static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
     static napi_value SetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);
+    static void CreateClipboardPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS
