@@ -49,12 +49,14 @@
     <oatconfig>
         <policylist>
             <policy name="projectPolicy" desc="">
-			</policy>
+            </policy>
         </policylist>
-		<filefilterlist>
-			<filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies">
-				<filteritem type="filepath" name="figures/.*.png" desc="self developed image"/>
-			</filefilter>
-		</filefilterlist>
+        <filefilterlist>
+            <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies">
+                <filteritem type="filepath" name="figure/en_enterprise_device_management.png" desc="self developed image"/>
+                <filteritem type="filepath" name="figure/enterprise_device_management.png" desc="self developed image"/>
+                <filteritem type="filepath" name="test/unittest/test_bundle/right_hap/src/main/js/resources/base/media/icon.png" desc="self developed image"/>
+            </filefilter>
+        </filefilterlist>
     </oatconfig>
 </configuration>
