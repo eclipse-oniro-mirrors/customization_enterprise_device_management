@@ -75,14 +75,14 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     if (descriptor != remoteDescriptor) {
         EDMLOGE("EnterpriseDeviceMgrStub code %{public}d client and service descriptors are inconsistent", code);
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     if (SERVICE_FLAG(code)) {
         if (std::find(systemCodeList.begin(), systemCodeList.end(), code) != systemCodeList.end() &&
             !GetAccessTokenMgr()->IsSystemAppOrNative()) {
             EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
             reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
-            return EdmReturnErrCode::SYSTEM_API_DENIED;
+            return ERR_OK;
         }
         auto func = memberFuncMap_.find(code);
         if (func != memberFuncMap_.end()) {
@@ -115,7 +115,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
 #else
     EDMLOGI("EnterpriseDeviceMgrStub edm unsupport.");
     reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    return ERR_OK;
 #endif
 }
 
@@ -134,7 +134,7 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     EDMLOGD("EnableAdminInner bundleName:: %{public}s : abilityName : %{public}s ", admin->GetBundleName().c_str(),
         admin->GetAbilityName().c_str());
@@ -142,7 +142,7 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     if (!EntInfo::Unmarshalling(data, entInfo)) {
         EDMLOGE("EnterpriseDeviceMgrStub::EnableAdminInner read parcel fail");
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     int32_t type = data.ReadInt32();
     int32_t userId = data.ReadInt32();
@@ -160,7 +160,7 @@ ErrCode EnterpriseDeviceMgrStub::DisableAdminInner(MessageParcel &data, MessageP
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     int32_t userId = data.ReadInt32();
     ErrCode retCode = DisableAdmin(*admin, userId);
@@ -184,17 +184,19 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
     if (!admin) {
         EDMLOGW("HandleDevicePolicyInner: ReadParcelable failed");
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return ERR_EDM_PARAM_ERROR;
+        return ERR_OK;
     }
     ErrCode errCode = HandleDevicePolicy(code, *admin, data, reply, userId);
     reply.WriteInt32(errCode);
-    return errCode;
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetDevicePolicy(code, data, reply, userId);
+    ErrCode errCode = GetDevicePolicy(code, data, reply, userId);
+    reply.WriteInt32(errCode);
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply)
@@ -204,14 +206,14 @@ ErrCode EnterpriseDeviceMgrStub::GetEnabledAdminInner(MessageParcel &data, Messa
     if (!data.ReadInt32(type)) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         EDMLOGE("EnterpriseDeviceMgrStub:GetEnabledAdminInner read type fail %{public}u", type);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     std::vector<std::string> enabledAdminList;
     ErrCode res = GetEnabledAdmin((AdminType)type, enabledAdminList);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrStub:GetEnabledAdmin failed:%{public}d", res);
         reply.WriteInt32(res);
-        return res;
+        return ERR_OK;
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteStringVector(enabledAdminList);
@@ -224,7 +226,7 @@ ErrCode EnterpriseDeviceMgrStub::GetEnterpriseInfoInner(MessageParcel &data, Mes
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     EDMLOGD("GetEnterpriseInfoInner bundleName:: %{public}s : abilityName : %{public}s ",
         admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
@@ -250,7 +252,7 @@ ErrCode EnterpriseDeviceMgrStub::IsAdminEnabledInner(MessageParcel &data, Messag
     if (!admin) {
         EDMLOGE("EnterpriseDeviceMgrStub::IsAdminEnabledInner read parcel fail");
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     int32_t userId = data.ReadInt32();
     bool ret = IsAdminEnabled(*admin, userId);
@@ -265,12 +267,12 @@ ErrCode EnterpriseDeviceMgrStub::SetEnterpriseInfoInner(MessageParcel &data, Mes
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     EntInfo entInfo;
     if (!EntInfo::Unmarshalling(data, entInfo)) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     ErrCode ret = SetEnterpriseInfo(*admin, entInfo);
     reply.WriteInt32(ret);
@@ -294,7 +296,7 @@ ErrCode EnterpriseDeviceMgrStub::SubscribeManagedEventInner(MessageParcel &data,
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     std::vector<uint32_t> events;
     data.ReadUInt32Vector(&events);
@@ -305,7 +307,7 @@ ErrCode EnterpriseDeviceMgrStub::SubscribeManagedEventInner(MessageParcel &data,
         code = UnsubscribeManagedEvent(*admin, events);
     }
     reply.WriteInt32(code);
-    return code;
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrStub::AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply)
@@ -314,7 +316,7 @@ ErrCode EnterpriseDeviceMgrStub::AuthorizeAdminInner(MessageParcel &data, Messag
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
     if (!admin) {
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return ERR_OK;
     }
     std::string bundleName = data.ReadString();
     ErrCode ret = AuthorizeAdmin(*admin, bundleName);
