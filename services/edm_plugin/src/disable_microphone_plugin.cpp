@@ -38,13 +38,15 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
 ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
 {
     EDMLOGI("DisableMicrophonePlugin OnSetPolicy...isDisallow = %{public}d", isDisallow);
+    auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
+        ->GetGroupManager(OHOS::AudioStandard::DEFAULT_VOLUME_GROUP_ID);
+    int32_t ret = audioGroupManager
+        ->SetMicrophoneMutePersistent(isDisallow, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
+    if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
+        EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     if (isDisallow) {
-        auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
-        int32_t ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-        if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
-            EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
         system::SetParameter(PARAM_EDM_MIC_DISABLE, "true");
     } else {
         system::SetParameter(PARAM_EDM_MIC_DISABLE, "false");
