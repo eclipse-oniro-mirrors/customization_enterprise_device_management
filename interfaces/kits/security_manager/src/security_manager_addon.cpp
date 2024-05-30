@@ -151,18 +151,13 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     void* data = nullptr;
     OHOS::AppExecFwk::ElementName elementName;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
 
     PasswordPolicy policy;
-    int32_t retCode = EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    if (argc >= ARGS_SIZE_ONE) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-        retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(elementName, policy);
-    } else {
-        retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(policy);
-    }
-
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(elementName, policy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
