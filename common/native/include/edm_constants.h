@@ -51,12 +51,12 @@ namespace EdmConstants {
     } // namespace DeviceInfo
 
     namespace Restrictions {
-        const std::string LABEL_DISALLOWED_POLICY_BLUETOOTH = "bt";
-        const std::string LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyTime";
+        const std::string LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
+        const std::string LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";
         const std::string LABEL_DISALLOWED_POLICY_PRINTER = "printer";
         const std::string LABEL_DISALLOWED_POLICY_HDC = "hdc";
-        const std::string LABEL_DISALLOWED_POLICY_MIC = "mic";
-        const std::string LABEL_DISALLOWED_POLICY_FINGER_PRINT = "finger";
+        const std::string LABEL_DISALLOWED_POLICY_MIC = "microphone";
+        const std::string LABEL_DISALLOWED_POLICY_FINGER_PRINT = "fingerprint";
         const std::string LABEL_DISALLOWED_POLICY_SCREENSHOT = "screenshot";
         const std::string LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const std::string LABEL_DISALLOWED_POLICY_USB = "usb";
