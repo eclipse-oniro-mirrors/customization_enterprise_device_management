@@ -993,14 +993,12 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-    std::string permissionTag = data.ReadString();
-    bool isCheckSystem = (plugin->GetApiType(FuncOperateType::GET) == IPlugin::ApiType::SYSTEM)
-        || (permissionTag == EdmConstants::PERMISSION_TAG_SYSTEM_API);
-    if (isCheckSystem && !GetAccessTokenMgr()->IsSystemAppOrNative()) {
+    if (plugin->GetApiType(FuncOperateType::GET) == IPlugin::ApiType::SYSTEM &&
+        !GetAccessTokenMgr()->IsSystemAppOrNative()) {
         EDMLOGE("GetDevicePolicy: not system app or native process");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
         return EdmReturnErrCode::SYSTEM_API_DENIED;
     }
+    std::string permissionTag = data.ReadString();
     std::string adminName;
     std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
     // has admin
