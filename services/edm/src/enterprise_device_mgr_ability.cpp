@@ -46,6 +46,9 @@
 #include "clipboard_policy_serializer.h"
 #include "clipboard_utils.h"
 #endif
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "map_string_serializer.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -119,6 +122,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         &EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart;
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnPasteboardServiceStart;
+#endif
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+    addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
+        &EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart;
 #endif
 }
 
@@ -336,6 +343,9 @@ void EnterpriseDeviceMgrAbility::OnStart()
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+    AddSystemAbilityListener(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
+#endif
     RemoveAllDebugAdmin();
 }
 
@@ -427,6 +437,27 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityI
     std::map<int32_t, ClipboardPolicy> policyMap;
     clipboardSerializer_->Deserialize(policyData, policyMap);
     ClipboardUtils::HandlePasteboardPolicy(policyMap);
+}
+#endif
+
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart");
+    std::string policyData;
+    policyMgr_->GetPolicy("", "disabled_network_interface", policyData, EdmConstants::DEFAULT_USER_ID);
+    std::map<std::string, std::string> policyMap;
+    MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
+    HandleDisallowedNetworkInterface(policyMap);
+}
+
+void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap)
+{
+    std::vector<std::string> netList;
+    for (const auto& iter : policyMap) {
+        netList.emplace_back(iter.first);
+        EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
+    }
 }
 #endif
 

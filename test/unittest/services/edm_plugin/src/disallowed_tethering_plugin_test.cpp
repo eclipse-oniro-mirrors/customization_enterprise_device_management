@@ -67,7 +67,7 @@ HWTEST_F(DisallowedTetheringPluginTest, TestDisallowedTetheringPluginTestSet, Te
     MessageParcel data1;
     MessageParcel reply1;
     ret = plugin->OnGetPolicy(policyData, data1, reply1, 100);
-    ASSERT_TRUE(ret);
+    ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply1.ReadInt32() == ERR_OK);
     ASSERT_TRUE(reply1.ReadBool());
 }
