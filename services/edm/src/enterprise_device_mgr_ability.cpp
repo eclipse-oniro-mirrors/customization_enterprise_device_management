@@ -47,11 +47,16 @@
 #include "clipboard_policy_serializer.h"
 #include "clipboard_utils.h"
 #endif
+<<<<<<< HEAD
 #ifdef USERIAM_EDM_ENABLE
 #include "fingerprint_policy.h"
 #include "fingerprint_policy_serializer.h"
 #include "password_policy_serializer.h"
 #include "user_auth_client.h"
+=======
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "map_string_serializer.h"
+>>>>>>> c4a5537 (disable net interface)
 #endif
 
 namespace OHOS {
@@ -147,6 +152,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnPasteboardServiceStart(systemAbilityId, deviceId);
         };
+#endif
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+    addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
+        &EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart;
 #endif
 }
 
@@ -437,6 +446,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+    AddSystemAbilityListener(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -506,6 +518,27 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityI
     std::map<int32_t, ClipboardPolicy> policyMap;
     clipboardSerializer_->Deserialize(policyData, policyMap);
     ClipboardUtils::HandlePasteboardPolicy(policyMap);
+}
+#endif
+
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart");
+    std::string policyData;
+    policyMgr_->GetPolicy("", "disabled_network_interface", policyData, EdmConstants::DEFAULT_USER_ID);
+    std::map<std::string, std::string> policyMap;
+    MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
+    HandleDisallowedNetworkInterface(policyMap);
+}
+
+void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap)
+{
+    std::vector<std::string> netList;
+    for (const auto& iter : policyMap) {
+        netList.emplace_back(iter.first);
+        EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
+    }
 }
 #endif
 

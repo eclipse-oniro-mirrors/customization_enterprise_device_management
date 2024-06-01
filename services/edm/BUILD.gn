@@ -168,19 +168,17 @@ ohos_shared_library("edmservice") {
       defines += [ "WIFI_EDM_ENABLE" ]
     }
 
-    if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
+    if (netmanager_base_edm_enable) {
+      defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
       external_deps += [
         "netmanager_base:net_conn_manager_if",
+        "netmanager_base:net_native_manager_if",
         "netmanager_base:netsys_controller",
-        "netmanager_ext:ethernet_manager_if",
       ]
       sources += [
         "../edm_plugin/src/disabled_network_interface_plugin.cpp",
         "../edm_plugin/src/domain_filter_rule_plugin.cpp",
         "../edm_plugin/src/firewall_rule_plugin.cpp",
-        "../edm_plugin/src/get_all_network_interfaces_plugin.cpp",
-        "../edm_plugin/src/get_ip_address_plugin.cpp",
-        "../edm_plugin/src/get_mac_plugin.cpp",
         "../edm_plugin/src/global_proxy_plugin.cpp",
         "../edm_plugin/src/iptables_rule_plugin.cpp",
         "../edm_plugin/src/network/executer/domain_executer.cpp",
@@ -196,6 +194,15 @@ ohos_shared_library("edmservice") {
         "../edm_plugin/src/utils/domain_filter_rule_serializer.cpp",
         "../edm_plugin/src/utils/firewall_rule_serializer.cpp",
         "../edm_plugin/src/utils/http_proxy_serializer.cpp",
+      ]
+    }
+
+    if (netmanager_ext_edm_enable) {
+      external_deps += [ "netmanager_ext:ethernet_manager_if" ]
+      sources += [
+        "../edm_plugin/src/get_all_network_interfaces_plugin.cpp",
+        "../edm_plugin/src/get_ip_address_plugin.cpp",
+        "../edm_plugin/src/get_mac_plugin.cpp",
       ]
     }
 
