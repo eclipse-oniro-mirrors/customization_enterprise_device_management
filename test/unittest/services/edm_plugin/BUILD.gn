@@ -82,6 +82,7 @@ ohos_unittest("EdmPluginTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "netmanager_base:net_native_manager_if",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

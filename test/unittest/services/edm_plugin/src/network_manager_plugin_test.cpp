@@ -14,12 +14,14 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "disabled_network_interface_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "get_all_network_interfaces_plugin.h"
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
 #include "iplugin_manager.h"
+#include "map_string_serializer.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -166,7 +168,10 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
     MessageParcel data;
     MessageParcel reply;
     std::string policyStr;
-    HandlePolicyData handlePolicyData;
+    std::map<std::string, std::string> policyMap;
+    policyMap[VALID_NETWORK_INTERFACE] = "false";
+    MapStringSerializer::GetInstance()->Serialize(policyMap, policyStr);
+    HandlePolicyData handlePolicyData {policyStr, false};
     // set network interface disabled.
     std::vector<std::string> key { VALID_NETWORK_INTERFACE };
     std::vector<std::string> value { "true" };
@@ -174,24 +179,39 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
     data.WriteStringVector(value);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    // get policy.
-    data.WriteString(VALID_NETWORK_INTERFACE);
-    ret = plugin->OnGetPolicy(policyStr, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool());
-    // set network interface enabled.
-    value = { "false" };
+    std::map<std::string, std::string> policyMap1;
+    MapStringSerializer::GetInstance()->Deserialize(handlePolicyData.policyData, policyMap1);
+    ASSERT_EQ(policyMap1[VALID_NETWORK_INTERFACE], "true");
+    ASSERT_TRUE(handlePolicyData.isChanged);
+}
+
+/**
+ * @tc.name: TestNetworkInterfaceDisabledFalse
+ * @tc.desc: Test SetNetworkInterfaceDisabled when set network interface disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabledFalse, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisabledNetworkInterfacePlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyStr;
+    std::map<std::string, std::string> policyMap;
+    policyMap[VALID_NETWORK_INTERFACE] = "true";
+    MapStringSerializer::GetInstance()->Serialize(policyMap, policyStr);
+    HandlePolicyData handlePolicyData {policyStr, false};
+    // set network interface disabled.
+    std::vector<std::string> key { VALID_NETWORK_INTERFACE };
+    std::vector<std::string> value { "false" };
     data.WriteStringVector(key);
     data.WriteStringVector(value);
-    ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    // get policy.
-    data.WriteString(VALID_NETWORK_INTERFACE);
-    ret = plugin->OnGetPolicy(policyStr, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_FALSE(reply.ReadBool());
+    std::map<std::string, std::string> policyMap1;
+    MapStringSerializer::GetInstance()->Deserialize(handlePolicyData.policyData, policyMap1);
+    ASSERT_TRUE(policyMap1.empty());
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 } // namespace TEST
 } // namespace EDM
