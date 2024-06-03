@@ -257,16 +257,6 @@ ohos_shared_library("edmservice") {
     }
   }
 
-  if (pasteboard_edm_enable) {
-    external_deps += [ "pasteboard:pasteboard_client" ]
-    defines += [ "PASTEBOARD_EDM_ENABLE" ]
-    sources += [
-      "../edm_plugin/src/clipboard_policy_plugin.cpp",
-      "../edm_plugin/src/utils/clipboard_policy_serializer.cpp",
-      "../edm_plugin/src/utils/clipboard_utils.cpp",
-    ]
-  }
-
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",

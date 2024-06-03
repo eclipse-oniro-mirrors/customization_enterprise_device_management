@@ -16,7 +16,6 @@
 #ifndef INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 
-#include "clipboard_policy.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "password_policy.h"
 
@@ -36,10 +35,6 @@ public:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
     int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
-    int32_t SetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-        const int32_t policy);
-    int32_t GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-        std::string &policy);
 
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
