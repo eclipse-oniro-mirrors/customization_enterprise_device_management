@@ -37,11 +37,11 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setOtaUpdatePolicy", SetOTAUpdatePolicy),
         DECLARE_NAPI_FUNCTION("getOtaUpdatePolicy", GetOTAUpdatePolicy),
         DECLARE_NAPI_FUNCTION("notifyUpdatePackages", NotifyUpdatePackages),
-        DECLARE_NAPI_FUNCTION("getUpgradeResult", GetUpgradeResult),
+        DECLARE_NAPI_FUNCTION("getUpdateResult", GetUpgradeResult),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
-        DECLARE_NAPI_PROPERTY("UpgradeStatus", nUpgradeStatus),
+        DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -80,26 +80,26 @@ void SystemManagerAddon::CreateUpgradeStatusObject(napi_env env, napi_value valu
     napi_value nNoUpgradePackage;
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(UpgradeStatus::NO_UPGRADE_PACKAGE), &nNoUpgradePackage));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NO_UPGRADE_PACKAGE", nNoUpgradePackage));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NO_UPDATE_PACKAGE", nNoUpgradePackage));
 
     napi_value nUpgradeWaiting;
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(UpgradeStatus::UPGRADE_WAITING), &nUpgradeWaiting));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPGRADE_WAITING", nUpgradeWaiting));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPDATE_WAITING", nUpgradeWaiting));
 
     napi_value nUpgrading;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(UpgradeStatus::UPGRADING), &nUpgrading));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPGRADING", nUpgrading));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPDATING", nUpgrading));
 
     napi_value nUpgradeFailure;
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(UpgradeStatus::UPGRADE_FAILURE), &nUpgradeFailure));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPGRADE_FAILURE", nUpgradeFailure));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPDATE_FAILURE", nUpgradeFailure));
 
     napi_value nUpgradeSuccess;
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(UpgradeStatus::UPGRADE_SUCCESS), &nUpgradeSuccess));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPGRADE_SUCCESS", nUpgradeSuccess));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UPDATE_SUCCESS", nUpgradeSuccess));
 }
 
 napi_value SystemManagerAddon::SetNTPServer(napi_env env, napi_callback_info info)
