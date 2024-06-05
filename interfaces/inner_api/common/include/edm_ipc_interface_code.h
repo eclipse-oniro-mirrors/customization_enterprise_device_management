@@ -88,7 +88,6 @@ enum EdmInterfaceCode : uint32_t {
     PASSWORD_POLICY = 1051,
     ALLOWED_BLUETOOTH_DEVICES = 1052,
     OPERATE_DEVICE = 1053,
-    CLIPBOARD_POLICY = 1054,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

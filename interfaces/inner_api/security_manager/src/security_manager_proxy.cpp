@@ -156,44 +156,5 @@ int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &
     reply.ReadString(info);
     return ERR_OK;
 }
-
-int32_t SecurityManagerProxy::SetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-    const int32_t policy)
-{
-    EDMLOGD("SecurityManagerProxy::SetAppClipboardPolicy");
-    MessageParcel data;
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLIPBOARD_POLICY);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(tokenId);
-    data.WriteInt32(policy);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-}
-
-int32_t SecurityManagerProxy::GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-    std::string &policy)
-{
-    EDMLOGD("SecurityManagerProxy::GetAppClipboardPolicy");
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteInt32(tokenId);
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::CLIPBOARD_POLICY, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    reply.ReadInt32(ret);
-    if (ret != ERR_OK) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    policy = reply.ReadString();
-    return ERR_OK;
-}
 } // namespace EDM
 } // namespace OHOS
