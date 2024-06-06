@@ -53,6 +53,7 @@ const std::string PERMISSION_ACCESS_USER_AUTH_INTERNAL = "ohos.permission.ACCESS
 const std::string PERMISSION_SET_WIFI_INFO = "ohos.permission.SET_WIFI_INFO";
 const std::string PERMISSION_GET_WIFI_INFO = "ohos.permission.GET_WIFI_INFO";
 const std::string PERMISSION_MANAGE_WIFI_CONNECTION = "ohos.permission.MANAGE_WIFI_CONNECTION";
+const std::string PERMISSION_MANAGE_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
 void Utils::ExecCmdSync(const std::string &cmd)
 {
     FILE *fp = popen(cmd.c_str(), "r");
@@ -118,6 +119,7 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_GET_WIFI_INFO.c_str(),
         PERMISSION_SET_WIFI_INFO.c_str(),
         PERMISSION_MANAGE_WIFI_CONNECTION.c_str(),
+        PERMISSION_MANAGE_SETTINGS.c_str(),
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
