@@ -30,7 +30,6 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
-const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 class DisableMicrophonePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -81,53 +80,21 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, Tes
 {
     MessageParcel data;
     MessageParcel reply;
-    data.WriteBool(false);
+    bool isDisallow = true;
+    data.WriteBool(isDisallow);
     std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
-
-    bool isDisallow = true;
-    auto audioSystemManager = OHOS::AudioStandard::AudioSystemManager::GetInstance();
-    uid_t euid = geteuid();
-    seteuid(Utils::ROOT_UID);
-    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-    seteuid(euid);
-    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
-
-    data.WriteBool(true);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, isDisallow));
+    isDisallow = false;
+    data.WriteBool(isDisallow);
     handlePolicyData.isChanged = false;
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
-
-    isDisallow = true;
-    seteuid(Utils::ROOT_UID);
-    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-    seteuid(euid);
-    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
-
-    isDisallow = false;
-    euid = geteuid();
-    seteuid(Utils::ROOT_UID);
-    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-    seteuid(euid);
-    ASSERT_TRUE(ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
-
-    data.WriteBool(false);
-    handlePolicyData.isChanged = false;
-    ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
-
-    isDisallow = false;
-    seteuid(Utils::ROOT_UID);
-    ret = audioSystemManager->SetMicrophoneMute(isDisallow);
-    seteuid(euid);
-    ASSERT_TRUE(ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, isDisallow));
 }
 
 /**

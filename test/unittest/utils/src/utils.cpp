@@ -40,7 +40,6 @@ const std::string PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTE
 const std::string PERMISSION_ENTERPRISE_MANAGE_LOCATION = "ohos.permission.ENTERPRISE_MANAGE_LOCATION";
 const std::string PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER = "ohos.permission.ACCESS_SCREEN_LOCK_INNER";
 const std::string PERMISSION_REBOOT = "ohos.permission.REBOOT";
-const std::string PERMISSION_MICROPHONE = "ohos.permission.MICROPHONE";
 const std::string PERMISSION_MANAGE_APP_BOOT_INTERNAL = "ohos.permission.MANAGE_APP_BOOT_INTERNAL";
 const std::string PERMISSION_CONNECTIVITY_INTERNAL = "ohos.permission.CONNECTIVITY_INTERNAL";
 const std::string PERMISSION_MANAGE_USB_CONFIG = "ohos.permission.MANAGE_USB_CONFIG";
@@ -54,6 +53,7 @@ const std::string PERMISSION_SET_WIFI_INFO = "ohos.permission.SET_WIFI_INFO";
 const std::string PERMISSION_GET_WIFI_INFO = "ohos.permission.GET_WIFI_INFO";
 const std::string PERMISSION_MANAGE_WIFI_CONNECTION = "ohos.permission.MANAGE_WIFI_CONNECTION";
 const std::string PERMISSION_MANAGE_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
+const std::string PERMISSION_MICRPHONE_CONTROL = "ohos.permission.MICRPHONE_CONTROL";
 void Utils::ExecCmdSync(const std::string &cmd)
 {
     FILE *fp = popen(cmd.c_str(), "r");
@@ -107,7 +107,6 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_ENTERPRISE_MANAGE_LOCATION.c_str(),
         PERMISSION_ENTERPRISE_ACCESS_SCREEN_LOCK_INNER.c_str(),
         PERMISSION_REBOOT.c_str(),
-        PERMISSION_MICROPHONE.c_str(),
         PERMISSION_MANAGE_APP_BOOT_INTERNAL.c_str(),
         PERMISSION_CONNECTIVITY_INTERNAL.c_str(),
         PERMISSION_MANAGE_USB_CONFIG.c_str(),
@@ -120,6 +119,7 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_SET_WIFI_INFO.c_str(),
         PERMISSION_MANAGE_WIFI_CONNECTION.c_str(),
         PERMISSION_MANAGE_SETTINGS.c_str(),
+        PERMISSION_MICRPHONE_CONTROL.c_str(),
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
