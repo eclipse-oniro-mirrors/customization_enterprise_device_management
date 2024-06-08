@@ -69,7 +69,7 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
 }
 #ifdef WIFI_EDM_ENABLE
 int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config,
-    bool isSync)
+    WifiPassword &pwd, bool isSync)
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -83,7 +83,7 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
-    MessageParcelUtils::WriteWifiDeviceConfig(config, data);
+    MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 #endif
