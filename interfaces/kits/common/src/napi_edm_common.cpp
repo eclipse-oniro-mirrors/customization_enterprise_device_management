@@ -184,21 +184,27 @@ bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr)
 
 bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param)
 {
+    size_t size = 0;
+    std::pair<char*, size_t*> ret{param, &size};
+    return ParseCharArray(env, args, maxLength, ret);
+}
+
+bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::pair<char*, size_t*> &ret)
+{
     napi_valuetype valuetype;
     if (napi_typeof(env, args, &valuetype) != napi_ok || valuetype != napi_string) {
         EDMLOGE("can not get string value");
         return false;
     }
-    size_t size = 0;
-    if (napi_get_value_string_utf8(env, args, nullptr, NAPI_RETURN_ZERO, &size) != napi_ok) {
+    if (napi_get_value_string_utf8(env, args, nullptr, NAPI_RETURN_ZERO, ret.second) != napi_ok) {
         EDMLOGE("can not get string size");
         return false;
     }
-    if (size >= maxLength) {
+    if (*ret.second >= maxLength) {
         EDMLOGE("string size too long");
         return false;
     }
-    if (napi_get_value_string_utf8(env, args, param, (size + NAPI_RETURN_ONE), &size) != napi_ok) {
+    if (napi_get_value_string_utf8(env, args, ret.first, (*ret.second + NAPI_RETURN_ONE), ret.second) != napi_ok) {
         EDMLOGE("can not get string value");
         return false;
     }
@@ -362,6 +368,14 @@ bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, boo
 bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
     char *result)
 {
+    size_t size = 0;
+    std::pair<char*, size_t*> ret{result, &size};
+    return JsObjectToCharArray(env, object, filedStr, charArrayProp, ret);
+}
+
+bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
+    std::pair<char*, size_t*> &ret)
+{
     bool hasProperty = false;
     if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
         EDMLOGE("get js property failed.");
@@ -376,7 +390,7 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
     if (hasProperty) {
         napi_value prop = nullptr;
         return napi_get_named_property(env, object, filedStr, &prop) == napi_ok &&
-            ParseCharArray(env, prop, maxLength, result);
+            ParseCharArray(env, prop, maxLength, ret);
     }
     return true;
 }

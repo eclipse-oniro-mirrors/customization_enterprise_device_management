@@ -19,6 +19,7 @@
 #include "enterprise_device_mgr_proxy.h"
 #ifdef WIFI_EDM_ENABLE
 #include "wifi_msg.h"
+#include "wifi_password.h"
 #endif
 
 namespace OHOS {
@@ -30,7 +31,8 @@ public:
     static std::shared_ptr<WifiManagerProxy> GetWifiManagerProxy();
     int32_t IsWifiActive(const AppExecFwk::ElementName &admin, bool &result, bool isSync = false);
 #ifdef WIFI_EDM_ENABLE
-    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config, bool isSync = false);
+    int32_t SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config,
+        WifiPassword &pwd, bool isSync = false);
 #endif
     int32_t SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled);
     int32_t IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result);
