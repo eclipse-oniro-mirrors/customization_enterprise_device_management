@@ -409,7 +409,6 @@ napi_value SystemManagerAddon::ConvertUpdatePolicyToJs(napi_env env, const Updat
 
 bool SystemManagerAddon::JsObjToUpgradePackageInfo(napi_env env, napi_value object, UpgradePackageInfo &packageInfo)
 {
-    std::string version;
     if (!JsObjectToString(env, object, "version", true, packageInfo.version)) {
         EDMLOGE("JsObjToUpgradePackageInfo version trans failed!");
         return false;
