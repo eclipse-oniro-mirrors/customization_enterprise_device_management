@@ -58,9 +58,9 @@ ErrCode UsbReadOnlyPlugin::SetPolicy(int32_t &policyValue)
             EDMLOGE("OnSetPolicy: CONFLICT! allowedUsbDevice: %{public}s", allowUsbDevicePolicy.c_str());
             return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
         }
-        int32_t usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, true);
+        int32_t usbRet = srvClient.ManageInterfaceStorage(OHOS::USB::InterfaceType::TYPE_STORAGE, true);
         if (usbRet != ERR_OK) {
-            EDMLOGE("UsbReadOnlyPlugin SetPolicy: ManageInterfaceType failed! ret:%{public}d", usbRet);
+            EDMLOGE("UsbReadOnlyPlugin SetPolicy: ManageInterfaceStorage failed! ret:%{public}d", usbRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         return ERR_OK;
@@ -70,7 +70,7 @@ ErrCode UsbReadOnlyPlugin::SetPolicy(int32_t &policyValue)
     bool ret = OHOS::system::SetParameter(usbKey, usbValue);
     int32_t usbRet = ERR_OK;
     if (allowUsbDevicePolicy.empty()) {
-        usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
+        usbRet = srvClient.ManageInterfaceStorage(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
     }
     EDMLOGI("UsbReadOnlyPlugin SetPolicy sysParam: readonly value:%{public}s  ret:%{public}d usbRet:%{public}d",
         usbValue.c_str(), ret, usbRet);
@@ -99,9 +99,9 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, int32_t &
         adminName.c_str(), userId, data);
     if (data == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
         auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-        int32_t usbRet = srvClient.ManageInterfaceType(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
+        int32_t usbRet = srvClient.ManageInterfaceStorage(OHOS::USB::InterfaceType::TYPE_STORAGE, false);
         if (usbRet != ERR_OK) {
-            EDMLOGE("UsbReadOnlyPlugin OnAdminRemove: ManageInterfaceType failed! ret:%{public}d", usbRet);
+            EDMLOGE("UsbReadOnlyPlugin OnAdminRemove: ManageInterfaceStorage failed! ret:%{public}d", usbRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         return ERR_OK;
