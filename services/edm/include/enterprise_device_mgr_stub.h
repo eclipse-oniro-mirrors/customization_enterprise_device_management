@@ -37,10 +37,7 @@ protected:
     std::shared_ptr<IEdmAccessTokenManager> GetAccessTokenMgr();
 
 private:
-    using EnterpriseDeviceManagerFunc = int32_t (EnterpriseDeviceMgrStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, EnterpriseDeviceManagerFunc> memberFuncMap_;
     std::vector<uint32_t> systemCodeList;
-    void AddCallFuncMap();
     void InitSystemCodeList();
     ErrCode EnableAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode DisableAdminInner(MessageParcel &data, MessageParcel &reply);
@@ -57,7 +54,9 @@ private:
     ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
     ErrCode AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-
+    #ifdef EDM_SUPPORT_ALL_ENABLE
+    ErrCode CallFuncByCode(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    #endif
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM

@@ -25,30 +25,47 @@ namespace OHOS {
 namespace EDM {
 #ifdef EDM_SUPPORT_ALL_ENABLE
 constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr uint32_t WITHOUT_FUNCTION_CODE = -1;
 #endif
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
 {
-    AddCallFuncMap();
     InitSystemCodeList();
     EDMLOGI("EnterpriseDeviceMgrStub()");
 }
 
-void EnterpriseDeviceMgrStub::AddCallFuncMap()
+#ifdef EDM_SUPPORT_ALL_ENABLE
+ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    memberFuncMap_[EdmInterfaceCode::ADD_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::EnableAdminInner;
-    memberFuncMap_[EdmInterfaceCode::REMOVE_DEVICE_ADMIN] = &EnterpriseDeviceMgrStub::DisableAdminInner;
-    memberFuncMap_[EdmInterfaceCode::REMOVE_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::DisableSuperAdminInner;
-    memberFuncMap_[EdmInterfaceCode::GET_ENABLED_ADMIN] = &EnterpriseDeviceMgrStub::GetEnabledAdminInner;
-    memberFuncMap_[EdmInterfaceCode::GET_ENT_INFO] = &EnterpriseDeviceMgrStub::GetEnterpriseInfoInner;
-    memberFuncMap_[EdmInterfaceCode::SET_ENT_INFO] = &EnterpriseDeviceMgrStub::SetEnterpriseInfoInner;
-    memberFuncMap_[EdmInterfaceCode::IS_SUPER_ADMIN] = &EnterpriseDeviceMgrStub::IsSuperAdminInner;
-    memberFuncMap_[EdmInterfaceCode::IS_ADMIN_ENABLED] = &EnterpriseDeviceMgrStub::IsAdminEnabledInner;
-    memberFuncMap_[EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT] = &EnterpriseDeviceMgrStub::SubscribeManagedEventInner;
-    memberFuncMap_[EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT] =
-        &EnterpriseDeviceMgrStub::UnsubscribeManagedEventInner;
-    memberFuncMap_[EdmInterfaceCode::AUTHORIZE_ADMIN] = &EnterpriseDeviceMgrStub::AuthorizeAdminInner;
-    memberFuncMap_[EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO] = &EnterpriseDeviceMgrStub::GetSuperAdminInner;
+    switch (code) {
+        case EdmInterfaceCode::ADD_DEVICE_ADMIN:
+            return EnableAdminInner(data, reply);
+        case EdmInterfaceCode::REMOVE_DEVICE_ADMIN:
+            return DisableAdminInner(data, reply);
+        case EdmInterfaceCode::REMOVE_SUPER_ADMIN:
+            return DisableSuperAdminInner(data, reply);
+        case EdmInterfaceCode::GET_ENABLED_ADMIN:
+            return GetEnabledAdminInner(data, reply);
+        case EdmInterfaceCode::GET_ENT_INFO:
+            return GetEnterpriseInfoInner(data, reply);
+        case EdmInterfaceCode::SET_ENT_INFO:
+            return SetEnterpriseInfoInner(data, reply);
+        case EdmInterfaceCode::IS_SUPER_ADMIN:
+            return IsSuperAdminInner(data, reply);
+        case EdmInterfaceCode::IS_ADMIN_ENABLED:
+            return IsAdminEnabledInner(data, reply);
+        case EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT:
+            return SubscribeManagedEventInner(data, reply);
+        case EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT:
+            return UnsubscribeManagedEventInner(data, reply);
+        case EdmInterfaceCode::AUTHORIZE_ADMIN:
+            return AuthorizeAdminInner(data, reply);
+        case EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO:
+            return GetSuperAdminInner(data, reply);
+        default:
+            return WITHOUT_FUNCTION_CODE;
+    }
 }
+#endif
 
 void EnterpriseDeviceMgrStub::InitSystemCodeList()
 {
@@ -84,12 +101,9 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
             reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
             return ERR_OK;
         }
-        auto func = memberFuncMap_.find(code);
-        if (func != memberFuncMap_.end()) {
-            auto memberFunc = func->second;
-            if (memberFunc != nullptr) {
-                return (this->*memberFunc)(data, reply);
-            }
+        ErrCode ret = CallFuncByCode(code, data, reply);
+        if (ret != WITHOUT_FUNCTION_CODE) {
+            return ret;
         }
     }
     if (POLICY_FLAG(code)) {

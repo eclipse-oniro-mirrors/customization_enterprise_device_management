@@ -27,7 +27,6 @@ constexpr const int EDM_UID = 3057;
 
 EnterpriseAdminStub::EnterpriseAdminStub()
 {
-    AddCallFuncMap();
     EDMLOGD("EnterpriseAdminStub()");
 }
 
@@ -36,15 +35,35 @@ EnterpriseAdminStub::~EnterpriseAdminStub()
     EDMLOGD("~EnterpriseAdminStub()");
 }
 
-void EnterpriseAdminStub::AddCallFuncMap()
+
+int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
+    MessageOption &option)
 {
-    memberFuncMap_[COMMAND_ON_ADMIN_ENABLED] = &EnterpriseAdminStub::OnAdminEnabledInner;
-    memberFuncMap_[COMMAND_ON_ADMIN_DISABLED] = &EnterpriseAdminStub::OnAdminDisabledInner;
-    memberFuncMap_[COMMAND_ON_BUNDLE_ADDED] = &EnterpriseAdminStub::OnBundleAddedInner;
-    memberFuncMap_[COMMAND_ON_BUNDLE_REMOVED] = &EnterpriseAdminStub::OnBundleRemovedInner;
-    memberFuncMap_[COMMAND_ON_APP_START] = &EnterpriseAdminStub::OnAppStartInner;
-    memberFuncMap_[COMMAND_ON_APP_STOP] = &EnterpriseAdminStub::OnAppStopInner;
-    memberFuncMap_[COMMAND_ON_SYSTEM_UPDATE] = &EnterpriseAdminStub::OnSystemUpdateInner;
+    switch (code) {
+        case COMMAND_ON_ADMIN_ENABLED:
+            OnAdminEnabledInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_ADMIN_DISABLED:
+            OnAdminDisabledInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_BUNDLE_ADDED:
+            OnBundleAddedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_BUNDLE_REMOVED:
+            OnBundleRemovedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_APP_START:
+            OnAppStartInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_APP_STOP:
+            OnAppStopInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_SYSTEM_UPDATE:
+            OnSystemUpdateInner(data, reply);
+            return ERR_NONE;
+        default:
+            return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    }
 }
 
 void EnterpriseAdminStub::OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply)
@@ -119,18 +138,7 @@ int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
         EDMLOGE("EnterpriseAdminStub::OnRemoteRequest failed, caller uid is not matched");
         return ERR_INVALID_STATE;
     }
-
-    auto func = memberFuncMap_.find(code);
-    if (func != memberFuncMap_.end()) {
-        auto memberFunc = func->second;
-        if (memberFunc != nullptr) {
-            (this->*memberFunc)(data, reply);
-            return ERR_NONE;
-        }
-        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    }
-
-    return ERR_TRANSACTION_FAILED;
+    return CallFuncByCode(code, data, reply, option);
 }
 } // namespace EDM
 } // namespace OHOS
