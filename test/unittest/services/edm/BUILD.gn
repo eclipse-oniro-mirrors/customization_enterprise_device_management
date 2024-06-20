@@ -60,6 +60,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/user_policy_manager.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
   ]
 

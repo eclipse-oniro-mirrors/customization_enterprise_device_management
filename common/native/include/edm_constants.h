@@ -40,6 +40,9 @@ namespace EdmConstants {
     static const std::string PERMISSION_TAG_VERSION_12 = "version_12";
     static const std::string PERMISSION_TAG_SYSTEM_API = "system";
 
+    static const std::string DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
+    static const std::string FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
+
     namespace DeviceInfo {
         static const std::string DEVICE_NAME = "deviceName";
         static const std::string DEVICE_SERIAL = "deviceSerial";
@@ -67,7 +70,6 @@ namespace EdmConstants {
         const std::string LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const std::string LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
         const std::string LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
-        const std::string LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE = "inactiveUserFreeze";
     } // namespace Restrictions
 
     namespace SecurityManager {

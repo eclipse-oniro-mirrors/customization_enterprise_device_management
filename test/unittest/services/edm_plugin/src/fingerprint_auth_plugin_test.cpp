@@ -18,8 +18,6 @@
 #include <gtest/gtest.h>
 
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
-#include "parameters.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -53,52 +51,131 @@ void FingerprintAuthPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestFingerprintAuthPluginTestSetFalse
- * @tc.desc: Test FingerprintAuthPluginTest::OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicyFingerprintAuthType
+ * @tc.desc: Test FingerprintAuthPluginTest::OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestSetFalse, TestSize.Level1)
+HWTEST_F(FingerprintAuthPluginTest, TestOnHandlePolicyFingerprintAuthType, TestSize.Level1)
 {
-    bool policyValue = false;
+    MessageParcel data;
+    data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
+    data.WriteBool(false);
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    policyData.policyData = "true";
     FingerprintAuthPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(policyValue);
+    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, 100);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyValue != system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true));
+    ASSERT_TRUE(policyData.policyData.empty());
 }
 
 /**
- * @tc.name: TestFingerprintAuthPluginTestSetTrue
- * @tc.desc: Test FingerprintAuthPluginTest::OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicyDisallowForAccountType
+ * @tc.desc: Test FingerprintAuthPluginTest::OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestSetTrue, TestSize.Level1)
+HWTEST_F(FingerprintAuthPluginTest, TestOnHandlePolicyDisallowForAccountType, TestSize.Level1)
 {
-    bool policyValue = true;
+    MessageParcel data;
+    data.WriteString(EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE);
+    data.WriteBool(false);
+    data.WriteInt32(100);
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    policyData.policyData = "[100]";
     FingerprintAuthPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(policyValue);
+    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, 100);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyValue != system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true));
+    ASSERT_TRUE(policyData.policyData.empty());
 }
 
 /**
- * @tc.name: TestFingerprintAuthPluginTestGet
+ * @tc.name: TestHandleFingerprintAuthPolicy
+ * @tc.desc: Test FingerprintAuthPluginTest::HandleFingerprintAuthPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FingerprintAuthPluginTest, TestHandleFingerprintAuthPolicy, TestSize.Level1)
+{
+    FingerprintAuthPlugin plugin;
+    FingerprintPolicy policy;
+    policy.accountIds.insert(100);
+    ErrCode ret = plugin.HandleFingerprintAuthPolicy(true, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy.accountIds.empty());
+    ASSERT_TRUE(policy.globalDisallow);
+
+    policy.accountIds.insert(100);
+    policy.globalDisallow = false;
+    ret = plugin.HandleFingerprintAuthPolicy(false, policy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+
+    policy.accountIds.clear();
+    ret = plugin.HandleFingerprintAuthPolicy(false, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy.accountIds.empty());
+    ASSERT_FALSE(policy.globalDisallow);
+}
+
+/**
+ * @tc.name: TestHandleFingerprintForAccountPolicy
+ * @tc.desc: Test FingerprintAuthPluginTest::HandleFingerprintForAccountPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FingerprintAuthPluginTest, TestHandleFingerprintForAccountPolicy, TestSize.Level1)
+{
+    FingerprintAuthPlugin plugin;
+    FingerprintPolicy policy;
+    policy.globalDisallow = true;
+    ErrCode ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+
+    policy.globalDisallow = false;
+    ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy.accountIds.find(100) != policy.accountIds.end());
+    ASSERT_FALSE(policy.globalDisallow);
+
+    ret = plugin.HandleFingerprintForAccountPolicy(false, 100, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy.accountIds.empty());
+    ASSERT_FALSE(policy.globalDisallow);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyFingerprintAuthType
  * @tc.desc: Test FingerprintAuthPluginTest::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(FingerprintAuthPluginTest, TestFingerprintAuthPluginTestGet, TestSize.Level1)
+HWTEST_F(FingerprintAuthPluginTest, TestOnGetPolicyFingerprintAuthType, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = FingerprintAuthPlugin::GetPlugin();
-    std::string policyData{"false"};
     MessageParcel data;
+    data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(result != system::GetBoolParameter(PERSIST_FINGERPRINT_AUTH_CONTROL, true));
+    std::string policyData = "true";
+    FingerprintAuthPlugin plugin;
+    plugin.OnGetPolicy(policyData, data, reply, 100);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_TRUE(reply.ReadBool());
 }
+
+/**
+ * @tc.name: TestOnGetPolicyDisallowForAccountType
+ * @tc.desc: Test FingerprintAuthPluginTest::OnGetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FingerprintAuthPluginTest, TestOnGetPolicyDisallowForAccountType, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteString(EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE);
+    data.WriteInt32(100);
+    MessageParcel reply;
+    std::string policyData = "[100]";
+    FingerprintAuthPlugin plugin;
+    plugin.OnGetPolicy(policyData, data, reply, 100);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_TRUE(reply.ReadBool());
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

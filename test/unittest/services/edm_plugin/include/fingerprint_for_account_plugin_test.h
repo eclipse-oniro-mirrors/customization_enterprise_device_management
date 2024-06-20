@@ -13,16 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
-#define COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
+#ifndef EDM_UNIT_TEST_SET_FINGERPRINT_FOR_ACCOUNT_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_SET_FINGERPRINT_FOR_ACCOUNT_PLUGIN_TEST_H
+
+#include <gtest/gtest.h>
+#include "fingerprint_for_account_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-struct PasswordPolicy {
-    std::string complexityReg;
-    int64_t validityPeriod = 0;
-    std::string additionalDescription;
+namespace TEST {
+class FingerprintForAccountPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
-}
-}
-#endif // COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS
+#endif // EDM_UNIT_TEST_SET_FINGERPRINT_FOR_ACCOUNT_PLUGIN_TEST_H
