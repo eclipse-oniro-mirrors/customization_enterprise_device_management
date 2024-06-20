@@ -112,7 +112,7 @@ const bool REGISTER_DISALLOWED_UNINSTALL_BUNDLES_PLUGIN =
 const bool REGISTER_DOMAIN_FILTER_RULE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
 const bool REGISTER_FINGER_PRINT_AUTH_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(FingerprintAuthPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<FingerprintAuthPlugin>());
 const bool REGISTER_FIREWALL_RULE_PLUGIN = PluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
 const bool REGISTER_GET_ALL_NETWORK_INTERFACES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());

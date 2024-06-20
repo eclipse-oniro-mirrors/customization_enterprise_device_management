@@ -13,16 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
-#define COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
+#ifndef COMMON_NATIVE_INCLUDE_FIGERINT_POLICY_H
+#define COMMON_NATIVE_INCLUDE_FIGERINT_POLICY_H
+
+#include <set>
 
 namespace OHOS {
 namespace EDM {
-struct PasswordPolicy {
-    std::string complexityReg;
-    int32_t validityPeriod = 0;
-    std::string additionalDescription;
+struct FingerprintPolicy {
+    bool globalDisallow = false;
+    std::set<int32_t> accountIds;
 };
 }
 }
-#endif // COMMON_NATIVE_INCLUDE_PASSWORD_POLICY_H
+#endif // COMMON_NATIVE_INCLUDE_FIGERINT_POLICY_H

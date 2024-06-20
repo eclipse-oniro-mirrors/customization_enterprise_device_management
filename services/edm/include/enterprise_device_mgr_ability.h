@@ -127,7 +127,9 @@ private:
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
-
+    void SetPasswordPolicy();
+    void SetFingerprintPolicy();
+    
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;

@@ -30,6 +30,8 @@
 #include "matching_skills.h"
 #include "parameters.h"
 
+#include "fingerprint_policy.h"
+#include "fingerprint_policy_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -488,6 +490,12 @@ void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map
 void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
 {
     EDMLOGI("OnUserAuthFrameworkStart");
+    SetPasswordPolicy();
+    SetFingerprintPolicy();
+}
+
+void EnterpriseDeviceMgrAbility::SetPasswordPolicy()
+{
     std::string policyData;
     policyMgr_->GetPolicy("", "password_policy", policyData, EdmConstants::DEFAULT_USER_ID);
     auto serializer_ = PasswordSerializer::GetInstance();
@@ -499,7 +507,27 @@ void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityI
     param.value.pinExpiredPeriod = policy.validityPeriod;
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != 0) {
-        EDMLOGW("SetGlobalConfigParam Error");
+        EDMLOGW("SetGlobalConfigParam SetPasswordPolicy Error");
+    }
+}
+
+void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
+{
+    std::string policyData;
+    policyMgr_->GetPolicy("", "fingerprint_auth", policyData, EdmConstants::DEFAULT_USER_ID);
+    auto serializer_ = FingerprintPolicySerializer::GetInstance();
+    FingerprintPolicy policy;
+    serializer_->Deserialize(policyData, policy);
+    std::vector<int32_t> userIds(policy.accountIds.size());
+    std::copy(policy.accountIds.begin(), policy.accountIds.end(), userIds.begin());
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.userIds = userIds;
+    param.authTypes.push_back(UserIam::UserAuth::AuthType::FINGERPRINT);
+    param.type = UserIam::UserAuth::GlobalConfigType::ENABLE_STATUS;
+    param.value.enableStatus = !policy.globalDisallow && userIds.size() == 0;
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != ERR_OK) {
+        EDMLOGW("SetGlobalConfigParam SetFingerprintPolicy Error");
     }
 }
 
