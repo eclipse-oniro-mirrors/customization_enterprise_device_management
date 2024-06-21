@@ -37,21 +37,6 @@ void DeviceInfoPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestGetDeviceSerial
- * @tc.desc: Test GetDeviceSerialPlugin::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DeviceInfoPluginTest, TestGetDeviceSerial, TestSize.Level1)
-{
-    plugin_ = GetDeviceSerialPlugin::GetPlugin();
-    std::string policyData{"TestString"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestGetDisplayVersion
  * @tc.desc: Test GetDisplayVersionPlugin::OnGetPolicy function.
  * @tc.type: FUNC

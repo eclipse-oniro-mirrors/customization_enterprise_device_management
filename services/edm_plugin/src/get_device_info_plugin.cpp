@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,38 +45,14 @@ ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     std::string label = data.ReadString();
     EDMLOGI("GetDeviceInfoPlugin OnGetPolicy GetDeviceInfo %{public}s", label.c_str());
     if (label == EdmConstants::DeviceInfo::DEVICE_NAME) {
-        std::string name;
-        ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, name);
-        if (FAILED(code)) {
-            EDMLOGD("GetDeviceInfoPlugin::get device name from database failed : %{public}d.", code);
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        if (name.empty()) {
-            name = GetMarketName();
-        }
-        reply.WriteInt32(ERR_OK);
-        reply.WriteString(name);
-        return ERR_OK;
+        return GetDeviceName(reply);
     }
     if (label == EdmConstants::DeviceInfo::DEVICE_SERIAL) {
-        std::string serial = GetSerial();
-        reply.WriteInt32(ERR_OK);
-        reply.WriteString(serial);
-        return ERR_OK;
+        return GetDeviceSerial(reply);
     }
 #ifdef TELEPHONY_CORE_EDM_ENABLE
     if (label == EdmConstants::DeviceInfo::SIM_INFO) {
-        std::string simInfo;
-        int32_t ret = GetSimInfo(simInfo);
-        if (FAILED(ret)) {
-            EDMLOGD("GetDeviceInfoPlugin::get sim info failed : %{public}d.", ret);
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        reply.WriteInt32(ERR_OK);
-        reply.WriteString(simInfo);
-        return ERR_OK;
+        return GetSimInfo(reply);
     }
 #endif
     reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
@@ -86,11 +62,37 @@ ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
+ErrCode GetDeviceInfoPlugin::GetDeviceName(MessageParcel &reply)
+{
+    std::string name;
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, name);
+    if (FAILED(code)) {
+        EDMLOGD("GetDeviceInfoPlugin::get device name from database failed : %{public}d.", code);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (name.empty()) {
+        name = GetMarketName();
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(name);
+    return ERR_OK;
+}
+
+ErrCode GetDeviceInfoPlugin::GetDeviceSerial(MessageParcel &reply)
+{
+    std::string serial = GetSerial();
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(serial);
+    return ERR_OK;
+}
+
 #ifdef TELEPHONY_CORE_EDM_ENABLE
-ErrCode GetDeviceInfoPlugin::GetSimInfo(std::string &info)
+ErrCode GetDeviceInfoPlugin::GetSimInfo(MessageParcel &reply)
 {
     cJSON *json = cJSON_CreateArray();
     if (json == nullptr) {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_0, json);
@@ -98,11 +100,14 @@ ErrCode GetDeviceInfoPlugin::GetSimInfo(std::string &info)
     char *jsonStr = cJSON_PrintUnformatted(json);
     if (jsonStr == nullptr) {
         cJSON_Delete(json);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    info = std::string(jsonStr);
+    std::string info = std::string(jsonStr);
     cJSON_Delete(json);
     cJSON_free(jsonStr);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(info);
     return ERR_OK;
 }
 

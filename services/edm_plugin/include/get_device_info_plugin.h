@@ -29,7 +29,9 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
-    ErrCode GetSimInfo(std::string &info);
+    ErrCode GetDeviceName(MessageParcel &reply);
+    ErrCode GetDeviceSerial(MessageParcel &reply);
+    ErrCode GetSimInfo(MessageParcel &reply);
     void GetSimInfoBySlotId(int32_t slotId, cJSON *simJson);
 };
 } // namespace EDM

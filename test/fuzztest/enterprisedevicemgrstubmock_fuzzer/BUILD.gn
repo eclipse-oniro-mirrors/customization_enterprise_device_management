@@ -147,8 +147,6 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/get_device_encryption_status_plugin.cpp",
       "../../../services/edm_plugin/src/get_device_info_plugin.cpp",
-      "../../../services/edm_plugin/src/get_device_name_plugin.cpp",
-      "../../../services/edm_plugin/src/get_device_serial_plugin.cpp",
       "../../../services/edm_plugin/src/get_display_version_plugin.cpp",
       "../../../services/edm_plugin/src/get_security_patch_tag_plugin.cpp",
       "../../../services/edm_plugin/src/install_plugin.cpp",

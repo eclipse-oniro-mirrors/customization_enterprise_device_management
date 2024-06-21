@@ -46,8 +46,6 @@
 #include "get_bluetooth_info_plugin.h"
 #include "get_device_encryption_status_plugin.h"
 #include "get_device_info_plugin.h"
-#include "get_device_name_plugin.h"
-#include "get_device_serial_plugin.h"
 #include "get_display_version_plugin.h"
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
@@ -123,9 +121,6 @@ const bool REGISTER_GET_BLUETOOTH_INFO_PLUGIN =
 const bool REGISTER_GET_DEVICE_ENCRYPTION_STATUS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
 const bool REGISTER_GET_DEVICE_INFO_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
-const bool REGISTER_GET_DEVICE_NAME_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetDeviceNamePlugin::GetPlugin());
-const bool REGISTER_GET_DEVICE_SERIAL_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetDeviceSerialPlugin::GetPlugin());
 const bool REGISTER_GET_DISPLAY_VERSION_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetDisplayVersionPlugin::GetPlugin());
 const bool REGISTER_GET_IP_ADDRESS_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());

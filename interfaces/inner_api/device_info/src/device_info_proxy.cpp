@@ -15,6 +15,7 @@
 
 #include "device_info_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 
@@ -42,7 +43,7 @@ std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
 
 int32_t DeviceInfoProxy::GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &info)
 {
-    return GetDeviceInfo(admin, info, EdmInterfaceCode::GET_DEVICE_SERIAL);
+    return GetDeviceInfoSync(admin, EdmConstants::DeviceInfo::DEVICE_SERIAL, info);
 }
 
 int32_t DeviceInfoProxy::GetDisplayVersion(AppExecFwk::ElementName &admin, std::string &info)
@@ -52,7 +53,7 @@ int32_t DeviceInfoProxy::GetDisplayVersion(AppExecFwk::ElementName &admin, std::
 
 int32_t DeviceInfoProxy::GetDeviceName(AppExecFwk::ElementName &admin, std::string &info)
 {
-    return GetDeviceInfo(admin, info, EdmInterfaceCode::GET_DEVICE_NAME);
+    return GetDeviceInfoSync(admin, EdmConstants::DeviceInfo::DEVICE_NAME, info);
 }
 
 int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode)
