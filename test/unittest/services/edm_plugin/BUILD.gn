@@ -176,6 +176,7 @@ ohos_unittest("EdmPluginTest") {
     external_deps += [ "audio_framework:audio_client" ]
     sources += [
       "./src/disable_hdc_plugin_test.cpp",
+      "./src/disable_microphone_plugin_test.cpp",
       "./src/disable_printer_plugin_test.cpp",
       "./src/fingerprint_auth_plugin_test.cpp",
     ]
@@ -396,6 +397,7 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "audio_framework:audio_client" ]
     sources += [
       "../../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_printer_plugin.cpp",
       "../../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
     ]
