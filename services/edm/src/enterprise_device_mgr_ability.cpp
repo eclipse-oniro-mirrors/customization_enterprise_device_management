@@ -73,13 +73,21 @@ sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED] =
-        &EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved;
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventUserRemoved(data);
+        };
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED] =
-        &EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded;
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventPackageAdded(data);
+        };
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED] =
-        &EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved;
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventPackageRemoved(data);
+        };
     commonEventFuncMap_[SYSTEM_UPDATE_FOR_POLICY] =
-        &EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate;
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventSystemUpdate(data);
+        };
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -115,17 +123,33 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
-    addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAppManagerServiceStart;
-    addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnCommonEventServiceStart;
-    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart;
+    addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnAppManagerServiceStart(systemAbilityId, deviceId);
+        };
+    addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnCommonEventServiceStart(systemAbilityId, deviceId);
+        };
+    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
+        };
     addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
-        &EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart;
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnUserAuthFrameworkStart(systemAbilityId, deviceId);
+        };
 #ifdef PASTEBOARD_EDM_ENABLE
-    addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] = &EnterpriseDeviceMgrAbility::OnPasteboardServiceStart;
+    addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnPasteboardServiceStart(systemAbilityId, deviceId);
+        };
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
-        &EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart;
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnNetManagerBaseServiceStart(systemAbilityId, deviceId);
+        };
 #endif
 }
 
@@ -142,7 +166,7 @@ void EnterpriseDeviceEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
     if (func != listener_.commonEventFuncMap_.end()) {
         auto commonEventFunc = func->second;
         if (commonEventFunc != nullptr) {
-            return (listener_.*commonEventFunc)(data);
+            return commonEventFunc(&listener_, data);
         }
     } else {
         EDMLOGW("OnReceiveEvent action is invalid");
@@ -384,7 +408,7 @@ void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, con
     if (func != addSystemAbilityFuncMap_.end()) {
         auto memberFunc = func->second;
         if (memberFunc != nullptr) {
-            return (this->*memberFunc)(systemAbilityId, deviceId);
+            return memberFunc(this, systemAbilityId, deviceId);
         }
     }
 }

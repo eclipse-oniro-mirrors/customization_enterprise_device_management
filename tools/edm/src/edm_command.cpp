@@ -38,9 +38,9 @@ EdmCommand::EdmCommand(int argc, char *argv[]) : ShellCommand(argc, argv, TOOL_N
 ErrCode EdmCommand::CreateCommandMap()
 {
     commandMap_ = {
-        { "help", std::bind(&EdmCommand::RunAsHelpCommand, this) },
-        { "enable-admin", std::bind(&EdmCommand::RunAsEnableCommand, this) },
-        { "disable-admin", std::bind(&EdmCommand::RunAsDisableAdminCommand, this) }
+        { "help", [this]{return this->RunAsHelpCommand();} },
+        { "enable-admin", [this]{return this->RunAsEnableCommand();} },
+        { "disable-admin", [this]{return this->RunAsDisableAdminCommand();} }
     };
     return ERR_OK;
 }

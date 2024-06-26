@@ -36,9 +36,6 @@ class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDevice
     DECLARE_SYSTEM_ABILITY(EnterpriseDeviceMgrAbility);
 
 public:
-    using CommonEventCallbackFunc = void (EnterpriseDeviceMgrAbility::*)(const EventFwk::CommonEventData &data);
-    using AddSystemAbilityFunc =
-        void (EnterpriseDeviceMgrAbility::*)(int32_t systemAbilityId, const std::string &deviceId);
     EnterpriseDeviceMgrAbility();
     DISALLOW_COPY_AND_MOVE(EnterpriseDeviceMgrAbility);
     ~EnterpriseDeviceMgrAbility() override;
@@ -59,8 +56,12 @@ public:
     bool IsSuperAdmin(const std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event);
-    std::unordered_map<std::string, CommonEventCallbackFunc> commonEventFuncMap_;
-    std::unordered_map<int32_t, AddSystemAbilityFunc> addSystemAbilityFuncMap_;
+    std::unordered_map<std::string,
+        std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
+        commonEventFuncMap_;
+    std::unordered_map<int32_t,
+        std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
+        addSystemAbilityFuncMap_;
     ErrCode GetSuperAdmin(MessageParcel &reply) override;
 
 protected:

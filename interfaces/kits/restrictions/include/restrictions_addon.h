@@ -35,9 +35,6 @@ class RestrictionsAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
 private:
-    using RestrictionsProxySetFunc = int32_t (RestrictionsProxy::*)(const AppExecFwk::ElementName &admin,
-        bool isDisabled);
-    using RestrictionsProxyIsFunc = int32_t (RestrictionsProxy::*)(AppExecFwk::ElementName *admin, bool &result);
     static napi_value SetPrinterDisabled(napi_env env, napi_callback_info info);
     static napi_value IsPrinterDisabled(napi_env env, napi_callback_info info);
     static napi_value SetHdcDisabled(napi_env env, napi_callback_info info);
@@ -55,8 +52,6 @@ private:
     static napi_value IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
-    static std::map<int, RestrictionsProxySetFunc> memberSetFuncMap_;
-    static std::map<int, RestrictionsProxyIsFunc> memberIsFuncMap_;
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::vector<uint32_t> multiPermCodes;

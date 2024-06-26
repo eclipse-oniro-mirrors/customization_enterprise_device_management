@@ -40,7 +40,7 @@ public:
      */
     int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 private:
-    void AddCallFuncMap();
+    int32_t CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption &option);
 
     void OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
 
@@ -55,10 +55,6 @@ private:
     void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
 
     void OnSystemUpdateInner(MessageParcel& data, MessageParcel& reply);
-
-    using EnterpriseAdminFunc = void (EnterpriseAdminStub::*)(MessageParcel& data, MessageParcel& reply);
-
-    std::map<uint32_t, EnterpriseAdminFunc> memberFuncMap_;
 };
 } // namespace EDM
 } // namespace OHOS
