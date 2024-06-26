@@ -111,8 +111,6 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
       "../edm_plugin/src/get_device_encryption_status_plugin.cpp",
       "../edm_plugin/src/get_device_info_plugin.cpp",
-      "../edm_plugin/src/get_device_name_plugin.cpp",
-      "../edm_plugin/src/get_device_serial_plugin.cpp",
       "../edm_plugin/src/get_display_version_plugin.cpp",
       "../edm_plugin/src/get_security_patch_tag_plugin.cpp",
       "../edm_plugin/src/install_plugin.cpp",

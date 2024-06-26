@@ -19,8 +19,6 @@
 #include <gtest/gtest.h>
 
 #include "get_device_info_plugin.h"
-#include "get_device_name_plugin.h"
-#include "get_device_serial_plugin.h"
 #include "get_display_version_plugin.h"
 #include "iplugin_manager.h"
 
