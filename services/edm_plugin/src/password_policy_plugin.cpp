@@ -40,6 +40,7 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy)
     UserIam::UserAuth::GlobalConfigParam param;
     param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
     param.value.pinExpiredPeriod = policy.validityPeriod;
+    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != ERR_OK) {
         EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
