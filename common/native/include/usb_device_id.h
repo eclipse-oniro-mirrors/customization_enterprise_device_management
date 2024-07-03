@@ -32,6 +32,12 @@ public:
     [[nodiscard]] int32_t GetVendorId() const;
     [[nodiscard]] int32_t GetProductId() const;
 
+    bool operator<(const UsbDeviceId &other) const
+    {
+        return (GetVendorId() == other.GetVendorId()) ?
+            (GetProductId() < other.GetProductId()) : (GetVendorId() < other.GetVendorId());
+    }
+
 private:
     int32_t vendorId_ = -1;
     int32_t productId_ = -1;

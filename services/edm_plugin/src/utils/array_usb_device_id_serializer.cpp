@@ -138,6 +138,13 @@ bool ArrayUsbDeviceIdSerializer::WritePolicy(MessageParcel &reply, std::vector<U
 bool ArrayUsbDeviceIdSerializer::MergePolicy(std::vector<std::vector<UsbDeviceId>> &data,
     std::vector<UsbDeviceId> &result)
 {
+    std::set<UsbDeviceId> stData;
+    for (const auto &dataItem : data) {
+        for (const auto &item : dataItem) {
+            stData.insert(item);
+        }
+    }
+    result.assign(stData.begin(), stData.end());
     return true;
 }
 } // namespace EDM
