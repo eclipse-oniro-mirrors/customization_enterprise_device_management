@@ -37,7 +37,6 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
         DECLARE_NAPI_FUNCTION("setAppClipboardPolicy", SetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
-
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));

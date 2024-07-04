@@ -217,7 +217,7 @@ napi_value BrowserAddon::GetPoliciesCommon(napi_env env, napi_callback_info info
     if (argc > ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_function),
             "callback type error");
-    asyncCallbackInfo->value = argv[ARR_INDEX_TWO];
+        asyncCallbackInfo->value = argv[ARR_INDEX_TWO];
     }
     napi_value ret;
     napi_create_int32(env, ERR_OK, &ret);
