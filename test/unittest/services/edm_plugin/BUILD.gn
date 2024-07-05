@@ -177,7 +177,6 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/disable_hdc_plugin_test.cpp",
       "./src/disable_printer_plugin_test.cpp",
-      "./src/fingerprint_auth_plugin_test.cpp",
     ]
   }
 
@@ -206,6 +205,51 @@ ohos_unittest("EdmPluginTest") {
   if (pasteboard_edm_enable) {
     sources += [ "./src/clipboard_policy_plugin_test.cpp" ]
   }
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_unittest("EdmFingerPrintPluginTest") {
+  module_out_path = module_output_path
+
+  include_dirs = [ "../../../../services/edm_plugin/include" ]
+
+  sources = [ "./src/fingerprint_auth_plugin_test.cpp" ]
+
+  configs = [
+    ":module_private_config",
+    "../../../../common/config:coverage_flags",
+  ]
+
+  deps = [
+    ":edm_all_plugin_static",
+    "../../../../common/native:edm_commom",
+    "../../../../interfaces/inner_api:edmservice_kits",
+    "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../utils:edm_unittest_utils",
+    "//third_party/googletest:gmock_main",
+  ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+  ]
 
   sanitize = {
     boundary_sanitize = true
@@ -455,6 +499,7 @@ group("unittest") {
 
   deps = [
     # deps file
+    ":EdmFingerPrintPluginTest",
     ":EdmPluginTest",
   ]
 }
