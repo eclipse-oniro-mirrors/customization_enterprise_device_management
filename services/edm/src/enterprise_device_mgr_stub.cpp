@@ -25,7 +25,7 @@ namespace OHOS {
 namespace EDM {
 #ifdef EDM_SUPPORT_ALL_ENABLE
 constexpr int32_t DEFAULT_USER_ID = 100;
-constexpr uint32_t WITHOUT_FUNCTION_CODE = -1;
+constexpr int32_t WITHOUT_FUNCTION_CODE = -1;
 #endif
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
 {
