@@ -58,6 +58,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
