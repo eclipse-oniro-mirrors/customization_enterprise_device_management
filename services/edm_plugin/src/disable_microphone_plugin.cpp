@@ -25,8 +25,7 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
-constexpr int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
-constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
+const int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr)
 {
     EDMLOGI("DisableMicrophonePlugin InitPlugin...");
@@ -41,19 +40,18 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
     EDMLOGI("DisableMicrophonePlugin OnSetPolicy...isDisallow = %{public}d", isDisallow);
     auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
         ->GetGroupManager(OHOS::AudioStandard::DEFAULT_VOLUME_GROUP_ID);
-    if (audioGroupManager == nullptr) {
-        EDMLOGE("DisableMicrophonePlugin audioGroupManager null");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     int32_t ret = audioGroupManager
         ->SetMicrophoneMutePersistent(isDisallow, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
-    if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || (!isDisallow && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
-        std::string disableStr = isDisallow ? "true" : "false";
-        system::SetParameter(PARAM_EDM_MIC_DISABLE, disableStr);
-        return ERR_OK;
+    if (ret != AUDIO_SET_MICROPHONE_MUTE_SUCCESS) {
+        EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (isDisallow) {
+        system::SetParameter(PARAM_EDM_MIC_DISABLE, "true");
+    } else {
+        system::SetParameter(PARAM_EDM_MIC_DISABLE, "false");
+    }
+    return ERR_OK;
 }
 
 ErrCode DisableMicrophonePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -62,7 +60,7 @@ ErrCode DisableMicrophonePlugin::OnGetPolicy(std::string &policyData, MessagePar
     bool isMicDisabled = system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false);
     EDMLOGI("DisableMicrophonePlugin OnGetPolicy isMicDisabled = %{public}d", isMicDisabled);
     reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isMicDisabled);
+    reply.WriteInt32(isMicDisabled);
     return ERR_OK;
 }
 } // namespace EDM

@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "parameters.h"
+
 #include "edm_access_token_manager_impl.h"
 
 using namespace testing::ext;
@@ -24,7 +24,6 @@ namespace EDM {
 namespace TEST {
 const std::string EDM_TEST_PERMISSION_FAIL = "ohos.permission.EDM_TEST_PERMISSION_FAIL";
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
-const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 class EdmAccessTokenManagerImplTest : public testing::Test {};
 /**
  * @tc.name: TestIsDebug
@@ -34,7 +33,7 @@ class EdmAccessTokenManagerImplTest : public testing::Test {};
 HWTEST_F(EdmAccessTokenManagerImplTest, TestIsDebug, TestSize.Level1)
 {
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    ASSERT_TRUE(system::GetBoolParameter(DEVELOP_MODE_STATE, false) == edmAccessTokenManagerImpl.IsDebug());
+    ASSERT_TRUE(edmAccessTokenManagerImpl.IsDebug());
 }
 
 /**

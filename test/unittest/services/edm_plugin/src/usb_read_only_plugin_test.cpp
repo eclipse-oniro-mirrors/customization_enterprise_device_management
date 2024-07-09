@@ -56,7 +56,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin001, TestSize.Level1)
     MessageParcel reply;
     // want to set usb read only
     data.WriteInt32(1);
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
     HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
@@ -78,7 +78,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin002, TestSize.Level1)
     MessageParcel reply;
     // want to set usb read write
     data.WriteInt32(0);
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
     HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
@@ -100,7 +100,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin003, TestSize.Level1)
     MessageParcel reply;
     // want to set usb disabled
     data.WriteInt32(2);
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
     HandlePolicyData handlePolicyData{"0", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
@@ -120,7 +120,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin004, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     std::string policyData{"0"};
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -137,7 +137,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin005, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     std::string policyData{"1"};
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -154,7 +154,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin006, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     std::string policyData{"2"};
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -171,7 +171,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin007, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = UsbReadOnlyPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     std::string policyData{""};
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -188,7 +188,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin008, TestSize.Level1)
 {
     UsbReadOnlyPlugin plugin;
     std::string adminName{"testAdminName"};
-    int32_t policyData = 0;
+    std::string policyData = "0";
     ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -202,7 +202,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin009, TestSize.Level1)
 {
     UsbReadOnlyPlugin plugin;
     std::string adminName{"testAdminName"};
-    int32_t policyData = 2;
+    std::string policyData = "2";
     ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }

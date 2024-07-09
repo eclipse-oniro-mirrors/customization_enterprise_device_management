@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,9 @@
 
 #include "enterprise_device_mgr_proxy.h"
 #include "usb_device_id.h"
+#ifdef USB_EDM_ENABLE
+#include "usb_interface_type.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -32,6 +35,12 @@ public:
     int32_t GetAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> &result);
     int32_t SetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t usbPolicy);
     int32_t GetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t &result);
+#ifdef USB_EDM_ENABLE
+    int32_t AddOrRemoveDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
+        std::vector<OHOS::USB::UsbDeviceType> UsbDeviceTypes, bool isAdd);
+    int32_t GetDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
+        std::vector<OHOS::USB::UsbDeviceType> &result);
+#endif
 
 private:
     static std::shared_ptr<UsbManagerProxy> instance_;

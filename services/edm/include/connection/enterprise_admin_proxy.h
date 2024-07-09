@@ -50,3 +50,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 #endif // SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_ADMIN_PROXY_H
+

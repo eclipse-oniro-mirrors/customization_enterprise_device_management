@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../common/config/common.gni")
 
 ohos_shared_library("usbmanager") {
   include_dirs = [
@@ -39,6 +40,12 @@ ohos_shared_library("usbmanager") {
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
+    external_deps += [ "usb_manager:usbsrv_client" ]
+    defines += [ "USB_EDM_ENABLE" ]
+  }
 
   relative_install_dir = "module/enterprise"
   sanitize = {

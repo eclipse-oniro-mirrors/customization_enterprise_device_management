@@ -21,9 +21,9 @@
 #include <string_ex.h>
 #include <system_ability_definition.h>
 
-#include "edm_log.h"
 #include "extension_manager_client.h"
 #include "extension_manager_proxy.h"
+#include "edm_log.h"
 #include "managed_event.h"
 
 using namespace OHOS::AAFwk;

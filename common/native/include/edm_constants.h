@@ -24,10 +24,13 @@ namespace EdmConstants {
     static constexpr int32_t DECIMAL = 10;
     static constexpr int32_t APPID_MAX_SIZE = 200;
     static constexpr int32_t DEFAULT_USER_ID = 100;
-    static constexpr int32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
+    static constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
     static constexpr int32_t STORAGE_USB_POLICY_READ_WRITE = 0;
     static constexpr int32_t STORAGE_USB_POLICY_READ_ONLY = 1;
     static constexpr int32_t STORAGE_USB_POLICY_DISABLED = 2;
+    static constexpr int32_t USB_INTERFACE_DESCRIPTOR = 0;
+    static constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
+    static constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     static constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
     static constexpr int32_t SET_POLICIES_TYPE = 1;
     static constexpr int32_t SET_POLICY_TYPE = 2;

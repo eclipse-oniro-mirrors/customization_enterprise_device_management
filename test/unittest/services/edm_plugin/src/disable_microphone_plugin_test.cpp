@@ -17,6 +17,9 @@
 
 #include <gtest/gtest.h>
 
+#include "audio_system_manager.h"
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
 #include "parameters.h"
 #include "utils.h"
 
@@ -47,31 +50,51 @@ void DisableMicrophonePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSetTrue
+ * @tc.name: TestDisableMicrophonePluginTestSetFail
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetTrue, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFail, TestSize.Level1)
 {
-    bool isDisallow = true;
-    DisableMicrophonePlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(isDisallow);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
+    uint64_t selfTokenId = GetSelfTokenID();
+    SetSelfTokenID(0);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    HandlePolicyData handlePolicyData{"false", false};
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    SetSelfTokenID(selfTokenId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 }
 
 /**
- * @tc.name: TestDisableMicrophonePluginTestSetFalse
+ * @tc.name: TestDisableMicrophonePluginTestSetMix
  * @tc.desc: Test DisableMicrophonePluginTest::OnSetPolicy function and audioSystemManager::SetMicrophoneMute.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, TestSize.Level1)
+HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetMix, TestSize.Level1)
 {
-    bool isDisallow = false;
-    DisableMicrophonePlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(isDisallow);
+    MessageParcel data;
+    MessageParcel reply;
+    bool isDisallow = true;
+    data.WriteBool(isDisallow);
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", false};
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_MICROPHONE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, true));
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, isDisallow));
+    isDisallow = false;
+    data.WriteBool(isDisallow);
+    handlePolicyData.isChanged = false;
+    ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(!system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, isDisallow));
 }
 
 /**
@@ -81,15 +104,17 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, T
  */
 HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestGet, TestSize.Level1)
 {
-    std::string policyData;
+    std::shared_ptr<IPlugin> plugin = DisableMicrophonePlugin::GetPlugin();
+    std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;
-    int32_t userId = 0;
-    DisableMicrophonePlugin plugin;
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_FALSE(reply.ReadBool());
+    ASSERT_TRUE(result == system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 }
 } // namespace TEST
 } // namespace EDM
