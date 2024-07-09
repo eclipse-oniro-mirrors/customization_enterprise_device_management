@@ -113,6 +113,7 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/get_device_info_plugin.cpp",
       "../edm_plugin/src/get_display_version_plugin.cpp",
       "../edm_plugin/src/get_security_patch_tag_plugin.cpp",
+      "../edm_plugin/src/inactive_user_freeze_plugin.cpp",
       "../edm_plugin/src/install_plugin.cpp",
       "../edm_plugin/src/notify_update_packages_plugin.cpp",
       "../edm_plugin/src/ntp_server_plugin.cpp",
