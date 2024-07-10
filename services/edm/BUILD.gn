@@ -107,7 +107,6 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/bundle_install_plugin.cpp",
       "../edm_plugin/src/disallow_modify_datetime_plugin.cpp",
       "../edm_plugin/src/disallowed_install_bundles_plugin.cpp",
-      "../edm_plugin/src/disallowed_tethering_plugin.cpp",
       "../edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
       "../edm_plugin/src/get_device_encryption_status_plugin.cpp",
       "../edm_plugin/src/get_device_info_plugin.cpp",

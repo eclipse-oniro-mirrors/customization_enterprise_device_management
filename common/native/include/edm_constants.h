@@ -63,7 +63,6 @@ namespace EdmConstants {
         const std::string LABEL_DISALLOWED_POLICY_WIFI = "wifi";
         const std::string LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const std::string LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
-        const std::string LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
     } // namespace Restrictions
 
     namespace SecurityManager {
