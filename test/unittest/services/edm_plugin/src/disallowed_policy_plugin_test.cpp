@@ -14,9 +14,11 @@
  */
 
 #include <gtest/gtest.h>
+#include <vector>
 
 #include "disallowed_tethering_plugin.h"
 #include "edm_ipc_interface_code.h"
+#include "inactive_user_freeze_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -25,39 +27,46 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class DisallowedTetheringPluginTest : public testing::Test {
+class DisallowedPolicyPluginTest
+    : public testing::TestWithParam<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>> {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void DisallowedTetheringPluginTest::SetUpTestSuite(void)
+void DisallowedPolicyPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowedTetheringPluginTest::TearDownTestSuite(void)
+void DisallowedPolicyPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
+INSTANTIATE_TEST_SUITE_P(TestOnSetPolicy, DisallowedPolicyPluginTest,
+    testing::ValuesIn(std::vector<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>>({
+        {DisallowedTetheringPlugin::GetPlugin(), EdmInterfaceCode::DISALLOWED_TETHERING},
+        {InactiveUserFreezePlugin::GetPlugin(), EdmInterfaceCode::INACTIVE_USER_FREEZE}
+    })));
+
 /**
- * @tc.name: TestDisallowedTetheringPluginTestSet
+ * @tc.name: TestOnSetPolicy
  * @tc.desc: Test DisallowedTetheringPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowedTetheringPluginTest, TestDisallowedTetheringPluginTestSet, TestSize.Level1)
+HWTEST_P(DisallowedPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
 {
+    auto param = GetParam();
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowedTetheringPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = param.first;
     HandlePolicyData handlePolicyData{"false", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DISALLOWED_TETHERING);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, param.second);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData == "true");

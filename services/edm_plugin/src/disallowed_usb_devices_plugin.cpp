@@ -81,7 +81,6 @@ ErrCode DisallowedUsbDevicesPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     if (policyData.isChanged) {
         policyData.policyData = afterHandle;
     }
-    EDMLOGD("DisallowUsbDevicesPlugin OnHandlePolicy: afterHandle: %{public}s", afterHandle.c_str());
     return ERR_OK;
 }
 
