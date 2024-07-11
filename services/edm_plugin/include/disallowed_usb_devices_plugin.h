@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H
 
 #include "plugin_singleton.h"
-#include "istorage_manager.h"
 #include "usb_interface_type.h"
 
 namespace OHOS {
 namespace EDM {
-class UsbReadOnlyPlugin : public IPlugin {
+class DisallowedUsbDevicesPlugin : public IPlugin {
 public:
-    UsbReadOnlyPlugin();
-
+    DisallowedUsbDevicesPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
@@ -35,17 +33,15 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
-    ErrCode SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId);
-    bool HasConflictPolicy(int32_t accessPolicy, const std::string &allowUsbDevice);
-    void GetDisallowedUsbDeviceTypes(std::vector<USB::UsbDeviceType> &usbDeviceTypes);
-    ErrCode DealDisablePolicy(std::vector<USB::UsbDeviceType> usbDeviceTypes);
-    ErrCode DealReadPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,
-        std::vector<USB::UsbDeviceType> usbDeviceTypes);
-    OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
-    ErrCode ReloadUsbDevice();
-    bool IsStorageDisabledByDisallowedPolicy();
+    bool HasConflictPolicy(const FuncOperateType type);
+    bool CombinePolicyDataAndBeforeData(const FuncOperateType type, std::vector<USB::UsbDeviceType> policyDevices,
+        std::vector<USB::UsbDeviceType> beforeDevices, std::vector<USB::UsbDeviceType> &mergeDevices);
+    void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
+        std::vector<USB::UsbDeviceType> &combineData);
+    ErrCode EnableAllUsb();
+    ErrCode DealDisallowedDevices(std::vector<USB::UsbDeviceType> data);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H

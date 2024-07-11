@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,22 +51,30 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
         return ERR_OK;
     }
+    if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsbPolicy;
     policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
-    if (disableUsbPolicy == "true" || usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy: CONFLICT! isUsbDisabled: %{public}s, usbStoragePolicy: %{public}s",
-            disableUsbPolicy.c_str(), usbStoragePolicy.c_str());
+    std::string disallowUsbDevicePolicy;
+    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
+    if (disableUsbPolicy == "true" || !disallowUsbDevicePolicy.empty() ||
+        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy: CONFLICT! "
+            "isUsbDisabled: %{public}s, disallowedUsbDevice: %{public}s, usbStoragePolicy: %{public}s",
+            disableUsbPolicy.c_str(), disallowUsbDevicePolicy.c_str(), usbStoragePolicy.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
     std::vector<UsbDeviceId> mergeData = ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(data,
         currentData);
     if (mergeData.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data is too large");
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
@@ -137,7 +145,7 @@ ErrCode AllowUsbDevicesPlugin::OnGetPolicy(std::string &policyData, MessageParce
     std::vector<UsbDeviceId> usbDeviceIds;
     ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(usbDeviceIds.size());
+    reply.WriteUint32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         EDMLOGD("AllowUsbDevicesPlugin OnGetPolicy: currentData: vid: %{public}d, pid: %{public}d",
             usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());
@@ -154,23 +162,11 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
-    std::vector<OHOS::USB::UsbDevice> allDevices;
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet != ERR_OK) {
-        EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove getDevices failed: %{public}d", getRet);
+    int32_t usbRet = srvClient.ManageGlobalInterface(false);
+    if (usbRet != ERR_OK) {
+        EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    EDMLOGI("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice which is not in the list of allowed usb device.");
-    for (const auto &item : allDevices) {
-        if (std::find_if(data.begin(), data.end(), [item](UsbDeviceId trustItem) {
-            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
-        }) == data.end()) {
-            if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), false) != ERR_OK) {
-                EDMLOGW("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice vid:%{public}d pid:%{public}d failed!",
-                    item.GetVendorId(), item.GetProductId());
-            }
-        }
     }
     return ERR_OK;
 }
