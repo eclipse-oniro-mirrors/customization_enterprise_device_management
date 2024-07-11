@@ -15,6 +15,7 @@
 
 #include "disabled_network_interface_plugin.h"
 
+#include "net_policy_client.h"
 #include "netsys_native_service_proxy.h"
 #include "system_ability_definition.h"
 
@@ -90,6 +91,9 @@ ErrCode DisabledNetworkInterfacePlugin::OnSetPolicy(std::map<std::string, std::s
     if (FAILED(ret)) {
         return ret;
     }
+    if (!SetInterfaceDisabled(it->first, it->second == "true")) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     if (it->second == "true") {
         currentData[it->first] = "true";
     } else {
@@ -121,6 +125,22 @@ ErrCode DisabledNetworkInterfacePlugin::IsNetInterfaceExist(const std::string &n
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
+}
+
+bool DisabledNetworkInterfacePlugin::SetInterfaceDisabled(const std::string &ifaceName, bool status)
+{
+    auto netPolicyClient = DelayedSingleton<NetManagerStandard::NetPolicyClient>::GetInstance();
+    if (netPolicyClient == nullptr) {
+        EDMLOGE("DisabledNetworkInterfacePlugin SetInterfaceDisabled get NetPolicyClient failed.");
+        return false;
+    }
+    std::vector<std::string> ifaceNames{ifaceName};
+    auto ret = netPolicyClient->SetNicTrafficAllowed(ifaceNames, !status);
+    if (FAILED(ret)) {
+        EDMLOGE("DisabledNetworkInterfacePlugin SetInterfaceDisabled SetNicTrafficAllowed failed, %{public}d.", ret);
+        return false;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

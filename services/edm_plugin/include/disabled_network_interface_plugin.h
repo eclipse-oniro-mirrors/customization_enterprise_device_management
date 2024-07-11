@@ -33,6 +33,7 @@ public:
 
 private:
     ErrCode IsNetInterfaceExist(const std::string &netInterface);
+    bool SetInterfaceDisabled(const std::string &ifaceName, bool status);
 };
 } // namespace EDM
 } // namespace OHOS

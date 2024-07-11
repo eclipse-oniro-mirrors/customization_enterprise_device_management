@@ -47,16 +47,16 @@
 #include "clipboard_policy_serializer.h"
 #include "clipboard_utils.h"
 #endif
-<<<<<<< HEAD
+
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "map_string_serializer.h"
+#include "net_policy_client.h"
+#endif
 #ifdef USERIAM_EDM_ENABLE
 #include "fingerprint_policy.h"
 #include "fingerprint_policy_serializer.h"
 #include "password_policy_serializer.h"
 #include "user_auth_client.h"
-=======
-#ifdef NET_MANAGER_BASE_EDM_ENABLE
-#include "map_string_serializer.h"
->>>>>>> c4a5537 (disable net interface)
 #endif
 
 namespace OHOS {
@@ -155,7 +155,9 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
-        &EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart;
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnNetManagerBaseServiceStart(systemAbilityId, deviceId);
+        };
 #endif
 }
 
@@ -538,6 +540,14 @@ void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map
     for (const auto& iter : policyMap) {
         netList.emplace_back(iter.first);
         EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
+    }
+    auto netPolicyClient = DelayedSingleton<NetManagerStandard::NetPolicyClient>::GetInstance();
+    if (netPolicyClient != nullptr) {
+        if (FAILED(netPolicyClient->SetNicTrafficAllowed(netList, false))) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface SetNicTrafficAllowed failed.");
+        } else {
+            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface get NetPolicyClient failed.");
+        }
     }
 }
 #endif

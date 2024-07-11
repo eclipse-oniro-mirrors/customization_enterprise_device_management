@@ -402,6 +402,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
     external_deps += [
       "netmanager_base:net_conn_manager_if",
+      "netmanager_base:net_policy_manager_if",
       "netmanager_base:netsys_controller",
       "netmanager_ext:ethernet_manager_if",
     ]
