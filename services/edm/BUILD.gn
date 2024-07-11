@@ -175,6 +175,7 @@ ohos_shared_library("edmservice") {
       external_deps += [
         "netmanager_base:net_conn_manager_if",
         "netmanager_base:net_native_manager_if",
+        "netmanager_base:net_policy_manager_if",
         "netmanager_base:netsys_controller",
       ]
       sources += [
