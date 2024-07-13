@@ -58,6 +58,7 @@ const bool REGISTER_RESULT =
 const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
+const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
@@ -179,6 +180,9 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
     AddCommonEventFuncMap();
     for (auto &item : commonEventFuncMap_) {
+        if (item.first == SYSTEM_UPDATE_FOR_POLICY) {
+            continue;
+        }
         skill.AddEvent(item.first);
         EDMLOGI("CreateEnterpriseDeviceEventSubscriber AddEvent: %{public}s", item.first.c_str());
     }
@@ -445,6 +449,13 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbility
     commonEventSubscriber = CreateEnterpriseDeviceEventSubscriber(*this);
     EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber);
     EDMLOGI("create commonEventSubscriber success");
+
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    skill.AddEvent(SYSTEM_UPDATE_FOR_POLICY);
+    EDMLOGI("CreateEnterpriseDeviceEventSubscriber AddEvent: %{public}s", SYSTEM_UPDATE_FOR_POLICY.c_str());
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    info.SetPermission(PERMISSION_UPDATE_SYSTEM);
+    EventFwk::CommonEventManager::SubscribeCommonEvent(std::make_shared<EnterpriseDeviceEventSubscriber>(info, *this));
 #else
     EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
     return;
