@@ -26,6 +26,9 @@ public:
     static void OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel &parcel);
     static void SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size);
     static uint32_t GetU32Data(const uint8_t* ptr);
+    static int32_t GetU32Data(const uint8_t* ptr, int32_t& pos, size_t size);
+    static long GetLong(const uint8_t* ptr, int32_t& pos, size_t size);
+    static std::string GetString(const uint8_t* ptr, int32_t& pos, int32_t stringSize, size_t size);
 };
 } // namespace EDM
 } // namespace OHOS
