@@ -81,6 +81,7 @@ constexpr int32_t NUM_INDEX_ZERO = 0;
 constexpr int32_t NUM_INDEX_FIRST = 1;
 constexpr int32_t NUM_INDEX_SECOND = 2;
 constexpr int32_t NUM_INDEX_THIRD = 3;
+constexpr int32_t BYTE_SIZE = 8;
 const bool REGISTER_ADD_OS_ACCOUNT_PLUGIN = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
 const bool REGISTER_ALLOWED_BLUETOOTH_DEVICES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(AllowedBluetoothDevicesPlugin::GetPlugin());
@@ -180,6 +181,42 @@ uint32_t CommonFuzzer::GetU32Data(const uint8_t* ptr)
 {
     return (ptr[NUM_INDEX_ZERO] << NUM_24) | (ptr[NUM_INDEX_FIRST] << NUM_16) | (ptr[NUM_INDEX_SECOND] << NUM_8) |
         ptr[NUM_INDEX_THIRD];
+}
+
+int32_t CommonFuzzer::GetU32Data(const uint8_t* ptr, int32_t& pos, size_t size)
+{
+    if (size <= pos || size - pos < sizeof(int32_t)) {
+        return 0;
+    }
+    int32_t ret = 0;
+    pos += sizeof(int32_t);
+    for (int i = 0; i < sizeof(int32_t); i++) {
+        ret |= ((int32_t)ptr[i] << (BYTE_SIZE * i));
+    }
+    return ret;
+}
+
+long CommonFuzzer::GetLong(const uint8_t* ptr, int32_t& pos, size_t size)
+{
+    if (size <= pos || size - pos < sizeof(long)) {
+        return 0;
+    }
+    long ret = 0;
+    pos += sizeof(long);
+    for (int i = 0; i < sizeof(long); i++) {
+        ret |= ((long)ptr[i] << (BYTE_SIZE * i));
+    }
+    return ret;
+}
+
+std::string CommonFuzzer::GetString(const uint8_t* ptr, int32_t& pos, int32_t stringSize, size_t size)
+{
+    if (size <= pos || size - pos < stringSize) {
+        return nullptr;
+    }
+    std::string ret(reinterpret_cast<const char*>(ptr + pos), stringSize);
+    pos += stringSize;
+    return ret;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -33,6 +33,32 @@
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 64;
+const std::string FIRMWARE_EVENT_INFO_NAME = "version";
+const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
+const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
+
+EventFwk::CommonEventData getCommonEventData(const uint8_t* data, size_t size)
+{
+    int32_t pos = 0;
+    EventFwk::CommonEventData eventData;
+    EventFwk::Want want;
+    AppExecFwk::ElementName admin;
+    int32_t code = CommonFuzzer::GetU32Data(data, pos, size);
+    int uid = CommonFuzzer::GetU32Data(data, pos, size);
+    long checkTime = CommonFuzzer::GetLong(data, pos, size);
+    int32_t stringSize = (size - pos) / 5;
+    admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
+    admin.SetAbilityName(CommonFuzzer::GetString(data, pos, stringSize, size));
+    eventData.SetCode(code);
+    want.SetParam(FIRMWARE_EVENT_INFO_NAME, CommonFuzzer::GetString(data, pos, stringSize, size));
+    want.SetParam(FIRMWARE_EVENT_INFO_TYPE, CommonFuzzer::GetString(data, pos, stringSize, size));
+    want.SetParam(FIRMWARE_EVENT_INFO_CHECK_TIME, checkTime);
+    want.SetParam(AppExecFwk::Constants::USER_ID, uid);
+    want.SetAction(CommonFuzzer::GetString(data, pos, stringSize, size));
+    eventData.SetWant(want);
+    want.SetElement(admin);
+    return eventData;
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -50,7 +76,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     TEST::Utils::SetEdmInitialEnv();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     enterpriseDeviceMgrAbility->OnStart();
-    EventFwk::CommonEventData eventData = GetData<EventFwk::CommonEventData>();
+    EventFwk::CommonEventData eventData = getCommonEventData(data, size);
 
     enterpriseDeviceMgrAbility->OnCommonEventSystemUpdate(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventUserRemoved(eventData);
