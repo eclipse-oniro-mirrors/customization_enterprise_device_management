@@ -112,10 +112,6 @@ private:
 #ifdef PASTEBOARD_EDM_ENABLE
     void OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId);
 #endif
-#ifdef NET_MANAGER_BASE_EDM_ENABLE
-    void OnNetManagerBaseServiceStart(int32_t systemAbilityId, const std::string &deviceId);
-    void HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap);
-#endif
     void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);
