@@ -50,6 +50,7 @@
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
+#include "net_policy_client.h"
 #endif
 
 namespace OHOS {
@@ -483,6 +484,14 @@ void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map
     for (const auto& iter : policyMap) {
         netList.emplace_back(iter.first);
         EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
+    }
+    auto netPolicyClient = DelayedSingleton<NetManagerStandard::NetPolicyClient>::GetInstance();
+    if (netPolicyClient != nullptr) {
+        if (FAILED(netPolicyClient->SetNicTrafficAllowed(netList, false))) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface SetNicTrafficAllowed failed.");
+        } else {
+            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface get NetPolicyClient failed.");
+        }
     }
 }
 #endif
