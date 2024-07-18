@@ -22,6 +22,9 @@
 
 using namespace OHOS::EDM;
 
+constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
+const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
+
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nClipboardPolicy = nullptr;
@@ -134,8 +137,12 @@ napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_i
         JsObjectToString(env, argv[ARR_INDEX_ONE], "complexityRegex", false, policy.complexityReg),
         "Parameter passwordPolicy error");
     ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjectToInt(env, argv[ARR_INDEX_ONE], "validityPeriod", false, policy.validityPeriod),
+        JsObjectToLong(env, argv[ARR_INDEX_ONE], "validityPeriod", false, policy.validityPeriod),
         "Parameter passwordPolicy error");
+    if (policy.validityPeriod > MAX_VALIDITY_PERIOD || policy.validityPeriod < 0) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, VALIDITY_PERIOD_OUT_OF_RANGE_ERROR));
+        return nullptr;
+    }
     ASSERT_AND_THROW_PARAM_ERROR(env,
         JsObjectToString(env, argv[ARR_INDEX_ONE], "additionalDescription", false, policy.additionalDescription),
         "Parameter passwordPolicy error");
@@ -177,7 +184,7 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     napi_value additionalDescription;
     napi_create_object(env, &ret);
     napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg);
-    napi_create_int32(env, policy.validityPeriod, &validityPeriod);
+    napi_create_int64(env, policy.validityPeriod, &validityPeriod);
     napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription);
     napi_set_named_property(env, ret, "complexityRegex", complexityReg);
     napi_set_named_property(env, ret, "validityPeriod", validityPeriod);
