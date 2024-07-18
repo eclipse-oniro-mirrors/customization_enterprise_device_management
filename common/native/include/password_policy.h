@@ -20,7 +20,7 @@ namespace OHOS {
 namespace EDM {
 struct PasswordPolicy {
     std::string complexityReg;
-    int32_t validityPeriod = 0;
+    int64_t validityPeriod = 0;
     std::string additionalDescription;
 };
 }

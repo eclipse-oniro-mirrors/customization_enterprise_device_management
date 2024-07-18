@@ -91,7 +91,7 @@ int32_t SecurityManagerProxy::SetPasswordPolicy(const AppExecFwk::ElementName &a
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(policy.complexityReg);
-    data.WriteInt32(policy.validityPeriod);
+    data.WriteInt64(policy.validityPeriod);
     data.WriteString(policy.additionalDescription);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
@@ -130,7 +130,7 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
         return ret;
     }
     policy.complexityReg = reply.ReadString();
-    reply.ReadInt32(policy.validityPeriod);
+    reply.ReadInt64(policy.validityPeriod);
     policy.additionalDescription = reply.ReadString();
     return ERR_OK;
 }

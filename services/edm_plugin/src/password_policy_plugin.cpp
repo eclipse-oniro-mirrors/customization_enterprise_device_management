@@ -58,7 +58,7 @@ ErrCode PasswordPolicyPlugin::OnGetPolicy(std::string &policyData,
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteString(policy.complexityReg);
-    reply.WriteInt32(policy.validityPeriod);
+    reply.WriteInt64(policy.validityPeriod);
     reply.WriteString(policy.additionalDescription);
     return ERR_OK;
 }

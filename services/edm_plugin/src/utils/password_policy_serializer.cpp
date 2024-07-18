@@ -67,7 +67,7 @@ bool PasswordSerializer::Serialize(const PasswordPolicy &policy, std::string &js
 bool PasswordSerializer::GetPolicy(MessageParcel &data, PasswordPolicy &result)
 {
     result.complexityReg = data.ReadString();
-    result.validityPeriod = data.ReadInt32();
+    result.validityPeriod = data.ReadInt64();
     result.additionalDescription = data.ReadString();
     return true;
 }
