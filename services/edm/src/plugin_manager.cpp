@@ -206,10 +206,6 @@ void PluginManager::LoadPlugin(const std::string &pluginPath)
         EDMLOGE("PluginManager::open plugin so fail. %{public}s.", dlerror());
         return;
     }
-    char *szError = dlerror();
-    if (szError != nullptr) {
-        EDMLOGW("PluginManager::loading plugin fail. %{public}s.", szError);
-    }
     pluginHandles_.push_back(handle);
 }
 
