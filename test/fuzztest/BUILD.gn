@@ -28,5 +28,6 @@ group("fuzztest") {
     "iptablesruleplugin_fuzzer:IptablesRulePluginFuzzTest",
     "manageautostartappsplugin_fuzzer:ManageAutoStartAppsPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
+    "usercertplugin_fuzzer:UserCertPluginFuzzTest",
   ]
 }
