@@ -30,7 +30,7 @@ public:
     int32_t SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
         std::string &errorMsg);
     int32_t GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy);
-    int32_t NotifyUpdatePackages(const AppExecFwk::ElementName &admin, const UpgradePackageInfo &packageInfo,
+    int32_t NotifyUpdatePackages(const AppExecFwk::ElementName &admin, UpgradePackageInfo &packageInfo,
         std::string &errMsg);
     int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,
         UpgradeResult &upgradeResult);

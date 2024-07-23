@@ -115,11 +115,12 @@ void UpdatePolicyUtils::ReadUpgradeResult(MessageParcel &data, UpgradeResult &re
     data.ReadString(result.errorMessage);
 }
 
-void UpdatePolicyUtils::ClosePackagesFileHandle(const std::vector<Package> &packages)
+void UpdatePolicyUtils::ClosePackagesFileHandle(std::vector<Package> &packages)
 {
-    for (const auto &package : packages) {
+    for (auto &package : packages) {
         if (package.fd >= 0) {
             close(package.fd);
+            package.fd = -1;
         }
     }
 }
