@@ -267,10 +267,10 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     EDMLOGD("IsFingerprintAuthDisabled: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
 
@@ -280,7 +280,12 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
         return nullptr;
     }
     bool disallow = false;
-    ErrCode ret = proxy->IsFingerprintAuthDisabled(&elementName, disallow);
+    ErrCode ret;
+    if (hasAdmin) {
+        ret = proxy->IsFingerprintAuthDisabled(&elementName, disallow);
+    } else {
+        ret = proxy->IsFingerprintAuthDisabled(nullptr, disallow);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -379,15 +384,20 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         EDMLOGE("can not get RestrictionsProxy");
         return nullptr;
     }
-    auto labelCode = labelCodeMap.find(feature);
-    if (labelCode == labelCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
+    ErrCode ret = ERR_OK;
+    if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
+        ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
+    } else {
+        auto labelCode = labelCodeMap.find(feature);
+        if (labelCode == labelCodeMap.end()) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+            return nullptr;
+        }
+        std::uint32_t ipcCode = labelCode->second;
+        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
+        ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
     }
-    std::uint32_t ipcCode = labelCode->second;
-    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
-    ErrCode ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -423,20 +433,21 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         EDMLOGE("can not get RestrictionsProxy");
         return nullptr;
     }
-    auto labelCode = labelCodeMap.find(feature);
-    if (labelCode == labelCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = labelCode->second;
-    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
     ErrCode ret = ERR_OK;
-    if (hasAdmin) {
-        ret = proxy->GetDisallowedPolicy(&elementName, ipcCode, disallow, permissionTag);
+    if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
+        ret = proxy->IsFingerprintAuthDisabled(hasAdmin ? &elementName : nullptr, disallow);
     } else {
-        ret = proxy->GetDisallowedPolicy(nullptr, ipcCode, disallow, permissionTag);
+        auto labelCode = labelCodeMap.find(feature);
+        if (labelCode == labelCodeMap.end()) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+            return nullptr;
+        }
+        std::uint32_t ipcCode = labelCode->second;
+        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
+        ret = proxy->GetDisallowedPolicy(hasAdmin ? &elementName : nullptr, ipcCode, disallow, permissionTag);
     }
+
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
