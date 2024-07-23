@@ -118,7 +118,7 @@ int32_t SystemManagerProxy::GetOTAUpdatePolicy(const AppExecFwk::ElementName &ad
 }
 
 int32_t SystemManagerProxy::NotifyUpdatePackages(const AppExecFwk::ElementName &admin,
-    const UpgradePackageInfo &packageInfo, std::string &errMsg)
+    UpgradePackageInfo &packageInfo, std::string &errMsg)
 {
     EDMLOGD("SystemManagerProxy::NotifyUpdatePackages");
     MessageParcel data;
