@@ -71,8 +71,12 @@ int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *ad
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(admin);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
     data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::FINGERPRINT_AUTH, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
