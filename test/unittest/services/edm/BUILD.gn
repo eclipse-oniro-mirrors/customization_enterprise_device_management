@@ -102,7 +102,6 @@ ohos_static_library("edmservice_static") {
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "user_auth_framework:userauth_client",
   ]
 
   deps = [
@@ -187,7 +186,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   if (os_account_edm_enable) {

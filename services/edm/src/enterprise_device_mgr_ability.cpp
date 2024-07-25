@@ -31,8 +31,7 @@
 #include "system_ability.h"
 #include "system_ability_definition.h"
 
-#include "fingerprint_policy.h"
-#include "fingerprint_policy_serializer.h"
+
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -42,12 +41,17 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
-#include "password_policy_serializer.h"
-#include "user_auth_client.h"
+
 
 #ifdef PASTEBOARD_EDM_ENABLE
 #include "clipboard_policy_serializer.h"
 #include "clipboard_utils.h"
+#endif
+#ifdef USERIAM_EDM_ENABLE
+#include "fingerprint_policy.h"
+#include "fingerprint_policy_serializer.h"
+#include "password_policy_serializer.h"
+#include "user_auth_client.h"
 #endif
 
 namespace OHOS {
@@ -137,10 +141,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
-        };
-    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnUserAuthFrameworkStart(systemAbilityId, deviceId);
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
@@ -509,6 +509,7 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityI
 }
 #endif
 
+#ifdef USERIAM_EDM_ENABLE
 void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
 {
     EDMLOGI("OnUserAuthFrameworkStart");
@@ -552,6 +553,7 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
         EDMLOGW("SetGlobalConfigParam SetFingerprintPolicy Error");
     }
 }
+#endif
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
 
