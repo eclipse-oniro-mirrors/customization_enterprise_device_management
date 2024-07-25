@@ -257,6 +257,12 @@ napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_v
         EDMLOGE("Failed to get '%{public}s' from EnterpriseAdminExtension object", name);
         return nullptr;
     }
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, method, &valueType);
+    if (valueType != napi_function) {
+        EDMLOGE("'%{public}s' is not function", name);
+        return nullptr;
+    }
 
     EDMLOGI("JsEnterpriseAdminExtension::CallFunction(%{public}s), success", name);
     napi_value result = nullptr;

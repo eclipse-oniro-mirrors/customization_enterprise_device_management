@@ -40,7 +40,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = (size - pos) / 3;
+    int32_t stringSize = (size - pos) / 9;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::INSTALL_CERTIFICATE;
@@ -58,7 +58,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
                 std::vector<uint8_t> certArray {(*data)};
                 parcel.WriteUInt8Vector(certArray);
             }
-            parcel.WriteString (CommonFuzzer::GetString(data, pos, stringSize, size));
+            parcel.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
         } else {
             parcel.WriteString("");
             parcel.WriteInt32(0);

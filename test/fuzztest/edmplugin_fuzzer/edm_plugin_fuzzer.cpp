@@ -35,7 +35,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     uint32_t operateType = (CommonFuzzer::GetU32Data(data)) % 3;
-    uint32_t code = (CommonFuzzer::GetU32Data(data)) % 100 + MAX_EDM_INTERFACE_CODE;
+    uint32_t code = (CommonFuzzer::GetU32Data(data)) % 60 + MAX_EDM_INTERFACE_CODE;
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
