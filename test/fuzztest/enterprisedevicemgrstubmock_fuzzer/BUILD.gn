@@ -64,11 +64,9 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../services/edm/src/super_admin.cpp",
     "../../../services/edm/src/user_policy_manager.cpp",
-    "../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
-    "../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
   ]
 
@@ -128,7 +126,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "netmanager_base:net_native_manager_if",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "user_auth_framework:userauth_client",
   ]
 
   deps = [
@@ -153,7 +150,6 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/install_plugin.cpp",
       "../../../services/edm_plugin/src/ntp_server_plugin.cpp",
       "../../../services/edm_plugin/src/operate_device_plugin.cpp",
-      "../../../services/edm_plugin/src/password_policy_plugin.cpp",
       "../../../services/edm_plugin/src/power_policy_plugin.cpp",
       "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
@@ -285,7 +281,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
-        "../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
       ]
     }
 
@@ -326,6 +321,17 @@ ohos_static_library("edmservice_fuzz_static") {
     sources += [
       "../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
       "../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    defines += [ "USERIAM_EDM_ENABLE" ]
+    sources += [
+      "../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
+      "../../../services/edm_plugin/src/password_policy_plugin.cpp",
+      "../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
+      "../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
     ]
   }
 
