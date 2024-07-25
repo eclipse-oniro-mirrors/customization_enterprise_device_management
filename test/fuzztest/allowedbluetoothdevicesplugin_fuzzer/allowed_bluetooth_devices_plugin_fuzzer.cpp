@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
-#include "allowed_usb_devices_plugin_fuzzer.h"
+#include "allowed_bluetooth_devices_plugin_fuzzer.h"
 
 #include <system_ability_definition.h>
 
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
-#include "func_code.h"
-#include "get_data_template.h"
 #include "ienterprise_device_mgr.h"
+#include "func_code.h"
 #include "message_parcel.h"
-#include "usb_device_id.h"
 #include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 16;
 constexpr int32_t WITHOUT_USERID = 0;
-constexpr int32_t USB_DEVICE_ID_SIZE = 1;
+constexpr int32_t HAS_ADMIN = 0;
+constexpr int32_t WITHOUT_ADMIN = 1;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -41,11 +40,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (size < MIN_SIZE) {
         return 0;
     }
+
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 9;
+
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
-        uint32_t code = EdmInterfaceCode::ALLOWED_USB_DEVICES;
+        uint32_t code = EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES;
         code = POLICY_FUNC_CODE(operateType, code);
 
         AppExecFwk::ElementName admin;
@@ -56,16 +57,20 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteInt32(WITHOUT_USERID);
         if (operateType) {
             parcel.WriteParcelable(&admin);
-            parcel.WriteInt32(USB_DEVICE_ID_SIZE);
-            UsbDeviceId usbDeviceId = GetData<UsbDeviceId>();
-            std::vector<UsbDeviceId> usbDeviceIds = { usbDeviceId };
-            std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(),
-                [&](const auto usbDeviceId) { usbDeviceId.Marshalling(parcel); });
+            std::vector<std::string> deviceIds;
+            deviceIds.push_back(CommonFuzzer::GetString(data, pos, stringSize, size));
+            parcel.WriteStringVector(deviceIds);
         } else {
             parcel.WriteString("");
-            parcel.WriteInt32(0);
-            parcel.WriteParcelable(&admin);
+            bool hasAdmin = CommonFuzzer::GetU32Data(data) % 2;
+            if (hasAdmin) {
+                parcel.WriteInt32(HAS_ADMIN);
+                parcel.WriteParcelable(&admin);
+            } else {
+                parcel.WriteInt32(WITHOUT_ADMIN);
+            }
         }
+
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
     return 0;
