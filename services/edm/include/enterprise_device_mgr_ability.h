@@ -16,6 +16,8 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 
+#include <chrono>
+#include <condition_variable>
 #include <memory>
 #include <string>
 
@@ -115,14 +117,18 @@ private:
     void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);
+    void InitAllAdmins();
+    void InitAllPlugins();
     void InitAllPolices();
     void RemoveAllDebugAdmin();
+    void AddSystemAbilityListeners();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
     void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
+    void UnloadPluginTask();
 
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
@@ -132,6 +138,11 @@ private:
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
+    bool pluginHasInit_ = false;
+    bool notifySignal_ = false;
+    std::chrono::system_clock::time_point lastCallTime_;
+    std::condition_variable waitSignal_;
+    std::mutex waitMutex_;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
