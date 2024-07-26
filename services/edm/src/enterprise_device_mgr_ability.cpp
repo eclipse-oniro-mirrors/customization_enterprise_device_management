@@ -30,8 +30,7 @@
 #include "matching_skills.h"
 #include "parameters.h"
 
-#include "fingerprint_policy.h"
-#include "fingerprint_policy_serializer.h"
+
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -41,8 +40,7 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
-#include "password_policy_serializer.h"
-#include "user_auth_client.h"
+
 
 #ifdef PASTEBOARD_EDM_ENABLE
 #include "clipboard_policy_serializer.h"
@@ -51,6 +49,12 @@
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
 #include "net_policy_client.h"
+#endif
+#ifdef USERIAM_EDM_ENABLE
+#include "fingerprint_policy.h"
+#include "fingerprint_policy_serializer.h"
+#include "password_policy_serializer.h"
+#include "user_auth_client.h"
 #endif
 
 namespace OHOS {
@@ -138,10 +142,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
         };
-    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnUserAuthFrameworkStart(systemAbilityId, deviceId);
-        };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -152,6 +152,12 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnNetManagerBaseServiceStart(systemAbilityId, deviceId);
+        };
+#endif
+#ifdef USERIAM_EDM_ENABLE
+    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnUserAuthFrameworkStart(systemAbilityId, deviceId);
         };
 #endif
 }
@@ -496,6 +502,7 @@ void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map
 }
 #endif
 
+#ifdef USERIAM_EDM_ENABLE
 void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
 {
     EDMLOGI("OnUserAuthFrameworkStart");
@@ -539,6 +546,7 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
         EDMLOGW("SetGlobalConfigParam SetFingerprintPolicy Error");
     }
 }
+#endif
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
 
