@@ -109,6 +109,7 @@ public:
     IPlugin::PermissionType GetPermissionType(FuncOperateType operaType);
     IPlugin::ApiType GetApiType(FuncOperateType operaType);
     void SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin);
+    void ResetExtensionPlugin();
     std::shared_ptr<IPlugin> GetExtensionPlugin();
     void SetExecuteStrategy(std::shared_ptr<IPluginExecuteStrategy> strategy);
     std::shared_ptr<IPluginExecuteStrategy> GetExecuteStrategy();
