@@ -52,12 +52,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         MessageParcel parcel;
         parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
         parcel.WriteInt32(WITHOUT_USERID);
-        if (operateType) {
+        if (operateType == static_cast<uint32_t>(FuncOperateType::SET)) {
             parcel.WriteParcelable(&admin);
-            if (operateType == static_cast<uint32_t>(FuncOperateType::SET)) {
-                std::vector<uint8_t> certArray {(*data)};
-                parcel.WriteUInt8Vector(certArray);
-            }
+            std::vector <uint8_t> certArray{(*data)};
+            parcel.WriteUInt8Vector(certArray);
+            parcel.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
+        } else if (operateType == static_cast<uint32_t>(FuncOperateType::REMOVE)) {
+            parcel.WriteParcelable(&admin);
             parcel.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
         } else {
             parcel.WriteString("");
