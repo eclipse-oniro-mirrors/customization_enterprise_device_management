@@ -17,9 +17,11 @@ group("fuzztest") {
 
   deps += [
     # deps file
+    "addosaccountplugin_fuzzer:AddOsAccountPluginFuzzTest",
     "adminmanager_fuzzer:AdminManagerFuzzTest",
     "adminpoliciesstoragerdb_fuzzer:AdminPoliciesStorageRdbFuzzTest",
     "adminserviceinterface_fuzzer:AdminServiceInterfaceFuzzTest",
+    "allowedbluetoothdevicesplugin_fuzzer:AllowedBluetoothDevicesPluginFuzzTest",
     "allowedusbdevicesplugin_fuzzer:AllowedUsbDevicesPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
     "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
