@@ -13,24 +13,21 @@
  * limitations under the License.
  */
 
-#include "firewall_rule_plugin_fuzzer.h"
+#include "install_plugin_fuzzer.h"
 
 #include <system_ability_definition.h>
 
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
-#include "firewall_rule.h"
-#include "func_code.h"
 #include "ienterprise_device_mgr.h"
-#include "iptables_utils.h"
+#include "func_code.h"
 #include "message_parcel.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 16;
 constexpr int32_t WITHOUT_USERID = 0;
-constexpr int32_t MAX_ENUM_LENGTH = 2;
-constexpr int32_t MAX_PROTOCOL_LENGTH = 4;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -41,12 +38,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (size < MIN_SIZE) {
         return 0;
     }
-
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 9;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
-        uint32_t code = EdmInterfaceCode::FIREWALL_RULE;
+        uint32_t code = EdmInterfaceCode::INSTALL;
         code = POLICY_FUNC_CODE(operateType, code);
 
         AppExecFwk::ElementName admin;
@@ -57,21 +53,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteInt32(WITHOUT_USERID);
         if (operateType) {
             parcel.WriteParcelable(&admin);
-            IPTABLES::FirewallRule firewall;
-            std::string srcAddr(reinterpret_cast<const char*>(data), size);
-            std::string destAddr(reinterpret_cast<const char*>(data), size);
-            std::string srcPort(reinterpret_cast<const char*>(data), size);
-            std::string destPort(reinterpret_cast<const char*>(data), size);
-            std::string uid(reinterpret_cast<const char*>(data), size);
-            IPTABLES::Direction directionEnum =
-                static_cast<IPTABLES::Direction>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
-            IPTABLES::Action actionEnum =
-                static_cast<IPTABLES::Action>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
-            IPTABLES::Protocol protocolEnum =
-                static_cast<IPTABLES::Protocol>(CommonFuzzer::GetU32Data(data) % MAX_PROTOCOL_LENGTH);
-            firewall = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, uid};
-            IPTABLES::FirewallRuleParcel firewallRuleParcel{firewall};
-            firewallRuleParcel.Marshalling(parcel);
+            std::string path(CommonFuzzer::GetString(data, pos, stringSize, size));
+            std::vector<std::string> realPaths = { path };
+            parcel.WriteStringVector(realPaths);
+            int32_t uint32pos = 0;
+            int32_t installParamUserId = CommonFuzzer::GetU32Data(data, uint32pos, size);
+            parcel.WriteInt32(installParamUserId);
+            int32_t installParamInstallFlag = CommonFuzzer::GetU32Data(data, uint32pos, size);
+            parcel.WriteInt32(installParamInstallFlag);
         } else {
             parcel.WriteString("");
             parcel.WriteInt32(0);

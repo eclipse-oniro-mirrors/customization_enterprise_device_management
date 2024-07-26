@@ -82,6 +82,7 @@ constexpr int32_t NUM_INDEX_FIRST = 1;
 constexpr int32_t NUM_INDEX_SECOND = 2;
 constexpr int32_t NUM_INDEX_THIRD = 3;
 constexpr int32_t BYTE_SIZE = 8;
+constexpr int32_t MAX_STRING_SIZE = 1024;
 const bool REGISTER_ADD_OS_ACCOUNT_PLUGIN = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
 const bool REGISTER_ALLOWED_BLUETOOTH_DEVICES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(AllowedBluetoothDevicesPlugin::GetPlugin());
@@ -214,6 +215,7 @@ std::string CommonFuzzer::GetString(const uint8_t* ptr, int32_t& pos, int32_t st
     if (size <= pos || size - pos < stringSize) {
         return nullptr;
     }
+    stringSize = (stringSize > MAX_STRING_SIZE) ? MAX_STRING_SIZE : stringSize;
     std::string ret(reinterpret_cast<const char*>(ptr + pos), stringSize);
     pos += stringSize;
     return ret;
