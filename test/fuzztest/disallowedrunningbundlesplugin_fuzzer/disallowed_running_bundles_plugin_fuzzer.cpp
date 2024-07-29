@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 16;
+constexpr size_t MIN_SIZE = 24;
 constexpr size_t HAS_USERID = 1;
 constexpr int32_t USER_ID = 100;
 
@@ -41,7 +41,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 9;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES;
