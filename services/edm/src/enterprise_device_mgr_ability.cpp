@@ -1055,6 +1055,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_EDM_PARAM_ERROR;
     }
+#ifndef EDM_FUZZ_TEST
     std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), userId);
     if (deviceAdmin == nullptr) {
         EDMLOGW("GetDevicePolicy: get admin failed");
@@ -1071,6 +1072,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyPermission(MessageParcel &data
         reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
+#endif
     elementName.SetBundleName(admin->GetBundleName());
     elementName.SetAbilityName(admin->GetAbilityName());
     return ERR_OK;
