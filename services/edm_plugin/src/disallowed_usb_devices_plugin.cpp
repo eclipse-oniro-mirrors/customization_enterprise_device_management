@@ -171,6 +171,8 @@ ErrCode DisallowedUsbDevicesPlugin::OnGetPolicy(std::string &policyData, Message
     EDMLOGI("DisallowedUsbDevicesPlugin OnGetPolicy: policyData: %{public}s", policyData.c_str());
     if (policyData.empty()) {
         EDMLOGW("DisallowedUsbDevicesPlugin OnGetPolicy data is empty:");
+        reply.WriteInt32(ERR_OK);
+        reply.WriteUint32(0);
         return ERR_OK;
     }
     auto serializer_ = ArrayUsbDeviceTypeSerializer::GetInstance();
