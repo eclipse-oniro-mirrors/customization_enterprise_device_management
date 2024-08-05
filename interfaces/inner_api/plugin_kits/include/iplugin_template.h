@@ -68,7 +68,7 @@ public:
 
     IPluginTemplate();
 
-    ~IPluginTemplate();
+    ~IPluginTemplate() override;
 
 protected:
     /*
