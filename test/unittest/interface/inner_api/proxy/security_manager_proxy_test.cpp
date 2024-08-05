@@ -163,6 +163,121 @@ HWTEST_F(SecurityManagerProxyTest, TestGetRootCheckStatusFail, TestSize.Level1)
     int32_t ret = proxy_->GetRootCheckStatus(admin, res);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetPasswordPolicySuc
+ * @tc.desc: Test SetPasswordPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetPasswordPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    PasswordPolicy policy;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetPasswordPolicy(admin, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetPasswordPolicySuc
+ * @tc.desc: Test GetPasswordPolicy success func without admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordPolicySucWithoutAdmin, TestSize.Level1)
+{
+    PasswordPolicy policy;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = proxy_->GetPasswordPolicy(policy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetPasswordPolicySuc
+ * @tc.desc: Test GetPasswordPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    PasswordPolicy policy;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy));
+    int32_t ret = proxy_->GetPasswordPolicy(admin, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policy.complexityReg == "test_complexityReg");
+    ASSERT_TRUE(policy.validityPeriod == 1);
+    ASSERT_TRUE(policy.additionalDescription == "test_additionalDescription");
+}
+
+/**
+ * @tc.name: TestGetPasswordPolicyFail
+ * @tc.desc: Test GetPasswordPolicy fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    PasswordPolicy policy;
+    int32_t ret = proxy_->GetPasswordPolicy(admin, policy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetAppClipboardPolicySuc
+ * @tc.desc: Test SetAppClipboardPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetAppClipboardPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetAppClipboardPolicy(admin, 123, 1);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAppClipboardPolicySuc
+ * @tc.desc: Test GetAppClipboardPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string policy;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = proxy_->GetAppClipboardPolicy(admin, 123, policy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAppClipboardPolicyFail
+ * @tc.desc: Test GetAppClipboardPolicy fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string policy;
+    int32_t ret = proxy_->GetAppClipboardPolicy(admin, 123, policy);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

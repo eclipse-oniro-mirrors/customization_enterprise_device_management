@@ -179,7 +179,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsFail, TestSize.Level1)
 HWTEST_F(ApplicationManagerProxyTest, AddAutoStartAppsSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    OHOS::AppExecFwk::ElementName app;
+    std::vector<OHOS::AppExecFwk::ElementName> apps{app};
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
@@ -209,7 +210,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsFail, TestSize.Leve
 HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    OHOS::AppExecFwk::ElementName app;
+    std::vector<OHOS::AppExecFwk::ElementName> apps{app};
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
