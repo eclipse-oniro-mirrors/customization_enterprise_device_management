@@ -45,6 +45,9 @@ ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config) __attr
 {
     EDMLOGD("SetWifiProfilePlugin OnSetPolicy");
     ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->ConnectToDevice(config);
+    config.preSharedKey.replace(0, config.preSharedKey.length(), "");
+    config.wepKeys[0].replace(0, config.wepKeys[0].length(), "");
+    config.wifiEapConfig.password.replace(0, config.wifiEapConfig.password.length(), "");
     if (ret != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

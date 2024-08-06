@@ -23,6 +23,7 @@
 #include "operate_device_param.h"
 #ifdef WIFI_EDM_ENABLE
 #include "wifi_msg.h"
+#include "wifi_password.h"
 #endif
 
 namespace OHOS {
@@ -31,7 +32,7 @@ class MessageParcelUtils {
 public:
     static void WriteInstallParam(const AppExecFwk::InstallParam &installParam, MessageParcel &data);
 #ifdef WIFI_EDM_ENABLE
-    static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data);
+    static void WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data, WifiPassword &pwd);
     static void WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address);
     static void ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config);
     static void ProcessAssignIpMethod(int32_t ipMethod, Wifi::WifiIpConfig &ipConfig);

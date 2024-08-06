@@ -21,7 +21,8 @@
 namespace OHOS {
 namespace EDM {
 #ifdef WIFI_EDM_ENABLE
-void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data)
+void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, MessageParcel &data,
+    WifiPassword &pwd)
 {
     data.WriteInt32(config.networkId);
     data.WriteInt32(config.status);
@@ -33,11 +34,9 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteInt32(config.level);
     data.WriteBool(config.isPasspoint);
     data.WriteBool(config.isEphemeral);
-    data.WriteString(config.preSharedKey);
+    data.WriteCString(pwd.preSharedKey);
     data.WriteString(config.keyMgmt);
-    for (int i = 0; i < WEPKEYS_SIZE; i++) {
-        data.WriteString(config.wepKeys[i]);
-    }
+    data.WriteCString(pwd.wepKey);
     data.WriteInt32(config.wepTxKeyIndex);
     data.WriteInt32(config.priority);
     data.WriteBool(config.hiddenSSID);
@@ -52,7 +51,7 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteString(config.wifiIpConfig.staticIpAddress.domains);
     data.WriteString(config.wifiEapConfig.eap);
     data.WriteString(config.wifiEapConfig.identity);
-    data.WriteString(config.wifiEapConfig.password);
+    data.WriteCString(pwd.password);
     data.WriteString(config.wifiEapConfig.clientCert);
     data.WriteString(config.wifiEapConfig.privateKey);
     data.WriteUInt8Vector(config.wifiEapConfig.certEntry);
@@ -91,11 +90,13 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.level = data.ReadInt32();
     config.isPasspoint = data.ReadBool();
     config.isEphemeral = data.ReadBool();
-    config.preSharedKey = data.ReadString();
+    std::string preSharedKey(data.ReadCString());
+    config.preSharedKey = preSharedKey;
+    preSharedKey.replace(0, preSharedKey.length(), "");
     config.keyMgmt = data.ReadString();
-    for (int i = 0; i < WEPKEYS_SIZE; i++) {
-        config.wepKeys[i] = data.ReadString();
-    }
+    std::string wepKey(data.ReadCString());
+    config.wepKeys[0] = wepKey;
+    wepKey.replace(0, wepKey.length(), "");
     config.wepTxKeyIndex = data.ReadInt32();
     config.priority = data.ReadInt32();
     config.hiddenSSID = data.ReadBool();
@@ -110,7 +111,9 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiIpConfig.staticIpAddress.domains = data.ReadString();
     config.wifiEapConfig.eap = data.ReadString();
     config.wifiEapConfig.identity = data.ReadString();
-    config.wifiEapConfig.password = data.ReadString();
+    std::string password(data.ReadCString());
+    config.wifiEapConfig.password = password;
+    password.replace(0, password.length(), "");
     config.wifiEapConfig.clientCert = data.ReadString();
     config.wifiEapConfig.privateKey = data.ReadString();
     data.ReadUInt8Vector(&config.wifiEapConfig.certEntry);
