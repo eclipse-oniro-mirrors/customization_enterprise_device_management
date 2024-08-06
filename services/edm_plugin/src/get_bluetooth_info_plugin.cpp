@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "bluetooth_def.h"
-#include "bluetooth_host.h"
 #include "edm_ipc_interface_code.h"
 #include "get_bluetooth_info_plugin.h"
 #include "parameters.h"
