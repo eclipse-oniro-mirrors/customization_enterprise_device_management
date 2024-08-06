@@ -76,6 +76,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCu
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData = { "00:00:5E:00:53:00", "FF:FF:FF:FF:FF:FF" };
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    plugin.OnChangedPolicyDone(true);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -107,6 +108,18 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSiz
     std::vector<std::string> currentData;
     ErrCode ret = devicesPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+}
+
+/**
+ * @tc.name: TestOnChangedPolicyDoneSuc
+ * @tc.desc: Test set bluetooth devices function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedBluetoothDevicesPluginTest, TestOnChangedPolicyDoneSuc, TestSize.Level1)
+{
+    Utils::SetBluetoothDisable();
+    AllowedBluetoothDevicesPlugin devicesPlugin;
+    devicesPlugin.OnChangedPolicyDone(false);
 }
 
 /**
