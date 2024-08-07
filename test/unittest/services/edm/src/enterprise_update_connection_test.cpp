@@ -29,7 +29,7 @@ const std::string TEST_BUNDLE_NAME = "com.edm.test.demo";
 const std::string TEST_ABILITY_NAME = "com.edm.test.demo.Ability";
 constexpr int32_t DEFAULT_USER_ID = 100;
 class EnterpriseUpdateConnectionTest : public testing::Test {
-protected:    
+protected:
     void SetUp() override;
 
     void TearDown() override;

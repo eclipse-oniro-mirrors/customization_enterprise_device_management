@@ -55,7 +55,6 @@ void DomainFilterRulePluginTest::SetUp()
 
     iptablesManager = IptablesManager::GetInstance();
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    iptablesManager->Init();
 }
 
 void DomainFilterRulePluginTest::TearDown()
@@ -83,6 +82,38 @@ HWTEST_F(DomainFilterRulePluginTest, TestInitPluginSuccess, TestSize.Level1)
     ASSERT_TRUE(plugin->GetPermissionType(FuncOperateType::GET) == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
 }
 
+/**
+ * @tc.name: TestOnGetPolicyTestSuccessBeforeInit
+ * @tc.desc: Test DomainFilterRulePlugin::OnGetPolicy success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DomainFilterRulePluginTest, TestOnGetPolicyTestSuccessBeforeInit, TestSize.Level1)
+{
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+
+    std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyTestSuccessBeforeInit
+ * @tc.desc: Test DomainFilterRulePlugin::OnSetPolicy success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestSize.Level1)
+{
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+
+    std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
+    ErrCode ret = plugin->OnSetPolicy(ruleParcel);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 /**
  * @tc.name: TestOnSetPolicyTestSuccess
  * @tc.desc: Test DomainFilterRulePlugin::OnSetPolicy success.

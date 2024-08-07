@@ -28,12 +28,12 @@ const std::string TEST_POLICY_DATA = "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}
     "\"additionalDescription\": \"testDescription\"}";
 const std::string TEST_VALUE_COMPLEXITYREG = "^(?=.*[a-zA-Z]).{1,9}$";
 const int TEST_VALUE_VALIDITY_PERIOD = 2;
-const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";    
+const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";
 class PasswordSerializerTest : public testing::Test {};
 /**
  * @tc.name: TestSerialize
  * @tc.desc: Test PasswordSerializer::Serialize func.
- * and policies is empty.
+ * and policies is not empty.
  * @tc.type: FUNC
  */
 HWTEST_F(PasswordSerializerTest, TestSerialize, TestSize.Level1)
@@ -48,7 +48,7 @@ HWTEST_F(PasswordSerializerTest, TestSerialize, TestSize.Level1)
 
     std::string result;
     ASSERT_TRUE(serializer->Serialize(policy, result));
-     std::string jsonString = "";
+    std::string jsonString = "";
     cJSON* root = cJSON_Parse(policyData.c_str());
     char* cJsonStr = cJSON_Print(root);
     if (cJsonStr != nullptr) {
@@ -62,7 +62,7 @@ HWTEST_F(PasswordSerializerTest, TestSerialize, TestSize.Level1)
 /**
  * @tc.name: TestWritePolicy
  * @tc.desc: Test PasswordSerializer::WritePolicy func.
- * and policies is empty.
+ * and policies is not empty.
  * @tc.type: FUNC
  */
 HWTEST_F(PasswordSerializerTest, TestWritePolicy, TestSize.Level1)
@@ -70,11 +70,11 @@ HWTEST_F(PasswordSerializerTest, TestWritePolicy, TestSize.Level1)
     MessageParcel reply;
     PasswordPolicy policy;
     auto serializer = PasswordSerializer::GetInstance();
-    policy.additionalDescription == TEST_VALUE_ADDITIONAL_DESCRIPTION;
-    policy.validityPeriod == TEST_VALUE_VALIDITY_PERIOD;
-    policy.complexityReg == TEST_VALUE_COMPLEXITYREG;
+    policy.additionalDescription = TEST_VALUE_ADDITIONAL_DESCRIPTION;
+    policy.validityPeriod = TEST_VALUE_VALIDITY_PERIOD;
+    policy.complexityReg = TEST_VALUE_COMPLEXITYREG;
 
-    ASSERT_TRUE(serializer->WritePolicy(policy, reply));
+    ASSERT_TRUE(serializer->WritePolicy(reply, policy));
 
     PasswordPolicy result;
     std::vector<PasswordPolicy> passwordPolicies{policy};

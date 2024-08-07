@@ -38,7 +38,7 @@ HWTEST_F(CjsonSerializerTest, TestWritePolicy, TestSize.Level1)
     serializer->Deserialize(TEST_POLICY_DATA, jsonPolicy);
     ASSERT_TRUE(serializer->WritePolicy(reply, jsonPolicy));
 
-    cJSON* jsonPolicy2; 
+    cJSON* jsonPolicy2;
     std::string strPolicy;
     ASSERT_TRUE(serializer->GetPolicy(reply, jsonPolicy2));
     ASSERT_TRUE(serializer->Serialize(jsonPolicy2, strPolicy));

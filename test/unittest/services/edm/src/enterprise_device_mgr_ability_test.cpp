@@ -2191,7 +2191,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetExternalManagerFactory, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerCallingPermissionFailed, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2205,7 +2205,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerCallingPermissionFa
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
 
     edmMgr_->EnableAdminInner(data, reply);
-    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED); 
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
 /**
@@ -2216,7 +2216,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerCallingPermissionFa
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbilityInfosFailed, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2242,7 +2242,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbili
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbilityInfosEmpty, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2268,7 +2268,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbili
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerVerifyConditionFailed, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2294,7 +2294,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerVerifyConditionFail
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithErrorUserId, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2320,7 +2320,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithErrorUserId, Te
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToNormalAdmin, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2349,7 +2349,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToNormalAdmin, Test
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToOtherUserId, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2379,7 +2379,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToOtherUserId, Test
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherEntInfo, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test1", "this is test1");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2410,7 +2410,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherEntInfo, T
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithMultipleSuperAdmin, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2442,7 +2442,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithMultipleSuperAd
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherAbility, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2472,7 +2472,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherAbility, T
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableInnerNormalAdminWithDefaultUserId, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2508,7 +2508,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableInnerNormalAdminWithDefaultUs
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithPermissionEmpty, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2550,7 +2550,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithPermissionEmpty
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TesAuthorizeAdminInnerWithoutPermisson, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -2571,7 +2571,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TesAuthorizeAdminInnerWithoutPermisson,
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutAdmin, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -2592,7 +2592,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutAdmin, Te
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutSDA, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -2621,7 +2621,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutSDA, Test
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerIpcFail, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -2650,7 +2650,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerIpcFail, TestSiz
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutReq, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
@@ -2694,7 +2694,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetSuperAdminInner, TestSize.Level1
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoInnerWithoutPermission, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2719,7 +2719,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoInnerWithoutPermis
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoInnerSuc, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     EntInfo entInfo("test", "this is test");
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2750,7 +2750,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutPe
 {
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> event;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2770,7 +2770,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutPe
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutActiveAdmin, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> event;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2791,7 +2791,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutAc
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerCheckCallingUidFailed, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> event;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2819,7 +2819,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerCheckCall
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithEmptyEvents, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> event;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2845,7 +2845,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithEmpty
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithInvalidEvents, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> event = {INVALID_MANAGED_EVENT_TEST};
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2872,7 +2872,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithInval
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInner, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2899,7 +2899,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInner, TestSiz
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -2926,7 +2926,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner, TestS
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner02, TestSize.Level1)
 {
     MessageParcel data;
-    MessageParcel reply;    
+    MessageParcel reply;
     AppExecFwk::ElementName admin;
     std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
     admin.SetBundleName(ADMIN_PACKAGENAME);
