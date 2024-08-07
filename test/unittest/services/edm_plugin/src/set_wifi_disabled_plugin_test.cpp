@@ -87,6 +87,25 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalse, TestS
 }
 
 /**
+ * @tc.name: TestSetWifiDisabledPluginTestSetFalseFail
+ * @tc.desc: Test SetWifiDisabledPluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalseFail, TestSize.Level1)
+{
+    Utils::ResetTokenTypeAndUid();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    Utils::SetEdmInitialEnv();
+}
+
+/**
  * @tc.name: TestSetWifiDisabledPluginTestGet
  * @tc.desc: Test SetWifiDisabledPluginTest::OnGetPolicy function.
  * @tc.type: FUNC
