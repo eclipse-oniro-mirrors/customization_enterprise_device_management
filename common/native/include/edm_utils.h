@@ -28,6 +28,8 @@ public:
     static ErrCode ParseStringToInt(const std::string &str, int32_t &result);
     static ErrCode ParseStringToLong(const std::string &str, int64_t &result);
     static std::string Utf16ToUtf8(const std::u16string &str16);
+    static void ClearString(std::string &str);
+    static void ClearCharArray(char* &str, size_t size);
 };
 } // namespace EDM
 } // namespace OHOS

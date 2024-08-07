@@ -22,6 +22,7 @@
 #include "message_parcel.h"
 #include "operate_device_param.h"
 #ifdef WIFI_EDM_ENABLE
+#include "edm_utils.h"
 #include "wifi_msg.h"
 #include "wifi_password.h"
 #endif
@@ -40,6 +41,7 @@ public:
     static void ProcessConfigureProxyMethod(int32_t proxyMethod, Wifi::WifiProxyConfig &proxyConfig);
     static void ProcessPrivacyConfig(int32_t privacyConfig, Wifi::WifiDeviceConfig &config);
     static void ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress &address);
+    static void WriteCString(MessageParcel &data, char* cStr);
 #endif
     static void WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data);
     static void ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param);

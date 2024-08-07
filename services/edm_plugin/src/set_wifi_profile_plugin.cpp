@@ -19,6 +19,7 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_utils.h"
 #include "wifi_device.h"
 #include "wifi_device_config_serializer.h"
 #include "plugin_manager.h"
@@ -45,9 +46,13 @@ ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config) __attr
 {
     EDMLOGD("SetWifiProfilePlugin OnSetPolicy");
     ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->ConnectToDevice(config);
-    config.preSharedKey.replace(0, config.preSharedKey.length(), "");
-    config.wepKeys[0].replace(0, config.wepKeys[0].length(), "");
-    config.wifiEapConfig.password.replace(0, config.wifiEapConfig.password.length(), "");
+    EdmUtils::ClearString(config.preSharedKey);
+    if (sizeof(config.wepKeys) / sizeof(std::string) > 0) {
+        EdmUtils::ClearString(config.wepKeys[0]);
+    }
+    EdmUtils::ClearString(config.wifiEapConfig.password);
+    memset_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), 0,
+        sizeof(config.wifiEapConfig.certPassword));
     if (ret != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

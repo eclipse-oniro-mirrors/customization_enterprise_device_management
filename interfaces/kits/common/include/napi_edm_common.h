@@ -69,8 +69,7 @@ bool ParseString(napi_env env, std::string &param, napi_value args);
 bool ParseCallback(napi_env env, napi_ref &param, napi_value args);
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
 napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> &elementArray, napi_value args);
-bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, char *param);
-bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::pair<char*, size_t*> &ret);
+bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::vector<char> &ret);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
 bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result);
 bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, uint32_t &result);
@@ -79,9 +78,7 @@ bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool 
 bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::string &resultStr);
 bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
-    char *result);
-bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, std::tuple<int, bool> charArrayProp,
-    std::pair<char*, size_t*> &ret);
+    std::vector<char> &ret);
 bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
     std::vector<uint8_t> &certVector);

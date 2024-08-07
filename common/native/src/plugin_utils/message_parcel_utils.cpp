@@ -34,9 +34,9 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteInt32(config.level);
     data.WriteBool(config.isPasspoint);
     data.WriteBool(config.isEphemeral);
-    data.WriteCString(pwd.preSharedKey);
+    WriteCString(data, pwd.preSharedKey);
     data.WriteString(config.keyMgmt);
-    data.WriteCString(pwd.wepKey);
+    WriteCString(data, pwd.wepKey);
     data.WriteInt32(config.wepTxKeyIndex);
     data.WriteInt32(config.priority);
     data.WriteBool(config.hiddenSSID);
@@ -51,7 +51,7 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteString(config.wifiIpConfig.staticIpAddress.domains);
     data.WriteString(config.wifiEapConfig.eap);
     data.WriteString(config.wifiEapConfig.identity);
-    data.WriteCString(pwd.password);
+    WriteCString(data, pwd.password);
     data.WriteString(config.wifiEapConfig.clientCert);
     data.WriteString(config.wifiEapConfig.privateKey);
     data.WriteUInt8Vector(config.wifiEapConfig.certEntry);
@@ -92,11 +92,13 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.isEphemeral = data.ReadBool();
     std::string preSharedKey(data.ReadCString());
     config.preSharedKey = preSharedKey;
-    preSharedKey.replace(0, preSharedKey.length(), "");
+    EdmUtils::ClearString(preSharedKey);
     config.keyMgmt = data.ReadString();
-    std::string wepKey(data.ReadCString());
-    config.wepKeys[0] = wepKey;
-    wepKey.replace(0, wepKey.length(), "");
+    if (sizeof(config.wepKeys) / sizeof(std::string) > 0) {
+        std::string wepKey(data.ReadCString());
+        config.wepKeys[0] = wepKey;
+        EdmUtils::ClearString(wepKey);
+    }
     config.wepTxKeyIndex = data.ReadInt32();
     config.priority = data.ReadInt32();
     config.hiddenSSID = data.ReadBool();
@@ -113,7 +115,7 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiEapConfig.identity = data.ReadString();
     std::string password(data.ReadCString());
     config.wifiEapConfig.password = password;
-    password.replace(0, password.length(), "");
+    EdmUtils::ClearString(password);
     config.wifiEapConfig.clientCert = data.ReadString();
     config.wifiEapConfig.privateKey = data.ReadString();
     data.ReadUInt8Vector(&config.wifiEapConfig.certEntry);
@@ -209,6 +211,16 @@ void MessageParcelUtils::ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress 
     }
     for (size_t i = 0; i < size; i++) {
         address.addressIpv6.push_back(data.ReadUint8());
+    }
+}
+
+void MessageParcelUtils::WriteCString(MessageParcel &data, char* cStr)
+{
+    if (cStr != nullptr) {
+        data.WriteCString(cStr);
+    } else {
+        char temp[1]{'\0'};
+        data.WriteCString(temp);
     }
 }
 #endif
