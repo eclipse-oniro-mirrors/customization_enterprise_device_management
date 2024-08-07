@@ -101,7 +101,6 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalseFail, T
     HandlePolicyData handlePolicyData{"false", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    std::cout << "OnHandlePolicy ret:" << ret << std::endl;
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     Utils::SetEdmInitialEnv();
 }

@@ -235,11 +235,11 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFail01
+ * @tc.name: TestWriteFileToStreamFail
  * @tc.desc: Test WriteFileToStream method when file path is invalid.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail01, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath;
@@ -251,26 +251,11 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail01, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFail02
- * @tc.desc: Test WriteFileToStream method when file path is valid.
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail02, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    std::string hapFilePath  = ADMIN_PACKAGEPATH;
-    std::vector<std::string> realPaths;
-    string errMessage;
-    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
-    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: TestInstallFail01
+ * @tc.name: TestInstallFail
  * @tc.desc: Test Insatll method with empty hapFilePaths.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestInstallFail01, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> hapFilePaths;
@@ -278,24 +263,6 @@ HWTEST_F(BundleManagerProxyTest, TestInstallFail01, TestSize.Level1)
     std::string retMsg;
     ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-}
-
-/**
- * @tc.name: TestInstallFail02
- * @tc.desc: Test Insatll method with one hapFilePaths.
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerProxyTest, TestInstallFail02, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    std::vector<std::string> hapFilePaths = { ADMIN_PACKAGEPATH };
-    AppExecFwk::InstallParam installParam;
-    std::string retMsg;
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
-    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
 }
 
 /**

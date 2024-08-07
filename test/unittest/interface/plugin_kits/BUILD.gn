@@ -27,6 +27,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./iplugin_test.cpp",
     "./ipolicy_manager_test.cpp",
     "./policy_serializer_test.cpp",
+    "./utils/cjson_serializer_test.cpp",
     "./utils_test.cpp",
   ]
 
@@ -41,6 +42,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
   ]
 
   external_deps = [
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",

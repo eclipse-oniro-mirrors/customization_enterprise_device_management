@@ -50,6 +50,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
+    "./src/utils/password_policy_serializer_test.cpp",
   ]
 
   configs = [
