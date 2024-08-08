@@ -23,6 +23,8 @@ namespace EDM {
 namespace TEST {
 const std::string TEST_POLICY_DATA = "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
     "\"additionalDescription\": \"testDescription\"}";
+const std::string TEST_POLICY_ERR_DATA = "{\"comple\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
+    "\"additionalDescription\": \"testDescription\"}";
 const std::string TEST_VALUE_COMPLEXITYREG = "^(?=.*[a-zA-Z]).{1,9}$";
 const int TEST_VALUE_VALIDITY_PERIOD = 2;
 const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";
@@ -53,6 +55,22 @@ HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicyEmpty, TestSize.Level1)
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 0);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policyData.empty());
+}
+
+/**
+ * @tc.name: TestOnGetPolicyWithErrData
+ * @tc.desc: Test PasswordPolicyPlugin::OnGetPolicy when policyData is err
+ * and policies is err.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicyWithErrData, TestSize.Level1)
+{
+    PasswordPolicyPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData = TEST_POLICY_ERR_DATA;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 0);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**

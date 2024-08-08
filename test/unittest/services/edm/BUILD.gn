@@ -141,6 +141,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
     "./src/enterprise_device_mgr_ability_test.cpp",
+    "./src/enterprise_update_connection_test.cpp",
     "./src/iplugin_template_test.cpp",
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",

@@ -2172,6 +2172,781 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetSuperAdmin, TestSize.Level1)
     EXPECT_TRUE(reply.ReadString() == "");
     EXPECT_TRUE(res == ERR_OK);
 }
+
+/**
+ * @tc.name: TestGetExternalManagerFactory
+ * @tc.desc: Test GetExternalManagerFactory func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetExternalManagerFactory, TestSize.Level1)
+{
+    EXPECT_TRUE(edmMgr_->GetExternalManagerFactory() != nullptr);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerCallingPermissionFailed
+ * @tc.desc: Test EnableAdminInner func with verify calling permission failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerCallingPermissionFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerQueryExtensionAbilityInfosFailed
+ * @tc.desc: Test EnableAdminInner func with query extension abilityInfos failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbilityInfosFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(false, "");
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::COMPONENT_INVALID);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerQueryExtensionAbilityInfosEmpty
+ * @tc.desc: Test EnableAdminInner func with query extension abilityInfos empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerQueryExtensionAbilityInfosEmpty, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, "", true);
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::COMPONENT_INVALID);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerVerifyConditionFailed
+ * @tc.desc: Test EnableAdminInner func with invalid admin type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerVerifyConditionFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::UNKNOWN));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerWithErrorUserId
+ * @tc.desc: Test enabled super admin with userId = 101.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithErrorUserId, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::ENT));
+    data.WriteInt32(TEST_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerToNormalAdmin
+ * @tc.desc: Test enabled super admin to normal admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToNormalAdmin, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerToOtherUserId
+ * @tc.desc: Test enabled super admin to other user id.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerToOtherUserId, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::ENT));
+    data.WriteInt32(TEST_USER_ID);
+
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerWithOtherEntInfo
+ * @tc.desc: Test enabled super admin with other entInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherEntInfo, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test1", "this is test1");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::ENT));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    GetBundleInfoMock(true, "");
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerWithMultipleSuperAdmin
+ * @tc.desc: Test enabled two super admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithMultipleSuperAdmin, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::ENT));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerWithOtherAbility
+ * @tc.desc: Test enabled super admin with other ability.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithOtherAbility, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::ENT));
+    data.WriteInt32(DEFAULT_USER_ID);
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestEnableInnerNormalAdminWithDefaultUserId
+ * @tc.desc: Test enable normal admin with userId = 100.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableInnerNormalAdminWithDefaultUserId, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    edmMgr_->IsAdminEnabledInner(data, reply);
+    EXPECT_TRUE(reply.ReadBool());
+
+    MessageParcel data2;
+    data2.WriteParcelable(&admin);
+    data2.WriteInt32(DEFAULT_USER_ID);
+    edmMgr_->DisableAdminInner(data2, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestEnableAdminInnerWithPermissionEmpty
+ * @tc.desc: Test EnableAdminInner permission empty func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminInnerWithPermissionEmpty, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    data.WriteInt32(static_cast<int>(AdminType::NORMAL));
+    data.WriteInt32(DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    GetBundleInfoMock(true, "");
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+
+    edmMgr_->EnableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    edmMgr_->IsAdminEnabledInner(data, reply);
+    EXPECT_TRUE(reply.ReadBool());
+
+    edmMgr_->IsSuperAdminInner(data, reply);
+    EXPECT_FALSE(reply.ReadBool());
+
+    edmMgr_->DisableAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    edmMgr_->DisableSuperAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() != ERR_OK);
+}
+
+/**
+ * @tc.name: TesAuthorizeAdminInnerWithoutPermisson
+ * @tc.desc: Test AuthorizeAdminInner without permission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TesAuthorizeAdminInnerWithoutPermisson, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteString(ADMIN_PACKAGENAME_1);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    edmMgr_->AuthorizeAdminInner(data, reply);
+    
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminInnerWithoutAdmin
+ * @tc.desc: Test AuthorizeAdminInner without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutAdmin, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteString(ADMIN_PACKAGENAME_1);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    edmMgr_->AuthorizeAdminInner(data, reply);
+
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminInnerWithoutSDA
+ * @tc.desc: Test AuthorizeAdminInner without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutSDA, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteString(ADMIN_PACKAGENAME_1);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+
+    edmMgr_->AuthorizeAdminInner(data, reply);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminInnerIpcFail
+ * @tc.desc: Test AuthorizeAdminInner ipc fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerIpcFail, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteString(ADMIN_PACKAGENAME_1);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
+    edmMgr_->AuthorizeAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin;
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+}
+
+/**
+ * @tc.name: TestAuthorizeAdminInnerWithoutReq
+ * @tc.desc: Test AuthorizeAdminInner without request permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutReq, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteString(ADMIN_PACKAGENAME_1);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    GetBundleInfoMock(false, "");
+    edmMgr_->AuthorizeAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin;
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+}
+
+/**
+ * @tc.name: TestGetSuperAdminInner
+ * @tc.desc: Test GetSuperAdminInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetSuperAdminInner, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    edmMgr_->GetSuperAdminInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseInfoInnerWithoutPermission
+ * @tc.desc: Test SetEnterpriseInfoInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoInnerWithoutPermission, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+
+    ErrCode res = edmMgr_->GetEnterpriseInfoInner(data, reply);
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    entInfo.Marshalling(data);
+    edmMgr_->SetEnterpriseInfoInner(data, reply);
+    std::cout << "SetEnterpriseInfoInner:" << reply.ReadInt32();
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseInfoInnerSuc
+ * @tc.desc: Test SetEnterpriseInfoInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseInfoInnerSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    EntInfo entInfo("test", "this is test");
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+
+    edmMgr_->SetEnterpriseInfoInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    ErrCode res = edmMgr_->GetEnterpriseInfoInner(data, reply);
+    EXPECT_TRUE(res == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInnerWithoutPermission
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutPermission, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> event;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(event);
+
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInnerWithoutActiveAdmin
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithoutActiveAdmin, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> event;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(event);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInnerCheckCallingUidFailed
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerCheckCallingUidFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> event;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(event);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(Return(1)));
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInnerWithEmptyEvents
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithEmptyEvents, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> event;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(event);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInnerWithInvalidEvents
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInnerWithInvalidEvents, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> event = {INVALID_MANAGED_EVENT_TEST};
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(event);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == EdmReturnErrCode::MANAGED_EVENTS_INVALID);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSubscribeManagedEventInner
+ * @tc.desc: Test SubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeManagedEventInner, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(events);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+
+    edmMgr_->SubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestUnsubscribeManagedEventInner
+ * @tc.desc: Test UnsubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(events);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+
+    edmMgr_->UnsubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestUnsubscribeManagedEventInner02
+ * @tc.desc: Test UnsubscribeManagedEventInner func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner02, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    std::vector<uint32_t> events = {APP_START_EVENT, APP_STOP_EVENT};
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    data.WriteParcelable(&admin);
+    data.WriteUInt32Vector(events);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+
+    edmMgr_->UnsubscribeManagedEventInner(data, reply);
+    EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
