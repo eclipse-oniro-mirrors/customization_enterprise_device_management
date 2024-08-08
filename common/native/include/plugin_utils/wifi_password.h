@@ -16,34 +16,26 @@
 #ifndef COMMON_NATIVE_INCLUDE_WIFI_PASSWORD_H
 #define COMMON_NATIVE_INCLUDE_WIFI_PASSWORD_H
 
+#include "edm_utils.h"
+
 namespace OHOS {
 namespace EDM {
 struct WifiPassword {
-    char* preSharedKey;
+    char* preSharedKey = nullptr;
     size_t preSharedKeySize = 0;
-    char* password;
+    char* password = nullptr;
     size_t passwordSize = 0;
-    char* wepKey;
+    char* wepKey = nullptr;
     size_t wepKeySize = 0;
 
-    WifiPassword()
+    ~WifiPassword()
     {
-        preSharedKey = new char[1]{'\0'};
-        password = new char[1]{'\0'};
-        wepKey = new char[1]{'\0'};
-    }
-
-    void clear()
-    {
-        if (preSharedKey != nullptr) {
-            memset_s(preSharedKey, preSharedKeySize, '\0', preSharedKeySize);
-        }
-        if (password != nullptr) {
-            memset_s(password, passwordSize, '\0', passwordSize);
-        }
-        if (wepKey != nullptr) {
-            memset_s(wepKey, wepKeySize, '\0', wepKeySize);
-        }
+        EdmUtils::ClearCharArray(preSharedKey, preSharedKeySize);
+        EdmUtils::ClearCharArray(password, passwordSize);
+        EdmUtils::ClearCharArray(wepKey, wepKeySize);
+        preSharedKeySize = 0;
+        passwordSize = 0;
+        wepKeySize = 0;
     }
 };
 }

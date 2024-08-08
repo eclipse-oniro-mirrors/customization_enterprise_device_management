@@ -18,6 +18,7 @@
 #include <codecvt>
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace EDM {
@@ -53,6 +54,21 @@ std::string EdmUtils::Utf16ToUtf8(const std::u16string &str16)
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(ERROR_STRING);
     std::string result = convert.to_bytes(str16);
     return result == ERROR_STRING ? "" : result;
+}
+
+void EdmUtils::ClearString(std::string &str)
+{
+    std::fill(str.begin(), str.end(), '\0');
+    str.clear();
+}
+
+void EdmUtils::ClearCharArray(char* &str, size_t size)
+{
+    if (str != nullptr) {
+        memset_s(str, size, '\0', size);
+        free(str);
+        str = nullptr;
+    }
 }
 } // namespace EDM
 } // namespace OHOS
