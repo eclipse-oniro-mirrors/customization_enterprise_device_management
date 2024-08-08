@@ -34,7 +34,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
-const std::string ADMIN_PACKAGEPATH = "/system/app/com.ohos.adminprovisioning/adminprovisioning.hap";
+const std::string TEST_PACKAGE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -235,11 +235,11 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFail
+ * @tc.name: TestWriteFileToStreamFail01
  * @tc.desc: Test WriteFileToStream method when file path is invalid.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail01, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath;
@@ -251,11 +251,26 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestInstallFail
+ * @tc.name: TestWriteFileToStreamFail02
+ * @tc.desc: Test WriteFileToStream method when file path is valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail02, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string hapFilePath  = TEST_PACKAGE_PATH;
+    std::vector<std::string> realPaths;
+    string errMessage;
+    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+}
+
+/**
+ * @tc.name: TestInstallFail01
  * @tc.desc: Test Insatll method with empty hapFilePaths.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestInstallFail01, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> hapFilePaths;
@@ -263,6 +278,21 @@ HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
     std::string retMsg;
     ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestInstallFail02
+ * @tc.desc: Test Insatll method with one hapFilePaths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallFail02, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH };
+    AppExecFwk::InstallParam installParam;
+    std::string retMsg;
+    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
 }
 
 /**
