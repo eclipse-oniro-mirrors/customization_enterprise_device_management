@@ -109,10 +109,11 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileSuc, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     Wifi::WifiDeviceConfig config;
     config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
+    WifiPassword pwd;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
+    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config, pwd);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -128,7 +129,8 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     Wifi::WifiDeviceConfig config;
     config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
-    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config);
+    WifiPassword pwd;
+    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config, pwd);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

@@ -24,10 +24,25 @@ using namespace testing::ext;
 using namespace testing;
 
 const int BLUETOOTH_TURN_ON = 2;
+const int32_t INVALID_BLUETOOTH_STATE = -1;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+enum BluetoothState {
+    TURN_OFF,
+    TURNING_ON,
+    TURN_ON,
+    TURNING_OFF,
+};
+
+enum BluetoothConnectionState {
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
+    DISCONNECTING,
+};
+
 class GetBluetoothInfoPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -56,11 +71,11 @@ void GetBluetoothInfoPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(GetBluetoothInfoPluginTest, GetBluetoothInfoSuc, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetBluetoothInfoPlugin::GetPlugin();
+    GetBluetoothInfoPlugin plugin;
     std::string policyValue{"GetBluetoothInfo"};
     MessageParcel data;
     MessageParcel reply;
-    plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    plugin.OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
 
     std::string name = reply.ReadString();
@@ -70,6 +85,50 @@ HWTEST_F(GetBluetoothInfoPluginTest, GetBluetoothInfoSuc, TestSize.Level1)
         ((name != "") && (state == BLUETOOTH_TURN_ON)));
 }
 
+/**
+ * @tc.name: TransformBluetoothStateSuc
+ * @tc.desc: Test TransformBluetoothState function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetBluetoothInfoPluginTest, TransformBluetoothStateSuc, TestSize.Level1)
+{
+    GetBluetoothInfoPlugin plugin;
+    int32_t realState = plugin.TransformBluetoothState(static_cast<int32_t>(Bluetooth::BTStateID::STATE_TURNING_ON));
+    ASSERT_TRUE(realState == BluetoothState::TURNING_ON);
+    realState = plugin.TransformBluetoothState(static_cast<int32_t>(Bluetooth::BTStateID::STATE_TURN_ON));
+    ASSERT_TRUE(realState == BluetoothState::TURN_ON);
+    realState = plugin.TransformBluetoothState(static_cast<int32_t>(Bluetooth::BTStateID::STATE_TURNING_OFF));
+    ASSERT_TRUE(realState == BluetoothState::TURNING_OFF);
+    realState = plugin.TransformBluetoothState(static_cast<int32_t>(Bluetooth::BTStateID::STATE_TURN_OFF));
+    ASSERT_TRUE(realState == BluetoothState::TURN_OFF);
+    realState = plugin.TransformBluetoothState(INVALID_BLUETOOTH_STATE);
+    ASSERT_TRUE(realState == INVALID_BLUETOOTH_STATE);
+}
+
+/**
+ * @tc.name: TransformBluetoothConnectionStateSuc
+ * @tc.desc: Test TransformBluetoothConnectionState function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetBluetoothInfoPluginTest, TransformBluetoothConnectionStateSuc, TestSize.Level1)
+{
+    GetBluetoothInfoPlugin plugin;
+    int32_t realConnectionState =
+        plugin.TransformBluetoothConnectionState(static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTING));
+    ASSERT_TRUE(realConnectionState == BluetoothConnectionState::CONNECTING);
+    realConnectionState =
+        plugin.TransformBluetoothConnectionState(static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED));
+    ASSERT_TRUE(realConnectionState == BluetoothConnectionState::CONNECTED);
+    realConnectionState =
+        plugin.TransformBluetoothConnectionState(static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTING));
+    ASSERT_TRUE(realConnectionState == BluetoothConnectionState::DISCONNECTING);
+    realConnectionState =
+        plugin.TransformBluetoothConnectionState(static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED));
+    ASSERT_TRUE(realConnectionState == BluetoothConnectionState::DISCONNECTED);
+    realConnectionState =
+        plugin.TransformBluetoothConnectionState(INVALID_BLUETOOTH_STATE);
+    ASSERT_TRUE(realConnectionState == INVALID_BLUETOOTH_STATE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

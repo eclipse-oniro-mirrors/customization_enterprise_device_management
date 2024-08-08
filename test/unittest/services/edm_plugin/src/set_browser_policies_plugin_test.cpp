@@ -31,6 +31,7 @@ const std::string TEST_POLICY_NAME = "test_policy_name";
 const std::string TEST_POLICY_VALUE = "\"test_policy_value\"";
 const std::string TEST_POLICY_VALUE2 = "\"test_policy_value2\"";
 const std::string TEST_POLICY_DATA1 = "{\"test_app_id\": \"{\\\"test_policy_name\\\":\\\"test_policy_value\\\"}\"}";
+static constexpr int32_t NULL_TYPE = 0;
 void SetBrowserPoliciesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -41,6 +42,27 @@ void SetBrowserPoliciesPluginTest::TearDownTestSuite(void)
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+/**
+ * @tc.name: TestSetPoliciesFail
+ * @tc.desc: Test SetBrowserPoliciesPlugin::OnHandlePolicy when type is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPoliciesFail, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    int32_t userid = 0;
+    data.WriteInt32(NULL_TYPE);
+    std::vector<std::string> key{TEST_APP_ID};
+    std::vector<std::string> value{TEST_POLICIES};
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, userid);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**

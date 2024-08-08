@@ -286,8 +286,14 @@ napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info inf
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->wifiDeviceConfig), "wifiProfile param error");
+    bool parseRet = JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->wifiDeviceConfig,
+        asyncCallbackInfo->pwd);
+    if (!parseRet) {
+        asyncCallbackInfo->pwd.clear();
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
+        return nullptr;
+    }
+
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetWifiProfile argc == ARGS_SIZE_THREE");
         napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
@@ -318,7 +324,8 @@ void WifiManagerAddon::NativeSetWifiProfile(napi_env env, void *data)
         return;
     }
     asyncCallbackInfo->ret = wifiManagerProxy->SetWifiProfile(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->wifiDeviceConfig);
+        asyncCallbackInfo->wifiDeviceConfig, asyncCallbackInfo->pwd);
+    asyncCallbackInfo->pwd.clear();
 }
 #endif
 
@@ -339,14 +346,17 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
         asyncCallbackInfo->boolRet);
 }
 #ifdef WIFI_EDM_ENABLE
-bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config)
+bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config,
+    WifiPassword &pwd)
 {
     int32_t type = static_cast<int32_t>(SecurityType::SEC_TYPE_INVALID);
     int32_t ipType = static_cast<int32_t>(IpType::UNKNOWN);
     /* "creatorUid" "disableReason" "randomMacType" "randomMacAddr" is not supported currently */
+    std::tuple<int, bool> charArrayProp = {WIFI_PASSWORD_LEN, true};
+    std::pair<char*, size_t*> ret{pwd.preSharedKey, &pwd.preSharedKeySize};
     if (!JsObjectToString(env, object, "ssid", true, config.ssid) ||
         !JsObjectToString(env, object, "bssid", false, config.bssid) ||
-        !JsObjectToString(env, object, "preSharedKey", true, config.preSharedKey) ||
+        !JsObjectToCharArray(env, object, "preSharedKey", charArrayProp, ret) ||
         !JsObjectToBool(env, object, "isHiddenSsid", false, config.hiddenSSID) ||
         !JsObjectToInt(env, object, "securityType", true, type) ||
         !JsObjectToInt(env, object, "netId", false, config.networkId) ||
@@ -354,14 +364,14 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
         !ProcessIpType(ipType, env, object, config.wifiIpConfig)) {
         return false;
     }
-    ConvertEncryptionMode(type, config);
+    ConvertEncryptionMode(type, config, pwd);
     if (type == static_cast<int32_t>(SecurityType::SEC_TYPE_EAP)) {
-        return ProcessEapConfig(env, object, config.wifiEapConfig);
+        return ProcessEapConfig(env, object, config.wifiEapConfig, pwd);
     }
     return true;
 }
 
-void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config)
+void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd)
 {
     switch (securityType) {
         case static_cast<int32_t>(SecurityType::SEC_TYPE_OPEN):
@@ -369,9 +379,15 @@ void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDev
             break;
         case static_cast<int32_t>(SecurityType::SEC_TYPE_WEP):
             config.keyMgmt = Wifi::KEY_MGMT_WEP;
-            config.wepKeys[0] = config.preSharedKey;
+            strncpy_s(pwd.wepKey, pwd.preSharedKeySize + 1, pwd.preSharedKey, pwd.preSharedKeySize);
+            pwd.wepKeySize = pwd.preSharedKeySize;
+            if (pwd.preSharedKey != nullptr) {
+                memset_s(pwd.preSharedKey, pwd.preSharedKeySize,
+                    '\0', pwd.preSharedKeySize);
+                pwd.preSharedKey = new char[1]{'\0'};
+                pwd.preSharedKeySize = 0;
+            }
             config.wepTxKeyIndex = 0;
-            config.preSharedKey = "";
             break;
         case static_cast<int32_t>(SecurityType::SEC_TYPE_PSK):
             config.keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -438,7 +454,8 @@ bool WifiManagerAddon::ConfigStaticIp(napi_env env, napi_value object, Wifi::Wif
     return true;
 }
 
-bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
+bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig,
+    WifiPassword &pwd)
 {
     napi_value napiEap;
     int32_t eapMethod = static_cast<int32_t>(EapMethod::EAP_NONE);
@@ -448,7 +465,7 @@ bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::W
     }
     switch (eapMethod) {
         case static_cast<int32_t>(EapMethod::EAP_PEAP):
-            ProcessEapPeapConfig(env, napiEap, eapConfig);
+            ProcessEapPeapConfig(env, napiEap, eapConfig, pwd);
             break;
         case static_cast<int32_t>(EapMethod::EAP_TLS):
             ProcessEapTlsConfig(env, napiEap, eapConfig);
@@ -460,12 +477,15 @@ bool WifiManagerAddon::ProcessEapConfig(napi_env env, napi_value object, Wifi::W
     return true;
 }
 
-bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig)
+bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig,
+    WifiPassword &pwd)
 {
     eapConfig.eap = Wifi::EAP_METHOD_PEAP;
     int32_t phase2 = static_cast<int32_t>(Wifi::Phase2Method::NONE);
+    std::tuple<int, bool> charArrayProp = {WIFI_PASSWORD_LEN, true};
+    std::pair<char*, size_t*> ret{pwd.password, &pwd.passwordSize};
     if (!JsObjectToString(env, object, "identity", true, eapConfig.identity) ||
-        !JsObjectToString(env, object, "password", true, eapConfig.password) ||
+        !JsObjectToCharArray(env, object, "password", charArrayProp, ret) ||
         !JsObjectToInt(env, object, "phase2Method", true, phase2)) {
         return false;
     }
@@ -538,15 +558,22 @@ napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info
     EDMLOGD("SetWifiProfileSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     Wifi::WifiDeviceConfig config;
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], config),
-        "parameter profile parse error");
+    WifiPassword pwd;
+    bool parseRet = JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], config, pwd);
+    if (!parseRet) {
+        pwd.clear();
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
+        return nullptr;
+    }
 
     auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
     if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
+        pwd.clear();
         return nullptr;
     }
-    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config, true);
+    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config, pwd, true);
+    pwd.clear();
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

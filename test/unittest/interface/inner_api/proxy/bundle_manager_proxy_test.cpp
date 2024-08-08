@@ -34,6 +34,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
+const std::string ADMIN_PACKAGEPATH = "/system/app/com.ohos.adminprovisioning/adminprovisioning.hap";
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
