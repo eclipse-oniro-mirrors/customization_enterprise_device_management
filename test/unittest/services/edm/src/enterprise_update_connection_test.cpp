@@ -32,8 +32,6 @@ class EnterpriseUpdateConnectionTest : public testing::Test {
 protected:
     void SetUp() override;
 
-    void TearDown() override;
-
     std::shared_ptr<EnterpriseUpdateConnection> enterpriseUpdateConnection {nullptr};
     sptr<EnterpriseAdminStubMock> remoteObject {nullptr};
 };
@@ -41,14 +39,6 @@ protected:
 void EnterpriseUpdateConnectionTest::SetUp()
 {
     remoteObject = new (std::nothrow) EnterpriseAdminStubMock();
-}
-
-void EnterpriseUpdateConnectionTest::TearDown()
-{
-    if (remoteObject != nullptr) {
-        delete remoteObject;
-        remoteObject = nullptr;
-    }
 }
 
 /**
