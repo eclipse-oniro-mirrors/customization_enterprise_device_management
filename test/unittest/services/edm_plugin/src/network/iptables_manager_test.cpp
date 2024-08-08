@@ -158,6 +158,27 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallError, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestAddFilewallParamError
+ * @tc.desc: Test AddFilewall func param error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, TestAddFilewallParamError, TestSize.Level1)
+{
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+
+    ExecuterFactory::instance_ = std::make_shared<ExecuterFactory>();
+
+    std::vector<FirewallRule> validRules{
+        {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555"},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "123"}};
+    for (const auto &item : validRules) {
+        FirewallRuleParcel validFirewallRule{item};
+        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
+        EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    }
+}
+
+/**
  * @tc.name: TestRemoveFilewallSuccess
  * @tc.desc: Test RemoveFilewall func success.
  * @tc.type: FUNC
@@ -256,6 +277,23 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+
+    list = {};
+    ret = iptablesManager->GetFirewallRules(list);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_TRUE(list.size() == 1);
+
+    result =
+        "Chain edm_deny_input (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(4)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     list = {};
     ret = iptablesManager->GetFirewallRules(list);

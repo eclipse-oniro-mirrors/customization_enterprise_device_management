@@ -33,6 +33,7 @@ ohos_unittest("EdmPluginTest") {
     "./include",
     "./include/network",
     "./include/network/executer",
+    "./include/utils",
   ]
 
   sources = [
@@ -162,6 +163,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_usb_devices_plugin_test.cpp",
       "./src/disable_usb_plugin_test.cpp",
+      "./src/utils/array_usb_device_id_serializer_test.cpp",
     ]
   }
 
@@ -203,7 +205,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (pasteboard_edm_enable) {
-    sources += [ "./src/clipboard_policy_plugin_test.cpp" ]
+    sources += [
+      "./src/clipboard_policy_plugin_test.cpp",
+      "./src/utils/clipboard_policy_serializer_test.cpp",
+      "./src/utils/clipboard_utils_test.cpp",
+    ]
   }
 
   sanitize = {

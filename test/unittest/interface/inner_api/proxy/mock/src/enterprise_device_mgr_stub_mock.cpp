@@ -255,5 +255,17 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult(uint32_t code
     UpdatePolicyUtils::WriteUpgradeResult(reply, upgradeResult);
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPasswordPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString("test_complexityReg");
+    reply.WriteInt64(1);
+    reply.WriteString("test_additionalDescription");
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS
