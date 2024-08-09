@@ -36,6 +36,7 @@ namespace EDM {
 namespace TEST {
 const std::string RIGHT_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.MainAbility";
 const std::string ERROR_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility";
+const std::string INVALID_TEST_BUNDLE = "com.example.l3jsdemo.com.example.l3jsdemo.ErrorAbility";
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 
 void ManageAutoStartAppsPluginTest::SetUpTestSuite(void)
@@ -51,11 +52,11 @@ void ManageAutoStartAppsPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnSetPolicySucWithNullData
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when data is empty.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin001, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySucWithNullData, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data;
@@ -65,11 +66,29 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin001, TestSi
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnSetPolicyFailWithbundleExceededLimit
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when budle is not existed.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin002, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleExceededLimit, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    std::vector<std::string> data;
+    for (int i = 0; i < 15; i++) {
+        std::string str = "test/test" + std::to_string(i);
+        data.push_back(str);
+    }
+    std::vector<std::string> currentData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyFailWithbundleNotExist
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when budle is not existed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleNotExist, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
@@ -79,11 +98,25 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin002, TestSi
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnSetPolicyFailWithInvalidData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when data is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithInvalidData, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    std::vector<std::string> data = {INVALID_TEST_BUNDLE};
+    std::vector<std::string> currentData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnSetPolicySuc
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when budle is existed.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin003, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 {
     InstallPlugin installPlugin;
     InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
@@ -92,7 +125,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin003, TestSi
     ASSERT_TRUE(ret == ERR_OK);
 
     ManageAutoStartAppsPlugin plugin;
-    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+    std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
     std::vector<std::string> currentData;
     ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -127,11 +160,11 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin003, TestSi
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnGetPolicySuc
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnGetPolicy.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin004, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicySuc, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
     std::string policyData = RIGHT_TEST_BUNDLE;
@@ -143,11 +176,11 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin004, TestSi
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnRemovePolicySucWithNullData
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnRemovePolicy when data is empty.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin005, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data;
@@ -157,17 +190,51 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin005, TestSi
 }
 
 /**
- * @tc.name: TestManageAutoStartAppsPlugin
+ * @tc.name: TestOnRemovePolicyFileWithErrBundle
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnRemovePolicy when budle is not existed.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageAutoStartAppsPluginTest, TestManageAutoStartAppsPlugin006, TestSize.Level1)
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data = {ERROR_TEST_BUNDLE};
     std::vector<std::string> currentData;
     ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnRemovePolicySuc
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when data is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
+{
+    InstallPlugin installPlugin;
+    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+    MessageParcel reply;
+    ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    ManageAutoStartAppsPlugin plugin;
+    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+    std::vector<std::string> currentData;
+    ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    data = {INVALID_TEST_BUNDLE};
+    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+
+    data = {RIGHT_TEST_BUNDLE};
+    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    UninstallPlugin uninstallPlugin;
+    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+    MessageParcel uninstallReply;
+    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
