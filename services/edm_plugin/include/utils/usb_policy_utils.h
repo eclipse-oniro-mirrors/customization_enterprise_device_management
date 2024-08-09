@@ -26,7 +26,7 @@ class UsbPolicyUtils {
 public:
     static ErrCode SetUsbDisabled(bool data);
     static ErrCode AddAllowedUsbDevices(std::vector<UsbDeviceId> data);
-    static ErrCode SetStorageUsbDeviceDisabled(bool isDisabled);
+    static ErrCode SetDisallowedUsbDevices(std::vector<USB::UsbDeviceType> data);
 };
 } // namespace EDM
 } // namespace OHOS

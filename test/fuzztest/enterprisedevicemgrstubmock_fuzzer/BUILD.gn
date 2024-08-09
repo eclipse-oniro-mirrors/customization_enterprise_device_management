@@ -259,18 +259,13 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-      external_deps += [
-        "drivers_interface_usb:libusb_proxy_1.0",
-        "usb_manager:usbsrv_client",
-      ]
-      public_external_deps += [
-        "drivers_interface_usb:libusb_proxy_1.0",
-        "usb_manager:usbsrv_client",
-      ]
+      external_deps += [ "usb_manager:usbsrv_client" ]
+      public_external_deps += [ "usb_manager:usbsrv_client" ]
       sources += [
         "../../../services/edm_plugin/src/allowed_usb_devices_plugin.cpp",
         "../../../services/edm_plugin/src/disable_usb_plugin.cpp",
         "../../../services/edm_plugin/src/utils/array_usb_device_id_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
       ]
     }

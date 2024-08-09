@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,25 +53,17 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         return ERR_OK;
     }
     if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy input data is too large");
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
-    auto policyManager = IPolicyManager::GetInstance();
-    std::string disableUsbPolicy;
-    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
-    std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
-    if (disableUsbPolicy == "true" || usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy: CONFLICT! isUsbDisabled: %{public}s, usbStoragePolicy: %{public}s",
-            disableUsbPolicy.c_str(), usbStoragePolicy.c_str());
+    if (HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
     std::vector<UsbDeviceId> mergeData = ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(data,
         currentData);
     if (mergeData.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy merge data is too large");
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
     ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(mergeData);
@@ -80,6 +72,33 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     }
     currentData = mergeData;
     return ERR_OK;
+}
+
+bool AllowUsbDevicesPlugin::HasConflictPolicy()
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string disableUsbPolicy;
+    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
+    if (disableUsbPolicy == "true") {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb is disabled.");
+        return true;
+    }
+
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbStoragePolicy is disabled.");
+        return true;
+    }
+
+    std::string disallowUsbDevicePolicy;
+    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
+    if (!disallowUsbDevicePolicy.empty()) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! disallowedUsbDevice: %{public}s",
+            disallowUsbDevicePolicy.c_str());
+        return true;
+    }
+    return false;
 }
 
 ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
@@ -100,8 +119,11 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
         auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
         std::vector<OHOS::USB::UsbDevice> allDevices;
         int32_t getRet = srvClient.GetDevices(allDevices);
-        if (getRet != ERR_OK) {
-            EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy getDevices failed: %{public}d", getRet);
+        if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy: getDevices failed! USB interface not init!");
+        }
+        if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGE("AllowUsbDevicesPlugin OnRemovePolicy getDevices failed: %{public}d", getRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: clear to empty, enable all.");
@@ -134,7 +156,7 @@ ErrCode AllowUsbDevicesPlugin::OnGetPolicy(std::string &policyData, MessageParce
     std::vector<UsbDeviceId> usbDeviceIds;
     ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(usbDeviceIds.size());
+    reply.WriteUint32(usbDeviceIds.size());
     for (const auto &usbDeviceId : usbDeviceIds) {
         EDMLOGD("AllowUsbDevicesPlugin OnGetPolicy: currentData: vid: %{public}d, pid: %{public}d",
             usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());

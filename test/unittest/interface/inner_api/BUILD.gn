@@ -120,7 +120,9 @@ ohos_unittest("EdmInnerApiUnitTest") {
   if (os_account_edm_enable && netmanager_base_edm_enable &&
       netmanager_ext_edm_enable && drivers_interface_usb_edm_enable &&
       usb_manager_edm_enable && storage_service_edm_enable) {
+    external_deps += [ "usb_manager:usbsrv_client" ]
     sources += [ "./proxy/usb_manager_proxy_test.cpp" ]
+    defines += [ "USB_EDM_ENABLE" ]
   }
 
   if (os_account_edm_enable && netmanager_base_edm_enable &&
