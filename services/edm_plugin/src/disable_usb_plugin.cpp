@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,19 +45,9 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
 ErrCode DisableUsbPlugin::OnSetPolicy(bool &data)
 {
     EDMLOGI("DisableUsbPlugin OnSetPolicy...disable = %{public}d", data);
-    auto policyManager = IPolicyManager::GetInstance();
-    std::string allowUsbDevicePolicy;
-    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
-    std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
-    if (data && (!allowUsbDevicePolicy.empty() ||
-        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
-        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY))) {
-        EDMLOGE("DisableUsbPlugin OnSetPolicy: CONFLICT! allowedUsbDevice: %{public}s, usbStoragePolicy: %{public}s",
-            allowUsbDevicePolicy.c_str(), usbStoragePolicy.c_str());
+    if (data && HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     int32_t usbRet = srvClient.ManageGlobalInterface(data);
     if (usbRet != ERR_OK) {
@@ -65,6 +55,31 @@ ErrCode DisableUsbPlugin::OnSetPolicy(bool &data)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool DisableUsbPlugin::HasConflictPolicy()
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string allowUsbDevice;
+    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevice);
+    if (!allowUsbDevice.empty()) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! allowedUsbDevice: %{public}s", allowUsbDevice.c_str());
+        return true;
+    }
+    std::string disallowUsbDevice;
+    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevice);
+    if (!disallowUsbDevice.empty()) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! disallowUsbDevice: %{public}s", disallowUsbDevice.c_str());
+        return true;
+    }
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
+        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! usbStoragePolicy: %{public}s", usbStoragePolicy.c_str());
+        return true;
+    }
+    return false;
 }
 
 ErrCode DisableUsbPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -72,7 +72,7 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
         Json::Value item;
         Json::Reader reader;
         if (!reader.parse(valueJsonString.data(), valueJsonString.data() + valueJsonString.length(), item)) {
-            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize reader can not parse, i = %{public}d", i);
+            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize reader can not parse, i = %{public}u", i);
             return false;
         }
         if (!item["vendorId"].isConvertibleTo(Json::intValue) || !item["productId"].isConvertibleTo(Json::intValue)) {
@@ -111,12 +111,12 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
 
 bool ArrayUsbDeviceIdSerializer::GetPolicy(MessageParcel &data, std::vector<UsbDeviceId> &result)
 {
-    int32_t size = data.ReadInt32();
+    uint32_t size = data.ReadUint32();
     if (size > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("ArrayUsbDeviceIdSerializer:GetPolicy size=[%{public}d] is too large", size);
+        EDMLOGE("ArrayUsbDeviceIdSerializer:GetPolicy size=[%{public}u] is too large", size);
         return false;
     }
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         UsbDeviceId usbDeviceId;
         if (!UsbDeviceId::Unmarshalling(data, usbDeviceId)) {
             EDMLOGE("ArrayUsbDeviceIdSerializer::GetPolicy read parcel fail");

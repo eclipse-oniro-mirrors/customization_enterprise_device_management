@@ -91,6 +91,9 @@ public:
     int InvokeAllowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeDisallowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeSendRequestGetSuperAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int InvokeSendRequestGetOTAUpdatePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
