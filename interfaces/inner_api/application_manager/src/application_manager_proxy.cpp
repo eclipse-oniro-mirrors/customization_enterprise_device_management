@@ -42,10 +42,6 @@ int32_t ApplicationManagerProxy::AddDisallowedRunningBundles(AppExecFwk::Element
 {
     EDMLOGD("ApplicationManagerProxy::AddDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES);
@@ -63,10 +59,6 @@ int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::Elem
 {
     EDMLOGD("ApplicationManagerProxy::RemoveDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES);
@@ -84,10 +76,6 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
 {
     EDMLOGD("ApplicationManagerProxy::GetDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -117,10 +105,6 @@ int32_t ApplicationManagerProxy::AddAutoStartApps(const AppExecFwk::ElementName 
 {
     EDMLOGD("ApplicationManagerProxy::AddAutoStartApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
@@ -142,10 +126,6 @@ int32_t ApplicationManagerProxy::RemoveAutoStartApps(const AppExecFwk::ElementNa
 {
     EDMLOGD("ApplicationManagerProxy::RemoveAutoStartApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
@@ -167,10 +147,6 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(const AppExecFwk::ElementName 
 {
     EDMLOGD("ApplicationManagerProxy::GetAutoStartApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);

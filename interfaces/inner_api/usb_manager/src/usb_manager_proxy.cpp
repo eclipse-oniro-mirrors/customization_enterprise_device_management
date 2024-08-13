@@ -59,10 +59,6 @@ int32_t UsbManagerProxy::DisableUsb(const AppExecFwk::ElementName &admin, bool d
 {
     EDMLOGD("UsbManagerProxy::DisableUsb");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     return proxy->SetPolicyDisabled(admin, disable, EdmInterfaceCode::DISABLE_USB,
         EdmConstants::PERMISSION_TAG_VERSION_11);
 }
@@ -71,10 +67,6 @@ int32_t UsbManagerProxy::IsUsbDisabled(const AppExecFwk::ElementName *admin, boo
 {
     EDMLOGD("UsbManagerProxy::IsUsbDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_USB, result,
         EdmConstants::PERMISSION_TAG_VERSION_11);
 }
@@ -84,10 +76,6 @@ int32_t UsbManagerProxy::AddAllowedUsbDevices(const AppExecFwk::ElementName &adm
 {
     EDMLOGD("UsbManagerProxy::AddAllowedUsbDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ALLOWED_USB_DEVICES);
@@ -107,10 +95,6 @@ int32_t UsbManagerProxy::RemoveAllowedUsbDevices(const AppExecFwk::ElementName &
 {
     EDMLOGD("UsbManagerProxy::RemoveAllowedUsbDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::ALLOWED_USB_DEVICES);
@@ -129,10 +113,6 @@ int32_t UsbManagerProxy::GetAllowedUsbDevices(const AppExecFwk::ElementName &adm
 {
     EDMLOGD("UsbManagerProxy::GetAllowedUsbDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -168,10 +148,6 @@ int32_t UsbManagerProxy::SetUsbStorageDeviceAccessPolicy(const AppExecFwk::Eleme
 {
     EDMLOGD("UsbManagerProxy::SetUsbStorageDeviceAccessPolicy");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
@@ -187,10 +163,6 @@ int32_t UsbManagerProxy::GetUsbStorageDeviceAccessPolicy(const AppExecFwk::Eleme
 {
     EDMLOGD("UsbManagerProxy::GetUsbStorageDeviceAccessPolicy");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);

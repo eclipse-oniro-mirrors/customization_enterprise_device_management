@@ -53,10 +53,6 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &adm
 {
     EDMLOGD("DeviceSettingsProxy::GetScreenOffTime");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);

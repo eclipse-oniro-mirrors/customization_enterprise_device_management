@@ -129,7 +129,7 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
 ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
     int32_t userId)
 {
-    EDMLOGI("ManageAutoStartAppsPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGI("ManageAutoStartAppsPlugin OnRemovePolicy userId : %{public}d.", userId);
     if (data.empty()) {
         EDMLOGW("ManageAutoStartAppsPlugin OnRemovePolicy data is empty.");
         return ERR_OK;
@@ -154,6 +154,10 @@ ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data
             continue;
         }
         if (!CheckBundleAndAbilityExited(bundleName, abilityName)) {
+            if (std::find(currentData.begin(), currentData.end(), str) != currentData.end()) {
+                flag = true;
+                mergeData.push_back(str);
+            }
             EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
                 bundleName.c_str(), abilityName.c_str());
             continue;

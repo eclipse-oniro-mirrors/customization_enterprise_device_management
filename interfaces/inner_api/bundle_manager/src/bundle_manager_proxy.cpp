@@ -72,10 +72,6 @@ int32_t BundleManagerProxy::Uninstall(AppExecFwk::ElementName &admin, std::strin
 {
     EDMLOGD("BundleManagerProxy::Uninstall");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -98,10 +94,6 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
 {
     EDMLOGD("BundleManagerProxy::AddBundlesByPolicyType policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = 0;
     if (policyTypeMap_.count(policyType) > 0) {
@@ -124,10 +116,6 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
 {
     EDMLOGD("BundleManagerProxy::RemoveBundlesByPolicyType policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = 0;
     if (policyTypeMap_.count(policyType) > 0) {
@@ -150,10 +138,6 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
 {
     EDMLOGD("BundleManagerProxy::GetAllowedOrDisallowedInstallBundles policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -202,10 +186,6 @@ int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<
     }
 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -271,11 +251,6 @@ ErrCode BundleManagerProxy::WriteFileToStream(AppExecFwk::ElementName &admin, co
     }
 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
