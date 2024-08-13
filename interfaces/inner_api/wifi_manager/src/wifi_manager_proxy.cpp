@@ -46,10 +46,6 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
 {
     EDMLOGD("WifiManagerProxy::IsWifiActive");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -73,10 +69,6 @@ int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, W
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_WIFI_PROFILE);
     data.WriteInterfaceToken(DESCRIPTOR);

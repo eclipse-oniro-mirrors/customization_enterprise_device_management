@@ -141,7 +141,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
     ASSERT_TRUE(res.size() >= 1);
     ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
 
-    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
+    ret = plugin.OnRemovePolicy(removeData, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 
     MessageParcel removeReply;
@@ -234,6 +235,36 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
     UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
     MessageParcel uninstallReply;
     ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnRemovePolicySucAlreadyUninstall
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when hap already uninstall.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, TestSize.Level1)
+{
+    InstallPlugin installPlugin;
+    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+    MessageParcel reply;
+    ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    ManageAutoStartAppsPlugin plugin;
+    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+    std::vector<std::string> currentData;
+    ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    UninstallPlugin uninstallPlugin;
+    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+    MessageParcel uninstallReply;
+    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    data = {RIGHT_TEST_BUNDLE};
+    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

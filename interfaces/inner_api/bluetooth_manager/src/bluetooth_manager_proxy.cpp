@@ -88,10 +88,6 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(const AppExecFwk::Elem
 {
     EDMLOGD("BluetoothManagerProxy::GetAllowedBluetoothDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -133,10 +129,6 @@ int32_t BluetoothManagerProxy::AddOrRemoveAllowedBluetoothDevices(const AppExecF
 {
     EDMLOGD("BluetoothManagerProxy::%{public}s", function.c_str());
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode = 0;
     if (function == "AddAllowedBluetoothDevices") {

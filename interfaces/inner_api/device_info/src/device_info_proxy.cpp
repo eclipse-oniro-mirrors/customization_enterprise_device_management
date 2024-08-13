@@ -60,10 +60,6 @@ int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::stri
 {
     EDMLOGD("DeviceInfoProxy::GetDeviceInfo %{public}d", policyCode);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -86,10 +82,6 @@ int32_t DeviceInfoProxy::GetDeviceInfoSync(AppExecFwk::ElementName &admin, const
 {
     EDMLOGI("DeviceInfoProxy::GetDeviceInfoSync %{public}s", label.c_str());
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
