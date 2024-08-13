@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "usb_device_id.h"
+#include "usb_interface_type.h"
 #include "usb_manager_proxy.h"
 #include "utils.h"
 
@@ -340,6 +341,129 @@ HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicyFail, TestSize.
     int32_t policy = 0;
     int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(admin, policy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedUsbDevicesAddSuc
+ * @tc.desc: Test AddOrRemoveDisallowedUsbDevices add success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType type;
+    type.baseClass = 3;
+    type.subClass = 1;
+    type.protocol = 2;
+    type.isDeviceType = false;
+    usbDeviceTypes.push_back(type);
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedUsbDevicesAddFail
+ * @tc.desc: Test AddOrRemoveDisallowedUsbDevices for adding without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType type;
+    type.baseClass = 3;
+    type.subClass = 1;
+    type.protocol = 2;
+    type.isDeviceType = false;
+    usbDeviceTypes.push_back(type);
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedUsbDevicesRemoveSuc
+ * @tc.desc: Test AddOrRemoveDisallowedUsbDevices remove success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType type;
+    type.baseClass = 3;
+    type.subClass = 1;
+    type.protocol = 2;
+    type.isDeviceType = false;
+    usbDeviceTypes.push_back(type);
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, false);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedUsbDevicesRemoveFail
+ * @tc.desc: Test AddOrRemoveDisallowedUsbDevices for removing without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType type;
+    type.baseClass = 3;
+    type.subClass = 1;
+    type.protocol = 2;
+    type.isDeviceType = false;
+    usbDeviceTypes.push_back(type);
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, false);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedUsbDevicesSuc
+ * @tc.desc: Test GetDisallowedUsbDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetDisallowedUsbDevicesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeDisallowedUsbDevicesSendRequestGetPolicy));
+    std::vector<USB::UsbDeviceType> result;
+    int32_t ret = proxy_->GetDisallowedUsbDevices(admin, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetDisallowedUsbDevicesFail
+ * @tc.desc: Test GetDisallowedUsbDevices func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetDisallowedUsbDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<USB::UsbDeviceType> result;
+    int32_t ret = proxy_->GetDisallowedUsbDevices(admin, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(result.empty());
 }
 } // namespace TEST
 } // namespace EDM
