@@ -137,6 +137,8 @@ ohos_unittest("EdmServicesUnitTest") {
 
   sources = [
     "./src/admin_manager_test.cpp",
+    "./src/admin_test.cpp",
+    "./src/device_policies_storage_rdb_test.cpp",
     "./src/enterprise_admin_connection_test.cpp",
     "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",

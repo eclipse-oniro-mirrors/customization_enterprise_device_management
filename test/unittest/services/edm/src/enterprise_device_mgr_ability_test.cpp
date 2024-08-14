@@ -2947,6 +2947,605 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeManagedEventInner02, Tes
 
     DisableAdminSuc(admin, DEFAULT_USER_ID);
 }
+
+/**
+ * @tc.name: TestConnectAbilityOnSystemUpdate
+ * @tc.desc: Test ConnectAbilityOnSystemUpdate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestConnectAbilityOnSystemUpdate, TestSize.Level1)
+{
+    UpdateInfo updateInfo;
+    edmMgr_->ConnectAbilityOnSystemUpdate(updateInfo);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestOnCommonEventSystemUpdate
+ * @tc.desc: Test OnCommonEventSystemUpdate func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventSystemUpdate, TestSize.Level1)
+{
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventSystemUpdate(data);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestAddOnAddSystemAbilityFuncMap
+ * @tc.desc: Test AddOnAddSystemAbilityFuncMap func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAddOnAddSystemAbilityFuncMap, TestSize.Level1)
+{
+    edmMgr_->AddOnAddSystemAbilityFuncMap();
+    EXPECT_TRUE(edmMgr_->addSystemAbilityFuncMap_.size() >= 3);
+}
+
+/**
+ * @tc.name: TestInitAllPolicies
+ * @tc.desc: Test InitAllPolicies func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestInitAllPolicies, TestSize.Level1)
+{
+    edmMgr_->InitAllPolices();
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestRemoveAllDebugAdmin
+ * @tc.desc: Test RemoveAllDebugAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAllDebugAdmin, TestSize.Level1)
+{
+    edmMgr_->RemoveAllDebugAdmin();
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestAddSystemAbilityListeners
+ * @tc.desc: Test AddSystemAbilityListeners func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAddSystemAbilityListeners, TestSize.Level1)
+{
+    edmMgr_->AddSystemAbilityListeners();
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerWithUserNotExsist
+ * @tc.desc: Test HandleDevicePolicyInner function with userId is not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithUserNotExsist, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerWithoutAdmin
+ * @tc.desc: Test HandleDevicePolicyInner with none admmin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithoutAdmin, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerCheckCallingUidFailed
+ * @tc.desc: Test HandleDevicePolicyInner function with check callingUid failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckCallingUidFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerWithInvalidPlugin
+ * @tc.desc: Test HandleDevicePolicyInner function with invalid policy code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithInvalidPlugin, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerCheckPermissionFailed
+ * @tc.desc: Test HandleDevicePolicyInner function with check plugin permission failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckPermissionFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    Admin testAdmin;
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
+    std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
+    edmMgr_->adminMgr_->admins_.clear();
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerVerifyCallingPermissionFailed
+ * @tc.desc: Test HandleDevicePolicyInner function with check calling permission failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallingPermissionFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    Admin testAdmin;
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
+    testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
+    std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
+    edmMgr_->adminMgr_->admins_.clear();
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerSuc
+ * @tc.desc: Test HandleDevicePolicyInner function success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerWithJSONError
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicyInner function.
+ * @tc.desc: plugin->OnHandlePolicy(code, data, reply, policyValue, isChanged)
+ * @tc.desc: Test the result of plugin->OnHandlePolicy is not OK
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONError, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    data.WriteString("ErrorData");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_EDM_OPERATE_JSON);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerSuc02
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicyInner function.
+ * @tc.desc: Test run into the branch if (plugin ->NeedSavePolicy() && isChanged)
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    data.WriteString("testValue");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ErrCode res = edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, plugin_->GetPolicyName(), "", "");
+    ASSERT_TRUE(res == ERR_OK);
+
+    plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
+    MessageParcel data2;
+    data2.WriteParcelable(&admin);
+    data2.WriteString("");
+    data2.WriteString("{\"name\" : \"testValue\"}");
+    edmMgr_->HandleDevicePolicyInner(code, data2, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyInnerWithMergePolicyDataFail
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicyInner function.
+ * @tc.desc: run into plugin->MergePolicyData(admin.GetBundleName(), mergedPolicy)
+ * @tc.desc: Test the MergePolicyData processing result is not OK
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithMergePolicyDataFail, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("");
+    data.WriteString("{\"name\" : \"testValue\"}");
+    edmMgr_->HandleDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ErrCode res = edmMgr_->policyMgr_->SetPolicy(ADMIN_PACKAGENAME, plugin_->GetPolicyName(), "", "", DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithUserNotExsist
+ * @tc.desc: Test GetDevicePolicyInner function with userId is not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithUserNotExsist, TestSize.Level1)
+{
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithNotExistPlugin
+ * @tc.desc: Test GetDevicePolicyInner function with not exist plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithNotExistPlugin, TestSize.Level1)
+{
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithAdminInactive
+ * @tc.desc: Test GetDevicePolicyInner function with admin inactive.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithAdminInactive, TestSize.Level1)
+{
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithCheckCallingUidFailed
+ * @tc.desc: Test GetDevicePolicyInner function with check calling uid failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallingUidFailed, TestSize.Level1)
+{
+    Admin testAdmin;
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
+    testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
+    std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(1)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithCheckEdmPermissionFailed
+ * @tc.desc: Test GetDevicePolicyInner function with check edm permission failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckEdmPermissionFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyInnerSuc
+ * @tc.desc: Test GetDevicePolicyInner function success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerSuc, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+/**
+ * @tc.name: TestGetDevicePolicyInnerWithoutAdminSuc
+ * @tc.desc: Test GetDevicePolicyInner function success without admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1);
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: GetDevicePolicyInnerFuncTest006
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicyInner function.
+ * @tc.desc: Test if (plugin->NeedSavePolicy())
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest006, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    uint32_t code =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: GetDevicePolicyInnerFuncTest007
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::GetDevicePolicyInner function.
+ * @tc.desc: Test if admin != nullptr && (deviceAdmin->CheckPermission fail)
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
