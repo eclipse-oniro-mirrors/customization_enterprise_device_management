@@ -14,6 +14,12 @@
  * limitations under the License.
  -->
 <configuration ver="2.0">
+  <target name="EdmInnerApiUnitTest">
+  <preparer>
+      <option name="push" value="test_bundle/right.hap -> /data/test/resource/enterprise_device_management/hap/"
+        src="res" />
+    </preparer>
+  </target>
   <target name="EdmPluginTest">
   <preparer>
       <option name="push" value="test_bundle/right.hap -> /data/test/resource/enterprise_device_management/hap/"
