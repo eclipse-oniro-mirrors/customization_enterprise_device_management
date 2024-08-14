@@ -156,14 +156,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-    external_deps += [
-      "drivers_interface_usb:libusb_proxy_1.0",
-      "usb_manager:usbsrv_client",
-    ]
+    external_deps += [ "usb_manager:usbsrv_client" ]
     sources += [
       "./src/allowed_usb_devices_plugin_test.cpp",
       "./src/disable_usb_plugin_test.cpp",
-      "./src/utils/array_usb_device_id_serializer_test.cpp",
+      "./src/disallowed_usb_devices_plugin_test.cpp",
     ]
   }
 
@@ -423,14 +420,13 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-    external_deps += [
-      "drivers_interface_usb:libusb_proxy_1.0",
-      "usb_manager:usbsrv_client",
-    ]
+    external_deps += [ "usb_manager:usbsrv_client" ]
     sources += [
       "../../../../services/edm_plugin/src/allowed_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_usb_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_id_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
     ]
   }
 

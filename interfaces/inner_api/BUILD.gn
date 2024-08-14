@@ -99,6 +99,11 @@ ohos_shared_library("edmservice_kits") {
     defines += [ "WIFI_EDM_ENABLE" ]
   }
 
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
+    external_deps += [ "usb_manager:usbsrv_client" ]
+    defines += [ "USB_EDM_ENABLE" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

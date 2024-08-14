@@ -91,6 +91,7 @@ enum EdmInterfaceCode : uint32_t {
     CLIPBOARD_POLICY = 1054,
     SET_OTA_UPDATE_POLICY = 1055,
     NOTIFY_UPGRADE_PACKAGES = 1056,
+    DISALLOWED_USB_DEVICES = 1059,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

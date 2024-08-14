@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,7 +83,7 @@ int32_t UsbManagerProxy::AddAllowedUsbDevices(const AppExecFwk::ElementName &adm
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(usbDeviceIds.size());
+    data.WriteUint32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(data);
     });
@@ -102,7 +102,7 @@ int32_t UsbManagerProxy::RemoveAllowedUsbDevices(const AppExecFwk::ElementName &
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(usbDeviceIds.size());
+    data.WriteUint32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(data);
     });
@@ -127,13 +127,13 @@ int32_t UsbManagerProxy::GetAllowedUsbDevices(const AppExecFwk::ElementName &adm
         EDMLOGW("UsbManagerProxy:GetAllowedUsbDevices fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
+    uint32_t size = reply.ReadUint32();
     if (size > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("UsbManagerProxy:GetAllowedUsbDevices size=[%{public}d] is too large", size);
+        EDMLOGE("UsbManagerProxy:GetAllowedUsbDevices size=[%{public}u] is too large", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    EDMLOGI("UsbManagerProxy:GetAllowedUsbDevices return size:%{public}d", size);
-    for (int i = 0; i < size; i++) {
+    EDMLOGI("UsbManagerProxy:GetAllowedUsbDevices return size:%{public}u", size);
+    for (uint32_t i = 0; i < size; i++) {
         UsbDeviceId usbDeviceId;
         if (!UsbDeviceId::Unmarshalling(reply, usbDeviceId)) {
             EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
@@ -180,5 +180,81 @@ int32_t UsbManagerProxy::GetUsbStorageDeviceAccessPolicy(const AppExecFwk::Eleme
     reply.ReadInt32(result);
     return ERR_OK;
 }
+
+#ifdef USB_EDM_ENABLE
+int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
+    std::vector<OHOS::USB::UsbDeviceType> usbDeviceTypes, bool isAdd)
+{
+    EDMLOGD("UsbManagerProxy::AddOrRemoveDisallowedUsbDevices");
+    size_t size = usbDeviceTypes.size();
+    if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+        EDMLOGE("UsbManagerProxy:AddOrRemoveDisallowedUsbDevices size=[%{public}zu] is too large", size);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode = 0;
+    if (isAdd) {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+    } else {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+    }
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteUint32(size);
+    std::for_each(usbDeviceTypes.begin(), usbDeviceTypes.end(), [&](const auto usbDeviceType) {
+        usbDeviceType.Marshalling(data);
+    });
+    EDMLOGI("UsbManagerProxy::AddOrRemoveDisallowedUsbDevices funcCode: %{public}u, usbDeviceTypes.size: %{public}zu",
+        funcCode, size);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t UsbManagerProxy::GetDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
+    std::vector<OHOS::USB::UsbDeviceType> &result)
+{
+    EDMLOGD("UsbManagerProxy::GetDisallowedUsbDevices");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(EdmInterfaceCode::DISALLOWED_USB_DEVICES, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("UsbManagerProxy:GetDisallowedUsbDevices fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+        EDMLOGE("UsbManagerProxy:GetDisallowedUsbDevices size=[%{public}u] is too large", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("UsbManagerProxy:GetDisallowedUsbDevices return size:%{public}u", size);
+    for (uint32_t i = 0; i < size; i++) {
+        OHOS::USB::UsbDeviceType usbDeviceType;
+        if (!OHOS::USB::UsbDeviceType::Unmarshalling(reply, usbDeviceType)) {
+            EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        result.emplace_back(usbDeviceType);
+    }
+    return ERR_OK;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS
