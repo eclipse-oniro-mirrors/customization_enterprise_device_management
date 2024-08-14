@@ -71,7 +71,18 @@ public:
 
     int InvokeIntSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
+    int InvokeSendRequestGetPolicyForWriteFileToStream(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestSetPolicyInstallFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeArrayStringSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetErrPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetPolicyExceedsMax(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     int InvokeArrayElementSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,

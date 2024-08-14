@@ -25,6 +25,7 @@
 
 namespace OHOS {
 namespace EDM {
+const uint32_t APPID_MAX_SIZE = 200;
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -78,6 +79,25 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy(uint32_t code, Messa
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteString(RETURN_STRING);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicyForWriteFileToStream :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteFileDescriptor(1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyInstallFail(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestSetPolicyInstallFail code :" << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
     return 0;
 }
 
@@ -135,6 +155,26 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy(uint32_t 
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
+    reply.WriteStringVector(std::vector<std::string>{RETURN_STRING});
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyExceedsMax(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(APPID_MAX_SIZE + 1);
     reply.WriteStringVector(std::vector<std::string>{RETURN_STRING});
     return 0;
 }
