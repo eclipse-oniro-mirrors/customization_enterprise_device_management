@@ -25,6 +25,7 @@
 #include "enterprise_device_mgr_stub_mock.h"
 #include "install_param.h"
 #include "policy_type.h"
+#include "func_code.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -165,6 +166,44 @@ HWTEST_F(BundleManagerProxyTest, GetAllowedInstallBundlesSuc, TestSize.Level1)
 
 /**
  * @tc.name: TestGetAllowedInstallBundlesFail
+ * @tc.desc: Test GetAllowedInstallBundles fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetAllowedInstallBundlesFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    for (int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+        policyType <= static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL); policyType++) {
+        EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+            .Times(1)
+            .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
+        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    }
+}
+
+/**
+ * @tc.name: TestGetAllowedInstallBundlesFailWithMax
+ * @tc.desc: Test GetAllowedInstallBundles fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetAllowedInstallBundlesFailWithMax, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    for (int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+        policyType <= static_cast<int32_t>(PolicyType::DISALLOW_UNINSTALL); policyType++) {
+        EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+            .Times(1)
+            .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyExceedsMax));
+        ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
+        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    }
+}
+
+/**
+ * @tc.name: TestGetAllowedInstallBundlesFail
  * @tc.desc: Test GetAllowedInstallBundles without enable edm service func.
  * @tc.type: FUNC
  */
@@ -235,11 +274,11 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFail01
- * @tc.desc: Test WriteFileToStream method when file path is invalid.
+ * @tc.name: TestWriteFileToStreamFailWithPathNull
+ * @tc.desc: Test WriteFileToStream method when file path is null.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail01, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFailWithPathNull, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath;
@@ -251,26 +290,47 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail01, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFail02
+ * @tc.name: TestWriteFileToStreamSuc
  * @tc.desc: Test WriteFileToStream method when file path is valid.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFail02, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath  = TEST_PACKAGE_PATH;
     std::vector<std::string> realPaths;
     string errMessage;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
     ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
-    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestInstallFail01
+ * @tc.name: TestWriteFileToStreamFailWithGetPolicyErr
+ * @tc.desc: Test WriteFileToStream method when file path is valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFailWithGetPolicyErr, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string hapFilePath  = TEST_PACKAGE_PATH;
+    std::vector<std::string> realPaths;
+    string errMessage;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestInstallFailWithEmptyPath
  * @tc.desc: Test Insatll method with empty hapFilePaths.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestInstallFail01, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestInstallFailWithEmptyPath, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> hapFilePaths;
@@ -281,16 +341,47 @@ HWTEST_F(BundleManagerProxyTest, TestInstallFail01, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestInstallFail02
+ * @tc.name: TestInstallSuc
  * @tc.desc: Test Insatll method with one hapFilePaths.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestInstallFail02, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestInstallSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH };
     AppExecFwk::InstallParam installParam;
     std::string retMsg;
+    std::uint32_t funcCodeGet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL);
+    std::uint32_t funcCodeSet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
+    EXPECT_CALL(*object_, SendRequest(funcCodeGet, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
+    EXPECT_CALL(*object_, SendRequest(funcCodeSet, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallFail
+ * @tc.desc: Test Insatll method with one hapFilePaths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH };
+    AppExecFwk::InstallParam installParam;
+    std::string retMsg;
+    std::uint32_t funcCodeGet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL);
+    std::uint32_t funcCodeSet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
+    EXPECT_CALL(*object_, SendRequest(funcCodeGet, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
+    EXPECT_CALL(*object_, SendRequest(funcCodeSet, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyInstallFail));
     ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
 }
@@ -310,6 +401,22 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerFail, TestSize.Level1)
     ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
     ASSERT_TRUE(retMsg == "write file to stream failed due to invalid file descriptor");
+}
+
+/**
+ * @tc.name: TestWriteFileToInnerSuc
+ * @tc.desc: Test Insatll method with hap file paths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerSuc, TestSize.Level1)
+{
+    MessageParcel reply;
+    reply.WriteFileDescriptor(1);
+    std::string hapFilePaths = { TEST_PACKAGE_PATH };
+    std::vector<std::string> realPaths;
+    std::string retMsg;
+    ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
