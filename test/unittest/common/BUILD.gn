@@ -60,6 +60,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "c_utils:utils",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
