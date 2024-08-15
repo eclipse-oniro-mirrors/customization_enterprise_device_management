@@ -40,7 +40,7 @@ ErrCode BundleInstallPlugin::OnSetPolicy(std::vector<std::string> &data, std::ve
     if (data.size() > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("BundleInstallPlugin OnSetPolicy input data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
-    }    
+    }
 
     std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
 
@@ -84,7 +84,7 @@ ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data, std:
     if (data.size() > EdmConstants::APPID_MAX_SIZE) {
         EDMLOGE("BundleInstallPlugin OnRemovePolicy input data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
-    }  
+    }
 
     std::vector<std::string> mergeData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
