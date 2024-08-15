@@ -65,7 +65,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataSetAllEmpty, Test
     HandlePolicyData handlePolicyData{"", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "");
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_FALSE(handlePolicyData.isChanged);
 }
 
@@ -207,7 +207,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataRemoveAllEmpty, T
     HandlePolicyData handlePolicyData{"", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "");
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_FALSE(handlePolicyData.isChanged);
 }
 
@@ -237,7 +237,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveCurrentDataEmpt
     HandlePolicyData handlePolicyData{"", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "");
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_FALSE(handlePolicyData.isChanged);
 }
 
@@ -291,7 +291,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataSame, TestS
     HandlePolicyData handlePolicyData{TEST_POLICY_DATA, false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "");
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
     ASSERT_TRUE(handlePolicyData.isChanged);
 }
 

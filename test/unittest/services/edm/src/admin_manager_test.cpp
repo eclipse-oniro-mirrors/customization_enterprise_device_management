@@ -550,6 +550,7 @@ HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsByParentName, TestSize.Level1)
     std::vector<std::string> permissions{"ohos.permission.EDM_TEST_PERMISSION"};
     Admin edmAdmin(abilityInfo, AdminType::ENT, entInfo, permissions, false);
     res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    adminMgr_->Dump();
     ASSERT_TRUE(res == ERR_OK);
     std::string subSuperAdmin = "com.edm.test.demo1";
     res = adminMgr_->SaveAuthorizedAdmin(subSuperAdmin, permissions, abilityInfo.bundleName);
