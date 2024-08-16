@@ -139,6 +139,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/admin_manager_test.cpp",
     "./src/admin_test.cpp",
     "./src/device_policies_storage_rdb_test.cpp",
+    "./src/enhance_execute_strategy_test.cpp",
     "./src/enterprise_admin_connection_test.cpp",
     "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
@@ -148,6 +149,8 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
     "./src/policy_manager_test.cpp",
+    "./src/replace_execute_strategy_test.cpp",
+    "./src/single_execute_strategy_test.cpp",
     "./src/user_policy_manager_test.cpp",
   ]
 
