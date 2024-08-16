@@ -105,6 +105,10 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
+    if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnRemovePolicy input data is too large");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::vector<UsbDeviceId> mergeData =
         ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
     if (mergeData.empty()) {

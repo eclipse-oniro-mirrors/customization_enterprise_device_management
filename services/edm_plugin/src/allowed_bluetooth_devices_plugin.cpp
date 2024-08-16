@@ -55,10 +55,14 @@ ErrCode AllowedBluetoothDevicesPlugin::OnSetPolicy(std::vector<std::string> &dat
         EDMLOGW("AllowedBluetoothDevicesPlugin OnSetPolicy data is empty.");
         return ERR_OK;
     }
+    if (data.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
+        EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy input data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
     std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
     if (mergeData.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy data is too large.");
+        EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy merge data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     currentData = mergeData;
@@ -85,6 +89,10 @@ ErrCode AllowedBluetoothDevicesPlugin::OnRemovePolicy(std::vector<std::string> &
     if (data.empty()) {
         EDMLOGW("AllowedBluetoothDevicesPlugin OnRemovePolicy data is empty.");
         return ERR_OK;
+    }
+    if (data.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
+        EDMLOGE("AllowedBluetoothDevicesPlugin OnRemovePolicy input data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> mergeData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
