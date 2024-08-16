@@ -22,7 +22,9 @@
 #include "enterprise_device_mgr_ability.h"
 #undef protected
 #undef private
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "add_os_account_plugin.h"
+#endif
 #include "allowed_bluetooth_devices_plugin.h"
 #include "allowed_install_bundles_plugin.h"
 #include "allowed_usb_devices_plugin.h"
@@ -32,8 +34,10 @@
 #include "disable_printer_plugin.h"
 #include "disable_usb_plugin.h"
 #include "disabled_network_interface_plugin.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "disallow_add_local_account_plugin.h"
 #include "disallow_add_os_account_by_user_plugin.h"
+#endif
 #include "disallow_modify_datetime_plugin.h"
 #include "disallowed_install_bundles_plugin.h"
 #include "disallowed_running_bundles_plugin.h"
@@ -83,7 +87,9 @@ constexpr int32_t NUM_INDEX_SECOND = 2;
 constexpr int32_t NUM_INDEX_THIRD = 3;
 constexpr int32_t BYTE_SIZE = 8;
 constexpr int32_t MAX_STRING_SIZE = 1024;
+#ifdef OS_ACCOUNT_EDM_ENABLE
 const bool REGISTER_ADD_OS_ACCOUNT_PLUGIN = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
+#endif
 const bool REGISTER_ALLOWED_BLUETOOTH_DEVICES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(AllowedBluetoothDevicesPlugin::GetPlugin());
 const bool REGISTER_ALLOWED_INSTALL_BUNDLES_PLUGIN =
@@ -99,10 +105,12 @@ const bool REGISTER_DISABLE_PRINTER_PLUGIN = PluginManager::GetInstance()->AddPl
 const bool REGISTER_DISABLE_USB_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
 const bool REGISTER_DISABLED_NETWORK_INTERFACE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
+#ifdef OS_ACCOUNT_EDM_ENABLE
 const bool REGISTER_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
 const bool REGISTER_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
+#endif
 const bool REGISTER_DISALL_MODIFY_DATE_TIME_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
 const bool REGISTER_DISALLOWED_INSTALL_BUNDLES_PLUGIN =

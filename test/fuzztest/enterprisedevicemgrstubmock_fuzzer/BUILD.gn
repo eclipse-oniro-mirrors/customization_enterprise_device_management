@@ -171,6 +171,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
         "../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",
       ]
+      defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
     }
 
     if (screenlock_mgr_edm_enable) {

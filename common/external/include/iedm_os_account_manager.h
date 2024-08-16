@@ -19,7 +19,11 @@
 #include <vector>
 
 #include "edm_errors.h"
-
+#ifdef OS_ACCOUNT_EDM_ENABLE
+#include "ohos_account_kits.h"
+#include "os_account_info.h"
+#include "os_account_manager.h"
+#endif
 namespace OHOS {
 namespace EDM {
 class IEdmOsAccountManager {
@@ -27,6 +31,10 @@ public:
     virtual ~IEdmOsAccountManager() = default;
     virtual ErrCode QueryActiveOsAccountIds(std::vector<int32_t> &ids) = 0;
     virtual ErrCode IsOsAccountExists(int32_t id, bool &isExist) = 0;
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    virtual ErrCode CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
+        OHOS::AccountSA::OsAccountInfo &osAccountInfo) = 0;
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

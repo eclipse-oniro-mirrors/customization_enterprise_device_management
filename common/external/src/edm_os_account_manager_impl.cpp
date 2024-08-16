@@ -16,9 +16,6 @@
 #include "edm_os_account_manager_impl.h"
 #include "edm_log.h"
 
-#ifdef OS_ACCOUNT_EDM_ENABLE
-#include "os_account_manager.h"
-#endif
 namespace OHOS {
 namespace EDM {
 ErrCode EdmOsAccountManagerImpl::QueryActiveOsAccountIds(std::vector<int32_t> &ids)
@@ -40,5 +37,14 @@ ErrCode EdmOsAccountManagerImpl::IsOsAccountExists(int32_t id, bool &isExist)
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 #endif
 }
+
+#ifdef OS_ACCOUNT_EDM_ENABLE
+ErrCode EdmOsAccountManagerImpl::CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
+    OHOS::AccountSA::OsAccountInfo &osAccountInfo)
+{
+    EDMLOGI("EdmOsAccountManagerImpl::CreateOsAccount.");
+    return OHOS::AccountSA::OsAccountManager::CreateOsAccount(name, type, osAccountInfo);
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

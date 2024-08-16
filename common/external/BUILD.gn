@@ -49,7 +49,10 @@ ohos_shared_library("edm_external_adapters") {
 
   defines = []
   if (os_account_edm_enable) {
-    external_deps += [ "os_account:os_account_innerkits" ]
+    external_deps += [
+      "os_account:libaccountkits",
+      "os_account:os_account_innerkits",
+    ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
