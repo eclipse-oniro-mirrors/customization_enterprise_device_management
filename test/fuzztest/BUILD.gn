@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("../../common/config/common.gni")
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -39,4 +41,9 @@ group("fuzztest") {
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
   ]
+  defines = []
+  if (os_account_edm_enable) {
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
+  print(defines)
 }

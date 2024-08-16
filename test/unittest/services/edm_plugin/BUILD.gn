@@ -25,6 +25,7 @@ ohos_unittest("EdmPluginTest") {
 
   include_dirs = [
     "../../common/mock/include",
+    "../../external_mock/include",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
     "../../../../services/edm_plugin/include/network",
@@ -46,7 +47,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/install_plugin_test.cpp",
     "./src/network/executer/executer_utils_mock.cpp",
     "./src/ntp_server_plugin_test.cpp",
-    "./src/operate_device_plugin_test.cpp",
     "./src/password_policy_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
@@ -61,6 +61,7 @@ ohos_unittest("EdmPluginTest") {
 
   deps = [
     ":edm_all_plugin_static",
+    "../../../../common/external:edm_external_adapters",
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
@@ -86,8 +87,10 @@ ohos_unittest("EdmPluginTest") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
   if (os_account_edm_enable) {
     external_deps += [
+      "ability_runtime:app_manager",
       "os_account:libaccountkits",
       "os_account:os_account_innerkits",
     ]
@@ -95,7 +98,9 @@ ohos_unittest("EdmPluginTest") {
       "./src/add_os_account_plugin_test.cpp",
       "./src/disallow_add_local_account_plugin_test.cpp",
       "./src/disallow_add_os_account_by_user_plugin_test.cpp",
+      "./src/operate_device_plugin_test.cpp",
     ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   if (ability_runtime_edm_enable) {
@@ -316,6 +321,7 @@ ohos_static_library("edm_all_plugin_static") {
   ]
 
   deps = [
+    "../../../../common/external:edm_external_adapters",
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
@@ -352,6 +358,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",
     ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   if (screenlock_mgr_edm_enable) {

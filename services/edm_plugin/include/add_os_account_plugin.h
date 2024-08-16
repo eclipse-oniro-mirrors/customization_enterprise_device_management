@@ -16,10 +16,12 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADD_OS_ACCOUNT_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ADD_OS_ACCOUNT_PLUGIN_H
 
+#include "external_manager_factory.h"
 #include "map_string_serializer.h"
 #include "plugin_singleton.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
-
+#endif
 namespace OHOS {
 namespace EDM {
 class AddOsAccountPlugin : public PluginSingleton<AddOsAccountPlugin, std::map<std::string, std::string>> {
@@ -27,8 +29,12 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AddOsAccountPlugin,
         std::map<std::string, std::string>>> ptr) override;
     ErrCode OnSetPolicy(std::map<std::string, std::string> &data, MessageParcel &reply);
+
 private:
+#ifdef OS_ACCOUNT_EDM_ENABLE
     OHOS::AccountSA::OsAccountType ParseOsAccountType(int32_t type);
+#endif
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
 } // namespace OHOS

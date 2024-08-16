@@ -35,7 +35,7 @@ struct AsyncDisallowAddLocalAccountCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     bool isDisallow;
 };
-
+#ifdef OS_ACCOUNT_EDM_ENABLE
 struct AsyncAddOsAccountCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::string name;
@@ -44,7 +44,7 @@ struct AsyncAddOsAccountCallbackInfo : AsyncCallbackInfo {
     std::string distributedInfoName;
     std::string distributedInfoId;
 };
-
+#endif
 class AccountManagerAddon {
 public:
     AccountManagerAddon();
