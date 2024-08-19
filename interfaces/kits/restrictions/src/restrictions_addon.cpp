@@ -37,6 +37,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD, EdmInterfaceCode::POLICY_CODE_END + 12},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY, EdmInterfaceCode::POLICY_CODE_END + 17},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NEAR_LINK, EdmInterfaceCode::POLICY_CODE_END + 18},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TETHERING, EdmInterfaceCode::DISALLOWED_TETHERING},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE, EdmInterfaceCode::INACTIVE_USER_FREEZE},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
