@@ -25,6 +25,10 @@ public:
     ~EdmOsAccountManagerImpl() override = default;
     ErrCode QueryActiveOsAccountIds(std::vector<int32_t> &ids) override;
     ErrCode IsOsAccountExists(int32_t id, bool &isExist) override;
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    ErrCode CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
+        OHOS::AccountSA::OsAccountInfo &osAccountInfo) override;
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

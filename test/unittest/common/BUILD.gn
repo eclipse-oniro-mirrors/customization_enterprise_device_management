@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("../../../common/config/common.gni")
 
 module_output_path = "enterprise_device_management/enterprise_device_management"
 
@@ -64,6 +65,15 @@ ohos_unittest("EdmCommonUnitTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (os_account_edm_enable) {
+    external_deps += [
+      "os_account:libaccountkits",
+      "os_account:os_account_innerkits",
+    ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
 
   sanitize = {
     boundary_sanitize = true
