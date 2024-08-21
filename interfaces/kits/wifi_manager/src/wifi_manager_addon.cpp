@@ -364,18 +364,27 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
     }
     if (ret.size() != 0) {
         pwd.preSharedKey = (char*) malloc(ret.size());
-        strncpy_s(pwd.preSharedKey, ret.size(), ret.data(), ret.size());
-        pwd.preSharedKeySize = ret.size();
+        if (pwd.preSharedKey == nullptr) {
+            memset_s(ret.data(), ret.size(), '\0', ret.size());
+            return false;
+        }
+        if (strncpy_s(pwd.preSharedKey, ret.size(), ret.data(), ret.size()) != ERR_OK) {
+            memset_s(ret.data(), ret.size(), '\0', ret.size());
+            return false;
+        }
         memset_s(ret.data(), ret.size(), '\0', ret.size());
+        pwd.preSharedKeySize = ret.size();
     }
-    ConvertEncryptionMode(type, config, pwd);
+    if (!ConvertEncryptionMode(type, config, pwd)) {
+        return false;
+    }
     if (type == static_cast<int32_t>(SecurityType::SEC_TYPE_EAP)) {
         return ProcessEapConfig(env, object, config.wifiEapConfig, pwd);
     }
     return true;
 }
 
-void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd)
+bool WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd)
 {
     switch (securityType) {
         case static_cast<int32_t>(SecurityType::SEC_TYPE_OPEN):
@@ -384,7 +393,13 @@ void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDev
         case static_cast<int32_t>(SecurityType::SEC_TYPE_WEP):
             config.keyMgmt = Wifi::KEY_MGMT_WEP;
             pwd.wepKey = (char*) malloc((pwd.preSharedKeySize + NAPI_RETURN_ONE) * sizeof(char));
-            strncpy_s(pwd.wepKey, pwd.preSharedKeySize + NAPI_RETURN_ONE, pwd.preSharedKey, pwd.preSharedKeySize);
+            if (pwd.wepKey == nullptr) {
+                return false;
+            }
+            if (strncpy_s(pwd.wepKey, pwd.preSharedKeySize + NAPI_RETURN_ONE,
+                pwd.preSharedKey, pwd.preSharedKeySize) != ERR_OK) {
+                return false;
+            }
             pwd.wepKeySize = pwd.preSharedKeySize;
             EdmUtils::ClearCharArray(pwd.preSharedKey, pwd.preSharedKeySize);
             pwd.preSharedKeySize = 0;
@@ -403,6 +418,7 @@ void WifiManagerAddon::ConvertEncryptionMode(int32_t securityType, Wifi::WifiDev
             config.keyMgmt = Wifi::KEY_MGMT_NONE;
             break;
     }
+    return true;
 }
 
 bool WifiManagerAddon::ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig)
@@ -492,9 +508,16 @@ bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wif
     }
     if (ret.size() != 0) {
         pwd.password = (char*) malloc(ret.size());
-        strncpy_s(pwd.password, ret.size(), ret.data(), ret.size());
-        pwd.preSharedKeySize = ret.size();
+        if (pwd.password == nullptr) {
+            memset_s(ret.data(), ret.size(), '\0', ret.size());
+            return false;
+        }
+        if (strncpy_s(pwd.password, ret.size(), ret.data(), ret.size()) != ERR_OK) {
+            memset_s(ret.data(), ret.size(), '\0', ret.size());
+            return false;
+        }
         memset_s(ret.data(), ret.size(), '\0', ret.size());
+        pwd.preSharedKeySize = ret.size();
     }
     MessageParcelUtils::ProcessPhase2Method(phase2, eapConfig);
     return true;
@@ -511,7 +534,10 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
         return false;
     }
     if (ret.size() != 0) {
-        strncpy_s(eapConfig.certPassword, ret.size(), ret.data(), ret.size());
+        if (strncpy_s(eapConfig.certPassword, ret.size(), ret.data(), ret.size()) != ERR_OK) {
+            memset_s(ret.data(), ret.size(), '\0', ret.size());
+            return false;
+        }
         memset_s(ret.data(), ret.size(), '\0', ret.size());
     }
     return true;

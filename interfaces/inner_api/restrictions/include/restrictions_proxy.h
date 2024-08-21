@@ -30,7 +30,7 @@ public:
         std::string permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow);
     int32_t IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
+    int32_t SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow, uint32_t policyCode,
         std::string permissionTag, int32_t accountId);
     int32_t GetDisallowedPolicyForAccount(AppExecFwk::ElementName &admin, int policyCode, bool &result,
         std::string permissionTag, int32_t accountId);

@@ -90,7 +90,7 @@ int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *ad
 }
 
 int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow,
-    int policyCode, std::string permissionTag, int32_t accountId)
+    uint32_t policyCode, std::string permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::SetDisallowedPolicyForAccount");
     MessageParcel data;
