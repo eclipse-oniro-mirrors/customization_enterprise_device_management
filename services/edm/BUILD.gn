@@ -35,7 +35,6 @@ ohos_shared_library("edmservice") {
     "../edm_plugin/src/utils/install_param_serializer.cpp",
     "../edm_plugin/src/utils/installer_callback.cpp",
     "../edm_plugin/src/utils/operate_device_param_serializer.cpp",
-    "../edm_plugin/src/utils/password_policy_serializer.cpp",
     "../edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../edm_plugin/src/utils/update_policy_serializer.cpp",
     "../edm_plugin/src/utils/upgrade_package_info_serializer.cpp",
@@ -98,7 +97,6 @@ ohos_shared_library("edmservice") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
@@ -118,7 +116,6 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/notify_update_packages_plugin.cpp",
       "../edm_plugin/src/ntp_server_plugin.cpp",
       "../edm_plugin/src/operate_device_plugin.cpp",
-      "../edm_plugin/src/password_policy_plugin.cpp",
       "../edm_plugin/src/power_policy_plugin.cpp",
       "../edm_plugin/src/screen_off_time_plugin.cpp",
       "../edm_plugin/src/set_update_policy_plugin.cpp",
@@ -238,7 +235,6 @@ ohos_shared_library("edmservice") {
         "../edm_plugin/src/disable_hdc_plugin.cpp",
         "../edm_plugin/src/disable_microphone_plugin.cpp",
         "../edm_plugin/src/disable_printer_plugin.cpp",
-        "../edm_plugin/src/fingerprint_auth_plugin.cpp",
       ]
     }
 
@@ -275,6 +271,17 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/clipboard_policy_plugin.cpp",
       "../edm_plugin/src/utils/clipboard_policy_serializer.cpp",
       "../edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    defines += [ "USERIAM_EDM_ENABLE" ]
+    sources += [
+      "../edm_plugin/src/fingerprint_auth_plugin.cpp",
+      "../edm_plugin/src/password_policy_plugin.cpp",
+      "../edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
+      "../edm_plugin/src/utils/password_policy_serializer.cpp",
     ]
   }
 

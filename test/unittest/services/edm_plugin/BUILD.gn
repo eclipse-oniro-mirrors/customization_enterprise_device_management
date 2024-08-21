@@ -48,7 +48,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/install_plugin_test.cpp",
     "./src/network/executer/executer_utils_mock.cpp",
     "./src/ntp_server_plugin_test.cpp",
-    "./src/password_policy_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
@@ -216,6 +215,13 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
+  if (useriam_edm_enable) {
+    sources += [
+      "./src/fingerprint_auth_plugin_test.cpp",
+      "./src/password_policy_plugin_test.cpp",
+    ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -233,7 +239,10 @@ ohos_unittest("EdmPluginTest") {
 ohos_unittest("EdmFingerPrintPluginTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "../../../../services/edm_plugin/include" ]
+  include_dirs = [
+    "../../../../services/edm_plugin/include",
+    "../../../../services/edm_plugin/include/utils",
+  ]
 
   sources = [ "./src/fingerprint_auth_plugin_test.cpp" ]
 
@@ -299,14 +308,12 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/install_plugin.cpp",
     "../../../../services/edm_plugin/src/ntp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
-    "../../../../services/edm_plugin/src/password_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
-    "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
   ]
 
@@ -341,7 +348,6 @@ ohos_static_library("edm_all_plugin_static") {
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
   defines = []
   if (update_service_edm_enable) {
@@ -455,7 +461,6 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_printer_plugin.cpp",
-      "../../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
     ]
   }
 
@@ -492,6 +497,16 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/clipboard_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
+      "../../../../services/edm_plugin/src/password_policy_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
     ]
   }
 

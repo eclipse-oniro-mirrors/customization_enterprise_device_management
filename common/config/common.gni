@@ -116,4 +116,9 @@ declare_args() {
       defined(global_parts_info.distributeddatamgr_pasteboard)) {
     pasteboard_edm_enable = true
   }
+  useriam_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.useriam_user_auth_framework)) {
+    useriam_edm_enable = true
+  }
 }

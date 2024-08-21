@@ -47,5 +47,87 @@ int32_t RestrictionsProxy::GetDisallowedPolicy(AppExecFwk::ElementName *admin, i
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result, permissionTag);
 }
+
+int32_t RestrictionsProxy::SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow)
+{
+    EDMLOGD("RestrictionsProxy::SetFingerprintAuthDisabled");
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::FINGERPRINT_AUTH);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
+    data.WriteBool(disallow);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result)
+{
+    EDMLOGD("RestrictionsProxy::GetFingerprintAuthDisabled");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::FINGERPRINT_AUTH, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
+
+int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow,
+    int policyCode, std::string permissionTag, int32_t accountId)
+{
+    EDMLOGD("RestrictionsProxy::SetDisallowedPolicyForAccount");
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(permissionTag);
+    data.WriteString(EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE);
+    data.WriteBool(disallow);
+    data.WriteInt32(accountId);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t RestrictionsProxy::GetDisallowedPolicyForAccount(AppExecFwk::ElementName &admin, int policyCode, bool &result,
+    std::string permissionTag, int32_t accountId)
+{
+    EDMLOGD("RestrictionsProxy::GetDisallowedPolicyForAccount");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(permissionTag);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE);
+    data.WriteInt32(accountId);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(policyCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
