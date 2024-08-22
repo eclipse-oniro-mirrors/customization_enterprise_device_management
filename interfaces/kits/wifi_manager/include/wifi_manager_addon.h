@@ -94,7 +94,7 @@ private:
 #ifdef WIFI_EDM_ENABLE
     static bool JsObjToDeviceConfig(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config,
         WifiPassword &pwd);
-    static void ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd);
+    static bool ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd);
     static bool ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
     static bool ConfigStaticIp(napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
     static bool ProcessEapConfig(napi_env env, napi_value object,
