@@ -73,7 +73,7 @@ std::string ShellCommand::ExecCommand()
 
 std::string ShellCommand::GetMessageFromCode(int32_t code) const
 {
-    EDMLOGI("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    EDMLOGI("ShellCommand::GetMessageFromCode enter.");
 
     std::string result;
     if (messageMap_.find(code) != messageMap_.end()) {
