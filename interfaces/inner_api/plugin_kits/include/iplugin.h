@@ -46,7 +46,6 @@ public:
     enum class ApiType {
         PUBLIC = 0,
         SYSTEM,
-        TEST,
         UNKNOWN,
     };
 
