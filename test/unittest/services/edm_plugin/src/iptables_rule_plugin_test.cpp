@@ -157,6 +157,20 @@ HWTEST_F(IptablesRulePluginTest, TestAddIptablesFilterRule, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteAddFilterConfig(addFilter, data);
+    
+    IPTABLES::AddFilter addFilter2;
+    IPTABLES::IptablesUtils::ReadAddFilterConfig(addFilter2, data);
+    ASSERT_TRUE(addFilter2.action == IPTABLES::Action::DENY);
+    ASSERT_TRUE(addFilter2.direction == IPTABLES::Direction::INPUT);
+    ASSERT_TRUE(addFilter2.method == IPTABLES::AddMethod::INSERT);
+    ASSERT_TRUE(addFilter2.protocol == IPTABLES::Protocol::ICMP);
+    ASSERT_TRUE(addFilter2.ruleNo == 1);
+    ASSERT_TRUE(addFilter2.uid == "20230000");
+    ASSERT_TRUE(addFilter2.srcAddr == "192.192.192.192-202.202.202.202");
+    ASSERT_TRUE(addFilter2.destAddr == "203.203.203.203");
+    ASSERT_TRUE(addFilter2.srcPort == "999");
+    ASSERT_TRUE(addFilter2.destPort == "888");
+    
     HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -184,6 +198,16 @@ HWTEST_F(IptablesRulePluginTest, TestRemoveIptablesFilterRule, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
+    IPTABLES::RemoveFilter filter2;
+    IPTABLES::IptablesUtils::ReadRemoveFilterConfig(filter2, data);
+    ASSERT_TRUE(filter2.action == IPTABLES::Action::DENY);
+    ASSERT_TRUE(filter2.direction == IPTABLES::Direction::INPUT);
+    ASSERT_TRUE(filter2.protocol == IPTABLES::Protocol::TCP);
+    ASSERT_TRUE(filter2.srcAddr == "192.192.192.192");
+    ASSERT_TRUE(filter2.srcPort == "9090");
+    ASSERT_TRUE(filter2.destAddr == "192.192.192.1929999");
+    ASSERT_TRUE(filter2.destPort == "errorport");
+    
     HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -271,6 +295,78 @@ HWTEST_F(IptablesRulePluginTest, TestExecRemoveFilterByDetailedCommand, TestSize
 }
 
 /**
+ * @tc.name: TestProcessFirewallAction
+ * @tc.desc: Test IptablesRulePlugin::ProcessFirewallAction
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesRulePluginTest, TestProcessFirewallAction, TestSize.Level1)
+{
+    std::shared_ptr<IPTABLES::IptablesUtils> plugin = std::make_shared<IPTABLES::IptablesUtils>();
+    IPTABLES::Action action = IPTABLES::Action::DENY;
+    bool ret = plugin->ProcessFirewallAction(static_cast<int32_t>(IPTABLES::Action::ALLOW), action);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallAction(static_cast<int32_t>(IPTABLES::Action::DENY), action);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallAction(static_cast<int32_t>(IPTABLES::Action::INVALID), action);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestProcessFirewallMethod
+ * @tc.desc: Test IptablesRulePlugin::ProcessFirewallMethod
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesRulePluginTest, TestProcessFirewallMethod, TestSize.Level1)
+{
+    std::shared_ptr<IPTABLES::IptablesUtils> plugin = std::make_shared<IPTABLES::IptablesUtils>();
+    IPTABLES::AddMethod method = IPTABLES::AddMethod::INSERT;
+    bool ret = plugin->ProcessFirewallMethod(static_cast<int32_t>(IPTABLES::AddMethod::APPEND), method);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallMethod(static_cast<int32_t>(IPTABLES::AddMethod::INSERT), method);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallMethod(static_cast<int32_t>(IPTABLES::AddMethod::INVALID), method);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestProcessFirewallDirection
+ * @tc.desc: Test IptablesRulePlugin::ProcessFirewallDirection
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesRulePluginTest, TestProcessFirewallDirection, TestSize.Level1)
+{
+    std::shared_ptr<IPTABLES::IptablesUtils> plugin = std::make_shared<IPTABLES::IptablesUtils>();
+    IPTABLES::Direction direction = IPTABLES::Direction::OUTPUT;
+    bool ret = plugin->ProcessFirewallDirection(static_cast<int32_t>(IPTABLES::Direction::INPUT), direction);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallDirection(static_cast<int32_t>(IPTABLES::Direction::OUTPUT), direction);
+    ASSERT_TRUE(ret);
+    ret = plugin->ProcessFirewallDirection(static_cast<int32_t>(IPTABLES::Direction::INVALID), direction);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestProcessFirewallProtocol
+ * @tc.desc: Test IptablesRulePlugin::ProcessFirewallProtocol
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesRulePluginTest, TestProcessFirewallProtocol, TestSize.Level1)
+{
+    std::shared_ptr<IPTABLES::IptablesUtils> plugin = std::make_shared<IPTABLES::IptablesUtils>();
+    IPTABLES::Protocol protocol = IPTABLES::Protocol::TCP;
+    plugin->ProcessFirewallProtocol(static_cast<int32_t>(IPTABLES::Protocol::ALL), protocol);
+    ASSERT_TRUE(protocol == IPTABLES::Protocol::ALL);
+    plugin->ProcessFirewallProtocol(static_cast<int32_t>(IPTABLES::Protocol::TCP), protocol);
+    ASSERT_TRUE(protocol == IPTABLES::Protocol::TCP);
+    plugin->ProcessFirewallProtocol(static_cast<int32_t>(IPTABLES::Protocol::UDP), protocol);
+    ASSERT_TRUE(protocol == IPTABLES::Protocol::UDP);
+    plugin->ProcessFirewallProtocol(static_cast<int32_t>(IPTABLES::Protocol::ICMP), protocol);
+    ASSERT_TRUE(protocol == IPTABLES::Protocol::ICMP);
+    plugin->ProcessFirewallProtocol(static_cast<int32_t>(IPTABLES::Protocol::INVALID), protocol);
+    ASSERT_FALSE(protocol == IPTABLES::Protocol::INVALID);
+}
+
+/**
  * @tc.name: TestConvertChainCommand
  * @tc.desc: Test IptablesRulePlugin::OnHandlePolicy test ConvertChainCommand.
  * @tc.type: FUNC
@@ -342,6 +438,7 @@ HWTEST_F(IptablesRulePluginTest, TestConvertActionCommand, TestSize.Level1)
     ASSERT_TRUE(command3.empty());
     ASSERT_FALSE(ret);
 }
+
 /**
  * @tc.name: TestConvertIpAddressCommand
  * @tc.desc: Test IptablesRulePlugin::ConvertIpAddressCommand

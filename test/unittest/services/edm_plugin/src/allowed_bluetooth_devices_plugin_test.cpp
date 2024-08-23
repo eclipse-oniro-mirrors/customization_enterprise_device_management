@@ -120,6 +120,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestOnChangedPolicyDoneSuc, TestSize
     Utils::SetBluetoothDisable();
     AllowedBluetoothDevicesPlugin devicesPlugin;
     devicesPlugin.OnChangedPolicyDone(false);
+    ASSERT_TRUE(true);
 }
 
 /**

@@ -26,6 +26,7 @@ ohos_unittest("EdmPluginTest") {
   include_dirs = [
     "../../common/mock/include",
     "../../external_mock/include",
+    "../../../../common/native/include/plugin_kits",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
     "../../../../services/edm_plugin/include/network",
@@ -130,9 +131,11 @@ ohos_unittest("EdmPluginTest") {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
       "./src/is_wifi_active_plugin_test.cpp",
+      "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
     ]
+    defines += [ "WIFI_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
@@ -168,6 +171,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_usb_devices_plugin_test.cpp",
       "./src/disable_usb_plugin_test.cpp",
+      "./src/disallowed_usb_devices_plugin_test.cpp",
       "./src/utils/array_usb_device_id_serializer_test.cpp",
     ]
   }
@@ -377,6 +381,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (wifi_edm_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
+      "../../../../common/native/src/plugin_utils/message_parcel_utils.cpp",
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",

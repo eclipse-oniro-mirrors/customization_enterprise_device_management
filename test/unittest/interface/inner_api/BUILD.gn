@@ -68,6 +68,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
       "./proxy/network_manager_proxy_test.cpp",
       "./proxy/security_manager_proxy_test.cpp",
       "./proxy/system_manager_proxy_test.cpp",
+      "./proxy/update_policy_utils_test.cpp",
     ]
     defines += [
       "OS_ACCOUNT_EDM_ENABLE",

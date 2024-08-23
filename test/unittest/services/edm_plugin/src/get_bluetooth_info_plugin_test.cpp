@@ -23,12 +23,12 @@
 using namespace testing::ext;
 using namespace testing;
 
-const int BLUETOOTH_TURN_ON = 2;
-const int32_t INVALID_BLUETOOTH_STATE = -1;
-
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const int BLUETOOTH_TURN_ON = 2;
+const int32_t INVALID_BLUETOOTH_STATE = -1;
+
 enum BluetoothState {
     TURN_OFF,
     TURNING_ON,
