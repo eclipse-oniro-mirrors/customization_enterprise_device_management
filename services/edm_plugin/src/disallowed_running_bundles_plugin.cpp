@@ -54,10 +54,14 @@ ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &da
         EDMLOGW("DisallowedRunningBundlesPlugin OnSetPolicy data is empty:");
         return ERR_OK;
     }
+    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
+        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy input data is too large:");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
     std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
     if (mergeData.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy data is too large:");
+        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy merge data is too large:");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
@@ -102,6 +106,10 @@ ErrCode DisallowedRunningBundlesPlugin::OnRemovePolicy(std::vector<std::string> 
     if (data.empty()) {
         EDMLOGW("DisallowedRunningBundlesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
+    }
+    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
+        EDMLOGE("DisallowedRunningBundlesPlugin OnRemovePolicy input data is too large:");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> mergeData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);

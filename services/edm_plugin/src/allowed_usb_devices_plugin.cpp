@@ -51,6 +51,10 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
         return ERR_OK;
     }
+    if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
 
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsbPolicy;
@@ -66,7 +70,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     std::vector<UsbDeviceId> mergeData = ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(data,
         currentData);
     if (mergeData.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data is too large");
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy merge data is too large");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
@@ -96,6 +100,10 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
     if (data.empty()) {
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
+    }
+    if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnRemovePolicy input data is too large");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<UsbDeviceId> mergeData =
         ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
