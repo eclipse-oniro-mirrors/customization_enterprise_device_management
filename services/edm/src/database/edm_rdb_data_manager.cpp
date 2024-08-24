@@ -43,6 +43,7 @@ std::shared_ptr<NativeRdb::RdbStore> EdmRdbDataManager::GetRdbStore()
         if (rdbStore_ == nullptr) {
             NativeRdb::RdbStoreConfig rdbStoreConfig(EdmRdbFiledConst::EDM_SERVICE_DATABASE_PATH +
                 EdmRdbFiledConst::EDM_RDB_NAME);
+            rdbStoreConfig.SetSecurityLevel(NativeRdb::SecurityLevel::S1);
             int32_t errCode = NativeRdb::E_OK;
             EdmRdbOpenCallback edmRdbOpenCallback;
             rdbStore_ = NativeRdb::RdbHelper::GetRdbStore(rdbStoreConfig, EdmRdbFiledConst::EDM_RDB_VERSION,
