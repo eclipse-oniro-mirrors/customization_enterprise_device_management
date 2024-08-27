@@ -94,7 +94,7 @@ bool InstallPlugin::CreateDirectory()
         EDMLOGE("fail to change %{public}s ownership", HAP_DIRECTORY.c_str());
         return false;
     }
-    mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+    mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP;
     if (!OHOS::ChangeModeFile(HAP_DIRECTORY, mode)) {
         EDMLOGE("change mode failed, temp install dir : %{public}s", HAP_DIRECTORY.c_str());
         return false;

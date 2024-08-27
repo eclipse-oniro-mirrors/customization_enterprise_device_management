@@ -121,8 +121,11 @@ const bool REGISTER_DISALLOWED_UNINSTALL_BUNDLES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowedUninstallBundlesPlugin::GetPlugin());
 const bool REGISTER_DOMAIN_FILTER_RULE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
+#ifdef USERIAM_EDM_ENABLE
 const bool REGISTER_FINGER_PRINT_AUTH_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(FingerprintAuthPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<FingerprintAuthPlugin>());
+const bool REGISTER_PASSWORD_POLICY_PLUGIN = PluginManager::GetInstance()->AddPlugin(PasswordPolicyPlugin::GetPlugin());
+#endif
 const bool REGISTER_FIREWALL_RULE_PLUGIN = PluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
 const bool REGISTER_GET_ALL_NETWORK_INTERFACES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
@@ -148,7 +151,6 @@ const bool REGISTER_MANAGE_AUTO_START_APPS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
 const bool REGISTER_NTP_SERVER_PLUGIN = PluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
 const bool REGISTER_OPERATE_DEVICE_PLUGIN = PluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
-const bool REGISTER_PASSWORD_POLICY_PLUGIN = PluginManager::GetInstance()->AddPlugin(PasswordPolicyPlugin::GetPlugin());
 const bool REGISTER_POWER_POLICY_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<PowerPolicyPlugin>());
 const bool REGISTER_RESET_FACTORY_PLUGIN = PluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());

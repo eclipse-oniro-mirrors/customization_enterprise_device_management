@@ -150,11 +150,14 @@ ErrCode AllowUsbDevicesPlugin::OnGetPolicy(std::string &policyData, MessageParce
     ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
     reply.WriteInt32(ERR_OK);
     reply.WriteUint32(usbDeviceIds.size());
-    std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
+    for (const auto &usbDeviceId : usbDeviceIds) {
         EDMLOGD("AllowUsbDevicesPlugin OnGetPolicy: currentData: vid: %{public}d, pid: %{public}d",
             usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());
-        usbDeviceId.Marshalling(reply);
-    });
+        if (!usbDeviceId.Marshalling(reply)) {
+            EDMLOGE("AllowUsbDevicesPlugin OnGetPolicy: write parcel failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     return ERR_OK;
 }
 

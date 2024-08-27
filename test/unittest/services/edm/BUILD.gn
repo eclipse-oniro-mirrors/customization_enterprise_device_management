@@ -60,6 +60,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/user_policy_manager.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
+    "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
   ]
 
@@ -101,7 +102,6 @@ ohos_static_library("edmservice_static") {
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "user_auth_framework:userauth_client",
   ]
 
   deps = [
@@ -139,6 +139,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/admin_manager_test.cpp",
     "./src/admin_test.cpp",
     "./src/device_policies_storage_rdb_test.cpp",
+    "./src/enhance_execute_strategy_test.cpp",
     "./src/enterprise_admin_connection_test.cpp",
     "./src/enterprise_bundle_connection_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
@@ -148,6 +149,8 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
     "./src/policy_manager_test.cpp",
+    "./src/replace_execute_strategy_test.cpp",
+    "./src/single_execute_strategy_test.cpp",
     "./src/user_policy_manager_test.cpp",
   ]
 
@@ -186,7 +189,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   if (os_account_edm_enable) {

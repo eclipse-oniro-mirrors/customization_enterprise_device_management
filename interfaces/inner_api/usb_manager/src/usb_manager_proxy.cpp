@@ -84,9 +84,12 @@ int32_t UsbManagerProxy::AddAllowedUsbDevices(const AppExecFwk::ElementName &adm
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteUint32(usbDeviceIds.size());
-    std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
-        usbDeviceId.Marshalling(data);
-    });
+    for (const auto &usbDeviceId : usbDeviceIds) {
+        if (!usbDeviceId.Marshalling(data)) {
+            EDMLOGE("UsbManagerProxy AddAllowedUsbDevices: write parcel failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -103,9 +106,12 @@ int32_t UsbManagerProxy::RemoveAllowedUsbDevices(const AppExecFwk::ElementName &
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteUint32(usbDeviceIds.size());
-    std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
-        usbDeviceId.Marshalling(data);
-    });
+    for (const auto &usbDeviceId : usbDeviceIds) {
+        if (!usbDeviceId.Marshalling(data)) {
+            EDMLOGE("UsbManagerProxy RemoveAllowedUsbDevices: write parcel failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -208,9 +214,12 @@ int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(const AppExecFwk::Eleme
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteUint32(size);
-    std::for_each(usbDeviceTypes.begin(), usbDeviceTypes.end(), [&](const auto usbDeviceType) {
-        usbDeviceType.Marshalling(data);
-    });
+    for (const auto &usbDeviceType : usbDeviceTypes) {
+        if (!usbDeviceType.Marshalling(data)) {
+            EDMLOGE("UsbManagerProxy AddOrRemoveDisallowedUsbDevices: write parcel failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     EDMLOGI("UsbManagerProxy::AddOrRemoveDisallowedUsbDevices funcCode: %{public}u, usbDeviceTypes.size: %{public}zu",
         funcCode, size);
     return proxy->HandleDevicePolicy(funcCode, data);

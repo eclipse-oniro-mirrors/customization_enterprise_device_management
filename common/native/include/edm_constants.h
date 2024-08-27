@@ -40,6 +40,9 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
 
+    static const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
+    static const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
+
     namespace DeviceInfo {
         const char* const DEVICE_NAME = "deviceName";
         const char* const DEVICE_SERIAL = "deviceSerial";
@@ -68,6 +71,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
         const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
         const char* const LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE = "inactiveUserFreeze";
+        const char* const LABEL_FINGERPRINT_FOR_ACCOUNT = "fingerprintForAccount";
     } // namespace Restrictions
 
     namespace SecurityManager {

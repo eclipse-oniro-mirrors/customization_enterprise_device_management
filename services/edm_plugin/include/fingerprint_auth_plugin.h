@@ -17,16 +17,34 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_FINGERPRINT_AUTH_PLUGIN_H
 
 #include "plugin_singleton.h"
+#include "fingerprint_policy.h"
 
 namespace OHOS {
 namespace EDM {
-class FingerprintAuthPlugin : public PluginSingleton<FingerprintAuthPlugin, bool> {
+class FingerprintAuthPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<FingerprintAuthPlugin, bool>> ptr) override;
+    FingerprintAuthPlugin();
 
-    ErrCode OnSetPolicy(bool &data);
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 
-    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override{};
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    {
+        return ERR_OK;
+    };
+
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    
+    ErrCode HandleFingerprintAuthPolicy(bool disallow, FingerprintPolicy &policy);
+
+    ErrCode HandleFingerprintForAccountPolicy(bool disallow, int32_t accountId, FingerprintPolicy &policy);
+
+    ErrCode SetGlobalConfigParam(FingerprintPolicy policy);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -45,6 +45,8 @@ private:
     static napi_value IsFingerprintAuthDisabled(napi_env env, napi_callback_info info);
     static napi_value SetDisallowedPolicy(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedPolicy(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
 
     static napi_value SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
     static napi_value IsPolicyDisabled(napi_env env, napi_callback_info info, int policyCode);
@@ -55,6 +57,7 @@ private:
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::vector<uint32_t> multiPermCodes;
+    static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
 };
 } // namespace EDM
 } // namespace OHOS

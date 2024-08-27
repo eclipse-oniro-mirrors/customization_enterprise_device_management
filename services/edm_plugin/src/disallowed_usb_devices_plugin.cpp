@@ -180,9 +180,12 @@ ErrCode DisallowedUsbDevicesPlugin::OnGetPolicy(std::string &policyData, Message
     serializer_->Deserialize(policyData, disallowedDevices);
     reply.WriteInt32(ERR_OK);
     reply.WriteUint32(disallowedDevices.size());
-    std::for_each(disallowedDevices.begin(), disallowedDevices.end(), [&](const auto usbDeviceType) {
-        usbDeviceType.Marshalling(reply);
-    });
+    for (const auto &usbDeviceType : disallowedDevices) {
+        if (!usbDeviceType.Marshalling(reply)) {
+            EDMLOGE("DisallowedUsbDevicesPlugin OnGetPolicy: write parcel failed!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     return ERR_OK;
 }
 
