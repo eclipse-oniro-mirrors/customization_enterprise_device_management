@@ -46,6 +46,7 @@ private:
         std::string &afterHandle);
     ErrCode SetPolicy(const std::string policyData, std::string appid, std::string policyName,
         std::string policyValue, std::string &afterHandle);
+    ErrCode SetPolicyValue(cJSON* policy, std::string policyName, std::string policyValue);
     ErrCode SetPolicies(std::map<std::string, std::string> &policies, std::map<std::string, std::string> &currentData);
 };
 } // namespace EDM
