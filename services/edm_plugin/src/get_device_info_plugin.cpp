@@ -18,6 +18,7 @@
 #ifdef TELEPHONY_CORE_EDM_ENABLE
 #include "core_service_client.h"
 #endif
+#include "cjson_check.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
@@ -95,8 +96,12 @@ ErrCode GetDeviceInfoPlugin::GetSimInfo(MessageParcel &reply)
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_0, json);
-    GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_1, json);
+    if (!GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_0, json) ||
+        !GetSimInfoBySlotId(EdmConstants::DeviceInfo::SIM_SLOT_ID_1, json)) {
+        cJSON_Delete(json);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     char *jsonStr = cJSON_PrintUnformatted(json);
     if (jsonStr == nullptr) {
         cJSON_Delete(json);
@@ -111,12 +116,10 @@ ErrCode GetDeviceInfoPlugin::GetSimInfo(MessageParcel &reply)
     return ERR_OK;
 }
 
-void GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
+bool GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
 {
-    cJSON *slotJson = cJSON_CreateObject();
-    if (slotJson == nullptr) {
-        return;
-    }
+    cJSON *slotJson = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(slotJson, false);
     cJSON_AddNumberToObject(slotJson, EdmConstants::DeviceInfo::SIM_SLOT_ID.c_str(), slotId);
     std::u16string meid;
     auto &telephonyService = Telephony::CoreServiceClient::GetInstance();
@@ -147,7 +150,11 @@ void GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
         EDMLOGD("GetDeviceInfoPlugin::get sim imei failed: %{public}d.", imeiRet);
     }
     cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI.c_str(), EdmUtils::Utf16ToUtf8(imei).c_str());
-    cJSON_AddItemToArray(simJson, slotJson);
+    if (!cJSON_AddItemToArray(simJson, slotJson)) {
+        cJSON_Delete(slotJson);
+        return false;
+    }
+    return true;
 }
 #endif
 } // namespace EDM

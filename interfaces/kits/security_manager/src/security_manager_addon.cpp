@@ -16,6 +16,7 @@
 #include "security_manager_addon.h"
 
 #include "cJSON.h"
+#include "cjson_check.h"
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -243,10 +244,8 @@ napi_value SecurityManagerAddon::GetSecurityStatus(napi_env env, napi_callback_i
 int32_t SecurityManagerAddon::ConvertDeviceEncryptionToJson(napi_env env,
     DeviceEncryptionStatus &deviceEncryptionStatus, std::string &stringRet)
 {
-    cJSON *json = cJSON_CreateObject();
-    if (json == nullptr) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    cJSON *json = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(json, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     cJSON_AddBoolToObject(json, "isEncrypted", deviceEncryptionStatus.isEncrypted);
     char *jsonStr = cJSON_PrintUnformatted(json);
     if (jsonStr == nullptr) {
