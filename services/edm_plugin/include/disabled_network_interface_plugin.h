@@ -28,7 +28,12 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
-    ErrCode OnSetPolicy(std::map<std::string, std::string> &policyData);
+    ErrCode OnSetPolicy(std::map<std::string, std::string> &data, std::map<std::string, std::string> &currentData,
+        int32_t userId);
+
+private:
+    ErrCode IsNetInterfaceExist(const std::string &netInterface);
+    bool SetInterfaceDisabled(const std::string &ifaceName, bool status);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -123,6 +123,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
+    "netmanager_base:net_native_manager_if",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
   ]
@@ -207,6 +208,7 @@ ohos_static_library("edmservice_fuzz_static") {
     if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
       external_deps += [
         "netmanager_base:net_conn_manager_if",
+        "netmanager_base:net_policy_manager_if",
         "netmanager_base:netsys_controller",
         "netmanager_ext:ethernet_manager_if",
       ]
