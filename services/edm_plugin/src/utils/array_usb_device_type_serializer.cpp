@@ -15,6 +15,7 @@
 
 #include "array_usb_device_type_serializer.h"
 #include "cJSON.h"
+#include "cjson_check.h"
 #include "edm_constants.h"
 
 namespace OHOS {
@@ -94,9 +95,11 @@ bool ArrayUsbDeviceTypeSerializer::Serialize(const std::vector<USB::UsbDeviceTyp
         EDMLOGE("ArrayUsbDeviceIdSerializer:Serialize size=[%{public}zu] is too large", dataObj.size());
         return false;
     }
-    cJSON* root = cJSON_CreateArray();
+    cJSON* root = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(root, false);
     for (auto& it : dataObj) {
-        cJSON* item = cJSON_CreateObject();
+        cJSON* item = nullptr;
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
         cJSON_AddNumberToObject(item, BASE_CLASS.c_str(), it.baseClass);
         cJSON_AddNumberToObject(item, SUB_CLASS.c_str(), it.subClass);
         cJSON_AddNumberToObject(item, PROTOCOL.c_str(), it.protocol);
