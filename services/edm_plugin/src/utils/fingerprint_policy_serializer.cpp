@@ -16,6 +16,7 @@
 #include "fingerprint_policy_serializer.h"
 
 #include "cJSON.h"
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -51,7 +52,8 @@ bool FingerprintPolicySerializer::Serialize(const FingerprintPolicy &result, std
     if (result.accountIds.empty()) {
         return true;
     }
-    cJSON* root = cJSON_CreateArray();
+    cJSON* root = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(root, false);
     for (auto& it : result.accountIds) {
         cJSON* item = cJSON_CreateNumber(it);
         cJSON_AddItemToArray(root, item);
