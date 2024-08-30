@@ -120,36 +120,35 @@ bool GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
 {
     cJSON *slotJson = nullptr;
     CJSON_CREATE_OBJECT_AND_CHECK(slotJson, false);
-    cJSON_AddNumberToObject(slotJson, EdmConstants::DeviceInfo::SIM_SLOT_ID.c_str(), slotId);
+    cJSON_AddNumberToObject(slotJson, EdmConstants::DeviceInfo::SIM_SLOT_ID, slotId);
     std::u16string meid;
     auto &telephonyService = Telephony::CoreServiceClient::GetInstance();
     int32_t meidRet = telephonyService.GetMeid(slotId, meid);
     if (FAILED(meidRet)) {
         EDMLOGD("GetDeviceInfoPlugin::get sim meid failed: %{public}d.", meidRet);
     }
-    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_MEID.c_str(), EdmUtils::Utf16ToUtf8(meid).c_str());
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_MEID, EdmUtils::Utf16ToUtf8(meid).c_str());
 
     std::u16string imsi;
     int32_t imsiRet = telephonyService.GetIMSI(slotId, imsi);
     if (FAILED(imsiRet)) {
         EDMLOGD("GetDeviceInfoPlugin::get sim imsi failed: %{public}d.", imsiRet);
     }
-    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMSI.c_str(), EdmUtils::Utf16ToUtf8(imsi).c_str());
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMSI, EdmUtils::Utf16ToUtf8(imsi).c_str());
 
     std::u16string iccId;
     int32_t iccIdRet = telephonyService.GetSimIccId(slotId, iccId);
     if (FAILED(iccIdRet)) {
         EDMLOGD("GetDeviceInfoPlugin::get sim iccid failed: %{public}d.", iccIdRet);
     }
-    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_ICCID.c_str(),
-        EdmUtils::Utf16ToUtf8(iccId).c_str());
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_ICCID, EdmUtils::Utf16ToUtf8(iccId).c_str());
 
     std::u16string imei;
     int32_t imeiRet = telephonyService.GetImei(slotId, imei);
     if (FAILED(imeiRet)) {
         EDMLOGD("GetDeviceInfoPlugin::get sim imei failed: %{public}d.", imeiRet);
     }
-    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI.c_str(), EdmUtils::Utf16ToUtf8(imei).c_str());
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI, EdmUtils::Utf16ToUtf8(imei).c_str());
     if (!cJSON_AddItemToArray(simJson, slotJson)) {
         cJSON_Delete(slotJson);
         return false;

@@ -26,6 +26,7 @@ namespace TEST {
 const std::string TEST_VERSION = "testVersion";
 const std::string TEST_INSTALL_TIPS = "installTip";
 const std::string TEST_INSTALL_TIPS_DEATIL = "installTipDetail";
+constexpr uint32_t MAX_PACKAGES_SIZE = 10;
 class UpdatePolicyUtilsTest : public testing::Test {};
 
 /*
@@ -76,12 +77,8 @@ class UpdatePolicyUtilsTest : public testing::Test {};
 {
     MessageParcel data;
     UpgradePackageInfo packageInfo;
-    std::vector<Package> packages = {
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-    };
+    std::vector<Package> packages;
+    packages.insert(packages.begin(), MAX_PACKAGES_SIZE + 1, {"", PackageType::UNKNOWN, 1});
     packageInfo.version = TEST_VERSION;
     packageInfo.packages = packages;
     packageInfo.description.notify.installTips = TEST_INSTALL_TIPS;
@@ -105,11 +102,8 @@ class UpdatePolicyUtilsTest : public testing::Test {};
 {
     MessageParcel data;
     UpgradePackageInfo packageInfo;
-    std::vector<Package> packages = {
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-        {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1}, {PackageType::UNKNOWN, "", 1},
-    };
+    std::vector<Package> packages;
+    packages.insert(packages.begin(), MAX_PACKAGES_SIZE, {"", PackageType::UNKNOWN, 1});
     packageInfo.version = TEST_VERSION;
     packageInfo.packages = packages;
     packageInfo.description.notify.installTips = TEST_INSTALL_TIPS;

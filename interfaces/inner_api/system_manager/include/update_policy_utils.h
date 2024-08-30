@@ -58,8 +58,8 @@ struct UpdatePolicy {
 };
 
 struct Package {
-    PackageType type = PackageType::UNKNOWN;
     std::string path;
+    PackageType type = PackageType::UNKNOWN;
     int32_t fd = -1;
 };
 
