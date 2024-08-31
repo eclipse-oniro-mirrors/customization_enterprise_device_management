@@ -15,17 +15,18 @@
 
 #include "manage_auto_start_apps_plugin_test.h"
 
-#include <bundle_info.h>
-#include <bundle_mgr_interface.h>
-
-#include "edm_log.h"
-#include "edm_constants.h"
-#include "edm_sys_manager.h"
+#include "bundle_info.h"
+#include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
-#include "install_plugin.h"
 #include "iremote_stub.h"
 #include "iservice_registry.h"
+#include "parameters.h"
 #include "system_ability_definition.h"
+
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "edm_sys_manager.h"
+#include "install_plugin.h"
 #include "uninstall_plugin.h"
 #include "utils.h"
 
@@ -38,7 +39,9 @@ const std::string RIGHT_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo
 const std::string ERROR_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility";
 const std::string INVALID_TEST_BUNDLE = "com.example.l3jsdemo.com.example.l3jsdemo.ErrorAbility";
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
-
+const std::string BOOT_OEM_MODE = "const.boot.oemmode";
+const std::string DEVELOP_PARAM = "rd";
+const std::string USER_MODE = "user";
 void ManageAutoStartAppsPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -118,46 +121,49 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithInvalidData, Test
  */
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 {
-    InstallPlugin installPlugin;
-    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-    MessageParcel reply;
-    ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        InstallPlugin installPlugin;
+        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+        MessageParcel reply;
+        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    ManageAutoStartAppsPlugin plugin;
-    std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        ManageAutoStartAppsPlugin plugin;
+        std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
+        std::vector<std::string> currentData;
+        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    std::string policyData = RIGHT_TEST_BUNDLE;
-    MessageParcel parcel;
-    MessageParcel getReply;
-    ret = plugin.OnGetPolicy(policyData, parcel, getReply, DEFAULT_USER_ID);
-    std::vector<std::string> res;
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(getReply.ReadInt32() == ERR_OK);
-    getReply.ReadStringVector(&res);
-    ASSERT_TRUE(res.size() >= 1);
-    ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
+        std::string policyData = RIGHT_TEST_BUNDLE;
+        MessageParcel parcel;
+        MessageParcel getReply;
+        ret = plugin.OnGetPolicy(policyData, parcel, getReply, DEFAULT_USER_ID);
+        std::vector<std::string> res;
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(getReply.ReadInt32() == ERR_OK);
+        getReply.ReadStringVector(&res);
+        ASSERT_TRUE(res.size() >= 1);
+        ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
 
-    std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
-    ret = plugin.OnRemovePolicy(removeData, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
+        ret = plugin.OnRemovePolicy(removeData, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    MessageParcel removeReply;
-    ret = plugin.OnGetPolicy(policyData, parcel, removeReply, DEFAULT_USER_ID);
-    std::vector<std::string> afterRemove;
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(removeReply.ReadInt32() == ERR_OK);
-    removeReply.ReadStringVector(&afterRemove);
-    ASSERT_TRUE(afterRemove.size() == 0);
+        MessageParcel removeReply;
+        ret = plugin.OnGetPolicy(policyData, parcel, removeReply, DEFAULT_USER_ID);
+        std::vector<std::string> afterRemove;
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(removeReply.ReadInt32() == ERR_OK);
+        removeReply.ReadStringVector(&afterRemove);
+        ASSERT_TRUE(afterRemove.size() == 0);
 
-    UninstallPlugin uninstallPlugin;
-    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-    MessageParcel uninstallReply;
-    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-    ASSERT_TRUE(ret == ERR_OK);
+        UninstallPlugin uninstallPlugin;
+        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+        MessageParcel uninstallReply;
+        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
@@ -211,31 +217,34 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, Tes
  */
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
 {
-    InstallPlugin installPlugin;
-    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-    MessageParcel reply;
-    ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        InstallPlugin installPlugin;
+        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+        MessageParcel reply;
+        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    ManageAutoStartAppsPlugin plugin;
-    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        ManageAutoStartAppsPlugin plugin;
+        std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+        std::vector<std::string> currentData;
+        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    data = {INVALID_TEST_BUNDLE};
-    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+        data = {INVALID_TEST_BUNDLE};
+        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 
-    data = {RIGHT_TEST_BUNDLE};
-    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        data = {RIGHT_TEST_BUNDLE};
+        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    UninstallPlugin uninstallPlugin;
-    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-    MessageParcel uninstallReply;
-    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-    ASSERT_TRUE(ret == ERR_OK);
+        UninstallPlugin uninstallPlugin;
+        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+        MessageParcel uninstallReply;
+        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
@@ -245,27 +254,30 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
  */
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, TestSize.Level1)
 {
-    InstallPlugin installPlugin;
-    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-    MessageParcel reply;
-    ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        InstallPlugin installPlugin;
+        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+        MessageParcel reply;
+        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    ManageAutoStartAppsPlugin plugin;
-    std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        ManageAutoStartAppsPlugin plugin;
+        std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
+        std::vector<std::string> currentData;
+        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    UninstallPlugin uninstallPlugin;
-    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-    MessageParcel uninstallReply;
-    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-    ASSERT_TRUE(ret == ERR_OK);
+        UninstallPlugin uninstallPlugin;
+        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+        MessageParcel uninstallReply;
+        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    data = {RIGHT_TEST_BUNDLE};
-    ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        data = {RIGHT_TEST_BUNDLE};
+        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 } // namespace TEST
 } // namespace EDM
