@@ -473,7 +473,6 @@ void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityI
     serializer_->Deserialize(policyData, policy);
     UserIam::UserAuth::GlobalConfigParam param;
     param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
-    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
     param.value.pinExpiredPeriod = policy.validityPeriod;
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != 0) {

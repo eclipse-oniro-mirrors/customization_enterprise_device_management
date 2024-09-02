@@ -52,7 +52,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         return ERR_OK;
     }
     if (data.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy input data is too large");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
