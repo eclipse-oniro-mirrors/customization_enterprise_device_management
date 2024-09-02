@@ -15,6 +15,8 @@
 
 #include "install_plugin_test.h"
 
+#include "parameters.h"
+
 #include "uninstall_plugin.h"
 #include "utils.h"
 
@@ -25,7 +27,9 @@ namespace EDM {
 namespace TEST {
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 const std::string INVALID_HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/../right.hap";
-
+const std::string BOOT_OEM_MODE = "const.boot.oemmode";
+const std::string DEVELOP_PARAM = "rd";
+const std::string USER_MODE = "user";
 void InstallPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -45,16 +49,19 @@ void InstallPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(InstallPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 {
-    InstallPlugin plugin;
-    InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-    MessageParcel reply;
-    ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == ERR_OK);
-    UninstallPlugin uninstallPlugin;
-    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-    MessageParcel uninstallReply;
-    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        InstallPlugin plugin;
+        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+        MessageParcel reply;
+        ErrCode ret = plugin.OnSetPolicy(param, reply);
+        ASSERT_TRUE(ret == ERR_OK);
+        UninstallPlugin uninstallPlugin;
+        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+        MessageParcel uninstallReply;
+        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
