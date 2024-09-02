@@ -42,7 +42,7 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
     ptr->SetOnHandlePolicyListener(&SetWifiDisabledPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable) __attribute__((no_sanitize("cfi")))
+ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable)
 {
     EDMLOGI("SetWifiDisabledPlugin OnSetPolicy %{public}d", isDisable);
     std::string value = isDisable ? "true" : "false";
