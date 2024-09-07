@@ -69,6 +69,9 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedPolicy", GetDisallowedPolicy),
         DECLARE_NAPI_FUNCTION("setDisallowedPolicyForAccount", SetDisallowedPolicyForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedPolicyForAccount", GetDisallowedPolicyForAccount),
+        DECLARE_NAPI_FUNCTION("addDisallowedListForAccount", AddDisallowedListForAccount),
+        DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
+        DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -249,6 +252,7 @@ napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_call
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     ErrCode ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
@@ -277,6 +281,7 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     bool disallow = false;
@@ -382,6 +387,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     ErrCode ret = ERR_OK;
@@ -431,6 +437,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     ErrCode ret = ERR_OK;
@@ -488,6 +495,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     auto labelCode = labelCodeMapForAccount.find(feature);
@@ -530,6 +538,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     auto labelCode = labelCodeMapForAccount.find(feature);
@@ -548,6 +557,89 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     napi_value result = nullptr;
     napi_get_boolean(env, disallow, &result);
     return result;
+}
+
+napi_value RestrictionsAddon::AddDisallowedListForAccount(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveDisallowedListForAccount(env, info, true);
+}
+
+napi_value RestrictionsAddon::RemoveDisallowedListForAccount(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveDisallowedListForAccount(env, info, false);
+}
+
+napi_value RestrictionsAddon::GetDisallowedListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedListForAccount called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "param admin need be want");
+    std::string feature;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+
+    int32_t accountId = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]), "parameter accountId parse error");
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    std::vector<std::string> resultArray;
+    ErrCode ret = proxy->GetDisallowedListForAccount(elementName, feature, accountId, resultArray);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertStringVectorToJS(env, resultArray, result);
+    return result;
+}
+
+napi_value RestrictionsAddon::AddOrRemoveDisallowedListForAccount(napi_env env, napi_callback_info info,
+    bool isAdd)
+{
+    EDMLOGI("NAPI_AddOrRemoveDisallowedListForAccount called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string feature;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    std::vector<std::string> bundleNameArray;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, bundleNameArray, argv[ARR_INDEX_TWO]),
+        "parameter bundle name error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_THREE]),
+        "parameter accountId parse error");
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    ErrCode ret = proxy->AddOrRemoveDisallowedListForAccount(elementName, feature, bundleNameArray, accountId, isAdd);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
 }
 
 static napi_module g_restrictionsModule = {

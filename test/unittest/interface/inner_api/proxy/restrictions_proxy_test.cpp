@@ -285,6 +285,118 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountFail, TestSize.
         EdmInterfaceCode::FINGERPRINT_AUTH, result, WITHOUT_PERMISSION_TAG, 100);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestAddDisallowedListForAccountSuc
+ * @tc.desc: Test AddDisallowedListForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestAddDisallowedListForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    bundles.emplace_back("aaaa");
+    bundles.emplace_back("bbbb");
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedListForAccountSucc
+ * @tc.desc: Test RemoveDisallowedListForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestRemoveDisallowedListForAccountSucc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    bundles.emplace_back("aaaa");
+    bundles.emplace_back("bbbb");
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, false);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDisallowedListForAccountFail
+ * @tc.desc: Test AddDisallowedListForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestAddDisallowedListForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    bundles.emplace_back("aaaa");
+    bundles.emplace_back("bbbb");
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedListForAccountFail
+ * @tc.desc: Test RemoveDisallowedListForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestRemoveDisallowedListForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    bundles.emplace_back("aaaa");
+    bundles.emplace_back("bbbb");
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, false);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedListForAccountSuc
+ * @tc.desc: Test GetDisallowedListForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedListForAccountSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    int32_t ret = proxy_->GetDisallowedListForAccount(admin, feature, 100, bundles);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundles.size() == 1);
+    ASSERT_TRUE(bundles[0] == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetDisallowedListForAccountFail
+ * @tc.desc: Test GetDisallowedListForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedListForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string feature = "snapshot_skip";
+    std::vector<std::string> bundles;
+    int32_t ret = proxy_->GetDisallowedListForAccount(admin, feature, 100, bundles);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

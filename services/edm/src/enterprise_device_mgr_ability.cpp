@@ -27,11 +27,12 @@
 #include "iservice_registry.h"
 #include "matching_skills.h"
 #include "message_parcel.h"
+#include "mock_session_manager_service_interface.h"
 #include "parameters.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
 
-
+#include "array_string_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -41,7 +42,6 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
-
 
 #ifdef PASTEBOARD_EDM_ENABLE
 #include "clipboard_policy_serializer.h"
@@ -146,6 +146,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
+        };
+    addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnWindowManagerServiceStart(systemAbilityId, deviceId);
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
@@ -445,6 +449,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
+    AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
@@ -599,6 +604,41 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
 #endif
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
+
+void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<int32_t> userIds = { DEFAULT_USER_ID };
+    policyMgr_->GetPolicyUserIds(userIds);
+    EDMLOGD("OnWindowManagerServiceStart userIds size %{public}zu", userIds.size());
+    std::unordered_map<int32_t, std::vector<std::string>> policyMap;
+    for (int32_t userId : userIds) {
+        std::string policyData;
+        policyMgr_->GetPolicy("", "snapshot_skip", policyData, userId);
+        std::vector<std::string> vecData;
+        serializer->Deserialize(policyData, vecData);
+        if (vecData.empty()) {
+            continue;
+        }
+        policyMap.insert(make_pair(userId, vecData));
+    }
+    if (!policyMap.empty()) {
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(WINDOW_MANAGER_SERVICE_ID);
+        if (remoteObject == nullptr) {
+            EDMLOGE("OnWindowManagerServiceStart wms obj get fial");
+            return;
+        }
+        auto mockSessionManagerServiceProxy = iface_cast<OHOS::Rosen::IMockSessionManagerInterface>(remoteObject);
+        if (mockSessionManagerServiceProxy == nullptr) {
+            EDMLOGE("OnWindowManagerServiceStart wms obj cast fial");
+            return;
+        }
+        EDMLOGI("OnWindowManagerServiceStart init snap shot skip policy when wms restart");
+        mockSessionManagerServiceProxy->SetSnapshotSkipByMap(policyMap);
+    } else {
+        EDMLOGI("OnWindowManagerServiceStart no policy to update");
+    }
+}
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {

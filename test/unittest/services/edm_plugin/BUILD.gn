@@ -51,6 +51,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
+    "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
   ]
@@ -315,6 +316,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
+    "../../../../services/edm_plugin/src/snapshot_skip_plugin.cpp",
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/installer_callback.cpp",
@@ -353,6 +355,7 @@ ohos_static_library("edm_all_plugin_static") {
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
+    "window_manager:sms",
   ]
   defines = []
   if (update_service_edm_enable) {

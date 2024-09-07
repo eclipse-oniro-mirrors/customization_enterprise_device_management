@@ -35,6 +35,7 @@ namespace EdmConstants {
     constexpr int32_t SET_POLICIES_TYPE = 1;
     constexpr int32_t SET_POLICY_TYPE = 2;
     constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
+    constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
 
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";

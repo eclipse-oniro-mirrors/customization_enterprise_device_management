@@ -34,9 +34,18 @@ public:
         std::string permissionTag, int32_t accountId);
     int32_t GetDisallowedPolicyForAccount(AppExecFwk::ElementName &admin, int policyCode, bool &result,
         std::string permissionTag, int32_t accountId);
+
+    int32_t AddOrRemoveDisallowedListForAccount(const AppExecFwk::ElementName &admin, std::string feature,
+        std::vector<std::string> &bundles, int32_t accountId, bool isAdd);
+    int32_t GetDisallowedListForAccount(AppExecFwk::ElementName &admin, std::string feature, int32_t accountId,
+        std::vector<std::string> &result);
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
     static std::mutex mutexLock_;
+    bool GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &ipcCode);
+    std::unordered_map<std::string, std::uint32_t> featureInterfaceMap_ = {
+        {"snapshot_skip", EdmInterfaceCode::SNAPSHOT_SKIP}
+    };
 };
 } // namespace EDM
 } // namespace OHOS

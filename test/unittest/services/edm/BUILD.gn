@@ -102,6 +102,7 @@ ohos_static_library("edmservice_static") {
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "window_manager:sms",
   ]
 
   deps = [
@@ -189,6 +190,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:sms",
   ]
 
   if (os_account_edm_enable) {
