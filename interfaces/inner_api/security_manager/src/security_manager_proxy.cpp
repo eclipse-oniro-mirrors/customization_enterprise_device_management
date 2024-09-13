@@ -196,5 +196,37 @@ int32_t SecurityManagerProxy::GetAppClipboardPolicy(const AppExecFwk::ElementNam
     policy = reply.ReadString();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+    const std::shared_ptr<Media::PixelMap> pixelMap, const int32_t accountId)
+{
+    EDMLOGD("SecurityManagerProxy::SetWatermarkImage");
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::WATERMARK_IMAGE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(bundleName);
+    data.WriteParcelable(pixelMap.get());
+    data.WriteInt32(accountId);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+int32_t SecurityManagerProxy::CancelWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+    const int32_t accountId)
+{
+    EDMLOGD("SecurityManagerProxy::CancelWatermarkImage");
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::WATERMARK_IMAGE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(bundleName);
+    data.WriteInt32(accountId);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

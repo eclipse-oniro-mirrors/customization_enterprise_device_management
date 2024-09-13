@@ -42,6 +42,7 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
+#include "set_watermark_image_plugin.h"
 
 #ifdef PASTEBOARD_EDM_ENABLE
 #include "clipboard_policy_serializer.h"
@@ -163,6 +164,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
             that->OnNetManagerBaseServiceStart(systemAbilityId, deviceId);
         };
 #endif
+    addSystemAbilityFuncMap_[RENDER_SERVICE] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnRenderSystemStart(systemAbilityId, deviceId);
+        };
 }
 
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
@@ -456,6 +461,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     AddSystemAbilityListener(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
 #endif
+    AddSystemAbilityListener(RENDER_SERVICE);
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -602,6 +608,13 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
     }
 }
 #endif
+
+void EnterpriseDeviceMgrAbility::OnRenderSystemStart(int32_t systemAbilityId, const std::string &deviceId)
+{
+    EDMLOGI("OnRenderSystemStart");
+    SetWatermarkImagePlugin plugin;
+    plugin.SetAllWatermarkImage();
+}
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
 

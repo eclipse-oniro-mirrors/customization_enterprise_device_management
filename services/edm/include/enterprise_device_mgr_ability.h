@@ -119,6 +119,7 @@ private:
     void HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap);
 #endif
     void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
+    void OnRenderSystemStart(int32_t systemAbilityId, const std::string &deviceId);
     void OnWindowManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);

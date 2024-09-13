@@ -33,6 +33,8 @@ ohos_shared_library("securitymanager") {
     "ability_base:want",
     "cJSON:cjson",
     "hilog:libhilog",
+    "image_framework:image",
+    "image_framework:image_native",
     "napi:ace_napi",
   ]
 

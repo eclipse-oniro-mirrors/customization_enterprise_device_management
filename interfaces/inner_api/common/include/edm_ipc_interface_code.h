@@ -95,6 +95,7 @@ enum EdmInterfaceCode : uint32_t {
     INACTIVE_USER_FREEZE = 1058,
     DISALLOWED_USB_DEVICES = 1059,
     SNAPSHOT_SKIP = 1060,
+    WATERMARK_IMAGE = 1061,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

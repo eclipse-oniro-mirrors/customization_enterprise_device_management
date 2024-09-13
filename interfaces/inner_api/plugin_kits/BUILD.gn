@@ -51,6 +51,7 @@ ohos_shared_library("plugin_kits") {
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
+    "image_framework:image_native",
     "jsoncpp:jsoncpp",
   ]
 

@@ -278,6 +278,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicyFail, TestSize.Level
     int32_t ret = proxy_->GetAppClipboardPolicy(admin, 123, policy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

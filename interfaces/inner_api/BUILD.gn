@@ -81,7 +81,10 @@ ohos_shared_library("edmservice_kits") {
     "samgr:samgr_proxy",
   ]
 
-  public_external_deps = [ "ability_base:want" ]
+  public_external_deps = [
+    "ability_base:want",
+    "image_framework:image_native",
+  ]
   defines = []
 
   if (os_account_edm_enable) {
