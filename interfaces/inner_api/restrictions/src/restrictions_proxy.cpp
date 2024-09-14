@@ -129,5 +129,71 @@ int32_t RestrictionsProxy::GetDisallowedPolicyForAccount(AppExecFwk::ElementName
     reply.ReadBool(result);
     return ERR_OK;
 }
+
+int32_t RestrictionsProxy::AddOrRemoveDisallowedListForAccount(const AppExecFwk::ElementName &admin,
+    std::string feature, std::vector<std::string> &bundles, int32_t accountId, bool isAdd)
+{
+    EDMLOGD("RestrictionsProxy::AddOrRemoveDisallowedListForAccount called");
+    MessageParcel data;
+    std::uint32_t interfaceCode = 0;
+    if (!GetDisallowedListInterfaceCode(feature, interfaceCode)) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::uint32_t funcCode = 0;
+    if (isAdd) {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, interfaceCode);
+    } else {
+        funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, interfaceCode);
+    }
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteStringVector(bundles);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t RestrictionsProxy::GetDisallowedListForAccount(AppExecFwk::ElementName &admin, std::string feature,
+    int32_t accountId, std::vector<std::string> &result)
+{
+    EDMLOGD("RestrictionsProxy::GetDisallowedListForAccount called");
+    std::uint32_t interfaceCode = 0;
+    if (!GetDisallowedListInterfaceCode(feature, interfaceCode)) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(interfaceCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t size = reply.ReadInt32();
+    if (size > EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE) {
+        EDMLOGE("RestrictionsProxy:GetDisallowedListForAccount size=[%{public}d] is too large.", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    reply.ReadStringVector(&result);
+    return ERR_OK;
+}
+
+bool RestrictionsProxy::GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &interfaceCode)
+{
+    auto it = featureInterfaceMap_.find(feature);
+    if (it != featureInterfaceMap_.end()) {
+        interfaceCode = it->second;
+        return true;
+    }
+    return false;
+}
 } // namespace EDM
 } // namespace OHOS

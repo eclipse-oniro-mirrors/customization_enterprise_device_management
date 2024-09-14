@@ -90,7 +90,8 @@
         "update_service",
         "usb_manager",
         "user_auth_framework",
-        "wifi"
+        "wifi",
+        "window_manager"
       ]
     },
     "build": {

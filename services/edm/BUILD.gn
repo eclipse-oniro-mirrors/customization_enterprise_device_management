@@ -97,6 +97,7 @@ ohos_shared_library("edmservice") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:sms",
   ]
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
@@ -119,6 +120,7 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/power_policy_plugin.cpp",
       "../edm_plugin/src/screen_off_time_plugin.cpp",
       "../edm_plugin/src/set_update_policy_plugin.cpp",
+      "../edm_plugin/src/snapshot_skip_plugin.cpp",
       "../edm_plugin/src/uninstall_plugin.cpp",
     ]
     if (time_service_edm_enable) {

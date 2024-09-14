@@ -126,6 +126,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "netmanager_base:net_native_manager_if",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "window_manager:sms",
   ]
 
   deps = [
