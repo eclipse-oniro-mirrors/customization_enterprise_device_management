@@ -101,12 +101,14 @@ ohos_static_library("edmservice_fuzz_static") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "window_manager:libwm",
   ]
 
   external_deps = [
@@ -153,7 +155,10 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/operate_device_plugin.cpp",
       "../../../services/edm_plugin/src/power_policy_plugin.cpp",
       "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
+      "../../../services/edm_plugin/src/set_watermark_image_plugin.cpp",
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
+      "../../../services/edm_plugin/src/utils/watermark_application_observer.cpp",
+      "../../../services/edm_plugin/src/utils/watermark_image_serializer.cpp",
     ]
 
     if (os_account_edm_enable) {

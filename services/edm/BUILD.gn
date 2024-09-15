@@ -38,6 +38,8 @@ ohos_shared_library("edmservice") {
     "../edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../edm_plugin/src/utils/update_policy_serializer.cpp",
     "../edm_plugin/src/utils/upgrade_package_info_serializer.cpp",
+    "../edm_plugin/src/utils/watermark_application_observer.cpp",
+    "../edm_plugin/src/utils/watermark_image_serializer.cpp",
     "./src/admin.cpp",
     "./src/admin_manager.cpp",
     "./src/admin_policies_storage_rdb.cpp",
@@ -90,6 +92,7 @@ ohos_shared_library("edmservice") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -97,6 +100,7 @@ ohos_shared_library("edmservice") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
     "window_manager:sms",
   ]
   if (enterprise_device_management_support_all) {
@@ -120,6 +124,7 @@ ohos_shared_library("edmservice") {
       "../edm_plugin/src/power_policy_plugin.cpp",
       "../edm_plugin/src/screen_off_time_plugin.cpp",
       "../edm_plugin/src/set_update_policy_plugin.cpp",
+      "../edm_plugin/src/set_watermark_image_plugin.cpp",
       "../edm_plugin/src/snapshot_skip_plugin.cpp",
       "../edm_plugin/src/uninstall_plugin.cpp",
     ]
