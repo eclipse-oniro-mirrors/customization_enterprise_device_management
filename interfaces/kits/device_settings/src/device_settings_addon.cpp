@@ -15,6 +15,7 @@
 #include "device_settings_addon.h"
 
 #include "cJSON.h"
+#include "cjson_check.h"
 #include "datetime_manager_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -520,19 +521,19 @@ bool DeviceSettingsAddon::JsStrToPowerPolicy(napi_env env, std::string jsStr, Po
 int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene &powerScene, PowerPolicy &powerPolicy,
     std::string &info)
 {
-    cJSON *json = cJSON_CreateObject();
-    if (json == nullptr) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    cJSON *powerPoilcyJs = cJSON_CreateObject();
-    if (powerPoilcyJs == nullptr) {
-        cJSON_Delete(json);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    cJSON *json = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(json, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    cJSON *powerPoilcyJs = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(powerPoilcyJs, EdmReturnErrCode::SYSTEM_ABNORMALLY, json);
     cJSON_AddNumberToObject(powerPoilcyJs, "powerPolicyAction",
         static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
     cJSON_AddNumberToObject(powerPoilcyJs, "delayTime", powerPolicy.GetDealyTime());
-    cJSON_AddItemToObject(json, std::to_string(static_cast<uint32_t>(powerScene)).c_str(), powerPoilcyJs);
+    bool ret = cJSON_AddItemToObject(json, std::to_string(static_cast<uint32_t>(powerScene)).c_str(), powerPoilcyJs);
+    if (!ret) {
+        cJSON_Delete(json);
+        cJSON_Delete(powerPoilcyJs);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     char *jsonStr = cJSON_PrintUnformatted(json);
     if (jsonStr == nullptr) {
         cJSON_Delete(json);

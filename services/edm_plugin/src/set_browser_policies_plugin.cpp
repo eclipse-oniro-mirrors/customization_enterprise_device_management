@@ -16,6 +16,7 @@
 #include "set_browser_policies_plugin.h"
 
 #include "bundle_manager_utils.h"
+#include "cjson_check.h"
 #include "cjson_serializer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -151,33 +152,36 @@ ErrCode SetBrowserPoliciesPlugin::SetPolicy(const std::string policyData, std::s
     cJSON* policies = nullptr;
     auto serializer_ = CjsonSerializer::GetInstance();
     if (!serializer_->Deserialize(policyData, policies)) {
-        EDMLOGD("SetBrowserPolicyPlugin parse policies error!");
+        EDMLOGE("SetBrowserPolicyPlugin parse policies error!");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
     cJSON* beforeParsedPolicy = cJSON_GetObjectItem(policies, appid.c_str());
-    cJSON* policy;
+    cJSON* policy = nullptr;
     if (beforeParsedPolicy == nullptr) {
-        cJSON_AddItemToObject(policies, appid.c_str(), cJSON_CreateObject());
-        policy = cJSON_CreateObject();
+        cJSON* appidObj = nullptr;
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(appidObj, EdmReturnErrCode::SYSTEM_ABNORMALLY, policies);
+        if (!cJSON_AddItemToObject(policies, appid.c_str(), appidObj)) {
+            EDMLOGE("SetBrowserPolicyPlugin AddItemToObject appid error!");
+            cJSON_Delete(policies);
+            cJSON_Delete(appidObj);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policy, EdmReturnErrCode::SYSTEM_ABNORMALLY, policies);
     } else {
         std::string beforeParsedPolicyString = cJSON_GetStringValue(beforeParsedPolicy);
         if (!serializer_->Deserialize(beforeParsedPolicyString, policy)) {
-            EDMLOGD("SetBrowserPolicyPlugin parse policies error!");
+            EDMLOGE("SetBrowserPolicyPlugin parse policies error!");
             cJSON_Delete(policies);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
     cJSON_DeleteItemFromObject(policy, policyName.c_str());
-    if (!policyValue.empty()) {
-        cJSON* value = nullptr;
-        if (!serializer_->Deserialize(policyValue, value)) {
-            EDMLOGD("SetBrowserPolicyPlugin parse policyValue error!");
-            cJSON_Delete(policies);
-            cJSON_Delete(policy);
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        cJSON_AddItemToObject(policy, policyName.c_str(), value);
+    ErrCode ret = SetPolicyValue(policy, policyName, policyValue);
+    if (ret != ERR_OK) {
+        cJSON_Delete(policies);
+        cJSON_Delete(policy);
+        return ret;
     }
     std::string policyString;
     serializer_->Serialize(policy, policyString);
@@ -185,6 +189,24 @@ ErrCode SetBrowserPoliciesPlugin::SetPolicy(const std::string policyData, std::s
     serializer_->Serialize(policies, afterHandle);
     cJSON_Delete(policies);
     cJSON_Delete(policy);
+    return ERR_OK;
+}
+
+ErrCode SetBrowserPoliciesPlugin::SetPolicyValue(cJSON* policy, std::string policyName,
+    std::string policyValue)
+{
+    if (!policyValue.empty()) {
+        cJSON* value = nullptr;
+        if (!CjsonSerializer::GetInstance()->Deserialize(policyValue, value)) {
+            EDMLOGE("SetBrowserPolicyPlugin parse policyValue error!");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        if (!cJSON_AddItemToObject(policy, policyName.c_str(), value)) {
+            EDMLOGE("SetBrowserPolicyPlugin AddItemToObject value error!");
+            cJSON_Delete(value);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
     return ERR_OK;
 }
 
