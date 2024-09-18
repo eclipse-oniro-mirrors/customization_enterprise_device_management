@@ -41,8 +41,9 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
 
-    static const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
-    static const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
+    const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
+    const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
+
 
     namespace DeviceInfo {
         const char* const DEVICE_NAME = "deviceName";
@@ -79,6 +80,8 @@ namespace EdmConstants {
         const char* const PATCH = "patch";
         const char* const ENCRYPTION = "encryption";
         const char* const ROOT = "root";
+        const char* const SET_SINGLE_WATERMARK_TYPE = "single";
+        const char* const SET_ALL_WATERMARK_TYPE = "all";
     } // namespace SecurityManager
 
     namespace DeviceSettings {

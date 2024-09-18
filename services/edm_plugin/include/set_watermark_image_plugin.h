@@ -23,6 +23,14 @@
 
 namespace OHOS {
 namespace EDM {
+struct WatermarkParam {
+    std::string bundleName;
+    int32_t accountId = 0;
+    int32_t width = 0;
+    int32_t height = 0;
+    int32_t size = 0;
+    const void* pixels;
+};
 class SetWatermarkImagePlugin : public IPlugin {
 public:
     SetWatermarkImagePlugin();
@@ -45,13 +53,17 @@ public:
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
 private:
-    ErrCode CancelWatermarkImage(MessageParcel &data, MessageParcel &reply, EDM::HandlePolicyData &policyData);
-    ErrCode SetSingleWatermarkImage(MessageParcel &data, MessageParcel &reply, EDM::HandlePolicyData &policyData);
+    ErrCode SetPolicy(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData);
+    ErrCode CancelWatermarkImage(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData);
+    ErrCode SetSingleWatermarkImage(WatermarkParam &param, HandlePolicyData &policyData);
+    bool GetWatermarkParam(WatermarkParam &param, MessageParcel &data);
     bool SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg);
     void SetProcessWatermark(const std::string &bundleName, const std::string &fileName,
         int32_t accountId, bool enabled);
-    bool SetImageUint8(const std::shared_ptr<Media::PixelMap> &pixelMap, const std::string &url);
+    bool SetImageUint8(const void* pixels, int32_t size, const std::string &url);
     std::shared_ptr<Media::PixelMap> GetImageFromUrlUint8(const WatermarkImageType &imageType);
+    std::shared_ptr<Media::PixelMap> CreatePixelMapFromUint8(const uint8_t* data, size_t size,
+        int32_t width, int32_t height);
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     sptr<AppExecFwk::IAppMgr> GetAppManager();

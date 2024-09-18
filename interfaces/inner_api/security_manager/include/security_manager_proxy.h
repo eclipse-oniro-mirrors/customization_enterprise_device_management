@@ -48,6 +48,7 @@ public:
 
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
+    bool WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data);
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::mutex mutexLock_;
 };

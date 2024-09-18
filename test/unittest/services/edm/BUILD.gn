@@ -59,13 +59,10 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/super_admin.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
-    "../../../../services/edm_plugin/src/set_watermark_image_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
     "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
-    "../../../../services/edm_plugin/src/utils/watermark_application_observer.cpp",
-    "../../../../services/edm_plugin/src/utils/watermark_image_serializer.cpp",
   ]
 
   public_configs = [
@@ -99,7 +96,6 @@ ohos_static_library("edmservice_static") {
     "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -107,7 +103,6 @@ ohos_static_library("edmservice_static") {
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "window_manager:libwm",
     "window_manager:sms",
   ]
 

@@ -208,11 +208,41 @@ int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &a
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::SecurityManager::SET_SINGLE_WATERMARK_TYPE);
     data.WriteString(bundleName);
-    data.WriteParcelable(pixelMap.get());
     data.WriteInt32(accountId);
+    if (!WritePixelMap(pixelMap, data)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+bool SecurityManagerProxy::WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data)
+{
+    int32_t size = pixelMap->GetByteCount();
+    if (size <= 0) {
+        EDMLOGE("WritePixelMap size %{public}d", size);
+        return false;
+    }
+    void* pixels = malloc(size);
+    if (pixels == nullptr) {
+        EDMLOGE("WritePixelMap malloc fail");
+        return false;
+    }
+    uint32_t ret = pixelMap->ReadPixels(size, reinterpret_cast<uint8_t*>(pixels));
+    if (ret != ERR_OK) {
+        EDMLOGE("WritePixelMap ReadPixels fail!");
+        free(pixels);
+        return false;
+    }
+    data.WriteInt32(pixelMap->GetWidth());
+    data.WriteInt32(pixelMap->GetHeight());
+    data.WriteInt32(size);
+    data.WriteRawData(reinterpret_cast<const void*>(pixels), size);
+    free(pixels);
+    return true;
+}
+
 int32_t SecurityManagerProxy::CancelWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
     const int32_t accountId)
 {

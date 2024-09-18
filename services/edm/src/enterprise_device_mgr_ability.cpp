@@ -612,8 +612,19 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
 void EnterpriseDeviceMgrAbility::OnRenderSystemStart(int32_t systemAbilityId, const std::string &deviceId)
 {
     EDMLOGI("OnRenderSystemStart");
-    SetWatermarkImagePlugin plugin;
-    plugin.SetAllWatermarkImage();
+    InitAllPlugins();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::WATERMARK_IMAGE);
+    auto plugin = pluginMgr_->GetPluginByFuncCode(funcCode);
+    if (plugin == nullptr) {
+        EDMLOGE("get watermarkPlugin fail");
+        return;
+    }
+    MessageParcel data;
+    data.WriteString(EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE);
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    plugin->OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
