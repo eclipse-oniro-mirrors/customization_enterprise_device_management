@@ -25,6 +25,7 @@
 #include "iservice_registry.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
+#include "security_label.h"
 #include "system_ability_definition.h"
 #include "transaction/rs_interfaces.h"
 #include "watermark_image_serializer.h"
@@ -37,6 +38,7 @@ namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<SetWatermarkImagePlugin>());
 const std::string WATERMARK_IMAGE_DIR_PATH = "/data/service/el1/public/edm/watermark/";
 const std::string FILE_PREFIX = "edm_";
+const std::string DATA_LEVEL_S4 = "s4";
 constexpr int32_t MAX_POLICY_NUM = 100;
 SetWatermarkImagePlugin::SetWatermarkImagePlugin()
 {
@@ -56,9 +58,25 @@ ErrCode SetWatermarkImagePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     if (type == FuncOperateType::SET) {
-        return SetSingleWatermarkImage(data, reply, policyData);
+        return SetPolicy(data, reply, policyData);
     } else if (type == FuncOperateType::REMOVE) {
         return CancelWatermarkImage(data, reply, policyData);
+    }
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData)
+{
+    std::string type = data.ReadString();
+    if (type == EdmConstants::SecurityManager::SET_SINGLE_WATERMARK_TYPE) {
+        WatermarkParam param;
+        if (!GetWatermarkParam(param, data)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        return SetSingleWatermarkImage(param, policyData);
+    } else if (type == EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE) {
+        SetAllWatermarkImage();
+        return ERR_OK;
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -160,25 +178,18 @@ void SetWatermarkImagePlugin::SetProcessWatermarkOnAppStart(const std::string &b
     }
 }
 
-ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(MessageParcel &data,
-    MessageParcel &reply, HandlePolicyData &policyData)
+ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param, HandlePolicyData &policyData)
 {
-    std::string bundleName = data.ReadString();
-    auto pixelMap = std::shared_ptr<Media::PixelMap>(data.ReadParcelable<Media::PixelMap>());
-    int32_t accountId = data.ReadInt32();
-    if (bundleName.empty() || pixelMap == nullptr || accountId <= 0) {
-        EDMLOGE("SetWatermarkImagePlugin param error");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
+    auto pixelMap = CreatePixelMapFromUint8(reinterpret_cast<const uint8_t*>(param.pixels),
+        param.size, param.width, param.height);
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();
     serializer->Deserialize(policyData.policyData, currentData);
-    auto key = std::make_pair(bundleName, accountId);
+    auto key = std::make_pair(param.bundleName, param.accountId);
     std::string oldFileName = currentData[key].fileName;
     std::string fileName = FILE_PREFIX + std::to_string(time(nullptr));
     std::string filePath = WATERMARK_IMAGE_DIR_PATH + fileName;
-    currentData[key] = WatermarkImageType{fileName, pixelMap->GetWidth(), pixelMap->GetHeight()};
+    currentData[key] = WatermarkImageType{fileName, param.width, param.height};
     if (currentData.size() > MAX_POLICY_NUM) {
         EDMLOGE("SetWatermarkImagePlugin policy max");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -188,7 +199,7 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(MessageParcel &data,
         EDMLOGE("SetWatermarkToRS fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (!SetImageUint8(pixelMap, filePath)) {
+    if (!SetImageUint8(param.pixels, param.size, filePath)) {
         EDMLOGE("SetWatermarkImagePlugin SetImageUint8 error.fileName=%{public}s", fileName.c_str());
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -202,9 +213,9 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(MessageParcel &data,
         if (ret != 0) {
             EDMLOGE("SetWatermarkImagePlugin SetWatermarkImage remove failed");
         }
-        SetProcessWatermark(bundleName, oldFileName, accountId, false);
+        SetProcessWatermark(param.bundleName, oldFileName, param.accountId, false);
     }
-    SetProcessWatermark(bundleName, fileName, accountId, true);
+    SetProcessWatermark(param.bundleName, fileName, param.accountId, true);
 
     std::string afterHandle;
     serializer->Serialize(currentData, afterHandle);
@@ -213,6 +224,30 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(MessageParcel &data,
         policyData.policyData = afterHandle;
     }
     return ERR_OK;
+}
+
+bool SetWatermarkImagePlugin::GetWatermarkParam(WatermarkParam &param, MessageParcel &data)
+{
+    std::string bundleName = data.ReadString();
+    int32_t accountId = data.ReadInt32();
+    int32_t width = data.ReadInt32();
+    int32_t height = data.ReadInt32();
+    int32_t size = data.ReadInt32();
+    if (size <= 0 || size > static_cast<int32_t>(data.GetRawDataCapacity())) {
+        EDMLOGE("GetWatermarkParam size error");
+        return false;
+    }
+    const void* pixels = data.ReadRawData(size);
+    if (pixels == nullptr) {
+        EDMLOGE("GetWatermarkParam pixels error");
+        return false;
+    }
+    if (bundleName.empty() || width <= 0 || height <= 0 || accountId <= 0) {
+        EDMLOGE("GetWatermarkParam param error");
+        return false;
+    }
+    param = {bundleName, accountId, width, height, size, pixels};
+    return true;
 }
 
 bool SetWatermarkImagePlugin::SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg)
@@ -250,7 +285,7 @@ void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName,
     }
 }
 
-bool SetWatermarkImagePlugin::SetImageUint8(const std::shared_ptr<Media::PixelMap> &pixelMap, const std::string &url)
+bool SetWatermarkImagePlugin::SetImageUint8(const void* pixels, int32_t size, const std::string &url)
 {
     EDMLOGI("SetImageUint8 start");
     std::ofstream outfile(url, std::ios::binary);
@@ -258,30 +293,14 @@ bool SetWatermarkImagePlugin::SetImageUint8(const std::shared_ptr<Media::PixelMa
         EDMLOGE("SetImageUint8 Open file fail!");
         return false;
     }
-    int32_t size = pixelMap->GetByteCount();
-    if (size <= 0) {
-        EDMLOGE("SetImageUint8 size %{public}d", size);
-        outfile.close();
-        return false;
-    }
-    uint8_t* pixels = (uint8_t*)malloc(size);
-    if (pixels == nullptr) {
-        EDMLOGE("SetImageUint8 malloc fail!");
-        outfile.close();
-        return false;
-    }
-    uint32_t ret = pixelMap->ReadPixels(size, pixels);
-    if (ret != ERR_OK) {
-        EDMLOGE("SetImageUint8 ReadPixels fail!");
-        outfile.close();
-        free(pixels);
-        return false;
-    }
-    outfile.write(reinterpret_cast<char*>(pixels), size);
+    outfile.write(reinterpret_cast<const char*>(pixels), static_cast<std::streamsize>(size));
     outfile.close();
-    free(pixels);
     if (chmod(url.c_str(), S_IRUSR | S_IWUSR) != 0) {
         EDMLOGE("SetImageUint8 chmod fail!");
+        return false;
+    }
+    if (!FileManagement::ModuleSecurityLabel::SecurityLabel::SetSecurityLabel(url, DATA_LEVEL_S4)) {
+        EDMLOGE("SetImageUint8 SetSecurityLabel fail!");
         return false;
     }
     return true;
@@ -306,18 +325,24 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::GetImageFromUrlUint8(c
     uint8_t data[size];
     infile.read(reinterpret_cast<char*>(data), size);
     infile.close();
+    return CreatePixelMapFromUint8(data, size, imageType.width, imageType.height);
+}
+
+std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::CreatePixelMapFromUint8(const uint8_t* data, size_t size,
+    int32_t width, int32_t height)
+{
     Media::InitializationOptions opt;
-    opt.size.width = imageType.width;
-    opt.size.height = imageType.height;
+    opt.size.width = width;
+    opt.size.height = height;
     opt.editable = true;
     auto pixelMap = Media::PixelMap::Create(opt);
     if (pixelMap == nullptr) {
-        EDMLOGE("GetImageFromUrlUint8 Create PixelMap error");
+        EDMLOGE("CreatePixelMapFromUint8 Create PixelMap error");
         return nullptr;
     }
     uint32_t ret = pixelMap->WritePixels(data, size);
     if (ret != ERR_OK) {
-        EDMLOGE("GetImageFromUrlUint8 WritePixels error");
+        EDMLOGE("CreatePixelMapFromUint8 WritePixels error");
         return nullptr;
     }
     return pixelMap;

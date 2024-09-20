@@ -92,6 +92,7 @@ ohos_shared_library("edmservice") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "file_api:securitylabel",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",

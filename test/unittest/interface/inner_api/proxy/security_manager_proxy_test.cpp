@@ -279,6 +279,47 @@ HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicyFail, TestSize.Level
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestSetWatermarkImageSuc
+ * @tc.desc: Test SetWatermarkImage success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetWatermarkImageSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string bundleName = "testBundleName";
+    Media::InitializationOptions opt;
+    opt.size.width = 100;
+    opt.size.height = 100;
+    auto pixelMap = Media::PixelMap::Create(opt);
+    uint8_t* data = (uint8_t*)malloc(200);
+    pixelMap->WritePixels(data, 200);
+    int32_t ret = proxy_->SetWatermarkImage(admin, bundleName,
+        std::shared_ptr<Media::PixelMap>(std::move(pixelMap)), 100);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestCancelWatermarkImageSec
+ * @tc.desc: Test CancelWatermarkImage success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestCancelWatermarkImageSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string bundleName = "testBundleName";
+    int32_t ret = proxy_->CancelWatermarkImage(admin, bundleName, 100);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

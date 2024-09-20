@@ -62,7 +62,7 @@ bool WatermarkImageSerializer::Deserialize(const std::string &policy,
 bool WatermarkImageSerializer::Serialize(const std::map<std::pair<std::string, int32_t>, WatermarkImageType> &dataObj,
     std::string &policy)
 {
-    if (policy.empty()) {
+    if (dataObj.empty()) {
         return true;
     }
     cJSON* root = nullptr;
