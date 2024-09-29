@@ -44,7 +44,7 @@ private:
     static std::mutex mutexLock_;
     bool GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &ipcCode);
     std::unordered_map<std::string, std::uint32_t> featureInterfaceMap_ = {
-        {"snapshot_skip", EdmInterfaceCode::SNAPSHOT_SKIP}
+        {"snapshotSkip", EdmInterfaceCode::SNAPSHOT_SKIP}
     };
 };
 } // namespace EDM

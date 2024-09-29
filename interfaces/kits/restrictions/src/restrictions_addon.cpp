@@ -51,7 +51,7 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
-    {EdmConstants::Restrictions::LABEL_FINGERPRINT_FOR_ACCOUNT, EdmInterfaceCode::FINGERPRINT_AUTH},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

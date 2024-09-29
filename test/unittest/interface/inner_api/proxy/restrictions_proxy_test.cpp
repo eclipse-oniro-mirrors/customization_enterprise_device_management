@@ -29,6 +29,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
+const std::string FEATURE_SNAPSHOT_SKIP = "snapshotSkip";
 class RestrictionsProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -298,11 +299,10 @@ HWTEST_F(RestrictionsProxyTest, TestAddDisallowedListForAccountSuc, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
     bundles.emplace_back("aaaa");
     bundles.emplace_back("bbbb");
-    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, true);
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, bundles, 100, true);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -318,11 +318,10 @@ HWTEST_F(RestrictionsProxyTest, TestRemoveDisallowedListForAccountSucc, TestSize
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
     bundles.emplace_back("aaaa");
     bundles.emplace_back("bbbb");
-    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, false);
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, bundles, 100, false);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -336,11 +335,10 @@ HWTEST_F(RestrictionsProxyTest, TestAddDisallowedListForAccountFail, TestSize.Le
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
     bundles.emplace_back("aaaa");
     bundles.emplace_back("bbbb");
-    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, true);
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, bundles, 100, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -354,11 +352,10 @@ HWTEST_F(RestrictionsProxyTest, TestRemoveDisallowedListForAccountFail, TestSize
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
     bundles.emplace_back("aaaa");
     bundles.emplace_back("bbbb");
-    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, feature, bundles, 100, false);
+    int32_t ret = proxy_->AddOrRemoveDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, bundles, 100, false);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -374,9 +371,8 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedListForAccountSuc, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
-    int32_t ret = proxy_->GetDisallowedListForAccount(admin, feature, 100, bundles);
+    int32_t ret = proxy_->GetDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, 100, bundles);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(bundles.size() == 1);
     ASSERT_TRUE(bundles[0] == RETURN_STRING);
@@ -392,9 +388,8 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedListForAccountFail, TestSize.Le
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string feature = "snapshot_skip";
     std::vector<std::string> bundles;
-    int32_t ret = proxy_->GetDisallowedListForAccount(admin, feature, 100, bundles);
+    int32_t ret = proxy_->GetDisallowedListForAccount(admin, FEATURE_SNAPSHOT_SKIP, 100, bundles);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
