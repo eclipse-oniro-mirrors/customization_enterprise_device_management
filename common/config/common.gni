@@ -116,4 +116,9 @@ declare_args() {
       defined(global_parts_info.distributeddatamgr_pasteboard)) {
     pasteboard_edm_enable = true
   }
+  camera_framework_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.multimedia_camera_framework)) {
+    camera_framework_edm_enable = true
+  }
 }
