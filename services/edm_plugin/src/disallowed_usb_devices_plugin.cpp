@@ -145,8 +145,11 @@ ErrCode DisallowedUsbDevicesPlugin::EnableAllUsb()
 {
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     int32_t usbRet = srvClient.ManageGlobalInterface(false);
-    if (usbRet != ERR_OK) {
-        EDMLOGE("DisableUsbPlugin OnSetPolicy: ManageGlobalInterface failed! ret:%{public}d", usbRet);
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("DisallowedUsbDevicesPlugin EnableAllUsb: ManageGlobalInterface failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGE("DisallowedUsbDevicesPlugin EnableAllUsb: ManageGlobalInterface failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -158,7 +161,10 @@ ErrCode DisallowedUsbDevicesPlugin::DealDisallowedDevices(std::vector<USB::UsbDe
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
 
     int32_t usbRet = srvClient.ManageInterfaceType(data, true);
-    if (usbRet != ERR_OK) {
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("DisallowedUsbDevicesPlugin OnHandlePolicy: ManageInterfaceType failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGE("DisallowedUsbDevicesPlugin OnHandlePolicy: ManageInterfaceType failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
