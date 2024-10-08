@@ -34,7 +34,7 @@ public:
     int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
 #ifdef OS_ACCOUNT_EDM_ENABLE
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
-        OHOS::AccountSA::OsAccountInfo &accountInfo, std::string &distributedInfoName, std::string &distributedInfoId);
+        OHOS::AccountSA::OsAccountInfo &accountInfo);
 #endif
 
 private:

@@ -196,15 +196,10 @@ HWTEST_F(AccountManagerProxyTest, TestAddOsAccountSuc, TestSize.Level1)
     std::string name = "ut_user_1";
     int32_t type = 1;
     OHOS::AccountSA::OsAccountInfo accountInfo;
-    std::string distributedInfoName;
-    std::string distributedInfoId;
-    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo, distributedInfoName,
-        distributedInfoId);
+    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo);
     ASSERT_TRUE(ret == ERR_OK);
     GTEST_LOG_(INFO) << "AccountManagerProxyTest TestAddOsAccountSuc code :" << accountInfo.GetLocalName();
     ASSERT_TRUE(accountInfo.GetLocalName() == RETURN_STRING);
-    ASSERT_TRUE(distributedInfoName == RETURN_STRING);
-    ASSERT_TRUE(distributedInfoId == RETURN_STRING);
 }
 
 /**
@@ -219,14 +214,9 @@ HWTEST_F(AccountManagerProxyTest, TestAddOsAccountFail, TestSize.Level1)
     std::string name = "ut_user_2";
     int32_t type = 1;
     OHOS::AccountSA::OsAccountInfo accountInfo;
-    std::string distributedInfoName;
-    std::string distributedInfoId;
-    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo, distributedInfoName,
-        distributedInfoId);
+    ErrCode ret = accountManagerProxy->AddOsAccount(admin, name, type, accountInfo);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(accountInfo.GetLocalName().empty());
-    ASSERT_TRUE(distributedInfoName.empty());
-    ASSERT_TRUE(distributedInfoId.empty());
 }
 } // namespace TEST
 } // namespace EDM
