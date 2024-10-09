@@ -100,7 +100,7 @@ ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data,
     if (it != currentData.end()) {
         std::string filePath = WATERMARK_IMAGE_DIR_PATH + it->second.fileName;
         SetProcessWatermark(bundleName, it->second.fileName, accountId, false);
-        if (!SetWatermarkToRS(filePath, nullptr)) {
+        if (!SetWatermarkToRS(it->second.fileName, nullptr)) {
             EDMLOGE("SetWatermarkToRS fail");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
