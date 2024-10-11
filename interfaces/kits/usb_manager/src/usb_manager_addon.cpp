@@ -384,7 +384,7 @@ napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 
 napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::SetUsbStorageDeviceAccessPolicy called");
+    EDMLOGI("UsbManagerAddon::GetUsbStorageDeviceAccessPolicy called");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;

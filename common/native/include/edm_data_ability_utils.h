@@ -26,6 +26,8 @@ namespace EDM {
 class EdmDataAbilityUtils {
 public:
     static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
+    static ErrCode GetStringFromSettingsDataShare(const std::string &settingsDataUri, const std::string &key,
+        std::string &value);
     static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &result);
     static ErrCode UpdateSettingsData(const std::string &key, const std::string &value);
 };

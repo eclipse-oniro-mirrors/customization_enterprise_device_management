@@ -33,15 +33,20 @@ const std::string SETTINGS_DATA_BASE_URI =
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
+    return GetStringFromSettingsDataShare(SETTINGS_DATA_BASE_URI, key, value);
+}
+
+ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &settingsDataUri, const std::string &key,
+    std::string &value)
+{
     EDMLOGD("EdmDataAbilityUtils::GetStringFromSettingsDataShare enter.");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    auto dataShareHelper =
-        DataShare::DataShareHelper::Creator(remoteObject, SETTINGS_DATA_BASE_URI, SETTINGS_DATA_EXT_URI);
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObject, settingsDataUri, SETTINGS_DATA_EXT_URI);
     if (dataShareHelper == nullptr) {
         EDMLOGE("EdmDataAbilityUtils::Acquire dataShareHelper failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    Uri uri(SETTINGS_DATA_BASE_URI);
+    Uri uri(settingsDataUri);
     std::vector<std::string> columns{SETTINGS_DATA_FIELD_VALUE};
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(SETTINGS_DATA_FIELD_KEYWORD, key);
