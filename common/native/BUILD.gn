@@ -47,6 +47,7 @@ ohos_shared_library("edm_commom") {
     "ability_base:zuri",
     "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "data_share:datashare_consumer",
     "hilog:libhilog",

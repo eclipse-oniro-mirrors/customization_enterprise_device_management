@@ -16,6 +16,7 @@
 #include "password_policy_serializer.h"
 
 #include "cJSON.h"
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -50,7 +51,8 @@ bool PasswordSerializer::Deserialize(const std::string &jsonString, PasswordPoli
 
 bool PasswordSerializer::Serialize(const PasswordPolicy &policy, std::string &jsonString)
 {
-    cJSON* root = cJSON_CreateObject();
+    cJSON* root = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(root, false);
     cJSON_AddStringToObject(root, COMPLEXITY_REG.c_str(), policy.complexityReg.c_str());
     cJSON_AddNumberToObject(root, VALIDITY_PERIOD.c_str(), policy.validityPeriod);
     cJSON_AddStringToObject(root, ADDITIONAL_DESCRIPTION.c_str(), policy.additionalDescription.c_str());

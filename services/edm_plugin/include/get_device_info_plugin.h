@@ -32,7 +32,7 @@ private:
     ErrCode GetDeviceName(MessageParcel &reply);
     ErrCode GetDeviceSerial(MessageParcel &reply);
     ErrCode GetSimInfo(MessageParcel &reply);
-    void GetSimInfoBySlotId(int32_t slotId, cJSON *simJson);
+    bool GetSimInfoBySlotId(int32_t slotId, cJSON *simJson);
 };
 } // namespace EDM
 } // namespace OHOS
