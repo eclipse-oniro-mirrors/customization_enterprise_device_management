@@ -32,7 +32,7 @@ public:
     void OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
 private:
     bool ParseAutoStartAppWant(std::string appWant, std::string &bundleName, std::string &abilityName);
-    bool CheckBundleAndAbilityExited (std::vector<std::string> data);
+    bool CheckBundleAndAbilityExited (const std::string &bundleName, const std::string &abilityName);
 };
 } // namespace EDM
 } // namespace OHOS
