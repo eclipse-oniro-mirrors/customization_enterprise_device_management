@@ -54,10 +54,6 @@ int32_t SystemManagerProxy::GetNTPServer(const AppExecFwk::ElementName &admin, s
 {
     EDMLOGD("SystemManagerProxy::GetNTPServer");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);

@@ -51,10 +51,6 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetAllNetworkInterfaces");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -88,10 +84,6 @@ int32_t NetworkManagerProxy::GetIpOrMacAddress(const AppExecFwk::ElementName &ad
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::GetIpOrMacAddress");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -121,10 +113,6 @@ int32_t NetworkManagerProxy::SetNetworkInterfaceDisabled(const AppExecFwk::Eleme
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::SetNetworkInterfaceDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
@@ -149,10 +137,6 @@ int32_t NetworkManagerProxy::IsNetworkInterfaceDisabled(const AppExecFwk::Elemen
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     EDMLOGD("NetworkManagerProxy::IsNetworkInterfaceDisabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
