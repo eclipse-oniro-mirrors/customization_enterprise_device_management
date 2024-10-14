@@ -98,7 +98,7 @@ int32_t SnapshotSkipPlugin::SetSnapshotSkipByUserIdAndBundleNameList(int32_t use
         EDMLOGE("SetSnapshotSkipByUserIdAndBundleNameList wms obj cast fial");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return mockSessionManagerServiceProxy->SetSnapshotSkipByUserIdAndBundleNameList(userId, mergeData);
+    return mockSessionManagerServiceProxy->SetSnapshotSkipByUserIdAndBundleNames(userId, mergeData);
 }
 
 ErrCode SnapshotSkipPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,

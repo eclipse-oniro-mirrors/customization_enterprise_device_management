@@ -15,6 +15,7 @@
 
 #include "power_policy_plugin.h"
 
+#include "battery_utils.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -26,6 +27,8 @@ namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<PowerPolicyPlugin>());
 
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
+const std::string KEY_POWER_AC_SUSPEND = "settings.power.ac.suspend_sources";
+const std::string KEY_POWER_DC_SUSPEND = "settings.power.dc.suspend_sources";
 const std::string KEY_ACTION = "action";
 const std::string KEY_DELAY_TIME = "delayMs";
 const std::string KEY_TIME_OUT = "timeout";
@@ -97,9 +100,23 @@ ErrCode PowerPolicyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
 bool PowerPolicyPlugin::DealPowerSuspendPolicy(const std::string &policyKey, PowerPolicy &powerPolicy, bool isSetPolicy)
 {
     std::string powerSuspend;
+#ifdef FEATURE_CHARGING_TYPE_SETTING
+    std::string newKey;
+    if (BatteryUtils::GetBatteryPluggedType() == BatteryUtils::PLUGGED_TYPE_AC) {
+        newKey = KEY_POWER_AC_SUSPEND;
+    } else {
+        newKey = KEY_POWER_DC_SUSPEND;
+    }
+    if (FAILED(EdmDataAbilityUtils::GetStringFromSettingsDataShare(
+        BatteryUtils::GetSubUserTableUri(), newKey, powerSuspend))) {
+        return false;
+    }
+#else
     if (FAILED(EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_POWER_SUSPEND, powerSuspend))) {
         return false;
     }
+#endif
+
     Json::Reader reader;
     Json::Value root;
     if (!reader.parse(powerSuspend.data(), powerSuspend.data() + powerSuspend.size(), root)) {
@@ -136,9 +153,21 @@ bool PowerPolicyPlugin::UpdateSuspendSettingsData(Json::Value &root, const std::
     root[key] = valueObj;
     std::string jsonStr = root.toStyledString();
     EDMLOGD("PowerPolicyPlugin:OnSetPolicy jsonStr = %{public}s", jsonStr.c_str());
+
+#ifdef FEATURE_CHARGING_TYPE_SETTING
+    if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(
+        BatteryUtils::GetSubUserTableUri(), KEY_POWER_AC_SUSPEND, jsonStr))) {
+        return false;
+    }
+    if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(
+        BatteryUtils::GetSubUserTableUri(), KEY_POWER_DC_SUSPEND, jsonStr))) {
+        return false;
+    }
+#else
     if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(KEY_POWER_SUSPEND, jsonStr))) {
         return false;
     }
+#endif
     return true;
 }
 

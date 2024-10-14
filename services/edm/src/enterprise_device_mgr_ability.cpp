@@ -658,7 +658,7 @@ void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart(int32_t systemAbili
             return;
         }
         EDMLOGI("OnWindowManagerServiceStart init snap shot skip policy when wms restart");
-        mockSessionManagerServiceProxy->SetSnapshotSkipByMap(policyMap);
+        mockSessionManagerServiceProxy->SetSnapshotSkipByIdNamesMap(policyMap);
     } else {
         EDMLOGI("OnWindowManagerServiceStart no policy to update");
     }

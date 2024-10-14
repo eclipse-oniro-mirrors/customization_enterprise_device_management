@@ -528,7 +528,8 @@ int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene 
     cJSON_AddNumberToObject(powerPoilcyJs, "powerPolicyAction",
         static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
     cJSON_AddNumberToObject(powerPoilcyJs, "delayTime", powerPolicy.GetDealyTime());
-    bool ret = cJSON_AddItemToObject(json, std::to_string(static_cast<uint32_t>(powerScene)).c_str(), powerPoilcyJs);
+    cJSON_AddNumberToObject(json, "powerScene", static_cast<uint32_t>(powerScene));
+    bool ret = cJSON_AddItemToObject(json, "powerPolicy", powerPoilcyJs);
     if (!ret) {
         cJSON_Delete(json);
         cJSON_Delete(powerPoilcyJs);

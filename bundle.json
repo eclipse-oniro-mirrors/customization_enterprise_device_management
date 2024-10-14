@@ -41,6 +41,7 @@
     "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
     "features": [
       "enterprise_device_management_support_all",
+      "enterprise_device_management_feature_charging_type_setting",
       "enterprise_device_management_feature_coverage"
     ],
     "adapted_system_type": [
@@ -57,6 +58,7 @@
         "ability_runtime",
         "access_token",
         "audio_framework",
+        "battery_manager",
         "bluetooth",
         "bounds_checking_function",
         "bundle_framework",
