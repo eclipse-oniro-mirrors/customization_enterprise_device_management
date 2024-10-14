@@ -29,6 +29,17 @@ void EdmDataAbilityUtils::SetResult(const std::string &result)
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
+    return GetStringFromSettingsDataShare("", key, value);
+}
+
+ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &value)
+{
+    return GetIntFromSettingsDataShare("", key, value);
+}
+
+ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &settingsDataUri, const std::string &key,
+    std::string &value)
+{
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetStringFromDataShare start: " << result_.c_str();
     if (result_ == "test Failed") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Failed";
@@ -60,7 +71,8 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &k
     return ERR_OK;
 }
 
-ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &key, int32_t &value)
+ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &strUri, const std::string &key,
+    int32_t &value)
 {
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetIntFromDataShare start: " << result_.c_str();
     if (result_ == "SYSTEM_ABNORMALLY") {

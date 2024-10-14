@@ -47,9 +47,9 @@ bool EdmAccessTokenManagerImpl::IsSystemAppOrNative()
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
     if (isSystemApp || tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
         tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
-        EDMLOGE("EdmAccessTokenManagerImpl::not system app or native process");
         return true;
     }
+    EDMLOGE("EdmAccessTokenManagerImpl::not system app or native process");
     return false;
 }
 

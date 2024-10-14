@@ -22,13 +22,14 @@
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
+#include "external_manager_factory.h"
 #include "parameter.h"
 #include "plugin_manager.h"
 #include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const std::string KEY_DEVICE_NAME = "settings.general.device_name";
+const std::string KEY_DEVICE_NAME = "settings.general.display_device_name";
 
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
 
@@ -63,12 +64,32 @@ ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
+std::shared_ptr<IExternalManagerFactory> GetDeviceInfoPlugin::GetExternalManagerFactory()
+{
+    if (externalManagerFactory_ == nullptr) {
+        externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
+    }
+    return externalManagerFactory_;
+}
+
 ErrCode GetDeviceInfoPlugin::GetDeviceName(MessageParcel &reply)
 {
     std::string name;
-    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, name);
+    std::vector<int32_t> ids;
+    std::string userId;
+    ErrCode code = GetExternalManagerFactory()->CreateOsAccountManager()->QueryActiveOsAccountIds(ids);
+    if (SUCCEEDED(code) && !ids.empty()) {
+        userId = std::to_string(ids.at(0));
+    } else {
+        EDMLOGE("GetDeviceInfoPlugin::get current account id failed : %{public}d.", code);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::string settingsDataUri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_" +
+        userId + "?Proxy=true";
+    code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(settingsDataUri, KEY_DEVICE_NAME, name);
     if (FAILED(code)) {
-        EDMLOGD("GetDeviceInfoPlugin::get device name from database failed : %{public}d.", code);
+        EDMLOGE("GetDeviceInfoPlugin::get device name from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
