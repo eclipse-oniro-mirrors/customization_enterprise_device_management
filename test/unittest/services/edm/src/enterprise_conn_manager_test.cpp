@@ -81,7 +81,7 @@ HWTEST_F(EnterpriseConnManagerTest, TestBundleConnectAbility, TestSize.Level1)
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     sptr<IEnterpriseConnection> connection = manager->CreateBundleConnection(connectWant,
-        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), DEFAULT_USERID, "com.edm.test.bundle");
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), DEFAULT_USERID, "com.edm.test.bundle", DEFAULT_USERID);
     bool ret = manager->ConnectAbility(connection);
     EXPECT_TRUE(!ret);
 

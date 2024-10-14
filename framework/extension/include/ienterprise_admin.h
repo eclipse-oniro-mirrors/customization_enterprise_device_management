@@ -34,13 +34,13 @@ public:
      * Called when a new application package has been installed on the device.
      * @param bundleName Indicates the name of the bundle whose state has been installed.
      */
-    virtual void OnBundleAdded(const std::string &bundleName) = 0;
+    virtual void OnBundleAdded(const std::string &bundleName, int32_t accountId) = 0;
 
     /**
      * Called when a new application package has been Removed on the device.
      * @param bundleName Indicates the name of the bundle whose state has been Removed.
      */
-    virtual void OnBundleRemoved(const std::string &bundleName) = 0;
+    virtual void OnBundleRemoved(const std::string &bundleName, int32_t accountId) = 0;
 
     /**
      * Called when an application start on the device.

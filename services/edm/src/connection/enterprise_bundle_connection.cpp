@@ -34,10 +34,10 @@ void EnterpriseBundleConnection::OnAbilityConnectDone(
     }
     switch (code_) {
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED):
-            proxy_->OnBundleAdded(bundleName_);
+            proxy_->OnBundleAdded(bundleName_, accountId_);
             break;
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
-            proxy_->OnBundleRemoved(bundleName_);
+            proxy_->OnBundleRemoved(bundleName_, accountId_);
             break;
         case static_cast<uint32_t>(ManagedEvent::APP_START):
             proxy_->OnAppStart(bundleName_);
