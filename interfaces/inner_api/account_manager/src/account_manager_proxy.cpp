@@ -48,10 +48,6 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::DisallowAddLocalAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     return proxy->SetPolicyDisabled(admin, isDisallow, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT);
 #else
     EDMLOGW("AccountManagerProxy::DisallowAddLocalAccount Unsupported Capabilities.");
@@ -64,10 +60,6 @@ int32_t AccountManagerProxy::IsAddLocalAccountDisallowed(AppExecFwk::ElementName
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::IsAddLocalAccountDisallowed");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, result);
 #else
     EDMLOGW("AccountManagerProxy::IsAddLocalAccountDisallowed Unsupported Capabilities.");
@@ -80,10 +72,6 @@ int32_t AccountManagerProxy::DisallowAddOsAccountByUser(AppExecFwk::ElementName 
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::DisallowAddOsAccountByUser");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER);
@@ -124,10 +112,6 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
     data.WriteInt32(userId);
     MessageParcel reply;
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -159,10 +143,6 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     data.WriteStringVector(key);
     data.WriteStringVector(value);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ADD_OS_ACCOUNT);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret == ERR_OK) {
