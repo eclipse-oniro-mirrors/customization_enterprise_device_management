@@ -19,6 +19,7 @@
 #include "plugin_singleton.h"
 #include "utils.h"
 
+using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
@@ -58,13 +59,18 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDisplayVersion, TestSize.Level1)
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceName, TestSize.Level1)
 {
-    plugin_ = GetDeviceInfoPlugin::GetPlugin();
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
     data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+
+    EXPECT_CALL(*pluginMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+
     EdmDataAbilityUtils::SetResult("test Failed");
-    ErrCode ret = plugin_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ErrCode ret = pluginMock_->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
@@ -75,13 +81,18 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceName, TestSize.Lev
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceNameEmpty, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetDeviceInfoPlugin::GetPlugin();
     std::string policyValue;
     MessageParcel data;
     MessageParcel reply;
     data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+
+    EXPECT_CALL(*pluginMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+
     EdmDataAbilityUtils::SetResult("test value nullptr");
-    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    ErrCode code = pluginMock_->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 
@@ -92,14 +103,60 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceNameEmpty, TestSiz
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceNameSuc, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetDeviceInfoPlugin::GetPlugin();
     std::string policyValue;
     MessageParcel data;
     MessageParcel reply;
     data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+
+    EXPECT_CALL(*pluginMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+
     EdmDataAbilityUtils::SetResult("test success");
-    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    ErrCode code = pluginMock_->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithQueryCurrentIdFailed
+ * @tc.desc: Test OnPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithQueryCurrentIdFailed, TestSize.Level1)
+{
+    std::string policyValue;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+
+    EXPECT_CALL(*pluginMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(Return(-1)));
+
+    ErrCode code = pluginMock_->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    EXPECT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetDeviceInfoSyncWithAccountIdsEmpty
+ * @tc.desc: Test OnPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithAccountIdsEmpty, TestSize.Level1)
+{
+    std::string policyValue;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::DeviceInfo::DEVICE_NAME);
+
+    EXPECT_CALL(*pluginMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));
+    std::vector<int32_t> ids = {};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+
+    ErrCode code = pluginMock_->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    EXPECT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**

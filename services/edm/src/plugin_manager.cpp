@@ -232,6 +232,7 @@ void PluginManager::UnloadPlugin()
             ++handleIter;
         }
     }
+    EDMLOGI("PluginManager::UnloadPlugin finish.");
 }
 
 void PluginManager::DumpPlugin()

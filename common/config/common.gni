@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 
 declare_args() {
   enterprise_device_management_support_all = true
+  enterprise_device_management_feature_charging_type_setting = false
 
   ability_runtime_edm_enable = false
   if (defined(global_parts_info) &&
@@ -125,5 +126,11 @@ declare_args() {
   if (defined(global_parts_info) &&
       defined(global_parts_info.multimedia_camera_framework)) {
     camera_framework_edm_enable = true
+  }
+
+  battery_manager_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.powermgr_battery_manager)) {
+    battery_manager_edm_enable = true
   }
 }

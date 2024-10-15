@@ -27,6 +27,9 @@ class EdmDataAbilityUtils {
 public:
     static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
     static ErrCode GetIntFromSettingsDataShare(const std::string &key, int32_t &value);
+    static ErrCode GetStringFromSettingsDataShare(const std::string &settingsDataUri, const std::string &key,
+        std::string &value);
+    static ErrCode GetIntFromSettingsDataShare(const std::string &strUri, const std::string &key, int32_t &value);
     static void SetResult(const std::string &result);
 private:
     static std::string result_;

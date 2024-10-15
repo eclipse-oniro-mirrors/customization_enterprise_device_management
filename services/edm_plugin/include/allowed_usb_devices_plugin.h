@@ -29,6 +29,9 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data, int32_t userId);
+
+private:
+    bool HasConflictPolicy();
 };
 } // namespace EDM
 } // namespace OHOS
