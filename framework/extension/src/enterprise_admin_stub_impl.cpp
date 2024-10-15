@@ -38,22 +38,22 @@ void EnterpriseAdminStubImpl::OnAdminDisabled()
     }
 }
 
-void EnterpriseAdminStubImpl::OnBundleAdded(const std::string &bundleName)
+void EnterpriseAdminStubImpl::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
     if (extension != nullptr) {
-        extension->OnBundleAdded(bundleName);
+        extension->OnBundleAdded(bundleName, accountId);
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
 
-void EnterpriseAdminStubImpl::OnBundleRemoved(const std::string &bundleName)
+void EnterpriseAdminStubImpl::OnBundleRemoved(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
     if (extension != nullptr) {
-        extension->OnBundleRemoved(bundleName);
+        extension->OnBundleRemoved(bundleName, accountId);
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }

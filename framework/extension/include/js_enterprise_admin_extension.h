@@ -58,9 +58,9 @@ public:
 
     void OnAdminDisabled();
 
-    void OnBundleAdded(const std::string &bundleName);
+    void OnBundleAdded(const std::string &bundleName, int32_t accountId);
 
-    void OnBundleRemoved(const std::string &bundleName);
+    void OnBundleRemoved(const std::string &bundleName, int32_t accountId);
 
     void OnAppStart(const std::string &bundleName);
 
