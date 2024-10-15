@@ -33,8 +33,6 @@ namespace EdmConstants {
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
-    constexpr int32_t SET_POLICIES_TYPE = 1;
-    constexpr int32_t SET_POLICY_TYPE = 2;
     constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
 

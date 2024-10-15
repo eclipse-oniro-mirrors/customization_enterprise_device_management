@@ -30,8 +30,8 @@ const std::string TEST_POLICIES = "test_policies";
 const std::string TEST_POLICY_NAME = "test_policy_name";
 const std::string TEST_POLICY_VALUE = "\"test_policy_value\"";
 const std::string TEST_POLICY_VALUE2 = "\"test_policy_value2\"";
-const std::string TEST_POLICY_DATA1 = "{\"test_app_id\": \"{\\\"test_policy_name\\\":\\\"test_policy_value\\\"}\"}";
-static constexpr int32_t NULL_TYPE = 0;
+const std::string TEST_POLICY_DATA1 = "{\"test_app_id\": {\"test_policy_name\":\"test_policy_value\"}}";
+const std::string TEST_ADMIN_NAME1 = "testAdminName1";
 void SetBrowserPoliciesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -42,97 +42,6 @@ void SetBrowserPoliciesPluginTest::TearDownTestSuite(void)
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
-}
-
-/**
- * @tc.name: TestSetPoliciesFail
- * @tc.desc: Test SetBrowserPoliciesPlugin::OnHandlePolicy when type is null.
- * @tc.type: FUNC
- */
-HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPoliciesFail, TestSize.Level1)
-{
-    SetBrowserPoliciesPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    int32_t userid = 0;
-    data.WriteInt32(NULL_TYPE);
-    std::vector<std::string> key{TEST_APP_ID};
-    std::vector<std::string> value{TEST_POLICIES};
-    data.WriteStringVector(key);
-    data.WriteStringVector(value);
-    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, userid);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-}
-
-/**
- * @tc.name: TestSetPoliciesEmpty
- * @tc.desc: Test SetBrowserPoliciesPlugin::OnHandlePolicy when type is SET_POLICIES_TYPE
- * and policies is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPoliciesEmpty, TestSize.Level1)
-{
-    SetBrowserPoliciesPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    int32_t userid = 0;
-    data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
-    std::vector<std::string> key;
-    std::vector<std::string> value;
-    data.WriteStringVector(key);
-    data.WriteStringVector(value);
-    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, userid);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-}
-
-/**
- * @tc.name: TestSetPoliciesValueEmpty
- * @tc.desc: Test SetBrowserPoliciesPlugin::OnHandlePolicy when type is SET_POLICIES_TYPE
- * and policies value is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPoliciesValueEmpty, TestSize.Level1)
-{
-    SetBrowserPoliciesPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    int32_t userid = 0;
-    data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
-    std::vector<std::string> key{TEST_APP_ID};
-    std::vector<std::string> value{""};
-    data.WriteStringVector(key);
-    data.WriteStringVector(value);
-    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, userid);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyData.policyData == "");
-}
-
-/**
- * @tc.name: TestSetPoliciesSuc
- * @tc.desc: Test SetBrowserPoliciesPlugin::OnHandlePolicy when type is SET_POLICIES_TYPE.
- * @tc.type: FUNC
- */
-HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPoliciesSuc, TestSize.Level1)
-{
-    SetBrowserPoliciesPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    int32_t userid = 0;
-    data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
-    std::vector<std::string> key{TEST_APP_ID};
-    std::vector<std::string> value{TEST_POLICIES};
-    data.WriteStringVector(key);
-    data.WriteStringVector(value);
-    ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, userid);
-    ASSERT_TRUE(ret == ERR_OK);
-    auto serializer_ = MapStringSerializer::GetInstance();
-    std::map<std::string, std::string> currentData;
-    serializer_ ->Deserialize(policyData.policyData, currentData);
-    ASSERT_TRUE(currentData[TEST_APP_ID] == TEST_POLICIES);
 }
 
 /**
@@ -166,27 +75,6 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestOnSetPolicyDonePolicyUnchanged, TestS
 }
 
 /**
- * @tc.name: TestOnGetPolicyAppIdEmpty
- * @tc.desc: Test SetBrowserPoliciesPlugin::OnGetPolicy when appId is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(SetBrowserPoliciesPluginTest, TestOnGetPolicyAppIdEmpty, TestSize.Level1)
-{
-    SetBrowserPoliciesPlugin plugin;
-    std::map<std::string, std::string> policies;
-    policies.insert(std::make_pair(TEST_APP_ID, TEST_POLICIES));
-    std::string jsonString;
-    MapStringSerializer::GetInstance()->Serialize(policies, jsonString);
-    std::map<std::string, std::string> currentData;
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(TEST_APP_ID_1);
-    plugin.OnGetPolicy(jsonString, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadString().empty());
-}
-
-/**
  * @tc.name: TestOnGetPolicySuc
  * @tc.desc: Test SetBrowserPoliciesPlugin::OnGetPolicy.
  * @tc.type: FUNC
@@ -194,22 +82,26 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestOnGetPolicyAppIdEmpty, TestSize.Level
 HWTEST_F(SetBrowserPoliciesPluginTest, TestOnGetPolicySuc, TestSize.Level1)
 {
     SetBrowserPoliciesPlugin plugin;
-    std::map<std::string, std::string> policies;
-    policies.insert(std::make_pair(TEST_APP_ID, TEST_POLICIES));
-    std::string jsonString;
-    MapStringSerializer::GetInstance()->Serialize(policies, jsonString);
-    std::map<std::string, std::string> currentData;
     MessageParcel data;
     MessageParcel reply;
     data.WriteString(TEST_APP_ID);
-    plugin.OnGetPolicy(jsonString, data, reply, DEFAULT_USER_ID);
+    std::string policyData = TEST_POLICY_DATA1;
+    plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadString() == TEST_POLICIES);
+    auto serializer = CjsonSerializer::GetInstance();
+    cJSON* root = nullptr;
+    serializer->Deserialize(TEST_POLICY_DATA1, root);
+    cJSON* policy = cJSON_GetObjectItem(root, TEST_APP_ID.c_str());
+    std::string policyValue;
+    std::string retString;
+    serializer->Serialize(policy, policyValue);
+    serializer->Serialize(cJSON_CreateString(policyValue.c_str()), retString);
+    ASSERT_TRUE(reply.ReadString() == retString);
 }
 
 /**
  * @tc.name: TestSetPolicyEmpty
- * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy when type is SET_POLICY_TYPE
+ * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy
  * and param is empty.
  * @tc.type: FUNC
  */
@@ -222,7 +114,6 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyEmpty, TestSize.Level1)
     HandlePolicyData policyData;
     int32_t userid = 0;
     std::vector<std::string> params1{"", TEST_POLICY_NAME, TEST_POLICY_VALUE};
-    data1.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data1.WriteStringVector(params1);
 
     ErrCode ret1 = plugin.OnHandlePolicy(0, data1, reply, policyData, userid);
@@ -231,7 +122,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyEmpty, TestSize.Level1)
 
 /**
  * @tc.name: TestSetPolicy
- * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy when type is SET_POLICY_TYPE
+ * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy
  * and normal conditions.
  * @tc.type: FUNC
  */
@@ -242,34 +133,26 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicy, TestSize.Level1)
     MessageParcel reply;
     int32_t userid = 0;
     std::vector<std::string> params{TEST_APP_ID, TEST_POLICY_NAME, TEST_POLICY_VALUE2};
-    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 
-    auto serializer_ = CjsonSerializer::GetInstance();
+    auto serializer = CjsonSerializer::GetInstance();
 
     HandlePolicyData policyData;
     policyData.policyData = TEST_POLICY_DATA1;
     plugin.OnHandlePolicy(0, data, reply, policyData, userid);
     cJSON* policies;
-    serializer_->Deserialize(policyData.policyData, policies);
-    cJSON* beforeParsedPolicy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
-    cJSON* policy;
-    serializer_->Deserialize(cJSON_GetStringValue(beforeParsedPolicy), policy);
+    serializer->Deserialize(policyData.policyData, policies);
+    cJSON* policy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
     cJSON* policyValue =  cJSON_GetObjectItem(policy, TEST_POLICY_NAME.c_str());
-    char *cJsonstr = cJSON_Print(policyValue);
     std::string testStr;
-    if (cJsonstr != nullptr) {
-        testStr = std::string(cJsonstr);
-        cJSON_free(cJsonstr);
-    }
+    serializer->Serialize(policyValue, testStr);
     ASSERT_TRUE(testStr == TEST_POLICY_VALUE2);
     cJSON_Delete(policies);
-    cJSON_Delete(policy);
 }
 
 /**
  * @tc.name: TestSetPolicyEmptyValue
- * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy when type is SET_POLICY_TYPE
+ * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy
  * and empty policyValue.
  * @tc.type: FUNC
  */
@@ -281,28 +164,24 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyEmptyValue, TestSize.Level1)
     int32_t userid = 0;
 
     std::vector<std::string> params{TEST_APP_ID, TEST_POLICY_NAME, ""};
-    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 
-    auto serializer_ = CjsonSerializer::GetInstance();
+    auto serializer = CjsonSerializer::GetInstance();
 
     HandlePolicyData policyData;
     policyData.policyData = TEST_POLICY_DATA1;
     plugin.OnHandlePolicy(0, data, reply, policyData, userid);
     cJSON* policies;
-    serializer_->Deserialize(policyData.policyData, policies);
-    cJSON* beforeParsedPolicy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
-    cJSON* policy;
-    serializer_->Deserialize(cJSON_GetStringValue(beforeParsedPolicy), policy);
+    serializer->Deserialize(policyData.policyData, policies);
+    cJSON* policy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
     cJSON* policyValue =  cJSON_GetObjectItem(policy, TEST_POLICY_NAME.c_str());
     ASSERT_TRUE(policyValue == nullptr);
     cJSON_Delete(policies);
-    cJSON_Delete(policy);
 }
 
 /**
  * @tc.name: TestSetPolicyRoot
- * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy when type is SET_POLICY_TYPE
+ * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy
  * and policyName is root.
  * @tc.type: FUNC
  */
@@ -313,24 +192,25 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyRoot, TestSize.Level1)
     MessageParcel reply;
     int32_t userid = 0;
     std::vector<std::string> params{TEST_APP_ID, "", TEST_POLICY_VALUE2};
-    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 
-    auto serializer_ = CjsonSerializer::GetInstance();
+    auto serializer = CjsonSerializer::GetInstance();
 
     HandlePolicyData policyData;
     policyData.policyData = TEST_POLICY_DATA1;
     plugin.OnHandlePolicy(0, data, reply, policyData, userid);
     cJSON* policies;
-    serializer_->Deserialize(policyData.policyData, policies);
+    serializer->Deserialize(policyData.policyData, policies);
     cJSON* policy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
-    ASSERT_TRUE(cJSON_GetStringValue(policy) == TEST_POLICY_VALUE2);
+    std::string policyValue;
+    serializer->Serialize(policy, policyValue);
+    ASSERT_TRUE(policyValue == TEST_POLICY_VALUE2);
     cJSON_Delete(policies);
 }
 
 /**
  * @tc.name: TestSetPolicyRootEmptyValue
- * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy when type is SET_POLICY_TYPE
+ * @tc.desc: Test SetBrowserPoliciesPlugin::onHandlePolicy
  * and policyName is root with empty policyValue.
  * @tc.type: FUNC
  */
@@ -341,19 +221,75 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestSetPolicyRootEmptyValue, TestSize.Lev
     MessageParcel reply;
     int32_t userid = 0;
     std::vector<std::string> params{TEST_APP_ID, "", ""};
-    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     data.WriteStringVector(params);
 
-    auto serializer_ = CjsonSerializer::GetInstance();
+    auto serializer = CjsonSerializer::GetInstance();
 
     HandlePolicyData policyData;
     policyData.policyData = TEST_POLICY_DATA1;
     plugin.OnHandlePolicy(0, data, reply, policyData, userid);
     cJSON* policies;
-    serializer_->Deserialize(policyData.policyData, policies);
+    serializer->Deserialize(policyData.policyData, policies);
     cJSON* policy = cJSON_GetObjectItem(policies, TEST_APP_ID.c_str());
     ASSERT_TRUE(policy == nullptr);
     cJSON_Delete(policies);
+}
+
+/**
+ * @tc.name: TestMergePolicyData
+ * @tc.desc: Test SetBrowserPoliciesPlugin::MergePolicyData
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestMergePolicyData, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    std::string adminName = TEST_ADMIN_NAME1;
+    std::string policyData = TEST_POLICY_DATA1;
+    auto ret = plugin.MergePolicyData(adminName, policyData);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddBrowserPoliciesToRootEmpty
+ * @tc.desc: Test SetBrowserPoliciesPlugin::AddBrowserPoliciesToRoot when policiesString is empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestAddBrowserPoliciesToRootEmpty, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    cJSON* root = cJSON_CreateObject();
+    std::string policiesString;
+    auto ret = plugin.AddBrowserPoliciesToRoot(root, policiesString);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: TestAddBrowserPoliciesToRootParseError
+ * @tc.desc: Test SetBrowserPoliciesPlugin::AddBrowserPoliciesToRoot when policiesString is parsed error
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestAddBrowserPoliciesToRootParseError, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    cJSON* root = cJSON_CreateObject();
+    std::string policiesString = "{";
+    auto ret = plugin.AddBrowserPoliciesToRoot(root, policiesString);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestAddBrowserPoliciesToRoot
+ * @tc.desc: Test SetBrowserPoliciesPlugin::AddBrowserPoliciesToRoot
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetBrowserPoliciesPluginTest, TestAddBrowserPoliciesToRoot, TestSize.Level1)
+{
+    SetBrowserPoliciesPlugin plugin;
+    cJSON* root = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, TEST_APP_ID.c_str(), cJSON_CreateObject());
+    std::string policiesString = TEST_POLICY_DATA1;
+    auto ret = plugin.AddBrowserPoliciesToRoot(root, policiesString);
+    ASSERT_TRUE(ret);
 }
 
 } // namespace TEST

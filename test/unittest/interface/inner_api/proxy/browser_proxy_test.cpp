@@ -32,7 +32,8 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string TEST_APP_ID = "test_app_id";
-const std::string TEST_POLICIES = "test_policies";
+const std::string TEST_POLICY_NAME = "testPolicyName";
+const std::string TEST_POLICY_VALUE = "testPolicyValue";
 class BrowserProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -75,45 +76,46 @@ void BrowserProxyTest::TearDownTestSuite()
 }
 
 /**
- * @tc.name: TestSetPoliciesSuc
- * @tc.desc: Test SetPolicies success func.
+ * @tc.name: TestSetPolicySuc
+ * @tc.desc: Test SetPolicy success func.
  * @tc.type: FUNC
  */
-HWTEST_F(BrowserProxyTest, TestSetPoliciesSuc, TestSize.Level1)
+HWTEST_F(BrowserProxyTest, TestSetPolicySuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = browserProxy_->SetPolicies(admin, TEST_APP_ID, TEST_POLICIES);
+    ErrCode ret = browserProxy_->SetPolicy(admin, TEST_APP_ID, TEST_POLICY_NAME, TEST_POLICY_VALUE);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestSetPoliciesFail
- * @tc.desc: Test SetPolicies without enable edm service func.
+ * @tc.name: TestSetPolicyFail
+ * @tc.desc: Test SetPolicy without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(BrowserProxyTest, TestSetPoliciesFail, TestSize.Level1)
+HWTEST_F(BrowserProxyTest, TestSetPolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
-    ErrCode ret = browserProxy_->SetPolicies(admin, TEST_APP_ID, TEST_POLICIES);
+    ErrCode ret = browserProxy_->SetPolicy(admin, TEST_APP_ID, TEST_POLICY_NAME, TEST_POLICY_VALUE);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestSetPoliciesParamError
- * @tc.desc: Test SetPolicies with empty appId.
+ * @tc.name: TestSetPolicyParamError
+ * @tc.desc: Test SetPolicy with empty appId.
  * @tc.type: FUNC
  */
-HWTEST_F(BrowserProxyTest, TestSetPoliciesParamError, TestSize.Level1)
+HWTEST_F(BrowserProxyTest, TestSetPolicyParamError, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
-    ErrCode ret = browserProxy_->SetPolicies(admin, "", TEST_POLICIES);
+    ErrCode ret = browserProxy_->SetPolicy(admin, "", TEST_POLICY_NAME, TEST_POLICY_VALUE);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
+
 
 /**
  * @tc.name: TestGetPoliciesWithThreeParamsSuc

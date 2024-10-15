@@ -35,6 +35,7 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<SetBrowserPoliciesPlugin>());
 const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.browserpolicychanged";
+const char* const EMPTY_OBJECT_STRING = "{}";
 
 SetBrowserPoliciesPlugin::SetBrowserPoliciesPlugin()
 {
@@ -52,42 +53,29 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
     EDMLOGD("SetBrowserPoliciesPlugin OnHandlePolicy.");
     std::string beforeHandle = policyData.policyData;
     std::string afterHandle;
+    std::vector<std::string> params;
+    data.ReadStringVector(&params);
+    if (params.size() < SET_POLICY_PARAM_NUM) {
+        EDMLOGD("SetBrowserPolicyPlugin param invalid.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string appid = params[SET_POLICY_APPID_INDEX];
+    std::string policyName = params[SET_POLICY_POLICY_NAME_INDEX];
+    std::string policyValue = params[SET_POLICY_POLICY_VALUE_INDEX];
+    if (appid.empty()) {
+        EDMLOGD("SetBrowserPolicyPlugin param invalid.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+
+    if (beforeHandle.empty()) {
+        beforeHandle = EMPTY_OBJECT_STRING;
+    }
+
     ErrCode errCode = ERR_OK;
-    int32_t type = data.ReadInt32();
-    if (type == EdmConstants::SET_POLICY_TYPE) {
-        std::vector<std::string> params;
-        data.ReadStringVector(&params);
-        if (params.size() < SET_POLICY_PARAM_NUM) {
-            EDMLOGD("SetBrowserPolicyPlugin param invalid.");
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        std::string appid = params[SET_POLICY_APPID_INDEX];
-        std::string policyName = params[SET_POLICY_POLICY_NAME_INDEX];
-        std::string policyValue = params[SET_POLICY_POLICY_VALUE_INDEX];
-        if (appid.empty()) {
-            EDMLOGD("SetBrowserPolicyPlugin param invalid.");
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-
-        if (beforeHandle.empty()) {
-            beforeHandle = "{}";
-        }
-
-        if (policyName.empty()) {
-            errCode = SetRootPolicy(beforeHandle, appid, policyValue, afterHandle);
-        } else {
-            errCode = SetPolicy(beforeHandle, appid, policyName, policyValue, afterHandle);
-        }
-    } else if (type == EdmConstants::SET_POLICIES_TYPE) {
-        auto serializer_ = MapStringSerializer::GetInstance();
-        std::map<std::string, std::string> policies;
-        std::map<std::string, std::string> policyDataMap;
-        serializer_->GetPolicy(data, policies);
-        serializer_->Deserialize(beforeHandle, policyDataMap);
-        errCode = SetPolicies(policies, policyDataMap);
-        serializer_->Serialize(policyDataMap, afterHandle);
+    if (policyName.empty()) {
+        errCode = SetRootPolicy(beforeHandle, appid, policyValue, afterHandle);
     } else {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        errCode = SetPolicy(beforeHandle, appid, policyName, policyValue, afterHandle);
     }
 
     if (errCode != ERR_OK) {
@@ -100,23 +88,6 @@ ErrCode SetBrowserPoliciesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
     }
 
     return errCode;
-}
-
-ErrCode SetBrowserPoliciesPlugin::SetPolicies(std::map<std::string, std::string> &policies,
-    std::map<std::string, std::string> &currentData)
-{
-    EDMLOGD("SetBrowserPoliciesPlugin OnSetPolicy.");
-    if (policies.empty()) {
-        EDMLOGD("SetBrowserPoliciesPlugin policies is empty.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    auto iter = policies.begin();
-    if (iter->second.empty()) {
-        currentData.erase(iter->first);
-    } else {
-        currentData[iter->first] = iter->second;
-    }
-    return ERR_OK;
 }
 
 ErrCode SetBrowserPoliciesPlugin::SetRootPolicy(const std::string policyData, std::string appid,
@@ -132,14 +103,16 @@ ErrCode SetBrowserPoliciesPlugin::SetRootPolicy(const std::string policyData, st
     if (!policyValue.empty()) {
         cJSON* value = nullptr;
         if (!serializer_->Deserialize(policyValue, value)) {
-            EDMLOGD("SetBrowserPolicyPlugin parse policyValue error!");
+            EDMLOGE("SetBrowserPolicyPlugin parse policyValue error!");
             cJSON_Delete(policies);
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        std::string valueString;
-        serializer_->Serialize(value, valueString);
-        cJSON_Delete(value);
-        cJSON_AddStringToObject(policies, appid.c_str(), valueString.c_str());
+        if (!cJSON_AddItemToObject(policies, appid.c_str(), value)) {
+            EDMLOGE("SetBrowserPolicyPlugin SetRootPolicy AddItemToObject error!");
+            cJSON_Delete(policies);
+            cJSON_Delete(value);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
     }
     serializer_->Serialize(policies, afterHandle);
     cJSON_Delete(policies);
@@ -156,23 +129,13 @@ ErrCode SetBrowserPoliciesPlugin::SetPolicy(const std::string policyData, std::s
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
-    cJSON* beforeParsedPolicy = cJSON_GetObjectItem(policies, appid.c_str());
-    cJSON* policy = nullptr;
-    if (beforeParsedPolicy == nullptr) {
-        cJSON* appidObj = nullptr;
-        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(appidObj, EdmReturnErrCode::SYSTEM_ABNORMALLY, policies);
-        if (!cJSON_AddItemToObject(policies, appid.c_str(), appidObj)) {
+    cJSON* policy = cJSON_GetObjectItem(policies, appid.c_str());
+    if (policy == nullptr) {
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policy, EdmReturnErrCode::SYSTEM_ABNORMALLY, policies);
+        if (!cJSON_AddItemToObject(policies, appid.c_str(), policy)) {
             EDMLOGE("SetBrowserPolicyPlugin AddItemToObject appid error!");
             cJSON_Delete(policies);
-            cJSON_Delete(appidObj);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policy, EdmReturnErrCode::SYSTEM_ABNORMALLY, policies);
-    } else {
-        std::string beforeParsedPolicyString = cJSON_GetStringValue(beforeParsedPolicy);
-        if (!serializer_->Deserialize(beforeParsedPolicyString, policy)) {
-            EDMLOGE("SetBrowserPolicyPlugin parse policies error!");
-            cJSON_Delete(policies);
+            cJSON_Delete(policy);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
@@ -180,15 +143,10 @@ ErrCode SetBrowserPoliciesPlugin::SetPolicy(const std::string policyData, std::s
     ErrCode ret = SetPolicyValue(policy, policyName, policyValue);
     if (ret != ERR_OK) {
         cJSON_Delete(policies);
-        cJSON_Delete(policy);
         return ret;
     }
-    std::string policyString;
-    serializer_->Serialize(policy, policyString);
-    cJSON_ReplaceItemInObject(policies, appid.c_str(), cJSON_CreateString(policyString.c_str()));
     serializer_->Serialize(policies, afterHandle);
     cJSON_Delete(policies);
-    cJSON_Delete(policy);
     return ERR_OK;
 }
 
@@ -222,20 +180,30 @@ void SetBrowserPoliciesPlugin::OnHandlePolicyDone(std::uint32_t funcCode, const 
 ErrCode SetBrowserPoliciesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    auto mapStringSerilizer_ = MapStringSerializer::GetInstance();
-    std::map<std::string, std::string> policies;
-    mapStringSerilizer_->Deserialize(policyData, policies);
     std::string appId = data.ReadString();
     if (appId.empty() && FAILED(BundleManagerUtils::GetAppIdByCallingUid(appId))) {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    if (policyData.empty()) {
+        policyData = EMPTY_OBJECT_STRING;
+    }
+    cJSON* policies = nullptr;
+    auto serializer = CjsonSerializer::GetInstance();
+    if (!serializer->Deserialize(policyData, policies)) {
+        EDMLOGE("SetBrowserPolicyPlugin OnGetPolicy Deserialize error!");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    reply.WriteInt32(ERR_OK);
-    std::string policy;
-    if (policies.count(appId) > 0) {
-        policy = policies[appId];
+    std::string retString;
+    cJSON* policy = cJSON_GetObjectItem(policies, appId.c_str());
+    if (policy != nullptr) {
+        std::string policyString;
+        serializer->Serialize(policy, policyString);
+        serializer->Serialize(cJSON_CreateString(policyString.c_str()), retString);
     }
-    reply.WriteString(policy);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(retString);
+    cJSON_Delete(policies);
     return ERR_OK;
 }
 
@@ -249,6 +217,96 @@ void SetBrowserPoliciesPlugin::NotifyBrowserPolicyChanged()
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
         EDMLOGE("NotifyBrowserPolicyChanged failed.");
     }
+}
+
+ErrCode SetBrowserPoliciesPlugin::MergePolicyData(const std::string &adminName, std::string &policyData)
+{
+    EDMLOGD("SetBrowserPoliciesPlugin MergePolicyData before: %{public}s", policyData.c_str());
+    AdminValueItemsMap adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty() && policyData.empty()) {
+        return ERR_OK;
+    }
+    if (!policyData.empty()) {
+        adminValues[adminName] = policyData;
+    }
+    return MergeBrowserPolicy(adminValues, policyData);
+}
+
+ErrCode SetBrowserPoliciesPlugin::MergeBrowserPolicy(const AdminValueItemsMap &adminValues, std::string &policyData)
+{
+    cJSON* root = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(root, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    for (const auto &item : adminValues) {
+        if (!AddBrowserPoliciesToRoot(root, item.second)) {
+            EDMLOGE("SetBrowserPoliciesPlugin MergePolicyData error");
+            cJSON_Delete(root);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+
+    auto serializer = CjsonSerializer::GetInstance();
+    serializer->Serialize(root, policyData);
+    EDMLOGD("SetBrowserPoliciesPlugin MergePolicyData after: %{public}s", policyData.c_str());
+    cJSON_Delete(root);
+    return ERR_OK;
+}
+
+bool SetBrowserPoliciesPlugin::AddBrowserPoliciesToRoot(cJSON* root, const std::string &policiesString)
+{
+    if (policiesString.empty()) {
+        return true;
+    }
+    cJSON* adminPolicies = cJSON_Parse(policiesString.c_str());
+    if (adminPolicies == nullptr) {
+        return false;
+    }
+    cJSON *adminPolicy = adminPolicies->child;
+    while (adminPolicy != nullptr) {
+        cJSON* policy = cJSON_GetObjectItem(root, adminPolicy->string);
+        if (policy == nullptr) {
+            cJSON* copy = cJSON_Duplicate(adminPolicy, true);
+            if (!cJSON_AddItemToObject(root, adminPolicy->string, copy)) {
+                cJSON_Delete(copy);
+                cJSON_Delete(adminPolicies);
+                return false;
+            }
+            adminPolicy = adminPolicy->next;
+            continue;
+        }
+        if (!AddBrowserPolicyToRoot(policy, adminPolicy)) {
+            cJSON_Delete(adminPolicies);
+            return false;
+        }
+        adminPolicy = adminPolicy->next;
+    }
+    cJSON_Delete(adminPolicies);
+    return true;
+}
+
+bool SetBrowserPoliciesPlugin::AddBrowserPolicyToRoot(cJSON* policy, const cJSON* adminPolicy)
+{
+    cJSON *item = adminPolicy->child;
+    while (item != nullptr) {
+        cJSON_DeleteItemFromObject(policy, item->string);
+        cJSON* copy = cJSON_Duplicate(item, true);
+        if (copy == nullptr) {
+            return false;
+        }
+        if (!cJSON_AddItemToObject(policy, item->string, copy)) {
+            cJSON_Delete(copy);
+            return false;
+        }
+        item = item->next;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS
