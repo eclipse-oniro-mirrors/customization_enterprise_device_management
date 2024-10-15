@@ -71,6 +71,7 @@
         "drivers_interface_usb",
         "graphic_2d",
         "file_api",
+        "ets_runtime",
         "eventhandler",
         "netmanager_base",
         "netmanager_ext",

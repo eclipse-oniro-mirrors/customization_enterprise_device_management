@@ -47,6 +47,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -79,6 +80,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
 
   external_deps = [
     "ability_runtime:abilitykit_native",
+    "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
     "napi:ace_napi",
   ]
