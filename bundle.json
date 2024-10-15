@@ -58,7 +58,6 @@
         "ability_runtime",
         "access_token",
         "audio_framework",
-        "battery_manager",
         "bluetooth",
         "bounds_checking_function",
         "bundle_framework",
