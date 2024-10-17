@@ -122,6 +122,12 @@ declare_args() {
       defined(global_parts_info.useriam_user_auth_framework)) {
     useriam_edm_enable = true
   }
+  camera_framework_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.multimedia_camera_framework)) {
+    camera_framework_edm_enable = true
+  }
+
   battery_manager_edm_enable = false
   if (defined(global_parts_info) &&
       defined(global_parts_info.powermgr_battery_manager)) {

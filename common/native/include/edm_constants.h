@@ -74,6 +74,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
         const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
         const char* const LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE = "inactiveUserFreeze";
+        const char* const LABEL_DISALLOWED_POLICY_CAMERA = "camera";
     } // namespace Restrictions
 
     namespace SecurityManager {
