@@ -16,19 +16,20 @@
 #include "enterprise_device_mgr_ability.h"
 
 #include <cstring>
-#include <iservice_registry.h>
-#include <message_parcel.h>
 #include <string_ex.h>
-#include <system_ability.h>
-#include <system_ability_definition.h>
+#include <thread>
 
 #include "application_state_observer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
+#include "iservice_registry.h"
 #include "matching_skills.h"
+#include "message_parcel.h"
 #include "parameters.h"
+#include "system_ability.h"
+#include "system_ability_definition.h"
 
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -67,6 +68,8 @@ const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
+
+constexpr int32_t TIMER_TIMEOUT = 360000; // 6 * 60 * 1000;
 
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
@@ -329,6 +332,9 @@ void EnterpriseDeviceMgrAbility::OnStart()
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
+    InitAllAdmins();
+    InitAllPolices();
+    RemoveAllDebugAdmin();
     if (!registerToService_) {
         if (!Publish(this)) {
             EDMLOGE("EnterpriseDeviceMgrAbility: res == false");
@@ -336,37 +342,64 @@ void EnterpriseDeviceMgrAbility::OnStart()
         }
         registerToService_ = true;
     }
+    AddOnAddSystemAbilityFuncMap();
+    AddSystemAbilityListeners();
+}
+
+void EnterpriseDeviceMgrAbility::InitAllAdmins()
+{
     if (!adminMgr_) {
         adminMgr_ = AdminManager::GetInstance();
     }
     EDMLOGD("create adminMgr_ success");
     adminMgr_->Init();
+}
 
+void EnterpriseDeviceMgrAbility::InitAllPlugins()
+{
     if (!pluginMgr_) {
         pluginMgr_ = PluginManager::GetInstance();
     }
     EDMLOGD("create pluginMgr_ success");
-    pluginMgr_->Init();
-
-    if (!policyMgr_) {
-        policyMgr_ = std::make_shared<PolicyManager>();
-        IPolicyManager::policyManagerInstance_ = policyMgr_.get();
+    lastCallTime_ = std::chrono::system_clock::now();
+    if (pluginHasInit_) {
+        std::unique_lock<std::mutex> lock(waitMutex_);
+        notifySignal_ = true;
+        waitSignal_.notify_one();
+    } else {
+        pluginMgr_->LoadPlugin();
+        pluginHasInit_ = true;
+        std::thread timerThread([this]() {
+            this->UnloadPluginTask();
+        });
+        timerThread.detach();
     }
-    InitAllPolices();
+}
 
-    AddOnAddSystemAbilityFuncMap();
-    AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
-    AddSystemAbilityListener(APP_MGR_SERVICE_ID);
-    AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
-    AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
-#ifdef PASTEBOARD_EDM_ENABLE
-    AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
-#endif
-    RemoveAllDebugAdmin();
+void EnterpriseDeviceMgrAbility::UnloadPluginTask()
+{
+    while (pluginHasInit_) {
+        std::unique_lock<std::mutex> lock(waitMutex_);
+        notifySignal_ = false;
+        waitSignal_.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [this] { return this->notifySignal_; });
+        auto now = std::chrono::system_clock::now();
+        auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCallTime_).count();
+        if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
+            std::lock_guard<std::mutex> autoLock(mutexLock_);
+            if (pluginMgr_) {
+                pluginMgr_->UnloadPlugin();
+            }
+            pluginHasInit_ = false;
+        }
+    }
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
 {
+    if (!policyMgr_) {
+        policyMgr_ = std::make_shared<PolicyManager>();
+        IPolicyManager::policyManagerInstance_ = policyMgr_.get();
+    }
     std::vector<int32_t> userIds;
     auto devicePolicies = DevicePoliciesStorageRdb::GetInstance();
     if (devicePolicies == nullptr) {
@@ -391,6 +424,17 @@ void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
             }
         }
     }
+}
+
+void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
+{
+    AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
+    AddSystemAbilityListener(APP_MGR_SERVICE_ID);
+    AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
+    AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
+#ifdef PASTEBOARD_EDM_ENABLE
+    AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -485,6 +529,13 @@ void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, 
 void EnterpriseDeviceMgrAbility::OnStop()
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::OnStop()");
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    if (pluginHasInit_) {
+        pluginHasInit_ = false;
+        std::unique_lock<std::mutex> lock(waitMutex_);
+        notifySignal_ = true;
+        waitSignal_.notify_one();
+    }
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetAllPermissionsByAdmin(const std::string &bundleInfoName,
@@ -677,19 +728,21 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
     const std::string &policyValue, int32_t userId)
 {
-    ErrCode ret;
+    InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByPolicyName(policyName);
     if (plugin == nullptr) {
         EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
-    if ((ret = plugin->OnAdminRemove(adminName, policyValue, userId)) != ERR_OK) {
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, userId);
+    if (ret != ERR_OK) {
         EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
             adminName.c_str(), policyValue.c_str(), ret);
     }
     if (plugin->NeedSavePolicy()) {
         std::string mergedPolicyData;
-        if ((ret = plugin->MergePolicyData(adminName, mergedPolicyData)) != ERR_OK) {
+        ret = plugin->MergePolicyData(adminName, mergedPolicyData);
+        if (ret != ERR_OK) {
             EDMLOGW("RemoveAdminItem: Get admin by policy name failed: %{public}s, ErrCode:%{public}d\n",
                 policyName.c_str(), ret);
         }
@@ -940,6 +993,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
+    InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -973,9 +1027,8 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGE("HandleDevicePolicy: not system app or native process");
         return EdmReturnErrCode::SYSTEM_API_DENIED;
     }
-    if (!deviceAdmin->CheckPermission(setPermission) ||
-        (deviceAdmin->adminInfo_.adminType_ != AdminType::ENT &&
-            deviceAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN && userId != GetCurrentUserId())) {
+    if (!deviceAdmin->CheckPermission(setPermission) || (deviceAdmin->adminInfo_.adminType_ != AdminType::ENT &&
+        deviceAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN && userId != GetCurrentUserId())) {
         EDMLOGW("HandleDevicePolicy: admin check permission failed");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
@@ -1006,6 +1059,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return EdmReturnErrCode::PARAM_ERROR;
     }
+    InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("GetDevicePolicy: get plugin failed");

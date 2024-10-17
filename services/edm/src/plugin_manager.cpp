@@ -19,11 +19,11 @@
 #include <dirent.h>
 #include <dlfcn.h>
 #include <iostream>
-#include <memory>
 #include <mutex>
 #include <string_ex.h>
 #include <unistd.h>
 
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "permission_manager.h"
@@ -41,11 +41,8 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
-    for (auto entry : pluginsCode_) {
-        entry.second.reset();
-        entry.second = nullptr;
-    }
     pluginsCode_.clear();
+    pluginsName_.clear();
     for (auto handle : pluginHandles_) {
         dlclose(handle);
     }
@@ -173,13 +170,9 @@ bool PluginManager::AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin,
     return false;
 }
 
-void PluginManager::Init()
-{
-    LoadPlugin();
-}
-
 void PluginManager::LoadPlugin()
 {
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
 #if defined(_ARM64_) || defined(_X86_64_)
     std::string pluginDir = "/system/lib64/edm_plugin/";
 #else
@@ -207,6 +200,38 @@ void PluginManager::LoadPlugin(const std::string &pluginPath)
         return;
     }
     pluginHandles_.push_back(handle);
+}
+
+void PluginManager::UnloadPlugin()
+{
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    for (auto codeIter = pluginsCode_.begin(); codeIter != pluginsCode_.end();) {
+        if (codeIter->second != nullptr) {
+            codeIter->second->ResetExtensionPlugin();
+        }
+        if (codeIter->second == nullptr || codeIter->first > static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END)) {
+            codeIter = pluginsCode_.erase(codeIter);
+        } else {
+            ++codeIter;
+        }
+    }
+    for (auto nameIter = pluginsName_.begin(); nameIter != pluginsName_.end();) {
+        if (nameIter->second == nullptr ||
+            nameIter->second->GetCode() > static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END)) {
+            nameIter = pluginsName_.erase(nameIter);
+        } else {
+            ++nameIter;
+        }
+    }
+    for (auto handleIter = pluginHandles_.begin(); handleIter != pluginHandles_.end();) {
+        auto handle = *handleIter;
+        if (handle == nullptr || dlclose(handle) == 0) {
+            handleIter = pluginHandles_.erase(handleIter);
+        } else {
+            EDMLOGE("PluginManager::UnloadPlugin close handle failed.");
+            ++handleIter;
+        }
+    }
 }
 
 void PluginManager::DumpPlugin()
