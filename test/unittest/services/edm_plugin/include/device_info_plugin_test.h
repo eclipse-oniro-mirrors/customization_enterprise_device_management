@@ -16,8 +16,12 @@
 #ifndef EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
 #define EDM_UNIT_TEST_DEVICE_INFO_PLUGIN_TEST_H
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <memory>
 
+#include "edm_os_account_manager_impl_mock.h"
+#include "external_manager_factory_mock.h"
 #include "get_device_info_plugin.h"
 #include "get_display_version_plugin.h"
 #include "iplugin_manager.h"
@@ -25,13 +29,19 @@
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+class GetDeviceInfoPluginMock : public GetDeviceInfoPlugin {
+public:
+    MOCK_METHOD(std::shared_ptr<IExternalManagerFactory>, GetExternalManagerFactory, (), (override));
+};
+
 class DeviceInfoPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
-
     static void TearDownTestSuite(void);
-
     std::shared_ptr<IPlugin> plugin_;
+    std::shared_ptr<GetDeviceInfoPluginMock> pluginMock_ = std::make_shared<GetDeviceInfoPluginMock>();
+    std::shared_ptr<EdmOsAccountManagerImplMock> osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
+    std::shared_ptr<ExternalManagerFactoryMock> factoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
 };
 } // namespace TEST
 } // namespace EDM

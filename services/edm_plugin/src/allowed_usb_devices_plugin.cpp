@@ -55,19 +55,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
-    auto policyManager = IPolicyManager::GetInstance();
-    std::string disableUsbPolicy;
-    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
-    std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
-    std::string disallowUsbDevicePolicy;
-    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
-    if (disableUsbPolicy == "true" || !disallowUsbDevicePolicy.empty() ||
-        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy: CONFLICT! "
-            "isUsbDisabled: %{public}s, disallowedUsbDevice: %{public}s, usbStoragePolicy: %{public}s",
-            disableUsbPolicy.c_str(), disallowUsbDevicePolicy.c_str(), usbStoragePolicy.c_str());
+    if (HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
@@ -80,7 +68,10 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     std::vector<OHOS::USB::UsbDevice> allDevices;
     int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet != ERR_OK) {
+    if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy: getDevices failed! USB interface not init!");
+    }
+    if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy getDevices failed: %{public}d", getRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -95,6 +86,33 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     }
     currentData = mergeData;
     return ERR_OK;
+}
+
+bool AllowUsbDevicesPlugin::HasConflictPolicy()
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string disableUsbPolicy;
+    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
+    if (disableUsbPolicy == "true") {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb is disabled.");
+        return true;
+    }
+
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbStoragePolicy is disabled.");
+        return true;
+    }
+
+    std::string disallowUsbDevicePolicy;
+    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
+    if (!disallowUsbDevicePolicy.empty()) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! disallowedUsbDevice: %{public}s",
+            disallowUsbDevicePolicy.c_str());
+        return true;
+    }
+    return false;
 }
 
 ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
@@ -115,8 +133,11 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
         auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
         std::vector<OHOS::USB::UsbDevice> allDevices;
         int32_t getRet = srvClient.GetDevices(allDevices);
-        if (getRet != ERR_OK) {
-            EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy getDevices failed: %{public}d", getRet);
+        if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy: getDevices failed! USB interface not init!");
+        }
+        if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGE("AllowUsbDevicesPlugin OnRemovePolicy getDevices failed: %{public}d", getRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: clear to empty, enable all.");
@@ -171,7 +192,10 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
     }
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
     int32_t usbRet = srvClient.ManageGlobalInterface(false);
-    if (usbRet != ERR_OK) {
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy: getDevices failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

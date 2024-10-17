@@ -167,15 +167,13 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
         return nullptr;
     }
     OHOS::AccountSA::OsAccountInfo accountInfo;
-    std::string distributedInfoName;
-    std::string distributedInfoId;
     int32_t ret = accountManagerProxy->AddOsAccount(asyncCallbackInfo->elementName, asyncCallbackInfo->name,
-        asyncCallbackInfo->type, accountInfo, distributedInfoName, distributedInfoId);
+        asyncCallbackInfo->type, accountInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    return ConvertOsAccountInfoToJs(env, accountInfo, distributedInfoName, distributedInfoId);
+    return ConvertOsAccountInfoToJs(env, accountInfo);
 #else
     EDMLOGW("AccountManagerAddon::AddOsAccount Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -239,8 +237,7 @@ bool AccountManagerAddon::CheckOsAccountType(int32_t type)
     return false;
 }
 
-napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info,
-    std::string distributedInfoName, std::string distributedInfoId)
+napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::AccountSA::OsAccountInfo &info)
 {
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -270,6 +267,7 @@ napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::Acc
     napi_value isVerifiedToJs = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, info.GetIsVerified(), &isVerifiedToJs));
     NAPI_CALL(env, napi_set_named_property(env, result, "isVerified", isVerifiedToJs));
+    NAPI_CALL(env, napi_set_named_property(env, result, "isUnlocked", isVerifiedToJs));
 
     // photo
     napi_value photoToJs = nullptr;
@@ -295,6 +293,7 @@ napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::Acc
     napi_value isActivedToJs = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, info.GetIsActived(), &isActivedToJs));
     NAPI_CALL(env, napi_set_named_property(env, result, "isActived", isActivedToJs));
+    NAPI_CALL(env, napi_set_named_property(env, result, "isActivated", isActivedToJs));
 
     // isCreateCompleted
     napi_value isCreateCompletedToJs = nullptr;
@@ -303,8 +302,7 @@ napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::Acc
 
     // distributedInfo: distributedAccount.DistributedInfo
     napi_value dbInfoToJs = nullptr;
-    CreateJsDistributedInfo(env, distributedInfoName, distributedInfoId, dbInfoToJs);
-    NAPI_CALL(env, napi_set_named_property(env, result, "distributedInfo", dbInfoToJs));
+    napi_set_named_property(env, result, "distributedInfo", dbInfoToJs);
 
     // domainInfo: domainInfo.DomainAccountInfo
     OHOS::AccountSA::DomainAccountInfo domainInfo;
@@ -326,31 +324,6 @@ napi_value AccountManagerAddon::MakeArrayToJs(napi_env env, const std::vector<st
         index++;
     }
     return jsArray;
-}
-
-napi_value AccountManagerAddon::CreateJsDistributedInfo(napi_env env, const std::string distributedInfoName,
-    const std::string distributedInfoId, napi_value &result)
-{
-    napi_create_object(env, &result);
-    napi_value value = nullptr;
-    // name
-    NAPI_CALL(env, napi_create_string_utf8(env, distributedInfoName.c_str(), NAPI_AUTO_LENGTH, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "name", value));
-
-    // id
-    NAPI_CALL(env, napi_create_string_utf8(env, distributedInfoId.c_str(), NAPI_AUTO_LENGTH, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "id", value));
-
-    // event
-    NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "event", value));
-
-    // scalableData
-    napi_value scalable = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &scalable));
-    NAPI_CALL(env, napi_set_named_property(env, result, "scalableData", scalable));
-
-    return result;
 }
 
 napi_value AccountManagerAddon::CreateJsDomainInfo(napi_env env, const OHOS::AccountSA::DomainAccountInfo &info,
@@ -515,8 +488,7 @@ void AccountManagerAddon::NativeAddOsAccount(napi_env env, void *data)
         return;
     }
     asyncCallbackInfo->ret = accountManagerProxy->AddOsAccount(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->name, asyncCallbackInfo->type, asyncCallbackInfo->accountInfo,
-        asyncCallbackInfo->distributedInfoName, asyncCallbackInfo->distributedInfoId);
+        asyncCallbackInfo->name, asyncCallbackInfo->type, asyncCallbackInfo->accountInfo);
 }
 
 void AccountManagerAddon::NativeAddOsAccountCallbackComplete(napi_env env, napi_status status, void *data)
@@ -529,8 +501,7 @@ void AccountManagerAddon::NativeAddOsAccountCallbackComplete(napi_env env, napi_
     if (asyncCallbackInfo->deferred != nullptr) {
         EDMLOGD("asyncCallbackInfo->deferred != nullptr");
         if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_value accountValue = ConvertOsAccountInfoToJs(env, asyncCallbackInfo->accountInfo,
-                asyncCallbackInfo->distributedInfoName, asyncCallbackInfo->distributedInfoId);
+            napi_value accountValue = ConvertOsAccountInfoToJs(env, asyncCallbackInfo->accountInfo);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, accountValue);
         } else {
             napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));

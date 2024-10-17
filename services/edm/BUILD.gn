@@ -306,6 +306,11 @@ ohos_shared_library("edmservice") {
     defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
   }
 
+  if (camera_framework_edm_enable) {
+    external_deps += [ "camera_framework:camera_framework" ]
+    sources += [ "../edm_plugin/src/disable_camera_plugin.cpp" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",

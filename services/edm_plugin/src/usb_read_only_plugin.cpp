@@ -129,7 +129,10 @@ ErrCode UsbReadOnlyPlugin::DealDisablePolicy(std::vector<USB::UsbDeviceType> usb
         disallowedUsbDeviceTypes.size());
 
     int32_t usbRet = USB::UsbSrvClient::GetInstance().ManageInterfaceType(disallowedUsbDeviceTypes, true);
-    if (usbRet != ERR_OK) {
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -141,8 +144,12 @@ ErrCode UsbReadOnlyPlugin::DealReadPolicy(int32_t accessPolicy, const std::strin
 {
     std::string usbValue = (accessPolicy == EdmConstants::STORAGE_USB_POLICY_READ_ONLY) ? "true" : "false";
     bool ret = OHOS::system::SetParameter(PARAM_USB_READ_ONLY_KEY, usbValue);
-    int32_t usbRet = ERR_OK;
+    if (!ret) {
+        EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy failed! readonly value: %{public}s", usbValue.c_str());
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
 
+    int32_t usbRet = ERR_OK;
     if (allowUsbDevice.empty()) {
         usbDeviceTypes.erase(std::remove_if(usbDeviceTypes.begin(), usbDeviceTypes.end(),
             [&](const auto usbDeviceType) { return usbDeviceType.baseClass == USB_DEVICE_TYPE_BASE_CLASS_STORAGE; }),
@@ -153,7 +160,10 @@ ErrCode UsbReadOnlyPlugin::DealReadPolicy(int32_t accessPolicy, const std::strin
     }
     EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy sysParam: readonly value:%{public}s  ret:%{public}d usbRet:%{public}d",
         usbValue.c_str(), ret, usbRet);
-    if (!ret || usbRet != ERR_OK) {
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     ErrCode reloadRet = ReloadUsbDevice();
@@ -244,8 +254,11 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std
     if (data == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
         auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
         int32_t usbRet = srvClient.ManageGlobalInterface(false);
-        if (usbRet != ERR_OK) {
-            EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
+        if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGW("UsbReadOnlyPlugin OnAdminRemove: ManageGlobalInterface failed! USB interface not init!");
+        }
+        if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+            EDMLOGE("UsbReadOnlyPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }

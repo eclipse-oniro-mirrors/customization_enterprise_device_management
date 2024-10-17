@@ -17,6 +17,8 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_INFO_PLUGIN_H
 
 #include "cJSON.h"
+
+#include "iexternal_manager_factory.h"
 #include "plugin_singleton.h"
 #include "string_serializer.h"
 
@@ -28,11 +30,16 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
+protected:
+    virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
+
 private:
     ErrCode GetDeviceName(MessageParcel &reply);
     ErrCode GetDeviceSerial(MessageParcel &reply);
     ErrCode GetSimInfo(MessageParcel &reply);
     bool GetSimInfoBySlotId(int32_t slotId, cJSON *simJson);
+
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = nullptr;
 };
 } // namespace EDM
 } // namespace OHOS

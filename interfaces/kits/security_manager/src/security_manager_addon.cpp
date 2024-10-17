@@ -536,7 +536,12 @@ napi_value SecurityManagerAddon::CancelWatermarkImage(napi_env env, napi_callbac
 
 std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::string url)
 {
-    int fd = open(url.c_str(), O_RDWR);
+    char canonicalPath[PATH_MAX + 1] = { 0 };
+    if (url.size() > PATH_MAX || realpath(url.c_str(), canonicalPath) == nullptr) {
+        EDMLOGE("realpath error");
+        return nullptr;
+    }
+    int fd = open(canonicalPath, O_RDONLY);
     if (fd == -1) {
         EDMLOGE("Decode Open file fail!");
         return nullptr;
