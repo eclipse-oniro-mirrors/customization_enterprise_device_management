@@ -98,6 +98,13 @@ void IPlugin::SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin)
     extensionPlugin_ = extensionPlugin;
 }
 
+void IPlugin::ResetExtensionPlugin()
+{
+    if (extensionPlugin_ != nullptr) {
+        extensionPlugin_.reset();
+    }
+}
+
 std::shared_ptr<IPlugin> IPlugin::GetExtensionPlugin()
 {
     return extensionPlugin_;

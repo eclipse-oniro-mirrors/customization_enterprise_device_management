@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_PLUGIN_MANAGER_H
 #define SERVICES_EDM_INCLUDE_EDM_PLUGIN_MANAGER_H
 
-#include <dlfcn.h>
 #include <map>
 #include <memory>
 
@@ -38,7 +37,8 @@ public:
     bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
         ExecuteStrategy strategy) override;
     virtual ~PluginManager();
-    void Init();
+    void LoadPlugin();
+    void UnloadPlugin();
 
     void DumpPlugin();
 private:
@@ -50,7 +50,6 @@ private:
     static std::mutex mutexLock_;
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
-    void LoadPlugin();
     void LoadPlugin(const std::string &pluginPath);
     std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
