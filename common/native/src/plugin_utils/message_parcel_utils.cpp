@@ -90,12 +90,12 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.level = data.ReadInt32();
     config.isPasspoint = data.ReadBool();
     config.isEphemeral = data.ReadBool();
-    std::string preSharedKey(data.ReadCString());
+    std::string preSharedKey(ReadCString(data));
     config.preSharedKey = preSharedKey;
     EdmUtils::ClearString(preSharedKey);
     config.keyMgmt = data.ReadString();
     if (sizeof(config.wepKeys) / sizeof(std::string) > 0) {
-        std::string wepKey(data.ReadCString());
+        std::string wepKey(ReadCString(data));
         config.wepKeys[0] = wepKey;
         EdmUtils::ClearString(wepKey);
     }
@@ -113,13 +113,13 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiIpConfig.staticIpAddress.domains = data.ReadString();
     config.wifiEapConfig.eap = data.ReadString();
     config.wifiEapConfig.identity = data.ReadString();
-    std::string password(data.ReadCString());
+    std::string password(ReadCString(data));
     config.wifiEapConfig.password = password;
     EdmUtils::ClearString(password);
     config.wifiEapConfig.clientCert = data.ReadString();
     config.wifiEapConfig.privateKey = data.ReadString();
     data.ReadUInt8Vector(&config.wifiEapConfig.certEntry);
-    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), data.ReadCString(),
+    strncpy_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), ReadCString(data),
         sizeof(config.wifiEapConfig.certPassword) - 1);
     ProcessPhase2Method(data.ReadInt32(), config.wifiEapConfig);
     ProcessConfigureProxyMethod(data.ReadInt32(), config.wifiProxyconfig);
@@ -222,6 +222,16 @@ void MessageParcelUtils::WriteCString(MessageParcel &data, char* cStr)
         char temp[1]{'\0'};
         data.WriteCString(temp);
     }
+}
+
+const char* MessageParcelUtils::ReadCString(MessageParcel &data)
+{
+    const char* value = data.ReadCString();
+    if (value == nullptr) {
+        const char* temp = "";
+        return temp;
+    }
+    return value;
 }
 #endif
 
