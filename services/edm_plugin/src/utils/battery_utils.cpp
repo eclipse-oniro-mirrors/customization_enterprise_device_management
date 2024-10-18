@@ -15,9 +15,6 @@
 
 #include "battery_utils.h"
 
-#ifdef BATTERY_MANAGER_EDM_ENABLE
-#include "battery_srv_client.h"
-#endif
 #include "edm_log.h"
 #include "edm_os_account_manager_impl.h"
 
@@ -28,19 +25,7 @@ const std::string BatteryUtils::PLUGGED_TYPE_DC = "dc";
 
 std::string BatteryUtils::GetBatteryPluggedType()
 {
-#ifdef BATTERY_MANAGER_EDM_ENABLE
-    auto pluggedType = PowerMgr::BatterySrvClient::GetInstance().GetPluggedType();
-    EDMLOGD("BatteryUtils GetBatteryPluggedType pluggedType = %{public}d", pluggedType);
-    if ((pluggedType == PowerMgr::BatteryPluggedType::PLUGGED_TYPE_AC) ||
-        (pluggedType == PowerMgr::BatteryPluggedType::PLUGGED_TYPE_USB) ||
-        (pluggedType == PowerMgr::BatteryPluggedType::PLUGGED_TYPE_WIRELESS)) {
-        return PLUGGED_TYPE_AC;
-    } else {
-        return PLUGGED_TYPE_DC;
-    }
-#else
     return PLUGGED_TYPE_DC;
-#endif
 }
 
 std::string BatteryUtils::GetSubUserTableUri()

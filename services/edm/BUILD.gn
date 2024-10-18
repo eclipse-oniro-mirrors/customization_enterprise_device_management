@@ -161,11 +161,6 @@ ohos_shared_library("edmservice") {
       ]
     }
 
-    if (battery_manager_edm_enable) {
-      external_deps += [ "battery_manager:batterysrv_client" ]
-      defines += [ "BATTERY_MANAGER_EDM_ENABLE" ]
-    }
-
     if (update_service_edm_enable) {
       external_deps += [ "update_service:updateservicekits" ]
       sources += [ "../edm_plugin/src/reset_factory_plugin.cpp" ]
