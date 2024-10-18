@@ -22,27 +22,27 @@ namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 
-const std::string SPACE_OPTION = " ";
+const char* const SPACE_OPTION = " ";
 
-const std::string ACCEPT_TARGET = "ACCEPT";
-const std::string REJECT_TARGET = "REJECT";
-const std::string DROP_TARGET = "DROP";
+const char* const ACCEPT_TARGET = "ACCEPT";
+const char* const REJECT_TARGET = "REJECT";
+const char* const DROP_TARGET = "DROP";
 
-const std::string PROTOCOL_ALL = "all";
-const std::string PROTOCOL_TCP = "tcp";
-const std::string PROTOCOL_UDP = "udp";
-const std::string PROTOCOL_ICMP = "icmp";
+const char* const PROTOCOL_ALL = "all";
+const char* const PROTOCOL_TCP = "tcp";
+const char* const PROTOCOL_UDP = "udp";
+const char* const PROTOCOL_ICMP = "icmp";
 
 
-const std::string EDM_DENY_OUTPUT_CHAIN_NAME = "edm_deny_output";
-const std::string EDM_DENY_INPUT_CHAIN_NAME = "edm_deny_input";
-const std::string EDM_ALLOW_OUTPUT_CHAIN_NAME = "edm_allow_output";
-const std::string EDM_ALLOW_INPUT_CHAIN_NAME = "edm_allow_input";
-const std::string EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME = "edm_default_deny_output";
+const char* const EDM_DENY_OUTPUT_CHAIN_NAME = "edm_deny_output";
+const char* const EDM_DENY_INPUT_CHAIN_NAME = "edm_deny_input";
+const char* const EDM_ALLOW_OUTPUT_CHAIN_NAME = "edm_allow_output";
+const char* const EDM_ALLOW_INPUT_CHAIN_NAME = "edm_allow_input";
+const char* const EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME = "edm_default_deny_output";
 
-const std::string EDM_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_dns_deny_output";
-const std::string EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME = "edm_dns_allow_output";
-const std::string EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_default_dns_deny_output";
+const char* const EDM_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_dns_deny_output";
+const char* const EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME = "edm_dns_allow_output";
+const char* const EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_default_dns_deny_output";
 
 class RuleUtils {
 public:
