@@ -36,20 +36,22 @@ std::shared_ptr<DeviceSettingsProxy> DeviceSettingsProxy::GetDeviceSettingsProxy
     return instance_;
 }
 
-int32_t DeviceSettingsProxy::SetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t value)
+int32_t DeviceSettingsProxy::SetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t value,
+    const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::SetScreenOffTime");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteInt32(value);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SCREEN_OFF_TIME);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value)
+int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value,
+    const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::GetScreenOffTime");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -57,7 +59,7 @@ int32_t DeviceSettingsProxy::GetScreenOffTime(const AppExecFwk::ElementName &adm
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::SCREEN_OFF_TIME, data, reply);
