@@ -17,6 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_BROWSER_POLICIES_PLUGIN_H
 
 #include "iplugin.h"
+#include "ipolicy_manager.h"
 #include "cJSON.h"
 
 namespace OHOS {
@@ -40,6 +41,9 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
+    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
+
+    bool AddBrowserPoliciesToRoot(cJSON* root, const std::string &policiesString);
 private:
     void NotifyBrowserPolicyChanged();
     ErrCode SetRootPolicy(const std::string policyData, std::string appid, std::string policyValue,
@@ -47,7 +51,8 @@ private:
     ErrCode SetPolicy(const std::string policyData, std::string appid, std::string policyName,
         std::string policyValue, std::string &afterHandle);
     ErrCode SetPolicyValue(cJSON* policy, std::string policyName, std::string policyValue);
-    ErrCode SetPolicies(std::map<std::string, std::string> &policies, std::map<std::string, std::string> &currentData);
+    ErrCode MergeBrowserPolicy(const AdminValueItemsMap &adminValues, std::string &policyData);
+    bool AddBrowserPolicyToRoot(cJSON* root, const cJSON* adminPolicy);
 };
 } // namespace EDM
 } // namespace OHOS

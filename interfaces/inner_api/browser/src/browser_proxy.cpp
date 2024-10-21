@@ -37,29 +37,6 @@ std::shared_ptr<BrowserProxy> BrowserProxy::GetBrowserProxy()
     return instance_;
 }
 
-int32_t BrowserProxy::SetPolicies(const AppExecFwk::ElementName &admin, const std::string &appId,
-    const std::string &policies)
-{
-    EDMLOGI("BrowserProxy::SetPolicies");
-    if (appId.empty()) {
-        EDMLOGE("BrowserProxy::SetPolicies appId is empty");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    MessageParcel data;
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_BROWSER_POLICIES);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
-    std::vector<std::string> key{appId};
-    std::vector<std::string> value{policies};
-    data.WriteStringVector(key);
-    data.WriteStringVector(value);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-}
-
 int32_t BrowserProxy::GetPolicies(std::string &policies)
 {
     EDMLOGD("BrowserProxy::GetPolicies inner api");
@@ -121,7 +98,6 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(EdmConstants::SET_POLICY_TYPE);
     std::vector<std::string> params{appId, policyName, policyValue};
     data.WriteStringVector(params);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);

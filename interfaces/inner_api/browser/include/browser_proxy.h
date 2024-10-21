@@ -23,7 +23,6 @@ namespace EDM {
 class BrowserProxy {
 public:
     static std::shared_ptr<BrowserProxy> GetBrowserProxy();
-    int32_t SetPolicies(const AppExecFwk::ElementName &admin, const std::string &appId, const std::string &policies);
     int32_t GetPolicies(AppExecFwk::ElementName &admin, const std::string &appId, std::string &policies);
     int32_t GetPolicies(std::string &policies);
     int32_t SetPolicy(const AppExecFwk::ElementName &admin, const std::string &appId, const std::string &policyName,

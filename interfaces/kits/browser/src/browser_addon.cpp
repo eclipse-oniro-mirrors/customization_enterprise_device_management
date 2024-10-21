@@ -65,9 +65,10 @@ void BrowserAddon::NativeSetPolicies(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
+    std::string empty;
     AsyncBrowserCallbackInfo *asyncCallbackInfo = static_cast<AsyncBrowserCallbackInfo *>(data);
-    asyncCallbackInfo->ret = BrowserProxy::GetBrowserProxy()->SetPolicies(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->appId, asyncCallbackInfo->policies);
+    asyncCallbackInfo->ret = BrowserProxy::GetBrowserProxy()->SetPolicy(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->appId, empty, asyncCallbackInfo->policies);
 }
 
 napi_value BrowserAddon::GetPolicies(napi_env env, napi_callback_info info)

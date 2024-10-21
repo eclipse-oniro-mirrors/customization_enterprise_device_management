@@ -45,7 +45,6 @@ void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
         std::string appId(CommonFuzzer::GetString(data, pos, stringSize, size));
         std::string policies(CommonFuzzer::GetString(data, pos, stringSize, size));
         if (isSetAll) {
-            parcel.WriteInt32(EdmConstants::SET_POLICIES_TYPE);
             std::vector<std::string> appIds;
             std::vector<std::string> policiesList;
             appIds.push_back(appId);
@@ -54,7 +53,6 @@ void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
             parcel.WriteStringVector(policiesList);
         } else {
             parcel.WriteString("");
-            parcel.WriteInt32(EdmConstants::SET_POLICY_TYPE);
             std::string policyName(CommonFuzzer::GetString(data, pos, stringSize, size));
             std::vector<std::string> params;
             params.push_back(appId);
