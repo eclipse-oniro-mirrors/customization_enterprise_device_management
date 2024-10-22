@@ -411,7 +411,7 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
     if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
         int32_t screenOffTime = 0;
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToInt(value, screenOffTime), "param 'screenOffTime' error");
-        ret = proxy->SetScreenOffTime(elementName, screenOffTime);
+        ret = proxy->SetScreenOffTime(elementName, screenOffTime, EdmConstants::PERMISSION_TAG_VERSION_12);
     } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
         PowerScene powerScene;
         ASSERT_AND_THROW_PARAM_ERROR(env, JsStrToPowerScene(env, value, powerScene), "param 'powerScene' error");
@@ -421,7 +421,8 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
     } else if (item == EdmConstants::DeviceSettings::DATE_TIME) {
         int64_t dateTime = 0;
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToLong(value, dateTime), "param 'dateTime' error");
-        ret = DatetimeManagerProxy::GetDatetimeManagerProxy()->SetDateTime(elementName, dateTime);
+        ret = DatetimeManagerProxy::GetDatetimeManagerProxy()->SetDateTime(elementName, dateTime,
+            EdmConstants::PERMISSION_TAG_VERSION_12);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -453,7 +454,7 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == EdmConstants::DeviceSettings::SCREEN_OFF) {
         int32_t screenOffTime;
-        ret = proxy->GetScreenOffTime(elementName, screenOffTime);
+        ret = proxy->GetScreenOffTime(elementName, screenOffTime, EdmConstants::PERMISSION_TAG_VERSION_12);
         stringRet = std::to_string(screenOffTime);
     } else if (item == EdmConstants::DeviceSettings::POWER_POLICY) {
         PowerScene powerScene = PowerScene::TIME_OUT;
