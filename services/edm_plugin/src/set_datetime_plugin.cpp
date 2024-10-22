@@ -27,8 +27,12 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetDateTime
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {
     EDMLOGI("SetDateTimePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", "ohos.permission.ENTERPRISE_SET_DATETIME",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<std::string, std::string> perms;
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_SET_DATETIME"));
+    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_SETTINGS"));
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", config, false);
     ptr->SetSerializer(LongSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
 }
