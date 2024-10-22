@@ -42,6 +42,7 @@ public:
     static void ProcessPrivacyConfig(int32_t privacyConfig, Wifi::WifiDeviceConfig &config);
     static void ReadIpAddress(MessageParcel &data, Wifi::WifiIpAddress &address);
     static void WriteCString(MessageParcel &data, char* cStr);
+    static const char* ReadCString(MessageParcel &data);
 #endif
     static void WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data);
     static void ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param);
