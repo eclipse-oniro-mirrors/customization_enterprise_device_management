@@ -27,7 +27,7 @@
 using namespace OHOS::EDM;
 
 constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
-constexpr int32_t MAX_WATERMARK_IMAGE_SIZE = 1048576; // 1024 * 1024
+constexpr int32_t MAX_WATERMARK_IMAGE_SIZE = 512000; // 500 * 1024
 static const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
 
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
