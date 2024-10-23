@@ -76,7 +76,7 @@ HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestGet, TestSize.Level
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 100);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool());
+    ASSERT_FALSE(reply.ReadBool());
 }
 
 } // namespace TEST
