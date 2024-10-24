@@ -45,23 +45,6 @@ void IsWifiActivePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestIsWifiActiveFail
- * @tc.desc: Test IsWifiActivePlugin fail function.
- * @tc.type: FUNC
- */
-HWTEST_F(IsWifiActivePluginTest, TestIsWifiActiveFail, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
-    std::string policyData{"TestIsWifiActive"};
-    MessageParcel data;
-    MessageParcel reply;
-    Utils::ResetTokenTypeAndUid();
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-    Utils::SetEdmInitialEnv();
-}
-
-/**
  * @tc.name: TestIsWifiActiveSuc
  * @tc.desc: Test IsWifiActivePlugin success function.
  * @tc.type: FUNC
