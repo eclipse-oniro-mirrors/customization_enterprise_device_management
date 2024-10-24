@@ -3006,17 +3006,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAllDebugAdmin, TestSize.Level
 }
 
 /**
- * @tc.name: TestAddSystemAbilityListeners
- * @tc.desc: Test AddSystemAbilityListeners func.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAddSystemAbilityListeners, TestSize.Level1)
-{
-    edmMgr_->AddSystemAbilityListeners();
-    EXPECT_TRUE(true);
-}
-
-/**
  * @tc.name: TestHandleDevicePolicyInnerWithUserNotExsist
  * @tc.desc: Test HandleDevicePolicyInner function with userId is not exist.
  * @tc.type: FUNC

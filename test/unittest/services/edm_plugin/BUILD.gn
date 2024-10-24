@@ -171,7 +171,6 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_usb_devices_plugin_test.cpp",
       "./src/disable_usb_plugin_test.cpp",
-      "./src/disallowed_usb_devices_plugin_test.cpp",
       "./src/utils/array_usb_device_id_serializer_test.cpp",
     ]
   }

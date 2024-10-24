@@ -29,7 +29,6 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./policy_serializer_test.cpp",
     "./utils/cjson_serializer_test.cpp",
     "./utils_test.cpp",
-    "./utils/cjson_serializer_test.cpp"
   ]
 
   configs = [
