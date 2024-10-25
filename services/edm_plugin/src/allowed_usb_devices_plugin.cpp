@@ -24,6 +24,7 @@
 #include "edm_utils.h"
 #include "usb_device.h"
 #include "usb_device_id.h"
+#include "usb_policy_utils.h"
 #include "usb_srv_client.h"
 #include "plugin_manager.h"
 
@@ -65,24 +66,9 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::vector<OHOS::USB::UsbDevice> allDevices;
-    int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy: getDevices failed! USB interface not init!");
-    }
-    if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy getDevices failed: %{public}d", getRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (const auto &item : allDevices) {
-        bool isAllowed = (std::find_if(mergeData.begin(), mergeData.end(), [item](UsbDeviceId trustItem) {
-            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
-        }) != mergeData.end());
-        if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), !isAllowed) != ERR_OK) {
-            EDMLOGW("AllowUsbDevicesPlugin SetPolicy ManageDevice: vid:%{public}d pid:%{public}d, %{public}d failed!",
-                item.GetVendorId(), item.GetProductId(), isAllowed);
-        }
+    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(mergeData);
+    if (errCode != ERR_OK) {
+        return errCode;
     }
     currentData = mergeData;
     return ERR_OK;
@@ -190,16 +176,7 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
-    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    int32_t usbRet = srvClient.ManageGlobalInterface(false);
-    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy: getDevices failed! USB interface not init!");
-    }
-    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
+    return UsbPolicyUtils::SetUsbDisabled(false);
 }
 } // namespace EDM
 } // namespace OHOS

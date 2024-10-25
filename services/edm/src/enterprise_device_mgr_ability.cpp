@@ -57,6 +57,7 @@
 #include "fingerprint_policy.h"
 #include "fingerprint_policy_serializer.h"
 #include "password_policy_serializer.h"
+#include "usb_device_id.h"
 #include "user_auth_client.h"
 #endif
 
@@ -138,35 +139,41 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
     addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnAppManagerServiceStart(systemAbilityId, deviceId);
+            that->OnAppManagerServiceStart();
         };
     addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnCommonEventServiceStart(systemAbilityId, deviceId);
+            that->OnCommonEventServiceStart();
         };
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
+            that->OnAbilityManagerServiceStart();
         };
     addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnWindowManagerServiceStart(systemAbilityId, deviceId);
+            that->OnWindowManagerServiceStart();
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnPasteboardServiceStart(systemAbilityId, deviceId);
+            that->OnPasteboardServiceStart();
         };
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnNetManagerBaseServiceStart(systemAbilityId, deviceId);
+            that->OnNetManagerBaseServiceStart();
+        };
+#endif
+#ifdef USB_EDM_ENABLE
+    addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnUsbServiceStart();
         };
 #endif
     addSystemAbilityFuncMap_[RENDER_SERVICE] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnRenderSystemStart(systemAbilityId, deviceId);
+            that->OnRenderSystemStart();
         };
 }
 
@@ -472,6 +479,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     AddSystemAbilityListener(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
 #endif
+#ifdef USB_EDM_ENABLE
+    AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);
+#endif
     AddSystemAbilityListener(RENDER_SERVICE);
 }
 
@@ -487,7 +497,7 @@ void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, con
     }
 }
 
-void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart()
 {
     EDMLOGI("OnAppManagerServiceStart");
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
@@ -499,7 +509,7 @@ void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart(int32_t systemAbilityI
     }
 }
 
-void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
 {
     EDMLOGI("OnAbilityManagerServiceStart");
     auto superAdmin = adminMgr_->GetSuperAdmin();
@@ -513,7 +523,7 @@ void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart(int32_t systemAbil
     }
 }
 
-void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
 {
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     commonEventSubscriber = CreateEnterpriseDeviceEventSubscriber(*this);
@@ -533,7 +543,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart(int32_t systemAbility
 }
 
 #ifdef PASTEBOARD_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart()
 {
     EDMLOGI("OnPasteboardServiceStart");
     std::string policyData;
@@ -546,7 +556,7 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart(int32_t systemAbilityI
 #endif
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart()
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart");
     std::string policyData;
@@ -575,7 +585,7 @@ void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map
 #endif
 
 #ifdef USERIAM_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart()
 {
     EDMLOGI("OnUserAuthFrameworkStart");
     SetPasswordPolicy();
@@ -620,7 +630,59 @@ void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
 }
 #endif
 
-void EnterpriseDeviceMgrAbility::OnRenderSystemStart(int32_t systemAbilityId, const std::string &deviceId)
+#ifdef USB_EDM_ENABLE
+void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
+{
+    EDMLOGI("OnUsbServiceStart");
+    std::string disableUsbPolicy;
+    policyMgr_->GetPolicy("", "disable_usb", disableUsbPolicy, EdmConstants::DEFAULT_USER_ID);
+    bool isUsbDisabled = false;
+    BoolSerializer::GetInstance()->Deserialize(policyData, isUsbDisabled);
+    if (isUsbDisabled) {
+        ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(isUsbDisabled);
+        if (disableUsbRet != ERR_OK) {
+            EDMLOGW("SetUsbDisabled Error: %{public}d", disableUsbRet);
+        }
+        return;
+    }
+
+    std::string allowUsbDevicePolicy;
+    policyMgr_->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy, EdmConstants::DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
+    if (!usbDeviceIds.empty()) {
+        ErrCode allowedUsbRet = UsbPolicyUtils::AddAllowedUsbDevices(usbDeviceIds);
+        if (allowedUsbRet != ERR_OK) {
+            EDMLOGW("AddAllowedUsbDevices Error: %{public}d", disableUsbRet);
+        }
+        return;
+    }
+
+    std::string usbStoragePolicy;
+    policyMgr_->GetPolicy("", "usb_read_only", usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
+
+    std::string disallowUsbDevicePolicy;
+    policyMgr_->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy, EdmConstants::DEFAULT_USER_ID);
+    std::vector<USB::UsbDeviceType> disallowedDevices;
+    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(policyData, disallowedDevices);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        USB::UsbDeviceType storageType;
+        storageType.baseClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.subClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.protocol = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.isDeviceType = false;
+        disallowedDevices.emplace_back(storageType);
+    }
+    if (!disallowedDevices.empty()) {
+        ErrCode disallowedUsbRet = UsbPolicyUtils::SetDisallowedUsbDevices(disallowedDevices);
+        if (disallowedUsbRet != ERR_OK) {
+            EDMLOGW("SetDisallowedUsbDevices Error: %{public}d", disableUsbRet);
+        }
+    }
+}
+#endif
+
+void EnterpriseDeviceMgrAbility::OnRenderSystemStart()
 {
     EDMLOGI("OnRenderSystemStart");
     InitAllPlugins();
@@ -640,7 +702,7 @@ void EnterpriseDeviceMgrAbility::OnRenderSystemStart(int32_t systemAbilityId, co
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
 
-void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId)
+void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart()
 {
     auto serializer = ArrayStringSerializer::GetInstance();
     std::vector<int32_t> userIds = { DEFAULT_USER_ID };
