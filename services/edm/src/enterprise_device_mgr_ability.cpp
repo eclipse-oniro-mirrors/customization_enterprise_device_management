@@ -76,6 +76,8 @@ const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
+const std::string EDM_ADMIN_ENABLED_EVENT = "com.ohos.edm.edmadminenabled";
+const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -272,6 +274,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         }
         if (!adminMgr_->IsAdminExist()) {
             system::SetParameter(PARAM_EDM_ENABLE, "false");
+            NotifyAdminEnabled(false);
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
@@ -295,6 +298,22 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
                 manager->CreateBundleConnection(want, static_cast<uint32_t>(event), subAdmin.first, bundleName, userId);
             manager->ConnectAbility(connection);
         }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::NotifyAdminEnabled(bool isEnabled)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility notify admin enabled: %{public}d.", isEnabled);
+    AAFwk::Want want;
+    if (isEnabled) {
+        want.SetAction(EDM_ADMIN_ENABLED_EVENT);
+    } else {
+        want.SetAction(EDM_ADMIN_DISABLED_EVENT);
+    }
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+        EDMLOGE("EnterpriseDeviceMgrAbility notify admin enabled failed.");
     }
 }
 
@@ -863,6 +882,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
+    NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
     AAFwk::Want connectWant;
@@ -1063,6 +1083,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     }
     if (!adminMgr_->IsAdminExist()) {
         system::SetParameter(PARAM_EDM_ENABLE, "false");
+        NotifyAdminEnabled(false);
     }
     AAFwk::Want want;
     want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
