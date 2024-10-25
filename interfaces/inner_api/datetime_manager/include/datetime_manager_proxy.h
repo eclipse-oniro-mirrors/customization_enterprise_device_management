@@ -15,6 +15,8 @@
 
 #ifndef INTERFACES_INNER_API_DATETIME_MANAGER_INCLUDE_DATETIME_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_DATETIME_MANAGER_INCLUDE_DATETIME_MANAGER_PROXY_H
+
+#include "edm_constants.h"
 #include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
@@ -24,7 +26,8 @@ public:
     DatetimeManagerProxy();
     ~DatetimeManagerProxy();
     static std::shared_ptr<DatetimeManagerProxy> GetDatetimeManagerProxy();
-    int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time);
+    int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time,
+        const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow);
     int32_t IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result);
 

@@ -41,7 +41,8 @@ std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::GetDatetimeManagerPr
     return instance_;
 }
 
-int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_t time)
+int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_t time,
+    const std::string &permissionTag)
 {
     EDMLOGD("DatetimeManagerProxy::SetDateTime");
     MessageParcel data;
@@ -49,7 +50,7 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteInt64(time);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
