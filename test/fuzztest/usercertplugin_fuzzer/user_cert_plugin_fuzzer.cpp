@@ -54,7 +54,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteInt32(WITHOUT_USERID);
         if (operateType == static_cast<uint32_t>(FuncOperateType::SET)) {
             parcel.WriteParcelable(&admin);
-            std::vector <uint8_t> certArray{(*data)};
+            std::vector<uint8_t> certArray {(*data)};
             parcel.WriteUInt8Vector(certArray);
             parcel.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
         } else if (operateType == static_cast<uint32_t>(FuncOperateType::REMOVE)) {

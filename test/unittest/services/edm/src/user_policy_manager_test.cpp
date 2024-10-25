@@ -87,6 +87,8 @@ HWTEST_F(UserPolicyManagerTest, TestSetPolicy, TestSize.Level1)
     ASSERT_TRUE(res == ERR_OK);
     res = userPolicyMgr_->SetPolicy(TEST_ADMIN_NAME1, TEST_BOOL_POLICY_NAME, "", "");
     ASSERT_TRUE(res == ERR_OK);
+    userPolicyMgr_->DumpAdminPolicy();
+    userPolicyMgr_->DumpAdminList();
 }
 
 /**
@@ -137,6 +139,7 @@ HWTEST_F(UserPolicyManagerTest, TestGetAdminAllPolicy, TestSize.Level1)
     res = userPolicyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME, TEST_ADMIN_POLICY_VALUE,
         TEST_MERAGE_POLICY_VALUE);
     ASSERT_TRUE(res == ERR_OK);
+    userPolicyMgr_->DumpCombinedPolicy();
     res = userPolicyMgr_->SetPolicy(TEST_ADMIN_NAME, TEST_BOOL_POLICY_NAME, "true", "true");
     ASSERT_TRUE(res == ERR_OK);
 

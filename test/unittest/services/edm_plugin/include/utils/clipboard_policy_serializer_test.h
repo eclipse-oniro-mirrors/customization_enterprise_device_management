@@ -13,24 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_EXTERNAL_INCLUDE_EDM_OS_ACCOUNT_MANAGER_IMPL_H
-#define COMMON_EXTERNAL_INCLUDE_EDM_OS_ACCOUNT_MANAGER_IMPL_H
+#ifndef EDM_UNIT_TEST_UTILS_CLIPBOARD_POLICY_SERIALIZER_TEST_H
+#define EDM_UNIT_TEST_UTILS_CLIPBOARD_POLICY_SERIALIZER_TEST_H
 
-#include "iedm_os_account_manager.h"
+#include <gtest/gtest.h>
+#include "clipboard_policy_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-class EdmOsAccountManagerImpl : public IEdmOsAccountManager {
-public:
-    ~EdmOsAccountManagerImpl() override = default;
-    ErrCode QueryActiveOsAccountIds(std::vector<int32_t> &ids) override;
-    ErrCode IsOsAccountExists(int32_t id, bool &isExist) override;
-#ifdef OS_ACCOUNT_EDM_ENABLE
-    ErrCode CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
-        OHOS::AccountSA::OsAccountInfo &osAccountInfo) override;
-#endif
+namespace TEST {
+class ClipboardPolicySerializerTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // COMMON_EXTERNAL_INCLUDE_EDM_OS_ACCOUNT_MANAGER_IMPL_H
+#endif // EDM_UNIT_TEST_UTILS_CLIPBOARD_POLICY_SERIALIZER_TEST_H

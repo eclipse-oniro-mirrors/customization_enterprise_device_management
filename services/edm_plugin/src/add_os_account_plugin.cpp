@@ -60,7 +60,8 @@ ErrCode AddOsAccountPlugin::OnSetPolicy(std::map<std::string, std::string> &data
     EDMLOGI("AddOsAccountPlugin::CreateOsAccount: name.len -- %{public}zu, type -- %{public}d",
         accountName.length(), type);
     OHOS::AccountSA::OsAccountInfo accountInfo;
-    ErrCode ret = AccountSA::OsAccountManager::CreateOsAccount(accountName, accountType, accountInfo);
+    ErrCode ret = externalManagerFactory_->CreateOsAccountManager()->CreateOsAccount(accountName,
+        accountType, accountInfo);
     if (FAILED(ret)) {
         EDMLOGE("AddOsAccountPlugin CreateOsAccount failed");
         reply.WriteInt32(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);

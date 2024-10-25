@@ -74,6 +74,24 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestOnSetPolicyFail
+ * @tc.desc: Test ClipboardPolicyPluginTest::OnSetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
+{
+    ClipboardPolicyPlugin plugin;
+    std::map<int32_t, ClipboardPolicy> data;
+    data.insert(std::make_pair(101, ClipboardPolicy::IN_APP));
+    std::map<int32_t, ClipboardPolicy> currentData;
+    for (int i = 1; i <= 100; i++) {
+        currentData.insert(std::make_pair(i, ClipboardPolicy::IN_APP));
+    }
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, 0);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
  * @tc.name: TestOnGetPolicy
  * @tc.desc: Test ClipboardPolicyPluginTest::OnGetPolicy.
  * @tc.type: FUNC

@@ -16,6 +16,11 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
+#define private public
+#define protected public
+#include "iplugin.h"
+#undef protected
+#undef private
 #include "func_code.h"
 #include "iplugin_mock.h"
 
@@ -75,6 +80,113 @@ HWTEST_F(IPluginTest, TestPolicyPermissionConfig, TestSize.Level1)
     EXPECT_TRUE(config3.tagPermissions.size() == 2);
     EXPECT_TRUE(config3.permissionType == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
     EXPECT_TRUE(config3.apiType == IPlugin::ApiType::SYSTEM);
+}
+
+/**
+ * @tc.name: TestGetApiType
+ * @tc.desc: Test GetApiType func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetApiType, TestSize.Level1)
+{
+    FuncOperateType operaType = FuncOperateType::GET;
+    IPluginMock::ApiType ret;
+
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap1;
+    IPluginMock::PolicyPermissionConfig permissionConfig1;
+    std::unique_ptr<IPlugin> iplugin1 = std::make_unique<IPluginMock>();
+    permissionMap1[operaType] = permissionConfig1;
+    iplugin1->permissionMap_ = permissionMap1;
+    iplugin1->permissionConfig_ = permissionConfig1;
+    ret = iplugin1->GetApiType(operaType);
+    EXPECT_TRUE(ret == IPluginMock::ApiType::UNKNOWN);
+
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap2;
+    IPluginMock::PolicyPermissionConfig permissionConfig2;
+    std::unique_ptr<IPlugin> iplugin2 = std::make_unique<IPluginMock>();
+    iplugin2->permissionMap_ = permissionMap2;
+    permissionConfig2.apiType = IPluginMock::ApiType::PUBLIC;
+    iplugin2->permissionConfig_ = permissionConfig2;
+    ret = iplugin2->GetApiType(operaType);
+    EXPECT_TRUE(ret == IPluginMock::ApiType::PUBLIC);
+
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap3;
+    IPluginMock::PolicyPermissionConfig permissionConfig3;
+    std::unique_ptr<IPlugin> iplugin3 = std::make_unique<IPluginMock>();
+    permissionConfig3.apiType = IPluginMock::ApiType::PUBLIC;
+    permissionMap3[operaType] = permissionConfig3;
+    iplugin3->permissionMap_ = permissionMap3;
+    ret = iplugin3->GetApiType(operaType);
+    EXPECT_TRUE(ret == IPluginMock::ApiType::PUBLIC);
+
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap4;
+    IPluginMock::PolicyPermissionConfig permissionConfig4;
+    std::unique_ptr<IPlugin> iplugin4 = std::make_unique<IPluginMock>();
+    permissionConfig4.apiType = IPluginMock::ApiType::UNKNOWN;
+    permissionMap4[operaType] = permissionConfig4;
+    iplugin4->permissionConfig_ = permissionConfig4;
+    ret = iplugin4->GetApiType(operaType);
+    EXPECT_TRUE(ret == IPluginMock::ApiType::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetPermissionWhenIfEstablished
+ * @tc.desc: Test GetPermission func when The If Condition is Met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetPermissionWhenIfEstablished, TestSize.Level1)
+{
+    FuncOperateType operaType = FuncOperateType::GET;
+    std::string permissionTag = "permissionTag";
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap;
+    IPluginMock::PolicyPermissionConfig permissionConfig;
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+
+    permissionMap[operaType] = permissionConfig;
+    iplugin->permissionMap_ = permissionMap;
+    iplugin->permissionConfig_ = permissionConfig;
+    std::string ret = iplugin->GetPermission(operaType, permissionTag);
+    std::string checkRet = NONE_PERMISSION_MATCH;
+    EXPECT_TRUE(ret == checkRet);
+}
+
+/**
+ * @tc.name: TestSetExtensionPlugin
+ * @tc.desc: Test SetExtensionPlugin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestSetExtensionPlugin, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> extensionPlugin = std::make_shared<IPluginMock>();
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    iplugin->SetExtensionPlugin(extensionPlugin);
+    EXPECT_TRUE(extensionPlugin == iplugin->GetExtensionPlugin());
+}
+
+/**
+ * @tc.name: TestSetExecuteStrategy
+ * @tc.desc: Test SetExecuteStrategy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestSetExecuteStrategy, TestSize.Level1)
+{
+    std::shared_ptr<IPluginExecuteStrategy> strategy = std::make_shared<IPluginExecuteStrategy>();
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    iplugin->SetExecuteStrategy(strategy);
+    EXPECT_TRUE(strategy == iplugin->GetExecuteStrategy());
+}
+
+/**
+ * @tc.name: TestSetPluginType
+ * @tc.desc: Test SetPluginType func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestSetPluginType, TestSize.Level1)
+{
+    IPluginMock::PluginType type = IPluginMock::PluginType::BASIC;
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    iplugin->SetPluginType(type);
+    EXPECT_TRUE(type == iplugin->GetPluginType());
 }
 } // namespace TEST
 } // namespace EDM

@@ -13,14 +13,19 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-
+#define private public
 #include "add_os_account_plugin.h"
+#undef private
+
 #include "edm_ipc_interface_code.h"
+#include "edm_os_account_manager_impl_mock.h"
+#include "external_manager_factory_mock.h"
 #include "os_account_info.h"
 #include "os_account_manager.h"
 #include "utils.h"
+#include <gtest/gtest.h>
 
+using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
@@ -30,26 +35,28 @@ const int32_t ACCOUNT_NAME_LENGTH_MAX = 1024;
 
 class AddOsAccountAccountPluginTest : public testing::Test {
 public:
-    static std::vector<int> accountIdArray;
-
-protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+protected:
+    static std::shared_ptr<ExternalManagerFactoryMock> factoryMock_;
+
+    static std::shared_ptr<EdmOsAccountManagerImplMock> osAccountMgrMock_;
 };
 
-std::vector<int> AddOsAccountAccountPluginTest::accountIdArray;
+std::shared_ptr<ExternalManagerFactoryMock> AddOsAccountAccountPluginTest::factoryMock_ = nullptr;
+std::shared_ptr<EdmOsAccountManagerImplMock> AddOsAccountAccountPluginTest::osAccountMgrMock_ = nullptr;
 
 void AddOsAccountAccountPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
+    osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
+    factoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
 }
 
 void AddOsAccountAccountPluginTest::TearDownTestSuite(void)
 {
-    std::for_each(accountIdArray.begin(), accountIdArray.end(), [&](const int accountId) {
-        AccountSA::OsAccountManager::RemoveOsAccount(accountId);
-    });
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is original ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -127,18 +134,16 @@ HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyTypeUnavailable, TestSize
 HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddAdmin, TestSize.Level1)
 {
     AddOsAccountPlugin plugin;
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin.externalManagerFactory_ = factory;
     MessageParcel reply;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair("ut_test_user_name1", "0"));
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, CreateOsAccount).Times(1).WillOnce(Return(ERR_OK));
     ErrCode ret = plugin.OnSetPolicy(policies, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    AccountSA::OsAccountInfo *info = AccountSA::OsAccountInfo::Unmarshalling(reply);
-    AccountSA::OsAccountInfo accountInfo = *info;
-    accountIdArray.push_back(accountInfo.GetLocalId());
-    ASSERT_EQ(accountInfo.GetLocalName(), "ut_test_user_name1");
-    ASSERT_TRUE(accountInfo.GetType() == AccountSA::OsAccountType::ADMIN);
 }
 
 /**
@@ -149,18 +154,16 @@ HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddAdmin, TestSize.Level1
 HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddNormal, TestSize.Level1)
 {
     AddOsAccountPlugin plugin;
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin.externalManagerFactory_ = factory;
     MessageParcel reply;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair("ut_test_user_name2", "1"));
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, CreateOsAccount).Times(1).WillOnce(Return(ERR_OK));
     ErrCode ret = plugin.OnSetPolicy(policies, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    AccountSA::OsAccountInfo *info = AccountSA::OsAccountInfo::Unmarshalling(reply);
-    AccountSA::OsAccountInfo accountInfo = *info;
-    accountIdArray.push_back(accountInfo.GetLocalId());
-    ASSERT_EQ(accountInfo.GetLocalName(), "ut_test_user_name2");
-    ASSERT_TRUE(accountInfo.GetType() == AccountSA::OsAccountType::NORMAL);
 }
 
 /**
@@ -171,18 +174,36 @@ HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddNormal, TestSize.Level
 HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddGuest, TestSize.Level1)
 {
     AddOsAccountPlugin plugin;
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin.externalManagerFactory_ = factory;
     MessageParcel reply;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair("ut_test_user_name3", "2"));
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, CreateOsAccount).Times(1).WillOnce(Return(ERR_OK));
     ErrCode ret = plugin.OnSetPolicy(policies, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    AccountSA::OsAccountInfo *info = AccountSA::OsAccountInfo::Unmarshalling(reply);
-    AccountSA::OsAccountInfo accountInfo = *info;
-    accountIdArray.push_back(accountInfo.GetLocalId());
-    ASSERT_EQ(accountInfo.GetLocalName(), "ut_test_user_name3");
-    ASSERT_TRUE(accountInfo.GetType() == AccountSA::OsAccountType::GUEST);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyAddFail
+ * @tc.desc: Test AddOsAccountPlugin::OnSetPolicy to add an guest account fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AddOsAccountAccountPluginTest, TestOnSetPolicyAddFail, TestSize.Level1)
+{
+    AddOsAccountPlugin plugin;
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin.externalManagerFactory_ = factory;
+    MessageParcel reply;
+    std::map<std::string, std::string> policies;
+    policies.insert(std::make_pair("ut_test_user_name3", "2"));
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, CreateOsAccount).Times(1).WillOnce(Return(EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED));
+    ErrCode ret = plugin.OnSetPolicy(policies, reply);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED);
 }
 } // namespace TEST
 } // namespace EDM

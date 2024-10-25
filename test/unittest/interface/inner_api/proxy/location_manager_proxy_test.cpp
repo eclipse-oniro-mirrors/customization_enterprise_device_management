@@ -129,6 +129,20 @@ HWTEST_F(LocationManagerProxyTest, TestGetLocationPolicyFail, TestSize.Level1)
     int32_t ret = proxy_->GetLocationPolicy(&admin, locationPolicy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetLocationPolicyIfAdminIsNullAndEdmDisable
+ * @tc.desc: Test GetLocationPolicy without enable edm service func when Admin is Nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationManagerProxyTest, TestGetLocationPolicyIfAdminIsNullAndEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName *admin = nullptr;
+    LocationPolicy locationPolicy;
+    int32_t ret = proxy_->GetLocationPolicy(admin, locationPolicy);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -88,6 +88,25 @@ HWTEST_F(EnterpriseConnManagerTest, TestBundleConnectAbility, TestSize.Level1)
     ret = manager->ConnectAbility(nullptr);
     EXPECT_TRUE(!ret);
 }
+
+/**
+ * @tc.name: TestUpdateConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateUpdateConnection func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseConnManagerTest, TestUpdateConnectAbility, TestSize.Level1)
+{
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    UpdateInfo updateInfo;
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection = manager->CreateUpdateConnection(connectWant,
+        DEFAULT_USERID, updateInfo);
+    bool ret = manager->ConnectAbility(connection);
+    EXPECT_TRUE(!ret);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

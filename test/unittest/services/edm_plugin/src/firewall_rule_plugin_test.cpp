@@ -55,7 +55,6 @@ void FirewallRulePluginTest::SetUp()
 
     iptablesManager = IptablesManager::GetInstance();
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    iptablesManager->Init();
 }
 
 void FirewallRulePluginTest::TearDown()
@@ -81,6 +80,40 @@ HWTEST_F(FirewallRulePluginTest, TestInitPluginSuccess, TestSize.Level1)
     ASSERT_TRUE(plugin->GetPermissionType(FuncOperateType::SET) == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ASSERT_TRUE(plugin->GetPermission(FuncOperateType::GET) == "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
     ASSERT_TRUE(plugin->GetPermissionType(FuncOperateType::GET) == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyTestSuccessBeforeInit
+ * @tc.desc: Test FirewallRulePlugin::OnGetPolicy success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FirewallRulePluginTest, TestOnGetPolicyTestSuccessBeforeInit, TestSize.Level1)
+{
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+
+    std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, 0);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyTestSuccessBeforeInit
+ * @tc.desc: Test FirewallRulePlugin::OnSetPolicy success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FirewallRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestSize.Level1)
+{
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+
+    std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
+    IPTABLES::FirewallRule rule{IPTABLES::Direction::INPUT, IPTABLES::Action::DENY, IPTABLES::Protocol::UDP,
+        "192.168.2.100", "192.168.2.200", "80", "90", ""};
+    IPTABLES::FirewallRuleParcel ruleParcel{rule};
+    ErrCode ret = plugin->OnSetPolicy(ruleParcel);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
