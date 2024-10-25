@@ -237,6 +237,7 @@ ohos_shared_library("edmservice") {
         "../edm_plugin/src/disallowed_usb_devices_plugin.cpp",
         "../edm_plugin/src/utils/array_usb_device_id_serializer.cpp",
         "../edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
+        "../edm_plugin/src/utils/usb_policy_utils.cpp",
       ]
     }
 

@@ -23,6 +23,7 @@
 #include "edm_utils.h"
 #include "iservice_registry.h"
 #include "parameters.h"
+#include "usb_policy_utils.h"
 #include "usb_srv_client.h"
 #include "volume_external.h"
 #include "plugin_manager.h"
@@ -127,16 +128,7 @@ ErrCode UsbReadOnlyPlugin::DealDisablePolicy(std::vector<USB::UsbDeviceType> usb
         ArrayUsbDeviceTypeSerializer::GetInstance()->SetUnionPolicyData(usbDeviceTypes, usbStorageTypes);
     EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType disallowed size: %{public}zu",
         disallowedUsbDeviceTypes.size());
-
-    int32_t usbRet = USB::UsbSrvClient::GetInstance().ManageInterfaceType(disallowedUsbDeviceTypes, true);
-    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType failed! USB interface not init!");
-    }
-    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy: ManageInterfaceType failed! ret:%{public}d", usbRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
+    return UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
 }
 
 ErrCode UsbReadOnlyPlugin::DealReadPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,
@@ -252,14 +244,10 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std
         adminName.c_str(), userId, policyData.c_str());
     int32_t data = strtol(policyData.c_str(), nullptr, EdmConstants::DECIMAL);
     if (data == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
-        auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-        int32_t usbRet = srvClient.ManageGlobalInterface(false);
-        if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-            EDMLOGW("UsbReadOnlyPlugin OnAdminRemove: ManageGlobalInterface failed! USB interface not init!");
-        }
-        if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-            EDMLOGE("UsbReadOnlyPlugin OnAdminRemove: ManageGlobalInterface failed! ret:%{public}d", usbRet);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(false);
+        if (disableUsbRet != ERR_OK) {
+            EDMLOGW("UsbReadOnlyPlugin OnAdminRemove SetUsbDisabled Error: %{public}d", disableUsbRet);
+            return disableUsbRet;
         }
     }
     std::string usbValue = "false";

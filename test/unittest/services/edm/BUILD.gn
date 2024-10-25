@@ -63,6 +63,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
     "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
+    "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
   ]
 
   public_configs = [
@@ -111,6 +112,10 @@ ohos_static_library("edmservice_static") {
       "os_account:libaccountkits",
       "os_account:os_account_innerkits",
     ]
+  }
+
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
+    external_deps += [ "usb_manager:usbsrv_client" ]
   }
 
   deps = [

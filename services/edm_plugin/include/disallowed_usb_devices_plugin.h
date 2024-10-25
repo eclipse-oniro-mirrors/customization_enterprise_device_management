@@ -38,8 +38,6 @@ private:
         std::vector<USB::UsbDeviceType> beforeDevices, std::vector<USB::UsbDeviceType> &mergeDevices);
     void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
         std::vector<USB::UsbDeviceType> &combineData);
-    ErrCode EnableAllUsb();
-    ErrCode DealDisallowedDevices(std::vector<USB::UsbDeviceType> data);
 };
 } // namespace EDM
 } // namespace OHOS
