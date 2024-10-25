@@ -108,13 +108,16 @@ private:
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
-    void OnAppManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
-    void OnAbilityManagerServiceStart(int32_t systemAbilityId, const std::string &deviceId);
-    void OnCommonEventServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+    void OnAppManagerServiceStart();
+    void OnAbilityManagerServiceStart();
+    void OnCommonEventServiceStart();
 #ifdef PASTEBOARD_EDM_ENABLE
-    void OnPasteboardServiceStart(int32_t systemAbilityId, const std::string &deviceId);
+    void OnPasteboardServiceStart();
 #endif
-    void OnUserAuthFrameworkStart(int32_t systemAbilityId, const std::string &deviceId);
+    void OnUserAuthFrameworkStart();
+#ifdef USB_EDM_ENABLE
+    void OnUsbServiceStart();
+#endif
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);
     void InitAllAdmins();

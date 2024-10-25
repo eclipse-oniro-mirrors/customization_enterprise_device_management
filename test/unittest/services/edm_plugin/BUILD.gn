@@ -442,6 +442,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/allowed_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_usb_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_id_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
     ]
   }
 
