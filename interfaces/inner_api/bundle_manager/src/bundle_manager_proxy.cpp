@@ -16,6 +16,7 @@
 #include "bundle_manager_proxy.h"
 
 #include <fcntl.h>
+#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -34,7 +35,6 @@ std::mutex BundleManagerProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string SEPARATOR = "/";
-const int32_t DEFAULT_BUFFER_SIZE = 65536;
 
 BundleManagerProxy::BundleManagerProxy()
 {
@@ -223,17 +223,22 @@ ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply, const std::st
         errMessage = "write file to stream failed due to open the hap file";
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
-    char buffer[DEFAULT_BUFFER_SIZE] = {0};
-    int offset = -1;
-    while ((offset = read(inputFd, buffer, sizeof(buffer))) > 0) {
-        if (write(outputFd, buffer, offset) < 0) {
-            close(inputFd);
-            close(outputFd);
-            EDMLOGE("write file to the temp dir failed");
-            errMessage = "write file to the temp dir failed";
-            return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-        }
+    off_t offset = 0;
+    struct stat stat_buff;
+    if (fstat(inputFd, &stat_buff) != 0) {
+        EDMLOGE("fstat file failed!");
+        close(outputFd);
+        close(inputFd);
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
+
+    if (sendfile(outputFd, inputFd, &offset, stat_buff.st_size) == -1) {
+        EDMLOGE("send file failed!");
+        close(outputFd);
+        close(inputFd);
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+
     close(inputFd);
     fsync(outputFd);
     close(outputFd);
