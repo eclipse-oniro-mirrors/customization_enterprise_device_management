@@ -47,6 +47,7 @@ ErrCode GlobalProxyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     int32_t userId)
 {
     NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetUserId(userId);
     int32_t ret = NetManagerStandard::NetConnClient::GetInstance().GetGlobalHttpProxy(httpProxy);
     EDMLOGI("GlobalProxyPlugin::GetGlobalHttpProxy result = %{public}d", ret);
     if (ret == ERR_OK) {
