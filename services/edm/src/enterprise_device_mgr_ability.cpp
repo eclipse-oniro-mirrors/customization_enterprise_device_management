@@ -873,6 +873,11 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
         return ERR_EDM_ADD_ADMIN_FAILED;
     }
 
+    if (isDebug && adminMgr_->IsSuperAdminExist()) {
+        EDMLOGW("EnableAdmin: An official super admin exsit, cannot enable another debug admin");
+        return ERR_EDM_ADD_ADMIN_FAILED;
+    }
+
     std::shared_ptr<Admin> existAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (existAdmin != nullptr) {
         if (existAdmin->GetAdminType() == AdminType::SUB_SUPER_ADMIN) {
