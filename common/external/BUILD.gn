@@ -45,6 +45,7 @@ ohos_shared_library("edm_external_adapters") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 
   defines = []

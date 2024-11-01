@@ -103,6 +103,7 @@ ohos_static_library("edmservice_static") {
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
     "window_manager:sms",
   ]
 
