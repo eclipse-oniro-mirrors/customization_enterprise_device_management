@@ -247,7 +247,9 @@ bool AdminManager::IsSuperAdminExist()
         return false;
     }
     return std::any_of(userAdmin.begin(), userAdmin.end(),
-        [](const std::shared_ptr<Admin> &admin) { return admin->adminInfo_.adminType_ == AdminType::ENT; });
+        [](const std::shared_ptr<Admin> &admin) {
+            return admin->adminInfo_.adminType_ == AdminType::ENT && !admin->adminInfo_.isDebug_;
+        });
 }
 
 bool AdminManager::IsSuperAdmin(const std::string &bundleName)
