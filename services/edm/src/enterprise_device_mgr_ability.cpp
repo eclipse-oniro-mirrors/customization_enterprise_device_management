@@ -162,7 +162,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         };
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
-    addSystemAbilityFuncMap_[COMM_NETSYS_NATIVE_SYS_ABILITY_ID] =
+    addSystemAbilityFuncMap_[COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnNetManagerBaseServiceStart();
         };
@@ -496,7 +496,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
-    AddSystemAbilityListener(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
+    AddSystemAbilityListener(COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID);
 #endif
 #ifdef USB_EDM_ENABLE
     AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);
