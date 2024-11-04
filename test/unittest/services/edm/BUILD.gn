@@ -61,6 +61,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
     "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
+    "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
   ]
 
   public_configs = [
@@ -102,6 +103,11 @@ ohos_static_library("edmservice_static") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "user_auth_framework:userauth_client",
+  ]
+
+  external_deps += [
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "usb_manager:usbsrv_client",
   ]
 
   deps = [

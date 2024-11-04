@@ -24,6 +24,7 @@ namespace EdmConstants {
     constexpr int32_t DECIMAL = 10;
     constexpr int32_t APPID_MAX_SIZE = 200;
     constexpr int32_t DEFAULT_USER_ID = 100;
+    constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr int32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
     constexpr int32_t STORAGE_USB_POLICY_READ_WRITE = 0;
     constexpr int32_t STORAGE_USB_POLICY_READ_ONLY = 1;

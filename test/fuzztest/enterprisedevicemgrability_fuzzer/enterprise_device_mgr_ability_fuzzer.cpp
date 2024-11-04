@@ -85,9 +85,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
     const std::string deviceId(reinterpret_cast<const char*>(data), size);
     enterpriseDeviceMgrAbility->OnAddSystemAbility(systemAbilityId, deviceId);
-    enterpriseDeviceMgrAbility->OnAppManagerServiceStart(systemAbilityId, deviceId);
-    enterpriseDeviceMgrAbility->OnAbilityManagerServiceStart(systemAbilityId, deviceId);
-    enterpriseDeviceMgrAbility->OnCommonEventServiceStart(systemAbilityId, deviceId);
+    enterpriseDeviceMgrAbility->OnAppManagerServiceStart();
+    enterpriseDeviceMgrAbility->OnAbilityManagerServiceStart();
+    enterpriseDeviceMgrAbility->OnCommonEventServiceStart();
 
     int32_t userId = CommonFuzzer::GetU32Data(data);
     enterpriseDeviceMgrAbility->SubscribeAppState();

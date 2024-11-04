@@ -24,6 +24,7 @@
 #include "edm_utils.h"
 #include "usb_device.h"
 #include "usb_device_id.h"
+#include "usb_policy_utils.h"
 #include "usb_srv_client.h"
 #include "plugin_manager.h"
 
@@ -73,21 +74,9 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy merge data is too large");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::vector<OHOS::USB::UsbDevice> allDevices;
-    int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet != ERR_OK) {
-        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy getDevices failed: %{public}d", getRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (const auto &item : allDevices) {
-        bool isAllowed = (std::find_if(mergeData.begin(), mergeData.end(), [item](UsbDeviceId trustItem) {
-            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
-        }) != mergeData.end());
-        if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), !isAllowed) != ERR_OK) {
-            EDMLOGW("AllowUsbDevicesPlugin SetPolicy ManageDevice: vid:%{public}d pid:%{public}d, %{public}d failed!",
-                item.GetVendorId(), item.GetProductId(), isAllowed);
-        }
+    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(mergeData);
+    if (errCode != ERR_OK) {
+        return errCode;
     }
     currentData = mergeData;
     return ERR_OK;
@@ -165,25 +154,7 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;
     }
-    std::vector<OHOS::USB::UsbDevice> allDevices;
-    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet != ERR_OK) {
-        EDMLOGE("AllowUsbDevicesPlugin OnAdminRemove getDevices failed: %{public}d", getRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    EDMLOGI("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice which is not in the list of allowed usb device.");
-    for (const auto &item : allDevices) {
-        if (std::find_if(data.begin(), data.end(), [item](UsbDeviceId trustItem) {
-            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
-        }) == data.end()) {
-            if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), false) != ERR_OK) {
-                EDMLOGW("AllowUsbDevicesPlugin OnAdminRemove: ManageDevice vid:%{public}d pid:%{public}d failed!",
-                    item.GetVendorId(), item.GetProductId());
-            }
-        }
-    }
-    return ERR_OK;
+    return UsbPolicyUtils::SetUsbDisabled(false);
 }
 } // namespace EDM
 } // namespace OHOS
