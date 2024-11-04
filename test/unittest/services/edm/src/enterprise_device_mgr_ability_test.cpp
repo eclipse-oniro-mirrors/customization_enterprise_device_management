@@ -1647,22 +1647,22 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableSuperAdminToDebug, TestSize.L
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableDebugSuperAdmin, TestSize.Level1)
 {
-    // enable super admin
+    // enable super admin except success
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
-    // hdc enable debug super admin1
+    // hdc enable debug super admin1 except fail
     AppExecFwk::ElementName admin1;
     admin1.SetBundleName(ADMIN_PACKAGENAME_1);
     admin1.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
-    EnableAdminSuc(admin1, AdminType::ENT, DEFAULT_USER_ID, true);
+    QueryExtensionAbilityInfosMock(true, admin1.GetBundleName());
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    EntInfo entInfo("test", "this is test");
+    ErrCode res = edmMgr_->EnableAdmin(admin1, entInfo, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_TRUE(res == EdmReturnErrCode::ENABLE_ADMIN_FAILED);
     // disable super admin
     DisableSuperAdminSuc(admin.GetBundleName());
-    // hdc disable debug super admin1
-    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
-    ErrCode res = edmMgr_->DisableSuperAdmin(admin1.GetBundleName());
-    EXPECT_TRUE(res == ERR_OK);
 }
 
 /**
