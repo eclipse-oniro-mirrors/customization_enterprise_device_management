@@ -36,6 +36,7 @@ ohos_shared_library("adminmanager") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   defines = []
