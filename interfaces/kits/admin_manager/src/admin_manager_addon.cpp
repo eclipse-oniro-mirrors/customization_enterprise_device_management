@@ -215,8 +215,8 @@ napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info
         "parameter bundle name error");
     if (argc > ARGS_SIZE_ONE) {
         bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
         ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
 
     EDMLOGD("DisableSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",

@@ -142,6 +142,7 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
     std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo)) {
+        callbackPtr.release();
         return nullptr;
     }
 
