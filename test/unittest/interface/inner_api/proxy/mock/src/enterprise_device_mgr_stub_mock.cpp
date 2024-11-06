@@ -30,6 +30,7 @@ const uint32_t APPID_MAX_SIZE = 200;
 const int32_t BASE_CLASS = 3;
 const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
+const int32_t VALID_FD = 4;
 
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
@@ -93,7 +94,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream(
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicyForWriteFileToStream :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteFileDescriptor(1);
+    reply.WriteFileDescriptor(VALID_FD);
     return 0;
 }
 
