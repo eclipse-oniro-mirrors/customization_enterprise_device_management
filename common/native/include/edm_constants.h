@@ -68,6 +68,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const char* const LABEL_DISALLOWED_POLICY_USB = "usb";
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
+        const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
         const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
