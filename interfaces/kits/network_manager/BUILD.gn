@@ -46,6 +46,10 @@ ohos_shared_library("networkmanager") {
     defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
   }
 
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
   relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true

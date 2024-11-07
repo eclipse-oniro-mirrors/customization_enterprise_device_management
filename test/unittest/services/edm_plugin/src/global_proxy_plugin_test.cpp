@@ -61,6 +61,7 @@ HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyParamError, TestSize.Level
     httpProxy.SetHost("192.168.1.1");
     std::list<std::string> list = {"192.168.2.2", "baidu.com"};
     httpProxy.SetExclusionList(list);
+    httpProxy.SetUserId(100);
     ErrCode ret = plugin.OnSetPolicy(httpProxy);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -78,6 +79,7 @@ HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyAnyParam, TestSize.Level1)
     httpProxy.SetHost("any host");
     std::list<std::string> list = {"any list", "any list2"};
     httpProxy.SetExclusionList(list);
+    httpProxy.SetUserId(100);
     ErrCode ret = plugin.OnSetPolicy(httpProxy);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -91,6 +93,7 @@ HWTEST_F(GlobalProxyPluginTest, TestSetGlobalHttpProxyEmpty, TestSize.Level1)
 {
     GlobalProxyPlugin plugin;
     NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetUserId(100);
     ErrCode ret = plugin.OnSetPolicy(httpProxy);
     ASSERT_TRUE(ret == ERR_OK);
 }
