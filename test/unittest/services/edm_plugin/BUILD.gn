@@ -226,6 +226,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/fingerprint_auth_plugin_test.cpp",
       "./src/password_policy_plugin_test.cpp",
+      "./src/utils/fingerprint_policy_serializer_test.cpp",
     ]
   }
 
