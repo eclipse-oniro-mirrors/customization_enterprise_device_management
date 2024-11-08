@@ -224,25 +224,9 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     Action action = std::get<DOMAIN_ACTION_IND>(rule);
     std::string appUid = std::get<DOMAIN_APPUID_IND>(rule);
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
-    if (domainName.empty() && !appUid.empty()) {
-        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
+    if (!CheckRemoveParams(action, appUid, domainName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    if (!domainName.empty() && domainName.length() > MAX_DOMAIN_LENGTH) {
-        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    auto index = domainName.find_first_of("|/");
-    if (index != std::string ::npos) {
-        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    if (action == Action::INVALID && (!appUid.empty() || !domainName.empty())) {
-        EDMLOGE("RemoveDomainFilterRules: illegal parameter: Too many parameters set");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
     std::vector<std::string> chainNameList;
     if (action == Action::ALLOW) {
         chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
@@ -253,6 +237,10 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
         chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
         for (const auto& chainName : chainNameList) {
             auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
+            if (executer == nullptr) {
+                EDMLOGE("RemoveDomainFilterRules:GetExecuter fail.");
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
             // flush chain
             executer->Remove(nullptr);
         }
@@ -279,6 +267,10 @@ ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel
     std::vector<std::string> chainNameVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME, EDM_DNS_DENY_OUTPUT_CHAIN_NAME};
     for (const auto& chainName : chainNameVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
+        if (executer == nullptr) {
+            EDMLOGE("ChainExistRule executer null");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
         executer->GetAll(ruleList);
     }
     for (const auto& rule : ruleList) {
@@ -424,11 +416,38 @@ bool IptablesManager::ExistAllowDomainRule()
     return ChainExistRule(chainNameVector);
 }
 
+bool IptablesManager::CheckRemoveParams(Action action, std::string appUid, std::string domainName)
+{
+    if (domainName.empty() && !appUid.empty()) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
+        return false;
+    }
+    if (!domainName.empty() && domainName.length() > MAX_DOMAIN_LENGTH) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
+        return false;
+    }
+    auto index = domainName.find_first_of("|/");
+    if (index != std::string ::npos) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
+        return false;
+    }
+
+    if (action == Action::INVALID && (!appUid.empty() || !domainName.empty())) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: Too many parameters set");
+        return false;
+    }
+    return true;
+}
+
 bool IptablesManager::ChainExistRule(const std::vector<std::string>& chainNames)
 {
     std::vector<std::string> ruleList;
     for (const auto& chainName : chainNames) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
+        if (executer == nullptr) {
+            EDMLOGE("ChainExistRule executer null");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
         executer->GetAll(ruleList);
         if (!ruleList.empty()) {
             return true;

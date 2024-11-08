@@ -44,7 +44,12 @@ ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &
 {
     EDMLOGD("IsWifiActivePlugin OnGetPolicy.");
     bool isActive = false;
-    ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->IsWifiActive(isActive);
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (wifiDevice == nullptr) {
+        EDMLOGE("wifiDevice GetInstance null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = wifiDevice->IsWifiActive(isActive);
     if (ret != ERR_OK) {
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

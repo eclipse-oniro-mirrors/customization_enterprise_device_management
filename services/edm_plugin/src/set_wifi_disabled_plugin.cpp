@@ -47,7 +47,12 @@ ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable)
     EDMLOGI("SetWifiDisabledPlugin OnSetPolicy %{public}d", isDisable);
     std::string value = isDisable ? "true" : "false";
     if (isDisable) {
-        ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->DisableWifi();
+        auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+        if (wifiDevice == nullptr) {
+            EDMLOGE("wifiDevice GetInstance null");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        ErrCode ret = wifiDevice->DisableWifi();
         if (ret != ERR_OK) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
