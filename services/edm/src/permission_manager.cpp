@@ -38,11 +38,10 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
     }
     auto entry = permissions_.find(permission);
     if (entry == permissions_.end()) {
-        AdminPermission adminPermission(permission, static_cast<AdminType>(permissionType));
-        permissions_.insert(std::make_pair(permission, adminPermission));
+        permissions_.insert(std::make_pair(permission, static_cast<AdminType>(permissionType)));
         EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
             permission.c_str(), static_cast<int32_t>(permissionType));
-    } else if (entry->second.adminType != static_cast<AdminType>(permissionType)) {
+    } else if (entry->second != static_cast<AdminType>(permissionType)) {
         EDMLOGE("AddPermission::conflict permission type");
         return ERR_EDM_DENY_PERMISSION;
     } else {
@@ -52,32 +51,20 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
     return ERR_OK;
 }
 
-void PermissionManager::GetReqPermission(const std::vector<std::string> &permissions,
-    std::vector<AdminPermission> &reqPermission)
-{
-    reqPermission.clear();
-    if (permissions.empty()) {
-        return;
-    }
-
-    for (const auto &item : permissions) {
-        auto entry = permissions_.find(item);
-        if (entry != permissions_.end()) {
-            reqPermission.emplace_back(entry->second);
-        }
-    }
-}
-
-void PermissionManager::GetReqPermission(const std::vector<std::string> &permissions,
-    std::vector<EdmPermission> &reqPermission)
+void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,
+    std::vector<std::string> &reqPermission)
 {
     reqPermission.clear();
     for (const auto &item : permissions) {
         auto entry = permissions_.find(item);
-        if (entry != permissions_.end()) {
-            EdmPermission edmPermission(entry->second.permissionName, entry->second.adminType);
-            reqPermission.emplace_back(edmPermission);
+        if (entry == permissions_.end()) {
+            continue;
         }
+        if (adminType == AdminType::NORMAL && entry->second == AdminType::ENT) {
+            EDMLOGE("GetAdminGrantedPermission normal admin can request super admin permission.");
+            continue;
+        }
+        reqPermission.emplace_back(entry->first);
     }
 }
 } // namespace EDM
