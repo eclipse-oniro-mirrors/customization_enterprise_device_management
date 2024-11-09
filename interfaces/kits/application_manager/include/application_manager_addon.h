@@ -49,12 +49,16 @@ public:
     static napi_value AddDisallowedRunningBundlesSync(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedRunningBundlesSync(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedRunningBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value AddKeepAliveApps(napi_env env, napi_callback_info info);
+    static napi_value RemoveKeepAliveApps(napi_env env, napi_callback_info info);
+    static napi_value GetKeepAliveApps(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemovellowedRunningBundles(napi_env env, napi_callback_info info,
         const std::string &workName, napi_async_execute_callback execute);
     static napi_value AddOrRemoveAutoStartApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveDisallowedRunningBundlesSync(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value AddOrRemoveKeepAliveApps(napi_env env, napi_callback_info info, std::string function);
 
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);
     static void NativeRemoveDisallowedRunningBundles(napi_env env, void *data);
