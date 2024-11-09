@@ -197,9 +197,7 @@ ErrCode SetBrowserPoliciesPlugin::OnGetPolicy(std::string &policyData, MessagePa
     std::string retString;
     cJSON* policy = cJSON_GetObjectItem(policies, appId.c_str());
     if (policy != nullptr) {
-        std::string policyString;
-        serializer->Serialize(policy, policyString);
-        serializer->Serialize(cJSON_CreateString(policyString.c_str()), retString);
+        serializer->Serialize(policy, retString);
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteString(retString);
