@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include "accesstoken_kit.h"
+
 namespace OHOS {
 namespace EDM {
 class IEdmAccessTokenManager {
@@ -25,7 +27,8 @@ public:
     virtual ~IEdmAccessTokenManager() = default;
     virtual bool IsDebug() = 0;
     virtual bool IsSystemAppOrNative() = 0;
-    virtual bool VerifyCallingPermission(const std::string &permissionName) = 0;
+    virtual bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
+        const std::string &permissionName) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

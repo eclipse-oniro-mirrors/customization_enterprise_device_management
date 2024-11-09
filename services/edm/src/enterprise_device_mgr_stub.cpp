@@ -16,6 +16,7 @@
 #include "enterprise_device_mgr_stub.h"
 
 #include "admin.h"
+#include "edm_constants.h"
 #include "ent_info.h"
 #include "string_ex.h"
 
@@ -61,6 +62,12 @@ ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &da
             return AuthorizeAdminInner(data, reply);
         case EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO:
             return GetSuperAdminInner(data, reply);
+        case EdmInterfaceCode::SET_DELEGATED_POLICIES:
+            return SetDelegatedPoliciesInner(data, reply);
+        case EdmInterfaceCode::GET_DELEGATED_POLICIES:
+            return GetDelegatedPoliciesInner(data, reply);
+        case EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES:
+            return GetDelegatedBundleNamesInner(data, reply);
         default:
             return WITHOUT_FUNCTION_CODE;
     }
@@ -161,9 +168,12 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     int32_t type = data.ReadInt32();
     int32_t userId = data.ReadInt32();
     AdminType adminType = AdminType::UNKNOWN;
-    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
-        adminType = static_cast<AdminType>(type);
+    if (type != static_cast<int32_t>(AdminType::NORMAL) && type != static_cast<int32_t>(AdminType::ENT)) {
+        EDMLOGE("EnableAdminInner: admin type is invalid.");
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return ERR_OK;
     }
+    adminType = static_cast<AdminType>(type);
     ErrCode retCode = EnableAdmin(*admin, entInfo, adminType, userId);
     reply.WriteInt32(retCode);
     return ERR_OK;
@@ -344,6 +354,58 @@ ErrCode EnterpriseDeviceMgrStub::GetSuperAdminInner(MessageParcel &data, Message
     ErrCode ret = GetSuperAdmin(reply);
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(ret);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::SetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:SetDelegatedPoliciesInner.");
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string bundleName = data.ReadString();
+    std::vector<std::string> policies;
+    data.ReadStringVector(&policies);
+    if (policies.size() > EdmConstants::POLICIES_MAX_SIZE) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return SetDelegatedPolicies(admin->GetBundleName(), bundleName, policies);
+}
+
+ErrCode EnterpriseDeviceMgrStub::GetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:GetDelegatedPoliciesInner.");
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string bundleName = data.ReadString();
+    std::vector<std::string> policies;
+    ErrCode ret = GetDelegatedPolicies(admin->GetBundleName(), bundleName, policies);
+    if (FAILED(ret)) {
+        return ret;
+    }
+    reply.WriteUint32(policies.size());
+    reply.WriteStringVector(policies);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::GetDelegatedBundleNamesInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:GetDelegatedBundleNamesInner.");
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string policyName = data.ReadString();
+    std::vector<std::string> bundleNames;
+    ErrCode ret = GetDelegatedBundleNames(admin->GetBundleName(), policyName, bundleNames);
+    if (FAILED(ret)) {
+        return ret;
+    }
+    reply.WriteUint32(bundleNames.size());
+    reply.WriteStringVector(bundleNames);
     return ERR_OK;
 }
 } // namespace EDM

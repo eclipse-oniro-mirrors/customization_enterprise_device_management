@@ -39,7 +39,8 @@ AdminPoliciesStorageRdb::AdminPoliciesStorageRdb()
         .append(EdmRdbFiledConst::FILED_PERMISSIONS + " TEXT,")
         .append(EdmRdbFiledConst::FILED_SUBSCRIBE_EVENTS + " TEXT,")
         .append(EdmRdbFiledConst::FILED_PARENT_ADMIN + " TEXT,")
-        .append(EdmRdbFiledConst::FILED_IS_DEBUG + " TEXT);");
+        .append(EdmRdbFiledConst::FILED_IS_DEBUG + " INTEGER,")
+        .append(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
         edmRdbDataManager->CreateTable(createTableSql);
@@ -68,9 +69,9 @@ bool AdminPoliciesStorageRdb::InsertAdmin(int32_t userId, const Admin &admin)
         return false;
     }
     // insert into admin_policies(user_id, admin_type, package_name, class_name, ent_name, ent_desc, permissions,
-    //     is_debug) values(?, ?, ?, ?, ?, ?, ?)
+    //     parent_admin, is_debug, accessible_policies) values(?, ?, ?, ?, ?, ?, ?, ?, ?)
     return edmRdbDataManager->Insert(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME,
-        CreateValuesBucket(userId, admin));
+        CreateInsertValuesBucket(userId, admin));
 }
 
 bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const Admin &admin)
@@ -81,35 +82,52 @@ bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const Admin &admin)
         EDMLOGE("AdminPoliciesStorageRdb::UpdateAdmin get edmRdbDataManager failed.");
         return false;
     }
-    // update admin_policies set user_id=?, admin_type=?, package_name=?, class_name=?, ent_name=?, ent_desc=?,
-    //     permissions=? where user_id=? and package_name=?
+    // update admin_policies set admin_type=?, ent_name=?, ent_desc=?, permissions=?, accessible_policies=?
+    //     where user_id=? and package_name=?
     NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
     predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.adminInfo_.packageName_);
-    return edmRdbDataManager->Update(CreateValuesBucket(userId, admin), predicates);
+    NativeRdb::ValuesBucket valuesBucket;
+    CreateUpdateValuesBucket(userId, admin, valuesBucket);
+    return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
-NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateValuesBucket(int32_t userId, const Admin &admin)
+NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_t userId, const Admin &admin)
 {
     NativeRdb::ValuesBucket valuesBucket;
+    CreateUpdateValuesBucket(userId, admin, valuesBucket);
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, userId);
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminInfo_.adminType_));
     valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.adminInfo_.packageName_);
     valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.adminInfo_.className_);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.adminInfo_.entInfo_.enterpriseName);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.adminInfo_.entInfo_.description);
-
-    if (!admin.adminInfo_.permission_.empty()) {
-        Json::StreamWriterBuilder builder;
-        builder.settings_["indentation"] = "";
-        Json::Value permissionJson;
-        for (const auto &it : admin.adminInfo_.permission_) {
-            permissionJson.append(it);
-        }
-        valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
-    }
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, admin.adminInfo_.parentAdminName_);
     valuesBucket.PutBool(EdmRdbFiledConst::FILED_IS_DEBUG, admin.adminInfo_.isDebug_);
     return valuesBucket;
+}
+
+void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Admin &admin,
+    NativeRdb::ValuesBucket &valuesBucket)
+{
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminInfo_.adminType_));
+    if (!admin.adminInfo_.entInfo_.enterpriseName.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.adminInfo_.entInfo_.enterpriseName);
+    }
+    if (!admin.adminInfo_.entInfo_.description.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.adminInfo_.entInfo_.description);
+    }
+    Json::StreamWriterBuilder builder;
+    builder.settings_["indentation"] = "";
+    Json::Value permissionJson;
+    for (const auto &permission : admin.adminInfo_.permission_) {
+        permissionJson.append(permission);
+    }
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
+    if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
+        Json::Value policiesJson;
+        for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
+            policiesJson.append(policy);
+        }
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES, Json::writeString(builder, policiesJson));
+    }
 }
 
 bool AdminPoliciesStorageRdb::DeleteAdmin(int32_t userId, const std::string &packageName)
@@ -125,34 +143,6 @@ bool AdminPoliciesStorageRdb::DeleteAdmin(int32_t userId, const std::string &pac
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
     predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
     return edmRdbDataManager->Delete(predicates);
-}
-
-bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const std::string &packageName, const std::string &className,
-    const std::vector<std::string> &permissions)
-{
-    EDMLOGD("AdminPoliciesStorageRdb::UpdateAdmin.");
-    auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
-    if (edmRdbDataManager == nullptr) {
-        EDMLOGE("AdminPoliciesStorageRdb::UpdateAdmin get edmRdbDataManager failed.");
-        return false;
-    }
-    // update admin_policies set package_name=?, class_name=?, permissions=? where user_id=? and package_name=?
-    NativeRdb::ValuesBucket valuesBucket;
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, className);
-
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    Json::Value permissionJson;
-    for (const auto &it : permissions) {
-        permissionJson.append(it);
-    }
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
-
-    NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
-    predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
-    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
-    return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
 bool AdminPoliciesStorageRdb::UpdateEntInfo(int32_t userId, const std::string &packageName, const EntInfo &entInfo)
@@ -272,6 +262,17 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     int isDebug = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
     item->adminInfo_.isDebug_ = isDebug != 0;
+    std::string policiesStr;
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
+    if (!policiesStr.empty() && policiesStr != "null") {
+        Json::Value policiesJson;
+        ConvertStrToJson(policiesStr, policiesJson);
+        for (uint32_t i = 0; i < policiesJson.size(); i++) {
+            if (policiesJson[i].isString()) {
+                item->adminInfo_.accessiblePolicies_.emplace_back(policiesJson[i].asString());
+            }
+        }
+    }
 }
 
 void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)
@@ -280,49 +281,6 @@ void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Val
     Json::CharReaderBuilder builder;
     std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
     reader->parse(str.c_str(), str.c_str() + str.length(), &json, &err);
-}
-
-bool AdminPoliciesStorageRdb::InsertAuthorizedAdmin(const std::string &bundleName,
-    const std::vector<std::string> &permissions, const std::string &parentName)
-{
-    EDMLOGD("AdminPoliciesStorageRdb::InsertAuthorizedAdmin.");
-    // insert into admin_policies(user_id, admin_type, package_name, class_name, permissions, parent_admin)
-    //    values(?, ?, ?, ?, ?, ?)
-    NativeRdb::ValuesBucket valuesBucket;
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, EdmConstants::DEFAULT_USER_ID);
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int32_t>(AdminType::SUB_SUPER_ADMIN));
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, bundleName);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, "");
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    Json::Value permissionJson;
-    for (const auto &permission : permissions) {
-        permissionJson.append(permission);
-    }
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, parentName);
-    return EdmRdbDataManager::GetInstance()->Insert(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME, valuesBucket);
-}
-
-bool AdminPoliciesStorageRdb::UpdateAuthorizedAdmin(const std::string &bundleName,
-    const std::vector<std::string> &permissions, const std::string &parentName)
-{
-    EDMLOGD("AdminPoliciesStorageRdb::SaveAuthorizedAdmin.");
-    // update admin_policies set permissions=? where user_id=100 and package_name=? and parent_name=?
-    NativeRdb::ValuesBucket valuesBucket;
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    Json::Value permissionJson;
-    for (const auto &permission : permissions) {
-        permissionJson.append(permission);
-    }
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
-
-    NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
-    predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(EdmConstants::DEFAULT_USER_ID));
-    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, bundleName);
-    predicates.EqualTo(EdmRdbFiledConst::FILED_PARENT_ADMIN, parentName);
-    return EdmRdbDataManager::GetInstance()->Update(valuesBucket, predicates);
 }
 } // namespace EDM
 } // namespace OHOS

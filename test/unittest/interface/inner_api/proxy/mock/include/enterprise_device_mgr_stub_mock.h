@@ -173,6 +173,24 @@ public:
         return ERR_OK;
     }
 
+    ErrCode SetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
+        const std::vector<std::string> &policies) override
+    {
+        return ERR_OK;
+    }
+
+    ErrCode GetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
+        std::vector<std::string> &policies) override
+    {
+        return ERR_OK;
+    }
+
+    ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
+        std::vector<std::string> &bundleNames) override
+    {
+        return ERR_OK;
+    }
+
     ErrCode GetSuperAdmin(MessageParcel &reply) override
     {
         return ERR_OK;

@@ -48,9 +48,6 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->Init();
     std::string fuzzString(reinterpret_cast<const char*>(data), size);
     std::vector<std::string> permissions = { fuzzString };
-    EdmPermission edmPermission;
-    edmPermission.permissionName_ = fuzzString;
-    std::vector<EdmPermission> reqPermissions = { edmPermission };
     ManagedEvent event = GetData<ManagedEvent>();
     Admin admin;
     EntInfo entInfo;
@@ -75,10 +72,8 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     std::vector<uint32_t> events = { fuzzEvent };
     adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
     adminManager->SetAdminValue(userId, admin);
-    adminManager->GetReqPermission(permissions, reqPermissions);
     adminManager->GetAdminByPkgName(packageName, userId);
     adminManager->DeleteAdmin(packageName, userId);
-    adminManager->GetGrantedPermission(permissions, role);
     adminManager->IsSuperAdminExist();
     adminManager->IsSuperAdmin(bundleName);
     adminManager->IsSuperOrSubSuperAdmin(bundleName);
@@ -89,7 +84,6 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->SetEntInfo(packageName, entInfo, userId);
     adminManager->SaveSubscribeEvents(events, bundleName, userId);
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
-    adminManager->SaveAuthorizedAdmin(bundleName, permissions, parentName);
     adminManager->GetSuperAdmin();
 }
 
