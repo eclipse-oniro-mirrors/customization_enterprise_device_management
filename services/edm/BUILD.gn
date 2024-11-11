@@ -220,6 +220,7 @@ ohos_shared_library("edmservice") {
       sources += [
         "../edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+        "../edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
       ]
     }
 
