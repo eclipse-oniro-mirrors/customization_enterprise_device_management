@@ -36,6 +36,7 @@ namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string TEST_PACKAGE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
+constexpr int32_t INVALID_FD = 4;
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -411,7 +412,7 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerFail, TestSize.Level1)
 HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerSuc, TestSize.Level1)
 {
     MessageParcel reply;
-    reply.WriteFileDescriptor(1);
+    reply.WriteFileDescriptor(INVALID_FD);
     std::string hapFilePaths = { TEST_PACKAGE_PATH };
     std::vector<std::string> realPaths;
     std::string retMsg;

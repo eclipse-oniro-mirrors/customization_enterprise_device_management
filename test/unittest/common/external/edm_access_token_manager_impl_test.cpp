@@ -14,7 +14,10 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "parameters.h"
+#include "ipc_skeleton.h"
+
 #include "edm_access_token_manager_impl.h"
 
 using namespace testing::ext;
@@ -57,7 +60,8 @@ HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission01, TestSize.
 {
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
     std::string permissionName;
-    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(permissionName));
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(tokenId, permissionName));
 }
 
 /**
@@ -68,7 +72,8 @@ HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission01, TestSize.
 HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission02, TestSize.Level1)
 {
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(EDM_TEST_PERMISSION_FAIL));
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(tokenId, EDM_TEST_PERMISSION_FAIL));
 }
 
 /**
@@ -79,7 +84,8 @@ HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission02, TestSize.
 HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission03, TestSize.Level1)
 {
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(EDM_TEST_PERMISSION));
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(tokenId, EDM_TEST_PERMISSION));
 }
 } // namespace TEST
 } // namespace EDM

@@ -22,6 +22,7 @@ enum class AdminType {
     NORMAL = 0,
     ENT,
     SUB_SUPER_ADMIN,
+    VIRTUAL_ADMIN,
     UNKNOWN,
 };
 } // namespace EDM
