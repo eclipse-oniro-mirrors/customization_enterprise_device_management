@@ -13,14 +13,17 @@
  * limitations under the License.
  */
 
+#include <fcntl.h>
 #include <gtest/gtest.h>
 #include <string>
 #include <system_ability_definition.h>
+#include <sys/stat.h>
 #include <vector>
 
 #define private public
 #include "bundle_manager_proxy.h"
 #undef private
+#include "directory_ex.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "install_param.h"
@@ -36,7 +39,7 @@ namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string TEST_PACKAGE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
-constexpr int32_t INVALID_FD = 4;
+const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -68,6 +71,7 @@ void BundleManagerProxyTest::TearDown()
 
 void BundleManagerProxyTest::TearDownTestSuite()
 {
+    ASSERT_TRUE(OHOS::RemoveFile(TEST_TARGET_PATH));
     ASSERT_FALSE(Utils::GetEdmServiceState());
     std::cout << "EdmServiceState : " << Utils::GetEdmServiceState() << std::endl;
 }
@@ -411,8 +415,9 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerFail, TestSize.Level1)
  */
 HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerSuc, TestSize.Level1)
 {
+    int32_t fd = open(TEST_TARGET_PATH.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     MessageParcel reply;
-    reply.WriteFileDescriptor(INVALID_FD);
+    reply.WriteFileDescriptor(fd);
     std::string hapFilePaths = { TEST_PACKAGE_PATH };
     std::vector<std::string> realPaths;
     std::string retMsg;
