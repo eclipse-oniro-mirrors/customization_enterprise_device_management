@@ -68,6 +68,8 @@ ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &da
             return GetDelegatedPoliciesInner(data, reply);
         case EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES:
             return GetDelegatedBundleNamesInner(data, reply);
+        case EdmInterfaceCode::REPLACE_SUPER_ADMIN:
+            return ReplaceSuperAdminInner(data, reply);
         default:
             return WITHOUT_FUNCTION_CODE;
     }
@@ -86,6 +88,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::IS_ADMIN_ENABLED,
         EdmInterfaceCode::AUTHORIZE_ADMIN,
         EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO,
+        EdmInterfaceCode::REPLACE_SUPER_ADMIN,
     };
 }
 
@@ -175,6 +178,22 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     }
     adminType = static_cast<AdminType>(type);
     ErrCode retCode = EnableAdmin(*admin, entInfo, adminType, userId);
+    reply.WriteInt32(retCode);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::ReplaceSuperAdminInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string adminName = data.ReadString();
+    EDMLOGD("ReplaceSuperAdminInner admineName:: %{public}s", adminName.c_str());
+    std::unique_ptr<AppExecFwk::ElementName> replaceAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!replaceAdmin) {
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return ERR_OK;
+    }
+    EDMLOGD("ReplaceSuperAdminInner replace admin bundleName:: %{public}s : abilityName : %{public}s ",
+        replaceAdmin->GetBundleName().c_str(), replaceAdmin->GetAbilityName().c_str());
+    ErrCode retCode = ReplaceSuperAdmin(adminName, *replaceAdmin);
     reply.WriteInt32(retCode);
     return ERR_OK;
 }

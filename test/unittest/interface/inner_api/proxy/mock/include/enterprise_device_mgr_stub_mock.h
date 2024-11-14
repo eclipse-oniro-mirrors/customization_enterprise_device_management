@@ -199,6 +199,10 @@ public:
         return ERR_OK;
     }
 
+    ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin) override
+    {
+        return ERR_OK;
+    }
     uint32_t code_ = 0;
 };
 } // namespace EDM

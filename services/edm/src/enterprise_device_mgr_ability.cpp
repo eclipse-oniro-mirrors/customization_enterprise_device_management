@@ -893,19 +893,74 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
     }
-    if (!isDebug && type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
-        if (existAdmin == nullptr || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
-            EDMLOGW("EnableAdmin: There is another super admin enabled.");
-            return ERR_EDM_ADD_ADMIN_FAILED;
-        }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::SetAdminEnabled(Admin edmAdmin, AppExecFwk::ElementName &admin, int32_t userId)
+{
+    if (FAILED(adminMgr_->SetAdminValue(userId, edmAdmin))) {
+        EDMLOGE("EnableAdmin: SetAdminValue failed.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    system::SetParameter(PARAM_EDM_ENABLE, "true");
+    NotifyAdminEnabled(true);
+
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection =
+        manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
+    manager->ConnectAbility(connection);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const std::string &adminName,
+    AppExecFwk::ElementName &replaceAdmin)
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(tokenId, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::ReplaceSuperAdmin check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
+    AAFwk::Want want;
+    want.SetElement(replaceAdmin);
+    if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, DEFAULT_USER_ID, abilityInfo) ||
+        abilityInfo.empty()) {
+        EDMLOGW("ReplaceSuperAdmin: QueryExtensionAbilityInfos failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+
+    if (FAILED(VerifyEnableAdminCondition(replaceAdmin, AdminType::ENT, DEFAULT_USER_ID, false))) {
+        EDMLOGW("ReplaceSuperAdmin: VerifyEnableAdminCondition failed.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    std::vector<std::string> permissionList;
+    if (FAILED(GetAllPermissionsByAdmin(replaceAdmin.GetBundleName(), AdminType::ENT, DEFAULT_USER_ID,
+        permissionList))) {
+        EDMLOGW("ReplaceSuperAdmin: GetAllPermissionsByAdmin failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+    std::shared_ptr<Admin> adminPtr = adminMgr_->GetAdminByPkgName(adminName, DEFAULT_USER_ID);
+    EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
+    ErrCode res = DisableSuperAdmin(adminName);
+    if (res != ERR_OK) {
+        return res;
+    }
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    Admin edmAdmin(abilityInfo.at(0), AdminType::ENT, entInfo, permissionList, false);
+    if (FAILED(SetAdminEnabled(edmAdmin, replaceAdmin, DEFAULT_USER_ID))) {
+        EDMLOGW("ReplaceSuperAdmin: SetAdminEnabled failed.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", replaceAdmin.GetBundleName().c_str());
     return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isDebug = GetAccessTokenMgr()->IsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
@@ -926,6 +981,13 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    std::shared_ptr<Admin> existAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), userId);
+    if (!isDebug && type == AdminType::ENT && adminMgr_->IsSuperAdminExist()) {
+        if ((existAdmin == nullptr) || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
+            EDMLOGW("EnableAdmin: There is another super admin enabled.");
+            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        }
+    }
 
     /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
@@ -934,20 +996,12 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     Admin edmAdmin(abilityInfo.at(0), type, entInfo, permissionList, isDebug);
-    if (FAILED(adminMgr_->SetAdminValue(userId, edmAdmin))) {
-        EDMLOGE("EnableAdmin: SetAdminValue failed.");
+    if (FAILED(SetAdminEnabled(edmAdmin, admin, userId))) {
+        EDMLOGW("ReplaceSuperAdmin: SetAdminEnabled failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
-    system::SetParameter(PARAM_EDM_ENABLE, "true");
-    NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
-    AAFwk::Want connectWant;
-    connectWant.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
-    manager->ConnectAbility(connection);
     return ERR_OK;
 }
 
