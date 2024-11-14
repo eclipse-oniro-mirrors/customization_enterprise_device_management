@@ -98,6 +98,9 @@ napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<AsyncUninstallCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (!CheckAndParseUninstallParamType(env, argc, argv, asyncCallbackInfo)) {
+        if (asyncCallbackInfo->callback != nullptr) {
+            napi_delete_reference(env, asyncCallbackInfo->callback);
+        }
         return nullptr;
     }
 
@@ -142,6 +145,9 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
     std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo)) {
+        if (asyncCallbackInfo->callback != nullptr) {
+            napi_delete_reference(env, asyncCallbackInfo->callback);
+        }
         return nullptr;
     }
 
