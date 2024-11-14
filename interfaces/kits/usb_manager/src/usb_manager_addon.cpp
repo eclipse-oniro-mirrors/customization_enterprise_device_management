@@ -106,13 +106,13 @@ napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->policy, argv[ARR_INDEX_ONE]),
         "policy param error");
+    bool existUsbPolicy = std::any_of(std::begin(USB_POLICY), std::end(USB_POLICY),
+        [&](int item) { return item == asyncCallbackInfo->policy; });
+    ASSERT_AND_THROW_PARAM_ERROR(env, existUsbPolicy, "usb policy value error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetUsbPolicy argc == ARGS_SIZE_THREE");
         napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
     }
-    bool existUsbPolicy = std::any_of(std::begin(USB_POLICY), std::end(USB_POLICY),
-        [&](int item) { return item == asyncCallbackInfo->policy; });
-    ASSERT_AND_THROW_PARAM_ERROR(env, existUsbPolicy, "usb policy value error");
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "SetUsbPolicy", NativeSetUsbPolicy, NativeVoidCallbackComplete);
     callbackPtr.release();

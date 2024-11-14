@@ -35,6 +35,7 @@ struct AdminInfo {
     std::vector<std::string> permission_;
     std::vector<ManagedEvent> managedEvents_;
     std::string parentAdminName_;
+    std::vector<std::string> accessiblePolicies_;
     AdminType adminType_ = AdminType::UNKNOWN;
     bool isDebug_ = false;
 };
@@ -44,8 +45,11 @@ public:
     Admin() = default;
     Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
         const std::vector<std::string> &permissions, bool isDebug);
+    Admin(const std::string &bundleName, AdminType type, const std::vector<std::string> &permissions);
+    void SetParentAdminName(const std::string &parentAdminName);
+    void SetAccessiblePolicies(const std::vector<std::string> &accessiblePolicies);
     virtual bool CheckPermission(const std::string &permission);
-    virtual AdminType GetAdminType();
+    virtual AdminType GetAdminType() const;
     virtual std::string GetParentAdminName() const;
     virtual ~Admin() = default;
     AdminInfo adminInfo_;

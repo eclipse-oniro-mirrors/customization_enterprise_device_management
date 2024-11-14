@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr int32_t ESCAPED_STRING_SUFFIX_LENGTH = 4;
 
 std::vector<UsbDeviceId> ArrayUsbDeviceIdSerializer::SetUnionPolicyData(std::vector<UsbDeviceId> &data,
     std::vector<UsbDeviceId> &currentData)
@@ -49,9 +48,9 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
         return true;
     }
     Json::Value root;
-    Json::String err;
     Json::CharReaderBuilder builder;
     const std::unique_ptr<Json::CharReader> charReader(builder.newCharReader());
+    std::string err;
     if (!charReader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.length(), &root, &err)) {
         return false;
     }
@@ -64,28 +63,19 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
         return false;
     }
     dataObj = std::vector<UsbDeviceId>(root.size());
+
     for (std::uint32_t i = 0; i < root.size(); ++i) {
-        Json::StreamWriterBuilder writerBuilder;
-        std::string valueJsonString = Json::writeString(writerBuilder, root[i]);
-        std::string::size_type pos = 0;
-        while ((pos = valueJsonString.find("\\\"")) != std::string::npos) {
-            valueJsonString.replace(pos, 1, "");
+        const Json::Value& item = root[i];
+
+        if (!item.isMember("vendorId") || !item.isMember("productId") ||
+            !item["vendorId"].isConvertibleTo(Json::intValue) || !item["productId"].isConvertibleTo(Json::intValue)) {
+            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize invalid data at index %{public}u", i);
+            return false;
         }
-        valueJsonString = valueJsonString.substr(1, valueJsonString.length() - ESCAPED_STRING_SUFFIX_LENGTH);
         UsbDeviceId value;
-        Json::Value item;
-        Json::Reader reader;
-        if (!reader.parse(valueJsonString.data(), valueJsonString.data() + valueJsonString.length(), item)) {
-            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize reader can not parse, i = %{public}u", i);
-            return false;
-        }
-        if (!item["vendorId"].isConvertibleTo(Json::intValue) || !item["productId"].isConvertibleTo(Json::intValue)) {
-            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize vendorId or productId can not parse.");
-            return false;
-        }
         value.SetVendorId(item["vendorId"].asInt());
         value.SetProductId(item["productId"].asInt());
-        dataObj.at(i) = value;
+        dataObj[i] = value;
     }
     return true;
 }
@@ -97,15 +87,11 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
         return true;
     }
     Json::Value arrayData(Json::arrayValue);
-    for (std::uint32_t i = 0; i < dataObj.size(); ++i) {
-        std::string itemJson;
-        UsbDeviceId item = dataObj.at(i);
+    for (const auto& item : dataObj) {
         Json::Value root;
         root["vendorId"] = item.GetVendorId();
         root["productId"] = item.GetProductId();
-        Json::FastWriter writer;
-        itemJson = writer.write(root);
-        arrayData[i] = itemJson;
+        arrayData.append(root);
     }
     Json::StreamWriterBuilder builder;
     builder["indentation"] = "    ";

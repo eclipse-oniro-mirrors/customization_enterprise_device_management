@@ -33,8 +33,10 @@ namespace EdmConstants {
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
+    constexpr int32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
     constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
+    constexpr uint32_t POLICIES_MAX_SIZE = 200;
 
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
@@ -68,6 +70,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const char* const LABEL_DISALLOWED_POLICY_USB = "usb";
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
+        const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
         const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";

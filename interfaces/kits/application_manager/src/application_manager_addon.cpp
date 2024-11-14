@@ -34,9 +34,119 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundlesSync", AddDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundlesSync", RemoveDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("getDisallowedRunningBundlesSync", GetDisallowedRunningBundlesSync),
+        DECLARE_NAPI_FUNCTION("addKeepAliveApps", AddKeepAliveApps),
+        DECLARE_NAPI_FUNCTION("removeKeepAliveApps", RemoveKeepAliveApps),
+        DECLARE_NAPI_FUNCTION("getKeepAliveApps", GetKeepAliveApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddKeepAliveApps called");
+    return AddOrRemoveKeepAliveApps(env, info, "AddKeepAliveApps");
+}
+
+napi_value ApplicationManagerAddon::RemoveKeepAliveApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveKeepAliveApps called");
+    return AddOrRemoveKeepAliveApps(env, info, "RemoveKeepAliveApps");
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveKeepAliveApps called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+
+    std::vector<std::string> keepAliveApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, keepAliveApps, argv[ARR_INDEX_ONE]),
+        "Parameter keepAliveApps error");
+    bool hasUserId = MatchValueType(env, argv[ARR_INDEX_TWO], napi_number);
+    int32_t userId = 0;
+    if (hasUserId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
+    } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+#endif
+    }
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    std::string retMessage;
+    if (function == "AddKeepAliveApps") {
+        ret = applicationManagerProxy->AddKeepAliveApps(elementName, keepAliveApps, userId, retMessage);
+    } else {
+        ret = applicationManagerProxy->RemoveKeepAliveApps(elementName, keepAliveApps, userId);
+    }
+    if (FAILED(ret)) {
+        if (ret == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED) {
+            EDMLOGI("addon errcode: %{public}d, errmessage: %{public}s", ret, retMessage.c_str());
+            napi_throw(env, CreateError(env, ret, retMessage));
+        } else {
+            napi_throw(env, CreateError(env, ret));
+        }
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetKeepAliveApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    bool hasUserId = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
+    int32_t userId = 0;
+    if (hasUserId) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
+    } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+#endif
+    }
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<std::string> keepAliveApps;
+    int32_t ret = applicationManagerProxy->GetKeepAliveApps(elementName, keepAliveApps, userId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiKeepAliveApps = nullptr;
+    napi_create_array(env, &napiKeepAliveApps);
+    ConvertStringVectorToJS(env, keepAliveApps, napiKeepAliveApps);
+    return napiKeepAliveApps;
 }
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)

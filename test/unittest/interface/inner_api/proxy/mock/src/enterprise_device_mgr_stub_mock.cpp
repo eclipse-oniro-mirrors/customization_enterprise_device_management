@@ -15,6 +15,7 @@
 
 #include "enterprise_device_mgr_stub_mock.h"
 
+#include <fcntl.h>
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
 #include "http_proxy.h"
@@ -30,7 +31,7 @@ const uint32_t APPID_MAX_SIZE = 200;
 const int32_t BASE_CLASS = 3;
 const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
-
+const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -91,9 +92,10 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream(
     MessageParcel &reply, MessageOption &option)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPolicyForWriteFileToStream :" << code;
+    int32_t fd = open(TEST_TARGET_PATH.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteFileDescriptor(1);
+    reply.WriteFileDescriptor(fd);
     return 0;
 }
 

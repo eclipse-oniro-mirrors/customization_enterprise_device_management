@@ -15,7 +15,6 @@
 
 #include "edm_access_token_manager_impl.h"
 
-#include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"
 #include "tokenid_kit.h"
@@ -53,11 +52,11 @@ bool EdmAccessTokenManagerImpl::IsSystemAppOrNative()
     return false;
 }
 
-bool EdmAccessTokenManagerImpl::VerifyCallingPermission(const std::string &permissionName)
+bool EdmAccessTokenManagerImpl::VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
+    const std::string &permissionName)
 {
     EDMLOGD("EdmAccessTokenManagerImpl::VerifyCallingPermission permission %{public}s", permissionName.c_str());
-    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, permissionName);
     if (ret == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         EDMLOGI("EdmAccessTokenManagerImpl::permission %{public}s: PERMISSION_GRANTED", permissionName.c_str());
         return true;

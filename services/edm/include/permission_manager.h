@@ -19,31 +19,23 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "admin.h"
-#include "edm_permission.h"
-#include "iplugin.h"
+
 #include "singleton.h"
+
+#include "admin_type.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-struct AdminPermission {
-    std::string permissionName;
-    AdminType adminType;
-    AdminPermission(std::string _permissionName, AdminType _adminType) : permissionName(_permissionName),
-        adminType(_adminType) {}
-};
-
 class PermissionManager : public DelayedSingleton<PermissionManager> {
 DECLARE_DELAYED_SINGLETON(PermissionManager)
 public:
     ErrCode AddPermission(const std::string &permission, IPlugin::PermissionType permissionType);
-    void GetReqPermission(const std::vector<std::string> &permissions,
-        std::vector<AdminPermission> &reqPermission);
-    void GetReqPermission(const std::vector<std::string> &permissions,
-        std::vector<EdmPermission> &reqPermission);
+    void GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,
+        std::vector<std::string> &reqPermission);
 
 private:
-    std::map<std::string, AdminPermission> permissions_;
+    std::map<std::string, AdminType> permissions_;
 };
 } // namespace EDM
 } // namespace OHOS

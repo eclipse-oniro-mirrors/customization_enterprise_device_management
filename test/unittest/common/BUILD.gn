@@ -27,7 +27,6 @@ ohos_unittest("EdmCommonUnitTest") {
 
   sources = [
     "./bundle_manager_utils_test.cpp",
-    "./edm_permission_test.cpp",
     "./edm_sys_manager_test.cpp",
     "./edm_utils_test.cpp",
     "./external/edm_access_token_manager_impl_test.cpp",

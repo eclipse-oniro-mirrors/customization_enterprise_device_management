@@ -51,6 +51,7 @@ private:
 
     bool ExistAllowFirewallRule();
     bool ExistAllowDomainRule();
+    bool CheckRemoveParams(Action action, std::string appUid, std::string domainName);
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
 

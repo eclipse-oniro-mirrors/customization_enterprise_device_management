@@ -360,13 +360,14 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
 }
 
 int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *admin,
-    NetManagerStandard::HttpProxy &httpProxy)
+    NetManagerStandard::HttpProxy &httpProxy, int32_t accountId)
 {
     EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxy");
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);

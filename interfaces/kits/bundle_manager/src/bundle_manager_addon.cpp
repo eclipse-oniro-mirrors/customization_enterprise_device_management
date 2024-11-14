@@ -148,6 +148,7 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
         if (asyncCallbackInfo->callback != nullptr) {
             napi_delete_reference(env, asyncCallbackInfo->callback);
         }
+        callbackPtr.release();
         return nullptr;
     }
 
