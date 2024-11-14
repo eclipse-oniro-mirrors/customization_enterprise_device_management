@@ -87,6 +87,10 @@ void JsEnterpriseAdminExtension::JsEnterpriseAdminExtensionContextInit()
     napi_value contextObj = CreateJsEnterpriseAdminExtensionContext(env, context);
     auto shellContextRef = jsRuntime_.LoadSystemModule("enterprise.EnterpriseAdminExtensionContext",
         &contextObj, JS_NAPI_ARGC_ONE);
+    if (shellContextRef == nullptr) {
+        EDMLOGE("JsEnterpriseAdminExtensionContextInit LoadSystemModule null");
+        return;
+    }
     contextObj = shellContextRef->GetNapiValue();
     EDMLOGI("JsEnterpriseAdminExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());

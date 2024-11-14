@@ -58,6 +58,10 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
         EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize root is not array");
         return false;
     }
+    if (root.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize data size=[%{public}zu] is too large", root.size());
+        return false;
+    }
     dataObj = std::vector<UsbDeviceId>(root.size());
 
     for (std::uint32_t i = 0; i < root.size(); ++i) {
