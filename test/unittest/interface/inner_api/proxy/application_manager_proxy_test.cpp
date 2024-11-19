@@ -249,6 +249,99 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsFail, TestSize.Level1)
     ErrCode ret = applicationManagerProxy_->GetAutoStartApps(admin, apps);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestAddKeepAliveAppsFail
+ * @tc.desc: Test AddKeepAliveApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    std::string retMessage;
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddKeepAliveAppsSuc
+ * @tc.desc: Test AddKeepAliveApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    std::string retMessage;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveKeepAliveAppsFail
+ * @tc.desc: Test RemoveKeepAliveApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveKeepAliveAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    ErrCode ret = applicationManagerProxy_->RemoveKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveKeepAliveAppsSuc
+ * @tc.desc: Test RemoveKeepAliveApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveKeepAliveAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->RemoveKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetKeepAliveAppsFail
+ * @tc.desc: Test GetKeepAliveApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetKeepAliveAppsSuc
+ * @tc.desc: Test GetKeepAliveApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(keepAliveApps.size() == 1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
