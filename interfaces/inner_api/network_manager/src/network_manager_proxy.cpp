@@ -261,6 +261,10 @@ int32_t NetworkManagerProxy::GetFirewallRules(const AppExecFwk::ElementName &adm
         return ret;
     }
     int32_t size = reply.ReadInt32();
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetFirewallRules size overlimit. size: %{public}d", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     for (int32_t i = 0; i < size; i++) {
         IPTABLES::FirewallRuleParcel firewallRuleParcel;
         if (!IPTABLES::FirewallRuleParcel::Unmarshalling(reply, firewallRuleParcel)) {
@@ -327,6 +331,10 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
         return ret;
     }
     int32_t size = reply.ReadInt32();
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetFirewallRules size overlimit. size: %{public}d", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     for (int32_t i = 0; i < size; i++) {
         IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel;
         if (!IPTABLES::DomainFilterRuleParcel::Unmarshalling(reply, domainFilterRuleParcel)) {

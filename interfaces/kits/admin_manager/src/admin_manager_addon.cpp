@@ -578,6 +578,10 @@ void AdminManager::ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, En
 
 bool AdminManager::ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args)
 {
+    bool isArray = false;
+    if (napi_is_array(env, args, &isArray) != napi_ok || !isArray) {
+        return false;
+    }
     uint32_t len;
     if (napi_get_array_length(env, args, &len) != napi_ok) {
         return false;

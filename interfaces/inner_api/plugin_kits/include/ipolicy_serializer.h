@@ -25,6 +25,7 @@
 #include "json/json.h"
 #include "singleton.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 
 namespace OHOS {
@@ -126,6 +127,9 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
         return false;
     }
     if (!root.isArray()) {
+        return false;
+    }
+    if (root.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         return false;
     }
     dataObj = std::vector<DT>(root.size());
