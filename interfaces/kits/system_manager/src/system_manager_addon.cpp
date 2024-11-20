@@ -431,6 +431,10 @@ bool SystemManagerAddon::JsObjToUpgradePackageInfo(napi_env env, napi_value obje
 
 bool SystemManagerAddon::ParsePackages(napi_env env, napi_value object, std::vector<Package> &packages)
 {
+    bool isArray = false;
+    if (napi_is_array(env, object, &isArray) != napi_ok || !isArray) {
+        return false;
+    }
     uint32_t len = 0;
     if (napi_get_array_length(env, object, &len) != napi_ok) {
         return false;

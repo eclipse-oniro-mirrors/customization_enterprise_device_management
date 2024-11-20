@@ -36,6 +36,7 @@ namespace EdmConstants {
     constexpr int32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
     constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
+    constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
 
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
