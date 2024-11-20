@@ -15,6 +15,7 @@
 
 #include "disallow_add_os_account_by_user_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "os_account_manager.h"
@@ -89,17 +90,11 @@ ErrCode DisallowAddOsAccountByUserPlugin::SetSpecificOsAccountConstraints(int32_
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_CREATE_OS_ACCOUNT);
     constraints.emplace_back(CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY);
-    std::vector<int32_t> ids;
-    AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ids.empty()) {
-        EDMLOGE("DisallowAddOsAccountByUserPlugin QueryActiveOsAccountIds failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     EDMLOGI("DisallowAddOsAccountByUserPlugin SetSpecificOsAccountConstraints: "
-        "disallow: %{public}s, targetId: %{public}d, enforceId: %{public}d",
-        disallow ? "true" : "false", userId, ids.at(0));
+        "disallow: %{public}s, targetId: %{public}d",
+        disallow ? "true" : "false", userId);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, disallow, userId,
-        ids.at(0), true);
+        EdmConstants::DEFAULT_USER_ID, true);
     if (FAILED(ret)) {
         EDMLOGE("DisallowAddOsAccountByUserPlugin SetSpecificOsAccountConstraints failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

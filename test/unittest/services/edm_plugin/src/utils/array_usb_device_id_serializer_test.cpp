@@ -36,8 +36,22 @@ void ArrayUsbDeviceIdSerializerTest::TearDownTestSuite(void)
 }
 
 /**
+ * @tc.name: TestSetDifferencePolicyDataEmpty
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::SetDifferencePolicy when data is empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestSetDifferencePolicyDataEmpty, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceIdSerializer::GetInstance();
+    std::vector<UsbDeviceId> data;
+    std::vector<UsbDeviceId> currentData;
+    std::vector<UsbDeviceId> res = serializer->SetDifferencePolicyData(data, currentData);
+    ASSERT_TRUE(res.empty());
+}
+
+/**
  * @tc.name: TestSerializeEmpty
- * @tc.desc: Test ClipboardSerializer::Serialize when jsonString is empty
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Serialize when jsonString is empty
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestSerializeEmpty, TestSize.Level1)
@@ -52,7 +66,7 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestSerializeEmpty, TestSize.Level1)
 
 /**
  * @tc.name: TestSerializeSuc
- * @tc.desc: Test ClipboardSerializer::Serialize
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Serialize
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestSerializeSuc, TestSize.Level1)
@@ -70,8 +84,70 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestSerializeSuc, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestDeserializeWithEmptyString
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Deserialize jsonString is empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestDeserializeWithEmptyString, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceIdSerializer::GetInstance();
+    std::string jsonString = "";
+    std::vector<UsbDeviceId> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: TestDeserializeRootIsNotArray
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Deserialize RootIsNotArray
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestDeserializeRootIsNotArray, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceIdSerializer::GetInstance();
+    std::string jsonString = R"({"key": "value"})";
+    std::vector<UsbDeviceId> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestDeserializeSuc
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Deserialize
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestDeserializeSuc, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceIdSerializer::GetInstance();
+    std::string jsonString = R"([{"vendorId": 1234, "productId": 5678}])";
+    std::vector<UsbDeviceId> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(dataObj.size(), 1);
+    ASSERT_EQ(dataObj[0].GetVendorId(), 1234);
+    ASSERT_EQ(dataObj[0].GetProductId(), 5678);
+}
+
+/**
+ * @tc.name: TestDeserializeMalformedJson
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::Deserialize MalformedJson
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestDeserializeMalformedJson, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceIdSerializer::GetInstance();
+    std::string jsonString = R"([
+        {"vendorId": 1234, "productId": 5678,
+        {"vendorId": 4321, "productId": 8765}
+    ])";
+    std::vector<UsbDeviceId> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_FALSE(ret);
+}
+
+/**
  * @tc.name: TestGetPolicyOutOfRange
- * @tc.desc: Test ClipboardSerializer::GetPolicy out of range
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::GetPolicy out of range
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestGetPolicyOutOfRange, TestSize.Level1)
@@ -86,7 +162,7 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestGetPolicyOutOfRange, TestSize.Level
 
 /**
  * @tc.name: TestGetPolicy
- * @tc.desc: Test ClipboardSerializer::GetPolicy
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::GetPolicy
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestGetPolicy, TestSize.Level1)
@@ -105,7 +181,7 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestGetPolicy, TestSize.Level1)
 
 /**
  * @tc.name: TestWritePolicy
- * @tc.desc: Test ClipboardSerializer::WritePolicy
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::WritePolicy
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestWritePolicy, TestSize.Level1)
@@ -125,7 +201,7 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestWritePolicy, TestSize.Level1)
 
 /**
  * @tc.name: TestMergePolicy
- * @tc.desc: Test ClipboardSerializer::MergePolicy
+ * @tc.desc: Test ArrayUsbDeviceIdSerializerTest::MergePolicy
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestMergePolicy, TestSize.Level1)

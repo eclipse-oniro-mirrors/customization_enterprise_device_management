@@ -181,5 +181,71 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(const AppExecFwk::ElementName 
     }
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName &admin,
+    const std::vector<std::string> &keepAliveApps, int32_t userId, std::string &retMessage)
+{
+    EDMLOGI("ApplicationManagerProxy::AddKeepAliveApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteStringVector(keepAliveApps);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret != ERR_OK) {
+        retMessage = reply.ReadString();
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::RemoveKeepAliveApps(const AppExecFwk::ElementName &admin,
+    const std::vector<std::string> &keepAliveApps, int32_t userId)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveKeepAliveApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteStringVector(keepAliveApps);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName &admin,
+    std::vector<std::string> &keepAliveApps, int32_t userId)
+{
+    EDMLOGI("ApplicationManagerProxy::GetKeepAliveApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
+    
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&keepAliveApps);
+    return ERR_OK;
+}
+
 } // namespace EDM
 } // namespace OHOS

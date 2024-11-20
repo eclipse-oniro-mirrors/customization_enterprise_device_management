@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace EDM {
 constexpr int32_t EDM_RDB_VERSION_TWO = 2;
+constexpr int32_t EDM_RDB_VERSION_THREE = 3;
 int32_t EdmRdbOpenCallback::OnCreate(NativeRdb::RdbStore &rdbStore)
 {
     EDMLOGD("EdmRdbOpenCallback OnCreate : database create.");
@@ -34,6 +35,10 @@ int32_t EdmRdbOpenCallback::OnUpgrade(NativeRdb::RdbStore &rdbStore, int current
     if (currentVersion < EDM_RDB_VERSION_TWO && targetVersion >= EDM_RDB_VERSION_TWO) {
         rdbStore.ExecuteSql("ALTER TABLE " + EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " ADD COLUMN " +
             EdmRdbFiledConst::FILED_IS_DEBUG + " INTEGER DEFAULT 0;");
+    }
+    if (currentVersion < EDM_RDB_VERSION_THREE && targetVersion >= EDM_RDB_VERSION_THREE) {
+        rdbStore.ExecuteSql("ALTER TABLE " + EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " ADD COLUMN " +
+            EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT;");
     }
     return NativeRdb::E_OK;
 }

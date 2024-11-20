@@ -50,7 +50,8 @@ public:
     int32_t GetDomainFilterRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::DomainFilterRule> &rule);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin, const NetManagerStandard::HttpProxy &httpProxy);
-    int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy);
+    int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,
+        int32_t accountId = -1);
 #endif
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;

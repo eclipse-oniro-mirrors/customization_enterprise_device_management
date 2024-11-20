@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H
-#define SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H
+#ifndef EDM_UNIT_TEST_UTILS_FINGERPRINT_POLICY_SERIALIZER_TEST_H
+#define EDM_UNIT_TEST_UTILS_FINGERPRINT_POLICY_SERIALIZER_TEST_H
 
-#include "admin.h"
+#include <gtest/gtest.h>
+#include "fingerprint_policy_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-class SuperAdmin : public Admin {
-public:
-    AdminType GetAdminType() override;
+namespace TEST {
+class FingerPrintPolicySerializerTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_INCLUDE_EDM_SUPER_ADMIN_H
+#endif // EDM_UNIT_TEST_UTILS_FINGERPRINT_POLICY_SERIALIZER_TEST_H

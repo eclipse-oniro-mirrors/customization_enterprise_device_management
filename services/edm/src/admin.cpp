@@ -31,6 +31,24 @@ Admin::Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type
     adminInfo_.className_ = abilityInfo.name;
     adminInfo_.isDebug_ = isDebug;
 }
+
+Admin::Admin(const std::string &bundleName, AdminType type, const std::vector<std::string> &permissions)
+{
+    adminInfo_.packageName_ = bundleName;
+    adminInfo_.adminType_ = type;
+    adminInfo_.permission_ = permissions;
+}
+
+void Admin::SetParentAdminName(const std::string &parentAdminName)
+{
+    adminInfo_.parentAdminName_ = parentAdminName;
+}
+
+void Admin::SetAccessiblePolicies(const std::vector<std::string> &accessiblePolicies)
+{
+    adminInfo_.accessiblePolicies_ = accessiblePolicies;
+}
+
 bool Admin::CheckPermission(const std::string &permission)
 {
     EDMLOGD("Admin::CheckPermission");
@@ -38,7 +56,7 @@ bool Admin::CheckPermission(const std::string &permission)
         [&permission](const std::string &item) { return item == permission; });
 }
 
-AdminType Admin::GetAdminType()
+AdminType Admin::GetAdminType() const
 {
     return adminInfo_.adminType_;
 }

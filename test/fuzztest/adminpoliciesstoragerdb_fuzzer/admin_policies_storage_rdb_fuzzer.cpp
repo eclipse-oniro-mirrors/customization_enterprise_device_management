@@ -63,14 +63,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     adminPoliciesStorageRdb->InsertAdmin(userId, admin);
     adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
-    adminPoliciesStorageRdb->CreateValuesBucket(userId, admin);
+    adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
 
     std::string packageName(reinterpret_cast<const char*>(data), size);
     adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
 
-    std::string className(reinterpret_cast<const char*>(data), size);
-    adminPoliciesStorageRdb->UpdateAdmin(userId, packageName, className, permissions);
-    
     adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
 
     std::vector<ManagedEvent> managedEvents = {event};
@@ -80,11 +77,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     Json::Value json;
     json["test"] = str;
     adminPoliciesStorageRdb->ConvertStrToJson(str, json);
-
-    std::string bundleName(reinterpret_cast<const char*>(data), size);
-    std::string parentName(reinterpret_cast<const char*>(data), size);
-    adminPoliciesStorageRdb->InsertAuthorizedAdmin(bundleName, permissions, parentName);
-    adminPoliciesStorageRdb->UpdateAuthorizedAdmin(bundleName, permissions, parentName);
     return 0;
 }
 } // namespace EDM

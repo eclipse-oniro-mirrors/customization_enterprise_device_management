@@ -45,7 +45,12 @@ void SetWifiProfilePlugin::InitPlugin(
 ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config)
 {
     EDMLOGD("SetWifiProfilePlugin OnSetPolicy");
-    ErrCode ret = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID)->ConnectToDevice(config);
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (wifiDevice == nullptr) {
+        EDMLOGE("wifiDevice GetInstance null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = wifiDevice->ConnectToDevice(config);
     EdmUtils::ClearString(config.preSharedKey);
     if (sizeof(config.wepKeys) / sizeof(std::string) > 0) {
         EdmUtils::ClearString(config.wepKeys[0]);
@@ -54,6 +59,7 @@ ErrCode SetWifiProfilePlugin::OnSetPolicy(Wifi::WifiDeviceConfig &config)
     memset_s(config.wifiEapConfig.certPassword, sizeof(config.wifiEapConfig.certPassword), 0,
         sizeof(config.wifiEapConfig.certPassword));
     if (ret != ERR_OK) {
+        EDMLOGE("SetWifiProfilePlugin ConnectToDevice ret %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

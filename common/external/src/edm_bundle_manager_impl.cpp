@@ -24,6 +24,7 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t APP_INDEX_ZERO = 0;
 ErrCode EdmBundleManagerImpl::GetNameForUid(int uid, std::string &name)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -61,6 +62,21 @@ bool EdmBundleManagerImpl::GetBundleInfo(const std::string &bundleName, const Ap
     }
     EDMLOGE("EdmBundleManagerImpl::GetBundleInfo GetBundleMgr failed.");
     return false;
+}
+
+bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int32_t userId)
+{
+    bool isInstalled = false;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetBundleInfo GetBundleMgr failed.");
+        return false;
+    }
+    if (FAILED(proxy->IsBundleInstalled(bundleName, userId, APP_INDEX_ZERO, isInstalled))) {
+        EDMLOGW("EdmBundleManagerImpl::GetBundleInfo GetBundleMgr IsBundleInstalled failed.");
+    }
+    return isInstalled;
 }
 } // namespace EDM
 } // namespace OHOS

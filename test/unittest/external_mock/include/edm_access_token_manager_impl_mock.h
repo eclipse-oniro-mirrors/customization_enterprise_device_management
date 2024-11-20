@@ -27,7 +27,8 @@ public:
     ~EdmAccessTokenManagerImplMock() override = default;
     MOCK_METHOD(bool, IsDebug, (), (override));
     MOCK_METHOD(bool, IsSystemAppOrNative, (), (override));
-    MOCK_METHOD(bool, VerifyCallingPermission, (const std::string &permissionName), (override));
+    MOCK_METHOD(bool, VerifyCallingPermission, (Security::AccessToken::AccessTokenID tokenId,
+        const std::string &permissionName), (override));
 };
 } // namespace EDM
 } // namespace OHOS
