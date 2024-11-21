@@ -29,6 +29,7 @@ public:
     bool GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override;
     bool IsBundleInstalled(const std::string &bundleName, int32_t userId) override;
+    std::string GetApplicationInfo(const std::string &appName, int userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

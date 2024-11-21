@@ -465,7 +465,6 @@ ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(const AppExecFwk::Element
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&admin);
     data.WriteString(bundleName);
-    data.WriteUint32(policies.size());
     data.WriteStringVector(policies);
     ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_DELEGATED_POLICIES, data, reply, option);
     if (FAILED(res)) {

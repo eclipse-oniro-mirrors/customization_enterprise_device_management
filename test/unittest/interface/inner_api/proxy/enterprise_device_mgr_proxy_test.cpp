@@ -914,6 +914,98 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetSuperAdminFail, TestSize.Level1)
     EXPECT_TRUE(bundleName.empty());
     EXPECT_TRUE(abilityName.empty());
 }
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithEdmDisable
+ * @tc.desc: Test SetDelegatedPolicies without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    ErrCode ret = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(admin, "com.edm.test.demo", {});
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesIpcFail
+ * @tc.desc: Test SetDelegatedPolicies func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesIpcFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(admin, "com.edm.test.demo", {});
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesSuccess
+ * @tc.desc: Test SetDelegatedPolicies func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesSuccess, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(admin, "com.edm.test.demo", {});
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesWithEdmDisable
+ * @tc.desc: Test GetDelegatedPolicies without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetDelegatedPoliciesWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> result;
+    ErrCode ret = enterpriseDeviceMgrProxyTest->GetDelegatedPolicies(admin, "com.edm.test.demo",
+        EdmInterfaceCode::GET_DELEGATED_POLICIES, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesIpcFail
+ * @tc.desc: Test GetDelegatedPolicies func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetDelegatedPoliciesIpcFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    std::vector<std::string> result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetDelegatedPolicies(admin, "com.edm.test.demo",
+        EdmInterfaceCode::GET_DELEGATED_POLICIES, result);
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesSuccess
+ * @tc.desc: Test GetDelegatedPolicies func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetDelegatedPoliciesSuccess, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    std::vector<std::string> result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetDelegatedPolicies(admin, "com.edm.test.demo",
+        EdmInterfaceCode::GET_DELEGATED_POLICIES, result);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
