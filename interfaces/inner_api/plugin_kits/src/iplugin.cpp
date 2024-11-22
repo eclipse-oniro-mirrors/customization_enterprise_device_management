@@ -35,7 +35,8 @@ bool IPlugin::IsGlobalPolicy()
 
 IPlugin::PolicyPermissionConfig IPlugin::GetAllPermission(FuncOperateType operaType)
 {
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
+        permissionMap_.find(operaType) != permissionMap_.end()) {
         return permissionMap_[operaType];
     }
     return permissionConfig_;
@@ -43,7 +44,8 @@ IPlugin::PolicyPermissionConfig IPlugin::GetAllPermission(FuncOperateType operaT
 
 std::string IPlugin::GetPermission(FuncOperateType operaType, std::string permissionTag)
 {
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
+        permissionMap_.find(operaType) != permissionMap_.end()) {
         PolicyPermissionConfig config = permissionMap_[operaType];
         return CheckAndGetPermissionFromConfig(permissionTag, config.tagPermissions, config.permission);
     }
@@ -57,14 +59,15 @@ std::string IPlugin::CheckAndGetPermissionFromConfig(const std::string &permissi
     if (permissionTag.empty()) {
         return tagPermissions.empty() ? commonPermission : NONE_PERMISSION_MATCH;
     } else {
-        return (!tagPermissions.empty() && tagPermissions.count(permissionTag) > 0 ?
+        return (!tagPermissions.empty() && tagPermissions.find(permissionTag) != tagPermissions.end() ?
             tagPermissions[permissionTag] : NONE_PERMISSION_MATCH);
     }
 }
 
 IPlugin::PermissionType IPlugin::GetPermissionType(FuncOperateType operaType)
 {
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
+        permissionMap_.find(operaType) != permissionMap_.end()) {
         return permissionMap_[operaType].permissionType;
     }
     return permissionConfig_.permissionType;
@@ -72,7 +75,8 @@ IPlugin::PermissionType IPlugin::GetPermissionType(FuncOperateType operaType)
 
 IPlugin::ApiType IPlugin::GetApiType(FuncOperateType operaType)
 {
-    if (permissionConfig_.apiType == ApiType::UNKNOWN && permissionMap_.count(operaType) > 0) {
+    if (permissionConfig_.apiType == ApiType::UNKNOWN &&
+        permissionMap_.find(operaType) != permissionMap_.end()) {
         return permissionMap_[operaType].apiType;
     }
     return permissionConfig_.apiType;

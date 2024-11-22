@@ -45,7 +45,8 @@ bool WatermarkImageSerializer::Deserialize(const std::string &policy,
         cJSON* width = cJSON_GetObjectItem(item, WIDTH);
         cJSON* height = cJSON_GetObjectItem(item, HEIGHT);
         if (bundleName == nullptr || accountId == nullptr || fileName == nullptr ||
-            width == nullptr || height == nullptr || !cJSON_IsNumber(width) ||
+            width == nullptr || height == nullptr || !cJSON_IsString(bundleName)
+            || !cJSON_IsString(fileName) || !cJSON_IsNumber(width) ||
             !cJSON_IsNumber(accountId) || !cJSON_IsNumber(height)) {
             cJSON_Delete(root);
             return false;

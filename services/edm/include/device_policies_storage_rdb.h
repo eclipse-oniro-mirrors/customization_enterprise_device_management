@@ -49,7 +49,7 @@ private:
     void PrasePolicyAdmins(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         std::unordered_map<std::string, AdminValueItemsMap> &policyAdmins);
     static std::shared_ptr<DevicePoliciesStorageRdb> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 }  // namespace EDM
 }  // namespace OHOS

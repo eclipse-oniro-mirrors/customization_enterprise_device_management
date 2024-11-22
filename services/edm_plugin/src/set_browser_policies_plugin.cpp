@@ -271,6 +271,10 @@ bool SetBrowserPoliciesPlugin::AddBrowserPoliciesToRoot(cJSON* root, const std::
         cJSON* policy = cJSON_GetObjectItem(root, adminPolicy->string);
         if (policy == nullptr) {
             cJSON* copy = cJSON_Duplicate(adminPolicy, true);
+            if (copy == nullptr) {
+                cJSON_Delete(adminPolicies);
+                return false;
+            }
             if (!cJSON_AddItemToObject(root, adminPolicy->string, copy)) {
                 cJSON_Delete(copy);
                 cJSON_Delete(adminPolicies);

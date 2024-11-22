@@ -52,7 +52,6 @@ void EnterpriseDeviceMgrProxy::DestroyInstance()
     std::lock_guard<std::mutex> lock(mutexLock_);
     if (instance_ != nullptr) {
         instance_.reset();
-        instance_ = nullptr;
     }
 }
 

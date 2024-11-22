@@ -42,7 +42,7 @@ private:
     void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
     void ConvertStrToJson(const std::string &str, Json::Value &json);
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

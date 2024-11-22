@@ -39,7 +39,7 @@ public:
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
     std::map<int32_t, uint32_t> policyTypeMap_;
     ErrCode WriteFileToInner(MessageParcel &reply, const std::string &realPath, std::vector<std::string> &servicePaths,
         std::string &errMessage);

@@ -160,7 +160,7 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfaces(napi_env env, napi_callb
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_GetAllNetworkInterfaces argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetAllNetworkInterface",
         NativeGetAllNetworkInterfaces, NativeArrayStringCallbackComplete);
@@ -227,7 +227,7 @@ napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_in
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_GetIpOrMacAddress argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     asyncCallbackInfo->policyCode = policyCode;
     napi_value asyncWorkReturn =
@@ -340,7 +340,7 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabled(napi_env env, napi_ca
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsNetworkInterfaceDisabled",
         NativeIsNetworkInterfaceDisabled, NativeBoolCallbackComplete);
@@ -396,7 +396,7 @@ napi_value NetworkManagerAddon::AddIptablesFilterRule(napi_env env, napi_callbac
         "addFilter param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_AddIptalbsFilterRule argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "AddIptablesFilterRule",
         NativeAddIptalbsFilterRule, NativeVoidCallbackComplete);
@@ -479,7 +479,7 @@ napi_value NetworkManagerAddon::RemoveIptablesFilterRule(napi_env env, napi_call
         JsObjToRemoveFirewallObject(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->removeFilter), "firewall param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_RemoveIptablesFilterRule argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "RemoveIptablesFilterRule",
         NativeRemoveIptalbsFilterRule, NativeVoidCallbackComplete);
@@ -549,7 +549,7 @@ napi_value NetworkManagerAddon::ListIptablesFilterRules(napi_env env, napi_callb
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_ListIptablesFilterRule argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "ListIptablesFilterRules",
         NativeListIptablesFilterRules, NativeStringCallbackComplete);
@@ -891,7 +891,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
     asyncCallbackInfo->httpProxy.SetUserId(accountId);
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "setGlobalProxy", NativeSetGlobalHttpProxy, NativeVoidCallbackComplete);
@@ -1174,7 +1174,7 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_c
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, networkInterface, result);
     return result;
 }
@@ -1224,7 +1224,7 @@ napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callbac
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_string_utf8(env, ipOrMacInfo.c_str(), NAPI_AUTO_LENGTH, &result);
+    NAPI_CALL(env, napi_create_string_utf8(env, ipOrMacInfo.c_str(), NAPI_AUTO_LENGTH, &result));
     return result;
 }
 
@@ -1302,7 +1302,7 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, nap
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 

@@ -144,7 +144,7 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
         return nullptr;
     }
     napi_value napiKeepAliveApps = nullptr;
-    napi_create_array(env, &napiKeepAliveApps);
+    NAPI_CALL(env, napi_create_array(env, &napiKeepAliveApps));
     ConvertStringVectorToJS(env, keepAliveApps, napiKeepAliveApps);
     return napiKeepAliveApps;
 }
@@ -222,7 +222,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
         return nullptr;
     }
     napi_value napiAutoStartApps = nullptr;
-    napi_create_array(env, &napiAutoStartApps);
+    NAPI_CALL(env, napi_create_array(env, &napiAutoStartApps));
     size_t idx = 0;
     for (const auto &element : autoStartApps) {
         napi_value objAutoStartApps = nullptr;
@@ -538,7 +538,7 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIds, result);
     return result;
 }

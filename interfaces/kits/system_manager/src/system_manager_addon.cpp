@@ -157,7 +157,7 @@ napi_value SystemManagerAddon::GetNTPServer(napi_env env, napi_callback_info inf
         return nullptr;
     }
     napi_value ntpServerString = nullptr;
-    napi_create_string_utf8(env, ntpParm.c_str(), ntpParm.size(), &ntpServerString);
+    NAPI_CALL(env, napi_create_string_utf8(env, ntpParm.c_str(), ntpParm.size(), &ntpServerString));
     return ntpServerString;
 }
 

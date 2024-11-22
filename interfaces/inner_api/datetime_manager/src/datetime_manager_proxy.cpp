@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::instance_ = nullptr;
-std::mutex DatetimeManagerProxy::mutexLock_;
+std::once_flag DatetimeManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 DatetimeManagerProxy::DatetimeManagerProxy() {}
@@ -31,13 +31,11 @@ DatetimeManagerProxy::~DatetimeManagerProxy() {}
 
 std::shared_ptr<DatetimeManagerProxy> DatetimeManagerProxy::GetDatetimeManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<DatetimeManagerProxy> temp = std::make_shared<DatetimeManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<DatetimeManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

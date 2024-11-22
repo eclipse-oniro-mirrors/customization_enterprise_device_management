@@ -68,7 +68,7 @@ napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callb
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "isDisallow param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_DisallowAddLocalAccount argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisallowAddLocalAccount",
@@ -142,7 +142,7 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
@@ -157,7 +157,7 @@ napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info in
     std::unique_ptr<AsyncAddOsAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
     napi_value checkRet = AddOsAccountCommon(env, info, asyncCallbackInfo);
     int32_t errCode = -1;
-    napi_get_value_int32(env, checkRet, &errCode);
+    NAPI_CALL(env, napi_get_value_int32(env, checkRet, &errCode));
     if (checkRet == nullptr || errCode != ERR_OK) {
         return nullptr;
     }
@@ -224,7 +224,7 @@ napi_value AccountManagerAddon::AddOsAccountCommon(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckOsAccountType(callbackInfo->type), "parameter type unknown");
 
     napi_value ret;
-    napi_create_int32(env, ERR_OK, &ret);
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
     return ret;
 }
 
@@ -302,7 +302,8 @@ napi_value AccountManagerAddon::ConvertOsAccountInfoToJs(napi_env env, OHOS::Acc
 
     // distributedInfo: distributedAccount.DistributedInfo
     napi_value dbInfoToJs = nullptr;
-    napi_set_named_property(env, result, "distributedInfo", dbInfoToJs);
+    NAPI_CALL(env, napi_get_undefined(env, &dbInfoToJs));
+    NAPI_CALL(env, napi_set_named_property(env, result, "distributedInfo", dbInfoToJs));
 
     // domainInfo: domainInfo.DomainAccountInfo
     OHOS::AccountSA::DomainAccountInfo domainInfo;
@@ -442,7 +443,7 @@ napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_call
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
@@ -457,7 +458,7 @@ napi_value AccountManagerAddon::AddOsAccountAsync(napi_env env, napi_callback_in
     std::unique_ptr<AsyncAddOsAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
     napi_value checkRet = AddOsAccountCommon(env, info, asyncCallbackInfo);
     int32_t errCode = -1;
-    napi_get_value_int32(env, checkRet, &errCode);
+    NAPI_CALL(env, napi_get_value_int32(env, checkRet, &errCode));
     if (checkRet == nullptr || errCode != ERR_OK) {
         return nullptr;
     }

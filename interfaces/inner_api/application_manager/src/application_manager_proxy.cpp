@@ -22,18 +22,16 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<ApplicationManagerProxy> ApplicationManagerProxy::instance_ = nullptr;
-std::mutex ApplicationManagerProxy::mutexLock_;
+std::once_flag ApplicationManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 std::shared_ptr<ApplicationManagerProxy> ApplicationManagerProxy::GetApplicationManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<ApplicationManagerProxy> temp = std::make_shared<ApplicationManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<ApplicationManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

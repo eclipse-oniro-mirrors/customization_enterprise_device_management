@@ -23,7 +23,7 @@ DomainFilterRuleParcel::DomainFilterRuleParcel(DomainFilterRule rule) : rule_(st
 
 bool DomainFilterRuleParcel::Marshalling(MessageParcel& parcel) const
 {
-    parcel.WriteUint32(static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule_)));
+    parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule_)));
     parcel.WriteString(std::get<DOMAIN_APPUID_IND>(rule_));
     parcel.WriteString(std::get<DOMAIN_DOMAINNAME_IND>(rule_));
     return true;

@@ -39,7 +39,7 @@ ErrCode FirewallExecuter::Init()
     std::string result;
     ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
     if (ret != ERR_OK) {
-        EDMLOGE("FirewallExecuter:Init error.");
+        EDMLOGE("FirewallExecuter:Init error.ret:%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

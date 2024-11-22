@@ -474,10 +474,8 @@ IPluginTemplate<CT, DT>::~IPluginTemplate()
 {
     if (instance_ != nullptr) {
         instance_.reset();
-        instance_ = nullptr;
     }
     if (serializer_ != nullptr) {
         serializer_.reset();
-        serializer_ = nullptr;
     }
 }

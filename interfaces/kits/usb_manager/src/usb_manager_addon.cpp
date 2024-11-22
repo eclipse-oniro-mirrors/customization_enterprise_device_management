@@ -111,7 +111,7 @@ napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, existUsbPolicy, "usb policy value error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetUsbPolicy argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "SetUsbPolicy", NativeSetUsbPolicy, NativeVoidCallbackComplete);
@@ -200,7 +200,7 @@ napi_value UsbManagerAddon::IsUsbDisabled(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
@@ -409,7 +409,7 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_int32(env, usbPolicy, &result);
+    NAPI_CALL(env, napi_create_int32(env, usbPolicy, &result));
     return result;
 }
 

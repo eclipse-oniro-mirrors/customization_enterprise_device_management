@@ -146,7 +146,7 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo)) {
         if (asyncCallbackInfo->callback != nullptr) {
-            napi_delete_reference(env, asyncCallbackInfo->callback);
+            NAPI_CALL(env, napi_delete_reference(env, asyncCallbackInfo->callback));
         }
         callbackPtr.release();
         return nullptr;
@@ -712,7 +712,7 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
         napi_throw(env, CreateError(env, ret));
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIds, result);
     return result;
 }

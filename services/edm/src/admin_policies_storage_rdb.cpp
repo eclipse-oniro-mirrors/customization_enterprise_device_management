@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<AdminPoliciesStorageRdb> AdminPoliciesStorageRdb::instance_ = nullptr;
-std::mutex AdminPoliciesStorageRdb::mutexLock_;
+std::once_flag AdminPoliciesStorageRdb::flag_;
 
 AdminPoliciesStorageRdb::AdminPoliciesStorageRdb()
 {
@@ -51,12 +51,11 @@ AdminPoliciesStorageRdb::AdminPoliciesStorageRdb()
 
 std::shared_ptr<AdminPoliciesStorageRdb> AdminPoliciesStorageRdb::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
             instance_ = std::make_shared<AdminPoliciesStorageRdb>();
         }
-    }
+    });
     return instance_;
 }
 

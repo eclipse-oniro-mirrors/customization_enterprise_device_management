@@ -29,8 +29,7 @@ std::shared_ptr<ExecuterUtils> ExecuterUtils::GetInstance()
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<ExecuterUtils> temp = std::make_shared<ExecuterUtils>();
-            instance_ = temp;
+            instance_ = std::make_shared<ExecuterUtils>();
         }
     }
     return instance_;

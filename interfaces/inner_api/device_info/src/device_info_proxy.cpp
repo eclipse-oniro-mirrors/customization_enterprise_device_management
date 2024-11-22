@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::instance_ = nullptr;
-std::mutex DeviceInfoProxy::mutexLock_;
+std::once_flag DeviceInfoProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 DeviceInfoProxy::DeviceInfoProxy() {}
@@ -31,13 +31,11 @@ DeviceInfoProxy::~DeviceInfoProxy() {}
 
 std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<DeviceInfoProxy> temp = std::make_shared<DeviceInfoProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<DeviceInfoProxy>();
         }
-    }
+    });
     return instance_;
 }
 

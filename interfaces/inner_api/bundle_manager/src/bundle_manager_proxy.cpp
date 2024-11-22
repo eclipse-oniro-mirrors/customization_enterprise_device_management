@@ -31,7 +31,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::instance_ = nullptr;
-std::mutex BundleManagerProxy::mutexLock_;
+std::once_flag BundleManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string SEPARATOR = "/";
@@ -57,13 +57,11 @@ void BundleManagerProxy::AddPolicyTypeMap()
 
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::GetBundleManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<BundleManagerProxy> temp = std::make_shared<BundleManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<BundleManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 
@@ -96,7 +94,7 @@ int32_t BundleManagerProxy::AddBundlesByPolicyType(AppExecFwk::ElementName &admi
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     std::uint32_t funcCode = 0;
-    if (policyTypeMap_.count(policyType) > 0) {
+    if (policyTypeMap_.find(policyType) != policyTypeMap_.end()) {
         funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyTypeMap_[policyType]);
     } else {
         EDMLOGE("can not get policy type");
@@ -118,7 +116,7 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     std::uint32_t funcCode = 0;
-    if (policyTypeMap_.count(policyType) > 0) {
+    if (policyTypeMap_.find(policyType) != policyTypeMap_.end()) {
         funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, policyTypeMap_[policyType]);
     } else {
         EDMLOGE("can not get policy type");
@@ -146,7 +144,7 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    if (policyTypeMap_.count(policyType) > 0) {
+    if (policyTypeMap_.find(policyType) != policyTypeMap_.end()) {
         proxy->GetPolicy(policyTypeMap_[policyType], data, reply);
     } else {
         EDMLOGE("can not get policy type");

@@ -122,7 +122,7 @@ napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "isDisabled param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetPolicyDisabled argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     asyncCallbackInfo->policyCode = policyCode;
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetPolicyDisabled", NativeSetPolicyDisabled,
@@ -191,7 +191,7 @@ napi_value RestrictionsAddon::IsPolicyDisabled(napi_env env, napi_callback_info 
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_IsPolicyDisabled argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     asyncCallbackInfo->policyCode = policyCode;
     napi_value asyncWorkReturn =
@@ -298,7 +298,7 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, disallow, &result);
+    NAPI_CALL(env, napi_get_boolean(env, disallow, &result));
     return result;
 }
 
@@ -359,7 +359,7 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, boolRet, &result);
+    NAPI_CALL(env, napi_get_boolean(env, boolRet, &result));
     return result;
 }
 
@@ -462,7 +462,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, disallow, &result);
+    NAPI_CALL(env, napi_get_boolean(env, disallow, &result));
     return result;
 }
 
@@ -557,7 +557,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, disallow, &result);
+    NAPI_CALL(env, napi_get_boolean(env, disallow, &result));
     return result;
 }
 
@@ -602,7 +602,7 @@ napi_value RestrictionsAddon::GetDisallowedListForAccount(napi_env env, napi_cal
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, resultArray, result);
     return result;
 }

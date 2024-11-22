@@ -25,18 +25,16 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<UsbManagerProxy> UsbManagerProxy::instance_ = nullptr;
-std::mutex UsbManagerProxy::mutexLock_;
+std::once_flag UsbManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 std::shared_ptr<UsbManagerProxy> UsbManagerProxy::GetUsbManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<UsbManagerProxy> temp = std::make_shared<UsbManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<UsbManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 
