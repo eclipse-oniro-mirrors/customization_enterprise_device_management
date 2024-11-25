@@ -75,6 +75,28 @@ HWTEST_F(EdmUtilsTest, Test_ParseStringToLong_FAIL, TestSize.Level1)
     ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     ASSERT_EQ(retNum, 0);
 }
+
+/**
+ * @tc.name: Test_Utf16ToUtf8_SUC
+ * @tc.desc: Test Test Utf16ToUtf8 function when input data is available.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_Utf16ToUtf8_SUC, TestSize.Level1)
+{
+    std::string ret = EdmUtils::Utf16ToUtf8(u"test");
+    ASSERT_EQ(ret, "test");
+}
+
+/**
+ * @tc.name: Test_Utf16ToUtf8_FAIL
+ * @tc.desc: Test Test Utf16ToUtf8 function when input data is unavailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_Utf16ToUtf8_FAIL, TestSize.Level1)
+{
+    std::string ret = EdmUtils::Utf16ToUtf8(u"error");
+    ASSERT_EQ(ret, "error");
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

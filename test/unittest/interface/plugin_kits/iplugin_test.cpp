@@ -161,6 +161,8 @@ HWTEST_F(IPluginTest, TestSetExtensionPlugin, TestSize.Level1)
     std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
     iplugin->SetExtensionPlugin(extensionPlugin);
     EXPECT_TRUE(extensionPlugin == iplugin->GetExtensionPlugin());
+    iplugin->ResetExtensionPlugin();
+    EXPECT_TRUE(iplugin->GetExtensionPlugin() == nullptr);
 }
 
 /**
