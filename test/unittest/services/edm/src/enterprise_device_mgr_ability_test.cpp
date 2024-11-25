@@ -159,9 +159,11 @@ void EnterpriseDeviceMgrAbilityTest::EnableAdminSuc(AppExecFwk::ElementName &adm
     bool isDebug)
 {
     EntInfo entInfo("test", "this is test");
-    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(isDebug)));
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(isDebug)));
     if (!isDebug) {
-        EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+        EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+            .Times(testing::AtLeast(1))
+            .WillRepeatedly(DoAll(Return(true)));
     }
     QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
@@ -203,7 +205,8 @@ void EnterpriseDeviceMgrAbilityTest::QueryExtensionAbilityInfosMock(bool ret, co
         extensionInfos.emplace_back(extensionAbilityInfo);
     }
     EXPECT_CALL(*bundleMgrMock_, QueryExtensionAbilityInfos)
-        .WillOnce(DoAll(SetArgReferee<INDEX_FOUR>(extensionInfos), Return(ret)));
+        .Times(testing::AtLeast(1))
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_FOUR>(extensionInfos), Return(ret)));
 }
 
 void EnterpriseDeviceMgrAbilityTest::GetBundleInfoMock(bool ret, const std::string &permission)
@@ -212,7 +215,9 @@ void EnterpriseDeviceMgrAbilityTest::GetBundleInfoMock(bool ret, const std::stri
     if (!permission.empty()) {
         bundleInfo.reqPermissions.emplace_back(permission);
     }
-    EXPECT_CALL(*bundleMgrMock_, GetBundleInfo).WillOnce(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(ret)));
+    EXPECT_CALL(*bundleMgrMock_, GetBundleInfo)
+        .Times(testing::AtLeast(1))
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(ret)));
 }
 
 /**
@@ -3578,6 +3583,68 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
     data.WriteParcelable(&admin);
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdmin
+ * @tc.desc: Test TestReplaceSuperAdmin suc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    AppExecFwk::ElementName replaceAdmin;
+    replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
+    replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, replaceAdmin.GetBundleName());
+    GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ASSERT_TRUE(err == ERR_OK);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdmin
+ * @tc.desc: Test TestReplaceSuperAdmin without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin002, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    AppExecFwk::ElementName replaceAdmin;
+    replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
+    replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ASSERT_TRUE(err == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+
+/**
+ * @tc.name: TestReplaceSuperAdmin
+ * @tc.desc: Test TestReplaceSuperAdmin without extensionAbility.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin003, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    AppExecFwk::ElementName replaceAdmin;
+    replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
+    replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(false, replaceAdmin.GetBundleName());
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ASSERT_TRUE(err == EdmReturnErrCode::COMPONENT_INVALID);
 }
 } // namespace TEST
 } // namespace EDM

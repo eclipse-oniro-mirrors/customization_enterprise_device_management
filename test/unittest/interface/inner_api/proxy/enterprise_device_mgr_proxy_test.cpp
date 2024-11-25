@@ -37,6 +37,7 @@ namespace TEST {
 namespace {
 constexpr int32_t DEFAULT_USERID = 100;
 constexpr int32_t FUNC_CODE_ERR = -222;
+const std::string ADMIN_NAME = "com.edm.test.demo";
 }
 class EnterpriseDeviceMgrProxyTest : public testing::Test {
 protected:
@@ -913,6 +914,36 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetSuperAdminFail, TestSize.Level1)
     EXPECT_TRUE(errVal != ERR_OK);
     EXPECT_TRUE(bundleName.empty());
     EXPECT_TRUE(abilityName.empty());
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdminSuc
+ * @tc.desc: Test ReplaceSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, ReplaceSuperAdminSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName targetAdmin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(ADMIN_NAME, targetAdmin);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdminFail
+ * @tc.desc: Test ReplaceSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestReplaceSuperAdminFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName targetAdmin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(ADMIN_NAME, targetAdmin);
+    EXPECT_TRUE(errVal != ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

@@ -55,6 +55,7 @@ public:
         std::vector<std::string> &policies) = 0;
     virtual ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
         std::vector<std::string> &bundleNames) = 0;
+    virtual ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

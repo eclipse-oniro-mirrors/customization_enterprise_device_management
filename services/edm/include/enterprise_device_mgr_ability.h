@@ -71,6 +71,7 @@ public:
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
     ErrCode GetSuperAdmin(MessageParcel &reply) override;
+    ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin) override;
 
 protected:
     void OnStart() override;
@@ -154,7 +155,8 @@ private:
     void UnloadPluginTask();
     void SetPasswordPolicy();
     void SetFingerprintPolicy();
-    
+    ErrCode SetAdminEnabled(Admin edmAdmin, AppExecFwk::ElementName &admin, int32_t userId);
+
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;

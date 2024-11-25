@@ -92,6 +92,36 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::ReplaceSuperAdmin(const std::string &adminName,
+    AppExecFwk::ElementName &replaceAdmin)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::ReplaceSuperAdmin");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteString(adminName);
+    data.WriteParcelable(&replaceAdmin);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::REPLACE_SUPER_ADMIN, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:ReplaceSuperAdmin send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t resCode = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:ReplaceSuperAdmin get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableAdmin");
