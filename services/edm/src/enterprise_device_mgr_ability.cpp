@@ -934,7 +934,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const std::string &adminNa
 
     if (FAILED(VerifyEnableAdminCondition(replaceAdmin, AdminType::ENT, DEFAULT_USER_ID, false))) {
         EDMLOGW("ReplaceSuperAdmin: VerifyEnableAdminCondition failed.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     std::vector<std::string> permissionList;
     if (FAILED(GetAllPermissionsByAdmin(replaceAdmin.GetBundleName(), AdminType::ENT, DEFAULT_USER_ID,
@@ -943,16 +943,21 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const std::string &adminNa
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     std::shared_ptr<Admin> adminPtr = adminMgr_->GetAdminByPkgName(adminName, DEFAULT_USER_ID);
+    if (adminPtr == nullptr) {
+        EDMLOGE("ReplaceSuperAdmin adminName is not admin");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
     EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
     ErrCode res = DisableSuperAdmin(adminName);
     if (res != ERR_OK) {
-        return res;
+        EDMLOGE("ReplaceSuperAdmin: delete admin failed");
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     Admin edmAdmin(abilityInfo.at(0), AdminType::ENT, entInfo, permissionList, false);
     if (FAILED(SetAdminEnabled(edmAdmin, replaceAdmin, DEFAULT_USER_ID))) {
         EDMLOGW("ReplaceSuperAdmin: SetAdminEnabled failed.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", replaceAdmin.GetBundleName().c_str());
     return ERR_OK;
