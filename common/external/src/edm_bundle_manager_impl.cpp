@@ -15,6 +15,7 @@
 
 #include "edm_bundle_manager_impl.h"
 
+#include "application_info.h"
 #include "bundle_mgr_proxy.h"
 #include "bundle_mgr_interface.h"
 #include "system_ability_definition.h"
@@ -77,6 +78,21 @@ bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int3
         EDMLOGW("EdmBundleManagerImpl::GetBundleInfo GetBundleMgr IsBundleInstalled failed.");
     }
     return isInstalled;
+}
+
+std::string EdmBundleManagerImpl::GetApplicationInfo(const std::string &appName, int userId)
+{
+    AppExecFwk::ApplicationInfo appInfo;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
+        return "";
+    }
+    if (!proxy->GetApplicationInfo(appName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo)) {
+        return "";
+    }
+    return appInfo.appDistributionType;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -365,12 +365,11 @@ ErrCode EnterpriseDeviceMgrStub::SetDelegatedPoliciesInner(MessageParcel &data, 
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::string bundleName = data.ReadString();
-    uint32_t size = data.ReadUint32();
-    if (size > EdmConstants::POLICIES_MAX_SIZE) {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
     std::vector<std::string> policies;
     data.ReadStringVector(&policies);
+    if (policies.size() > EdmConstants::POLICIES_MAX_SIZE) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     return SetDelegatedPolicies(admin->GetBundleName(), bundleName, policies);
 }
 

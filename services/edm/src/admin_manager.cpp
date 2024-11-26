@@ -156,6 +156,11 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
         EDMLOGE("AdminManager::UpdateAdmin sub-super or delegated admin can not update to another type.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
+    if (getAdmin->GetAdminType() == AdminType::NORMAL && adminItem.GetAdminType() != AdminType::NORMAL &&
+        adminItem.GetAdminType() != AdminType::ENT) {
+        EDMLOGE("AdminManager::UpdateAdmin normal admin can not update to sub-super admin or delegated admin.");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     if (!AdminPoliciesStorageRdb::GetInstance()->UpdateAdmin(userId, adminItem)) {
         EDMLOGW("UpdateAdmin::update admin failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

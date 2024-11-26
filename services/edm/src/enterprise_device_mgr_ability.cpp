@@ -72,6 +72,7 @@ const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.M
 const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
 const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
+const std::string PERMISSION_SET_DELEGATED_POLICY = "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
@@ -81,6 +82,8 @@ const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 const std::string EDM_ADMIN_ENABLED_EVENT = "com.ohos.edm.edmadminenabled";
 const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
+const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
+const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -476,11 +479,11 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         "disallow_running_bundles", "manage_auto_start_apps", "allowed_bluetooth_devices", "set_browser_policies",
         "allowed_install_bundles", "disallowed_install_bundles", "disallowed_uninstall_bundles", "screen_off_time",
         "power_policy", "set_datetime", "location_policy", "disabled_network_interface", "global_proxy",
-        "firewall_rule", "domain_filter_rule", "disabled_bluetooth", "disallow_modify_datetime", "disabled_printer",
-        "disabled_hdc", "disable_microphone", "fingerprint_auth", "disable_usb", "disable_wifi", "disallowed_tethering",
+        "disabled_bluetooth", "disallow_modify_datetime", "disabled_printer", "policy_screen_shot", "disabled_hdc",
+        "disable_microphone", "fingerprint_auth", "disable_usb", "disable_wifi", "disallowed_tethering",
         "inactive_user_freeze", "password_policy", "clipboard_policy", "ntp_server", "set_update_policy",
-        "notify_upgrade_packages", "allowed_usb_devices", "usb_read_only", "disallowed_usb_devices",
-        "watermark_image_policy" };
+        "notify_upgrade_packages", "allowed_usb_devices", "usb_read_only", "disallowed_usb_devices", "get_device_info",
+        "watermark_image_policy", "policy_screen_record" };
 }
 
 void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
@@ -1349,17 +1352,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckHandlePolicyPermission(FuncOperateType 
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     if (!permissionName.empty()) {
-        std::shared_ptr<Admin> checkAdmin;
-        Security::AccessToken::AccessTokenID tokenId = -1;
-        if (deviceAdmin->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
-            tokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(DEFAULT_USER_ID,
-                deviceAdmin->adminInfo_.parentAdminName_, 0);
-            checkAdmin = adminMgr_->GetAdminByPkgName(deviceAdmin->adminInfo_.parentAdminName_, DEFAULT_USER_ID);
-        } else {
-            tokenId = IPCSkeleton::GetCallingTokenID();
-            checkAdmin = deviceAdmin;
-        }
-        auto ret = CheckAndUpdatePermission(checkAdmin, tokenId, permissionName, userId);
+        auto ret = CheckAndUpdatePermission(deviceAdmin, IPCSkeleton::GetCallingTokenID(), permissionName, userId);
         if (FAILED(ret)) {
             return ret;
         }
@@ -1594,7 +1587,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &pare
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(parentAdminName, GetCurrentUserId());
-    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
+    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1608,6 +1601,11 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &pare
     }
     if (!GetBundleMgr()->IsBundleInstalled(bundleName, DEFAULT_USER_ID)) {
         EDMLOGE("SetDelegatedPolicies the delegated application does not installed.");
+        return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
+    }
+    std::string appDistributionType = GetBundleMgr()->GetApplicationInfo(bundleName, DEFAULT_USER_ID);
+    if (appDistributionType != APP_TYPE_ENTERPRISE_MDM && appDistributionType != APP_TYPE_ENTERPRISE_NORMAL) {
+        EDMLOGE("SetDelegatedPolicies get appDistributionType %{public}s.", appDistributionType.c_str());
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
     EntInfo entInfo;
@@ -1624,7 +1622,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedPolicies(const std::string &pare
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(parentAdminName, GetCurrentUserId());
-    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
+    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1636,7 +1634,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedBundleNames(const std::string &p
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(parentAdminName, GetCurrentUserId());
-    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
+    ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }

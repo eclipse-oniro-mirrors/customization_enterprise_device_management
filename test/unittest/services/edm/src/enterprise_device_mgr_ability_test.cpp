@@ -3579,6 +3579,510 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PERMISSION_DENIED);
 }
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithoutAdmin
+ * @tc.desc: Test SetDelegatedPolicies without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {});
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithoutSDA
+ * @tc.desc: Test SetDelegatedPolicies without administrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutSDA, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {});
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithoutPermission
+ * @tc.desc: Test SetDelegatedPolicies without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {});
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithCallingUidFailed
+ * @tc.desc: Test SetDelegatedPolicies with calling uid failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithCallingUidFailed, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {});
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithEmptyPolicy
+ * @tc.desc: Test SetDelegatedPolicies with empty policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEmptyPolicy, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {});
+    ASSERT_TRUE(ret == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithInvalidPolicy
+ * @tc.desc: Test SetDelegatedPolicies with invalid policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithInvalidPolicy, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {"invalide_policy"});
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithoutPlugin
+ * @tc.desc: Test SetDelegatedPolicies without plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPlugin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_TEST_ENT_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithPluginHasNoPermission
+ * @tc.desc: Test SetDelegatedPolicies with plugin has no permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPluginHasNoPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = "";
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithNonePermissionMatch
+ * @tc.desc: Test SetDelegatedPolicies with plugin has none permission match.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermissionMatch, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = NONE_PERMISSION_MATCH;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithDelegatedBundleNotInstall
+ * @tc.desc: Test SetDelegatedPolicies with delegaed bundle not install.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBundleNotInstall, TestSize.Level1)
+{
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(false)));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    ASSERT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+
+    DisableSuperAdminSuc(ADMIN_PACKAGENAME);
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithNormalBundle
+ * @tc.desc: Test SetDelegatedPolicies with delegaed bundle not enterprise_mdm or enterprise_normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundle, TestSize.Level1)
+{
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("normal")));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    ASSERT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithEnterpriseNormal
+ * @tc.desc: Test SetDelegatedPolicies with delegaed bundle is enterprise_normal type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEnterpriseNormal, TestSize.Level1)
+{
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("enterprise_normal")));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    ASSERT_TRUE(ret == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+    std::shared_ptr<Admin> virtaulAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID);
+    EXPECT_TRUE(virtaulAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesWithoutPermission
+ * @tc.desc: Test GetDelegatedPolicies without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
+    std::vector<std::string> policies;
+    ErrCode ret = edmMgr_->GetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, policies);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesWithoutVritualAdmin
+ * @tc.desc: Test GetDelegatedPolicies success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithoutVritualAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    std::vector<std::string> policies;
+    ErrCode ret = edmMgr_->GetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, policies);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestGetDelegatedPoliciesWithVritualAdmin
+ * @tc.desc: Test GetDelegatedPolicies success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmin, TestSize.Level1)
+{
+    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->pluginsCode_.clear();
+    edmMgr_->pluginMgr_->pluginsName_.clear();
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("enterprise_normal")));
+
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, {plugin_->GetPolicyName()});
+    ASSERT_TRUE(ret == ERR_OK);
+
+    std::vector<std::string> policies;
+    ret = edmMgr_->GetDelegatedBundleNames(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, policies);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    std::shared_ptr<Admin> virtualAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID);
+    ASSERT_TRUE(virtualAdmin != nullptr);
+    EXPECT_TRUE(virtualAdmin->adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN);
+    ASSERT_TRUE(virtualAdmin->adminInfo_.accessiblePolicies_.size() == 1);
+    EXPECT_EQ(virtualAdmin->adminInfo_.accessiblePolicies_[0], plugin_->GetPolicyName());
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+    virtualAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID);
+    EXPECT_TRUE(virtualAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestGetDelegatedBundleNamesWithoutPermission
+ * @tc.desc: Test GetDelegatedBundleNames without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+
+    std::vector<std::string> policies;
+    ErrCode ret = edmMgr_->GetDelegatedBundleNames(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, policies);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestGetDelegatedBundleNamesSuc
+ * @tc.desc: Test GetDelegatedBundleNames success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
+
+    std::vector<std::string> policies;
+    ErrCode ret = edmMgr_->GetDelegatedBundleNames(ADMIN_PACKAGENAME, ADMIN_PACKAGENAME_1, policies);
+    ASSERT_TRUE(ret == ERR_OK);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
