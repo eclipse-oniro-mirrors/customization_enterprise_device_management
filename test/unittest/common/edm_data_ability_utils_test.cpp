@@ -73,6 +73,25 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromSettingsDataShare, TestSize.L
 }
 
 /**
+ * @tc.name: TestGetStringFromSettingsDataShareWithEdmServiceDisable
+ * @tc.desc: Test GetStringFromSettingsDataShare function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetStringFromSettingsDataShareWithEdmServiceDisable, TestSize.Level1)
+{
+    Utils::ResetTokenTypeAndUid();
+    Utils::SetEdmServiceDisable();
+
+    std::string result;
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_DEVICE_NAME, result);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(result.empty());
+
+    Utils::SetEdmInitialEnv();
+    Utils::SetEdmServiceEnable();
+}
+
+/**
  * @tc.name: TestGetIntFromSettingsDataShare
  * @tc.desc: Test GetIntFromSettingsDataShare function.
  * @tc.type: FUNC
@@ -98,6 +117,24 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestUpdateSettingsData, TestSize.Level1)
     std::string value = "30000";
     ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(KEY_SCREEN_OFF_TIME, value);
     ASSERT_TRUE(code == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUpdateSettingsData
+ * @tc.desc: Test UpdateSettingsData function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestUpdateSettingsDataWithEdmServiceDisable, TestSize.Level1)
+{
+    Utils::ResetTokenTypeAndUid();
+    Utils::SetEdmServiceDisable();
+
+    std::string value = "30000";
+    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(KEY_SCREEN_OFF_TIME, value);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    Utils::SetEdmInitialEnv();
+    Utils::SetEdmServiceEnable();
 }
 } // namespace TEST
 } // namespace EDM

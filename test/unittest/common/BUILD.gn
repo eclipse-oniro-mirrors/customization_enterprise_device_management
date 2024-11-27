@@ -34,6 +34,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "./external/edm_bundle_manager_impl_test.cpp",
     "./external/edm_os_account_manager_impl_test.cpp",
     "./external/external_manager_factory_test.cpp",
+    "./usb_device_id_test.cpp",
   ]
 
   configs = [
