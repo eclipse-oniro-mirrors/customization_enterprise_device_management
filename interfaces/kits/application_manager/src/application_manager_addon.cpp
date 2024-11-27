@@ -63,7 +63,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
 
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
@@ -74,15 +74,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
     std::vector<std::string> keepAliveApps;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, keepAliveApps, argv[ARR_INDEX_ONE]),
         "Parameter keepAliveApps error");
-    bool hasUserId = MatchValueType(env, argv[ARR_INDEX_TWO], napi_number);
     int32_t userId = 0;
-    if (hasUserId) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
-    } else {
-#ifdef OS_ACCOUNT_EDM_ENABLE
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-#endif
-    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     EDMLOGD(
         "EnableAdmin: elementName.bundlename %{public}s, "
         "elementName.abilityname:%{public}s",
@@ -115,22 +108,15 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
 
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-    bool hasUserId = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
     int32_t userId = 0;
-    if (hasUserId) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
-    } else {
-#ifdef OS_ACCOUNT_EDM_ENABLE
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-#endif
-    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
     EDMLOGD(
         "EnableAdmin: elementName.bundlename %{public}s, "
         "elementName.abilityname:%{public}s",

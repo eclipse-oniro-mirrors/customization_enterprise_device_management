@@ -35,6 +35,7 @@ const ErrCode ERR_TARGET_BUNDLE_NOT_EXIST = 2097241;
 const ErrCode ERR_NO_MAIN_ABILITY = 29360135;
 const ErrCode ERR_NO_STATUS_BAR_ABILITY = 29360136;
 const ErrCode ERR_NOT_ATTACHED_TO_STATUS_BAR = 29360137;
+const ErrCode ERR_CAPABILITY_NOT_SUPPORT = 2097230;
 
 ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
 {
@@ -43,7 +44,7 @@ ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
     permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_APPLICATION";
     permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
-    needSave_ = false;
+    needSave_ = true;
 }
 
 ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -148,7 +149,7 @@ ErrCode ManageKeepAliveAppsPlugin::RemoveKeepAliveApps(std::vector<std::string> 
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    int32_t res = 0;
+    int32_t res = EdmReturnErrCode::PARAM_ERROR;
     for (const auto &bundleName : keepAliveApps) {
         res = abilityManager->SetApplicationKeepAliveByEDM(bundleName, userId, false);
         if (res != ERR_OK) {
@@ -157,7 +158,7 @@ ErrCode ManageKeepAliveAppsPlugin::RemoveKeepAliveApps(std::vector<std::string> 
             return res;
         }
     }
-    return ERR_OK;
+    return res;
 }
 
 ErrCode ManageKeepAliveAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -233,7 +234,7 @@ void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res, std::string &errMessa
             break;
         case ERR_NO_MAIN_ABILITY:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "App does not have mainablity.";
+            errMessage = "App does not have mainability.";
             break;
         case ERR_NO_STATUS_BAR_ABILITY:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
@@ -243,6 +244,9 @@ void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res, std::string &errMessa
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
             errMessage = "App does not attach to status bar.";
             break;
+        case ERR_CAPABILITY_NOT_SUPPORT:
+            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
+            errMessage = "Capability not support.";
         default:
             break;
     }

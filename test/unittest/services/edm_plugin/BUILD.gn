@@ -112,6 +112,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/disallowed_running_bundles_plugin_test.cpp",
       "./src/manage_auto_start_apps_plugin_test.cpp",
+      "./src/manage_keep_alive_apps_plugin_test.cpp",
     ]
   }
 
@@ -453,6 +454,7 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+      "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
     ]
   }
 

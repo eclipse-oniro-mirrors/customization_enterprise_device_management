@@ -60,6 +60,7 @@ const std::string PERMISSION_MICROPHONE_CONTROL = "ohos.permission.MICROPHONE_CO
 const std::string PERMISSION_NETWORK_POLICY_MANAGE = "ohos.permission.MANAGE_NET_STRATEGY";
 const std::string PERMISSION_CAMERA = "ohos.permission.CAMERA";
 const std::string PERMISSION_CAMERA_CONTROL = "ohos.permission.CAMERA_CONTROL";
+const std::string PERMISSION_MANAGE_APP_KEEP_ALIVE_INTERNAL = "ohos.permission.MANAGE_APP_KEEP_ALIVE_INTERNAL";
 void Utils::ExecCmdSync(const std::string &cmd)
 {
     FILE *fp = popen(cmd.c_str(), "r");
@@ -132,6 +133,7 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_NETWORK_POLICY_MANAGE.c_str(),
         PERMISSION_CAMERA.c_str(),
         PERMISSION_CAMERA_CONTROL.c_str(),
+        PERMISSION_MANAGE_APP_KEEP_ALIVE_INTERNAL.c_str(),
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
     seteuid(Utils::EDM_UID);
