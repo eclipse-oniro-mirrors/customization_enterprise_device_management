@@ -67,6 +67,12 @@ public:
     void OnAppStop(const std::string &bundleName);
 
     void OnSystemUpdate(const UpdateInfo &updateInfo);
+
+    void OnAccountAdded(const int32_t accountId);
+
+    void OnAccountSwitched(const int32_t accountId);
+
+    void OnAccountRemoved(const int32_t accountId);
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 

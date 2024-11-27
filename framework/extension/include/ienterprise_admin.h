@@ -60,6 +60,24 @@ public:
      */
     virtual void OnSystemUpdate(const UpdateInfo &updateInfo) = 0;
 
+    /**
+     * Called when an account added on the device.
+     * @param accountId Indicates the accountId that has been added.
+     */
+    virtual void OnAccountAdded(const int32_t accountId) = 0;
+
+    /**
+     * Called when an account switched on the device.
+     * @param accountId Indicates the accountId that has been switched.
+     */
+    virtual void OnAccountSwitched(const int32_t accountId) = 0;
+
+    /**
+     * Called when an account removed on the device.
+     * @param accountId Indicates the accountId that has been removed.
+     */
+    virtual void OnAccountRemoved(const int32_t accountId) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -67,7 +85,10 @@ public:
         COMMAND_ON_BUNDLE_REMOVED = 4,
         COMMAND_ON_APP_START = 5,
         COMMAND_ON_APP_STOP = 6,
-        COMMAND_ON_SYSTEM_UPDATE = 7
+        COMMAND_ON_SYSTEM_UPDATE = 7,
+        COMMAND_ON_ACCOUNT_ADDED = 8,
+        COMMAND_ON_ACCOUNT_SWITCHED = 9,
+        COMMAND_ON_ACCOUNT_REMOVED = 10
     };
 };
 } // namespace EDM
