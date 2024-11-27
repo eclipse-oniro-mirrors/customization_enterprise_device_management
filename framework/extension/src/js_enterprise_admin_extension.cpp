@@ -220,6 +220,38 @@ void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnAccountAdded(const int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnAccountAdded");
+    auto task = [accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onAccountAdded", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnAccountSwitched(const int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnAccountSwitched");
+    auto task = [accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onAccountSwitched", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnAccountRemoved(const int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnAccountRemoved");
+    auto task = [accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onAccountRemoved", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
 {
     napi_value nSystemUpdateInfo = nullptr;

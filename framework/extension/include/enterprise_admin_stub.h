@@ -55,6 +55,12 @@ private:
     void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
 
     void OnSystemUpdateInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnAccountAddedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnAccountSwitchedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnAccountRemovedInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -87,5 +87,36 @@ void EnterpriseAdminStubImpl::OnSystemUpdate(const UpdateInfo &updateInfo)
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
+
+void EnterpriseAdminStubImpl::OnAccountAdded(const int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnAccountAdded(accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
+void EnterpriseAdminStubImpl::OnAccountSwitched(const int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnAccountSwitched(accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
+void EnterpriseAdminStubImpl::OnAccountRemoved(const int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnAccountRemoved(accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
 } // namespace EDM
 } // namespace OHOS

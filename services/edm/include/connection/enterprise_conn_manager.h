@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "ability_manager_interface.h"
+#include "enterprise_account_connection.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
 #include "enterprise_update_connection.h"
@@ -37,6 +38,8 @@ public:
         const std::string &bundleName, int32_t accountId);
     sptr<IEnterpriseConnection> CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
         const UpdateInfo &updateInfo);
+    sptr<IEnterpriseConnection> CreateAccountConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const int32_t accountId);
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };
 } // namespace EDM

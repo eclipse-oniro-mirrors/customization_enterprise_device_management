@@ -49,6 +49,12 @@ public:
     void OnAppStop(const std::string &bundleName) override;
 
     void OnSystemUpdate(const UpdateInfo &updateInfo) override;
+
+    void OnAccountAdded(const int32_t accountId) override;
+
+    void OnAccountSwitched(const int32_t accountId) override;
+
+    void OnAccountRemoved(const int32_t accountId) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

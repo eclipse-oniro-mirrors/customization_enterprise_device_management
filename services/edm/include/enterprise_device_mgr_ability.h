@@ -116,6 +116,8 @@ private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
 #endif
+    void OnCommonEventUserAdded(const EventFwk::CommonEventData &data);
+    void OnCommonEventUserSwitched(const EventFwk::CommonEventData &data);
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
@@ -124,6 +126,7 @@ private:
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
+    void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
 #ifdef PASTEBOARD_EDM_ENABLE
     void OnPasteboardServiceStart();
 #endif
