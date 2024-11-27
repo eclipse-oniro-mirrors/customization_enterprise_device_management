@@ -229,7 +229,8 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
 void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEventData &data)
 {
     int userIdToAdd = data.GetCode();
-    if (userIdToAdd == 0) {
+    if (userIdToAdd < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserAdded error userid:%{public}d", userIdToAdd);
         return;
     }
     EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserAdded %{public}d", userIdToAdd);
@@ -239,7 +240,8 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEv
 void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
 {
     int userIdToSwitch = data.GetCode();
-    if (userIdToSwitch == 0) {
+    if (userIdToSwitch < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error userid:%{public}d", userIdToSwitch);
         return;
     }
     EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
@@ -249,7 +251,8 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
 {
     int userIdToRemove = data.GetCode();
-    if (userIdToRemove == 0) {
+    if (userIdToRemove < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserRemoved error userid:%{public}d", userIdToRemove);
         return;
     }
     EDMLOGI("OnCommonEventUserRemoved");
