@@ -3603,7 +3603,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin, TestSize.Level1)
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, replaceAdmin.GetBundleName());
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
     ASSERT_TRUE(err == ERR_OK);
 }
 
@@ -3622,7 +3622,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin002, TestSize.Leve
     replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
     replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
     ASSERT_TRUE(err == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
@@ -3643,7 +3643,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin003, TestSize.Leve
     replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(false, replaceAdmin.GetBundleName());
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(ADMIN_PACKAGENAME, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
     ASSERT_TRUE(err == EdmReturnErrCode::COMPONENT_INVALID);
 }
 } // namespace TEST

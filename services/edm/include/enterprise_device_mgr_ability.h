@@ -71,7 +71,7 @@ public:
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
     ErrCode GetSuperAdmin(MessageParcel &reply) override;
-    ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin) override;
+    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin) override;
 
 protected:
     void OnStart() override;
@@ -112,6 +112,8 @@ private:
     ErrCode CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag);
     ErrCode CheckHandlePolicyPermission(FuncOperateType operateType, const std::string &bundleName,
         const std::string &policyName, const std::string &permissionName, int32_t userId);
+    ErrCode CheckReplaceAdmins(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
