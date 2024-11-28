@@ -67,6 +67,9 @@ static bool ElementArgToData(napi_env env, napi_value argv, MessageParcel &data,
     if (!isElement) {
         return false;
     }
+    if (methodSign.methodAttribute == MethodAttribute::GET) {
+        data.WriteInt32(HAS_ADMIN);
+    }
     data.WriteParcelable(&elementName);
     if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
         data.WriteString(methodSign.apiVersionTag);
