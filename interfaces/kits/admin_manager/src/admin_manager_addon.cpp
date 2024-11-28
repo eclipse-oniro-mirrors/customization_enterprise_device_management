@@ -216,7 +216,7 @@ napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info
     if (argc > ARGS_SIZE_ONE) {
         bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
         ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     EDMLOGD("DisableSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",
@@ -267,7 +267,7 @@ napi_value AdminManager::GetEnterpriseInfo(napi_env env, napi_callback_info info
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("GetEnterpriseInfo by callback");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetEnterpriseInfo", NativeGetEnterpriseInfo,
@@ -358,7 +358,7 @@ napi_value AdminManager::SetEnterpriseInfo(napi_env env, napi_callback_info info
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_TWO) {
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetEnterpriseInfo", NativeSetEnterpriseInfo,
@@ -400,7 +400,7 @@ napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
     if (argc > ARGS_SIZE_ONE) {
         bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
         ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn =
@@ -517,7 +517,7 @@ napi_value AdminManager::HandleManagedEvent(napi_env env, napi_callback_info inf
     ret = ParseManagedEvent(env, asyncCallbackInfo->managedEvent, argv[ARR_INDEX_ONE]);
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "managed event param error");
     if (argc > ARGS_SIZE_TWO) {
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     asyncCallbackInfo->subscribe = subscribe;
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SubscribeManagedEvent",
@@ -702,7 +702,7 @@ napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info i
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, policies, result);
     return result;
 }

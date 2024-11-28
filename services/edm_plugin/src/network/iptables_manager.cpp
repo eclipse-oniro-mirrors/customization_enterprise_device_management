@@ -42,8 +42,7 @@ std::shared_ptr<IptablesManager> IptablesManager::GetInstance()
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutexLock_);
         if (instance_ == nullptr) {
-            std::shared_ptr<IptablesManager> temp = std::make_shared<IptablesManager>();
-            instance_ = temp;
+            instance_ = std::make_shared<IptablesManager>();
         }
     }
     return instance_;

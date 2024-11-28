@@ -47,9 +47,9 @@ const char* const EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_default_dns_deny
 class RuleUtils {
 public:
     static std::string EnumToString(Action action);
-    static Action StringToAction(std::string action);
+    static Action StringToAction(const std::string &action);
     static std::string EnumToString(Protocol protocol);
-    static Protocol StringProtocl(std::string protocol);
+    static Protocol StringProtocl(const std::string &protocol);
 };
 } // namespace IPTABLES
 } // namespace EDM

@@ -22,18 +22,16 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<SystemManagerProxy> SystemManagerProxy::instance_ = nullptr;
-std::mutex SystemManagerProxy::mutexLock_;
+std::once_flag SystemManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 std::shared_ptr<SystemManagerProxy> SystemManagerProxy::GetSystemManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<SystemManagerProxy> temp = std::make_shared<SystemManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<SystemManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

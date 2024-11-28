@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::instance_ = nullptr;
-std::mutex NetworkManagerProxy::mutexLock_;
+std::once_flag NetworkManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 constexpr int32_t MAX_SIZE = 16;
@@ -35,13 +35,11 @@ NetworkManagerProxy::~NetworkManagerProxy() {}
 
 std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::GetNetworkManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<NetworkManagerProxy> temp = std::make_shared<NetworkManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<NetworkManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

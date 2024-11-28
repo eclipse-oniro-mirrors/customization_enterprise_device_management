@@ -39,7 +39,7 @@ public:
 
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
     int32_t AddOrRemoveAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,
         const std::vector<std::string> &deviceIds, std::string function);
 };

@@ -39,7 +39,7 @@ ErrCode EdmUtils::ParseStringToLong(const std::string &str, int64_t &result)
     const char* p = str.c_str();
     errno = 0;
     result = strtol(p, &end, EdmConstants::DECIMAL);
-    if (errno == ERANGE || end ==p || *end != '\0') {
+    if (errno == ERANGE || end == p || *end != '\0') {
         EDMLOGE("EdmUtils ParseStringToLong: parse str failed: %{public}s", p);
         return EdmReturnErrCode::PARAM_ERROR;
     }

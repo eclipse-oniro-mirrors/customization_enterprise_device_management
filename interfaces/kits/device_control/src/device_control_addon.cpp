@@ -62,7 +62,7 @@ napi_value DeviceControlAddon::ResetFactory(napi_env env, napi_callback_info inf
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_resetFactory argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "ResetFactory",
         NativeResetFactory, NativeVoidCallbackComplete);

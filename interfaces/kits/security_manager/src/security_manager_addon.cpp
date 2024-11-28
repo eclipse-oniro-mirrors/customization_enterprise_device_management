@@ -80,7 +80,7 @@ napi_value SecurityManagerAddon::GetSecurityPatchTag(napi_env env, napi_callback
         return nullptr;
     }
     napi_value securityPatchTag;
-    napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &securityPatchTag);
+    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &securityPatchTag));
     return securityPatchTag;
 }
 
@@ -116,10 +116,10 @@ napi_value SecurityManagerAddon::ConvertDeviceEncryptionStatus(napi_env env,
     DeviceEncryptionStatus &deviceEncryptionStatus)
 {
     napi_value objDeviceEncryptionStatus = nullptr;
-    napi_create_object(env, &objDeviceEncryptionStatus);
+    NAPI_CALL(env, napi_create_object(env, &objDeviceEncryptionStatus));
     napi_value nIsEncrypted;
-    napi_get_boolean(env, deviceEncryptionStatus.isEncrypted, &nIsEncrypted);
-    napi_set_named_property(env, objDeviceEncryptionStatus, "isEncrypted", nIsEncrypted);
+    NAPI_CALL(env, napi_get_boolean(env, deviceEncryptionStatus.isEncrypted, &nIsEncrypted));
+    NAPI_CALL(env, napi_set_named_property(env, objDeviceEncryptionStatus, "isEncrypted", nIsEncrypted));
     return objDeviceEncryptionStatus;
 }
 
@@ -189,13 +189,14 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     napi_value complexityReg;
     napi_value validityPeriod;
     napi_value additionalDescription;
-    napi_create_object(env, &ret);
-    napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg);
-    napi_create_int64(env, policy.validityPeriod, &validityPeriod);
-    napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription);
-    napi_set_named_property(env, ret, "complexityRegex", complexityReg);
-    napi_set_named_property(env, ret, "validityPeriod", validityPeriod);
-    napi_set_named_property(env, ret, "additionalDescription", additionalDescription);
+    NAPI_CALL(env, napi_create_object(env, &ret));
+    NAPI_CALL(env, napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg));
+    NAPI_CALL(env, napi_create_int64(env, policy.validityPeriod, &validityPeriod));
+    NAPI_CALL(env,
+        napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription));
+    NAPI_CALL(env, napi_set_named_property(env, ret, "complexityRegex", complexityReg));
+    NAPI_CALL(env, napi_set_named_property(env, ret, "validityPeriod", validityPeriod));
+    NAPI_CALL(env, napi_set_named_property(env, ret, "additionalDescription", additionalDescription));
     return ret;
 }
 
@@ -243,7 +244,7 @@ napi_value SecurityManagerAddon::GetSecurityStatus(napi_env env, napi_callback_i
         return nullptr;
     }
     napi_value status;
-    napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &status);
+    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &status));
     return status;
 }
 
@@ -434,7 +435,7 @@ napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callba
         return nullptr;
     }
     napi_value clipboardPolicy;
-    napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &clipboardPolicy);
+    NAPI_CALL(env, napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &clipboardPolicy));
     return clipboardPolicy;
 }
 
@@ -468,7 +469,7 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
     napi_valuetype imageValueType = napi_undefined;
-    napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType);
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType));
     ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object || imageValueType == napi_string,
         "image type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number),

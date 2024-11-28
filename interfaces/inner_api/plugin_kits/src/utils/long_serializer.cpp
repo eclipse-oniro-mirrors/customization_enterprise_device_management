@@ -22,7 +22,12 @@ namespace OHOS {
 namespace EDM {
 bool LongSerializer::Deserialize(const std::string &jsonString, int64_t &dataObj)
 {
-    dataObj = strtoll(jsonString.c_str(), nullptr, EdmConstants::DECIMAL);
+    char* endptr;
+    errno = 0;
+    dataObj = strtol(jsonString.c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == jsonString.c_str() || *endptr != '\0') {
+        return false;
+    }
     return true;
 }
 

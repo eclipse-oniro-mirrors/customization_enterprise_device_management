@@ -90,7 +90,13 @@ ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(
         EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare empty.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    result = strtol(valueStr.c_str(), nullptr, EdmConstants::DECIMAL);
+    char* endptr;
+    errno = 0;
+    result = strtol(valueStr.c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == valueStr.c_str() || *endptr != '\0') {
+        EDMLOGE("EdmDataAbilityUtils::GetIntFromSettingsDataShare strtol error.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 

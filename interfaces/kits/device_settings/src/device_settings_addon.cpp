@@ -242,7 +242,7 @@ napi_value DeviceSettingsAddon::GetScreenOffTime(napi_env env, napi_callback_inf
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("GetScreenOffTime argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetScreenOffTime", NativeGetScreenOffTime,
         NativeNumberCallbackComplete);
@@ -296,7 +296,7 @@ napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callba
     ASSERT_AND_THROW_PARAM_ERROR(env, retCertBlob, "element cert blob error");
 
     if (argc > ARGS_SIZE_TWO) {
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallUserCertificate",
         NativeInstallUserCertificate, NativeStringCallbackComplete);
@@ -351,7 +351,7 @@ napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_call
     ASSERT_AND_THROW_PARAM_ERROR(env, retAlias, "element alias error");
 
     if (argc > ARGS_SIZE_TWO) {
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
         NativeUninstallUserCertificate, NativeVoidCallbackComplete);
@@ -472,7 +472,7 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value result;
-    napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result);
+    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
     return result;
 }
 

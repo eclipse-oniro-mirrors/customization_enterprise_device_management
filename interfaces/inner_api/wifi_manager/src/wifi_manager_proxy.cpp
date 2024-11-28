@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<WifiManagerProxy> WifiManagerProxy::instance_ = nullptr;
-std::mutex WifiManagerProxy::mutexLock_;
+std::once_flag WifiManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 WifiManagerProxy::WifiManagerProxy() {}
@@ -32,13 +32,11 @@ WifiManagerProxy::~WifiManagerProxy() {}
 
 std::shared_ptr<WifiManagerProxy> WifiManagerProxy::GetWifiManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<WifiManagerProxy> temp = std::make_shared<WifiManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<WifiManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

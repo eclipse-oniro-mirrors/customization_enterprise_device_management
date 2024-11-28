@@ -31,7 +31,7 @@ public:
 private:
     int32_t GetPolicies(AppExecFwk::ElementName *admin, const std::string &appId, std::string &policies);
     static std::shared_ptr<BrowserProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

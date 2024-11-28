@@ -27,7 +27,6 @@ ArrayMapSerializer::~ArrayMapSerializer()
 {
     if (serializerInner_ != nullptr) {
         serializerInner_.reset();
-        serializerInner_ = nullptr;
     }
 }
 } // namespace EDM

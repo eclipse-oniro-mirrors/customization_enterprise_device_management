@@ -89,7 +89,6 @@ void PluginSingleton<CT, DT>::DestroyPlugin()
     std::lock_guard<std::mutex> lock(mutexLock_);
     if (pluginInstance_ != nullptr) {
         pluginInstance_.reset();
-        pluginInstance_ = nullptr;
     }
 }
 

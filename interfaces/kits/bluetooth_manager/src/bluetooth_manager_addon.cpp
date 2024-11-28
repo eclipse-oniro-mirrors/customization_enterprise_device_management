@@ -139,7 +139,7 @@ napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callbac
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
@@ -178,11 +178,11 @@ napi_value BluetoothManagerAddon::GetAllowedBluetoothDevices(napi_env env, napi_
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    NAPI_CALL(env, napi_create_array(env, &result));
     for (size_t i = 0; i < deviceIds.size(); i++) {
         napi_value allowedDevices = nullptr;
-        napi_create_string_utf8(env, deviceIds[i].c_str(), NAPI_AUTO_LENGTH, &allowedDevices);
-        napi_set_element(env, result, i, allowedDevices);
+        NAPI_CALL(env, napi_create_string_utf8(env, deviceIds[i].c_str(), NAPI_AUTO_LENGTH, &allowedDevices));
+        NAPI_CALL(env, napi_set_element(env, result, i, allowedDevices));
     }
     return result;
 }

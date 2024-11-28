@@ -78,7 +78,7 @@ napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info i
         return nullptr;
     }
     napi_value napiInfo;
-    napi_create_string_utf8(env, deviceInfo.c_str(), NAPI_AUTO_LENGTH, &napiInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, deviceInfo.c_str(), NAPI_AUTO_LENGTH, &napiInfo));
     return napiInfo;
 }
 
@@ -109,7 +109,7 @@ napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info,
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_GetDeviceInfo argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     asyncCallbackInfo->policyCode = code;
     napi_value asyncWorkReturn =

@@ -18,12 +18,15 @@
 namespace OHOS {
 namespace EDM {
 IPluginManager* IPluginManager::pluginManagerInstance_ = nullptr;
+std::once_flag IPluginManager::flag_;
 
 IPluginManager* IPluginManager::GetInstance()
 {
-    if (pluginManagerInstance_ == nullptr) {
-        pluginManagerInstance_ = new (std::nothrow) IPluginManager();
-    }
+    std::call_once(flag_, []() {
+        if (pluginManagerInstance_ == nullptr) {
+            pluginManagerInstance_ = new (std::nothrow) IPluginManager();
+        }
+    });
     return pluginManagerInstance_;
 }
 } // namespace EDM

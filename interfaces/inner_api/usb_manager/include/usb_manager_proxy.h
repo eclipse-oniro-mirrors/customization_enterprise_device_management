@@ -44,7 +44,7 @@ public:
 
 private:
     static std::shared_ptr<UsbManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -44,7 +44,9 @@ PluginManager::~PluginManager()
     pluginsCode_.clear();
     pluginsName_.clear();
     for (auto handle : pluginHandles_) {
-        dlclose(handle);
+        if (handle != nullptr) {
+            dlclose(handle);
+        }
     }
     pluginHandles_.clear();
 }
@@ -136,12 +138,12 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         }
         pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
         pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
-        if (extensionPluginMap_.count(plugin->GetCode()) > 0) {
+        if (extensionPluginMap_.find(plugin->GetCode()) != extensionPluginMap_.end()) {
             EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
                 extensionPluginMap_[plugin->GetCode()]);
             plugin->SetExtensionPlugin(GetPluginByCode(extensionPluginMap_[plugin->GetCode()]));
         }
-        if (executeStrategyMap_.count(plugin->GetCode()) > 0) {
+        if (executeStrategyMap_.find(plugin->GetCode()) != executeStrategyMap_.end()) {
             plugin->SetExecuteStrategy(CreateExecuteStrategy(executeStrategyMap_[plugin->GetCode()]));
         } else {
             plugin->SetExecuteStrategy(CreateExecuteStrategy(ExecuteStrategy::SINGLE));

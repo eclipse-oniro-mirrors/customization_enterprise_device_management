@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<DevicePoliciesStorageRdb> DevicePoliciesStorageRdb::instance_ = nullptr;
-std::mutex DevicePoliciesStorageRdb::mutexLock_;
+std::once_flag DevicePoliciesStorageRdb::flag_;
 
 DevicePoliciesStorageRdb::DevicePoliciesStorageRdb()
 {
@@ -65,12 +65,11 @@ void DevicePoliciesStorageRdb::CreateDeviceCombinedPoliciesTable()
 
 std::shared_ptr<DevicePoliciesStorageRdb> DevicePoliciesStorageRdb::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
             instance_ = std::make_shared<DevicePoliciesStorageRdb>();
         }
-    }
+    });
     return instance_;
 }
 

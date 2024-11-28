@@ -27,16 +27,15 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<AdminManager> AdminManager::instance_;
-std::mutex AdminManager::mutexLock_;
+std::once_flag AdminManager::flag_;
 
 std::shared_ptr<AdminManager> AdminManager::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
             instance_.reset(new (std::nothrow) AdminManager());
         }
-    }
+    });
     return instance_;
 }
 

@@ -193,7 +193,7 @@ napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_IsWifiActive argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsWifiActive",
         NativeIsWifiActive, NativeBoolCallbackComplete);
@@ -255,7 +255,7 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isDisabled, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
@@ -295,7 +295,7 @@ napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info inf
 
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetWifiProfile argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetWifiProfile",
         NativeSetWifiProfile, NativeVoidCallbackComplete);
@@ -573,7 +573,7 @@ napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info i
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_get_boolean(env, isActive, &result);
+    NAPI_CALL(env, napi_get_boolean(env, isActive, &result));
     return result;
 }
 

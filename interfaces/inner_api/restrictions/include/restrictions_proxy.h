@@ -41,7 +41,7 @@ public:
         std::vector<std::string> &result);
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
     bool GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &ipcCode);
     std::unordered_map<std::string, std::uint32_t> featureInterfaceMap_ = {
         {"snapshotSkip", EdmInterfaceCode::SNAPSHOT_SKIP}

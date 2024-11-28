@@ -31,7 +31,7 @@ public:
 private:
     int32_t GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode);
     static std::shared_ptr<DeviceInfoProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -38,7 +38,7 @@ public:
     int32_t IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result);
 private:
     static std::shared_ptr<WifiManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

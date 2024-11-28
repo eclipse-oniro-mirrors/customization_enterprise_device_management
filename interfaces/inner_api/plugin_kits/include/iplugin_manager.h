@@ -42,6 +42,7 @@ public:
 
 protected:
     static IPluginManager* pluginManagerInstance_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

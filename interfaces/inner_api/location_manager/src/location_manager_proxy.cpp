@@ -20,18 +20,16 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<LocationManagerProxy> LocationManagerProxy::instance_ = nullptr;
-std::mutex LocationManagerProxy::mutexLock_;
+std::once_flag LocationManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 std::shared_ptr<LocationManagerProxy> LocationManagerProxy::GetLocationManagerProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<LocationManagerProxy> temp = std::make_shared<LocationManagerProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<LocationManagerProxy>();
         }
-    }
+    });
     return instance_;
 }
 

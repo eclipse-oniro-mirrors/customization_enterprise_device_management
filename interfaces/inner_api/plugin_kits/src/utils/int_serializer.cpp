@@ -23,7 +23,12 @@ namespace EDM {
 
 bool IntSerializer::Deserialize(const std::string &jsonString, int32_t &dataObj)
 {
-    dataObj = strtol(jsonString.c_str(), nullptr, EdmConstants::DECIMAL);
+    char* endptr;
+    errno = 0;
+    dataObj = strtol(jsonString.c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == jsonString.c_str() || *endptr != '\0') {
+        return false;
+    }
     return true;
 }
 

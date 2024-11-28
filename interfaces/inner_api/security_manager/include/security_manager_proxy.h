@@ -50,7 +50,7 @@ private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     bool WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data);
     static std::shared_ptr<SecurityManagerProxy> instance_;
-    static std::mutex mutexLock_;
+    static std::once_flag flag_;
 };
 } // namespace EDM
 } // namespace OHOS

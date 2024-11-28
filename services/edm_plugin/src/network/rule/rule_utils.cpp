@@ -32,7 +32,7 @@ std::string RuleUtils::EnumToString(Action action)
     return {};
 }
 
-Action RuleUtils::StringToAction(std::string action)
+Action RuleUtils::StringToAction(const std::string &action)
 {
     if (action == ACCEPT_TARGET) {
         return Action::ALLOW;
@@ -59,7 +59,7 @@ std::string RuleUtils::EnumToString(Protocol protocol)
     }
     return {};
 }
-Protocol RuleUtils::StringProtocl(std::string protocol)
+Protocol RuleUtils::StringProtocl(const std::string &protocol)
 {
     if (protocol == PROTOCOL_ALL) {
         return Protocol::ALL;

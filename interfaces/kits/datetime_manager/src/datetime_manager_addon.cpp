@@ -58,7 +58,7 @@ napi_value DatetimeManagerAddon::SetDateTime(napi_env env, napi_callback_info in
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "time param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_SetDateTime argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetDateTime",
@@ -114,7 +114,7 @@ napi_value DatetimeManagerAddon::DisallowModifyDateTime(napi_env env, napi_callb
     ASSERT_AND_THROW_PARAM_ERROR(env, ret, "disallow param error");
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_DisallowModifyDateTime argc == ARGS_SIZE_THREE");
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisallowModifyDateTime",
@@ -175,7 +175,7 @@ napi_value DatetimeManagerAddon::IsModifyDateTimeDisallowed(napi_env env, napi_c
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     if (argc > ARGS_SIZE_ONE) {
         EDMLOGD("NAPI_IsModifyDateTimeDisallowed argc == ARGS_SIZE_TWO");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
+        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsModifyDateTimeDisallowed",
         NativeIsModifyDateTimeDisallowed, NativeBoolCallbackComplete);

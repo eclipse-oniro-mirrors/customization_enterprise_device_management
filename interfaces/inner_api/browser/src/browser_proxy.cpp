@@ -22,18 +22,16 @@
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<BrowserProxy> BrowserProxy::instance_ = nullptr;
-std::mutex BrowserProxy::mutexLock_;
+std::once_flag BrowserProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 std::shared_ptr<BrowserProxy> BrowserProxy::GetBrowserProxy()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
+    std::call_once(flag_, []() {
         if (instance_ == nullptr) {
-            std::shared_ptr<BrowserProxy> temp = std::make_shared<BrowserProxy>();
-            instance_ = temp;
+            instance_ = std::make_shared<BrowserProxy>();
         }
-    }
+    });
     return instance_;
 }
 

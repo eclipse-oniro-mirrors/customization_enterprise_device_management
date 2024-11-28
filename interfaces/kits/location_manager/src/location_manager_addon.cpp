@@ -100,7 +100,7 @@ napi_value LocationManagerAddon::GetLocationPolicy(napi_env env, napi_callback_i
         return nullptr;
     }
     napi_value locationPolicy;
-    napi_create_int32(env, static_cast<int32_t>(res), &locationPolicy);
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(res), &locationPolicy));
     return locationPolicy;
 }
 }

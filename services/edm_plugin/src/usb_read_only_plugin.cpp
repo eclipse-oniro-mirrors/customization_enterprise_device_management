@@ -242,7 +242,13 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std
 {
     EDMLOGI("UsbReadOnlyPlugin OnAdminRemove adminName: %{public}s, userId: %{public}d, value: %{public}s",
         adminName.c_str(), userId, policyData.c_str());
-    int32_t data = strtol(policyData.c_str(), nullptr, EdmConstants::DECIMAL);
+    char* endptr;
+    errno = 0;
+    int32_t data = strtol(policyData.c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == policyData.c_str() || *endptr != '\0') {
+        EDMLOGE("UsbReadOnlyPlugin strtol Error, policyData: %{public}s", policyData.c_str());
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     if (data == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
         ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(false);
         if (disableUsbRet != ERR_OK) {
