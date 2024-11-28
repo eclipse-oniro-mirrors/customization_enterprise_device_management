@@ -29,9 +29,12 @@ public:
     ~AccountManagerProxy();
     static std::shared_ptr<AccountManagerProxy> GetAccountManagerProxy();
     int32_t DisallowAddLocalAccount(AppExecFwk::ElementName &admin, bool isDisallow);
+    int32_t DisallowAddLocalAccount(MessageParcel &data);
     int32_t IsAddLocalAccountDisallowed(AppExecFwk::ElementName *admin, bool &result);
     int32_t DisallowAddOsAccountByUser(AppExecFwk::ElementName &admin, int32_t userId, bool isDisallow);
+    int32_t DisallowAddOsAccountByUser(MessageParcel &data);
     int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
+    int32_t IsAddOsAccountByUserDisallowed(MessageParcel &data, bool &result);
 #ifdef OS_ACCOUNT_EDM_ENABLE
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
         OHOS::AccountSA::OsAccountInfo &accountInfo);

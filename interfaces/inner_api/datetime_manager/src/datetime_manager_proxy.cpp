@@ -44,12 +44,17 @@ int32_t DatetimeManagerProxy::SetDateTime(AppExecFwk::ElementName &admin, int64_
 {
     EDMLOGD("DatetimeManagerProxy::SetDateTime");
     MessageParcel data;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(permissionTag);
     data.WriteInt64(time);
+    return this->SetDateTime(data);
+}
+
+int32_t DatetimeManagerProxy::SetDateTime(MessageParcel &data)
+{
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -60,11 +65,23 @@ int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &ad
         EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
+int32_t DatetimeManagerProxy::DisallowModifyDateTime(MessageParcel &data)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(data,
+        EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
+}
+
 int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result)
 {
     EDMLOGD("DatetimeManagerProxy::IsModifyDateTimeDisallowed");
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
         result, EdmConstants::PERMISSION_TAG_VERSION_11);
+}
+
+int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(MessageParcel &data, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
+        result);
 }
 } // namespace EDM
 } // namespace OHOS
