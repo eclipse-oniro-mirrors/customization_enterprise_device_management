@@ -55,6 +55,18 @@ int32_t AccountManagerProxy::DisallowAddLocalAccount(AppExecFwk::ElementName &ad
 #endif
 }
 
+int32_t AccountManagerProxy::DisallowAddLocalAccount(MessageParcel &data)
+{
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    EDMLOGD("AccountManagerProxy::DisallowAddLocalAccount");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    return proxy->SetPolicyDisabled(data, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT);
+#else
+    EDMLOGW("AccountManagerProxy::DisallowAddLocalAccount Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
 int32_t AccountManagerProxy::IsAddLocalAccountDisallowed(AppExecFwk::ElementName *admin, bool &result)
 {
 #ifdef OS_ACCOUNT_EDM_ENABLE
@@ -63,6 +75,20 @@ int32_t AccountManagerProxy::IsAddLocalAccountDisallowed(AppExecFwk::ElementName
     return proxy->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, result);
 #else
     EDMLOGW("AccountManagerProxy::IsAddLocalAccountDisallowed Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
+int32_t AccountManagerProxy::DisallowAddOsAccountByUser(MessageParcel &data)
+{
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    EDMLOGD("AccountManagerProxy::DisallowAddOsAccountByUser");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER);
+    return proxy->HandleDevicePolicy(funcCode, data);
+#else
+    EDMLOGW("AccountManagerProxy::DisallowAddOsAccountByUser Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
@@ -110,6 +136,18 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(AppExecFwk::ElementN
         data.WriteInt32(WITHOUT_ADMIN);
     }
     data.WriteInt32(userId);
+    return this->IsAddOsAccountByUserDisallowed(data, result);
+#else
+    EDMLOGW("AccountManagerProxy::IsAddOsAccountByUserDisallowed Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
+int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(MessageParcel &data,
+    bool &result)
+{
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    EDMLOGD("AccountManagerProxy::IsAddOsAccountByUserDisallowed");
     MessageParcel reply;
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, data, reply);

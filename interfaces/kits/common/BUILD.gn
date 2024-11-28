@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,20 +14,22 @@
 import("//build/ohos.gni")
 import("../../../common/config/common.gni")
 
-ohos_shared_library("accountmanager") {
+ohos_shared_library("napi_edm_common") {
   include_dirs = [
     "include",
-    "../common/include",
+    "./include",
+    "../../../common/native/include/",
   ]
 
-  sources = [ "./src/account_manager_addon.cpp" ]
+  sources = [
+    "./src/napi_edm_adapter.cpp",
+    "./src/napi_edm_common.cpp",
+    "./src/napi_edm_error.cpp",
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [
-    "../../inner_api:edmservice_kits",
-    "../common:napi_edm_common",
-  ]
+  deps = [ "../../inner_api:edmservice_kits" ]
 
   external_deps = [
     "ability_base:want",
@@ -37,16 +39,6 @@ ohos_shared_library("accountmanager") {
     "napi:ace_napi",
   ]
 
-  defines = []
-  if (os_account_edm_enable) {
-    external_deps += [
-      "os_account:domain_account_innerkits",
-      "os_account:os_account_innerkits",
-    ]
-    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
-  }
-
-  relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -56,6 +48,7 @@ ohos_shared_library("accountmanager") {
     ubsan = true
   }
   branch_protector_ret = "pac_ret"
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }

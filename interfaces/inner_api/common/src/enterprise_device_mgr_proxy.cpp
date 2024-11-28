@@ -380,6 +380,11 @@ int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName
         }
         data.WriteInt32(WITHOUT_ADMIN);
     }
+    return IsPolicyDisabled(data, policyCode, result);
+}
+
+int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result)
+{
     MessageParcel reply;
     GetPolicy(policyCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
@@ -541,6 +546,16 @@ bool EnterpriseDeviceMgrProxy::GetPolicyValue(AppExecFwk::ElementName *admin, in
 {
     MessageParcel reply;
     if (!GetPolicyData(admin, policyCode, userId, reply)) {
+        return false;
+    }
+    reply.ReadString(policyData);
+    return true;
+}
+
+bool EnterpriseDeviceMgrProxy::GetPolicyValue(MessageParcel &data, uint32_t policyCode, std::string &policyData)
+{
+    MessageParcel reply;
+    if (!GetPolicy(policyCode, data, reply)) {
         return false;
     }
     reply.ReadString(policyData);
@@ -711,6 +726,13 @@ int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(const AppExecFwk::ElementNam
     data.WriteParcelable(&admin);
     data.WriteString(permissionTag);
     data.WriteBool(isDisabled);
+    return HandleDevicePolicy(funcCode, data);
+}
+
+int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(MessageParcel &data,
+    uint32_t policyCode)
+{
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
     return HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
