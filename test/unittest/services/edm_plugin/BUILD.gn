@@ -47,6 +47,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/get_device_encryption_status_plugin_test.cpp",
     "./src/get_security_patch_tag_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
+    "./src/managed_browser_policy_plugin_test.cpp",
     "./src/network/executer/executer_utils_mock.cpp",
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
@@ -54,6 +55,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_watermark_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
+    "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
   ]
 
@@ -319,6 +321,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/get_security_patch_tag_plugin.cpp",
     "../../../../services/edm_plugin/src/inactive_user_freeze_plugin.cpp",
     "../../../../services/edm_plugin/src/install_plugin.cpp",
+    "../../../../services/edm_plugin/src/managed_browser_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/ntp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
@@ -328,6 +331,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/installer_callback.cpp",
+    "../../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/watermark_application_observer.cpp",

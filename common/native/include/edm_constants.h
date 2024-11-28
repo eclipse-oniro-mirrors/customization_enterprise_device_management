@@ -42,10 +42,17 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
+    const char* const PERMISSION_TAG_NORMAL = "normal";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
 
+    namespace Browser {
+        const char* const GET_MANAGED_BROWSER_VERSION = "version";
+        const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";
+        const char* const GET_SELF_MANAGED_BROWSER_FILE_DATA = "selfFileData";
+        const char* const BROWSER_WITHOUT_PERMISSION = "withoutPermission";
+    }
 
     namespace DeviceInfo {
         const char* const DEVICE_NAME = "deviceName";
