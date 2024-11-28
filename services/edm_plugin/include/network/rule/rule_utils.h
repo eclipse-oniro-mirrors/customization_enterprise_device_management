@@ -49,7 +49,7 @@ public:
     static std::string EnumToString(Action action);
     static Action StringToAction(const std::string &action);
     static std::string EnumToString(Protocol protocol);
-    static Protocol StringProtocl(const std::string &protocol);
+    static Protocol StringProtocol(const std::string &protocol);
 };
 } // namespace IPTABLES
 } // namespace EDM

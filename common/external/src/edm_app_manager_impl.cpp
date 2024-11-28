@@ -26,7 +26,7 @@ ErrCode EdmAppManagerImpl::RegisterApplicationStateObserver(
     const sptr<AppExecFwk::IApplicationStateObserver>& observer)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IAppMgr> proxy =  iface_cast<AppExecFwk::IAppMgr>(remoteObject);
+    sptr<AppExecFwk::IAppMgr> proxy = iface_cast<AppExecFwk::IAppMgr>(remoteObject);
     if (proxy && !proxy->RegisterApplicationStateObserver(observer)) {
         EDMLOGI("EdmAppManagerImpl::RegisterApplicationStateObserver success.");
         return ERR_OK;
@@ -39,7 +39,7 @@ ErrCode EdmAppManagerImpl::UnregisterApplicationStateObserver(
     const sptr<AppExecFwk::IApplicationStateObserver>& observer)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IAppMgr> proxy =  iface_cast<AppExecFwk::IAppMgr>(remoteObject);
+    sptr<AppExecFwk::IAppMgr> proxy = iface_cast<AppExecFwk::IAppMgr>(remoteObject);
     if (proxy && !proxy->UnregisterApplicationStateObserver(observer)) {
         EDMLOGI("EdmAppManagerImpl::UnregisterApplicationStateObserver success.");
         return ERR_OK;

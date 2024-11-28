@@ -17,6 +17,8 @@
 
 #include <unistd.h>
 
+#include "edm_log.h"
+
 namespace OHOS {
 namespace EDM {
 
@@ -119,7 +121,9 @@ void UpdatePolicyUtils::ClosePackagesFileHandle(std::vector<Package> &packages)
 {
     for (auto &package : packages) {
         if (package.fd >= 0) {
-            close(package.fd);
+            if (close(package.fd) != 0) {
+                EDMLOGW("ClosePackagesFileHandle failed");
+            }
             package.fd = -1;
         }
     }

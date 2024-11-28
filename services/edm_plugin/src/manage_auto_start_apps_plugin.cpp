@@ -30,7 +30,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
-const std::string SPERATOR = "/";
+const std::string SEPARATOR = "/";
 
 void ManageAutoStartAppsPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<ManageAutoStartAppsPlugin, std::vector<std::string>>> ptr)
@@ -118,7 +118,7 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
 
     std::vector<std::string> autoStartAppsInfo;
     std::for_each(infoList.begin(), infoList.end(), [&](const OHOS::AbilityRuntime::AutoStartupInfo &Info) {
-        std::string appInfo = Info.bundleName + SPERATOR + Info.abilityName;
+        std::string appInfo = Info.bundleName + SEPARATOR + Info.abilityName;
         autoStartAppsInfo.push_back(appInfo);
     });
     reply.WriteInt32(ERR_OK);
@@ -208,7 +208,7 @@ void ManageAutoStartAppsPlugin::OnAdminRemoveDone(const std::string &adminName, 
 bool ManageAutoStartAppsPlugin::ParseAutoStartAppWant(std::string appWant, std::string &bundleName,
     std::string &abilityName)
 {
-    size_t index = appWant.find(SPERATOR);
+    size_t index = appWant.find(SEPARATOR);
     if (index != appWant.npos) {
         bundleName = appWant.substr(0, index);
         abilityName = appWant.substr(index + 1);

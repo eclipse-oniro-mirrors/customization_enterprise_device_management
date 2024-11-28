@@ -325,12 +325,12 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetFirewallRules fail. %{public}d", ret);
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetDomainFilterRules fail. %{public}d", ret);
         return ret;
     }
     int32_t size = reply.ReadInt32();
     if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetFirewallRules size overlimit. size: %{public}d", size);
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetDomainFilterRules size overlimit. size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     for (int32_t i = 0; i < size; i++) {

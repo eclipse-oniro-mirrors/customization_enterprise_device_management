@@ -42,14 +42,16 @@ public:
     bool QueryCombinedPolicy(int32_t userId, PolicyItemsMap &itemsMap);
     bool QueryAllUserId(std::vector<int32_t> &userIds);
 private:
-    void CreateDeviceAdminPoliciesTable();
-    void CreateDeviceCombinedPoliciesTable();
     void PraseAdminPolicies(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         std::unordered_map<std::string, PolicyItemsMap> &adminPolicies);
     void PrasePolicyAdmins(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         std::unordered_map<std::string, AdminValueItemsMap> &policyAdmins);
+    static bool CreateDeviceAdminPoliciesTable();
+    static bool CreateDeviceCombinedPoliciesTable();
     static std::shared_ptr<DevicePoliciesStorageRdb> instance_;
     static std::once_flag flag_;
+    static bool isAdminPoliciesTableInit_;
+    static bool isCombinedPoliciesTableInit_;
 };
 }  // namespace EDM
 }  // namespace OHOS

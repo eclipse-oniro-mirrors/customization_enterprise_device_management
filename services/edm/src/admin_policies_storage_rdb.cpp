@@ -23,10 +23,15 @@ namespace OHOS {
 namespace EDM {
 std::shared_ptr<AdminPoliciesStorageRdb> AdminPoliciesStorageRdb::instance_ = nullptr;
 std::once_flag AdminPoliciesStorageRdb::flag_;
+bool AdminPoliciesStorageRdb::isAdminPoliciesTableInit_ = false;
 
 AdminPoliciesStorageRdb::AdminPoliciesStorageRdb()
 {
     EDMLOGD("AdminPoliciesStorageRdb::create database.");
+}
+
+bool AdminPoliciesStorageRdb::CreateAdminPoliciesTable()
+{
     std::string createTableSql = "CREATE TABLE IF NOT EXISTS ";
     createTableSql.append(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " (")
         .append(EdmRdbFiledConst::FILED_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,")
@@ -43,14 +48,20 @@ AdminPoliciesStorageRdb::AdminPoliciesStorageRdb()
         .append(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
-        edmRdbDataManager->CreateTable(createTableSql);
-    } else {
-        EDMLOGE("AdminPoliciesStorageRdb::create database admin_policies failed.");
+        return edmRdbDataManager->CreateTable(createTableSql);
     }
+    EDMLOGE("AdminPoliciesStorageRdb::create database admin_policies failed.");
+    return false;
 }
 
 std::shared_ptr<AdminPoliciesStorageRdb> AdminPoliciesStorageRdb::GetInstance()
 {
+    if (!isAdminPoliciesTableInit_) {
+        isAdminPoliciesTableInit_ = CreateAdminPoliciesTable();
+    }
+    if (!isAdminPoliciesTableInit_) {
+        return nullptr;
+    }
     std::call_once(flag_, []() {
         if (instance_ == nullptr) {
             instance_ = std::make_shared<AdminPoliciesStorageRdb>();

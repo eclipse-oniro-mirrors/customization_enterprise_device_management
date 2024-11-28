@@ -41,7 +41,7 @@ public:
     bool SetPowerPolicyAction(uint32_t action);
 
     [[nodiscard]] PowerPolicyAction GetPowerPolicyAction() const;
-    [[nodiscard]] uint32_t GetDealyTime() const;
+    [[nodiscard]] uint32_t GetDelayTime() const;
 
 private:
     PowerPolicyAction powerPolicyAction_ = PowerPolicyAction::AUTO_SUSPEND;
