@@ -48,6 +48,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t MANAGED_EVENTS_INVALID = 9200008;
     constexpr uint32_t AUTHORIZE_PERMISSION_FAILED = 9200009;
     constexpr uint32_t CONFIGURATION_CONFLICT_FAILED = 9200010;
+    constexpr uint32_t REPLACE_ADMIN_FAILED = 9200011;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;
