@@ -30,6 +30,7 @@ public:
     static std::string Utf16ToUtf8(const std::u16string &str16);
     static void ClearString(std::string &str);
     static void ClearCharArray(char* &str, size_t size);
+    static bool CheckRealPath(const std::string &path, const std::string &expectPath);
 };
 } // namespace EDM
 } // namespace OHOS
