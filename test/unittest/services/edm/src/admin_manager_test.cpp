@@ -52,8 +52,7 @@ void AdminManagerTest::TearDown()
     for (const auto &admin : userAdmin) {
         adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, TEST_USER_ID);
     }
-    adminMgr_->instance_.reset();
-    adminMgr_.reset();
+    adminMgr_->admins_.clear();
     PermissionManager::DestroyInstance();
 }
 

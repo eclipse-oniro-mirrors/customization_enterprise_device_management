@@ -93,7 +93,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
-    edmMgr_->adminMgr_->instance_.reset();
+    edmMgr_->adminMgr_->admins_.clear();
     edmMgr_->pluginMgr_->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
