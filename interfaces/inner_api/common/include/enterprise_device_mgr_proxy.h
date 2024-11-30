@@ -58,7 +58,7 @@ public:
         const std::vector<std::string> &policies);
     ErrCode GetDelegatedPolicies(const AppExecFwk::ElementName &admin, const std::string &bundleNameOrPolicyName,
         uint32_t code, std::vector<std::string> &result);
-    ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin);
+    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

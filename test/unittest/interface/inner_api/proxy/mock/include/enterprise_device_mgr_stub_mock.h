@@ -199,7 +199,7 @@ public:
         return ERR_OK;
     }
 
-    ErrCode ReplaceSuperAdmin(const std::string &adminName, AppExecFwk::ElementName &replaceAdmin) override
+    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin) override
     {
         return ERR_OK;
     }

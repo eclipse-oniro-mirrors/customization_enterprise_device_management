@@ -184,18 +184,24 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
 
 ErrCode EnterpriseDeviceMgrStub::ReplaceSuperAdminInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::string adminName = data.ReadString();
-    EDMLOGD("ReplaceSuperAdminInner admineName:: %{public}s", adminName.c_str());
-    std::unique_ptr<AppExecFwk::ElementName> replaceAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
-    if (!replaceAdmin) {
-        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return ERR_OK;
+    std::unique_ptr<AppExecFwk::ElementName> oldAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!oldAdmin) {
+        return EdmReturnErrCode::PARAM_ERROR;
     }
-    EDMLOGD("ReplaceSuperAdminInner replace admin bundleName:: %{public}s : abilityName : %{public}s ",
-        replaceAdmin->GetBundleName().c_str(), replaceAdmin->GetAbilityName().c_str());
-    ErrCode retCode = ReplaceSuperAdmin(adminName, *replaceAdmin);
-    reply.WriteInt32(retCode);
-    return ERR_OK;
+    std::unique_ptr<AppExecFwk::ElementName> newAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!newAdmin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    EDMLOGD(
+        "ReplaceSuperAdminInner: oldAdmin.bundlename %{public}s, "
+        "oldAdmin.abilityname:%{public}s"
+        "ReplaceSuperAdminInner: newAdmin.bundlename %{public}s, "
+        "newAdmin.abilityname:%{public}s",
+        oldAdmin->GetBundleName().c_str(),
+        oldAdmin->GetAbilityName().c_str(),
+        newAdmin->GetBundleName().c_str(),
+        newAdmin->GetAbilityName().c_str());
+    return ReplaceSuperAdmin(*oldAdmin, *newAdmin);
 }
 
 ErrCode EnterpriseDeviceMgrStub::DisableAdminInner(MessageParcel &data, MessageParcel &reply)
