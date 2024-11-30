@@ -445,9 +445,13 @@ void EnterpriseDeviceMgrAbility::InitAllPlugins()
 void EnterpriseDeviceMgrAbility::UnloadPluginTask()
 {
     while (pluginHasInit_) {
-        std::unique_lock<std::mutex> lock(waitMutex_);
-        notifySignal_ = false;
-        waitSignal_.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [this] { return this->notifySignal_; });
+        {
+            std::unique_lock<std::mutex> lock(waitMutex_);
+            notifySignal_ = false;
+            waitSignal_.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [this] {
+                return this->notifySignal_;
+            });
+        }
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCallTime_).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
