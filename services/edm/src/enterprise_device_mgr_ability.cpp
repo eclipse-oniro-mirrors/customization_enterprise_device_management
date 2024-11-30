@@ -481,13 +481,13 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
     policyMgr_->Init(userIds);
     allowDelegatedPolicies_ = { "disallow_add_local_account", "disallow_add_os_account_by_user",
         "disallow_running_bundles", "manage_auto_start_apps", "allowed_bluetooth_devices", "set_browser_policies",
-        "allowed_install_bundles", "disallowed_install_bundles", "disallowed_uninstall_bundles", "screen_off_time",
-        "power_policy", "set_datetime", "location_policy", "disabled_network_interface", "global_proxy",
-        "disabled_bluetooth", "disallow_modify_datetime", "disabled_printer", "policy_screen_shot", "disabled_hdc",
-        "disable_microphone", "fingerprint_auth", "disable_usb", "disable_wifi", "disallowed_tethering",
-        "inactive_user_freeze", "password_policy", "clipboard_policy", "ntp_server", "set_update_policy",
-        "notify_upgrade_packages", "allowed_usb_devices", "usb_read_only", "disallowed_usb_devices", "get_device_info",
-        "watermark_image_policy", "policy_screen_record" };
+        "allowed_install_bundles", "disallowed_install_bundles", "disallowed_uninstall_bundles", "snapshot_skip",
+        "location_policy", "disabled_network_interface", "global_proxy", "disabled_bluetooth",
+        "disallow_modify_datetime", "disabled_printer", "policy_screen_shot", "disabled_hdc", "disable_microphone",
+        "fingerprint_auth", "disable_usb", "disable_wifi", "disallowed_tethering", "inactive_user_freeze",
+        "password_policy", "clipboard_policy", "ntp_server", "set_update_policy", "notify_upgrade_packages",
+        "allowed_usb_devices", "usb_read_only", "disallowed_usb_devices", "get_device_info", "watermark_image_policy",
+        "policy_screen_record" };
 }
 
 void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
@@ -1636,6 +1636,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedPolicies(const std::string &pare
 ErrCode EnterpriseDeviceMgrAbility::GetDelegatedBundleNames(const std::string &parentAdminName,
     const std::string &policyName, std::vector<std::string> &bundleNames)
 {
+    if (allowDelegatedPolicies_.find(policyName) == allowDelegatedPolicies_.end()) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> adminItem = adminMgr_->GetAdminByPkgName(parentAdminName, GetCurrentUserId());
     ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
