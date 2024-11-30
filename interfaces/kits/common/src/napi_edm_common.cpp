@@ -456,38 +456,9 @@ void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data)
         return;
     }
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-    napi_value error = nullptr;
-    if (asyncCallbackInfo->callback == nullptr) {
-        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &error);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, error);
-        } else {
-            if (asyncCallbackInfo->innerCodeMsg.empty()) {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
-            } else {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
-            }
-        }
-    } else {
-        EDMLOGD("asyncCallbackInfo->callback != nullptr");
-        if (asyncCallbackInfo->ret == ERR_OK) {
-            napi_get_null(env, &error);
-        } else {
-            if (asyncCallbackInfo->innerCodeMsg.empty()) {
-                error = CreateError(env, asyncCallbackInfo->ret);
-            } else {
-                error = CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg);
-            }
-        }
-        napi_value callback = nullptr;
-        napi_value result = nullptr;
-        napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-        napi_call_function(env, nullptr, callback, ARGS_SIZE_ONE, &error, &result);
-        napi_delete_reference(env, asyncCallbackInfo->callback);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_value result = nullptr;
+    napi_get_null(env, &result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
     delete asyncCallbackInfo;
 }
 

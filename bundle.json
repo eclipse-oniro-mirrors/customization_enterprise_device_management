@@ -106,6 +106,7 @@
           "//base/customization/enterprise_device_management/tools/edm:tools_edm"
         ],
         "fwk_group":[
+          "//base/customization/enterprise_device_management/interfaces/kits/common:napi_edm_common",
           "//base/customization/enterprise_device_management/interfaces/kits/account_manager:accountmanager",
           "//base/customization/enterprise_device_management/interfaces/kits/application_manager:applicationmanager",
           "//base/customization/enterprise_device_management/interfaces/kits/admin_manager:adminmanager",
