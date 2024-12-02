@@ -41,6 +41,8 @@ public:
     ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
 
 private:
+    void UpdatePolicyData(std::vector<std::string> &allData, std::vector<std::string> &currentData,
+        HandlePolicyData &policyData);
     void ParseErrCode(ErrCode &ret, std::string &errMessage, MessageParcel &reply);
     sptr<AAFwk::IAbilityManager> GetAbilityManager();
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();

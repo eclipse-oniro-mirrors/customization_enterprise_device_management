@@ -91,8 +91,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
     }
     if (FAILED(ret)) {
         if (ret == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED) {
-            EDMLOGI("addon errcode: %{public}d, errmessage: %{public}s", ret, retMessage.c_str());
-            napi_throw(env, CreateError(env, ret, retMessage));
+            napi_throw(env, CreateErrorWithInnerCode(env, ret, retMessage));
         } else {
             napi_throw(env, CreateError(env, ret));
         }

@@ -75,7 +75,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
         res = AddKeepAliveApps(keepAliveApps, userId);
         if (res == ERR_OK) {
             reply.WriteInt32(res);
-            ArrayStringSerializer::GetInstance()->Serialize(allData, policyData.policyData);
+            UpdatePolicyData(allData, currentData, policyData);
             return ERR_OK;
         }
         ParseErrCode(res, errMessage, reply);
@@ -83,15 +83,10 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     } else if (type == FuncOperateType::REMOVE) {
         std::vector<std::string> allData =
             ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(keepAliveApps, currentData);
-        if (keepAliveApps.size() > EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE) {
-            EDMLOGE("ManageKeepAliveAppsPlugin OnHandlePolicy data is too large.");
-            reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
         res = RemoveKeepAliveApps(keepAliveApps, userId);
         if (res == ERR_OK) {
             reply.WriteInt32(res);
-            ArrayStringSerializer::GetInstance()->Serialize(allData, policyData.policyData);
+            UpdatePolicyData(allData, currentData, policyData);
             return ERR_OK;
         }
         ParseErrCode(res, errMessage, reply);
@@ -225,28 +220,36 @@ void ManageKeepAliveAppsPlugin::OnAdminRemoveDone(const std::string &adminName, 
     }
 }
 
+void ManageKeepAliveAppsPlugin::UpdatePolicyData(std::vector<std::string> &allData,
+    std::vector<std::string> &currentData, HandlePolicyData &policyData)
+{
+    policyData.isChanged = allData != currentData;
+    if (policyData.isChanged) {
+        ArrayStringSerializer::GetInstance()->Serialize(allData, policyData.policyData);
+    }
+}
+
 void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res, std::string &errMessage, MessageParcel &reply)
 {
     switch (res) {
         case ERR_TARGET_BUNDLE_NOT_EXIST:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "App is not installed.";
+            errMessage = "Application is not installed";
             break;
         case ERR_NO_MAIN_ABILITY:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "App does not have mainability.";
+            errMessage = "Application does not have mainability";
             break;
         case ERR_NO_STATUS_BAR_ABILITY:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "App does not have status bar ability.";
+            errMessage = "Application does not have status bar ability";
             break;
         case ERR_NOT_ATTACHED_TO_STATUS_BAR:
             res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "App does not attach to status bar.";
+            errMessage = "Application does not attach to status bar";
             break;
         case ERR_CAPABILITY_NOT_SUPPORT:
-            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "Capability not support.";
+            res = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
         default:
             break;
     }

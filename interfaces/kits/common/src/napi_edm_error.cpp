@@ -42,7 +42,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::APPLICATION_INSTALL_FAILED, "Failed to install the application. $."},
     {EdmReturnErrCode::ADD_OS_ACCOUNT_FAILED, "Failed to add an OS account."},
     {EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED, "the upgrade packages do not exist or analyzing failed, $."},
-    {EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED, "Add keep alive applications failed."},
+    {EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED, "Add keep alive applications failed. $."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)
