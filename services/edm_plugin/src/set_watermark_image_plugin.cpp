@@ -168,11 +168,11 @@ void SetWatermarkImagePlugin::SetProcessWatermarkOnAppStart(const std::string &b
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();
     serializer->Deserialize(policyData, currentData);
-    std::string fileName = currentData[std::pair<std::string, int32_t>{bundleName, accountId}].fileName;
-    if (fileName.empty()) {
+    auto iter = currentData.find(std::pair<std::string, int32_t>{bundleName, accountId});
+    if (iter == currentData.end() || iter->second.fileName.empty()) {
         return;
     }
-    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, fileName, enabled);
+    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, iter->second.fileName, enabled);
     if (ret != Rosen::WMError::WM_OK) {
         EDMLOGE("SetAllWatermarkImage SetProcessWatermarkOnAppStart error");
     }

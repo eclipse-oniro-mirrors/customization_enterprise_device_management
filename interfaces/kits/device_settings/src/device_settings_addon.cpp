@@ -172,7 +172,7 @@ napi_value DeviceSettingsAddon::ConvertPolicyPolicyToJs(napi_env env, PowerPolic
     napi_value action = nullptr;
     NAPI_CALL(env, napi_create_uint32(env, static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()), &action));
     napi_value delayTime = nullptr;
-    NAPI_CALL(env, napi_create_uint32(env, powerPolicy.GetDealyTime(), &delayTime));
+    NAPI_CALL(env, napi_create_uint32(env, powerPolicy.GetDelayTime(), &delayTime));
     NAPI_CALL(env, napi_set_named_property(env, result, "powerPolicyAction", action));
     NAPI_CALL(env, napi_set_named_property(env, result, "delayTime", delayTime));
     return result;
@@ -528,7 +528,7 @@ int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene 
     CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(powerPoilcyJs, EdmReturnErrCode::SYSTEM_ABNORMALLY, json);
     cJSON_AddNumberToObject(powerPoilcyJs, "powerPolicyAction",
         static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
-    cJSON_AddNumberToObject(powerPoilcyJs, "delayTime", powerPolicy.GetDealyTime());
+    cJSON_AddNumberToObject(powerPoilcyJs, "delayTime", powerPolicy.GetDelayTime());
     cJSON_AddNumberToObject(json, "powerScene", static_cast<uint32_t>(powerScene));
     bool ret = cJSON_AddItemToObject(json, "powerPolicy", powerPoilcyJs);
     if (!ret) {

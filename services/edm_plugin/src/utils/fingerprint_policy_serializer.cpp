@@ -59,10 +59,12 @@ bool FingerprintPolicySerializer::Serialize(const FingerprintPolicy &result, std
         cJSON_AddItemToArray(root, item);
     }
     char* jsonStr = cJSON_Print(root);
-    if (jsonStr != nullptr) {
-        data = std::string(jsonStr);
-        cJSON_free(jsonStr);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(root);
+        return false;
     }
+    data = std::string(jsonStr);
+    cJSON_free(jsonStr);
     cJSON_Delete(root);
     return true;
 }

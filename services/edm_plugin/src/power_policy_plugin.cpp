@@ -149,7 +149,7 @@ bool PowerPolicyPlugin::UpdateSuspendSettingsData(Json::Value &root, const std::
         return false;
     }
     valueObj[KEY_ACTION] = static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction());
-    valueObj[KEY_DELAY_TIME] = powerPolicy.GetDealyTime();
+    valueObj[KEY_DELAY_TIME] = powerPolicy.GetDelayTime();
     root[key] = valueObj;
     std::string jsonStr = root.toStyledString();
     EDMLOGD("PowerPolicyPlugin:OnSetPolicy jsonStr = %{public}s", jsonStr.c_str());

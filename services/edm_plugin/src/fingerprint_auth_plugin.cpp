@@ -60,7 +60,10 @@ ErrCode FingerprintAuthPlugin::OnHandlePolicy(std::uint32_t funcCode, MessagePar
     }
 
     std::string afterHandle;
-    serializer_->Serialize(policy, afterHandle);
+    if (!serializer_->Serialize(policy, afterHandle)) {
+        EDMLOGE("FingerprintAuthPlugin Serialize failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     policyData.isChanged = (afterHandle != policyData.policyData);
     if (policyData.isChanged) {
         policyData.policyData = afterHandle;

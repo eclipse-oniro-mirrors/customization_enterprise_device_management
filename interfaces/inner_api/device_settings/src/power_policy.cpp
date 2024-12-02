@@ -58,7 +58,7 @@ PowerPolicyAction PowerPolicy::GetPowerPolicyAction() const
     return powerPolicyAction_;
 }
 
-uint32_t PowerPolicy::GetDealyTime() const
+uint32_t PowerPolicy::GetDelayTime() const
 {
     return delayTime_;
 }

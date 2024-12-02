@@ -59,7 +59,7 @@ std::string RuleUtils::EnumToString(Protocol protocol)
     }
     return {};
 }
-Protocol RuleUtils::StringProtocl(const std::string &protocol)
+Protocol RuleUtils::StringProtocol(const std::string &protocol)
 {
     if (protocol == PROTOCOL_ALL) {
         return Protocol::ALL;

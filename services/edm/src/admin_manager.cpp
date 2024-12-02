@@ -85,7 +85,12 @@ ErrCode AdminManager::SetAdminValue(int32_t userId, const Admin &adminItem)
     if (getAdmin != nullptr) {
         return UpdateAdmin(getAdmin, userId, adminItem);
     }
-    if (!AdminPoliciesStorageRdb::GetInstance()->InsertAdmin(userId, adminItem)) {
+    auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
+    if (adminPoliciesStorageRdb == nullptr) {
+        EDMLOGE("AdminManager::SetAdminValue get adminPoliciesStorageRdb failed.");
+        return ERR_GET_STORAGE_RDB_FAILED;
+    }
+    if (!adminPoliciesStorageRdb->InsertAdmin(userId, adminItem)) {
         EDMLOGE("AdminManager::SetAdminValue insert failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -160,7 +165,12 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
         EDMLOGE("AdminManager::UpdateAdmin normal admin can not update to sub-super admin or delegated admin.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    if (!AdminPoliciesStorageRdb::GetInstance()->UpdateAdmin(userId, adminItem)) {
+    auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
+    if (adminPoliciesStorageRdb == nullptr) {
+        EDMLOGE("AdminManager::UpdateAdmin get adminPoliciesStorageRdb failed.");
+        return ERR_GET_STORAGE_RDB_FAILED;
+    }
+    if (!adminPoliciesStorageRdb->UpdateAdmin(userId, adminItem)) {
         EDMLOGW("UpdateAdmin::update admin failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

@@ -21,14 +21,15 @@ namespace OHOS {
 namespace EDM {
 std::shared_ptr<DevicePoliciesStorageRdb> DevicePoliciesStorageRdb::instance_ = nullptr;
 std::once_flag DevicePoliciesStorageRdb::flag_;
+bool DevicePoliciesStorageRdb::isAdminPoliciesTableInit_ = false;
+bool DevicePoliciesStorageRdb::isCombinedPoliciesTableInit_ = false;
 
 DevicePoliciesStorageRdb::DevicePoliciesStorageRdb()
 {
-    CreateDeviceAdminPoliciesTable();
-    CreateDeviceCombinedPoliciesTable();
+    EDMLOGI("DevicePoliciesStorageRdb construct.");
 }
 
-void DevicePoliciesStorageRdb::CreateDeviceAdminPoliciesTable()
+bool DevicePoliciesStorageRdb::CreateDeviceAdminPoliciesTable()
 {
     EDMLOGI("DevicePoliciesStorageRdb::CreateDeviceAdminPoliciesTable.");
     std::string createTableSql = "CREATE TABLE IF NOT EXISTS ";
@@ -40,13 +41,13 @@ void DevicePoliciesStorageRdb::CreateDeviceAdminPoliciesTable()
         .append(EdmRdbFiledConst::FILED_POLICY_VALUE + " TEXT);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
-        edmRdbDataManager->CreateTable(createTableSql);
-    } else {
-        EDMLOGE("DevicePoliciesStorageRdb::create database device_admin_policies failed.");
+        return edmRdbDataManager->CreateTable(createTableSql);
     }
+    EDMLOGE("DevicePoliciesStorageRdb::create database device_admin_policies failed.");
+    return false;
 }
 
-void DevicePoliciesStorageRdb::CreateDeviceCombinedPoliciesTable()
+bool DevicePoliciesStorageRdb::CreateDeviceCombinedPoliciesTable()
 {
     EDMLOGI("DevicePoliciesStorageRdb::CreateDeviceCombinedPoliciesTable.");
     std::string createTableSql = "CREATE TABLE IF NOT EXISTS ";
@@ -57,14 +58,23 @@ void DevicePoliciesStorageRdb::CreateDeviceCombinedPoliciesTable()
         .append(EdmRdbFiledConst::FILED_POLICY_VALUE + " TEXT);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
-        edmRdbDataManager->CreateTable(createTableSql);
-    } else {
-        EDMLOGE("DevicePoliciesStorageRdb::create database device_combined_policies failed.");
+        return edmRdbDataManager->CreateTable(createTableSql);
     }
+    EDMLOGE("DevicePoliciesStorageRdb::create database device_combined_policies failed.");
+    return false;
 }
 
 std::shared_ptr<DevicePoliciesStorageRdb> DevicePoliciesStorageRdb::GetInstance()
 {
+    if (!isAdminPoliciesTableInit_) {
+        isAdminPoliciesTableInit_ = CreateDeviceAdminPoliciesTable();
+    }
+    if (!isCombinedPoliciesTableInit_) {
+        isCombinedPoliciesTableInit_ = CreateDeviceCombinedPoliciesTable();
+    }
+    if (!isAdminPoliciesTableInit_ || !isCombinedPoliciesTableInit_) {
+        return nullptr;
+    }
     std::call_once(flag_, []() {
         if (instance_ == nullptr) {
             instance_ = std::make_shared<DevicePoliciesStorageRdb>();

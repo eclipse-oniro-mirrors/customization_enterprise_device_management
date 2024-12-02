@@ -63,7 +63,7 @@ bool PasswordSerializer::Serialize(const PasswordPolicy &policy, std::string &js
         cJSON_free(cJsonStr);
     }
     cJSON_Delete(root);
-    EDMLOGI("PasswordSerializer::Deserialize %{public}s", jsonString.c_str());
+    EDMLOGI("PasswordSerializer::Serialize %{public}s", jsonString.c_str());
     return true;
 }
 

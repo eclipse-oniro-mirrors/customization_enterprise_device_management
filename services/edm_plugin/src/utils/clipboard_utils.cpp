@@ -25,19 +25,19 @@ ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy
     auto plugin_ = MiscServices::PasteboardClient::GetInstance();
     std::map<uint32_t, MiscServices::ShareOption> setMap;
     std::vector<uint32_t> removeVector;
-    for (auto it = data.begin(); it != data.end(); it++) {
-        switch (it->second) {
+    for (const auto &item : data) {
+        switch (item.second) {
             case ClipboardPolicy::DEFAULT:
-                removeVector.emplace_back(it->first);
+                removeVector.emplace_back(item.first);
                 break;
             case ClipboardPolicy::IN_APP:
-                setMap.insert(std::make_pair(it->first, MiscServices::ShareOption::InApp));
+                setMap.insert(std::make_pair(item.first, MiscServices::ShareOption::InApp));
                 break;
             case ClipboardPolicy::LOCAL_DEVICE:
-                setMap.insert(std::make_pair(it->first, MiscServices::ShareOption::LocalDevice));
+                setMap.insert(std::make_pair(item.first, MiscServices::ShareOption::LocalDevice));
                 break;
             case ClipboardPolicy::CROSS_DEVICE:
-                setMap.insert(std::make_pair(it->first, MiscServices::ShareOption::CrossDevice));
+                setMap.insert(std::make_pair(item.first, MiscServices::ShareOption::CrossDevice));
                 break;
             default:
                 break;

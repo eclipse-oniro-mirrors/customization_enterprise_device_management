@@ -130,7 +130,7 @@ std::string FirewallChainRule::PortToParameter(const std::string &port, const st
 FirewallRule FirewallChainRule::ToFilterRule(Direction direction)
 {
     Action action = RuleUtils::StringToAction(target_);
-    Protocol protocl = RuleUtils::StringProtocl(prot_);
+    Protocol protocl = RuleUtils::StringProtocol(prot_);
     return {direction, action, protocl, srcAddr_, destAddr_, srcPort_, destPort_, appUid_};
 }
 
