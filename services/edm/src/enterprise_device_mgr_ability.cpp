@@ -1394,6 +1394,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndUpdatePermission(std::shared_ptr<Adm
             return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
         }
         Admin updateAdmin(admin->adminInfo_.packageName_, admin->GetAdminType(), permissionList);
+        updateAdmin.SetAccessiblePolicies(admin->adminInfo_.accessiblePolicies_);
         if (FAILED(adminMgr_->UpdateAdmin(admin, userId, updateAdmin))) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -1594,6 +1595,10 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &pare
     ErrCode ret = CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
+    }
+    if (parentAdminName == bundleName) {
+        EDMLOGE("SetDelegatedPolicies does not delegated policies to self.");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (policies.empty()) {
         EDMLOGW("SetDelegatedPolicies remove delegated policies.");
