@@ -78,5 +78,41 @@ bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int3
     }
     return isInstalled;
 }
+
+ErrCode EdmBundleManagerImpl::AddAppInstallControlRule(std::vector<std::string> &data,
+    AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetBundleMgr failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    auto appControlProxy = proxy->GetAppControlProxy();
+    ErrCode res = appControlProxy->AddAppInstallControlRule(data, controlRuleType, userId);
+    if (res != ERR_OK) {
+        EDMLOGE("EdmBundleManagerImpl AddAppInstallControlRule Faild %{public}d:", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode EdmBundleManagerImpl::DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
+    std::vector<std::string> &data, int32_t userId)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::DeleteAppInstallControlRule GetBundleMgr failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    auto appControlProxy = proxy->GetAppControlProxy();
+    ErrCode res = appControlProxy->DeleteAppInstallControlRule(controlRuleType, data, userId);
+    if (res != ERR_OK) {
+        EDMLOGE("EdmBundleManagerImpl DeleteAppInstallControlRule Faild %{public}d:", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

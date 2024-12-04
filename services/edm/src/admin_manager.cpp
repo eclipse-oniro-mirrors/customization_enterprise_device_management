@@ -167,6 +167,44 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
     return ERR_OK;
 }
 
+ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin)
+{
+    auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
+    if (adminPoliciesStorageRdb == nullptr) {
+        EDMLOGE("AdminManager::ReplaceSuperAdminByAdmin get adminPoliciesStorageRdb failed.");
+        return ERR_GET_STORAGE_RDB_FAILED;
+    }
+    std::vector<std::string> subAdmins;
+    GetSubSuperAdminsByParentName(packageName, subAdmins);
+    for (const auto& subAdmin : subAdmins) {
+        if (!adminPoliciesStorageRdb->UpdateParentName(subAdmin, packageName,
+            newAdmin.adminInfo_.packageName_)) {
+            EDMLOGE("AdminManager::ReplaceSuperAdminByPackageName UpdateParentName failed.");
+            return ERR_SET_PARENT_ADMIN_FAILED;
+        }
+    }
+
+    if (!adminPoliciesStorageRdb->ReplaceAdmin(packageName, EdmConstants::DEFAULT_USER_ID, newAdmin)) {
+        EDMLOGW("ReplaceSuperAdminByPackageName::update admin failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    if (admins_.find(EdmConstants::DEFAULT_USER_ID) != admins_.end()) {
+        auto admins = admins_[EdmConstants::DEFAULT_USER_ID];
+        for (auto &admin : admins) {
+            if (admin->adminInfo_.packageName_ == packageName) {
+                admin->adminInfo_.packageName_ = newAdmin.adminInfo_.packageName_;
+            }
+            if ((admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN ||
+                admin->GetAdminType() == AdminType::VIRTUAL_ADMIN) &&
+                admin->adminInfo_.parentAdminName_ == packageName) {
+                admin->adminInfo_.parentAdminName_ = newAdmin.adminInfo_.packageName_;
+            }
+        }
+    }
+    return ERR_OK;
+}
+
 // success is returned as long as there is a super administrator
 bool AdminManager::IsSuperAdminExist()
 {

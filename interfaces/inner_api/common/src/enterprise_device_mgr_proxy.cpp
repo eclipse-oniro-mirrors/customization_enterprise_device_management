@@ -93,7 +93,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
 }
 
 ErrCode EnterpriseDeviceMgrProxy::ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin,
-    AppExecFwk::ElementName &newAdmin)
+    AppExecFwk::ElementName &newAdmin, bool keepPolicy)
 {
     EDMLOGI("EnterpriseDeviceMgrProxy::ReplaceSuperAdmin");
     if (!IsEdmEnabled()) {
@@ -109,6 +109,7 @@ ErrCode EnterpriseDeviceMgrProxy::ReplaceSuperAdmin(AppExecFwk::ElementName &old
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteParcelable(&oldAdmin);
     data.WriteParcelable(&newAdmin);
+    data.WriteBool(keepPolicy);
     return remote->SendRequest(EdmInterfaceCode::REPLACE_SUPER_ADMIN, data, reply, option);
 }
 

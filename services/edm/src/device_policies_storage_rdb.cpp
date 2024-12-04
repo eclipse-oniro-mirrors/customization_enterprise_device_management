@@ -111,6 +111,24 @@ bool DevicePoliciesStorageRdb::UpdateAdminPolicy(int32_t userId, const std::stri
     return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
+bool DevicePoliciesStorageRdb::ReplaceAdminPolicy(int32_t userId, const std::string &adminName,
+    const std::string &newAdminName)
+{
+    EDMLOGD("DevicePoliciesStorageRdb::UpdateAdminPolicy.");
+    auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
+    if (edmRdbDataManager == nullptr) {
+        EDMLOGE("DevicePoliciesStorageRdb::UpdateAdminPolicy get edmRdbDataManager failed.");
+        return false;
+    }
+    // update device_admin_policies set policy_value=? where user_id=? and admin_name=?
+    NativeRdb::ValuesBucket valuesBucket;
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_ADMIN_NAME, newAdminName);
+    NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::DEVICE_ADMIN_POLICIES_RDB_TABLE_NAME);
+    predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
+    predicates.EqualTo(EdmRdbFiledConst::FILED_ADMIN_NAME, adminName);
+    return edmRdbDataManager->Update(valuesBucket, predicates);
+}
+
 bool DevicePoliciesStorageRdb::DeleteAdminPolicy(int32_t userId, const std::string &adminName,
     const std::string &policyName)
 {

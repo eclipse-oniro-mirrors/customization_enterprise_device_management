@@ -924,10 +924,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, ReplaceSuperAdminSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName oldAdmin;
     AppExecFwk::ElementName newAdmin;
+    bool isKeepPolicy = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin, isKeepPolicy);
     EXPECT_TRUE(errVal == ERR_OK);
 }
 
@@ -940,10 +941,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestReplaceSuperAdminFail, TestSize.Level
 {
     AppExecFwk::ElementName oldAdmin;
     AppExecFwk::ElementName newAdmin;
+    bool isKeepPolicy = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin, isKeepPolicy);
     EXPECT_TRUE(errVal != ERR_OK);
 }
 } // namespace TEST

@@ -33,6 +33,10 @@ public:
     MOCK_METHOD(bool, GetBundleInfo, (const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId), (override));
     MOCK_METHOD(bool, IsBundleInstalled, (const std::string &bundleName, int32_t userId), (override));
+    MOCK_METHOD(ErrCode, AddAppInstallControlRule, (std::vector<std::string> &data,
+        AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId), (override));
+    MOCK_METHOD(ErrCode, DeleteAppInstallControlRule, (AppExecFwk::AppInstallControlRuleType controlRuleType,
+        std::vector<std::string> &data, int32_t userId), (override));
 };
 } // namespace EDM
 } // namespace OHOS

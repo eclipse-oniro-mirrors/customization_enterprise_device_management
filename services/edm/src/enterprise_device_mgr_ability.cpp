@@ -81,6 +81,7 @@ const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 const std::string EDM_ADMIN_ENABLED_EVENT = "com.ohos.edm.edmadminenabled";
 const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
+const std::string DISALLOWED_UNINSTALL_POLICY =  "disallowed_uninstall_bundles";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -999,13 +1000,56 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(AppExecFwk::ElementName &
     if (FAILED(GetAllPermissionsByAdmin(newAdmin.GetBundleName(), AdminType::ENT, DEFAULT_USER_ID,
         permissionList))) {
         EDMLOGW("ReplaceSuperAdmin: GetAllPermissionsByAdmin failed");
-        return EdmReturnErrCode::COMPONENT_INVALID;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std::string &newAdminName,
+    const Admin &edmAdmin, std::shared_ptr<Admin> adminPtr)
+{
+    if (FAILED(adminMgr_->ReplaceSuperAdminByPackageName(adminName, edmAdmin))) {
+        EDMLOGE("ReplaceSuperAdmin update Admin Policies Failed");
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
+    std::string adminPolicyValue;
+    policyMgr_->GetPolicy(adminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue);
+    std::string combinedPolicyValue;
+    policyMgr_->GetPolicy("", DISALLOWED_UNINSTALL_POLICY, combinedPolicyValue);
+
+    if (FAILED(policyMgr_->ReplaceAllPolicy(DEFAULT_USER_ID, adminName, newAdminName))) {
+        EDMLOGE("ReplaceSuperAdmin update device Policies Failed");
+        adminMgr_->ReplaceSuperAdminByPackageName(newAdminName, *adminPtr);
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
+    if (!adminPolicyValue.empty() && adminPolicyValue.find(adminName) != std::string::npos) {
+        std::vector<std::string> data = {adminName};
+        if (FAILED(GetBundleMgr()->DeleteAppInstallControlRule(
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, data, DEFAULT_USER_ID))) {
+            EDMLOGE("ReplaceSuperAdmin DeleteAppInstallControlRule failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        data = {newAdminName};
+        if (FAILED(GetBundleMgr()->AddAppInstallControlRule(data,
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, DEFAULT_USER_ID))) {
+            EDMLOGE("ReplaceSuperAdmin AddAppInstallControlRule failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        adminPolicyValue.replace(adminPolicyValue.find(adminName), adminName.length(), newAdminName);
+        combinedPolicyValue.replace(combinedPolicyValue.find(adminName), adminName.length(), newAdminName);
+        EDMLOGD("ReplaceSuperAdmin uninstall new admin policy value: %{public}s", adminPolicyValue.c_str());
+        EDMLOGD("ReplaceSuperAdmin uninstall new combined policy value: %{public}s", combinedPolicyValue.c_str());
+        if (FAILED(policyMgr_->SetPolicy(newAdminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue,
+            combinedPolicyValue))) {
+            EDMLOGE("ReplaceSuperAdmin update uninstall policy failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
     }
     return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin,
-    AppExecFwk::ElementName &newAdmin)
+    AppExecFwk::ElementName &newAdmin, bool keepPolicy)
 {
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     std::vector<std::string> permissionList;
@@ -1021,13 +1065,18 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &o
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
-    ErrCode res = DisableSuperAdmin(adminName);
-    if (res != ERR_OK) {
-        EDMLOGE("ReplaceSuperAdmin: delete admin failed");
-        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
-    }
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     Admin edmAdmin(abilityInfo.at(0), AdminType::ENT, entInfo, permissionList, false);
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    if (keepPolicy) {
+        std::string newAdminName = newAdmin.GetBundleName();
+        return HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
+    } else {
+        ErrCode res = DoDisableAdmin(adminName, DEFAULT_USER_ID, AdminType::ENT);
+        if (res != ERR_OK) {
+            EDMLOGE("ReplaceSuperAdmin: delete admin failed");
+            return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+        }
+    }
     if (FAILED(SetAdminEnabled(edmAdmin, newAdmin, DEFAULT_USER_ID))) {
         EDMLOGW("ReplaceSuperAdmin: SetAdminEnabled failed.");
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
@@ -1222,6 +1271,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
     bool isSDA = IsSuperAdmin(admin.GetBundleName());
     userId = isSDA ? DEFAULT_USER_ID : userId;
     AdminType adminType = isSDA ? AdminType::ENT : AdminType::NORMAL;
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     return DoDisableAdmin(admin.GetBundleName(), userId, adminType);
 }
 
@@ -1244,12 +1294,13 @@ ErrCode EnterpriseDeviceMgrAbility::CheckCallingUid(const std::string &bundleNam
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleName)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
 }
 
+// non-thread-safe function
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isDebug = GetAccessTokenMgr()->IsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!isDebug && !GetAccessTokenMgr()->VerifyCallingPermission(tokenId, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
