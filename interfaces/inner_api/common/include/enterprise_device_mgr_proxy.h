@@ -79,7 +79,7 @@ public:
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
-    bool CheckIsEdmDisabled(MessageParcel &data, bool &result);
+    bool CheckIsEdmDisabled(MessageParcel &data);
 
 private:
     sptr<IRemoteObject> LoadAndGetEdmService();

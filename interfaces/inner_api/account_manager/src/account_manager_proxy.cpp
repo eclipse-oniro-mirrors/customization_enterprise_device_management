@@ -148,10 +148,11 @@ int32_t AccountManagerProxy::IsAddOsAccountByUserDisallowed(MessageParcel &data,
 {
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGD("AccountManagerProxy::IsAddOsAccountByUserDisallowed");
-    MessageParcel reply;
-    if(EnterpriseDeviceMgrProxy::GetInstance()->CheckIsEdmDisabled(data, result)) {
+    if(EnterpriseDeviceMgrProxy::GetInstance()->CheckIsEdmDisabled(data)) {
+        result = false;
         return ERR_OK;
     }
+    MessageParcel reply;
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, data, reply);
     int32_t ret = ERR_INVALID_VALUE;

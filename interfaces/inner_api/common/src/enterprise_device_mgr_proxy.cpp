@@ -373,13 +373,12 @@ int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName
     return IsPolicyDisabled(data, policyCode, result);
 }
 
-bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data, bool &result)
+bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
 {
     data.ReadInterfaceToken();
     data.ReadInt32();
     data.ReadString();
     if (data.ReadInt32() == WITHOUT_ADMIN && !IsEdmEnabled()) {
-        result = false;
         return true;
     }
     data.RewindRead(0);
@@ -389,7 +388,8 @@ bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data, bool &res
 int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result)
 {
     MessageParcel reply;
-    if (CheckIsEdmDisabled(data, result)) {
+    if (CheckIsEdmDisabled(data)) {
+        result = false;
         return ERR_OK;
     }
     GetPolicy(policyCode, data, reply);
