@@ -79,11 +79,11 @@ public:
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
+    bool CheckIsEdmDisabled(MessageParcel &data, bool &result);
 
 private:
     sptr<IRemoteObject> LoadAndGetEdmService();
     void GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList);
-
     static std::shared_ptr<EnterpriseDeviceMgrProxy> instance_;
     static std::mutex mutexLock_;
 };
