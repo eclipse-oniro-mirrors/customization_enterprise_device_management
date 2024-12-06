@@ -387,11 +387,11 @@ bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
 
 int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result)
 {
-    MessageParcel reply;
     if (CheckIsEdmDisabled(data)) {
         result = false;
         return ERR_OK;
     }
+    MessageParcel reply;
     GetPolicy(policyCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
