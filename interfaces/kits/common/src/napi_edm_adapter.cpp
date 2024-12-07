@@ -166,11 +166,7 @@ static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSig
             }
         }
     } else {
-        if (methodSign.methodAttribute == MethodAttribute::GET) {
-            data.WriteUint32(WITHOUT_USERID);
-        } else if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
-            data.WriteUint32(WITHOUT_USERID);
-        } else {
+        if (methodSign.methodAttribute != MethodAttribute::NO_OPERATION) {
             data.WriteUint32(WITHOUT_USERID);
         }
     }

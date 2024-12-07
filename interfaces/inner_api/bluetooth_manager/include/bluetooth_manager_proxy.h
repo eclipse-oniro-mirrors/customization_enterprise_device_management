@@ -29,13 +29,12 @@ struct BluetoothInfo {
 class BluetoothManagerProxy {
 public:
     static std::shared_ptr<BluetoothManagerProxy> GetBluetoothManagerProxy();
-    int32_t GetBluetoothInfo(const AppExecFwk::ElementName &admin, BluetoothInfo &bluetoothInfo);
-    int32_t SetBluetoothDisabled(const AppExecFwk::ElementName &admin, bool disabled);
-    int32_t IsBluetoothDisabled(const AppExecFwk::ElementName *admin, bool &result);
-    int32_t AddAllowedBluetoothDevices(const AppExecFwk::ElementName &admin, const std::vector<std::string> &deviceIds);
+    int32_t GetBluetoothInfo(MessageParcel &data, BluetoothInfo &bluetoothInfo);
+    int32_t SetBluetoothDisabled(MessageParcel &data);
+    int32_t IsBluetoothDisabled(MessageParcel &data, bool &result);
     int32_t GetAllowedBluetoothDevices(const AppExecFwk::ElementName *admin, std::vector<std::string> &deviceIds);
-    int32_t RemoveAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,
-        const std::vector<std::string> &deviceIds);
+    int32_t GetAllowedBluetoothDevices(MessageParcel &data, std::vector<std::string> &deviceIds);
+    int32_t AddOrRemoveAllowedBluetoothDevices(MessageParcel &data, bool isAdd);
 
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;

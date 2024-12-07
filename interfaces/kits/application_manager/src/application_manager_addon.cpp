@@ -16,6 +16,7 @@
 #include "application_manager_addon.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -163,32 +164,35 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     std::string function)
 {
     EDMLOGI("NAPI_AddOrRemoveAutoStartApps called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
+    auto coonvertElementName2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<AppExecFwk::ElementName> autoStartApps;
+        bool isUint = ParseElementArray(env, autoStartApps, argv);
+        if (!isUint) {
+            return false;
+        }
+        std::vector<std::string> autoStartAppsString;
+        for (size_t i = 0; i < autoStartApps.size(); i++) {
+            std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
+            autoStartAppsString.push_back(appWant);
+        }
+        data.WriteStringVector(autoStartAppsString);
+        return true;
+    };
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    std::vector<AppExecFwk::ElementName> autoStartApps;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
-        "Parameter autoStartApps error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    int32_t ret = 0;
-    if (function == "AddAutoStartApps") {
-        ret = applicationManagerProxy->AddAutoStartApps(elementName, autoStartApps);
-    } else {
-        ret = applicationManagerProxy->RemoveAutoStartApps(elementName, autoStartApps);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveAutoStartApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
+    addonMethodSign.argsConvert = {nullptr, coonvertElementName2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
+        adapterAddonData.data, function == "AddAutoStartApps");
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -198,25 +202,19 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAutoStartApps called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
-    int32_t ret = applicationManagerProxy->GetAutoStartApps(elementName, autoStartApps);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAutoStartApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->GetAutoStartApps(
+        adapterAddonData.data, autoStartApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

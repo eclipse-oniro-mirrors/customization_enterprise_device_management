@@ -72,10 +72,14 @@ void AccountManagerProxyTest::TearDownTestSuite()
 HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
+    bool isDisallow = true;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteBool(isDisallow);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
+    ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -88,7 +92,11 @@ HWTEST_F(AccountManagerProxyTest, TestDisallowAddLocalAccountFail, TestSize.Leve
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
-    ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(admin, true);
+    bool isDisallow = true;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteBool(isDisallow);
+    ErrCode ret = accountManagerProxy->DisallowAddLocalAccount(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -134,7 +142,13 @@ HWTEST_F(AccountManagerProxyTest, TestDisallowAddOsAccountByUserSuc, TestSize.Le
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(admin, DEFAULT_USER_ID, true);
+    std::vector<std::string> key {std::to_string(DEFAULT_USER_ID)};
+    std::vector<std::string> value {"true"};
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -147,7 +161,13 @@ HWTEST_F(AccountManagerProxyTest, TestDisallowAddOsAccountByUserFail, TestSize.L
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
-    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(admin, DEFAULT_USER_ID, true);
+    std::vector<std::string> key {std::to_string(DEFAULT_USER_ID)};
+    std::vector<std::string> value {"true"};
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(key);
+    data.WriteStringVector(value);
+    ErrCode ret = accountManagerProxy->DisallowAddOsAccountByUser(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -162,8 +182,11 @@ HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedSuc, TestSiz
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(DEFAULT_USER_ID);
     bool isDisabled = false;
-    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(data, isDisabled);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isDisabled);
 }
@@ -177,6 +200,9 @@ HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail, TestSi
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(DEFAULT_USER_ID);
     bool isDisabled = false;
     ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
