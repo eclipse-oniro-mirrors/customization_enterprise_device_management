@@ -423,10 +423,11 @@ bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
     data.ReadInterfaceToken();
     data.ReadInt32();
     data.ReadString();
-    if (data.ReadInt32() == WITHOUT_ADMIN && !IsEdmEnabled()) {
+    auto isAdmin = data.ReadInt32();
+    data.RewindRead(0);
+    if (isAdmin == WITHOUT_ADMIN && !IsEdmEnabled()) {
         return true;
     }
-    data.RewindRead(0);
     return false;
 }
 

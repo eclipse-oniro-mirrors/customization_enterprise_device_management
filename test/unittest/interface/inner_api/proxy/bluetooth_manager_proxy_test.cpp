@@ -270,11 +270,11 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSu
 }
 
 /**
- * @tc.name: TestGetAllowedBluetoothDevicesSuc_01
+ * @tc.name: TestGetAllowedBluetoothDevicesSuc
  * @tc.desc: Test GetAllowedBluetoothDevices func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc_01, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc001, TestSize.Level1)
 {
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
@@ -290,11 +290,28 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc_01, TestSi
 }
 
 /**
- * @tc.name: TestGetAllowedBluetoothDevicesFail_01
+ * @tc.name: TestGetAllowedBluetoothDevicesWithoutAdminSuc
+ * @tc.desc: Test GetAllowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSuc001, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<std::string> deviceIds;
+    MessageParcel data;
+    data.WriteParcelable(nullptr);
+    int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAllowedBluetoothDevicesFail
  * @tc.desc: Test GetAllowedBluetoothDevices without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail_01, TestSize.Level1)
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail001, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     MessageParcel data;
@@ -305,6 +322,25 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail_01, TestS
     std::vector<std::string> deviceIds;
     int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedBluetoothDevicesFail
+ * @tc.desc: Test GetAllowedBluetoothDevicesFail func if does not have Admin parameter without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail002, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    const std::u16string descriptor = u"ohos.edm.testdemo";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    std::vector<std::string> deviceIds;
+    ErrCode ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**

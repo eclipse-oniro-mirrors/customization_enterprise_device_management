@@ -182,6 +182,37 @@ HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedSuc, TestSiz
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisabled);
+}
+
+/**
+ * @tc.name: TestIsAddOsAccountByUserDisallowedFail
+ * @tc.desc: Test IsAddOsAccountByUserDisallowed without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    bool isDisabled = false;
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAddOsAccountByUserDisallowedSuc
+ * @tc.desc: Test IsAddOsAccountByUserDisallowed success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedSuc001, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     MessageParcel data;
     data.WriteParcelable(&admin);
     data.WriteInt32(DEFAULT_USER_ID);
@@ -196,7 +227,7 @@ HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedSuc, TestSiz
  * @tc.desc: Test IsAddOsAccountByUserDisallowed without enable edm service.
  * @tc.type: FUNC
  */
-HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail, TestSize.Level1)
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail001, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
@@ -204,8 +235,28 @@ HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail, TestSi
     data.WriteParcelable(&admin);
     data.WriteInt32(DEFAULT_USER_ID);
     bool isDisabled = false;
-    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(&admin, DEFAULT_USER_ID, isDisabled);
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(data, isDisabled);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAddOsAccountByUserDisallowedFail
+ * @tc.desc: Test IsAddOsAccountByUserDisallowed func if does not have Admin parameter without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AccountManagerProxyTest, TestIsAddOsAccountByUserDisallowedFail002, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    MessageParcel data;
+    const std::u16string descriptor = u"ohos.edm.testdemo";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    ErrCode ret = accountManagerProxy->IsAddOsAccountByUserDisallowed(data, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
 }
 
 /**
