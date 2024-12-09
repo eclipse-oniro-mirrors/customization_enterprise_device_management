@@ -375,6 +375,7 @@ int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName
 
 bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
 {
+    MessageParcel reply;
     data.ReadInterfaceToken();
     data.ReadInt32();
     data.ReadString();
