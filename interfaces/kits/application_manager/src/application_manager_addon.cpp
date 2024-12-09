@@ -185,7 +185,6 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
     addonMethodSign.argsConvert = {nullptr, coonvertElementName2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -205,9 +204,8 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAutoStartApps";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {

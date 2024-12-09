@@ -44,10 +44,8 @@ napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_i
     BluetoothInfo bluetoothInfo;
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetBluetoothInfo";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.argsConvert = {nullptr};
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -138,7 +136,6 @@ napi_value BluetoothManagerAddon::GetAllowedBluetoothDevices(napi_env env, napi_
     addonMethodSign.name = "GetAllowedBluetoothDevices";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -174,7 +171,6 @@ napi_value BluetoothManagerAddon::AddOrRemoveBluetoothDevices(napi_env env, napi
     addonMethodSign.name = "AddOrRemoveBluetoothDevices";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
