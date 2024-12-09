@@ -35,7 +35,7 @@ napi_value DatetimeManagerAddon::SetDateTime(napi_env env, napi_callback_info in
     addonMethodSign.name = "SetDateTime";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT64};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeSetDateTime, NativeVoidCallbackComplete);
 }
 
