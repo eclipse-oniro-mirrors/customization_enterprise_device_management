@@ -205,7 +205,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAutoStartApps";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
-    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
