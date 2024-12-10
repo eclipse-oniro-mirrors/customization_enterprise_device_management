@@ -24,20 +24,13 @@ namespace EDM {
 class SetWatermarkImagePlugin;
 class WatermarkApplicationObserver : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    WatermarkApplicationObserver(SetWatermarkImagePlugin &listener)
-    {
-#ifdef OS_ACCOUNT_EDM_ENABLE
-        listener_ = listener;
-#endif
-    }
+    WatermarkApplicationObserver(SetWatermarkImagePlugin &listener) : listener_(listener) {}
 
     void OnProcessCreated(const AppExecFwk::ProcessData &processData) override;
     void OnProcessDied(const AppExecFwk::ProcessData &processData) override{};
 
 private:
-#ifdef OS_ACCOUNT_EDM_ENABLE
     SetWatermarkImagePlugin &listener_;
-#endif
 };
 } // namespace EDM
 } // namespace OHOS

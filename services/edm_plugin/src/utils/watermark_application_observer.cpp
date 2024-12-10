@@ -16,15 +16,12 @@
 #include "watermark_application_observer.h"
 
 #include "managed_event.h"
-#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
-#endif
 
 namespace OHOS {
 namespace EDM {
 void WatermarkApplicationObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
 {
-#ifdef OS_ACCOUNT_EDM_ENABLE
     int32_t accountId = -1;
     ErrCode ret = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(processData.uid, accountId);
     if (ret != ERR_OK) {
@@ -32,7 +29,6 @@ void WatermarkApplicationObserver::OnProcessCreated(const AppExecFwk::ProcessDat
         return;
     }
     listener_.SetProcessWatermarkOnAppStart(processData.bundleName, accountId, processData.pid, true);
-#endif
 }
 } // namespace EDM
 } // namespace OHOS
