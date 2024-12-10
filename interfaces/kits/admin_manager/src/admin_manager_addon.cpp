@@ -248,7 +248,7 @@ napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info
     addonMethodSign.name = "DisableSuperAdmin";
     addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {convertBundleName2Data};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeDisableSuperAdmin, NativeVoidCallbackComplete);
 }
 
@@ -370,7 +370,7 @@ napi_value AdminManager::SetEnterpriseInfo(napi_env env, napi_callback_info info
     addonMethodSign.name = "SetEnterpriseInfo";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {nullptr, convertEntInfo2Data};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeSetEnterpriseInfo, NativeVoidCallbackComplete);
 }
 
@@ -392,7 +392,7 @@ napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsSuperAdmin";
     addonMethodSign.argsType = {EdmAddonCommonType::STRING};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeIsSuperAdmin, NativeBoolCallbackComplete);
 }
 
@@ -593,7 +593,7 @@ napi_value AdminManager::AuthorizeAdmin(napi_env env, napi_callback_info info)
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AuthorizeAdmin";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeAuthorizeAdmin, NativeVoidCallbackComplete);
 }
 
@@ -625,7 +625,7 @@ napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info i
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetDelegatedPolicies";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     addonMethodSign.argsConvert = {nullptr, nullptr, convertPolicies2Data};
 
     AdapterAddonData adapterAddonData{};
@@ -658,7 +658,7 @@ napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info i
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDelegatedPolicies";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
@@ -833,7 +833,7 @@ napi_value AdminManager::HandleManagedEventSync(napi_env env, napi_callback_info
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "HandleManagedEventSync";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.methodAttribute = MethodAttribute::NO_OPERATION;
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
     addonMethodSign.argsConvert = {nullptr, convertEvents2Data};
     
     AdapterAddonData adapterAddonData{};

@@ -105,7 +105,7 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(const AppExecFwk::Elem
 int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(MessageParcel &data, std::vector<std::string> &deviceIds)
 {
     EDMLOGD("BluetoothManagerProxy::GetAllowedBluetoothDevices");
-    if (EnterpriseDeviceMgrProxy::GetInstance()->CheckIsEdmDisabled(data)) {
+    if (EnterpriseDeviceMgrProxy::GetInstance()->CheckDataInEdmDisabled(data)) {
         return ERR_OK;
     }
     MessageParcel reply;

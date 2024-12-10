@@ -417,7 +417,7 @@ int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(const AppExecFwk::ElementName
     return IsPolicyDisabled(data, policyCode, result);
 }
 
-bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
+bool EnterpriseDeviceMgrProxy::CheckDataInEdmDisabled(MessageParcel &data)
 {
     MessageParcel reply;
     data.ReadInterfaceToken();
@@ -433,7 +433,7 @@ bool EnterpriseDeviceMgrProxy::CheckIsEdmDisabled(MessageParcel &data)
 
 int32_t EnterpriseDeviceMgrProxy::IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result)
 {
-    if (CheckIsEdmDisabled(data)) {
+    if (CheckDataInEdmDisabled(data)) {
         result = false;
         return ERR_OK;
     }
