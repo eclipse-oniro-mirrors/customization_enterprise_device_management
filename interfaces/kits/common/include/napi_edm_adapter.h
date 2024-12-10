@@ -42,6 +42,7 @@ enum class EdmAddonCommonType {
 enum class MethodAttribute {
     HANDLE = 0,
     GET = 1,
+    OPERATE_ADMIN = 2,
 };
 
 struct BusinessError {

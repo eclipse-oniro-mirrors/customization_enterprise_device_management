@@ -29,9 +29,7 @@ public:
     int32_t SetDateTime(AppExecFwk::ElementName &admin, int64_t time,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t SetDateTime(MessageParcel &data);
-    int32_t DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow);
     int32_t DisallowModifyDateTime(MessageParcel &data);
-    int32_t IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result);
     int32_t IsModifyDateTimeDisallowed(MessageParcel &data, bool &result);
 
 private:
