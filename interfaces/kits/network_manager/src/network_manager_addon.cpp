@@ -18,9 +18,7 @@
 #include "edm_log.h"
 #include "iptables_utils.h"
 #include "napi_edm_common.h"
-#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
-#endif
 
 using namespace OHOS::EDM;
 using namespace OHOS::EDM::IPTABLES;
@@ -889,9 +887,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_i
     bool parseRet = ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->httpProxy);
     ASSERT_AND_THROW_PARAM_ERROR(env, parseRet, "ParseHttpProxyParam error");
     int32_t accountId = -1;
-#ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-#endif
     asyncCallbackInfo->httpProxy.SetUserId(accountId);
     if (argc > ARGS_SIZE_TWO) {
         EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
@@ -1102,9 +1098,7 @@ void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
     }
     AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
     int32_t accountId = -1;
-#ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-#endif
     if (asyncCallbackInfo->hasAdmin) {
         asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetGlobalHttpProxy(
             &asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy, accountId);
@@ -1335,9 +1329,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callba
     EDMLOGD("SetGlobalHttpProxySync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     int32_t accountId = -1;
-#ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-#endif
     httpProxy.SetUserId(accountId);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
@@ -1385,9 +1377,7 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callba
         return nullptr;
     }
     int32_t accountId = -1;
-#ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-#endif
     NetManagerStandard::HttpProxy httpProxy;
     int32_t ret = ERR_OK;
     if (hasAdmin) {
