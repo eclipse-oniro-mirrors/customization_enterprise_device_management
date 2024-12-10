@@ -23,7 +23,8 @@ namespace EDM {
 class EnterpriseBundleConnection : public IEnterpriseConnection {
 public:
     EnterpriseBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &bundleName) : IEnterpriseConnection(want, code, userId), bundleName_(bundleName) {}
+        const std::string &bundleName, const int32_t accountId) : IEnterpriseConnection(want, code, userId),
+        bundleName_(bundleName), accountId_(accountId) {}
 
     ~EnterpriseBundleConnection() override;
 
@@ -46,6 +47,7 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode) override;
 private:
     std::string bundleName_;
+    int32_t accountId_ = 100;
 };
 } // namespace EDM
 } // namespace OHOS

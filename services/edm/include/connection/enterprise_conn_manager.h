@@ -34,7 +34,7 @@ public:
     sptr<IEnterpriseConnection> CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         bool isOnAdminEnabled = true);
     sptr<IEnterpriseConnection> CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &bundleName);
+        const std::string &bundleName, int32_t accountId);
     sptr<IEnterpriseConnection> CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
         const UpdateInfo &updateInfo);
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);

@@ -42,9 +42,9 @@ public:
 
     void OnAdminDisabled() override {}
 
-    void OnBundleAdded(const std::string &bundleName) override {}
+    void OnBundleAdded(const std::string &bundleName, int32_t accountId) override {}
 
-    void OnBundleRemoved(const std::string &bundleName) override {}
+    void OnBundleRemoved(const std::string &bundleName, int32_t accountId) override {}
 
     void OnAppStart(const std::string &bundleName) override {}
 

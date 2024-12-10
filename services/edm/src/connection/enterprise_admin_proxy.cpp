@@ -40,7 +40,7 @@ void EnterpriseAdminProxy::OnAdminDisabled()
     SendRequest(COMMAND_ON_ADMIN_DISABLED, data);
 }
 
-void EnterpriseAdminProxy::OnBundleAdded(const std::string &bundleName)
+void EnterpriseAdminProxy::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -48,11 +48,12 @@ void EnterpriseAdminProxy::OnBundleAdded(const std::string &bundleName)
         return;
     }
     data.WriteString(bundleName);
+    data.WriteInt32(accountId);
     EDMLOGI("EnterpriseAdminProxy proxy OnBundleAdded");
     SendRequest(COMMAND_ON_BUNDLE_ADDED, data);
 }
 
-void EnterpriseAdminProxy::OnBundleRemoved(const std::string &bundleName)
+void EnterpriseAdminProxy::OnBundleRemoved(const std::string &bundleName, int32_t accountId)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -60,6 +61,7 @@ void EnterpriseAdminProxy::OnBundleRemoved(const std::string &bundleName)
         return;
     }
     data.WriteString(bundleName);
+    data.WriteInt32(accountId);
     EDMLOGI("EnterpriseAdminProxy proxy OnBundleRemoved");
     SendRequest(COMMAND_ON_BUNDLE_REMOVED, data);
 }

@@ -30,6 +30,7 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t JS_NAPI_ARGC_ZERO = 0;
 constexpr size_t JS_NAPI_ARGC_ONE = 1;
+constexpr size_t JS_NAPI_ARGC_TWO = 2;
 
 JsEnterpriseAdminExtension* JsEnterpriseAdminExtension::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
@@ -158,24 +159,26 @@ void JsEnterpriseAdminExtension::OnAdminDisabled()
     handler_->PostTask(task);
 }
 
-void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName)
+void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnBundleAdded");
-    auto task = [bundleName, this]() {
+    auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
-        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
-        CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_ONE);
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
+            AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_TWO);
     };
     handler_->PostTask(task);
 }
 
-void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName)
+void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnBundleRemoved");
-    auto task = [bundleName, this]() {
+    auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
-        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
-        CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_ONE);
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
+            AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_TWO);
     };
     handler_->PostTask(task);
 }
