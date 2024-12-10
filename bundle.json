@@ -3,7 +3,7 @@
   "version": 3.2,
   "description": "EDM（Enterprise Device Management）提供系统级别的管理功能API，支持企业MDM应用对设备的管控",
   "homePage": "https://gitee.com/openharmony",
-  "license": "Apache V2",
+  "license": "Apache-2.0",
   "repository": "https://gitee.com/openharmony/customization_enterprise_device_management",
   "domain": "os",
   "language": "",
