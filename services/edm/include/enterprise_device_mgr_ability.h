@@ -63,7 +63,7 @@ public:
         std::vector<std::string> &bundleNames) override;
     bool IsSuperAdmin(const std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
-    void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event);
+    void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     std::unordered_map<std::string,
         std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
         commonEventFuncMap_;

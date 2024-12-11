@@ -39,10 +39,10 @@ sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAdminConnection(const A
 }
 
 sptr<IEnterpriseConnection> EnterpriseConnManager::CreateBundleConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId, const std::string &bundleName)
+    uint32_t code, uint32_t userId, const std::string &bundleName, const int32_t accountId)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseBundleConnection(want,
-        code, userId, bundleName));
+        code, userId, bundleName, accountId));
     return connection;
 }
 

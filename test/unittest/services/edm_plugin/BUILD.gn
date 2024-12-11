@@ -220,6 +220,10 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
+  if (camera_framework_edm_enable) {
+    sources += [ "./src/disable_camera_plugin_test.cpp" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -332,6 +336,7 @@ ohos_static_library("edm_all_plugin_static") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_base",
@@ -498,6 +503,12 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
     ]
+  }
+
+  if (camera_framework_edm_enable) {
+    external_deps += [ "camera_framework:camera_framework" ]
+    sources +=
+        [ "../../../../services/edm_plugin/src/disable_camera_plugin.cpp" ]
   }
 
   sanitize = {
