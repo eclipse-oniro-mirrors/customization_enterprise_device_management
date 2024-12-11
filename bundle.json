@@ -62,6 +62,7 @@
         "bundle_framework",
         "cJSON",
         "c_utils",
+        "camera_framework",
         "certificate_manager",
         "common_event_service",
         "core_service",
