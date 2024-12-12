@@ -51,6 +51,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
@@ -82,6 +83,8 @@ ohos_shared_library("enterprise_admin_extension_module") {
     "ability_runtime:abilitykit_native",
     "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
+    "ipc:ipc_napi",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 

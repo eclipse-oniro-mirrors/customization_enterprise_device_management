@@ -34,6 +34,7 @@ ohos_shared_library("bundlemanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_single",
     "napi:ace_napi",
     "os_account:os_account_innerkits",
   ]
