@@ -123,7 +123,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetEnterpriseInfoSuc, TestSize.Level1
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(admin, entInfo);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(data);
     EXPECT_TRUE(errVal == ERR_OK);
 }
 
@@ -141,7 +144,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetEnterpriseInfoFail, TestSize.Level
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(admin, entInfo);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(data);
     EXPECT_TRUE(errVal != ERR_OK);
 }
 
@@ -436,7 +442,12 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
     int funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DATETIME);
     std::string policyData;
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyValue(nullptr, funcCode, policyData);
+    MessageParcel data;
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(DEFAULT_USER_ID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyValue(data, funcCode, policyData);
     EXPECT_TRUE(ret);
 }
 
@@ -452,7 +463,12 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetPolicyValueReplyFail, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
-    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyValue(nullptr, funcCode, policyData);
+    MessageParcel data;
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(DEFAULT_USER_ID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    bool ret = enterpriseDeviceMgrProxyTest->GetPolicyValue(data, funcCode, policyData);
     EXPECT_TRUE(!ret);
 }
 
@@ -629,7 +645,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminReturnFail, TestSize.Leve
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     bool ret = false;
-    enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo", ret);
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteString(bundleName);
+    enterpriseDeviceMgrProxyTest->IsSuperAdmin(data, ret);
     EXPECT_FALSE(ret);
 }
 
@@ -752,7 +771,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminEdmDisable, TestSize.Le
 {
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
-    ErrCode ret = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    ErrCode ret = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -767,7 +790,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminIpcFail, TestSize.Level
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(data);
     EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
@@ -782,7 +809,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminReplyFail, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(data);
     EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
 }
 
@@ -797,7 +828,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestAuthorizeAdminSuccess, TestSize.Level
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(admin, "com.edm.test.demo");
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->AuthorizeAdmin(data);
     EXPECT_TRUE(errVal == ERR_OK);
 }
 
@@ -817,7 +852,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
     EXPECT_TRUE(errVal != ERR_OK);
 
-    errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(admin, entInfo);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    entInfo.Marshalling(data);
+    errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseInfo(data);
     EXPECT_TRUE(errVal != ERR_OK);
 
     EntInfo entInfo1;
@@ -865,7 +903,11 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableSuperAdmin, TestSize.Level1)
     EXPECT_TRUE(errVal != ERR_OK);
 
     bool ret = false;
-    enterpriseDeviceMgrProxyTest->IsSuperAdmin("com.edm.test.demo", ret);
+
+    std::string bundleName = "com.edm.test.demo";
+    MessageParcel data;
+    data.WriteString(bundleName);
+    enterpriseDeviceMgrProxyTest->IsSuperAdmin(data, ret);
     EXPECT_FALSE(ret);
 
     std::string enabledAdmin;

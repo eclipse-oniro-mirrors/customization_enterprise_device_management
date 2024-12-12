@@ -29,7 +29,6 @@ constexpr int32_t HAS_ADMIN = 0;
 constexpr int32_t WITHOUT_ADMIN = 1;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t HAS_USERID = 1;
-constexpr int32_t DEFAULT_USER_ID = 100;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 }
 
@@ -66,6 +65,9 @@ static bool ElementArgToData(napi_env env, napi_value argv, MessageParcel &data,
     bool isElement = ParseElementName(env, elementName, argv);
     if (!isElement) {
         return false;
+    }
+    if (methodSign.methodAttribute == MethodAttribute::GET) {
+        data.WriteInt32(HAS_ADMIN);
     }
     data.WriteParcelable(&elementName);
     if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
@@ -167,12 +169,7 @@ static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSig
             }
         }
     } else {
-        if (methodSign.methodAttribute == MethodAttribute::GET) {
-            data.WriteUint32(HAS_USERID);
-            data.WriteUint32(DEFAULT_USER_ID);
-        } else if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
-            data.WriteUint32(WITHOUT_USERID);
-        } else {
+        if (methodSign.methodAttribute != MethodAttribute::OPERATE_ADMIN) {
             data.WriteUint32(WITHOUT_USERID);
         }
     }

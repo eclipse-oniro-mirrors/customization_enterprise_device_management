@@ -19,6 +19,7 @@
 #include "hisysevent_adapter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -237,32 +238,22 @@ void AdminManager::NativeDisableAdmin(napi_env env, void *data)
 napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisableSuperAdmin called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-
-    auto asyncCallbackInfo = new (std::nothrow) AsyncDisableSuperAdminCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncDisableSuperAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]),
-        "parameter bundle name error");
-    if (argc > ARGS_SIZE_ONE) {
-        bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
-    }
-
-    EDMLOGD("DisableSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",
-        asyncCallbackInfo->bundleName.c_str());
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisableSuperAdmin", NativeDisableSuperAdmin,
-        NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertBundleName2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::string bundleName;
+        bool isStr = ParseString(env, bundleName, argv);
+        if (!isStr) {
+            return false;
+        }
+        data.WriteString(bundleName);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "DisableSuperAdmin";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {convertBundleName2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeDisableSuperAdmin, NativeVoidCallbackComplete);
 }
 
 void AdminManager::NativeDisableSuperAdmin(napi_env env, void *data)
@@ -272,9 +263,9 @@ void AdminManager::NativeDisableSuperAdmin(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDisableSuperAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncDisableSuperAdminCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    asyncCallbackInfo->ret = proxy->DisableSuperAdmin(asyncCallbackInfo->bundleName);
+    asyncCallbackInfo->ret = proxy->DisableSuperAdmin(asyncCallbackInfo->data);
 }
 
 napi_value AdminManager::GetEnterpriseInfo(napi_env env, napi_callback_info info)
@@ -369,40 +360,22 @@ void AdminManager::NativeGetEnterpriseInfoComplete(napi_env env, napi_status sta
 napi_value AdminManager::SetEnterpriseInfo(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetEnterpriseInfo called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag =
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncSetEnterpriseInfoCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncSetEnterpriseInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    ret = ParseEnterpriseInfo(env, asyncCallbackInfo->entInfo, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "enterprise info param error");
-    EDMLOGD(
-        "SetEnterpriseInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_TWO) {
-        napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
-    }
-
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetEnterpriseInfo", NativeSetEnterpriseInfo,
-        NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertEntInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        EntInfo entInfo;
+        bool isEntInfo = ParseEnterpriseInfo(env, entInfo, argv);
+        if (!isEntInfo) {
+            return false;
+        }
+        entInfo.Marshalling(data);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetEnterpriseInfo";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertEntInfo2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetEnterpriseInfo, NativeVoidCallbackComplete);
 }
 
 void AdminManager::NativeSetEnterpriseInfo(napi_env env, void *data)
@@ -412,39 +385,19 @@ void AdminManager::NativeSetEnterpriseInfo(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetEnterpriseInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetEnterpriseInfoCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    asyncCallbackInfo->ret = proxy->SetEnterpriseInfo(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo);
+    asyncCallbackInfo->ret = proxy->SetEnterpriseInfo(asyncCallbackInfo->data);
 }
 
 napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsSuperAdmin called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncIsSuperAdminCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncIsSuperAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ZERO]),
-        "parameter bundle name error");
-    EDMLOGD("IsSuperAdmin: asyncCallbackInfo->elementName.bundlename %{public}s",
-        asyncCallbackInfo->bundleName.c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-        napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
-    }
-
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "IsSuperAdmin", NativeIsSuperAdmin, NativeBoolCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "IsSuperAdmin";
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeIsSuperAdmin, NativeBoolCallbackComplete);
 }
 
 napi_value AdminManager::IsAdminEnabled(napi_env env, napi_callback_info info)
@@ -501,9 +454,9 @@ void AdminManager::NativeIsSuperAdmin(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIsSuperAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsSuperAdminCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    asyncCallbackInfo->ret = proxy->IsSuperAdmin(asyncCallbackInfo->bundleName, asyncCallbackInfo->boolRet);
+    asyncCallbackInfo->ret = proxy->IsSuperAdmin(asyncCallbackInfo->data, asyncCallbackInfo->boolRet);
 }
 
 void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
@@ -641,30 +594,11 @@ bool AdminManager::ParseManagedEvent(napi_env env, std::vector<uint32_t> &manage
 napi_value AdminManager::AuthorizeAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AuthorizeAdmin called.");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncAuthorizeAdminCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncAuthorizeAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter want error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->bundleName, argv[ARR_INDEX_ONE]),
-        "parameter bundle name error");
-    EDMLOGD("AuthorizeAdmin: asyncCallbackInfo->bundlename %{public}s", asyncCallbackInfo->bundleName.c_str());
-    if (argc > ARR_INDEX_TWO) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback, argv[ARR_INDEX_TWO]),
-            "parameter bundle name error");
-    }
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "AuthorizeAdmin", NativeAuthorizeAdmin, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AuthorizeAdmin";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeAuthorizeAdmin, NativeVoidCallbackComplete);
 }
 
 void AdminManager::NativeAuthorizeAdmin(napi_env env, void *data)
@@ -674,31 +608,37 @@ void AdminManager::NativeAuthorizeAdmin(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    auto *asyncCallbakInfo = static_cast<AsyncAuthorizeAdminCallbackInfo *>(data);
-    asyncCallbakInfo->ret = EnterpriseDeviceMgrProxy::GetInstance()->AuthorizeAdmin(asyncCallbakInfo->elementName,
-        asyncCallbakInfo->bundleName);
+    auto *asyncCallbakInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbakInfo->ret = EnterpriseDeviceMgrProxy::GetInstance()->AuthorizeAdmin(asyncCallbakInfo->data);
 }
 
 napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDelegatedPolicies called.");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    auto convertPolicies2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<std::string> policies;
+        bool isParseOk = ParseStringArray(env, policies, argv);
+        if (!isParseOk) {
+            return false;
+        }
+        data.WriteUint32(policies.size());
+        data.WriteStringVector(policies);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetDelegatedPolicies";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    addonMethodSign.argsConvert = {nullptr, nullptr, convertPolicies2Data};
 
-    AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    std::string bundleName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
-        "parameter bundleName error");
-    std::vector<std::string> policies;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_TWO]),
-        "parameter policies error");
-    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(elementName, bundleName, policies);
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -719,22 +659,18 @@ napi_value AdminManager::GetDelegatedBundleNames(napi_env env, napi_callback_inf
 
 napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDelegatedPolicies";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
 
-    AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    std::string bundleOrPolicyName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleOrPolicyName, argv[ARR_INDEX_ONE]),
-        "parameter bundleName or policyName error");
     std::vector<std::string> policies;
-    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetDelegatedPolicies(elementName, bundleOrPolicyName, code,
-        policies);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetDelegatedPolicies(adapterAddonData.data, code, policies);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -888,27 +824,30 @@ napi_value AdminManager::UnsubscribeManagedEventSync(napi_env env, napi_callback
 
 napi_value AdminManager::HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "parameter managedEvents error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::vector<uint32_t> managedEvent;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseManagedEvent(env, managedEvent, argv[ARR_INDEX_ONE]),
-        "parameter managedEvent parse error");
-    EDMLOGD("HandleManagedEventSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto convertEvents2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<uint32_t> managedEvent;
+        bool isParseOk = ParseManagedEvent(env, managedEvent, argv);
+        if (!isParseOk) {
+            return false;
+        }
+        data.WriteUInt32Vector(managedEvent);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "HandleManagedEventSync";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    addonMethodSign.argsConvert = {nullptr, convertEvents2Data};
+    
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    int32_t ret = proxy->HandleManagedEvent(elementName, managedEvent, subscribe);
+    int32_t ret = proxy->HandleManagedEvent(adapterAddonData.data, subscribe);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

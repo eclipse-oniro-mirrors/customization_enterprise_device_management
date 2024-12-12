@@ -22,19 +22,22 @@ ohos_shared_library("adminmanager") {
 
   sources = [
     "../../../common/native/src/hisysevent_adapter.cpp",
-    "../common/src/napi_edm_common.cpp",
-    "../common/src/napi_edm_error.cpp",
     "./src/admin_manager_addon.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  deps = [
+    "../../inner_api:edmservice_kits",
+    "../common:napi_edm_common",
+  ]
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

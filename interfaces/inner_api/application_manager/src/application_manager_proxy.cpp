@@ -100,61 +100,21 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     return ERR_OK;
 }
 
-int32_t ApplicationManagerProxy::AddAutoStartApps(const AppExecFwk::ElementName &admin,
-    const std::vector<AppExecFwk::ElementName> &autoStartApps)
+int32_t ApplicationManagerProxy::AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd)
 {
-    EDMLOGD("ApplicationManagerProxy::AddAutoStartApps");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
+    EDMLOGD("ApplicationManagerProxy::AddOrRemoveAutoStartApps");
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
-    std::vector<std::string> autoStartAppsString;
-    for (size_t i = 0; i < autoStartApps.size(); i++) {
-        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
-        autoStartAppsString.push_back(appWant);
-    }
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteStringVector(autoStartAppsString);
-    return proxy->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::RemoveAutoStartApps(const AppExecFwk::ElementName &admin,
-    const std::vector<AppExecFwk::ElementName> &autoStartApps)
-{
-    EDMLOGD("ApplicationManagerProxy::RemoveAutoStartApps");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
-    std::vector<std::string> autoStartAppsString;
-    for (size_t i = 0; i < autoStartApps.size(); i++) {
-        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
-        autoStartAppsString.push_back(appWant);
-    }
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteStringVector(autoStartAppsString);
-    return proxy->HandleDevicePolicy(funcCode, data);
-}
-
-int32_t ApplicationManagerProxy::GetAutoStartApps(const AppExecFwk::ElementName &admin,
+int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
     std::vector<AppExecFwk::ElementName> &autoStartApps)
 {
     EDMLOGD("ApplicationManagerProxy::GetAutoStartApps");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    proxy->GetPolicy(EdmInterfaceCode::MANAGE_AUTO_START_APPS, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::MANAGE_AUTO_START_APPS, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
