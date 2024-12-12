@@ -92,6 +92,39 @@ bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const Admin &admin)
     return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
+bool AdminPoliciesStorageRdb::ReplaceAdmin(const std::string packageName, int32_t userId, const Admin &newAdmin)
+{
+    EDMLOGD("AdminPoliciesStorageRdb::ReplaceAdmin data start.");
+    auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
+    if (edmRdbDataManager == nullptr) {
+        EDMLOGE("AdminPoliciesStorageRdb::UpdateAdmin get edmRdbDataManager failed.");
+        return false;
+    }
+    // update admin_policies set package_name=?, permissions=? where user_id=? and package_name=?
+    NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
+    predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
+    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
+    return edmRdbDataManager->Update(CreateInsertValuesBucket(userId, newAdmin), predicates);
+}
+
+bool AdminPoliciesStorageRdb::UpdateParentName(const std::string packageName, const std::string currentParentName,
+    const std::string targetParentName)
+{
+    EDMLOGD("AdminPoliciesStorageRdb::UpdateParentName data start.");
+    auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
+    if (edmRdbDataManager == nullptr) {
+        EDMLOGE("AdminPoliciesStorageRdb::UpdateParentName get edmRdbDataManager failed.");
+        return false;
+    }
+    // update admin_policies set ParentName=? where packageName=? and ParentName=?
+    NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
+    predicates.EqualTo(EdmRdbFiledConst::FILED_PARENT_ADMIN, currentParentName);
+    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
+    NativeRdb::ValuesBucket valuesBucket;
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, targetParentName);
+    return edmRdbDataManager->Update(valuesBucket, predicates);
+}
+
 NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_t userId, const Admin &admin)
 {
     NativeRdb::ValuesBucket valuesBucket;

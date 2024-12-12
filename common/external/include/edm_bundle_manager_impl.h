@@ -29,6 +29,10 @@ public:
     bool GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override;
     bool IsBundleInstalled(const std::string &bundleName, int32_t userId) override;
+    ErrCode AddAppInstallControlRule(std::vector<std::string> &data,
+        AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) override;
+    ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
+        std::vector<std::string> &data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

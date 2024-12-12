@@ -192,16 +192,18 @@ ErrCode EnterpriseDeviceMgrStub::ReplaceSuperAdminInner(MessageParcel &data, Mes
     if (!newAdmin) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
+
+    bool keepPolicy = data.ReadBool();
     EDMLOGD(
         "ReplaceSuperAdminInner: oldAdmin.bundlename %{public}s, "
-        "oldAdmin.abilityname:%{public}s"
+        "oldAdmin.abilityname:%{public}s "
         "ReplaceSuperAdminInner: newAdmin.bundlename %{public}s, "
         "newAdmin.abilityname:%{public}s",
         oldAdmin->GetBundleName().c_str(),
         oldAdmin->GetAbilityName().c_str(),
         newAdmin->GetBundleName().c_str(),
         newAdmin->GetAbilityName().c_str());
-    return ReplaceSuperAdmin(*oldAdmin, *newAdmin);
+    return ReplaceSuperAdmin(*oldAdmin, *newAdmin, keepPolicy);
 }
 
 ErrCode EnterpriseDeviceMgrStub::DisableAdminInner(MessageParcel &data, MessageParcel &reply)

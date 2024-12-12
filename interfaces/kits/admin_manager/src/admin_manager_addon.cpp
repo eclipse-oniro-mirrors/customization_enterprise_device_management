@@ -81,20 +81,24 @@ napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info
     ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "ReplaceSuperAdmin", "");
     AppExecFwk::ElementName oldAdmin;
     AppExecFwk::ElementName newAdmin;
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    bool keepPolicy = true;
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error");
     bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean);
 
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, oldAdmin, argv[ARR_INDEX_ZERO]),
-        "oldAdmin name param error");
+        "oldAdmin param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, newAdmin, argv[ARR_INDEX_ONE]),
-        "newAdmin name param error");
+        "newAdmin param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, keepPolicy, argv[ARR_INDEX_TWO]),
+        "keepPolicy param error");
 
     EDMLOGD(
         "ReplaceSuperAdmin: elementName.bundlename %{public}s, "
@@ -102,7 +106,7 @@ napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info
         newAdmin.GetBundleName().c_str(),
         newAdmin.GetAbilityName().c_str());
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    int32_t retCode = proxy->ReplaceSuperAdmin(oldAdmin, newAdmin);
+    int32_t retCode = proxy->ReplaceSuperAdmin(oldAdmin, newAdmin, keepPolicy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }

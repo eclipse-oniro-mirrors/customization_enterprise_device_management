@@ -3587,7 +3587,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
 
 /**
  * @tc.name: TestReplaceSuperAdmin
- * @tc.desc: Test TestReplaceSuperAdmin suc.
+ * @tc.desc: Test TestReplaceSuperAdmin suc and keep policy.
  * @tc.type: FUNC
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin, TestSize.Level1)
@@ -3599,11 +3599,35 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin, TestSize.Level1)
     AppExecFwk::ElementName replaceAdmin;
     replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
     replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    bool isKeepPolicy = true;
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(true, replaceAdmin.GetBundleName());
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
+    ASSERT_TRUE(err == ERR_OK);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdmin
+ * @tc.desc: Test TestReplaceSuperAdmin suc but not keep policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin001, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    AppExecFwk::ElementName replaceAdmin;
+    replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
+    replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    bool isKeepPolicy = false;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, replaceAdmin.GetBundleName());
+    GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
     ASSERT_TRUE(err == ERR_OK);
 }
 
@@ -3621,8 +3645,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin002, TestSize.Leve
     AppExecFwk::ElementName replaceAdmin;
     replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
     replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    bool isKeepPolicy = false;
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
     ASSERT_TRUE(err == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
@@ -3641,9 +3666,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin003, TestSize.Leve
     AppExecFwk::ElementName replaceAdmin;
     replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
     replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    bool isKeepPolicy = false;
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     QueryExtensionAbilityInfosMock(false, replaceAdmin.GetBundleName());
-    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
     ASSERT_TRUE(err == EdmReturnErrCode::COMPONENT_INVALID);
 }
 } // namespace TEST

@@ -228,6 +228,37 @@ ErrCode UserPolicyManager::DeleteCombinedPolicy(const std::string &policyName)
     return ERR_OK;
 }
 
+ErrCode UserPolicyManager::ReplacePolicyByAdminName(int32_t userId, const std::string &adminName,
+    const std::string &newAdminName)
+{
+    auto devicePoliciesStorageRdb = DevicePoliciesStorageRdb::GetInstance();
+    if (devicePoliciesStorageRdb == nullptr) {
+        EDMLOGE("PolicyManager::DeleteCombinedPolicy get devicePoliciesStorageRdb failed.");
+        return ERR_GET_STORAGE_RDB_FAILED;
+    }
+
+    if (!devicePoliciesStorageRdb->ReplaceAdminPolicy(userId, adminName, newAdminName)) {
+        EDMLOGE("PolicyManager DeleteCombinedPolicy failed.");
+        return ERR_EDM_POLICY_REPLACE_FAILED;
+    }
+    auto iter = adminPolicies_.find(adminName);
+    if (iter != adminPolicies_.end()) {
+        auto policyMap = iter->second;
+        adminPolicies_.erase(iter);
+        adminPolicies_[newAdminName] = policyMap;
+    }
+    for (auto &policyEntry : policyAdmins_) {
+        auto adminMap = policyEntry.second;
+        auto it = adminMap.find(adminName);
+        if (it != adminMap.end()) {
+            std::string policyValue = it->second;
+            adminMap.erase(it);
+            adminMap[newAdminName] = policyValue;
+        }
+    }
+    return ERR_OK;
+}
+
 void UserPolicyManager::DumpAdminPolicy()
 {
     EDMLOGD("UserPolicyManager::DumpAdminPolicy %{public}d ", userIdState_);

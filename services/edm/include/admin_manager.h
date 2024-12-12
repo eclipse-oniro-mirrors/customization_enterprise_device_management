@@ -55,6 +55,7 @@ public:
         std::vector<std::string> &bundleNames);
     ErrCode GetSubOrSuperAdminByPkgName(const std::string &subAdminName, std::shared_ptr<Admin> &subOrSuperAdmin);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
+    ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin);
     ~AdminManager();
     void Dump();
 
