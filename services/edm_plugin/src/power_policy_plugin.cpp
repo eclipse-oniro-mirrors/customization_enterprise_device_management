@@ -124,7 +124,7 @@ bool PowerPolicyPlugin::DealPowerSuspendPolicy(const std::string &policyKey, Pow
         return false;
     }
     if (!root.isMember(policyKey)) {
-        EDMLOGE("PowerPolicyPlugin:DealPowerSuspendPolicy %{pubilc}s is not root member", policyKey.c_str());
+        EDMLOGE("PowerPolicyPlugin:DealPowerSuspendPolicy %{public}s is not root member", policyKey.c_str());
         return false;
     }
     Json::Value::Members members = root.getMemberNames();
