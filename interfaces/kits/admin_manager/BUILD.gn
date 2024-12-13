@@ -35,6 +35,7 @@ ohos_shared_library("adminmanager") {
     "ability_base:want",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "ipc:ipc_single",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
