@@ -46,6 +46,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/admin_manager.cpp",
     "../../../services/edm/src/admin_policies_storage_rdb.cpp",
     "../../../services/edm/src/application_state_observer.cpp",
+    "../../../services/edm/src/connection/enterprise_account_connection.cpp",
     "../../../services/edm/src/connection/enterprise_admin_connection.cpp",
     "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",

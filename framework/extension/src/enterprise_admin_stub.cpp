@@ -61,6 +61,15 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         case COMMAND_ON_SYSTEM_UPDATE:
             OnSystemUpdateInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_ACCOUNT_ADDED:
+            OnAccountAddedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_ACCOUNT_SWITCHED:
+            OnAccountSwitchedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_ACCOUNT_REMOVED:
+            OnAccountRemovedInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -116,6 +125,27 @@ void EnterpriseAdminStub::OnSystemUpdateInner(MessageParcel& data, MessageParcel
     updateInfo.firstReceivedTime = data.ReadInt64();
     updateInfo.packageType = data.ReadString();
     OnSystemUpdate(updateInfo);
+}
+
+void EnterpriseAdminStub::OnAccountAddedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnAccountAdded");
+    int32_t accountId = data.ReadInt32();
+    OnAccountAdded(accountId);
+}
+
+void EnterpriseAdminStub::OnAccountSwitchedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnAccountSwitched");
+    int32_t accountId = data.ReadInt32();
+    OnAccountSwitched(accountId);
+}
+
+void EnterpriseAdminStub::OnAccountRemovedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnAccountRemoved");
+    int32_t accountId = data.ReadInt32();
+    OnAccountRemoved(accountId);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

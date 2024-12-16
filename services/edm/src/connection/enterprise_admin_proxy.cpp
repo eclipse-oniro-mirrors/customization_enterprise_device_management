@@ -104,6 +104,42 @@ void EnterpriseAdminProxy::OnSystemUpdate(const UpdateInfo &updateInfo)
     SendRequest(COMMAND_ON_SYSTEM_UPDATE, data);
 }
 
+void EnterpriseAdminProxy::OnAccountAdded(const int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnAccountAdded");
+    SendRequest(COMMAND_ON_ACCOUNT_ADDED, data);
+}
+
+void EnterpriseAdminProxy::OnAccountSwitched(const int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnAccountSwitched");
+    SendRequest(COMMAND_ON_ACCOUNT_SWITCHED, data);
+}
+
+void EnterpriseAdminProxy::OnAccountRemoved(const int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnAccountRemoved");
+    SendRequest(COMMAND_ON_ACCOUNT_REMOVED, data);
+}
+
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     MessageParcel reply;

@@ -44,6 +44,7 @@ ohos_shared_library("edmservice") {
     "./src/admin_manager.cpp",
     "./src/admin_policies_storage_rdb.cpp",
     "./src/application_state_observer.cpp",
+    "./src/connection/enterprise_account_connection.cpp",
     "./src/connection/enterprise_admin_connection.cpp",
     "./src/connection/enterprise_admin_proxy.cpp",
     "./src/connection/enterprise_bundle_connection.cpp",
