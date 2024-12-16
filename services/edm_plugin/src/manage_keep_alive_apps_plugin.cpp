@@ -250,6 +250,7 @@ void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res, std::string &errMessa
             break;
         case ERR_CAPABILITY_NOT_SUPPORT:
             res = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            break;
         default:
             break;
     }
