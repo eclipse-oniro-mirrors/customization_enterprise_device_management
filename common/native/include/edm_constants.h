@@ -67,6 +67,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
+        const char* const LABEL_DISALLOWED_POLICY_CAMERA = "camera";
     } // namespace Restrictions
 
     namespace SecurityManager {

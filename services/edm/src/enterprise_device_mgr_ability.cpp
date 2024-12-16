@@ -222,8 +222,14 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::CommonEventData &data)
 {
     EDMLOGI("OnCommonEventPackageAdded");
-    std::string bundleName = data.GetWant().GetElement().GetBundleName();
-    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED);
+    AAFwk::Want want = data.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t userId = want.GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+    if (userId == AppExecFwk::Constants::INVALID_USERID) {
+        EDMLOGE("OnCommonEventPackageAdded get INVALID_USERID");
+        return;
+    }
+    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data)
@@ -231,6 +237,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     EDMLOGI("OnCommonEventPackageRemoved");
     std::string bundleName = data.GetWant().GetElement().GetBundleName();
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+    if (userId == AppExecFwk::Constants::INVALID_USERID) {
+        EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
+        return;
+    }
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, userId);
     if (admin != nullptr) {
@@ -249,10 +259,11 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
             system::SetParameter(PARAM_EDM_ENABLE, "false");
         }
     }
-    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED);
+    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
 }
 
-void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event)
+void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
+    ManagedEvent event, int32_t userId)
 {
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
     adminMgr_->GetAdminBySubscribeEvent(event, subAdmins);
@@ -266,7 +277,7 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
             std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
             sptr<IEnterpriseConnection> connection =
-                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), subAdmin.first, bundleName);
+                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), subAdmin.first, bundleName, userId);
             manager->ConnectAbility(connection);
         }
     }

@@ -82,14 +82,16 @@ void EnterpriseAdminStub::OnBundleAddedInner(MessageParcel& data, MessageParcel&
 {
     EDMLOGI("EnterpriseAdminStub::OnBundleAdded");
     std::string bundleName = data.ReadString();
-    OnBundleAdded(bundleName);
+    int32_t accountId = data.ReadInt32();
+    OnBundleAdded(bundleName, accountId);
 }
 
 void EnterpriseAdminStub::OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply)
 {
     EDMLOGI("EnterpriseAdminStub::OnBundleRemoved");
     std::string bundleName = data.ReadString();
-    OnBundleRemoved(bundleName);
+    int32_t accountId = data.ReadInt32();
+    OnBundleRemoved(bundleName, accountId);
 }
 
 void EnterpriseAdminStub::OnAppStartInner(MessageParcel& data, MessageParcel& reply)
