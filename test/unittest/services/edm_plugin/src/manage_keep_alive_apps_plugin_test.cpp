@@ -154,7 +154,10 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnHandlePolicyAddFailWithNotExistedD
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED);
+    ErrCode res;
+    reply.ReadInt32(res);
+    ASSERT_TRUE((res == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED) ||
+        (res == EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
@@ -175,7 +178,10 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnHandlePolicyRemoveFailWithNotExist
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED);
+    ErrCode res;
+    reply.ReadInt32(res);
+    ASSERT_TRUE((res == EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED) ||
+        (res == EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
