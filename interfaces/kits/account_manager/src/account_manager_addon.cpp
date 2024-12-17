@@ -20,6 +20,7 @@
 #include "ohos_account_kits.h"
 #endif
 #include "edm_log.h"
+#include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -40,71 +41,50 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_DisallowAddLocalAccount called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncDisallowAddLocalAccountCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncDisallowAddLocalAccountCallbackInfo> callbackPtr {asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("DisallowAddLocalAccount: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ret = ParseBool(env, asyncCallbackInfo->isDisallow, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "isDisallow param error");
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_DisallowAddLocalAccount argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisallowAddLocalAccount",
-        NativeDisallowAddLocalAccount, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "DisallowAddLocalAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeDisallowAddLocalAccount, NativeVoidCallbackComplete);
 }
 
 napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_DisallowAddOsAccountByUser called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter userid error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
-        "parameter disallow error");
+    auto convertUserId2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        int32_t userId = 0;
+        bool isUint = ParseInt(env, userId, argv);
+        if (!isUint) {
+            return false;
+        }
+        std::vector<std::string> key {std::to_string(userId)};
+        data.WriteStringVector(key);
+        return true;
+    };
+    auto convertBool2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        bool isDisallow = false;
+        bool isBool = ParseBool(env, isDisallow, argv);
+        if (!isBool) {
+            return false;
+        }
+        std::vector<std::string> value {isDisallow ? "true" : "false"};
+        data.WriteStringVector(value);
+        return true;
+    };
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    int32_t userId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "parameter userid parse error");
-    bool disallow;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
-
-    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
-    if (accountManagerProxy == nullptr) {
-        EDMLOGE("can not get AccountManagerProxy");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "DisallowAddOsAccountByUser";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.argsConvert = {nullptr, convertUserId2Data, convertBool2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
         return nullptr;
     }
-    int32_t ret = accountManagerProxy->DisallowAddOsAccountByUser(elementName, userId, disallow);
+
+    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->DisallowAddOsAccountByUser(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("NAPI_DisallowAddOsAccountByUser failed!");
@@ -114,36 +94,23 @@ napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_ca
 
 napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_IsAddOsAccountByUserDisallowed called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter userid error");
-    int32_t userId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "parameter userid parse error");
-    bool isDisabled = false;
-    int32_t ret = ERR_OK;
-    if (hasAdmin) {
-        ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(&elementName, userId,
-            isDisabled);
-    } else {
-        ret =
-            AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(nullptr, userId, isDisabled);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "IsAddOsAccountByUserDisallowed";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
+    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->IsAddOsAccountByUserDisallowed(adapterAddonData.data,
+        adapterAddonData.boolRet);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
-    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
-    return result;
+    napi_value res = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, adapterAddonData.boolRet, &res));
+    return res;
 }
 
 napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info info)
@@ -188,15 +155,14 @@ void AccountManagerAddon::NativeDisallowAddLocalAccount(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDisallowAddLocalAccountCallbackInfo *asyncCallbackInfo =
-        static_cast<AsyncDisallowAddLocalAccountCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo =
+        static_cast<AdapterAddonData *>(data);
     auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
     if (accountManagerProxy == nullptr) {
         EDMLOGE("can not get AccountManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = accountManagerProxy->DisallowAddLocalAccount(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->isDisallow);
+    asyncCallbackInfo->ret = accountManagerProxy->DisallowAddLocalAccount(asyncCallbackInfo->data);
 }
 
 #ifdef OS_ACCOUNT_EDM_ENABLE

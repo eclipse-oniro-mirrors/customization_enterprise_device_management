@@ -64,10 +64,13 @@ public:
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
     int32_t SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled, uint32_t policyCode,
         std::string permissionTag = WITHOUT_PERMISSION_TAG);
+    int32_t SetPolicyDisabled(MessageParcel &data, uint32_t policyCode);
     int32_t IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result,
         std::string permissionTag = WITHOUT_PERMISSION_TAG);
+    int32_t IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result);
     bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
         int32_t userId = DEFAULT_USER_ID);
+    bool GetPolicyValue(MessageParcel &data, uint32_t policyCode, std::string &policyData);
     bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData,
         int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyMap(AppExecFwk::ElementName *admin, int policyCode, std::map<std::string, std::string> &policyData,
@@ -75,6 +78,7 @@ public:
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
+    bool CheckDataInEdmDisabled(MessageParcel &data);
 
 private:
     sptr<IRemoteObject> LoadAndGetEdmService();
