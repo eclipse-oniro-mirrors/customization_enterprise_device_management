@@ -47,8 +47,8 @@ constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
 constexpr int32_t INVALID_POLICYCODE = 123456;
-constexpr int32_t ERROR_USER_ID_REMOVE = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 4;
+constexpr int32_t ERROR_USER_ID = 0;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 6;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -1853,6 +1853,86 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnReceiveEvent, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestOnCommonEventUserAdded
+ * @tc.desc: Test OnCommonEventUserAdded func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserAdded, TestSize.Level1)
+{
+    EnterpriseDeviceMgrAbility listener;
+    edmMgr_->CreateEnterpriseDeviceEventSubscriber(listener);
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<EnterpriseDeviceEventSubscriber> edmEventSubscriber =
+        std::make_shared<EnterpriseDeviceEventSubscriber>(info, *edmMgr_);
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = ADMIN_PACKAGENAME;
+    abilityInfo.name = ADMIN_PACKAGENAME_ABILITY;
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
+    edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
+    edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
+    edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
+
+    EventFwk::CommonEventData data;
+    std::string action = "usual.event.USER_ADDED";
+    AAFwk::Want want;
+    want.SetAction(action);
+    data.SetWant(want);
+    data.SetCode(ERROR_USER_ID);
+    edmEventSubscriber->OnReceiveEvent(data);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool isExist = edmMgr_->adminMgr_->GetAdminByUserId(ERROR_USER_ID, userAdmin);
+    EXPECT_TRUE(isExist);
+}
+
+/**
+ * @tc.name: TestOnCommonEventUserSwitched
+ * @tc.desc: Test OnCommonEventUserSwitched func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserSwitched, TestSize.Level1)
+{
+    EnterpriseDeviceMgrAbility listener;
+    edmMgr_->CreateEnterpriseDeviceEventSubscriber(listener);
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<EnterpriseDeviceEventSubscriber> edmEventSubscriber =
+        std::make_shared<EnterpriseDeviceEventSubscriber>(info, *edmMgr_);
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = ADMIN_PACKAGENAME;
+    abilityInfo.name = ADMIN_PACKAGENAME_ABILITY;
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
+    edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
+    edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
+    edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
+
+    EventFwk::CommonEventData data;
+    std::string action = "usual.event.USER_SWITCHED";
+    AAFwk::Want want;
+    want.SetAction(action);
+    data.SetWant(want);
+    data.SetCode(ERROR_USER_ID);
+    edmEventSubscriber->OnReceiveEvent(data);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool isExist = edmMgr_->adminMgr_->GetAdminByUserId(ERROR_USER_ID, userAdmin);
+    EXPECT_TRUE(isExist);
+}
+
+/**
  * @tc.name: TestOnCommonEventUserRemoved
  * @tc.desc: Test OnCommonEventUserRemoved func.
  * @tc.type: FUNC
@@ -1878,26 +1958,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.
     edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
-    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID_REMOVE, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
 
     EventFwk::CommonEventData data;
     std::string action = "usual.event.USER_REMOVED";
     AAFwk::Want want;
     want.SetAction(action);
     data.SetWant(want);
-    data.SetCode(ERROR_USER_ID_REMOVE);
+    data.SetCode(ERROR_USER_ID);
     edmEventSubscriber->OnReceiveEvent(data);
     std::vector<std::shared_ptr<Admin>> userAdmin;
-    bool isExist = edmMgr_->adminMgr_->GetAdminByUserId(ERROR_USER_ID_REMOVE, userAdmin);
-    EXPECT_TRUE(isExist);
-
-    data.SetCode(DEFAULT_USER_ID);
-    edmMgr_->OnCommonEventUserRemoved(data);
-    isExist = edmMgr_->adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
+    bool isExist = edmMgr_->adminMgr_->GetAdminByUserId(ERROR_USER_ID, userAdmin);
     EXPECT_TRUE(!isExist);
-
-    ErrCode ret = edmMgr_->adminMgr_->DeleteAdmin(edmAdmin.adminInfo_.packageName_, ERROR_USER_ID_REMOVE);
-    EXPECT_TRUE(ret == ERR_OK);
 }
 
 /**

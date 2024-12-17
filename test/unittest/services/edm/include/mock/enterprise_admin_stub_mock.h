@@ -52,6 +52,12 @@ public:
 
     void OnSystemUpdate(const UpdateInfo &updateInfo) override {}
 
+    void OnAccountAdded(const int32_t accountId) override {}
+
+    void OnAccountSwitched(const int32_t accountId) override {}
+
+    void OnAccountRemoved(const int32_t accountId) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

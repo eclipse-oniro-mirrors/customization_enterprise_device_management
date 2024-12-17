@@ -54,6 +54,14 @@ sptr<IEnterpriseConnection> EnterpriseConnManager::CreateUpdateConnection(const 
     return connection;
 }
 
+sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAccountConnection(const AAFwk::Want &want,
+    uint32_t code, uint32_t userId, const int32_t accountId)
+{
+    sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseAccountConnection(want, code, userId,
+        accountId));
+    return connection;
+}
+
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

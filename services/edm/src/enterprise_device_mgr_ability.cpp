@@ -93,6 +93,14 @@ constexpr int32_t TIMER_TIMEOUT = 360000; // 6 * 60 * 1000;
 
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_ADDED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventUserAdded(data);
+        };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventUserSwitched(data);
+        };
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventUserRemoved(data);
@@ -221,10 +229,33 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
 }
 #endif
 
+void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEventData &data)
+{
+    int userIdToAdd = data.GetCode();
+    if (userIdToAdd < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserAdded error userid:%{public}d", userIdToAdd);
+        return;
+    }
+    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserAdded %{public}d", userIdToAdd);
+    ConnectAbilityOnSystemAccountEvent(userIdToAdd, ManagedEvent::USER_ADDED);
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
+{
+    int userIdToSwitch = data.GetCode();
+    if (userIdToSwitch < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error userid:%{public}d", userIdToSwitch);
+        return;
+    }
+    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
+    ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
 {
     int userIdToRemove = data.GetCode();
-    if (userIdToRemove == 0) {
+    if (userIdToRemove < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserRemoved error userid:%{public}d", userIdToRemove);
         return;
     }
     EDMLOGI("OnCommonEventUserRemoved");
@@ -247,6 +278,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved: remove sub and super admin policy failed.");
         }
     }
+    ConnectAbilityOnSystemAccountEvent(userIdToRemove, ManagedEvent::USER_REMOVED);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::CommonEventData &data)
@@ -292,6 +324,26 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
+}
+
+void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
+{
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
+    adminMgr_->GetAdminBySubscribeEvent(event, subAdmins);
+    if (subAdmins.empty()) {
+        EDMLOGW("SystemEventSubscriber Get subscriber by common event failed.");
+        return;
+    }
+    AAFwk::Want want;
+    for (const auto &subAdmin : subAdmins) {
+        for (const auto &it : subAdmin.second) {
+            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
+            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            sptr<IEnterpriseConnection> connection =
+                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), GetCurrentUserId(), accountId);
+            manager->ConnectAbility(connection);
+        }
+    }
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
@@ -1543,6 +1595,9 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
         case static_cast<uint32_t>(ManagedEvent::APP_START):
         case static_cast<uint32_t>(ManagedEvent::APP_STOP):
         case static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE):
+        case static_cast<uint32_t>(ManagedEvent::USER_ADDED):
+        case static_cast<uint32_t>(ManagedEvent::USER_SWITCHED):
+        case static_cast<uint32_t>(ManagedEvent::USER_REMOVED):
             break;
         default:
             return false;
