@@ -73,6 +73,7 @@
         "netmanager_ext",
         "hilog",
         "hisysevent",
+        "image_framework",
         "init",
         "ipc",
         "jsoncpp",
