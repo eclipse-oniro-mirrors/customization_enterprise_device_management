@@ -43,21 +43,21 @@ public:
     ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
     ErrCode DisableSuperAdmin(const std::string &bundleName);
+    ErrCode DisableSuperAdmin(MessageParcel &data);
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
-    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
+    ErrCode SetEnterpriseInfo(MessageParcel &data);
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
         bool subscribe);
-    ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
+    ErrCode HandleManagedEvent(MessageParcel &data, bool subscribe);
+    ErrCode IsSuperAdmin(MessageParcel &data, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
-    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName);
+    ErrCode AuthorizeAdmin(MessageParcel &data);
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
-    ErrCode SetDelegatedPolicies(const AppExecFwk::ElementName &admin, const std::string &bundleName,
-        const std::vector<std::string> &policies);
-    ErrCode GetDelegatedPolicies(const AppExecFwk::ElementName &admin, const std::string &bundleNameOrPolicyName,
-        uint32_t code, std::vector<std::string> &result);
+    ErrCode SetDelegatedPolicies(MessageParcel &data);
+    ErrCode GetDelegatedPolicies(MessageParcel &data, uint32_t code, std::vector<std::string> &result);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
@@ -68,8 +68,6 @@ public:
     int32_t IsPolicyDisabled(const AppExecFwk::ElementName *admin, int policyCode, bool &result,
         std::string permissionTag = WITHOUT_PERMISSION_TAG);
     int32_t IsPolicyDisabled(MessageParcel &data, uint32_t policyCode, bool &result);
-    bool GetPolicyValue(AppExecFwk::ElementName *admin, int policyCode, std::string &policyData,
-        int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyValue(MessageParcel &data, uint32_t policyCode, std::string &policyData);
     bool GetPolicyArray(AppExecFwk::ElementName *admin, int policyCode, std::vector<std::string> &policyData,
         int32_t userId = DEFAULT_USER_ID);
