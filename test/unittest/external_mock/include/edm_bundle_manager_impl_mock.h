@@ -32,6 +32,8 @@ public:
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos), (override));
     MOCK_METHOD(bool, GetBundleInfo, (const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId), (override));
+    MOCK_METHOD(bool, IsBundleInstalled, (const std::string &bundleName, int32_t userId), (override));
+    MOCK_METHOD(std::string, GetApplicationInfo, (const std::string &appName, int32_t userId), (override));
 };
 } // namespace EDM
 } // namespace OHOS

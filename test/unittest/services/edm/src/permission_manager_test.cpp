@@ -65,8 +65,8 @@ HWTEST_F(PermissionManagerTest, GetReqPermission01, TestSize.Level1)
         std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
-    std::vector<AdminPermission> reqPermission;
-    PermissionManager::GetInstance()->GetReqPermission(permission, reqPermission);
+    std::vector<std::string> reqPermission;
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::NORMAL, reqPermission);
     ASSERT_TRUE(reqPermission.size() == 1);
 }
 
@@ -81,8 +81,10 @@ HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
         std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"), IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
-    std::vector<EdmPermission> reqPermission;
-    PermissionManager::GetInstance()->GetReqPermission(permission, reqPermission);
+    std::vector<std::string> reqPermission;
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::NORMAL, reqPermission);
+    ASSERT_TRUE(reqPermission.empty());
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::ENT, reqPermission);
     ASSERT_TRUE(reqPermission.size() == 1);
 }
 } // namespace TEST

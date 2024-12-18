@@ -34,6 +34,8 @@ public:
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) = 0;
     virtual bool GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) = 0;
+    virtual bool IsBundleInstalled(const std::string &bundleName, int32_t userId) = 0;
+    virtual std::string GetApplicationInfo(const std::string &appName, int userId) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

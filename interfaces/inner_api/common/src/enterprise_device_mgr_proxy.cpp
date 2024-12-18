@@ -19,6 +19,7 @@
 #include <string_ex.h>
 
 #include "admin_type.h"
+#include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_load_manager.h"
 #include "edm_log.h"
@@ -444,6 +445,63 @@ ErrCode EnterpriseDeviceMgrProxy::GetSuperAdmin(std::string &bundleName, std::st
     }
     reply.ReadString(bundleName);
     reply.ReadString(abilityName);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(const AppExecFwk::ElementName &admin,
+    const std::string &bundleName, const std::vector<std::string> &policies)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SetDelegatedPolicies");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    data.WriteStringVector(policies);
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_DELEGATED_POLICIES, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:SetDelegatedPolicies get result code fail. %{public}d", res);
+        return res;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrProxy::GetDelegatedPolicies(const AppExecFwk::ElementName &admin,
+    const std::string &bundleNameOrPolicyName, uint32_t code, std::vector<std::string> &result)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetDelegatedPolicies");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleNameOrPolicyName);
+    ErrCode res = remote->SendRequest(code, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetDelegatedPolicies get result code fail. %{public}d", res);
+        return res;
+    }
+    uint32_t size = reply.ReadUint32();
+    if (size > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetDelegatedPolicies get result size is too large.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    reply.ReadStringVector(&result);
     return ERR_OK;
 }
 

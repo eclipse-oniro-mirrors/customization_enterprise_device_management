@@ -87,6 +87,8 @@ struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
 class AdminManager {
 public:
     static napi_value Init(napi_env env, napi_value exports);
+
+private:
     static napi_value EnableAdmin(napi_env env, napi_callback_info info);
     static napi_value DisableAdmin(napi_env env, napi_callback_info info);
     static napi_value DisableSuperAdmin(napi_env env, napi_callback_info info);
@@ -101,6 +103,10 @@ public:
     static napi_value SubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value GetSuperAdmin(napi_env env, napi_callback_info info);
+    static napi_value SetDelegatedPolicies(napi_env env, napi_callback_info info);
+    static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info);
+    static napi_value GetDelegatedBundleNames(napi_env env, napi_callback_info info);
+    static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -123,7 +129,6 @@ public:
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);
     static napi_value ConvertWantToJs(napi_env env, const std::string &bundleName, const std::string &abilityName);
 
-private:
     static AdminType ParseAdminType(int32_t type);
     static bool CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
         bool &hasUserId);

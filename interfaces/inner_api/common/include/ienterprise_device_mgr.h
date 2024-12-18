@@ -49,6 +49,12 @@ public:
     virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
     virtual ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) = 0;
     virtual ErrCode GetSuperAdmin(MessageParcel &reply) = 0;
+    virtual ErrCode SetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
+        const std::vector<std::string> &policies) = 0;
+    virtual ErrCode GetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
+        std::vector<std::string> &policies) = 0;
+    virtual ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
+        std::vector<std::string> &bundleNames) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -637,6 +637,72 @@ void AdminManager::NativeAuthorizeAdmin(napi_env env, void *data)
         asyncCallbakInfo->bundleName);
 }
 
+napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDelegatedPolicies called.");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+
+    AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    std::string bundleName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+        "parameter bundleName error");
+    std::vector<std::string> policies;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_TWO]),
+        "parameter policies error");
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(elementName, bundleName, policies);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDelegatedPolicies called.");
+    return GetDelegatedPolicies(env, info, EdmInterfaceCode::GET_DELEGATED_POLICIES);
+}
+
+napi_value AdminManager::GetDelegatedBundleNames(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDelegatedBundleNames called.");
+    return GetDelegatedPolicies(env, info, EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES);
+}
+
+napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+
+    AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    std::string bundleOrPolicyName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleOrPolicyName, argv[ARR_INDEX_ONE]),
+        "parameter bundleName or policyName error");
+    std::vector<std::string> policies;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetDelegatedPolicies(elementName, bundleOrPolicyName, code,
+        policies);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertStringVectorToJS(env, policies, result);
+    return result;
+}
+
 void AdminManager::CreateAdminTypeObject(napi_env env, napi_value value)
 {
     napi_value nNomal;
@@ -754,6 +820,9 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("getSuperAdmin", GetSuperAdmin),
+        DECLARE_NAPI_FUNCTION("setDelegatedPolicies", SetDelegatedPolicies),
+        DECLARE_NAPI_FUNCTION("getDelegatedPolicies", GetDelegatedPolicies),
+        DECLARE_NAPI_FUNCTION("getDelegatedBundleNames", GetDelegatedBundleNames),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
