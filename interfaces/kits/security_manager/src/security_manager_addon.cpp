@@ -15,15 +15,19 @@
 
 #include "security_manager_addon.h"
 
+#include <fcntl.h>
+#include <fstream>
 #include "cJSON.h"
 #include "cjson_check.h"
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "pixel_map_napi.h"
 
 using namespace OHOS::EDM;
 
 constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
+constexpr int32_t MAX_WATERMARK_IMAGE_SIZE = 512000; // 500 * 1024
 static const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
 
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
@@ -41,6 +45,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
         DECLARE_NAPI_FUNCTION("setAppClipboardPolicy", SetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
+        DECLARE_NAPI_FUNCTION("setWatermarkImage", SetWatermarkImage),
+        DECLARE_NAPI_FUNCTION("cancelWatermarkImage", CancelWatermarkImage),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
@@ -448,6 +454,107 @@ void SecurityManagerAddon::CreateClipboardPolicyObject(napi_env env, napi_value 
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::CROSS_DEVICE), &nCrossDevice));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CROSS_DEVICE", nCrossDevice));
+}
+
+napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetWatermarkImage called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
+    napi_valuetype imageValueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType));
+    ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object || imageValueType == napi_string,
+        "image type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number),
+        "accountId type error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string bundleName;
+    std::shared_ptr<Media::PixelMap> pixelMap;
+    int32_t accountId = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundleName error");
+    if (imageValueType == napi_object) {
+        pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_TWO]);
+    } else {
+        std::string url;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, url, argv[ARR_INDEX_TWO]),
+            "Parameter pixelMap error");
+        pixelMap = Decode(url);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr &&
+        pixelMap->GetByteCount() <= MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_THREE]),
+        "Parameter accountId error");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::CancelWatermarkImage(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_CancelWatermarkImage called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "accountId type error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    std::string bundleName;
+    int32_t accountId = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundleName error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "Parameter accountId error");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+}
+
+std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::string url)
+{
+    char canonicalPath[PATH_MAX + 1] = { 0 };
+    if (url.size() > PATH_MAX || realpath(url.c_str(), canonicalPath) == nullptr) {
+        EDMLOGE("realpath error");
+        return nullptr;
+    }
+    int fd = open(canonicalPath, O_RDONLY);
+    if (fd == -1) {
+        EDMLOGE("Decode Open file fail!");
+        return nullptr;
+    }
+    uint32_t ret = ERR_INVALID_VALUE;
+    std::shared_ptr<int> fdPtr(&fd, [](int *fd) {
+        close(*fd);
+        *fd = -1;
+    });
+    Media::SourceOptions sourceOption;
+    auto imageSourcePtr = Media::ImageSource::CreateImageSource(*fdPtr, sourceOption, ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("CreateImageSource error");
+        return nullptr;
+    }
+    Media::DecodeOptions option;
+    auto pixelMapPtr = imageSourcePtr->CreatePixelMap(option, ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("CreatePixelMap error");
+        return nullptr;
+    }
+    return std::shared_ptr<Media::PixelMap>(std::move(pixelMapPtr));
 }
 
 static napi_module g_securityModule = {

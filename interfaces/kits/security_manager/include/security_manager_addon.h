@@ -16,11 +16,13 @@
 #ifndef INTERFACES_KITS_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_ADDON_H
 #define INTERFACES_KITS_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_ADDON_H
 
+#include "image_source.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
+#include "pixel_map.h"
 #include "security_manager_proxy.h"
 #include "want.h"
 
@@ -53,6 +55,9 @@ private:
     static napi_value SetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static void CreateClipboardPolicyObject(napi_env env, napi_value value);
+    static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
+    static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);
+    static std::shared_ptr<Media::PixelMap> Decode(const std::string url);
 };
 } // namespace EDM
 } // namespace OHOS
