@@ -160,7 +160,8 @@ const bool REGISTER_SET_WIFI_DISABLED_PLUGIN =
 const bool REGISTER_SET_WIFI_PROFILE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
 const bool REGISTER_UNINSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(UninstallPlugin::GetPlugin());
-const bool REGISTER_USB_READ_ONLY_PLUGIN = PluginManager::GetInstance()->AddPlugin(UsbReadOnlyPlugin::GetPlugin());
+const bool REGISTER_USB_READ_ONLY_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<UsbReadOnlyPlugin>());
 const bool REGISTER_USER_CERT_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)

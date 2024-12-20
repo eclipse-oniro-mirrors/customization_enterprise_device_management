@@ -63,16 +63,16 @@ ErrCode UsbPolicyUtils::AddAllowedUsbDevices(std::vector<UsbDeviceId> data)
     return ERR_OK;
 }
 
-ErrCode UsbPolicyUtils::SetStorageUsbDeviceDisabled(bool isDisabled)
+ErrCode UsbPolicyUtils::SetDisallowedUsbDevices(std::vector<USB::UsbDeviceType> data)
 {
-    EDMLOGI("UsbPolicyUtils SetStorageUsbDeviceDisabled...isDisabled = %{public}d", isDisabled);
+    EDMLOGI("UsbPolicyUtils SetDisallowedUsbDevices...data size = %{public}zu", data.size());
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    int32_t usbRet = srvClient.ManageInterfaceStorage(OHOS::USB::InterfaceType::TYPE_STORAGE, isDisabled);
+    int32_t usbRet = srvClient.ManageInterfaceType(data, true);
     if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("UsbPolicyUtils ManageInterfaceStorage failed! USB interface not init!");
+        EDMLOGW("UsbPolicyUtils ManageInterfaceType failed! USB interface not init!");
     }
     if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGE("UsbPolicyUtils ManageInterfaceStorage failed! ret:%{public}d", usbRet);
+        EDMLOGE("UsbPolicyUtils ManageInterfaceType failed! ret:%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

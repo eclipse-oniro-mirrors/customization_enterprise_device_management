@@ -22,10 +22,15 @@
 #include "os_account_info.h"
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
+#include "usb_interface_type.h"
 
 namespace OHOS {
 namespace EDM {
 const uint32_t APPID_MAX_SIZE = 200;
+const int32_t BASE_CLASS = 3;
+const int32_t SUB_CLASS = 1;
+const int32_t PROTOCOL = 2;
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -253,6 +258,27 @@ int EnterpriseDeviceMgrStubMock::InvokeAllowedUsbDevicesSendRequestGetPolicy(uin
     reply.WriteInt32(usbDeviceIds.size());
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(reply);
+    });
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeDisallowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) <<
+        "mock EnterpriseDeviceMgrStubMock InvokeDisallowedUsbDevicesSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType type;
+    type.baseClass = BASE_CLASS;
+    type.subClass = SUB_CLASS;
+    type.protocol = PROTOCOL;
+    type.isDeviceType = false;
+    usbDeviceTypes.push_back(type);
+    reply.WriteInt32(usbDeviceTypes.size());
+    std::for_each(usbDeviceTypes.begin(), usbDeviceTypes.end(), [&](const auto usbDeviceType) {
+        usbDeviceType.Marshalling(reply);
     });
     return 0;
 }

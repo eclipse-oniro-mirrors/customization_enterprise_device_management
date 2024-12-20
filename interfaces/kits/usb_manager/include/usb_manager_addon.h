@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,9 @@
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "usb_device_id.h"
+#ifdef USB_EDM_ENABLE
+#include "usb_interface_type.h"
+#endif
 #include "want.h"
 
 namespace OHOS {
@@ -36,6 +39,11 @@ constexpr int32_t USB_POLICY[] = {
     EdmConstants::STORAGE_USB_POLICY_READ_WRITE,
     EdmConstants::STORAGE_USB_POLICY_READ_ONLY,
     EdmConstants::STORAGE_USB_POLICY_DISABLED
+};
+
+constexpr int32_t DESCRIPTOR[] = {
+    EdmConstants::USB_INTERFACE_DESCRIPTOR,
+    EdmConstants::USB_DEVICE_DESCRIPTOR
 };
 
 class UsbManagerAddon {
@@ -57,6 +65,18 @@ private:
     static napi_value UsbDeviceIdToJsObj(napi_env env, const UsbDeviceId &usbDeviceId);
     static napi_value SetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
     static napi_value GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
+
+    static void CreateDescriptorEnum(napi_env env, napi_value value);
+    static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value GetDisallowedUsbDevices(napi_env env, napi_callback_info info);
+#ifdef USB_EDM_ENABLE
+    static bool ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
+        napi_value object);
+    static bool GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType);
+    static napi_value UsbDeviceTypeToJsObj(napi_env env, const USB::UsbDeviceType &usbDeviceType);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

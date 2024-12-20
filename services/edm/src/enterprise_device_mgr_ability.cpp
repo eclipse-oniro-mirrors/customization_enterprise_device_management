@@ -592,10 +592,22 @@ void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
 
     std::string usbStoragePolicy;
     policyMgr_->GetPolicy("", "usb_read_only", usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
+    std::string disallowUsbDevicePolicy;
+    policyMgr_->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy, DEFAULT_USER_ID);
+    std::vector<USB::UsbDeviceType> disallowedDevices;
+    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(policyData, disallowedDevices);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
-        ErrCode storageRet = UsbPolicyUtils::SetStorageUsbDeviceDisabled(true);
-        if (storageRet != ERR_OK) {
-            EDMLOGW("SetStorageUsbDeviceDisabled Error: %{public}d", storageRet);
+        USB::UsbDeviceType storageType;
+        storageType.baseClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.subClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.protocol = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.isDeviceType = false;
+        disallowedDevices.emplace_back(storageType);
+    }
+    if (!disallowedDevices.empty()) {
+        ErrCode disallowedUsbRet = UsbPolicyUtils::SetDisallowedUsbDevices(disallowedDevices);
+        if (disallowedUsbRet != ERR_OK) {
+            EDMLOGW("SetDisallowedUsbDevices Error: %{public}d", disableUsbRet);
         }
     }
 }
