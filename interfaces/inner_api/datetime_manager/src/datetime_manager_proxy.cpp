@@ -58,24 +58,10 @@ int32_t DatetimeManagerProxy::SetDateTime(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t DatetimeManagerProxy::DisallowModifyDateTime(AppExecFwk::ElementName &admin, bool disallow)
-{
-    EDMLOGD("DatetimeManagerProxy::DisallowModifyDateTime");
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow,
-        EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, EdmConstants::PERMISSION_TAG_VERSION_11);
-}
-
 int32_t DatetimeManagerProxy::DisallowModifyDateTime(MessageParcel &data)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(data,
         EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);
-}
-
-int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(AppExecFwk::ElementName *admin, bool &result)
-{
-    EDMLOGD("DatetimeManagerProxy::IsModifyDateTimeDisallowed");
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
-        result, EdmConstants::PERMISSION_TAG_VERSION_11);
 }
 
 int32_t DatetimeManagerProxy::IsModifyDateTimeDisallowed(MessageParcel &data, bool &result)

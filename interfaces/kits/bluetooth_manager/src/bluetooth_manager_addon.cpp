@@ -19,6 +19,7 @@
 #include "edm_log.h"
 #include "errors.h"
 #include "js_native_api.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
@@ -40,24 +41,18 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
 napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetBluetoothInfo called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
-    napi_value thisArg = nullptr;
-    void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
     BluetoothInfo bluetoothInfo;
-    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
-    int32_t ret = bluetoothManagerProxy->GetBluetoothInfo(elementName, bluetoothInfo);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetBluetoothInfo";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret =
+        BluetoothManagerProxy::GetBluetoothManagerProxy()->GetBluetoothInfo(adapterAddonData.data, bluetoothInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -84,30 +79,19 @@ napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothIn
 napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetBluetoothDisabled called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
-    napi_value thisArg = nullptr;
-    void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "The first parameter must be want.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
-        "The second parameter must be bool.");
-
-    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
-    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
-    bool disabled = false;
-    ret = ParseBool(env, disabled, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'disabled' parse error");
-
-    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
-    int32_t retCode = bluetoothManagerProxy->SetBluetoothDisabled(elementName, disabled);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetBluetoothDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        BluetoothManagerProxy::GetBluetoothManagerProxy()->SetBluetoothDisabled(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
@@ -117,23 +101,18 @@ napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callba
 napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsBluetoothDisabled called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
-    napi_value thisArg = nullptr;
-    void* data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
-    bool isDisabled = false;
-    int32_t ret = ERR_OK;
-    if (hasAdmin) {
-        ret = BluetoothManagerProxy::GetBluetoothManagerProxy()->IsBluetoothDisabled(&elementName, isDisabled);
-    } else {
-        ret = BluetoothManagerProxy::GetBluetoothManagerProxy()->IsBluetoothDisabled(nullptr, isDisabled);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "IsBluetoothDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
     }
+    bool isDisabled = false;
+    int32_t ret =
+        BluetoothManagerProxy::GetBluetoothManagerProxy()->IsBluetoothDisabled(adapterAddonData.data, isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -152,27 +131,19 @@ napi_value BluetoothManagerAddon::AddAllowedBluetoothDevices(napi_env env, napi_
 napi_value BluetoothManagerAddon::GetAllowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedBluetoothDevices called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
-    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
-    std::vector<std::string> deviceIds;
-    int32_t retCode = ERR_OK;
-    if (hasAdmin) {
-        retCode = bluetoothManagerProxy->GetAllowedBluetoothDevices(&elementName, deviceIds);
-    } else {
-        retCode = bluetoothManagerProxy->GetAllowedBluetoothDevices(nullptr, deviceIds);
+
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllowedBluetoothDevices";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
     }
+
+    std::vector<std::string> deviceIds;
+    int32_t retCode =
+        BluetoothManagerProxy::GetBluetoothManagerProxy()->GetAllowedBluetoothDevices(adapterAddonData.data, deviceIds);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
@@ -196,30 +167,17 @@ napi_value BluetoothManagerAddon::RemoveAllowedBluetoothDevices(napi_env env, na
 napi_value BluetoothManagerAddon::AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info,
     std::string function)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
-    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'admin' parse error");
-    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
-    auto bluetoothManagerProxy = BluetoothManagerProxy::GetBluetoothManagerProxy();
-    std::vector<std::string> deviceIds;
-    ret = ParseStringArray(env, deviceIds, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "param 'deviceIds' parse error");
-    int32_t retCode = ERR_OK;
-    if (function == "AddAllowedBluetoothDevices") {
-        retCode = bluetoothManagerProxy->AddAllowedBluetoothDevices(elementName, deviceIds);
-    } else {
-        retCode = bluetoothManagerProxy->RemoveAllowedBluetoothDevices(elementName, deviceIds);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveBluetoothDevices";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
     }
+    std::vector<std::string> deviceIds;
+    int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
+        AddOrRemoveAllowedBluetoothDevices(adapterAddonData.data, function == "AddAllowedBluetoothDevices");
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
