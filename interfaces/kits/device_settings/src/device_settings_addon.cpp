@@ -19,6 +19,7 @@
 #include "datetime_manager_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -81,26 +82,40 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetPowerPolicy called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_object), "parameter object error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    PowerScene powerScene;
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerScene(env, argv[ARR_INDEX_ONE], powerScene),
-        "power scene param error");
-    PowerPolicy powerPolicy;
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerPolicy(env, argv[ARR_INDEX_TWO], powerPolicy),
-        "power policy param error");
-    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerPolicy(elementName, powerScene, powerPolicy);
+    auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        PowerScene powerScene;
+        bool isUint = JsObjToPowerScene(env, argv, powerScene);
+        if (!isUint) {
+            return false;
+        }
+        data.WriteUint32(static_cast<uint32_t>(powerScene));
+        return true;
+    };
+    auto convertPowerPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        PowerPolicy powerPolicy;
+        bool isUint = JsObjToPowerPolicy(env, argv, powerPolicy);
+        if (!isUint) {
+            return false;
+        }
+        if (!powerPolicy.Marshalling(data)) {
+            EDMLOGE("DeviceSettingsProxy::SetPowerPolicy Marshalling proxy fail.");
+            return false;
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetPowerPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertPowerScene2Data, convertPowerPolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerPolicy(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("SetPowerPolicy failed!");
@@ -111,22 +126,27 @@ napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info 
 napi_value DeviceSettingsAddon::GetPowerPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetPowerPolicy called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    PowerScene powerScene;
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToPowerScene(env, argv[ARR_INDEX_ONE], powerScene),
-        "power scene param error");
+    auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        PowerScene powerScene;
+        bool isUint = JsObjToPowerScene(env, argv, powerScene);
+        if (!isUint) {
+            return false;
+        }
+        data.WriteUint32(static_cast<uint32_t>(powerScene));
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetPowerPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertPowerScene2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     PowerPolicy powerPolicy;
-    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerPolicy(elementName, powerScene, powerPolicy);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerPolicy(adapterAddonData.data, powerPolicy);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("SetPowerPolicy failed!");
@@ -181,34 +201,19 @@ napi_value DeviceSettingsAddon::ConvertPolicyPolicyToJs(napi_env env, PowerPolic
 napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetScreenOffTime called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "parameter number error");
-
-    auto asyncCallbackInfo = new (std::nothrow) AsyncScreenOffTimeCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetScreenOffTime";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncScreenOffTimeCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "SetScreenOffTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->time, argv[ARR_INDEX_ONE]),
-        "element name param error");
-    EDMLOGD("SetScreenOffTime time = %{public}d", asyncCallbackInfo->time);
-    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetScreenOffTime(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->time);
-    if (FAILED(asyncCallbackInfo->ret)) {
-        napi_throw(env, CreateError(env, asyncCallbackInfo->ret));
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetScreenOffTime(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
         EDMLOGE("SetScreenOffTime failed!");
     }
     return nullptr;
@@ -217,37 +222,12 @@ napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_inf
 napi_value DeviceSettingsAddon::GetScreenOffTime(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetScreenOffTime called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncScreenOffTimeCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncScreenOffTimeCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD(
-        "GetScreenOffTime: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("GetScreenOffTime argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetScreenOffTime", NativeGetScreenOffTime,
-        NativeNumberCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetScreenOffTime";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetScreenOffTime, NativeNumberCallbackComplete);
 }
 
 void DeviceSettingsAddon::NativeGetScreenOffTime(napi_env env, void *data)
@@ -257,51 +237,31 @@ void DeviceSettingsAddon::NativeGetScreenOffTime(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncScreenOffTimeCallbackInfo *asyncCallbackInfo = static_cast<AsyncScreenOffTimeCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetScreenOffTime(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->intRet);
+        asyncCallbackInfo->data, asyncCallbackInfo->intRet);
 }
 
 napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_InstallUserCertificate called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter want error");
-    matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter certblob error");
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter callback error");
-    }
-    auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
-    EDMLOGD(
-        "InstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-
-    bool retCertBlob = ParseCertBlob(env, argv[ARR_INDEX_ONE], asyncCallbackInfo);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retCertBlob, "element cert blob error");
-
-    if (argc > ARGS_SIZE_TWO) {
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallUserCertificate",
-        NativeInstallUserCertificate, NativeStringCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        CertBlob certBlob;
+        bool retCertBlob = ParseCertBlob(env, argv, certBlob);
+        if (!retCertBlob) {
+            return false;
+        }
+        data.WriteUInt8Vector(certBlob.certArray);
+        data.WriteString(certBlob.alias);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "InstallUserCertificate";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertCertBlob2Data};
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeInstallUserCertificate, NativeStringCallbackComplete);
 }
 
 void DeviceSettingsAddon::NativeInstallUserCertificate(napi_env env, void *data)
@@ -311,52 +271,19 @@ void DeviceSettingsAddon::NativeInstallUserCertificate(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->certArray, asyncCallbackInfo->alias,
-        asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+        asyncCallbackInfo->data, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_UninstallUserCertificate called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter want error");
-    matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter uri error");
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter callback error");
-    }
-    auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
-    EDMLOGD(
-        "UninstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-
-    bool retAlias = ParseString(env, asyncCallbackInfo->alias, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retAlias, "element alias error");
-
-    if (argc > ARGS_SIZE_TWO) {
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
-        NativeUninstallUserCertificate, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "InstallUserCertificate";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeUninstallUserCertificate, NativeVoidCallbackComplete);
 }
 
 void DeviceSettingsAddon::NativeUninstallUserCertificate(napi_env env, void *data)
@@ -366,12 +293,12 @@ void DeviceSettingsAddon::NativeUninstallUserCertificate(napi_env env, void *dat
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->UninstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->alias, asyncCallbackInfo->innerCodeMsg);
+        asyncCallbackInfo->data, asyncCallbackInfo->innerCodeMsg);
 }
 
-bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo)
+bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, CertBlob &certBlob)
 {
     napi_valuetype type = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, object, &type), false);
@@ -379,11 +306,11 @@ bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCe
         EDMLOGE("type of param certblob is not object");
         return false;
     }
-    if (!JsObjectToU8Vector(env, object, "inData", asyncCertCallbackInfo->certArray)) {
+    if (!JsObjectToU8Vector(env, object, "inData", certBlob.certArray)) {
         EDMLOGE("uint8Array to vector failed");
         return false;
     }
-    return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->alias);
+    return JsObjectToString(env, object, "alias", true, certBlob.alias);
 }
 
 napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)

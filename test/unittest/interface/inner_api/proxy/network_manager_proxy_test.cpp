@@ -170,6 +170,50 @@ HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledFail, TestSize.L
 }
 
 /**
+ * @tc.name: TestIsNetworkInterfaceDisabledSuc_01
+ * @tc.desc: Test IsNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledSuc_01, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool status = false;
+    std::string networkInterface = "eth0";
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(networkInterface);
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(data, status);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(status);
+}
+
+/**
+ * @tc.name: TestIsNetworkInterfaceDisabledFail_01
+ * @tc.desc: Test IsNetworkInterfaceDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestIsNetworkInterfaceDisabledFail_01, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool status = false;
+    std::string networkInterface = "eth0";
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(networkInterface);
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(data, status);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(status);
+}
+
+/**
  * @tc.name: TestSetNetworkInterfaceDisabledSuc
  * @tc.desc: Test SetNetworkInterfaceDisabled func.
  * @tc.type: FUNC
@@ -212,7 +256,10 @@ HWTEST_F(NetworkManagerProxyTest, TestAddIptablesFilterRuleSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::AddFilter addFilter;
-    int32_t ret = networkManagerProxy->AddIptablesFilterRule(admin, addFilter);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteAddFilterConfig(addFilter, data);
+    int32_t ret = networkManagerProxy->AddIptablesFilterRule(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -227,7 +274,10 @@ HWTEST_F(NetworkManagerProxyTest, TestAddIptablesFilterRuleFail, TestSize.Level1
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::AddFilter addFilter;
-    int32_t ret = networkManagerProxy->AddIptablesFilterRule(admin, addFilter);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteAddFilterConfig(addFilter, data);
+    int32_t ret = networkManagerProxy->AddIptablesFilterRule(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -244,7 +294,10 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveIptablesFilterRuleSuc, TestSize.Leve
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::RemoveFilter removeFilter;
-    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(admin, removeFilter);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteRemoveFilterConfig(removeFilter, data);
+    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -259,7 +312,10 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveIptablesFilterRuleFail, TestSize.Lev
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::RemoveFilter removeFilter;
-    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(admin, removeFilter);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::IptablesUtils::WriteRemoveFilterConfig(removeFilter, data);
+    int32_t ret = networkManagerProxy->RemoveIptablesFilterRule(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -276,7 +332,10 @@ HWTEST_F(NetworkManagerProxyTest, TestListIptablesFilterRulesSuc, TestSize.Level
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string result;
-    int32_t ret = networkManagerProxy->ListIptablesFilterRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->ListIptablesFilterRules(data, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -291,7 +350,10 @@ HWTEST_F(NetworkManagerProxyTest, TestListIptablesFilterRulesFail, TestSize.Leve
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string result;
-    int32_t ret = networkManagerProxy->ListIptablesFilterRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->ListIptablesFilterRules(data, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -312,7 +374,11 @@ HWTEST_F(NetworkManagerProxyTest, TestSetGlobalHttpProxySuc, TestSize.Level1)
     httpProxy.SetPort(1234);
     std::list<std::string> list = {"192.168.1.100"};
     httpProxy.SetExclusionList(list);
-    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(admin, httpProxy);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    bool retBool = httpProxy.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -331,7 +397,11 @@ HWTEST_F(NetworkManagerProxyTest, TestSetGlobalHttpProxyFail, TestSize.Level1)
     httpProxy.SetPort(1234);
     std::list<std::string> list = {"192.168.1.100"};
     httpProxy.SetExclusionList(list);
-    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(admin, httpProxy);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    bool retBool = httpProxy.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -381,7 +451,12 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
-    int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
+    bool retBool = firewallRuleParcel.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->AddFirewallRule(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -397,7 +472,12 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
         "", "", "", "", ""};
-    int32_t ret = networkManagerProxy->AddFirewallRule(admin, rule);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
+    bool retBool = firewallRuleParcel.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->AddFirewallRule(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -449,7 +529,10 @@ HWTEST_F(NetworkManagerProxyTest, TestGetFirewallRulesSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule));
     std::vector<IPTABLES::FirewallRule> result;
-    int32_t ret = networkManagerProxy->GetFirewallRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->GetFirewallRules(data, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result.size() == 1);
 }
@@ -465,16 +548,19 @@ HWTEST_F(NetworkManagerProxyTest, TestGetFirewallRulesFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::vector<IPTABLES::FirewallRule> result;
-    int32_t ret = networkManagerProxy->GetFirewallRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->GetFirewallRules(data, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
- * @tc.name: TestAddAddDomainFilterRuleSuc
+ * @tc.name: TestAddDomainFilterRuleSuc
  * @tc.desc: Test AddDomainFilterRule func.
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkManagerProxyTest, TestAddAddDomainFilterRuleSuc, TestSize.Level1)
+HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleSuc, TestSize.Level1)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -482,7 +568,12 @@ HWTEST_F(NetworkManagerProxyTest, TestAddAddDomainFilterRuleSuc, TestSize.Level1
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
-    int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
+    IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    bool retBool = domainFilterRuleParcel.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->AddDomainFilterRule(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -497,7 +588,12 @@ HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
-    int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
+    IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    bool retBool = domainFilterRuleParcel.Marshalling(data);
+    ASSERT_TRUE(retBool);
+    int32_t ret = networkManagerProxy->AddDomainFilterRule(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -547,7 +643,10 @@ HWTEST_F(NetworkManagerProxyTest, TestGetDomainFilterRulesSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetDomainFilterRules));
     std::vector<IPTABLES::DomainFilterRule> result;
-    int32_t ret = networkManagerProxy->GetDomainFilterRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->GetDomainFilterRules(data, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result.size() == 1);
 }
@@ -563,7 +662,10 @@ HWTEST_F(NetworkManagerProxyTest, TestGetDomainFilterRulesFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::vector<IPTABLES::DomainFilterRule> result;
-    int32_t ret = networkManagerProxy->GetDomainFilterRules(admin, result);
+    MessageParcel data;
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->GetDomainFilterRules(data, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

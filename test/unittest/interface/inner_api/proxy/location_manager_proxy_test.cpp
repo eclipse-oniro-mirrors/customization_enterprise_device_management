@@ -78,7 +78,10 @@ HWTEST_F(LocationManagerProxyTest, TestSetLocationPolicySuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     LocationPolicy locationPolicy = LocationPolicy::DISALLOW_LOCATION_SERVICE;
-    int32_t ret = proxy_->SetLocationPolicy(admin, locationPolicy);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(static_cast<int32_t>(locationPolicy));
+    int32_t ret = proxy_->SetLocationPolicy(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -93,7 +96,10 @@ HWTEST_F(LocationManagerProxyTest, TestSetLocationPolicyFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     LocationPolicy locationPolicy = LocationPolicy::DISALLOW_LOCATION_SERVICE;
-    int32_t ret = proxy_->SetLocationPolicy(admin, locationPolicy);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(static_cast<int32_t>(locationPolicy));
+    int32_t ret = proxy_->SetLocationPolicy(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

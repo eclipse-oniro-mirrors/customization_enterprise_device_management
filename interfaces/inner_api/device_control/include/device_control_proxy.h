@@ -26,9 +26,9 @@ public:
     DeviceControlProxy();
     ~DeviceControlProxy();
     static std::shared_ptr<DeviceControlProxy> GetDeviceControlProxy();
-    int32_t ResetFactory(AppExecFwk::ElementName &admin);
-    int32_t Shutdown(AppExecFwk::ElementName &admin);
-    int32_t Reboot(AppExecFwk::ElementName &admin);
+    int32_t ResetFactory(MessageParcel &data);
+    int32_t Shutdown(MessageParcel &data);
+    int32_t Reboot(MessageParcel &data);
     int32_t LockScreen(AppExecFwk::ElementName &admin, int32_t userId);
     int32_t OperateDevice(AppExecFwk::ElementName &admin, const OperateDeviceParam &param);
 

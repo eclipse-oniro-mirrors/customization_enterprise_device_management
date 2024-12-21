@@ -51,7 +51,6 @@ private:
     static napi_value UninstallUserCertificate(napi_env env, napi_callback_info info);
     static void NativeInstallUserCertificate(napi_env env, void *data);
     static void NativeUninstallUserCertificate(napi_env env, void *data);
-    static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
     static napi_value SetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static void CreateClipboardPolicyObject(napi_env env, napi_value value);

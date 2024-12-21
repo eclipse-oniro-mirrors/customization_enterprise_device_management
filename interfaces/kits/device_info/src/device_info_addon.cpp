@@ -16,6 +16,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -51,28 +52,18 @@ napi_value DeviceInfoAddon::GetDeviceName(napi_env env, napi_callback_info info)
 
 napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetDeviceInfoSync called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-
-    AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "GetDeviceInfo: elementName.bundlename %{public}s, abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    std::string label;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, label, argv[ARR_INDEX_ONE]), "label param error");
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDeviceInfoSync";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     std::string deviceInfo;
-    int32_t ret = DeviceInfoProxy::GetDeviceInfoProxy()->GetDeviceInfoSync(elementName, label, deviceInfo);
+    int32_t ret = DeviceInfoProxy::GetDeviceInfoProxy()->GetDeviceInfo(adapterAddonData.data,
+        "", EdmInterfaceCode::GET_DEVICE_INFO, deviceInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -84,38 +75,12 @@ napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info i
 
 napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info, int code)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncGetDeviceInfoCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncGetDeviceInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD(
-        "GetDeviceInfo: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_GetDeviceInfo argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    asyncCallbackInfo->policyCode = code;
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "GetDeviceInfo", NativeGetDeviceInfo, NativeStringCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDeviceInfo";
+    addonMethodSign.policyCode = code;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetDeviceInfo, NativeStringCallbackComplete);
 }
 
 void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
@@ -125,7 +90,7 @@ void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncGetDeviceInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetDeviceInfoCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto deviceInfoProxy = DeviceInfoProxy::GetDeviceInfoProxy();
     if (deviceInfoProxy == nullptr) {
         EDMLOGE("can not get DeviceInfoProxy");
@@ -134,15 +99,15 @@ void DeviceInfoAddon::NativeGetDeviceInfo(napi_env env, void *data)
     switch (asyncCallbackInfo->policyCode) {
         case static_cast<int32_t>(EdmInterfaceCode::GET_DEVICE_SERIAL):
             asyncCallbackInfo->ret =
-                deviceInfoProxy->GetDeviceSerial(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+                deviceInfoProxy->GetDeviceSerial(asyncCallbackInfo->data, asyncCallbackInfo->stringRet);
             break;
         case static_cast<int32_t>(EdmInterfaceCode::GET_DISPLAY_VERSION):
             asyncCallbackInfo->ret =
-                deviceInfoProxy->GetDisplayVersion(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+                deviceInfoProxy->GetDisplayVersion(asyncCallbackInfo->data, asyncCallbackInfo->stringRet);
             break;
         case static_cast<int32_t>(EdmInterfaceCode::GET_DEVICE_NAME):
             asyncCallbackInfo->ret =
-                deviceInfoProxy->GetDeviceName(asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+                deviceInfoProxy->GetDeviceName(asyncCallbackInfo->data, asyncCallbackInfo->stringRet);
             break;
         default:
             asyncCallbackInfo->ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;

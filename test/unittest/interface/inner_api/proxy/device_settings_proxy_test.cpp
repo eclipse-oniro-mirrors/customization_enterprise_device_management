@@ -145,7 +145,11 @@ HWTEST_F(DeviceSettingsProxyTest, TestInstallUserCertificateSuc, TestSize.Level1
     std::string alias = "alias";
     std::string stringRet;
     std::string innerCodeMsg;
-    int32_t ret = deviceSettingsProxy->InstallUserCertificate(admin, certArray, alias, stringRet, innerCodeMsg);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteUInt8Vector(certArray);
+    data.WriteString(alias);
+    int32_t ret = deviceSettingsProxy->InstallUserCertificate(data, stringRet, innerCodeMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -163,7 +167,11 @@ HWTEST_F(DeviceSettingsProxyTest, TestInstallUserCertificateFail, TestSize.Level
     std::string alias = "alias";
     std::string stringRet;
     std::string innerCodeMsg;
-    int32_t ret = deviceSettingsProxy->InstallUserCertificate(admin, certArray, alias, stringRet, innerCodeMsg);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteUInt8Vector(certArray);
+    data.WriteString(alias);
+    int32_t ret = deviceSettingsProxy->InstallUserCertificate(data, stringRet, innerCodeMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -181,9 +189,11 @@ HWTEST_F(DeviceSettingsProxyTest, TestUninstallUserCertificateSuc, TestSize.Leve
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::vector<uint8_t> certArray;
     std::string alias = "alias";
-    std::string stringRet;
     std::string innerCodeMsg;
-    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(admin, alias, innerCodeMsg);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(alias);
+    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(data, innerCodeMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -199,9 +209,11 @@ HWTEST_F(DeviceSettingsProxyTest, TestUninstallUserCertificateFail, TestSize.Lev
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::vector<uint8_t> certArray;
     std::string alias = "alias";
-    std::string stringRet;
     std::string innerCodeMsg;
-    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(admin, alias, innerCodeMsg);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(alias);
+    int32_t ret = deviceSettingsProxy->UninstallUserCertificate(data, innerCodeMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

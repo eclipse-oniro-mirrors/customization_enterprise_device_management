@@ -14,10 +14,10 @@
  */
 #include "network_manager_addon.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iptables_utils.h"
-#include "napi_edm_common.h"
 #include "os_account_manager.h"
 
 using namespace OHOS::EDM;
@@ -135,37 +135,13 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value NetworkManagerAddon::GetAllNetworkInterfaces(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncNetworkInterfacesCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncNetworkInterfacesCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "GetAllNetworkInterfaces: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_GetAllNetworkInterfaces argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetAllNetworkInterface",
-        NativeGetAllNetworkInterfaces, NativeArrayStringCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllNetworkInterfaces";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetAllNetworkInterfaces,
+        NativeArrayStringCallbackComplete);
 }
 
 void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data)
@@ -175,14 +151,24 @@ void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncNetworkInterfacesCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInterfacesCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy->GetAllNetworkInterfaces(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = networkManagerProxy->GetAllNetworkInterfaces(asyncCallbackInfo->data,
         asyncCallbackInfo->arrayStringRet);
+}
+
+void NetworkManagerAddon::GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
+    int32_t policyCode)
+{
+    addonMethodSign.name = "GetIpOrMacAddress";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = apiVersionTag;
+    addonMethodSign.policyCode = policyCode;
 }
 
 napi_value NetworkManagerAddon::GetIpAddress(napi_env env, napi_callback_info info)
@@ -199,41 +185,9 @@ napi_value NetworkManagerAddon::GetMac(napi_env env, napi_callback_info info)
 
 napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_info info, int policyCode)
 {
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag =
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncNetworkInfoCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncNetworkInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface error");
-    EDMLOGD(
-        "GetIpOrMacAddress: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_GetIpOrMacAddress argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    asyncCallbackInfo->policyCode = policyCode;
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "GetIpAddress", NativeGetIpOrMacAddress, NativeStringCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11, policyCode);
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetIpOrMacAddress, NativeStringCallbackComplete);
 }
 
 void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
@@ -243,54 +197,62 @@ void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy->GetIpOrMacAddress(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->networkInterface, asyncCallbackInfo->policyCode, asyncCallbackInfo->stringRet);
+    asyncCallbackInfo->ret = networkManagerProxy->SetNetworkInterfaceDisabled(asyncCallbackInfo->data);
+}
+
+void NetworkManagerAddon::IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign,
+    const std::string &apiVersionTag)
+{
+    addonMethodSign.name = "IsNetworkInterfaceDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = apiVersionTag;
+}
+
+void NetworkManagerAddon::SetNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign,
+    const std::string &apiVersionTag)
+{
+    auto convertNetworkInterface2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::string networkInterface;
+        bool isUint = ParseString(env, networkInterface, argv);
+        if (!isUint) {
+            return false;
+        }
+        std::vector<std::string> key{networkInterface};
+        data.WriteStringVector(key);
+        return true;
+    };
+    auto convertBoolean2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        bool isDisabled;
+        bool isUint = ParseBool(env, isDisabled, argv);
+        if (!isUint) {
+            return false;
+        }
+        std::vector<std::string> value{isDisabled ? "true" : "false"};
+        data.WriteStringVector(value);
+        return true;
+    };
+    addonMethodSign.name = "SetNetworkInterfaceDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = apiVersionTag;
+    addonMethodSign.argsConvert = {nullptr, convertNetworkInterface2Data, convertBoolean2Data};
 }
 
 napi_value NetworkManagerAddon::SetNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_FOUR;
-    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string) && MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean);
-    if (argc > ARGS_SIZE_THREE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_THREE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncSetNetworkInterfaceCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncSetNetworkInterfaceCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "parameter element name error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isDisabled, argv[ARR_INDEX_TWO]),
-        "parameter isDisabled error");
-    EDMLOGD(
-        "SetNetworkInterfaceDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_THREE) {
-        EDMLOGD("NAPI_SetNetworkInterfaceDisabled argc == ARGS_SIZE_FOUR");
-        napi_create_reference(env, argv[ARGS_SIZE_THREE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback);
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetNetworkInterfaceDisabled",
-        NativeSetNetworkInterfaceDisabled, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    SetNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11);
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetNetworkInterfaceDisabled,
+        NativeVoidCallbackComplete);
 }
 
 void NetworkManagerAddon::NativeSetNetworkInterfaceDisabled(napi_env env, void *data)
@@ -300,52 +262,21 @@ void NetworkManagerAddon::NativeSetNetworkInterfaceDisabled(napi_env env, void *
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetNetworkInterfaceCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetNetworkInterfaceCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy->SetNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->networkInterface, asyncCallbackInfo->isDisabled);
+    asyncCallbackInfo->ret = networkManagerProxy->SetNetworkInterfaceDisabled(asyncCallbackInfo->data);
 }
 
 napi_value NetworkManagerAddon::IsNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag =
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncNetworkInfoCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncNetworkInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "parameter element name error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface error");
-    EDMLOGD(
-        "IsNetworkInterfaceDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsNetworkInterfaceDisabled",
-        NativeIsNetworkInterfaceDisabled, NativeBoolCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    IsNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11);
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeIsNetworkInterfaceDisabled,
+        NativeBoolCallbackComplete);
 }
 
 void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *data)
@@ -355,53 +286,36 @@ void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *d
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncNetworkInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncNetworkInfoCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy->IsNetworkInterfaceDisabled(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->networkInterface, asyncCallbackInfo->boolRet);
+    asyncCallbackInfo->ret = networkManagerProxy->IsNetworkInterfaceDisabled(asyncCallbackInfo->data,
+        asyncCallbackInfo->boolRet);
 }
 
 napi_value NetworkManagerAddon::AddIptablesFilterRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::AddIptablesFilterRule called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "AddIptalbsFilterRule: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToAddFirewallObject(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->addFilter),
-        "addFilter param error");
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_AddIptalbsFilterRule argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "AddIptablesFilterRule",
-        NativeAddIptalbsFilterRule, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertAddFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        IPTABLES::AddFilter filter;
+        bool isUint = JsObjToAddFirewallObject(env, argv, filter);
+        if (!isUint) {
+            return false;
+        }
+        IPTABLES::IptablesUtils::WriteAddFilterConfig(filter, data);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddIptablesFilterRule";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertAddFilter2Data};
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeAddIptalbsFilterRule,
+        NativeVoidCallbackComplete);
 }
 
 bool NetworkManagerAddon::JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &filter)
@@ -443,48 +357,31 @@ void NetworkManagerAddon::NativeAddIptalbsFilterRule(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddIptablesFilterRule(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->addFilter);
+        asyncCallbackInfo->data);
 }
 
 napi_value NetworkManagerAddon::RemoveIptablesFilterRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::RemoveIptablesFilterRule called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "RemoveIptablesFilterRule: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjToRemoveFirewallObject(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->removeFilter), "firewall param error");
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_RemoveIptablesFilterRule argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "RemoveIptablesFilterRule",
-        NativeRemoveIptalbsFilterRule, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertRemoveFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        IPTABLES::RemoveFilter filter;
+        bool isUint = JsObjToRemoveFirewallObject(env, argv, filter);
+        if (!isUint) {
+            return false;
+        }
+        IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RemoveIptablesFilterRule";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertRemoveFilter2Data};
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeRemoveIptalbsFilterRule,
+        NativeVoidCallbackComplete);
 }
 
 bool NetworkManagerAddon::JsObjToRemoveFirewallObject(napi_env env, napi_value object, IPTABLES::RemoveFilter &firewall)
@@ -516,45 +413,20 @@ void NetworkManagerAddon::NativeRemoveIptalbsFilterRule(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     asyncCallbackInfo->ret =
-        networkManagerProxy->RemoveIptablesFilterRule(asyncCallbackInfo->elementName, asyncCallbackInfo->removeFilter);
+        networkManagerProxy->RemoveIptablesFilterRule(asyncCallbackInfo->data);
 }
 
 napi_value NetworkManagerAddon::ListIptablesFilterRules(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARGS_SIZE_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncIptablesCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncIptablesCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "ListIptablesFilterRules: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_ListIptablesFilterRule argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "ListIptablesFilterRules",
-        NativeListIptablesFilterRules, NativeStringCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "ListIptablesFilterRules";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeListIptablesFilterRules,
+        NativeStringCallbackComplete);
 }
 
 void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data)
@@ -564,33 +436,38 @@ void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIptablesCallbackInfo *asyncCallbackInfo = static_cast<AsyncIptablesCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->ListIptablesFilterRules(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->stringRet);
+        asyncCallbackInfo->data, asyncCallbackInfo->stringRet);
 }
 
 napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("AddFirewallRule start");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be FirewallRule.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
-        IPTABLES::Protocol::INVALID, "", "", "", "", ""};
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule), "firewallRule param error");
-
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddFirewallRule(elementName, rule);
+    auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        IPTABLES::FirewallRule rule;
+        bool isUint = JsObjToFirewallRule(env, argv, rule);
+        if (!isUint) {
+            return false;
+        }
+        IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
+        if (!firewallRuleParcel.Marshalling(data)) {
+            EDMLOGE("NetworkManagerAddon::AddOrRemoveFirewallRuleCommon Marshalling rule fail.");
+            return false;
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddFirewallRule";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertFirewallRule2Data};
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddFirewallRule(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -630,20 +507,17 @@ napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_i
 
 napi_value NetworkManagerAddon::GetFirewallRules(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetFirewallRules";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     std::vector<IPTABLES::FirewallRule> result;
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetFirewallRules(elementName, result);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetFirewallRules(adapterAddonData.data, result);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -735,24 +609,30 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
 
 napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasRule = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasRule, "The second parameter must be DomainFilterRule.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
-        "DomainFilterRule param error");
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddDomainFilterRule(elementName, rule);
+    auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
+        bool isParseOk = JsObjToDomainFilterRule(env, argv, rule);
+        if (!isParseOk) {
+            return false;
+        }
+        IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
+        if (!domainFilterRuleParcel.Marshalling(data)) {
+            EDMLOGE("NetworkManagerAddon::AddOrRemoveDomainFilterRuleCommon Marshalling rule fail.");
+            return false;
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddDomainFilterRule";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertFirewallRule2Data};
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddDomainFilterRule(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -792,20 +672,17 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
 
 napi_value NetworkManagerAddon::GetDomainFilterRules(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDomainFilterRules";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     std::vector<IPTABLES::DomainFilterRule> result;
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetDomainFilterRules(elementName, result);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetDomainFilterRules(adapterAddonData.data, result);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -859,44 +736,9 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
 napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_info info)
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "parameter admin error");
-
-    bool isHttpProxy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, isHttpProxy, "parameter http proxy error");
-
-    if (argc > ARGS_SIZE_TWO) {
-        bool hasCallback = MatchValueType(env, argv[ARGS_SIZE_TWO], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "parameter callback error");
-    }
-
-    auto asyncCallbackInfo = new (std::nothrow) AsyncHttpProxyCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncHttpProxyCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "parameter element name error");
-    bool parseRet = ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->httpProxy);
-    ASSERT_AND_THROW_PARAM_ERROR(env, parseRet, "ParseHttpProxyParam error");
-    int32_t accountId = -1;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-    asyncCallbackInfo->httpProxy.SetUserId(accountId);
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_IsNetworkInterfaceDisabled argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "setGlobalProxy", NativeSetGlobalHttpProxy, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    SetGlobalHttpProxyCommon(addonMethodSign);
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetGlobalHttpProxy, NativeVoidCallbackComplete);
 #else
     EDMLOGW("NetworkManagerAddon::SetGlobalHttpProxy Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -1005,9 +847,9 @@ void NetworkManagerAddon::NativeSetGlobalHttpProxy(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetGlobalHttpProxy(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy);
+        asyncCallbackInfo->data);
 }
 
 napi_value NetworkManagerAddon::ConvertHttpProxyToJS(napi_env env, const OHOS::NetManagerStandard::HttpProxy &httpProxy)
@@ -1148,27 +990,22 @@ void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_sta
 napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllNetworkInterfacesSync called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    EDMLOGD("GetAllNetworkInterfacesSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllNetworkInterfacesSync";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
     std::vector<std::string> networkInterface;
-    int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(elementName, networkInterface, true);
+    int32_t ret = networkManagerProxy->GetAllNetworkInterfaces(adapterAddonData.data, networkInterface);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1193,32 +1030,19 @@ napi_value NetworkManagerAddon::GetMacSync(napi_env env, napi_callback_info info
 
 napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int policyCode)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
-        "parameter networkInterface error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::string networkInterface;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface parse error");
-    EDMLOGD("GetIpOrMacAddressSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12, policyCode);
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
     std::string ipOrMacInfo;
-    int32_t ret = networkManagerProxy->GetIpOrMacAddress(elementName, networkInterface, policyCode, ipOrMacInfo, true);
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(adapterAddonData.data, policyCode, ipOrMacInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1231,36 +1055,18 @@ napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callbac
 napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetNetworkInterfaceDisabledSync called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
-        "parameter networkInterface error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
-        "parameter isDisabled error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::string networkInterface;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface parse error");
-    bool isDisabled = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisabled, argv[ARR_INDEX_TWO]),
-        "parameter isDisabled parse error");
-    EDMLOGD("SetNetworkInterfaceDisabledSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    SetNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12);
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
-    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(elementName, networkInterface, isDisabled, true);
+    int32_t ret = networkManagerProxy->SetNetworkInterfaceDisabled(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1271,32 +1077,19 @@ napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, na
 napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsNetworkInterfaceDisabledSync called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
-        "parameter networkInterface error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::string networkInterface;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, networkInterface, argv[ARR_INDEX_ONE]),
-        "parameter networkInterface parse error");
-    EDMLOGD("IsNetworkInterfaceDisabledSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    IsNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12);
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
     bool isDisabled = false;
-    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(elementName, networkInterface, isDisabled, true);
+    int32_t ret = networkManagerProxy->IsNetworkInterfaceDisabled(adapterAddonData.data, isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1306,37 +1099,47 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, nap
     return result;
 }
 
+void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign)
+{
+    auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        NetManagerStandard::HttpProxy httpProxy;
+        bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
+        if (!isParseOk) {
+            return false;
+        }
+        int32_t accountId = -1;
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
+        httpProxy.SetUserId(accountId);
+        if (!httpProxy.Marshalling(data)) {
+            EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommon Marshalling proxy fail.");
+            return false;
+        }
+        return true;
+    };
+    addonMethodSign.name = "SetGlobalHttpProxy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data};
+}
+
 napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetGlobalHttpProxySync called");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    AddonMethodSign addonMethodSign;
+    SetGlobalHttpProxyCommon(addonMethodSign);
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "parameter httpProxy error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    NetManagerStandard::HttpProxy httpProxy;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseHttpProxyParam(env, argv[ARR_INDEX_ONE], httpProxy),
-        "parameter httpProxy parse error");
-    EDMLOGD("SetGlobalHttpProxySync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    int32_t accountId = -1;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-    httpProxy.SetUserId(accountId);
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
-    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(elementName, httpProxy);
+    int32_t ret = networkManagerProxy->SetGlobalHttpProxy(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
