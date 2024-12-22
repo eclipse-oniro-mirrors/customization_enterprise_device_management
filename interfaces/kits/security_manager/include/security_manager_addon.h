@@ -30,8 +30,7 @@ namespace OHOS {
 namespace EDM {
 struct AsyncCertCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
-    std::vector<uint8_t> certArray;
-    std::string alias;
+    CertBlobCA certblobCA;
 };
 
 class SecurityManagerAddon {
@@ -47,10 +46,13 @@ private:
     static napi_value GetSecurityStatus(napi_env env, napi_callback_info info);
     static int32_t ConvertDeviceEncryptionToJson(napi_env env, DeviceEncryptionStatus &deviceEncryptionStatus,
         std::string &stringRet);
+    static napi_value InstallUserCertificateSync(napi_env env, napi_value argv,
+        AsyncCertCallbackInfo *asyncCallbackInfo);
     static napi_value InstallUserCertificate(napi_env env, napi_callback_info info);
     static napi_value UninstallUserCertificate(napi_env env, napi_callback_info info);
     static void NativeInstallUserCertificate(napi_env env, void *data);
     static void NativeUninstallUserCertificate(napi_env env, void *data);
+    static napi_value GetUserCertificates(napi_env env, napi_callback_info info);
     static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
     static napi_value SetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);

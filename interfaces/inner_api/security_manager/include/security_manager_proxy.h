@@ -27,6 +27,12 @@ struct DeviceEncryptionStatus {
     bool isEncrypted = false;
 };
 
+struct CertBlobCA {
+    std::vector<uint8_t> certArray;
+    std::string alias;
+    int32_t accountId = 0;
+};
+
 class SecurityManagerProxy {
 public:
     static std::shared_ptr<SecurityManagerProxy> GetSecurityManagerProxy();
@@ -45,7 +51,9 @@ public:
         const std::shared_ptr<Media::PixelMap> pixelMap, const int32_t accountId);
     int32_t CancelWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
         const int32_t accountId);
-
+    int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,
+        const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);
+    int32_t GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     bool WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data);

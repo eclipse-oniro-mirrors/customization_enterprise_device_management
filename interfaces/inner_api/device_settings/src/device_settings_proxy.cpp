@@ -90,9 +90,10 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(const AppExecFwk::ElementNam
     if (ret == ERR_OK) {
         result = reply.ReadString();
     } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
-        int32_t certRetCode = ERR_INVALID_VALUE;
-        reply.ReadInt32(certRetCode);
-        innerCodeMsg = std::to_string(certRetCode);
+        innerCodeMsg = reply.ReadString();
+        if (!innerCodeMsg.empty()) {
+            ret = EdmReturnErrCode::PARAM_ERROR;
+        }
     }
     return ret;
 }

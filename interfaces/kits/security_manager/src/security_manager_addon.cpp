@@ -22,6 +22,7 @@
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "napi_edm_adapter.h"
 #include "pixel_map_napi.h"
 
 using namespace OHOS::EDM;
@@ -43,6 +44,7 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getSecurityStatus", GetSecurityStatus),
         DECLARE_NAPI_FUNCTION("installUserCertificate", InstallUserCertificate),
         DECLARE_NAPI_FUNCTION("uninstallUserCertificate", UninstallUserCertificate),
+        DECLARE_NAPI_FUNCTION("getUserCertificates", GetUserCertificates),
         DECLARE_NAPI_FUNCTION("setAppClipboardPolicy", SetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("setWatermarkImage", SetWatermarkImage),
@@ -265,11 +267,36 @@ int32_t SecurityManagerAddon::ConvertDeviceEncryptionToJson(napi_env env,
     return ERR_OK;
 }
 
+napi_value SecurityManagerAddon::InstallUserCertificateSync(napi_env env, napi_value argv,
+    AsyncCertCallbackInfo *asyncCallbackInfo)
+{
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv, napi_number),
+        "accountId type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->certblobCA.accountId,
+        argv), "Parameter accountId error");
+    auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
+    int32_t ret = securityManagerProxy->InstallUserCertificate(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->certblobCA, asyncCallbackInfo->stringRet,
+        asyncCallbackInfo->innerCodeMsg);
+    if (FAILED(ret)) {
+        if (asyncCallbackInfo->innerCodeMsg.empty()) {
+            napi_throw(env, CreateError(env, ret));
+        } else {
+            napi_throw(env, CreateError(env, ret, asyncCallbackInfo->innerCodeMsg));
+        }
+        return nullptr;
+    }
+    napi_value status;
+    NAPI_CALL(env, napi_create_string_utf8(env, asyncCallbackInfo->stringRet.c_str(),
+        asyncCallbackInfo->stringRet.size(), &status));
+    return status;
+}
+
 napi_value SecurityManagerAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_InstallUserCertificate called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -280,20 +307,17 @@ napi_value SecurityManagerAddon::InstallUserCertificate(napi_env env, napi_callb
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter certblob error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
     bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
-    EDMLOGD(
-        "InstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-
     bool retCertBlob = ParseCertBlob(env, argv[ARR_INDEX_ONE], asyncCallbackInfo);
     ASSERT_AND_THROW_PARAM_ERROR(env, retCertBlob, "element cert blob error");
-
+    if (argc > ARGS_SIZE_TWO) {
+        return InstallUserCertificateSync(env, argv[ARR_INDEX_TWO], asyncCallbackInfo);
+    }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallUserCertificate",
         NativeInstallUserCertificate, NativeStringCallbackComplete);
     callbackPtr.release();
@@ -309,8 +333,8 @@ void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->certArray, asyncCallbackInfo->alias,
-        asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+        asyncCallbackInfo->elementName, asyncCallbackInfo->certblobCA.certArray,
+        asyncCallbackInfo->certblobCA.alias, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
@@ -328,6 +352,7 @@ napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_cal
     ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter uri error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
@@ -339,7 +364,7 @@ napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_cal
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
 
-    bool retAlias = ParseString(env, asyncCallbackInfo->alias, argv[ARR_INDEX_ONE]);
+    bool retAlias = ParseString(env, asyncCallbackInfo->certblobCA.alias, argv[ARR_INDEX_ONE]);
     ASSERT_AND_THROW_PARAM_ERROR(env, retAlias, "element alias error");
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
@@ -357,7 +382,32 @@ void SecurityManagerAddon::NativeUninstallUserCertificate(napi_env env, void *da
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->UninstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->alias, asyncCallbackInfo->innerCodeMsg);
+        asyncCallbackInfo->elementName, asyncCallbackInfo->certblobCA.alias, asyncCallbackInfo->innerCodeMsg);
+}
+
+napi_value SecurityManagerAddon::GetUserCertificates(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUserCertificates called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetUserCertificates";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> uriList;
+    auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
+    int32_t ret = securityManagerProxy->GetUserCertificates(adapterAddonData.data, uriList);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value jsUriList = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &jsUriList));
+    ConvertStringVectorToJS(env, uriList, jsUriList);
+    return jsUriList;
 }
 
 bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo)
@@ -368,11 +418,11 @@ bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncC
         EDMLOGE("type of param certblob is not object");
         return false;
     }
-    if (!JsObjectToU8Vector(env, object, "inData", asyncCertCallbackInfo->certArray)) {
+    if (!JsObjectToU8Vector(env, object, "inData", asyncCertCallbackInfo->certblobCA.certArray)) {
         EDMLOGE("uint8Array to vector failed");
         return false;
     }
-    return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->alias);
+    return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->certblobCA.alias);
 }
 
 napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callback_info info)
