@@ -41,7 +41,6 @@ HWTEST_F(MessageParcelUtilsTest, TestReadWifiDeviceConfig, TestSize.Level1)
     Wifi::WifiDeviceConfig config;
     WifiPassword pwd;
     config.networkId = -1;
-    config.status = 0;
     config.bssid = "";
     config.ssid = "";
     config.band = 0;
@@ -84,7 +83,6 @@ HWTEST_F(MessageParcelUtilsTest, TestReadWifiDeviceConfig, TestSize.Level1)
     Wifi::WifiDeviceConfig config2;
     MessageParcelUtils::ReadWifiDeviceConfig(data, config2);
     ASSERT_TRUE(config2.networkId == -1);
-    ASSERT_TRUE(config2.status == 0);
     ASSERT_TRUE(config2.bssid == "");
     ASSERT_TRUE(config2.ssid == "");
     ASSERT_TRUE(config2.band == 0);
