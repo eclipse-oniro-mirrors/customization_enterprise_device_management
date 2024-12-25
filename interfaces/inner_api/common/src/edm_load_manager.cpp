@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace EDM {
-static constexpr int32_t EDM_LOADSA_TIMEOUT_MS = 1000;
+static constexpr int32_t EDM_LOADSA_TIMEOUT_MS = 4000;
 
 EdmLoadManager& EdmLoadManager::GetInstance()
 {
