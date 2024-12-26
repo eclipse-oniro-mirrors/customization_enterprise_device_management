@@ -584,7 +584,6 @@ napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info i
         if (!isParseOk) {
             return false;
         }
-        data.WriteUint32(policies.size());
         data.WriteStringVector(policies);
         return true;
     };
