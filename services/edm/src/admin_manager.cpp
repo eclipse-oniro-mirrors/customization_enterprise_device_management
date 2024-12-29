@@ -240,7 +240,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
         return;
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role, userAdmin.size());
-    if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::UNKNOWN) ||
+    if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::BYOD) ||
         static_cast<int32_t>(role) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
         return;

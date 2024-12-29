@@ -51,6 +51,7 @@ private:
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     void LoadPlugin(const std::string &pluginPath);
+    void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);
     std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();

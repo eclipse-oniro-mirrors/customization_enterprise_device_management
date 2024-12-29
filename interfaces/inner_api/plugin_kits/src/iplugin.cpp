@@ -33,44 +33,63 @@ bool IPlugin::IsGlobalPolicy()
     return isGlobal_;
 }
 
-IPlugin::PolicyPermissionConfig IPlugin::GetAllPermission(FuncOperateType operaType)
+std::vector<IPlugin::PolicyPermissionConfig> IPlugin::GetAllPermission()
 {
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
-        permissionMap_.find(operaType) != permissionMap_.end()) {
-        return permissionMap_[operaType];
-    }
-    return permissionConfig_;
-}
-
-std::string IPlugin::GetPermission(FuncOperateType operaType, std::string permissionTag)
-{
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
-        permissionMap_.find(operaType) != permissionMap_.end()) {
-        PolicyPermissionConfig config = permissionMap_[operaType];
-        return CheckAndGetPermissionFromConfig(permissionTag, config.tagPermissions, config.permission);
-    }
-    return CheckAndGetPermissionFromConfig(permissionTag, permissionConfig_.tagPermissions,
-        permissionConfig_.permission);
-}
-
-std::string IPlugin::CheckAndGetPermissionFromConfig(const std::string &permissionTag,
-    std::map<std::string, std::string> tagPermissions, const std::string &commonPermission)
-{
-    if (permissionTag.empty()) {
-        return tagPermissions.empty() ? commonPermission : NONE_PERMISSION_MATCH;
+    std::vector<IPlugin::PolicyPermissionConfig> allPermission;
+    if (!permissionMap_.empty()) {
+        for (auto &it : permissionMap_) {
+            allPermission.push_back(it.second);
+        }
     } else {
-        return (!tagPermissions.empty() && tagPermissions.find(permissionTag) != tagPermissions.end() ?
-            tagPermissions[permissionTag] : NONE_PERMISSION_MATCH);
+        allPermission.push_back(permissionConfig_);
     }
+    return allPermission;
 }
 
-IPlugin::PermissionType IPlugin::GetPermissionType(FuncOperateType operaType)
+std::string IPlugin::GetPermission(FuncOperateType operaType, PermissionType permissionType, std::string permissionTag)
 {
-    if (permissionConfig_.permissionType == PermissionType::UNKNOWN &&
-        permissionMap_.find(operaType) != permissionMap_.end()) {
-        return permissionMap_[operaType].permissionType;
+    if (!permissionMap_.empty() && permissionMap_.find(operaType) != permissionMap_.end()) {
+        PolicyPermissionConfig config = permissionMap_[operaType];
+        return CheckAndGetPermissionFromConfig(permissionType, permissionTag, config.tagPermissions,
+            config.typePermissions);
     }
-    return permissionConfig_.permissionType;
+    return CheckAndGetPermissionFromConfig(permissionType, permissionTag, permissionConfig_.tagPermissions,
+        permissionConfig_.typePermissions);
+}
+
+std::string IPlugin::CheckAndGetPermissionFromConfig(PermissionType permissionType, const std::string &permissionTag,
+    std::map<std::string, std::map<PermissionType, std::string>> tagPermissions,
+    std::map<PermissionType, std::string> typePermissions)
+{
+    if (!permissionTag.empty() && !tagPermissions.empty()) {
+        auto it = tagPermissions.find(permissionTag);
+        if (it == tagPermissions.end()) {
+            return NONE_PERMISSION_MATCH;
+        }
+        
+        const auto &typePermissionsForTag = it->second;
+        if (typePermissionsForTag.size() == 1) {
+            return typePermissionsForTag.begin()->second;
+        }
+        if (typePermissionsForTag.size() > 1) {
+            auto typeIt = typePermissionsForTag.find(permissionType);
+            if (typeIt != typePermissionsForTag.end()) {
+                return typeIt->second;
+            }
+        }
+    }
+    if (!typePermissions.empty()) {
+        if (typePermissions.size() == 1) {
+            return typePermissions.begin()->second;
+        }
+        if (typePermissions.size() > 1) {
+            auto typeIt = typePermissions.find(permissionType);
+            if (typeIt != typePermissions.end()) {
+                return typeIt->second;
+            }
+        }
+    }
+    return NONE_PERMISSION_MATCH;
 }
 
 IPlugin::ApiType IPlugin::GetApiType(FuncOperateType operaType)

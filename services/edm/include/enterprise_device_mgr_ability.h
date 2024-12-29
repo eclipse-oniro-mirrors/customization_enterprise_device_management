@@ -157,6 +157,7 @@ private:
     void UnloadPluginTask();
     void SetPasswordPolicy();
     void SetFingerprintPolicy();
+    IPlugin::PermissionType AdminTypeToPermissionType(AdminType adminType);
     
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;

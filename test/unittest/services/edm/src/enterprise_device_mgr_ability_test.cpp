@@ -126,7 +126,8 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     adminVec.push_back(std::make_shared<Admin>(testAdmin));
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 }
 
@@ -270,7 +271,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
-    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
@@ -336,6 +338,36 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
 }
 
 /**
+ * @tc.name: TestHandleDevicePolicyGetAdminByPkgNameFailed
+ * @tc.desc: Test HandleDevicePolicy function with get admin by pkgName failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyGetAdminByPkgNameFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    Admin testAdmin;
+    testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
+    std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
+    edmMgr_->adminMgr_->admins_.clear();
+    edmMgr_->adminMgr_->admins_.insert(
+        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(ADMIN_PACKAGENAME_1);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestHandleDevicePolicyVerifyCallingPermissionFailed
  * @tc.desc: Test HandleDevicePolicy function with check calling permission failed.
  * @tc.type: FUNC
@@ -350,7 +382,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     edmMgr_->adminMgr_->admins_.clear();
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -413,7 +446,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     PrepareBeforeHandleDevicePolicy();
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -448,7 +482,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -474,7 +509,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     ASSERT_TRUE(res == ERR_OK);
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -497,7 +533,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -567,7 +604,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithAdminInactive, T
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
@@ -593,7 +631,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -622,7 +660,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissionFailed, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -643,6 +681,34 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyWithGetAdminByPkgNameFailed
+ * @tc.desc: Test GetDevicePolicy function with get admin by pkgName failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithGetAdminByPkgNameFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
+    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    data.WriteInt32(0);
+    data.WriteParcelable(&admin);
+    ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
@@ -685,7 +751,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
@@ -702,7 +769,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -737,7 +805,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3155,7 +3223,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckCalling
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
-    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
@@ -3238,7 +3307,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
     edmMgr_->adminMgr_->admins_.clear();
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3302,7 +3371,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONErro
     PrepareBeforeHandleDevicePolicy();
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3338,7 +3408,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestS
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3365,7 +3436,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestS
     ASSERT_TRUE(res == ERR_OK);
 
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3390,7 +3462,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithMergePol
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3461,7 +3534,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithAdminInacti
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
@@ -3487,7 +3561,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->admins_.insert(
         std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3516,7 +3590,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckEdmPermissionFailed, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3579,7 +3653,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -3596,7 +3671,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest006, TestSi
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_MANAGE_DATETIME_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+        EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3631,7 +3707,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest006, TestSi
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3809,7 +3885,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPlugin, 
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_ENT_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_ENT_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
@@ -3841,7 +3917,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPluginHasNo
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = "";
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = "";
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3875,7 +3951,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = NONE_PERMISSION_MATCH;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = NONE_PERMISSION_MATCH;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3904,7 +3980,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBundleNotInstall, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3938,7 +4014,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBu
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundle, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3973,7 +4049,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundl
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEnterpriseNormal, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -4063,7 +4139,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithoutVritualA
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmin, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -4111,7 +4187,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmi
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermission, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -4144,7 +4220,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermi
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidPolicy, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -4172,7 +4248,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidP
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesSuc, TestSize.Level1)
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
-    plugin_->permissionConfig_.permission = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);

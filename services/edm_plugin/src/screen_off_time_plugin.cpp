@@ -36,21 +36,30 @@ void ScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ScreenOffTi
 {
     EDMLOGI("ScreenOffTimePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SCREEN_OFF_TIME, "screen_off_time", false);
-    std::map<std::string, std::string> setPerms;
-    setPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
-        "ohos.permission.ENTERPRISE_SET_SCREENOFF_TIME"));
-    setPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
-        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS"));
-    IPlugin::PolicyPermissionConfig setConfig = IPlugin::PolicyPermissionConfig(setPerms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissionsForSet;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForSet;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForSet;
+    typePermissionsForTag11ForSet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_SET_SCREENOFF_TIME");
+    typePermissionsForTag12ForSet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS");
+    tagPermissionsForSet.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11ForSet);
+    tagPermissionsForSet.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12ForSet);
+    IPlugin::PolicyPermissionConfig setConfig = IPlugin::PolicyPermissionConfig(tagPermissionsForSet,
+        IPlugin::ApiType::PUBLIC);
     ptr->InitPermission(FuncOperateType::SET, setConfig);
-    std::map<std::string, std::string> getPerms;
-    getPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
-        "ohos.permission.ENTERPRISE_GET_SETTINGS"));
-    getPerms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
-        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS"));
-    IPlugin::PolicyPermissionConfig getConfig = IPlugin::PolicyPermissionConfig(getPerms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissionsForGet;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForGet;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForGet;
+    typePermissionsForTag11ForGet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_GET_SETTINGS");
+    typePermissionsForTag12ForGet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS");
+    tagPermissionsForGet.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11ForGet);
+    tagPermissionsForGet.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12ForGet);
+    IPlugin::PolicyPermissionConfig getConfig = IPlugin::PolicyPermissionConfig(tagPermissionsForGet,
+        IPlugin::ApiType::PUBLIC);
     ptr->InitPermission(FuncOperateType::GET, getConfig);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ScreenOffTimePlugin::OnSetPolicy, FuncOperateType::SET);
