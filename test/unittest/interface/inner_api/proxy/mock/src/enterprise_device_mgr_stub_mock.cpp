@@ -335,5 +335,18 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy(uint32_t cod
     reply.WriteString("test_additionalDescription");
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetManagedBrowserPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetManagedBrowserPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    int32_t size = 200;
+    reply.WriteInt32(size);
+    void* rawData = malloc(size);
+    reply.WriteRawData(rawData, size);
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS
