@@ -30,11 +30,17 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(IsWifiActiv
 void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
 {
     EDMLOGI("IsWifiActivePlugin InitPlugin...");
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_SET_WIFI"));
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_WIFI"));
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_SET_WIFI");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_WIFI");
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
+
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active", config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }

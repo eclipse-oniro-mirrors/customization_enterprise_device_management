@@ -335,5 +335,33 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy(uint32_t cod
     reply.WriteString("test_additionalDescription");
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetAdmins(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetAdmins code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    int32_t size = 1;
+    reply.WriteUint32(size);
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    std::string bundleName = "com.edm.test.demo";
+    std::string abilityName = "test.ability";
+    want->SetParam("bundleName", bundleName);
+    want->SetParam("abilityName", abilityName);
+    want->SetParam("adminType", static_cast<int32_t>(AdminType::BYOD));
+    reply.WriteParcelable(want.get());
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestCheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetAdmins code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString("com.edm.test.demo");
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS

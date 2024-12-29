@@ -35,8 +35,8 @@ IptablesRulePlugin::IptablesRulePlugin()
 {
     policyCode_ = EdmInterfaceCode::IPTABLES_RULE;
     policyName_ = "iptables_rule";
-    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
-    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
     permissionConfig_.apiType = IPlugin::ApiType::SYSTEM;
     needSave_ = false;
 }

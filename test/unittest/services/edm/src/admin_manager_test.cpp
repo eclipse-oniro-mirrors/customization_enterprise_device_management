@@ -344,6 +344,30 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestIsByodAdminExist
+ * @tc.desc: Test AdminManager::IsByodAdminExist function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestIsByodAdminExist, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    ASSERT_FALSE(adminMgr_->IsByodAdminExist());
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::BYOD, entInfo, permissions, false);
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmAdmin.adminInfo_.adminType_ = AdminType::NORMAL;
+    edmAdmin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION"};
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    ASSERT_TRUE(adminMgr_->IsByodAdminExist());
+}
+
+/**
  * @tc.name: TestGetAdminBySubscribeEvent
  * @tc.desc: Test AdminManager::GetAdminBySubscribeEvent function.
  * @tc.type: FUNC
@@ -508,6 +532,53 @@ HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsByParentName, TestSize.Level1)
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(std::find(subAdminNames.begin(), subAdminNames.end(), subAbilityInfo.bundleName) !=
         subAdminNames.end());
+}
+HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
+{
+    ErrCode res;
+    std::vector<std::string> permissions;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    Admin admin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    res = adminMgr_->SetAdminValue(TEST_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<std::shared_ptr<Admin>> userAdmins;
+    adminMgr_->GetAdmins(userAdmins, TEST_USER_ID);
+    int32_t sizeofAdmin = userAdmins.size();
+    ASSERT_TRUE(sizeofAdmin == 1);
+    std::shared_ptr<Admin> userAdmin = userAdmins[0];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::NORMAL);
+    userAdmins.clear();
+    res = adminMgr_->DeleteAdmin(abilityInfo.bundleName, TEST_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+
+    admin.adminInfo_.adminType_ = AdminType::BYOD;
+    admin.adminInfo_.packageName_ = "com.edm.test.demo1";
+    admin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+    admin.adminInfo_.adminType_ = AdminType::ENT;
+    admin.adminInfo_.packageName_ = "com.edm.test.demo2";
+    admin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+
+    adminMgr_->GetAdmins(userAdmins, DEFAULT_USER_ID);
+    sizeofAdmin = userAdmins.size();
+    ASSERT_TRUE(sizeofAdmin == 2);
+    userAdmin = userAdmins[0];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::BYOD);
+    userAdmin = userAdmins[1];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::ENT);
 }
 } // namespace TEST
 } // namespace EDM

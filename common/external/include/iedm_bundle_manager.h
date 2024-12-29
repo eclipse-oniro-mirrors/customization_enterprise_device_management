@@ -16,6 +16,7 @@
 #ifndef COMMON_EXTERNAL_INCLUDE_IEDM_BUNDLE_MANAGER_H
 #define COMMON_EXTERNAL_INCLUDE_IEDM_BUNDLE_MANAGER_H
 
+#include <bundle_mgr_interface.h>
 #include <vector>
 
 #include "bundle_info.h"
@@ -36,6 +37,10 @@ public:
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) = 0;
     virtual bool IsBundleInstalled(const std::string &bundleName, int32_t userId) = 0;
     virtual std::string GetApplicationInfo(const std::string &appName, int userId) = 0;
+    virtual ErrCode AddAppInstallControlRule(std::vector<std::string> &data,
+        AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) = 0;
+    virtual ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
+        std::vector<std::string> &data, int32_t userId) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

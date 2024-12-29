@@ -32,11 +32,13 @@ const std::string HELP_MSG = "usage: edm <command> [<options>]\n"
 }  // namespace
 
 const std::string HELP_MSG_ENABLE_ADMIN = "usage: edm enable-admin <options>\n"
-                                    "eg:edm enable-admin -n <bundle-name> -a <ability-name>\n"
+                                    "eg:edm enable-admin -n <bundle-name> -a <ability-name> -t <admin-type>\n"
                                     "options list:\n"
                                     "  -h, --help                                  list available commands\n"
                                     "  -n, --bundle-name <bundle-name>             enable an admin with bundle name\n"
-                                    "  -a, --ability-name <ability-name>           enable an admin with ability name\n";
+                                    "  -a, --ability-name <ability-name>           enable an admin with ability name\n"
+                                    "  -t, --admin-type <admin-type>               enable an admin with admin type,"
+                                                                                    "<admin-type>: super, byod.\n";
 
 const std::string HELP_MSG_DISABLE_ADMIN = "usage: edm disable-admin <options>\n"
                                     "eg:edm disable-admin -n <bundle-name>\n"
@@ -56,10 +58,12 @@ private:
     ErrCode RunAsHelpCommand();
     ErrCode RunAsEnableCommand();
     ErrCode RunAsDisableAdminCommand();
-    ErrCode ParseEnableAdminCommandOption(std::string &bundleName, std::string &abilityName);
+    ErrCode ParseEnableAdminCommandOption(std::string &bundleName, std::string &abilityName, AdminType &adminType);
     ErrCode RunAsEnableCommandMissingOptionArgument();
-    ErrCode RunAsEnableCommandParseOptionArgument(int option, std::string &bundleName, std::string &abilityName);
+    ErrCode RunAsEnableCommandParseOptionArgument(int option, std::string &bundleName,
+        std::string &abilityName, AdminType &adminType);
     ErrCode ReportMessage(int32_t code, bool isEnable);
+    ErrCode ConvertStringToAdminType(std::string optarg, AdminType &adminType);
 
     std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxy_;
 };

@@ -116,6 +116,12 @@ public:
     int InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
+    int InvokeSendRequestGetAdmins(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestCheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
     int InvokeSendRequestReplyFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
         GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestReplyFail code :" << code;
@@ -147,6 +153,17 @@ public:
     }
 
     ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override
+    {
+        return 0;
+    }
+
+    ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override
+    {
+        return 0;
+    }
+
+    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override
     {
         return 0;
     }

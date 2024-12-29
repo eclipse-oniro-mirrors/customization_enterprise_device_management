@@ -58,6 +58,8 @@ public:
         const std::vector<std::string> &policies);
     ErrCode GetDelegatedPolicies(const AppExecFwk::ElementName &admin, const std::string &bundleNameOrPolicyName,
         uint32_t code, std::vector<std::string> &result);
+    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    ErrCode CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin, std::string &bundleName);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

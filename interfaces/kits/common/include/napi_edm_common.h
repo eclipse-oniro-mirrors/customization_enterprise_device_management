@@ -61,6 +61,7 @@ constexpr int NAPI_MAX_DATA_LEN = 0x6400000;
 
 bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
 bool ParseElementName(napi_env env, AppExecFwk::ElementName &elementName, napi_value args);
+bool ParseMapStringAndString(napi_env env, std::map<std::string, std::string> &parameters, napi_value args);
 bool ParseLong(napi_env env, int64_t &param, napi_value args);
 bool ParseInt(napi_env env, int32_t &param, napi_value args);
 bool ParseUint(napi_env env, uint32_t &param, napi_value args);

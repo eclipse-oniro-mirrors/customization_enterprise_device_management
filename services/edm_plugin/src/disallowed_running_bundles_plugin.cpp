@@ -32,13 +32,17 @@ void DisallowedRunningBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("DisallowedRunningBundlesPlugin InitPlugin...");
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
-        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY"));
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
-        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION"));
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION");
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
+
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles", config, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnSetPolicy, FuncOperateType::SET);

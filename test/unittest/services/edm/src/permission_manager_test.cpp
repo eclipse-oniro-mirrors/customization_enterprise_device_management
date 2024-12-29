@@ -87,6 +87,26 @@ HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
     PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::ENT, reqPermission);
     ASSERT_TRUE(reqPermission.size() == 1);
 }
+
+/**
+ * @tc.name: GetReqPermission03
+ * @tc.desc: Test PermissionManager ReqPermission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionManagerTest, GetReqPermission03, TestSize.Level1)
+{
+    PermissionManager::GetInstance()->AddPermission(
+        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"), IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+    std::vector<std::string> permission = {
+        "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
+    std::vector<std::string> reqPermission;
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::NORMAL, reqPermission);
+    ASSERT_TRUE(reqPermission.empty());
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::BYOD, reqPermission);
+    ASSERT_TRUE(reqPermission.empty());
+    PermissionManager::GetInstance()->GetAdminGrantedPermission(permission, AdminType::ENT, reqPermission);
+    ASSERT_TRUE(reqPermission.size() == 1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

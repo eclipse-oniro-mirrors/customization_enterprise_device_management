@@ -31,11 +31,16 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableCame
 void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr)
 {
     EDMLOGI("DisableCameraPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA,
-        "disable_camera", "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<IPlugin::PermissionType, std::string> typePermissions;
+    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, "disable_camera", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableCameraPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableCameraPlugin::OnAdminRemove);
 }
 
 ErrCode DisableCameraPlugin::OnSetPolicy(bool &data)
@@ -54,6 +59,16 @@ ErrCode DisableCameraPlugin::OnSetPolicy(bool &data)
     }
     EDMLOGE("DisableCameraPlugin MuteCameraPersist ret %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisableCameraPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
+{
+    EDMLOGI("DisableCameraPlugin OnAdminRemove %{public}d...", data);
+    if (!data) {
+        return ERR_OK;
+    }
+    bool reset = false;
+    return OnSetPolicy(reset);
 }
 
 ErrCode DisableCameraPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
