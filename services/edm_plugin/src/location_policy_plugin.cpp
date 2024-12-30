@@ -38,7 +38,7 @@ ErrCode LocationPolicyPlugin::OnSetPolicy(int32_t &data)
     EDMLOGD("LocationPolicyPlugin set location policy value = %{public}d.", data);
     switch (data) {
         case static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE):
-            system::SetParameter(PARAM_EDM_LOCATION_POLICY, "none");
+            SetDefaultLocationPolicy();
             break;
         case static_cast<int32_t>(LocationPolicy::DISALLOW_LOCATION_SERVICE):
             system::SetParameter(PARAM_EDM_LOCATION_POLICY, "disallow");
@@ -53,6 +53,15 @@ ErrCode LocationPolicyPlugin::OnSetPolicy(int32_t &data)
             return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
+}
+
+void LocationPolicyPlugin::SetDefaultLocationPolicy()
+{
+    std::string currentState = system::GetParameter(PARAM_EDM_LOCATION_POLICY, "");
+    system::SetParameter(PARAM_EDM_LOCATION_POLICY, "none");
+    if (currentState == "force_open") {
+        Location::LocatorImpl::GetInstance()->EnableAbility(false);
+    }
 }
 
 ErrCode LocationPolicyPlugin::OnGetPolicy(std::string &value, MessageParcel &data,

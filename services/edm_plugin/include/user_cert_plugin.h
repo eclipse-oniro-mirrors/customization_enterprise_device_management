@@ -38,13 +38,12 @@ public:
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
-    {
-        return ERR_OK;
-    };
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
     static ErrCode InstallUserCert(MessageParcel &data, MessageParcel &reply);
     static ErrCode UninstallUserCert(MessageParcel &data, MessageParcel &reply);
+private:
+    static std::string GetCertMessageFromRetcode(int32_t retCode);
 };
 } // namespace EDM
 } // namespace OHOS

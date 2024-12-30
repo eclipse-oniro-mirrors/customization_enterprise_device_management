@@ -263,5 +263,46 @@ int32_t SecurityManagerProxy::CancelWatermarkImage(MessageParcel &data)
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::WATERMARK_IMAGE);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t SecurityManagerProxy::InstallUserCertificate(const AppExecFwk::ElementName &admin,
+    const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg)
+{
+    EDMLOGD("SecurityManagerProxy::InstallUserCertificate");
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteUInt8Vector(certblobCA.certArray);
+    data.WriteString(certblobCA.alias);
+    data.WriteInt32(certblobCA.accountId);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+    EDMLOGI("DeviceSettingsProxy::InstallUserCertificate : %{public}d.", ret);
+    if (ret == ERR_OK) {
+        result = reply.ReadString();
+    } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
+        innerCodeMsg = reply.ReadString();
+        if (!innerCodeMsg.empty()) {
+            ret = EdmReturnErrCode::PARAM_ERROR;
+        }
+    }
+    return ret;
+}
+
+int32_t SecurityManagerProxy::GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList)
+{
+    EDMLOGD("SecurityManagerProxy::GetUserCertificates");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::INSTALL_CERTIFICATE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret == ERR_OK) {
+        reply.ReadStringVector(&uriList);
+    }
+    return ret;
+}
 } // namespace EDM
 } // namespace OHOS

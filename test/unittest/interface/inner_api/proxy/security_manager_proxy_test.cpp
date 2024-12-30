@@ -30,6 +30,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
+constexpr int32_t ACCOUTID_VALID_VALUE = 100;
 class SecurityManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -407,6 +408,85 @@ HWTEST_F(SecurityManagerProxyTest, TestCancelWatermarkImageSuc, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+/**
+ * @tc.name: TestInstallUserCertificateSuc
+ * @tc.desc: Test InstallUserCertificate func without specific accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestInstallUserCertificateSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    CertBlobCA certblobCA;
+    certblobCA.alias = "alias";
+    certblobCA.accountId = ACCOUTID_VALID_VALUE;
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = proxy_->InstallUserCertificate(admin, certblobCA, stringRet, innerCodeMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallUserCertificateFail
+ * @tc.desc: Test InstallUserCertificate func without admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestInstallUserCertificateFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    CertBlobCA certblobCA;
+    certblobCA.alias = "alias";
+    certblobCA.accountId = ACCOUTID_VALID_VALUE;
+    std::string stringRet;
+    std::string innerCodeMsg;
+    int32_t ret = proxy_->InstallUserCertificate(admin, certblobCA, stringRet, innerCodeMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUserCertificatesSuc
+ * @tc.desc: Test GetUserCertificates func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUserCertificatesSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    std::vector<std::string> uriList;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->GetUserCertificates(data, uriList);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetUserCertificatesFail
+ * @tc.desc: Test GetUserCertificates func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUserCertificatesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    std::vector<std::string> uriList;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->GetUserCertificates(data, uriList);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

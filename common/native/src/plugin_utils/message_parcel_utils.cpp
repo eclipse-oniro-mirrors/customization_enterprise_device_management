@@ -25,7 +25,6 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     WifiPassword &pwd)
 {
     data.WriteInt32(config.networkId);
-    data.WriteInt32(config.status);
     data.WriteString(config.bssid);
     data.WriteString(config.ssid);
     data.WriteInt32(config.band);
@@ -81,7 +80,6 @@ void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpA
 void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDeviceConfig &config)
 {
     config.networkId = data.ReadInt32();
-    config.status = data.ReadInt32();
     config.bssid = data.ReadString();
     config.ssid = data.ReadString();
     config.band = data.ReadInt32();

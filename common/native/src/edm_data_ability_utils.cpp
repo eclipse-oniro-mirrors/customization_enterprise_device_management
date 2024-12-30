@@ -75,6 +75,8 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(
     resultset->GoToFirstRow();
     resultset->GetColumnIndex(SETTINGS_DATA_FIELD_VALUE, columnIndex);
     resultset->GetString(columnIndex, value);
+    resultset->Close();
+    dataShareHelper->Release();
     return ERR_OK;
 }
 
@@ -123,16 +125,22 @@ ErrCode EdmDataAbilityUtils::UpdateSettingsData(
     columns.push_back(SETTINGS_DATA_FIELD_VALUE);
     auto resultset = dataShareHelper->Query(uri, predicates, columns);
     int numRows = 0;
-    if (resultset != nullptr) {
-        resultset->GetRowCount(numRows);
+    if (resultset == nullptr) {
+        EDMLOGD("UpdateSettingsData nullptr Insert branch");
+        dataShareHelper->Insert(uri, bucket);
+        dataShareHelper->Release();
+        return ERR_OK;
     }
-    if (resultset == nullptr || numRows <= 0) {
+    resultset->GetRowCount(numRows);
+    resultset->Close();
+    if (numRows <= 0) {
         EDMLOGD("UpdateSettingsData Insert branch");
         dataShareHelper->Insert(uri, bucket);
     } else {
-        EDMLOGD("UpdateSettingsData update branch");
+        EDMLOGD("UpdateSettingsData Update branch");
         dataShareHelper->Update(uri, predicates, bucket);
     }
+    dataShareHelper->Release();
     return ERR_OK;
 }
 
