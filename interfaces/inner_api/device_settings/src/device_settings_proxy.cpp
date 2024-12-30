@@ -91,9 +91,6 @@ int32_t DeviceSettingsProxy::InstallUserCertificate(const AppExecFwk::ElementNam
         result = reply.ReadString();
     } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
         innerCodeMsg = reply.ReadString();
-        if (!innerCodeMsg.empty()) {
-            ret = EdmReturnErrCode::PARAM_ERROR;
-        }
     }
     return ret;
 }
