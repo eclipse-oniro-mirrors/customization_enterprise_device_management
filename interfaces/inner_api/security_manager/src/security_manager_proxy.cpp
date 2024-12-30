@@ -278,9 +278,6 @@ int32_t SecurityManagerProxy::InstallUserCertificate(const AppExecFwk::ElementNa
         result = reply.ReadString();
     } else if (ret == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED) {
         innerCodeMsg = reply.ReadString();
-        if (!innerCodeMsg.empty()) {
-            ret = EdmReturnErrCode::PARAM_ERROR;
-        }
     }
     return ret;
 }
