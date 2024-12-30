@@ -34,6 +34,7 @@ ohos_shared_library("edmservice") {
   sources = [
     "../edm_plugin/src/utils/install_param_serializer.cpp",
     "../edm_plugin/src/utils/installer_callback.cpp",
+    "../edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
     "../edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../edm_plugin/src/utils/update_policy_serializer.cpp",
@@ -259,7 +260,10 @@ ohos_shared_library("edmservice") {
 
     if (common_event_service_edm_enable) {
       external_deps += [ "common_event_service:cesfwk_innerkits" ]
-      sources += [ "../edm_plugin/src/set_browser_policies_plugin.cpp" ]
+      sources += [
+        "../edm_plugin/src/managed_browser_policy_plugin.cpp",
+        "../edm_plugin/src/set_browser_policies_plugin.cpp",
+      ]
       defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
     }
 

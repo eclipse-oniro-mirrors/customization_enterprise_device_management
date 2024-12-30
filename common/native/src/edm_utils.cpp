@@ -70,5 +70,17 @@ void EdmUtils::ClearCharArray(char* &str, size_t size)
         str = nullptr;
     }
 }
+
+bool EdmUtils::CheckRealPath(const std::string &path, const std::string &expectPath)
+{
+    char canonicalPath[PATH_MAX + 1] = { 0 };
+    if (path.size() > PATH_MAX || realpath(path.c_str(), canonicalPath) == nullptr) {
+        return false;
+    }
+    if (path.find(expectPath) == 0) {
+        return true;
+    }
+    return false;
+}
 } // namespace EDM
 } // namespace OHOS

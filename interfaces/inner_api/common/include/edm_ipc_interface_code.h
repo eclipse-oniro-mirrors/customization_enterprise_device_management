@@ -101,6 +101,7 @@ enum EdmInterfaceCode : uint32_t {
     WATERMARK_IMAGE = 1061,
     DISABLE_CAMERA = 1062,
     MANAGE_KEEP_ALIVE_APPS = 1063,
+    MANAGED_BROWSER_POLICY = 1064,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
