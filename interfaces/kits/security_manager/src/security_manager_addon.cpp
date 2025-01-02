@@ -323,9 +323,9 @@ void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data
         return;
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
-    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->certblobCA.certArray,
-        asyncCallbackInfo->certblobCA.alias, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+    auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
+    asyncCallbackInfo->ret = securityManagerProxy->InstallUserCertificate(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->certblobCA, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
