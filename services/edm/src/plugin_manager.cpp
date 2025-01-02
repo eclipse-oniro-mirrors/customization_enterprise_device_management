@@ -117,40 +117,33 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         return false;
     }
     EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
-    IPlugin::PolicyPermissionConfig setConfig = plugin->GetAllPermission(FuncOperateType::SET);
-    IPlugin::PolicyPermissionConfig getConfig = plugin->GetAllPermission(FuncOperateType::GET);
-    IPlugin::PermissionType setType = plugin->GetPermissionType(FuncOperateType::SET);
-    IPlugin::PermissionType getType = plugin->GetPermissionType(FuncOperateType::GET);
-    ErrCode result = PermissionManager::GetInstance()->AddPermission(setConfig.permission, setType);
-    if (result == ERR_OK && getConfig.permission != setConfig.permission) {
-        result = PermissionManager::GetInstance()->AddPermission(getConfig.permission, getType);
+    std::vector<IPlugin::PolicyPermissionConfig> configs = plugin->GetAllPermission();
+    if (configs.empty()) {
+        return false;
     }
-    if (result == ERR_OK) {
-        for (auto &item : setConfig.tagPermissions) {
-            if (PermissionManager::GetInstance()->AddPermission(item.second, setType) != ERR_OK) {
-                return false;
+    for (auto &config : configs) {
+        for (auto &typePermission : config.typePermissions) {
+            PermissionManager::GetInstance()->AddPermission(typePermission.second, typePermission.first);
+        }
+        for (auto &tagPermission : config.tagPermissions) {
+            for (auto &typePermission : tagPermission.second) {
+                PermissionManager::GetInstance()->AddPermission(typePermission.second, typePermission.first);
             }
         }
-        for (auto &item : getConfig.tagPermissions) {
-            if (PermissionManager::GetInstance()->AddPermission(item.second, getType) != ERR_OK) {
-                return false;
-            }
-        }
-        pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
-        pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
-        if (extensionPluginMap_.find(plugin->GetCode()) != extensionPluginMap_.end()) {
-            EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
-                extensionPluginMap_[plugin->GetCode()]);
-            plugin->SetExtensionPlugin(GetPluginByCode(extensionPluginMap_[plugin->GetCode()]));
-        }
-        if (executeStrategyMap_.find(plugin->GetCode()) != executeStrategyMap_.end()) {
-            plugin->SetExecuteStrategy(CreateExecuteStrategy(executeStrategyMap_[plugin->GetCode()]));
-        } else {
-            plugin->SetExecuteStrategy(CreateExecuteStrategy(ExecuteStrategy::SINGLE));
-        }
-        return true;
     }
-    return false;
+    pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
+    pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+    if (extensionPluginMap_.find(plugin->GetCode()) != extensionPluginMap_.end()) {
+        EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
+            extensionPluginMap_[plugin->GetCode()]);
+        plugin->SetExtensionPlugin(GetPluginByCode(extensionPluginMap_[plugin->GetCode()]));
+    }
+    if (executeStrategyMap_.find(plugin->GetCode()) != executeStrategyMap_.end()) {
+        plugin->SetExecuteStrategy(CreateExecuteStrategy(executeStrategyMap_[plugin->GetCode()]));
+    } else {
+        plugin->SetExecuteStrategy(CreateExecuteStrategy(ExecuteStrategy::SINGLE));
+    }
+    return true;
 }
 
 bool PluginManager::AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
@@ -237,43 +230,54 @@ void PluginManager::UnloadPlugin()
     EDMLOGI("PluginManager::UnloadPlugin finish.");
 }
 
+void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
+{
+    std::string permissionStr;
+    permissionStr.append("Type Permissions:");
+    for (const auto &typePermission : config.typePermissions) {
+        permissionStr.append("PermissionType: ");
+        if (typePermission.first == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN) {
+            permissionStr.append("NORMAL_DEVICE_ADMIN:");
+        }
+        if (typePermission.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
+            permissionStr.append("SUPER_DEVICE_ADMIN:");
+        }
+        permissionStr.append(typePermission.second);
+    }
+    permissionStr.append("Tag Permissions:");
+    for (const auto &tagPermission : config.tagPermissions) {
+        permissionStr.append("ApiTag: ");
+        permissionStr.append(tagPermission.first);
+        for (const auto &tag: tagPermission.second) {
+            if (tag.first == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN) {
+                permissionStr.append("NORMAL_DEVICE_ADMIN:");
+            }
+            if (tag.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
+                permissionStr.append("SUPER_DEVICE_ADMIN:");
+            }
+            permissionStr.append(tag.second);
+        }
+    }
+    EDMLOGD("Config permission:%{public}s", permissionStr.c_str());
+}
+
 void PluginManager::DumpPlugin()
 {
     for (auto it = pluginsCode_.begin(); it != pluginsCode_.end(); it++) {
-        std::string setTagPermissions;
-        std::string getTagPermissions;
-        IPlugin::PolicyPermissionConfig setConfig = it->second->GetAllPermission(FuncOperateType::SET);
-        IPlugin::PolicyPermissionConfig getConfig = it->second->GetAllPermission(FuncOperateType::GET);
-        for (auto &item : setConfig.tagPermissions) {
-            setTagPermissions.append(item.second);
+        std::vector<IPlugin::PolicyPermissionConfig> configs = it->second->GetAllPermission();
+        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s",
+            it->first, it->second->GetPolicyName().c_str());
+        for (auto &config : configs) {
+            DumpPluginConfig(config);
         }
-        for (auto &item : getConfig.tagPermissions) {
-            getTagPermissions.append(item.second);
-        }
-        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s,get permission:%{public}s, "
-            "set permission:%{public}s,get tagPermissions:%{public}s,set tagPermissions:%{public}s",
-            it->first, it->second->GetPolicyName().c_str(),
-            it->second->GetPermission(FuncOperateType::GET).c_str(),
-            it->second->GetPermission(FuncOperateType::SET).c_str(),
-            getTagPermissions.c_str(), setTagPermissions.c_str());
     }
     for (auto it = pluginsName_.begin(); it != pluginsName_.end(); it++) {
-        std::string setTagPermissions;
-        std::string getTagPermissions;
-        IPlugin::PolicyPermissionConfig setConfig = it->second->GetAllPermission(FuncOperateType::SET);
-        IPlugin::PolicyPermissionConfig getConfig = it->second->GetAllPermission(FuncOperateType::GET);
-        for (auto &item : setConfig.tagPermissions) {
-            setTagPermissions.append(item.second);
+        std::vector<IPlugin::PolicyPermissionConfig> configs = it->second->GetAllPermission();
+        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u",
+            it->first.c_str(), it->second->GetCode());
+        for (auto &config : configs) {
+            DumpPluginConfig(config);
         }
-        for (auto &item : getConfig.tagPermissions) {
-            getTagPermissions.append(item.second);
-        }
-        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u,get permission type:%{public}s, "
-            "set permission type:%{public}s,get tagPermissions:%{public}s,set tagPermissions:%{public}s",
-            it->first.c_str(), it->second->GetCode(),
-            it->second->GetPermission(FuncOperateType::GET).c_str(),
-            it->second->GetPermission(FuncOperateType::SET).c_str(),
-            getTagPermissions.c_str(), setTagPermissions.c_str());
     }
 }
 } // namespace EDM

@@ -29,13 +29,17 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableUsbP
 void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr)
 {
     EDMLOGI("DisableUsbPlugin InitPlugin...");
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
-        "ohos.permission.ENTERPRISE_MANAGE_USB"));
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_USB");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
+
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, "disable_usb", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableUsbPlugin::OnSetPolicy, FuncOperateType::SET);

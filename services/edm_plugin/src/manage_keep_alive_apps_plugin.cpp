@@ -41,8 +41,8 @@ ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
 {
     policyCode_ = EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS;
     policyName_ = "manage_keep_alive_apps";
-    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_APPLICATION";
-    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION");
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }

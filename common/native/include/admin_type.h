@@ -23,7 +23,8 @@ enum class AdminType {
     ENT,
     SUB_SUPER_ADMIN,
     VIRTUAL_ADMIN,
-    UNKNOWN,
+    BYOD,
+    UNKNOWN = 99,
 };
 } // namespace EDM
 } // namespace OHOS

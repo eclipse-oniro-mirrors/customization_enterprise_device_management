@@ -63,22 +63,22 @@ HWTEST_F(IPluginTest, TestIsGlobalPolicy, TestSize.Level1)
 HWTEST_F(IPluginTest, TestPolicyPermissionConfig, TestSize.Level1)
 {
     IPlugin::PolicyPermissionConfig config1 = IPlugin::PolicyPermissionConfig();
-    EXPECT_TRUE(config1.permissionType == IPlugin::PermissionType::UNKNOWN);
     EXPECT_TRUE(config1.apiType == IPlugin::ApiType::UNKNOWN);
 
     IPlugin::PolicyPermissionConfig config2 = IPlugin::PolicyPermissionConfig("test_permission",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-    EXPECT_TRUE(config2.permission == "test_permission");
-    EXPECT_TRUE(config2.permissionType == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+    EXPECT_TRUE(config2.typePermissions[IPlugin::PermissionType::SUPER_DEVICE_ADMIN] == "test_permission");
     EXPECT_TRUE(config2.apiType == IPlugin::ApiType::PUBLIC);
 
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair("tag1", "permission1"));
-    perms.insert(std::make_pair("tag2", "permission2"));
-    IPlugin::PolicyPermissionConfig config3 = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::SYSTEM);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag1;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag2;
+    typePermissionsForTag1.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, "permission1");
+    typePermissionsForTag2.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, "permission2");
+    tagPermissions.emplace("tag1", typePermissionsForTag1);
+    tagPermissions.emplace("tag2", typePermissionsForTag2);
+    IPlugin::PolicyPermissionConfig config3 = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::SYSTEM);
     EXPECT_TRUE(config3.tagPermissions.size() == 2);
-    EXPECT_TRUE(config3.permissionType == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
     EXPECT_TRUE(config3.apiType == IPlugin::ApiType::SYSTEM);
 }
 
@@ -145,9 +145,150 @@ HWTEST_F(IPluginTest, TestGetPermissionWhenIfEstablished, TestSize.Level1)
     permissionMap[operaType] = permissionConfig;
     iplugin->permissionMap_ = permissionMap;
     iplugin->permissionConfig_ = permissionConfig;
-    std::string ret = iplugin->GetPermission(operaType, permissionTag);
+    std::string ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
     std::string checkRet = NONE_PERMISSION_MATCH;
     EXPECT_TRUE(ret == checkRet);
+}
+
+/**
+ * @tc.name: TestGetPermissionWithOnePermission
+ * @tc.desc: Test GetPermission func when add one permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetPermissionWithOnePermission, TestSize.Level1)
+{
+    FuncOperateType operaType1 = FuncOperateType::GET;
+    FuncOperateType operaType2 = FuncOperateType::SET;
+    std::string permissionTag = "";
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap;
+    
+    std::map<IPlugin::PermissionType, std::string> typePermissions1;
+    std::map<IPlugin::PermissionType, std::string> typePermissions2;
+    typePermissions1.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "test_permission1");
+    typePermissions2.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "test_permission2");
+    IPluginMock::PolicyPermissionConfig permissionConfig1 = IPluginMock::PolicyPermissionConfig(typePermissions1,
+        IPlugin::ApiType::PUBLIC);
+    IPluginMock::PolicyPermissionConfig permissionConfig2 = IPluginMock::PolicyPermissionConfig(typePermissions2,
+        IPlugin::ApiType::PUBLIC);
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+
+    permissionMap[operaType1] = permissionConfig1;
+    permissionMap[operaType2] = permissionConfig2;
+    iplugin->permissionMap_ = permissionMap;
+    std::string ret = iplugin->GetPermission(operaType1, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
+    EXPECT_TRUE(ret == "test_permission1");
+    ret = iplugin->GetPermission(operaType1, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permissionTag);
+    EXPECT_TRUE(ret == "test_permission1");
+}
+
+/**
+ * @tc.name: TestGetPermissionWithOnePermissionAndTag
+ * @tc.desc: Test GetPermission func when add one permission with tag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetPermissionWithOnePermissionAndTag, TestSize.Level1)
+{
+    FuncOperateType operaType = FuncOperateType::GET;
+    std::string permissionTag1 = "TEST_API1";
+    std::string permissionTag2 = "TEST_API2";
+    std::string permission1 = "test_permission1";
+    std::string permission2 = "test_permission2";
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap;
+
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissions1;
+    std::map<IPlugin::PermissionType, std::string> typePermissions2;
+    typePermissions1.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permission1);
+    typePermissions2.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permission2);
+    tagPermissions.emplace(permissionTag1, typePermissions1);
+    tagPermissions.emplace(permissionTag2, typePermissions2);
+    IPluginMock::PolicyPermissionConfig permissionConfig = IPluginMock::PolicyPermissionConfig(tagPermissions,
+        IPlugin::ApiType::PUBLIC);
+
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+
+    iplugin->permissionMap_ = permissionMap;
+    iplugin->permissionConfig_ = permissionConfig;
+    std::string ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag1);
+    EXPECT_TRUE(ret == permission1);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permissionTag1);
+    EXPECT_TRUE(ret == permission1);
+}
+
+/**
+ * @tc.name: TestGetPermissionWithTwoPermission
+ * @tc.desc: Test GetPermission func when add two permissions.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetPermissionWithTwoPermission, TestSize.Level1)
+{
+    FuncOperateType operaType = FuncOperateType::GET;
+    std::string permissionTag = "";
+    std::string permission1 = "test_permission1";
+    std::string permission2 = "test_permission2";
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap;
+
+    std::map<IPlugin::PermissionType, std::string> typePermissions;
+    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permission1);
+    typePermissions.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permission2);
+    IPluginMock::PolicyPermissionConfig permissionConfig = IPluginMock::PolicyPermissionConfig(typePermissions,
+        IPlugin::ApiType::PUBLIC);
+
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    iplugin->permissionMap_ = permissionMap;
+    iplugin->permissionConfig_ = permissionConfig;
+    std::string ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
+    EXPECT_TRUE(ret == permission1);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permissionTag);
+    EXPECT_TRUE(ret == permission2);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::UNKNOWN, permissionTag);
+    EXPECT_TRUE(ret == NONE_PERMISSION_MATCH);
+}
+
+/**
+ * @tc.name: TestGetPermissionWithTwoPermissionAndTag
+ * @tc.desc: Test GetPermission func  when add two permissions with tag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestGetPermissionWithTwoPermissionAndTag, TestSize.Level1)
+{
+    FuncOperateType operaType = FuncOperateType::GET;
+    std::string permissionTag1 = "TEST_API1";
+    std::string permissionTag2 = "TEST_API2";
+    std::string permission1 = "test_permission1";
+    std::string permission2 = "test_permission2";
+    std::string permission3 = "test_permission3";
+    std::string permission4 = "test_permission4";
+    std::map<FuncOperateType, IPluginMock::PolicyPermissionConfig> permissionMap;
+
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissions1;
+    std::map<IPlugin::PermissionType, std::string> typePermissions2;
+    typePermissions1.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permission1);
+    typePermissions1.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permission2);
+    typePermissions2.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permission3);
+    typePermissions2.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permission4);
+    tagPermissions.emplace(permissionTag1, typePermissions1);
+    tagPermissions.emplace(permissionTag2, typePermissions2);
+    IPluginMock::PolicyPermissionConfig permissionConfig = IPluginMock::PolicyPermissionConfig(tagPermissions,
+        IPlugin::ApiType::PUBLIC);
+
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+
+    iplugin->permissionMap_ = permissionMap;
+    iplugin->permissionConfig_ = permissionConfig;
+    std::string ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag1);
+    EXPECT_TRUE(ret == permission1);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permissionTag1);
+    EXPECT_TRUE(ret == permission2);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag2);
+    EXPECT_TRUE(ret == permission3);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, permissionTag2);
+    EXPECT_TRUE(ret == permission4);
+    ret = iplugin->GetPermission(operaType, IPlugin::PermissionType::UNKNOWN, permissionTag1);
+    EXPECT_TRUE(ret == NONE_PERMISSION_MATCH);
 }
 
 /**

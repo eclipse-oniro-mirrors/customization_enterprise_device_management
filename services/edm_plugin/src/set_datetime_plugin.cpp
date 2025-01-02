@@ -27,11 +27,17 @@ const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetDateTime
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {
     EDMLOGI("SetDateTimePlugin InitPlugin...");
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11, "ohos.permission.ENTERPRISE_SET_DATETIME"));
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12, "ohos.permission.ENTERPRISE_MANAGE_SETTINGS"));
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_SET_DATETIME");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS");
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
+
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", config, false);
     ptr->SetSerializer(LongSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetDateTimePlugin::OnSetPolicy, FuncOperateType::SET);

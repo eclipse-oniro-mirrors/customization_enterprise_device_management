@@ -45,8 +45,8 @@ SetWatermarkImagePlugin::SetWatermarkImagePlugin()
     EDMLOGI("SetWatermarkImagePlugin InitPlugin...");
     policyCode_ = EdmInterfaceCode::WATERMARK_IMAGE;
     policyName_ = "watermark_image_policy";
-    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
-    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_SECURITY");
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }

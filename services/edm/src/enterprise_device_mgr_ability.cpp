@@ -1301,7 +1301,14 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return checkSystemCalling;
     }
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy userId = %{public}d", userId);
-    std::string setPermission = plugin->GetPermission(FuncOperateType::SET, data.ReadString());
+    std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin.GetBundleName(), GetCurrentUserId());
+    if (deviceAdmin == nullptr) {
+        EDMLOGE("HandleDevicePolicy: %{public}s is not activated", admin.GetBundleName().c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
+        AdminTypeToPermissionType(deviceAdmin->GetAdminType()), data.ReadString());
+    EDMLOGD("HandleDevicePolicy: HandleDevicePolicy GetPermission = %{public}s", setPermission.c_str());
     ErrCode checkAdminPermission = CheckHandlePolicyPermission(FuncOperateType::SET, admin.GetBundleName(),
         plugin->GetPolicyName(), setPermission, userId);
     if (FAILED(checkAdminPermission)) {
@@ -1311,6 +1318,14 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
     CreateSecurityContent(admin.GetBundleName(), admin.GetAbilityName(), code, plugin->GetPolicyName(), ret);
     return ret;
+}
+
+IPlugin::PermissionType EnterpriseDeviceMgrAbility::AdminTypeToPermissionType(AdminType adminType)
+{
+    if (adminType == AdminType::BYOD) {
+        return IPlugin::PermissionType::BYOD_DEVICE_ADMIN;
+    }
+    return IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
 }
 
 void EnterpriseDeviceMgrAbility::CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
@@ -1348,7 +1363,12 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
             return EdmReturnErrCode::PARAM_ERROR;
         }
 #ifndef EDM_FUZZ_TEST
-        std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
+        std::shared_ptr<Admin> deviceAdmin = adminMgr_->GetAdminByPkgName(admin->GetBundleName(), GetCurrentUserId());
+        if (deviceAdmin == nullptr) {
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+        std::string getPermission = plugin->GetPermission(FuncOperateType::GET,
+            AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
         ErrCode ret = CheckHandlePolicyPermission(FuncOperateType::GET, admin->GetBundleName(), plugin->GetPolicyName(),
             getPermission, userId);
         if (FAILED(ret)) {
@@ -1429,6 +1449,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndUpdatePermission(std::shared_ptr<Adm
     }
     bool callingPermission = GetAccessTokenMgr()->VerifyCallingPermission(tokenId, permission);
     bool adminPermission = admin->CheckPermission(permission);
+    EDMLOGI("CheckAndUpdatePermission: callingPermission = %{public}d adminPermission = %{public}d.",
+        callingPermission, adminPermission);
     if (callingPermission != adminPermission) {
         std::vector<std::string> permissionList;
         if (FAILED(GetAllPermissionsByAdmin(admin->adminInfo_.packageName_, admin->GetAdminType(), userId,
@@ -1750,9 +1772,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
             EDMLOGE("CheckDelegatedPolicies get policyName is not exist.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        auto permission = plugin->GetPermission(FuncOperateType::SET);
+        auto permission = plugin->GetPermission(FuncOperateType::SET, AdminTypeToPermissionType(admin->GetAdminType()));
         if (permission == NONE_PERMISSION_MATCH) {
-            permission = plugin->GetPermission(FuncOperateType::SET, EdmConstants::PERMISSION_TAG_VERSION_12);
+            permission = plugin->GetPermission(FuncOperateType::SET,
+                AdminTypeToPermissionType(admin->GetAdminType()), EdmConstants::PERMISSION_TAG_VERSION_12);
         }
         if (permission.empty() || permission == NONE_PERMISSION_MATCH) {
             EDMLOGE("CheckDelegatedPolicies get plugin access permission failed.");

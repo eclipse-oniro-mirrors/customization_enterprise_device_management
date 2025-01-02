@@ -32,13 +32,16 @@ const std::string DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL = "persist.e
 void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
 {
     EDMLOGI("DisableBluetoothPlugin InitPlugin...");
-    std::map<std::string, std::string> perms;
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_11,
-        "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH"));
-    perms.insert(std::make_pair(EdmConstants::PERMISSION_TAG_VERSION_12,
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS"));
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(perms,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, "disabled_bluetooth", config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableBluetoothPlugin::OnSetPolicy, FuncOperateType::SET);

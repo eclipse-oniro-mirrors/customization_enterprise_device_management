@@ -76,10 +76,10 @@ HWTEST_F(DomainFilterRulePluginTest, TestInitPluginSuccess, TestSize.Level1)
     ASSERT_TRUE(!plugin->NeedSavePolicy());
     ASSERT_TRUE(plugin->GetCode() == (std::uint32_t)EdmInterfaceCode::DOMAIN_FILTER_RULE);
     ASSERT_EQ(plugin->GetPolicyName(), "domain_filter_rule");
-    ASSERT_EQ(plugin->GetPermission(FuncOperateType::SET), "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
-    ASSERT_TRUE(plugin->GetPermissionType(FuncOperateType::SET) == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
-    ASSERT_TRUE(plugin->GetPermission(FuncOperateType::GET) == "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
-    ASSERT_TRUE(plugin->GetPermissionType(FuncOperateType::GET) == IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+    ASSERT_EQ(plugin->GetPermission(FuncOperateType::SET, IPlugin::PermissionType::SUPER_DEVICE_ADMIN),
+        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+    ASSERT_TRUE(plugin->GetPermission(FuncOperateType::GET, IPlugin::PermissionType::SUPER_DEVICE_ADMIN)
+        == "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
 }
 
 /**
