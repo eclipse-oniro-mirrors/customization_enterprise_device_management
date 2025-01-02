@@ -16,10 +16,10 @@
 #ifndef INTERFACES_KITS_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_ADDON_H
 #define INTERFACES_KITS_NETWORK_MANAGER_INCLUDE_NETWORK_MANAGER_ADDON_H
 
+#include "napi_edm_adapter.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "network_manager_proxy.h"
 #include "want.h"
@@ -30,28 +30,6 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncNetworkInfoCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-    std::string networkInterface;
-    int policyCode = 0;
-};
-
-struct AsyncNetworkInterfacesCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-};
-
-struct AsyncSetNetworkInterfaceCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-    std::string networkInterface;
-    bool isDisabled = false;
-};
-
-struct AsyncIptablesCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-    IPTABLES::AddFilter addFilter;
-    IPTABLES::RemoveFilter removeFilter;
-};
-
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
@@ -97,7 +75,6 @@ private:
     static napi_value FirewallRuleToJsObj(napi_env env, const IPTABLES::FirewallRule &rule);
     static bool JsObjToDomainFilterRule(napi_env env, napi_value object, IPTABLES::DomainFilterRule &rule);
     static napi_value DomainFilterRuleToJsObj(napi_env env, const IPTABLES::DomainFilterRule &rule);
-
     static napi_value SetGlobalHttpProxy(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxy(napi_env env, napi_callback_info info);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
@@ -120,6 +97,11 @@ private:
     static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxySync(napi_env env, napi_callback_info info);
+    static void SetNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
+    static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
+        int32_t policyCode);
+    static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
+    static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
 };
 } // namespace EDM
 } // namespace OHOS

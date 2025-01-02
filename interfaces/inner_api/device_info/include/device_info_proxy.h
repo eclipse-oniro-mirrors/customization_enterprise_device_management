@@ -24,12 +24,11 @@ public:
     DeviceInfoProxy();
     ~DeviceInfoProxy();
     static std::shared_ptr<DeviceInfoProxy> GetDeviceInfoProxy();
-    int32_t GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &info);
-    int32_t GetDisplayVersion(AppExecFwk::ElementName &admin, std::string &info);
-    int32_t GetDeviceName(AppExecFwk::ElementName &admin, std::string &info);
-    int32_t GetDeviceInfoSync(AppExecFwk::ElementName &admin, const std::string &label, std::string &info);
+    int32_t GetDeviceSerial(MessageParcel &data, std::string &info);
+    int32_t GetDisplayVersion(MessageParcel &data, std::string &info);
+    int32_t GetDeviceName(MessageParcel &data, std::string &info);
+    int32_t GetDeviceInfo(MessageParcel &data, const std::string &label, int policyCode, std::string &info);
 private:
-    int32_t GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode);
     static std::shared_ptr<DeviceInfoProxy> instance_;
     static std::once_flag flag_;
 };

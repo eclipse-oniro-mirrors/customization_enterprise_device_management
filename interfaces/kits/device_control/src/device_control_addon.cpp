@@ -35,39 +35,19 @@ napi_value DeviceControlAddon::Init(napi_env env, napi_value exports)
     return exports;
 }
 
+void DeviceControlAddon::SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName)
+{
+    addonMethodSign.name = workName;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+}
+
 napi_value DeviceControlAddon::ResetFactory(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_resetFactory called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncDeviceControlCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncDeviceControlCallbackInfo> callbackPtr {asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("resetFactory: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_resetFactory argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "ResetFactory",
-        NativeResetFactory, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    SetPolicyCommon(addonMethodSign, "ResetFactory");
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeResetFactory, NativeVoidCallbackComplete);
 }
 
 napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
@@ -105,22 +85,13 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
 napi_value DeviceControlAddon::Shutdown(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_shutdown called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    OHOS::AppExecFwk::ElementName elementName;
-    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("lockScreen: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    int32_t result = DeviceControlProxy::GetDeviceControlProxy()->Shutdown(elementName);
+    AddonMethodSign addonMethodSign;
+    SetPolicyCommon(addonMethodSign, "Shutdown");
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t result = DeviceControlProxy::GetDeviceControlProxy()->Shutdown(adapterAddonData.data);
     if (FAILED(result)) {
         napi_throw(env, CreateError(env, result));
     }
@@ -130,22 +101,13 @@ napi_value DeviceControlAddon::Shutdown(napi_env env, napi_callback_info info)
 napi_value DeviceControlAddon::Reboot(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_reboot called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    OHOS::AppExecFwk::ElementName elementName;
-    bool ret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("lockScreen: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    int32_t result = DeviceControlProxy::GetDeviceControlProxy()->Reboot(elementName);
+    AddonMethodSign addonMethodSign;
+    SetPolicyCommon(addonMethodSign, "Reboot");
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t result = DeviceControlProxy::GetDeviceControlProxy()->Reboot(adapterAddonData.data);
     if (FAILED(result)) {
         napi_throw(env, CreateError(env, result));
     }
@@ -159,13 +121,13 @@ void DeviceControlAddon::NativeResetFactory(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncDeviceControlCallbackInfo *asyncCallbackInfo = static_cast<AsyncDeviceControlCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     if (DeviceControlProxy::GetDeviceControlProxy() == nullptr) {
         EDMLOGE("can not get GetDeviceControlProxy");
         return;
     }
     asyncCallbackInfo->ret =
-        DeviceControlProxy::GetDeviceControlProxy()->ResetFactory(asyncCallbackInfo->elementName);
+        DeviceControlProxy::GetDeviceControlProxy()->ResetFactory(asyncCallbackInfo->data);
 }
 
 napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info info)

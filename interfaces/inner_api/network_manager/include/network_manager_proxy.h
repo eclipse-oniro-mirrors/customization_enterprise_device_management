@@ -33,23 +33,27 @@ public:
     static std::shared_ptr<NetworkManagerProxy> GetNetworkManagerProxy();
     int32_t GetAllNetworkInterfaces(const AppExecFwk::ElementName &admin, std::vector<std::string> &networkInterface,
         bool isSync = false);
+    int32_t GetAllNetworkInterfaces(MessageParcel &data, std::vector<std::string> &networkInterface);
     int32_t GetIpOrMacAddress(const AppExecFwk::ElementName &admin, const std::string &networkInterface, int policyCode,
         std::string &info, bool isSync = false);
+    int32_t GetIpOrMacAddress(MessageParcel &data, int policyCode, std::string &info);
     int32_t SetNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         bool isDisabled, bool isSync = false);
+    int32_t SetNetworkInterfaceDisabled(MessageParcel &data);
     int32_t IsNetworkInterfaceDisabled(const AppExecFwk::ElementName &admin, const std::string &networkInterface,
         bool &status, bool isSync = false);
-    int32_t AddIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::AddFilter &filter);
-    int32_t RemoveIptablesFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::RemoveFilter &filter);
-    int32_t ListIptablesFilterRules(const AppExecFwk::ElementName &admin, std::string &result);
-    int32_t AddFirewallRule(const AppExecFwk::ElementName &admin, const IPTABLES::FirewallRule &rule);
+    int32_t IsNetworkInterfaceDisabled(MessageParcel &data, bool &status);
+    int32_t AddIptablesFilterRule(MessageParcel &data);
+    int32_t RemoveIptablesFilterRule(MessageParcel &data);
+    int32_t ListIptablesFilterRules(MessageParcel &data, std::string &result);
+    int32_t AddFirewallRule(MessageParcel &data);
     int32_t RemoveFirewallRule(const AppExecFwk::ElementName &admin, const IPTABLES::FirewallRule &rule);
-    int32_t GetFirewallRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::FirewallRule> &result);
-    int32_t AddDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
+    int32_t GetFirewallRules(MessageParcel &data, std::vector<IPTABLES::FirewallRule> &result);
+    int32_t AddDomainFilterRule(MessageParcel &data);
     int32_t RemoveDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
-    int32_t GetDomainFilterRules(const AppExecFwk::ElementName &admin, std::vector<IPTABLES::DomainFilterRule> &rule);
+    int32_t GetDomainFilterRules(MessageParcel &data, std::vector<IPTABLES::DomainFilterRule> &rule);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-    int32_t SetGlobalHttpProxy(const AppExecFwk::ElementName &admin, const NetManagerStandard::HttpProxy &httpProxy);
+    int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,
         int32_t accountId = -1);
 #endif

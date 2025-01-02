@@ -26,11 +26,6 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncLocationPolicyInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-    LocationPolicy locationPolicy = LocationPolicy::DEFAULT_LOCATION_SERVICE;
-};
-
 class LocationManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -38,7 +33,6 @@ public:
 private:
     static napi_value SetLocationPolicy(napi_env env, napi_callback_info info);
     static napi_value GetLocationPolicy(napi_env env, napi_callback_info info);
-    static bool IntToLocationPolicy(napi_env env, LocationPolicy &param, int32_t policy);
     static void CreateLocationPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM

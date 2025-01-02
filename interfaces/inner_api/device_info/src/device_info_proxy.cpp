@@ -39,60 +39,34 @@ std::shared_ptr<DeviceInfoProxy> DeviceInfoProxy::GetDeviceInfoProxy()
     return instance_;
 }
 
-int32_t DeviceInfoProxy::GetDeviceSerial(AppExecFwk::ElementName &admin, std::string &info)
+int32_t DeviceInfoProxy::GetDeviceSerial(MessageParcel &data, std::string &info)
 {
-    return GetDeviceInfoSync(admin, EdmConstants::DeviceInfo::DEVICE_SERIAL, info);
+    return GetDeviceInfo(data, EdmConstants::DeviceInfo::DEVICE_SERIAL, EdmInterfaceCode::GET_DEVICE_INFO, info);
 }
 
-int32_t DeviceInfoProxy::GetDisplayVersion(AppExecFwk::ElementName &admin, std::string &info)
+int32_t DeviceInfoProxy::GetDisplayVersion(MessageParcel &data, std::string &info)
 {
-    return GetDeviceInfo(admin, info, EdmInterfaceCode::GET_DISPLAY_VERSION);
+    return GetDeviceInfo(data, "", EdmInterfaceCode::GET_DISPLAY_VERSION, info);
 }
 
-int32_t DeviceInfoProxy::GetDeviceName(AppExecFwk::ElementName &admin, std::string &info)
+int32_t DeviceInfoProxy::GetDeviceName(MessageParcel &data, std::string &info)
 {
-    return GetDeviceInfoSync(admin, EdmConstants::DeviceInfo::DEVICE_NAME, info);
+    return GetDeviceInfo(data, EdmConstants::DeviceInfo::DEVICE_NAME, EdmInterfaceCode::GET_DEVICE_INFO, info);
 }
 
-int32_t DeviceInfoProxy::GetDeviceInfo(AppExecFwk::ElementName &admin, std::string &info, int policyCode)
+int32_t DeviceInfoProxy::GetDeviceInfo(MessageParcel &data, const std::string &label, int policyCode, std::string &info)
 {
     EDMLOGD("DeviceInfoProxy::GetDeviceInfo %{public}d", policyCode);
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    proxy->GetPolicy(policyCode, data, reply);
+    // The synchronous interface requires the label
+    if (!label.empty()) {
+        data.WriteString(label);
+    }
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(policyCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    reply.ReadString(info);
-    return ERR_OK;
-}
-
-int32_t DeviceInfoProxy::GetDeviceInfoSync(AppExecFwk::ElementName &admin, const std::string &label, std::string &info)
-{
-    EDMLOGI("DeviceInfoProxy::GetDeviceInfoSync %{public}s", label.c_str());
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(label);
-    proxy->GetPolicy(EdmInterfaceCode::GET_DEVICE_INFO, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetDeviceInfoSync fail. %{public}d", ret);
         return ret;
     }
     reply.ReadString(info);

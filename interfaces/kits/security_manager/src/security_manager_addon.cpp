@@ -57,56 +57,41 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value SecurityManagerAddon::GetSecurityPatchTag(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetSecurityPatchTag called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
-    bool boolret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, boolret, "element name param error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    std::string stringRet;
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetSecurityPatchTag";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
-    int32_t ret = securityManagerProxy->GetSecurityPatchTag(elementName, stringRet);
+    int32_t ret = securityManagerProxy->GetSecurityPatchTag(adapterAddonData.data, adapterAddonData.stringRet);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
     napi_value securityPatchTag;
-    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &securityPatchTag));
+    NAPI_CALL(env, napi_create_string_utf8(env, adapterAddonData.stringRet.c_str(),
+        adapterAddonData.stringRet.size(), &securityPatchTag));
     return securityPatchTag;
 }
 
 napi_value SecurityManagerAddon::GetDeviceEncryptionStatus(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetDeviceEncryptionStatus called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
-    napi_value thisArg = nullptr;
-    void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter type error");
-    bool boolret = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, boolret, "element name param error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDeviceEncryptionStatus";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     DeviceEncryptionStatus deviceEncryptionStatus;
     auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
-    int32_t ret = securityManagerProxy->GetDeviceEncryptionStatus(elementName, deviceEncryptionStatus);
+    int32_t ret = securityManagerProxy->GetDeviceEncryptionStatus(adapterAddonData.data, deviceEncryptionStatus);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -127,35 +112,41 @@ napi_value SecurityManagerAddon::ConvertDeviceEncryptionStatus(napi_env env,
 
 napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetPasswordPolicy called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = { nullptr };
-    napi_value thisArg = nullptr;
-    void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "passwordPolicy type error");
-
-    PasswordPolicy policy;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjectToString(env, argv[ARR_INDEX_ONE], "complexityRegex", false, policy.complexityReg),
-        "Parameter passwordPolicy error");
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjectToLong(env, argv[ARR_INDEX_ONE], "validityPeriod", false, policy.validityPeriod),
-        "Parameter passwordPolicy error");
-    if (policy.validityPeriod > MAX_VALIDITY_PERIOD || policy.validityPeriod < 0) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, VALIDITY_PERIOD_OUT_OF_RANGE_ERROR));
+    auto convertpasswordPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            PasswordPolicy policy;
+            if (!JsObjectToString(env, argv, "complexityRegex", false, policy.complexityReg)) {
+                EDMLOGE("Parameter passwordPolicy error");
+                return false;
+            }
+            if (!JsObjectToLong(env, argv, "validityPeriod", false, policy.validityPeriod)) {
+                EDMLOGE("Parameter passwordPolicy error");
+                return false;
+            }
+            if (policy.validityPeriod > MAX_VALIDITY_PERIOD || policy.validityPeriod < 0) {
+                napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, VALIDITY_PERIOD_OUT_OF_RANGE_ERROR));
+                return false;
+            }
+            if (!JsObjectToString(env, argv, "additionalDescription", false, policy.additionalDescription)) {
+                EDMLOGE("Parameter passwordPolicy error");
+                return false;
+            }
+            data.WriteString(policy.complexityReg);
+            data.WriteInt64(policy.validityPeriod);
+            data.WriteString(policy.additionalDescription);
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetPasswordPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertpasswordPolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
         return nullptr;
     }
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        JsObjectToString(env, argv[ARR_INDEX_ONE], "additionalDescription", false, policy.additionalDescription),
-        "Parameter passwordPolicy error");
-    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetPasswordPolicy(elementName, policy);
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetPasswordPolicy(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
@@ -332,45 +323,29 @@ void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data
         return;
     }
     AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
-    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->InstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->certblobCA.certArray,
-        asyncCallbackInfo->certblobCA.alias, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
+    auto securityManagerProxy = SecurityManagerProxy::GetSecurityManagerProxy();
+    asyncCallbackInfo->ret = securityManagerProxy->InstallUserCertificate(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->certblobCA, asyncCallbackInfo->stringRet, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_UninstallUserCertificate called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter want error");
-    matchFlag = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter uri error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncCertCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
-        return nullptr;
-    }
-    std::unique_ptr<AsyncCertCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool retAdmin = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retAdmin, "element name param error");
-    EDMLOGD(
-        "UninstallUserCertificate: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-
-    bool retAlias = ParseString(env, asyncCallbackInfo->certblobCA.alias, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, retAlias, "element alias error");
-
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "uninstallUserCertificate",
-        NativeUninstallUserCertificate, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            std::string alias;
+            if (!ParseString(env, alias, argv)) {
+                EDMLOGE("element alias error");
+                return false;
+            }
+            data.WriteString(alias);
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "UninstallUserCertificate";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertCertBlob2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeUninstallUserCertificate, NativeVoidCallbackComplete);
 }
 
 void SecurityManagerAddon::NativeUninstallUserCertificate(napi_env env, void *data)
@@ -380,9 +355,9 @@ void SecurityManagerAddon::NativeUninstallUserCertificate(napi_env env, void *da
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncCertCallbackInfo *asyncCallbackInfo = static_cast<AsyncCertCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->UninstallUserCertificate(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->certblobCA.alias, asyncCallbackInfo->innerCodeMsg);
+        asyncCallbackInfo->data, asyncCallbackInfo->innerCodeMsg);
 }
 
 napi_value SecurityManagerAddon::GetUserCertificates(napi_env env, napi_callback_info info)
@@ -427,29 +402,17 @@ bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncC
 
 napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetAppClipboardPolicy called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "tokenId type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
-        "clipboardPolicy type error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    int32_t tokenId = 0;
-    int32_t policy = 0;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, tokenId, argv[ARR_INDEX_ONE]),
-        "Parameter tokenId error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_TWO]),
-        "Parameter clipboardPolicy error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetAppClipboardPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->SetAppClipboardPolicy(elementName, tokenId, policy);
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetAppClipboardPolicy(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
@@ -556,29 +519,17 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
 
 napi_value SecurityManagerAddon::CancelWatermarkImage(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_CancelWatermarkImage called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
-        "accountId type error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    std::string bundleName;
-    int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
-        "Parameter bundleName error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
-        "Parameter accountId error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "CancelWatermarkImage";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->CancelWatermarkImage(elementName, bundleName, accountId);
+        SecurityManagerProxy::GetSecurityManagerProxy()->CancelWatermarkImage(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }

@@ -27,16 +27,18 @@ public:
     static std::shared_ptr<DeviceSettingsProxy> GetDeviceSettingsProxy();
     int32_t SetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t value,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
+    int32_t SetScreenOffTime(MessageParcel &data);
     int32_t GetScreenOffTime(const AppExecFwk::ElementName &admin, int32_t &value,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
-    int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin, const std::vector<uint8_t> &certArray,
-        std::string &alias, std::string &result, std::string &innerCodeMsg);
-    int32_t UninstallUserCertificate(const AppExecFwk::ElementName &admin, const std::string &certUri,
-        std::string &innerCodeMsg);
+    int32_t GetScreenOffTime(MessageParcel &data, int32_t &value);
+    int32_t InstallUserCertificate(MessageParcel &data, std::string &result, std::string &innerCodeMsg);
+    int32_t UninstallUserCertificate(MessageParcel &data, std::string &innerCodeMsg);
     int32_t SetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
         const PowerPolicy &powerPolicy);
+    int32_t SetPowerPolicy(MessageParcel &data);
     int32_t GetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
         PowerPolicy &powerPolicy);
+    int32_t GetPowerPolicy(MessageParcel &data, PowerPolicy &powerPolicy);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

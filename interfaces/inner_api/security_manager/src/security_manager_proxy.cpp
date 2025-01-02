@@ -35,6 +35,21 @@ std::shared_ptr<SecurityManagerProxy> SecurityManagerProxy::GetSecurityManagerPr
     return instance_;
 }
 
+int32_t SecurityManagerProxy::GetSecurityPatchTag(MessageParcel &data, std::string &securityPatchTag)
+{
+    EDMLOGD("SecurityManagerProxy::GetSecurityPatchTag");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_SECURITY_PATCH_TAG, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(securityPatchTag);
+    return ret;
+}
+
 int32_t SecurityManagerProxy::GetSecurityPatchTag(const AppExecFwk::ElementName &admin, std::string &securityPatchTag)
 {
     EDMLOGD("SecurityManagerProxy::GetSecurityPatchTag");
@@ -78,19 +93,27 @@ int32_t SecurityManagerProxy::GetDeviceEncryptionStatus(const AppExecFwk::Elemen
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::SetPasswordPolicy(const AppExecFwk::ElementName &admin, const PasswordPolicy &policy)
+int32_t SecurityManagerProxy::GetDeviceEncryptionStatus(MessageParcel &data,
+    DeviceEncryptionStatus &deviceEncryptionStatus)
+{
+    EDMLOGD("SecurityManagerProxy::GetDeviceEncryptionStatus");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_DEVICE_ENCRYPTION_STATUS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(deviceEncryptionStatus.isEncrypted);
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::SetPasswordPolicy(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::SetPasswordPolicy");
-    MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::PASSWORD_POLICY);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(policy.complexityReg);
-    data.WriteInt64(policy.validityPeriod);
-    data.WriteString(policy.additionalDescription);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -156,19 +179,11 @@ int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::SetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-    const int32_t policy)
+int32_t SecurityManagerProxy::SetAppClipboardPolicy(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::SetAppClipboardPolicy");
-    MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLIPBOARD_POLICY);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(tokenId);
-    data.WriteInt32(policy);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -241,19 +256,11 @@ bool SecurityManagerProxy::WritePixelMap(const std::shared_ptr<Media::PixelMap> 
     return true;
 }
 
-int32_t SecurityManagerProxy::CancelWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
-    const int32_t accountId)
+int32_t SecurityManagerProxy::CancelWatermarkImage(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::CancelWatermarkImage");
-    MessageParcel data;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::WATERMARK_IMAGE);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(bundleName);
-    data.WriteInt32(accountId);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 

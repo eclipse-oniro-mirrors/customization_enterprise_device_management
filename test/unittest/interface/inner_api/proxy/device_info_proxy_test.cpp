@@ -71,13 +71,15 @@ void DeviceInfoProxyTest::TearDownTestSuite()
  */
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceSerialSuc, TestSize.Level1)
 {
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
+    int32_t ret = deviceInfoProxy->GetDeviceSerial(data, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -90,10 +92,12 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceSerialSuc, TestSize.Level1)
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceSerialFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceSerial(admin, info);
+    int32_t ret = deviceInfoProxy->GetDeviceSerial(data, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -104,13 +108,15 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceSerialFail, TestSize.Level1)
  */
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceNameSuc, TestSize.Level1)
 {
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceName(admin, info);
+    int32_t ret = deviceInfoProxy->GetDeviceName(data, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -123,10 +129,12 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceNameSuc, TestSize.Level1)
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceNameFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceName(admin, info);
+    int32_t ret = deviceInfoProxy->GetDeviceName(data, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -137,13 +145,15 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceNameFail, TestSize.Level1)
  */
 HWTEST_F(DeviceInfoProxyTest, TestGetDisplayVersionSuc, TestSize.Level1)
 {
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDisplayVersion(admin, info);
+    int32_t ret = deviceInfoProxy->GetDisplayVersion(data, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -156,10 +166,12 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDisplayVersionSuc, TestSize.Level1)
 HWTEST_F(DeviceInfoProxyTest, TestGetDisplayVersionFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDisplayVersion(admin, info);
+    int32_t ret = deviceInfoProxy->GetDisplayVersion(data, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -170,13 +182,15 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDisplayVersionFail, TestSize.Level1)
  */
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncSuc, TestSize.Level1)
 {
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceInfoSync(admin, "device_name", info);
+    int32_t ret = deviceInfoProxy->GetDeviceInfo(data, "device_name", EdmInterfaceCode::GET_DEVICE_INFO, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == RETURN_STRING);
 }
@@ -189,10 +203,12 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncSuc, TestSize.Level1)
 HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     std::string info;
-    int32_t ret = deviceInfoProxy->GetDeviceInfoSync(admin, "device_name", info);
+    int32_t ret = deviceInfoProxy->GetDeviceInfo(data, "device_name", EdmInterfaceCode::GET_DEVICE_INFO, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

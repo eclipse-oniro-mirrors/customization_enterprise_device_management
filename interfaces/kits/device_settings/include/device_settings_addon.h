@@ -27,13 +27,7 @@
 
 namespace OHOS {
 namespace EDM {
-struct AsyncScreenOffTimeCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-    int32_t time = 0;
-};
-
-struct AsyncCertCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
+struct CertBlob {
     std::vector<uint8_t> certArray;
     std::string alias;
 };
@@ -53,7 +47,7 @@ private:
     static napi_value UninstallUserCertificate(napi_env env, napi_callback_info info);
     static void NativeInstallUserCertificate(napi_env env, void *data);
     static void NativeUninstallUserCertificate(napi_env env, void *data);
-    static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
+    static bool ParseCertBlob(napi_env env, napi_value object, CertBlob &certBlob);
     static bool JsObjToPowerScene(napi_env env, napi_value object, PowerScene &powerScene);
     static bool JsObjToPowerPolicy(napi_env env, napi_value object, PowerPolicy &powerPolicy);
     static void CreatePowerSceneObject(napi_env env, napi_value value);

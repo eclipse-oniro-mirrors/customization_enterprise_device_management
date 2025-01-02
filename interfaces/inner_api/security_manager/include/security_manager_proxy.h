@@ -37,20 +37,20 @@ class SecurityManagerProxy {
 public:
     static std::shared_ptr<SecurityManagerProxy> GetSecurityManagerProxy();
     int32_t GetSecurityPatchTag(const AppExecFwk::ElementName &admin, std::string &info);
+    int32_t GetSecurityPatchTag(MessageParcel &data, std::string &info);
     int32_t GetDeviceEncryptionStatus(const AppExecFwk::ElementName &admin,
         DeviceEncryptionStatus &deviceEncryptionStatus);
-    int32_t SetPasswordPolicy(const AppExecFwk::ElementName &admin, const PasswordPolicy &policy);
+    int32_t GetDeviceEncryptionStatus(MessageParcel &data, DeviceEncryptionStatus &deviceEncryptionStatus);
+    int32_t SetPasswordPolicy(MessageParcel &data);
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
     int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
-    int32_t SetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-        const int32_t policy);
+    int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
         std::string &policy);
     int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
         const std::shared_ptr<Media::PixelMap> pixelMap, const int32_t accountId);
-    int32_t CancelWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
-        const int32_t accountId);
+    int32_t CancelWatermarkImage(MessageParcel &data);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,
         const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);
     int32_t GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList);

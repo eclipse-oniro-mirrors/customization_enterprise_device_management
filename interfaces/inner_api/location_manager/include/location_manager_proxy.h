@@ -28,7 +28,7 @@ enum class LocationPolicy {
 class LocationManagerProxy {
 public:
     static std::shared_ptr<LocationManagerProxy> GetLocationManagerProxy();
-    int32_t SetLocationPolicy(const AppExecFwk::ElementName &admin, LocationPolicy locationPolicy);
+    int32_t SetLocationPolicy(MessageParcel &data);
     int32_t GetLocationPolicy(const AppExecFwk::ElementName *admin, LocationPolicy &locationPolicy);
 
 private:

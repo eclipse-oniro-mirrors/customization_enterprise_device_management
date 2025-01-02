@@ -39,43 +39,25 @@ std::shared_ptr<DeviceControlProxy> DeviceControlProxy::GetDeviceControlProxy()
     return instance_;
 }
 
-int32_t DeviceControlProxy::ResetFactory(AppExecFwk::ElementName &admin)
+int32_t DeviceControlProxy::ResetFactory(MessageParcel &data)
 {
     EDMLOGD("DeviceControlProxy::ResetFactory");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::RESET_FACTORY);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t DeviceControlProxy::Shutdown(AppExecFwk::ElementName &admin)
+int32_t DeviceControlProxy::Shutdown(MessageParcel &data)
 {
     EDMLOGD("DeviceControlProxy::Shutdown");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SHUTDOWN);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t DeviceControlProxy::Reboot(AppExecFwk::ElementName &admin)
+int32_t DeviceControlProxy::Reboot(MessageParcel &data)
 {
     EDMLOGD("DeviceControlProxy::Reboot");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::REBOOT);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t DeviceControlProxy::LockScreen(AppExecFwk::ElementName &admin, int32_t userId)

@@ -73,12 +73,14 @@ void DeviceControlProxyTest::TearDownTestSuite()
  */
 HWTEST_F(DeviceControlProxyTest, TestResetFactorySuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = deviceControlProxy->ResetFactory(admin);
+    int32_t ret = deviceControlProxy->ResetFactory(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -90,9 +92,11 @@ HWTEST_F(DeviceControlProxyTest, TestResetFactorySuc, TestSize.Level1)
 HWTEST_F(DeviceControlProxyTest, TestResetFactoryFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = deviceControlProxy->ResetFactory(admin);
+    data.WriteParcelable(&admin);
+    int32_t ret = deviceControlProxy->ResetFactory(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -137,12 +141,14 @@ HWTEST_F(DeviceControlProxyTest, TestLockScreenFail, TestSize.Level1)
  */
 HWTEST_F(DeviceControlProxyTest, TestShutdownSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = deviceControlProxy->Shutdown(admin);
+    int32_t ret = deviceControlProxy->Shutdown(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -154,9 +160,11 @@ HWTEST_F(DeviceControlProxyTest, TestShutdownSuc, TestSize.Level1)
 HWTEST_F(DeviceControlProxyTest, TestShutdownFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = deviceControlProxy->Shutdown(admin);
+    data.WriteParcelable(&admin);
+    int32_t ret = deviceControlProxy->Shutdown(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -167,12 +175,14 @@ HWTEST_F(DeviceControlProxyTest, TestShutdownFail, TestSize.Level1)
  */
 HWTEST_F(DeviceControlProxyTest, TestRebootSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = deviceControlProxy->Reboot(admin);
+    int32_t ret = deviceControlProxy->Reboot(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -184,9 +194,11 @@ HWTEST_F(DeviceControlProxyTest, TestRebootSuc, TestSize.Level1)
 HWTEST_F(DeviceControlProxyTest, TestRebootFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = deviceControlProxy->Reboot(admin);
+    data.WriteParcelable(&admin);
+    int32_t ret = deviceControlProxy->Reboot(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

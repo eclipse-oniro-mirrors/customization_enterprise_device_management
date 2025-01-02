@@ -19,19 +19,13 @@
 #include "device_control_proxy.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "ienterprise_device_mgr.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_error.h"
-#include "napi_edm_common.h"
-#include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "napi/native_api.h"
 #include "want.h"
 
 namespace OHOS {
 namespace EDM {
-struct AsyncDeviceControlCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
-};
-
 class DeviceControlAddon {
 public:
     DeviceControlAddon();
@@ -45,6 +39,7 @@ private:
     static napi_value LockScreen(napi_env env, napi_callback_info info);
     static napi_value OperateDevice(napi_env env, napi_callback_info info);
     static void NativeResetFactory(napi_env env, void *data);
+    static void SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName);
 };
 } // namespace EDM
 } // namespace OHOS

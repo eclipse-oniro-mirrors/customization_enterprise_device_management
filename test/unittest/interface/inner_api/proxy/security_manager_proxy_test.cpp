@@ -100,6 +100,43 @@ HWTEST_F(SecurityManagerProxyTest, TestGetSecurityPatchTagFail, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestGetSecurityPatchTagSuc_01
+ * @tc.desc: Test GetSecurityPatchTag success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityPatchTagSuc_01, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::string res;
+    int32_t ret = proxy_->GetSecurityPatchTag(data, res);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(res == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetSecurityPatchTagFail_01
+ * @tc.desc: Test GetSecurityPatchTag without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityPatchTagFail_01, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    std::string res;
+    int32_t ret = proxy_->GetSecurityPatchTag(data, res);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestGetDeviceEncryptionStatusSuc
  * @tc.desc: Test GetDeviceEncryptionStatus success func.
  * @tc.type: FUNC
@@ -129,6 +166,43 @@ HWTEST_F(SecurityManagerProxyTest, TestGetDeviceEncryptionStatusFail, TestSize.L
     admin.SetBundleName(ADMIN_PACKAGENAME);
     DeviceEncryptionStatus deviceEncryptionStatus;
     int32_t ret = proxy_->GetDeviceEncryptionStatus(admin, deviceEncryptionStatus);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDeviceEncryptionStatusSuc_01
+ * @tc.desc: Test GetDeviceEncryptionStatus success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetDeviceEncryptionStatusSuc_01, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    DeviceEncryptionStatus deviceEncryptionStatus;
+    int32_t ret = proxy_->GetDeviceEncryptionStatus(data, deviceEncryptionStatus);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceEncryptionStatus.isEncrypted == true);
+}
+
+/**
+ * @tc.name: TestGetDeviceEncryptionStatusFail_01
+ * @tc.desc: Test GetDeviceEncryptionStatus without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetDeviceEncryptionStatusFail_01, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    DeviceEncryptionStatus deviceEncryptionStatus;
+    int32_t ret = proxy_->GetDeviceEncryptionStatus(data, deviceEncryptionStatus);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -175,10 +249,15 @@ HWTEST_F(SecurityManagerProxyTest, TestSetPasswordPolicySuc, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     PasswordPolicy policy;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(policy.complexityReg);
+    data.WriteInt64(policy.validityPeriod);
+    data.WriteString(policy.additionalDescription);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetPasswordPolicy(admin, policy);
+    int32_t ret = proxy_->SetPasswordPolicy(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -241,10 +320,14 @@ HWTEST_F(SecurityManagerProxyTest, TestSetAppClipboardPolicySuc, TestSize.Level1
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(123);
+    data.WriteInt32(1);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetAppClipboardPolicy(admin, 123, 1);
+    int32_t ret = proxy_->SetAppClipboardPolicy(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -317,7 +400,11 @@ HWTEST_F(SecurityManagerProxyTest, TestCancelWatermarkImageSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::string bundleName = "testBundleName";
-    int32_t ret = proxy_->CancelWatermarkImage(admin, bundleName, 100);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString(bundleName);
+    data.WriteInt32(100);
+    int32_t ret = proxy_->CancelWatermarkImage(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

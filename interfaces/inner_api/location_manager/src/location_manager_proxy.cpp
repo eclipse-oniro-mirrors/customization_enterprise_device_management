@@ -33,16 +33,10 @@ std::shared_ptr<LocationManagerProxy> LocationManagerProxy::GetLocationManagerPr
     return instance_;
 }
 
-int32_t LocationManagerProxy::SetLocationPolicy(const AppExecFwk::ElementName &admin, LocationPolicy locationPolicy)
+int32_t LocationManagerProxy::SetLocationPolicy(MessageParcel &data)
 {
     EDMLOGD("LocationManagerProxy::SetLocationPolicy");
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(static_cast<int32_t>(locationPolicy));
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCATION_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }

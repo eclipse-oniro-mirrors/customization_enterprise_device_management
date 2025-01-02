@@ -31,6 +31,7 @@ ohos_shared_library("securitymanager") {
   external_deps = [
     "ability_base:want",
     "cJSON:cjson",
+    "c_utils:utils",
     "hilog:libhilog",
     "image_framework:image",
     "image_framework:image_native",
