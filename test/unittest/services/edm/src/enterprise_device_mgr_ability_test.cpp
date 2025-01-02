@@ -48,7 +48,7 @@ constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 6;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 7;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -923,6 +923,76 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     // get policy of super and sub-super admin with userId = 101
     GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
     GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageChangedWithoutAdmin
+ * @tc.desc: Test OnCommonEventPackageChanged without admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageChangedWithoutAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageChanged(data);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) == nullptr);
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageChangedWithNormalAdmin
+ * @tc.desc: Test OnCommonEventPackageChanged with normal admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageChangedWithNormalAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageChanged(data);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) != nullptr);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(normalAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestOnCommonEventPackageChangedWithSuperAdmin
+ * @tc.desc: Test OnCommonEventPackageChanged with super admin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageChangedWithSuperAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam(AppExecFwk::Constants::USER_ID, DEFAULT_USER_ID);
+    data.SetWant(want);
+    edmMgr_->OnCommonEventPackageChanged(data);
+    ASSERT_TRUE(edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID) != nullptr);
+
+    DisableSuperAdminSuc(admin.GetBundleName());
+    std::shared_ptr<Admin> superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(superAdmin == nullptr);
 }
 
 /**
