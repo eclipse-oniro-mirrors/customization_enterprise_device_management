@@ -17,11 +17,11 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
 
 void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
 {
@@ -44,16 +44,6 @@ void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disa
 
 ErrCode DisallModifyDateTimePlugin::OnSetPolicy(bool &data)
 {
-    return ERR_OK;
-}
-
-ErrCode DisallModifyDateTimePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool disallow = false;
-    pluginInstance_->serializer_->Deserialize(policyData, disallow);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(disallow);
     return ERR_OK;
 }
 } // namespace EDM

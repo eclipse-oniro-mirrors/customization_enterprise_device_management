@@ -26,7 +26,6 @@ class AllowedInstallBundlesPlugin : public PluginSingleton<AllowedInstallBundles
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedInstallBundlesPlugin,
         std::vector<std::string>>> ptr) override;
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

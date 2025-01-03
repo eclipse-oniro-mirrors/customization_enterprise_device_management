@@ -24,7 +24,7 @@
 #include "edm_ipc_interface_code.h"
 #include "map_string_serializer.h"
 #include "want.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 static constexpr int32_t SET_POLICY_PARAM_NUM = 3;
 static constexpr int32_t SET_POLICY_APPID_INDEX = 0;
@@ -33,7 +33,7 @@ static constexpr int32_t SET_POLICY_POLICY_VALUE_INDEX = 2;
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<SetBrowserPoliciesPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetBrowserPoliciesPlugin>());
 const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.browserpolicychanged";
 const char* const EMPTY_OBJECT_STRING = "{}";
 

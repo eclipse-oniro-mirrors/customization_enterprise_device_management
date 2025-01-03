@@ -17,11 +17,11 @@
 
 #include "array_string_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowedUninstallBundlesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedUninstallBundlesPlugin::GetPlugin());
 
 void DisallowedUninstallBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedUninstallBundlesPlugin, std::vector<std::string>>> ptr)
@@ -34,14 +34,6 @@ void DisallowedUninstallBundlesPlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnAdminRemoveDoneListener(&DisallowedUninstallBundlesPlugin::OnAdminRemoveDone);
     SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL);
-}
-
-ErrCode DisallowedUninstallBundlesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("DisallowedUninstallBundlesPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d",
-        policyData.c_str(), userId);
-    return GetBundlePolicy(policyData, data, reply, userId);
 }
 } // namespace EDM
 } // namespace OHOS

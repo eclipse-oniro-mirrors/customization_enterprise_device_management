@@ -117,25 +117,6 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
 }
-
-/**
- * @tc.name: TestDisableBluetoothPluginTestGet
- * @tc.desc: Test DisableBluetoothPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestGet, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    ASSERT_EQ(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false),
-        reply.ReadBool());
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

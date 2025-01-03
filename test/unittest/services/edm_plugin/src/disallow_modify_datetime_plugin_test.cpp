@@ -58,28 +58,6 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, 
     ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
 }
-
-/**
- * @tc.name: TestDisallowModifyDateTimePlugin
- * @tc.desc: Test TestDisallowModifyDateTimePlugin::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin002, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
-    // origin policy is disallow to modify date time.
-    std::string policyData{"true"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    // get policy is disallow to modify date time.
-    ASSERT_TRUE(result);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -18,11 +18,11 @@
 #include "cJSON.h"
 #include "clipboard_utils.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ClipboardPolicyPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ClipboardPolicyPlugin::GetPlugin());
 const int32_t MAX_PASTEBOARD_POLICY_NUM = 100;
 
 void ClipboardPolicyPlugin::InitPlugin(
@@ -55,26 +55,6 @@ ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardPolicy> &d
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ClipboardUtils::HandlePasteboardPolicy(data);
-}
-
-ErrCode ClipboardPolicyPlugin::OnGetPolicy(std::string &policyData,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("ClipboardPolicyPlugin OnGetPolicy.");
-    int32_t tokenId = data.ReadInt32();
-    std::string policy = policyData;
-    if (tokenId != 0) {
-        std::map<int32_t, ClipboardPolicy> policyMap;
-        if (!pluginInstance_->serializer_->Deserialize(policyData, policyMap)) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        std::map<int32_t, ClipboardPolicy> resultMap;
-        resultMap[tokenId] = policyMap[tokenId];
-        pluginInstance_->serializer_->Serialize(resultMap, policy);
-    }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteString(policy);
-    return ERR_OK;
 }
 
 ErrCode ClipboardPolicyPlugin::OnAdminRemove(const std::string &adminName,

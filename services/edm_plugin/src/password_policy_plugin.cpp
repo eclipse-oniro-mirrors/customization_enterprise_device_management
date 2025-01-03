@@ -16,12 +16,12 @@
 #include "password_policy_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(PasswordPolicyPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(PasswordPolicyPlugin::GetPlugin());
 
 void PasswordPolicyPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<PasswordPolicyPlugin, PasswordPolicy>> ptr)
@@ -45,21 +45,6 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy)
     if (ret != ERR_OK) {
         EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
     }
-    return ERR_OK;
-}
-
-ErrCode PasswordPolicyPlugin::OnGetPolicy(std::string &policyData,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
-{
-    PasswordPolicy policy;
-    if (!pluginInstance_->serializer_->Deserialize(policyData, policy)) {
-        EDMLOGD("PasswordPolicyPlugin Deserialize error!");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteString(policy.complexityReg);
-    reply.WriteInt64(policy.validityPeriod);
-    reply.WriteString(policy.additionalDescription);
     return ERR_OK;
 }
 } // namespace EDM

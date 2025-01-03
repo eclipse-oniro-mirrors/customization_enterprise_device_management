@@ -21,12 +21,16 @@
 
 #include "enterprise_device_mgr_ability.h"
 #include "iexternal_manager_factory.h"
+#include "admin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 class EnterpriseDeviceMgrAbilityMock : public EnterpriseDeviceMgrAbility {
 public:
     MOCK_METHOD(std::shared_ptr<IExternalManagerFactory>, GetExternalManagerFactory, (), (override));
+    MOCK_METHOD(std::shared_ptr<PermissionChecker>, GetPermissionChecker, (), ());
+
+    std::shared_ptr<AdminManager> adminMgr_;
 };
 } // namespace EDM
 } // namespace OHOS

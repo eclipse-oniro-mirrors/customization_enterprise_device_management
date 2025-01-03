@@ -20,6 +20,7 @@
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "location_policy.h"
 #include "utils.h"
 
 using namespace testing::ext;

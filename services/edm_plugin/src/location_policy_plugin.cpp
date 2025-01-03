@@ -17,12 +17,13 @@
 #include "locator_impl.h"
 #include "parameters.h"
 #include "int_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
+#include "location_policy.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
 const std::string PARAM_EDM_LOCATION_POLICY = "persist.edm.location_policy";
 void LocationPolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LocationPolicyPlugin, int32_t>> ptr)
 {
@@ -62,29 +63,6 @@ void LocationPolicyPlugin::SetDefaultLocationPolicy()
     if (currentState == "force_open") {
         Location::LocatorImpl::GetInstance()->EnableAbility(false);
     }
-}
-
-ErrCode LocationPolicyPlugin::OnGetPolicy(std::string &value, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("LocationPolicyPlugin OnGetPolicy");
-    std::string res = system::GetParameter(PARAM_EDM_LOCATION_POLICY, "");
-    EDMLOGI("LocationPolicyPlugin OnGetPolicy res = %{public}s", res.c_str());
-    if (res == "none") {
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE));
-    } else if (res == "disallow") {
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(LocationPolicy::DISALLOW_LOCATION_SERVICE));
-    } else if (res == "force_open") {
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(LocationPolicy::FORCE_OPEN_LOCATION_SERVICE));
-    } else {
-        EDMLOGD("LocationPolicyPlugin get location policy illegal. Value = %{public}s.", res.c_str());
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

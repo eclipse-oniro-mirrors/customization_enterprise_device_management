@@ -28,6 +28,8 @@ config("edm_config") {
     "../../../services/edm/include",
     "../../../services/edm/include/connection",
     "../../../services/edm/include/database",
+    "../../../services/edm/include/persistent_plugin/watermark",
+    "../../../services/edm/include/query_policy",
     "../../../services/edm/include/strategy",
     "../../../services/edm_plugin/include/utils",
     "../../../framework/extension/include",
@@ -57,14 +59,30 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../../services/edm/src/permission_checker.cpp",
     "../../../services/edm/src/permission_manager.cpp",
+    "../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
+    "../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
+    "../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
+    "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
+    "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
+    "../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/get_device_encryption_status_query.cpp",
+    "../../../services/edm/src/query_policy/get_display_version_query.cpp",
+    "../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
+    "../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
+    "../../../services/edm/src/query_policy/ipolicy_query.cpp",
+    "../../../services/edm/src/query_policy/ntp_server_query.cpp",
+    "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
+    "../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
     "../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../services/edm/src/user_policy_manager.cpp",
-    "../../../services/edm_plugin/src/utils/install_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
@@ -101,6 +119,8 @@ ohos_static_library("edmservice_fuzz_static") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "file_api:securitylabel",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -168,6 +188,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "os_account:os_account_innerkits",
       ]
       sources += [
+        "../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
         "../../../services/edm_plugin/src/add_os_account_plugin.cpp",
         "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
         "../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",
@@ -200,6 +221,7 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "wifi:wifi_sdk" ]
       public_external_deps += [ "wifi:wifi_sdk" ]
       sources += [
+        "../../../services/edm/src/query_policy/set_wifi_disabled_query.cpp",
         "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
         "../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
         "../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
@@ -249,6 +271,7 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "ability_runtime:ability_manager" ]
       public_external_deps += [ "ability_runtime:ability_manager" ]
       sources += [
+        "../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp",
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
       ]
@@ -264,9 +287,10 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "usb_manager:usbsrv_client" ]
       public_external_deps += [ "usb_manager:usbsrv_client" ]
       sources += [
+        "../../../services/edm/src/query_policy/allowed_usb_devices_query.cpp",
+        "../../../services/edm/src/query_policy/disable_usb_query.cpp",
         "../../../services/edm_plugin/src/allowed_usb_devices_plugin.cpp",
         "../../../services/edm_plugin/src/disable_usb_plugin.cpp",
-        "../../../services/edm_plugin/src/utils/array_usb_device_id_serializer.cpp",
         "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
       ]
@@ -276,13 +300,19 @@ ohos_static_library("edmservice_fuzz_static") {
         usb_manager_edm_enable) {
       external_deps += [ "storage_service:storage_manager_sa_proxy" ]
       public_external_deps += [ "storage_service:storage_manager_sa_proxy" ]
-      sources += [ "../../../services/edm_plugin/src/usb_read_only_plugin.cpp" ]
+      sources += [
+        "../../../services/edm/src/query_policy/usb_read_only_query.cpp",
+        "../../../services/edm_plugin/src/usb_read_only_plugin.cpp",
+      ]
     }
 
     if (audio_framework_edm_enable) {
       external_deps += [ "audio_framework:audio_client" ]
       public_external_deps += [ "audio_framework:audio_client" ]
       sources += [
+        "../../../services/edm/src/query_policy/disable_hdc_query.cpp",
+        "../../../services/edm/src/query_policy/disable_microphone_query.cpp",
+        "../../../services/edm/src/query_policy/disable_printer_query.cpp",
         "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
@@ -301,6 +331,8 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "bluetooth:btframework" ]
       public_external_deps += [ "bluetooth:btframework" ]
       sources += [
+        "../../../services/edm/src/query_policy/allowed_bluetooth_devices_query.cpp",
+        "../../../services/edm/src/query_policy/disable_bluetooth_query.cpp",
         "../../../services/edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
         "../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",
         "../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",
@@ -310,8 +342,10 @@ ohos_static_library("edmservice_fuzz_static") {
     if (location_edm_enable) {
       external_deps += [ "location:locator_sdk" ]
       public_external_deps += [ "location:locator_sdk" ]
-      sources +=
-          [ "../../../services/edm_plugin/src/location_policy_plugin.cpp" ]
+      sources += [
+        "../../../services/edm/src/query_policy/location_policy_query.cpp",
+        "../../../services/edm_plugin/src/location_policy_plugin.cpp",
+      ]
     }
 
     if (telephony_core_edm_enable) {
@@ -319,25 +353,30 @@ ohos_static_library("edmservice_fuzz_static") {
       public_external_deps += [ "core_service:tel_core_service_api" ]
       defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
     }
-  }
 
-  if (pasteboard_edm_enable) {
-    external_deps += [ "pasteboard:pasteboard_client" ]
-    sources += [
-      "../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
-      "../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
-    ]
-  }
+    if (pasteboard_edm_enable) {
+      sources += [
+        "../../../services/edm/src/query_policy/clipboard_policy_query.cpp",
+      ]
+      external_deps += [ "pasteboard:pasteboard_client" ]
+    }
 
-  if (useriam_edm_enable) {
-    external_deps += [ "user_auth_framework:userauth_client" ]
-    defines += [ "USERIAM_EDM_ENABLE" ]
-    sources += [
-      "../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
-      "../../../services/edm_plugin/src/password_policy_plugin.cpp",
-      "../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
-      "../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
-    ]
+    if (useriam_edm_enable) {
+      external_deps += [ "user_auth_framework:userauth_client" ]
+      defines += [ "USERIAM_EDM_ENABLE" ]
+      sources += [
+        "../../../services/edm/src/query_policy/fingerprint_auth_query.cpp",
+        "../../../services/edm/src/query_policy/password_policy_query.cpp",
+        "../../../services/edm_plugin/src/fingerprint_auth_plugin.cpp",
+        "../../../services/edm_plugin/src/password_policy_plugin.cpp",
+      ]
+    }
+
+    if (camera_framework_edm_enable) {
+      sources +=
+          [ "../../../services/edm/src/query_policy/disable_camera_query.cpp" ]
+      defines += [ "CAMERA_FRAMEWORK_EDM_ENABLE" ]
+    }
   }
 
   sanitize = {
@@ -381,6 +420,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     ":edmservice_fuzz_static",
     "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
+    "../../../interfaces/inner_api:edmservice_kits",
     "../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../unittest/utils:edm_unittest_utils",
   ]

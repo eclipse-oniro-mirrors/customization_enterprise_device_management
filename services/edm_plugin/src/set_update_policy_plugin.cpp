@@ -16,12 +16,12 @@
 #include "set_update_policy_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "update_policy_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetUpdatePolicyPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetUpdatePolicyPlugin::GetPlugin());
 
 void SetUpdatePolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetUpdatePolicyPlugin, UpdatePolicy>> ptr)
 {

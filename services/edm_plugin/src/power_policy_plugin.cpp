@@ -20,11 +20,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<PowerPolicyPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<PowerPolicyPlugin>());
 
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 const std::string KEY_POWER_AC_SUSPEND = "settings.power.ac.suspend_sources";

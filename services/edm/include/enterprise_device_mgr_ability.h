@@ -72,6 +72,8 @@ public:
         addSystemAbilityFuncMap_;
     ErrCode GetSuperAdmin(MessageParcel &reply) override;
 
+    virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
+
 protected:
     void OnStart() override;
     void OnStop() override;
@@ -85,7 +87,6 @@ private:
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     void NotifyAdminEnabled(bool isEnabled);
-    ErrCode CheckCallingUid(const std::string &bundleName);
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
@@ -95,22 +96,14 @@ private:
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
     ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,
         const std::vector<int32_t> &nonDefaultUserIds);
-    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, AdminType adminType, int32_t userId,
-        std::vector<std::string> &permissionList);
+    ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
-    ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
     ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
-    ErrCode CheckCallerPermission(std::shared_ptr<Admin> admin, const std::string &permission, bool isNeedSuperAdmin);
-    ErrCode CheckAndUpdatePermission(std::shared_ptr<Admin> admin, Security::AccessToken::AccessTokenID tokenId,
-        const std::string &permission, int32_t userId);
     ErrCode CheckDelegatedPolicies(std::shared_ptr<Admin> admin, const std::vector<std::string> &policies);
-    ErrCode CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag);
-    ErrCode CheckHandlePolicyPermission(FuncOperateType operateType, const std::string &bundleName,
-        const std::string &policyName, const std::string &permissionName, int32_t userId);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
@@ -157,12 +150,10 @@ private:
     void UnloadPluginTask();
     void SetPasswordPolicy();
     void SetFingerprintPolicy();
-    IPlugin::PermissionType AdminTypeToPermissionType(AdminType adminType);
     
     static std::mutex mutexLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
-    std::shared_ptr<AdminManager> adminMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
     std::unordered_set<std::string> allowDelegatedPolicies_;
     bool registerToService_ = false;

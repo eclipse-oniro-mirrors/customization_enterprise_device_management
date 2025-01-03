@@ -129,57 +129,6 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin004, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestUsbReadOnlyPlugin005
- * @tc.desc: Test UsbReadOnlyPlugin::OnGetPolicy function when policy is read only.
- * @tc.type: FUNC
- */
-HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin005, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
-    std::string policyData{"1"};
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == 1);
-}
-
-/**
- * @tc.name: TestUsbReadOnlyPlugin006
- * @tc.desc: Test UsbReadOnlyPlugin::OnGetPolicy function when policy is disabled.
- * @tc.type: FUNC
- */
-HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin006, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
-    std::string policyData{"2"};
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == 2);
-}
-
-/**
- * @tc.name: TestUsbReadOnlyPlugin007
- * @tc.desc: Test UsbReadOnlyPlugin::OnGetPolicy function when policy is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin007, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
-    std::string policyData{""};
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == 0);
-}
-
-/**
  * @tc.name: TestUsbReadOnlyPlugin008
  * @tc.desc: Test UsbReadOnlyPlugin::OnAdminRemove function when policy is read write.
  * @tc.type: FUNC

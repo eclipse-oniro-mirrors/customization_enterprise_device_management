@@ -17,11 +17,11 @@
 
 #include "edm_ipc_interface_code.h"
 #include "os_account_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
 
 void DisallowAddLocalAccountPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr)
@@ -37,17 +37,6 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
 ErrCode DisallowAddLocalAccountPlugin::OnSetPolicy(bool &data)
 {
     return SetGlobalOsAccountConstraints(data);
-}
-
-ErrCode DisallowAddLocalAccountPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("DisallowAddLocalAccountPlugin OnGetPolicy %{public}s...", policyData.c_str());
-    bool isDisallowed = false;
-    pluginInstance_->serializer_->Deserialize(policyData, isDisallowed);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisallowed);
-    return ERR_OK;
 }
 
 ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)

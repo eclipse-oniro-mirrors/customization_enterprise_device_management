@@ -26,12 +26,13 @@
 #include "directory_ex.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
+#include "install_param_serializer.h"
 #include "installer_callback.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string RELATIVE_PATH = "../";
 const std::string CURRENT_PATH = "./";

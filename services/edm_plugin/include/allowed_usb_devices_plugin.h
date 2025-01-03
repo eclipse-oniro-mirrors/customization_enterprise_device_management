@@ -26,7 +26,6 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr) override;
 
     ErrCode OnSetPolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data, int32_t userId);
 

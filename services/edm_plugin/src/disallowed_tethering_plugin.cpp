@@ -19,11 +19,11 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowedTetheringPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTetheringPlugin::GetPlugin());
 const std::string PERSIST_TETHERING_CONTROL = "persist.edm.tethering_disallowed";
 
 void DisallowedTetheringPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTetheringPlugin, bool>> ptr)
@@ -40,15 +40,6 @@ ErrCode DisallowedTetheringPlugin::OnSetPolicy(bool &data)
     EDMLOGI("DisallowedTetheringPlugin OnSetPolicy %{public}d", data);
     std::string value = data ? "true" : "false";
     return system::SetParameter(PERSIST_TETHERING_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisallowedTetheringPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool ret = system::GetBoolParameter(PERSIST_TETHERING_CONTROL, true);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(ret);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -47,22 +47,6 @@ void GetDeviceEncryptionStatusPluginTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
-/**
- * @tc.name: GetDeviceEncryptionStatusSuc
- * @tc.desc: Test get device encryption status function.
- * @tc.type: FUNC
- */
-HWTEST_F(GetDeviceEncryptionStatusPluginTest, GetDeviceEncryptionStatusSuc, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = GetDeviceEncryptionStatusPlugin::GetPlugin();
-    std::string policyValue{"GetDeviceEncryptionStatus"};
-    MessageParcel data;
-    MessageParcel reply;
-    plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool() == true);
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

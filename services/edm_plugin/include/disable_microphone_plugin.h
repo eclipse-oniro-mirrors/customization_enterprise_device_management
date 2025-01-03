@@ -25,8 +25,6 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr) override;
 
     ErrCode OnSetPolicy(bool &isDisallow);
-
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

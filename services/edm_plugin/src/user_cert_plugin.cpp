@@ -23,7 +23,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -48,7 +48,7 @@ static const std::unordered_map<int32_t, std::string> certErrMessageMap = {
     { CMR_ERROR_ALIAS_LENGTH_REACHED_LIMIT, ALIAS_LENGTH_REACHED_LIMIT_MSG }
 };
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
 
 UserCertPlugin::UserCertPlugin()
 {

@@ -16,7 +16,7 @@
 #include "get_bluetooth_info_plugin.h"
 #include "parameters.h"
 #include "string_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 
 namespace OHOS {
@@ -35,7 +35,7 @@ enum BluetoothConnectionState {
     DISCONNECTING,
 };
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
 
 void GetBluetoothInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetBluetoothInfoPlugin,
     std::string>> ptr)

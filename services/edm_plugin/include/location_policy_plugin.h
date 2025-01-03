@@ -20,18 +20,11 @@
 
 namespace OHOS {
 namespace EDM {
-enum class LocationPolicy {
-    DEFAULT_LOCATION_SERVICE = 0,
-    DISALLOW_LOCATION_SERVICE = 1,
-    FORCE_OPEN_LOCATION_SERVICE = 2,
-};
 class LocationPolicyPlugin : public PluginSingleton<LocationPolicyPlugin, int32_t> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<LocationPolicyPlugin, int32_t>> ptr) override;
 
     ErrCode OnSetPolicy(int32_t &data);
-
-    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
     void SetDefaultLocationPolicy();

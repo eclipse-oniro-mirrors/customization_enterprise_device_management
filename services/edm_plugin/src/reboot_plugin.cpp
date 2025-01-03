@@ -17,12 +17,12 @@
 
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(RebootPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(RebootPlugin::GetPlugin());
 
 void RebootPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<RebootPlugin, int32_t>> ptr)
 {

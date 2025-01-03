@@ -26,11 +26,11 @@
 #include "usb_policy_utils.h"
 #include "usb_srv_client.h"
 #include "volume_external.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<UsbReadOnlyPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<UsbReadOnlyPlugin>());
 constexpr int32_t STORAGE_MANAGER_MANAGER_ID = 5003;
 constexpr int32_t USB_DEVICE_TYPE_BASE_CLASS_STORAGE = 8;
 const std::string PARAM_USB_READ_ONLY_KEY = "persist.filemanagement.usb.readonly";
@@ -215,16 +215,6 @@ ErrCode UsbReadOnlyPlugin::ReloadUsbDevice()
 ErrCode UsbReadOnlyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("UsbReadOnlyPlugin OnGetPolicy: %{public}s", policyData.c_str());
-    policyData = policyData.empty() ? "0" : policyData;
-    int32_t result = EdmConstants::STORAGE_USB_POLICY_READ_ONLY;
-    ErrCode parseRet = EdmUtils::ParseStringToInt(policyData, result);
-    if (FAILED(parseRet)) {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(result);
     return ERR_OK;
 }
 

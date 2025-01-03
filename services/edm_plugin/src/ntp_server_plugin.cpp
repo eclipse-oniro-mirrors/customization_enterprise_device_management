@@ -18,13 +18,13 @@
 #include "edm_ipc_interface_code.h"
 #include "string_serializer.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_NTP_SERVER = "persist.time.ntpserver_specific";
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
 
 void NTPServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr)
 {
@@ -39,15 +39,6 @@ ErrCode NTPServerPlugin::OnSetPolicy(std::string &value)
 {
     EDMLOGI("NTPServerPlugin OnSetPolicy");
     return system::SetParameter(KEY_NTP_SERVER, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode NTPServerPlugin::OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("NTPServerPlugin OnGetPolicy");
-    std::string result = system::GetParameter(KEY_NTP_SERVER, "");
-    reply.WriteInt32(ERR_OK);
-    reply.WriteString(result);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

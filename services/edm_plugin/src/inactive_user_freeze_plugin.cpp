@@ -19,11 +19,11 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(InactiveUserFreezePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InactiveUserFreezePlugin::GetPlugin());
 const std::string PERSIST_INACTIVE_USER_FREEZE_CONTROL = "persist.edm.inactive_user_freeze";
 
 void InactiveUserFreezePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InactiveUserFreezePlugin, bool>> ptr)
@@ -43,15 +43,6 @@ ErrCode InactiveUserFreezePlugin::OnSetPolicy(bool &data)
         EDMLOGE("InactiveUserFreezePlugin::OnSetPolicy set sysparam failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return ERR_OK;
-}
-
-ErrCode InactiveUserFreezePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool ret = system::GetBoolParameter(PERSIST_INACTIVE_USER_FREEZE_CONTROL, false);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(ret);
     return ERR_OK;
 }
 } // namespace EDM

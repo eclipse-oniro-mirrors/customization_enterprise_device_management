@@ -20,11 +20,11 @@
 #include "ethernet_client.h"
 #include "interface_type.h"
 #include "string_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetMacPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetMacPlugin::GetPlugin());
 
 void GetMacPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std::string>> ptr)
 {

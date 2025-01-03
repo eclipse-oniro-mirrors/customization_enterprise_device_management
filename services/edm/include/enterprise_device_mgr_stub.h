@@ -24,6 +24,7 @@
 #include "ienterprise_device_mgr.h"
 #include "iexternal_manager_factory.h"
 #include "iremote_stub.h"
+#include "permission_checker.h"
 
 namespace OHOS {
 namespace EDM {
@@ -34,7 +35,6 @@ public:
 
 protected:
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
-    std::shared_ptr<IEdmAccessTokenManager> GetAccessTokenMgr();
 
 private:
     std::vector<uint32_t> systemCodeList;

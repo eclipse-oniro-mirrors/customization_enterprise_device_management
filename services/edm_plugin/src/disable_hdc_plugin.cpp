@@ -19,11 +19,11 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
 const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
 
 void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr)
@@ -50,15 +50,6 @@ ErrCode DisableHdcPlugin::OnSetPolicy(bool &data)
     EDMLOGI("DisableHdcPlugin OnSetPolicy %{public}d", data);
     std::string value = data ? "false" : "true";
     return system::SetParameter(PERSIST_HDC_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisableHdcPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool ret = system::GetBoolParameter(PERSIST_HDC_CONTROL, true);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(!ret);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

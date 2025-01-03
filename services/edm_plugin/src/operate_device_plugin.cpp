@@ -21,12 +21,12 @@
 
 #include "edm_ipc_interface_code.h"
 #include "operate_device_param_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
 
 void OperateDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevicePlugin, OperateDeviceParam>> ptr)
 {

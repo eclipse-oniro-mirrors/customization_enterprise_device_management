@@ -20,11 +20,11 @@
 #include "func_code_utils.h"
 #include "http_proxy_serializer.h"
 #include "net_conn_client.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 
 void GlobalProxyPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, NetManagerStandard::HttpProxy>> ptr)

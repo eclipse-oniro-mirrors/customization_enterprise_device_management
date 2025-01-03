@@ -20,13 +20,13 @@
 #include "func_code_utils.h"
 #include "domain_filter_rule_serializer.h"
 #include "iptables_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
 
 void DomainFilterRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DomainFilterRulePlugin, IPTABLES::DomainFilterRuleParcel>> ptr)

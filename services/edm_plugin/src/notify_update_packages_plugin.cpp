@@ -16,12 +16,12 @@
 #include "notify_update_packages_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "upgrade_package_info_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(NotifyUpdatePackagesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(NotifyUpdatePackagesPlugin::GetPlugin());
 
 void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NotifyUpdatePackagesPlugin,
     UpgradePackageInfo>> ptr)

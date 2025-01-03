@@ -20,12 +20,12 @@
 #include "array_usb_device_type_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "usb_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedUsbDevicesPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedUsbDevicesPlugin>());
 constexpr int32_t USB_DEVICE_TYPE_BASE_CLASS_STORAGE = 8;
 
 DisallowedUsbDevicesPlugin::DisallowedUsbDevicesPlugin()

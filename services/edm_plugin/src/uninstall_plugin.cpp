@@ -22,11 +22,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "installer_callback.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(UninstallPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(UninstallPlugin::GetPlugin());
 
 void UninstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UninstallPlugin, UninstallParam>> ptr)
 {
