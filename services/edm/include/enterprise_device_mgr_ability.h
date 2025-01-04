@@ -120,6 +120,7 @@ private:
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
+    void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
@@ -141,6 +142,8 @@ private:
 #endif
     void OnRenderSystemStart();
     void OnWindowManagerServiceStart();
+    void OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
+        bool isAdminEnabled);
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);
     void InitAllAdmins();

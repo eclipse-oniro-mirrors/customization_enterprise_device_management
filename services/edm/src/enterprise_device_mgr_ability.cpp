@@ -117,6 +117,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventSystemUpdate(data);
         };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventPackageChanged(data);
+        };
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -324,6 +328,28 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventPackageChanged");
+    std::string bundleName = data.GetWant().GetElement().GetBundleName();
+    int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(bundleName, userId);
+    if (admin != nullptr && admin->GetAdminType() == AdminType::ENT) {
+        OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
+    }
+}
+
+void EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
+    uint32_t code, int32_t userId, bool isAdminEnabled)
+{
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
+    manager->ConnectAbility(connection);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
@@ -605,12 +631,8 @@ void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
     EDMLOGI("OnAbilityManagerServiceStart");
     auto superAdmin = adminMgr_->GetSuperAdmin();
     if (superAdmin != nullptr) {
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
+        OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
             IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
-        manager->ConnectAbility(connection);
     }
 }
 
@@ -1001,12 +1023,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
         static_cast<uint32_t>(type));
-    AAFwk::Want connectWant;
-    connectWant.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
-    manager->ConnectAbility(connection);
+    OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
+        true);
     return ERR_OK;
 }
 
@@ -1206,12 +1224,8 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
         system::SetParameter(PARAM_EDM_ENABLE, "false");
         NotifyAdminEnabled(false);
     }
-    AAFwk::Want want;
-    want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
-    manager->ConnectAbility(connection);
+    OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
     return ERR_OK;
 }
 
