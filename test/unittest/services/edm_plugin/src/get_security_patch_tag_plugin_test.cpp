@@ -49,22 +49,6 @@ void GetSecurityPatchTagPluginTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
-/**
- * @tc.name: GetSecurityPatchTagSuc
- * @tc.desc: Test get security patch tag function.
- * @tc.type: FUNC
- */
-HWTEST_F(GetSecurityPatchTagPluginTest, GetSecurityPatchTagSuc, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = GetSecurityPatchTagPlugin::GetPlugin();
-    std::string policyValue{"GetSecurityPatchTag"};
-    MessageParcel data;
-    MessageParcel reply;
-    plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadString() != "");
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

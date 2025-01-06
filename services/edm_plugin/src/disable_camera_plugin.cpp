@@ -20,13 +20,13 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string PARAM_EDM_CAMERA_DISABLE = "persist.edm.camera_disable";
 constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableCameraPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableCameraPlugin::GetPlugin());
 
 void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr)
 {
@@ -54,15 +54,6 @@ ErrCode DisableCameraPlugin::OnSetPolicy(bool &data)
     }
     EDMLOGE("DisableCameraPlugin MuteCameraPersist ret %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisableCameraPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool disabled = system::GetBoolParameter(PARAM_EDM_CAMERA_DISABLE, false);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(disabled);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

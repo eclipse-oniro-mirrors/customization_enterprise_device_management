@@ -17,14 +17,10 @@
 #define INTERFACES_INNER_API_LOCATION_MANAGER_INCLUDE_LOCATION_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "location_policy.h"
 
 namespace OHOS {
 namespace EDM {
-enum class LocationPolicy {
-    DEFAULT_LOCATION_SERVICE = 0,
-    DISALLOW_LOCATION_SERVICE = 1,
-    FORCE_OPEN_LOCATION_SERVICE = 2,
-};
 class LocationManagerProxy {
 public:
     static std::shared_ptr<LocationManagerProxy> GetLocationManagerProxy();

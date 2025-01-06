@@ -91,49 +91,6 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
-/**
- * @tc.name: TestOnGetPolicy
- * @tc.desc: Test ClipboardPolicyPluginTest::OnGetPolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(ClipboardPolicyPluginTest, TestOnGetPolicy, TestSize.Level1)
-{
-    ClipboardPolicyPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyData = POLICY_DATA;
-    plugin.OnGetPolicy(policyData, data, reply, 0);
-    int32_t ret = reply.ReadInt32();
-    std::string policy = reply.ReadString();
-    std::map<int32_t, ClipboardPolicy> policyMap;
-    auto serializer_ = ClipboardSerializer::GetInstance();
-    serializer_->Deserialize(policy, policyMap);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyMap.size() == 2);
-}
-
-/**
- * @tc.name: TestOnGetPolicyWithTokenId
- * @tc.desc: Test ClipboardPolicyPluginTest::OnGetPolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(ClipboardPolicyPluginTest, TestOnGetPolicyWithTokenId, TestSize.Level1)
-{
-    ClipboardPolicyPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyData = POLICY_DATA;
-    data.WriteInt32(1);
-    plugin.OnGetPolicy(policyData, data, reply, 0);
-    int32_t ret = reply.ReadInt32();
-    std::string policy = reply.ReadString();
-    std::map<int32_t, ClipboardPolicy> policyMap;
-    auto serializer_ = ClipboardSerializer::GetInstance();
-    serializer_->Deserialize(policy, policyMap);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyMap[1] == ClipboardPolicy::IN_APP);
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

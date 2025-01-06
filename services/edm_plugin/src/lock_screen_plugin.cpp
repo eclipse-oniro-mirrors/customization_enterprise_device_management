@@ -17,12 +17,12 @@
 #include "screenlock_manager.h"
 #include "edm_ipc_interface_code.h"
 #include "int_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
 
 void LockScreenPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlugin, int32_t>> ptr)
 {

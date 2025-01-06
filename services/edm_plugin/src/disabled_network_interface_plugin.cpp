@@ -23,11 +23,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "map_string_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
 
 void DisabledNetworkInterfacePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisabledNetworkInterfacePlugin, std::map<std::string, std::string>>> ptr)

@@ -20,13 +20,13 @@
 #include "func_code_utils.h"
 #include "firewall_rule_serializer.h"
 #include "iptables_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(FirewallRulePlugin::GetPlugin());
 
 void FirewallRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FirewallRulePlugin, IPTABLES::FirewallRuleParcel>> ptr)

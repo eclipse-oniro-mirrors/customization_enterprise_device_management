@@ -26,7 +26,6 @@ class DisallowedUninstallBundlesPlugin : public PluginSingleton<DisallowedUninst
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUninstallBundlesPlugin,
         std::vector<std::string>>> ptr) override;
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

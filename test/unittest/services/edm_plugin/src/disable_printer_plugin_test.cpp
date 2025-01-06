@@ -63,26 +63,6 @@ HWTEST_F(DisablePrinterPluginTest, TestDisablePrinterPluginTestSet, TestSize.Lev
     ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
 }
-
-/**
- * @tc.name: TestDisablePrinterPluginTestGet
- * @tc.desc: Test DisablePrinterPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisablePrinterPluginTest, TestDisablePrinterPluginTestGet, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisablePrinterPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

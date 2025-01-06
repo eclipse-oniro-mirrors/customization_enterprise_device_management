@@ -25,6 +25,7 @@
 #include "edm_os_account_manager_impl_mock.h"
 #include "enterprise_device_mgr_ability_mock.h"
 #include "external_manager_factory_mock.h"
+#include "permission_checker_mock.h"
 
 namespace OHOS {
 namespace EDM {
@@ -68,6 +69,7 @@ protected:
     std::shared_ptr<EdmOsAccountManagerImplMock> osAccountMgrMock_ = nullptr;
     std::shared_ptr<EdmAccessTokenManagerImplMock> accessTokenMgrMock_ = nullptr;
     std::shared_ptr<ExternalManagerFactoryMock> factoryMock_ = nullptr;
+    std::shared_ptr<PermissionCheckerMock> permissionCheckerMock_ = nullptr;
     std::shared_ptr<IPlugin> plugin_ = nullptr;
 };
 } // namespace TEST

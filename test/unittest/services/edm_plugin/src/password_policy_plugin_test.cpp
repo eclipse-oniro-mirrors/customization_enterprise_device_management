@@ -26,7 +26,6 @@ const std::string TEST_POLICY_DATA = "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}
 const std::string TEST_POLICY_ERR_DATA = "{\"comple\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
     "\"additionalDescription\": \"testDescription\"}";
 const std::string TEST_VALUE_COMPLEXITYREG = "^(?=.*[a-zA-Z]).{1,9}$";
-const int TEST_VALUE_VALIDITY_PERIOD = 2;
 const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";
 void PasswordPolicyPluginTest::SetUpTestSuite(void)
 {
@@ -38,61 +37,6 @@ void PasswordPolicyPluginTest::TearDownTestSuite(void)
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
-}
-
-/**
- * @tc.name: TestOnGetPolicyEmpty
- * @tc.desc: Test PasswordPolicyPlugin::OnGetPolicy when policyData is empty
- * and policies is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicyEmpty, TestSize.Level1)
-{
-    PasswordPolicyPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyData;
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 0);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyData.empty());
-}
-
-/**
- * @tc.name: TestOnGetPolicyWithErrData
- * @tc.desc: Test PasswordPolicyPlugin::OnGetPolicy when policyData is err
- * and policies is err.
- * @tc.type: FUNC
- */
-HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicyWithErrData, TestSize.Level1)
-{
-    PasswordPolicyPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyData = TEST_POLICY_ERR_DATA;
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 0);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-}
-
-/**
- * @tc.name: TestOnGetPolicy
- * @tc.desc: Test PasswordPolicyPlugin::OnGetPolicy
- * and policies is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(PasswordPolicyPluginTest, TestOnGetPolicy, TestSize.Level1)
-{
-    PasswordPolicyPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string policyData = TEST_POLICY_DATA;
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 0);
-    ASSERT_TRUE(ret == ERR_OK);
-    auto serializer_ = PasswordSerializer::GetInstance();
-    PasswordPolicy policy;
-    serializer_->Deserialize(policyData, policy);
-    ASSERT_TRUE(policy.additionalDescription == TEST_VALUE_ADDITIONAL_DESCRIPTION);
-    ASSERT_TRUE(policy.validityPeriod == TEST_VALUE_VALIDITY_PERIOD);
-    ASSERT_TRUE(policy.complexityReg == TEST_VALUE_COMPLEXITYREG);
 }
 
 /**

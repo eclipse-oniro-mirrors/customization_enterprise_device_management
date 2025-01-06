@@ -24,14 +24,14 @@
 #include "edm_utils.h"
 #include "external_manager_factory.h"
 #include "parameter.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_DEVICE_NAME = "settings.general.display_device_name";
 
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
 
 void GetDeviceInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceInfoPlugin, std::string>> ptr)
 {

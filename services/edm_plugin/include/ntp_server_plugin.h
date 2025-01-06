@@ -25,8 +25,6 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr) override;
 
     ErrCode OnSetPolicy(std::string &value);
-
-    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

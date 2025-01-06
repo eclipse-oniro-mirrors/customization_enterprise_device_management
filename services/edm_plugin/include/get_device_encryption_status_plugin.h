@@ -23,8 +23,6 @@ namespace EDM {
 class GetDeviceEncryptionStatusPlugin : public PluginSingleton<GetDeviceEncryptionStatusPlugin, std::string> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceEncryptionStatusPlugin, std::string>> ptr) override;
-
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -26,11 +26,11 @@
 #include "usb_device_id.h"
 #include "usb_policy_utils.h"
 #include "usb_srv_client.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AllowUsbDevicesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowUsbDevicesPlugin::GetPlugin());
 
 void AllowUsbDevicesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr)
@@ -145,26 +145,6 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data,
         }
     });
     currentData = mergeData;
-    return ERR_OK;
-}
-
-ErrCode AllowUsbDevicesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("AllowUsbDevicesPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d",
-        policyData.c_str(), userId);
-    std::vector<UsbDeviceId> usbDeviceIds;
-    ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteUint32(usbDeviceIds.size());
-    for (const auto &usbDeviceId : usbDeviceIds) {
-        EDMLOGD("AllowUsbDevicesPlugin OnGetPolicy: currentData: vid: %{public}d, pid: %{public}d",
-            usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());
-        if (!usbDeviceId.Marshalling(reply)) {
-            EDMLOGE("AllowUsbDevicesPlugin OnGetPolicy: write parcel failed!");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-    }
     return ERR_OK;
 }
 

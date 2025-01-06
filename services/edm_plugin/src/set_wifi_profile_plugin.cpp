@@ -22,11 +22,11 @@
 #include "edm_utils.h"
 #include "wifi_device.h"
 #include "wifi_device_config_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
 
 void SetWifiProfilePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<SetWifiProfilePlugin, Wifi::WifiDeviceConfig>> ptr)

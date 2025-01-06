@@ -31,13 +31,13 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "managed_browser_policy_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "security_label.h"
 #include "want.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<ManagedBrowserPolicyPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ManagedBrowserPolicyPlugin>());
 const char* const MANAGED_BROWSER_POLICY_DIR = "/data/service/el1/public/edm/browser/";
 const char* const MANAGED_BROWSER_POLICY_SUFFIX = ".dat";
 const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.managedbrowserpolicychanged";

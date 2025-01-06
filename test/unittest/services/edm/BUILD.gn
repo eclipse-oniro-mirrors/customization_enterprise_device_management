@@ -27,6 +27,8 @@ config("edm_config") {
     "../../../../services/edm/include",
     "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
+    "../../../../services/edm/include/persistent_plugin/watermark",
+    "../../../../services/edm/include/query_policy",
     "../../../../services/edm/include/strategy",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
@@ -52,17 +54,28 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../../../services/edm/src/permission_checker.cpp",
     "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
+    "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
+    "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
+    "../../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/get_device_encryption_status_query.cpp",
+    "../../../../services/edm/src/query_policy/get_display_version_query.cpp",
+    "../../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
+    "../../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
+    "../../../../services/edm/src/query_policy/ipolicy_query.cpp",
+    "../../../../services/edm/src/query_policy/ntp_server_query.cpp",
+    "../../../../services/edm/src/query_policy/password_policy_query.cpp",
+    "../../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
+    "../../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
     "../../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
-    "../../../../services/edm_plugin/src/utils/clipboard_policy_serializer.cpp",
-    "../../../../services/edm_plugin/src/utils/clipboard_utils.cpp",
-    "../../../../services/edm_plugin/src/utils/fingerprint_policy_serializer.cpp",
-    "../../../../services/edm_plugin/src/utils/password_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
   ]
 
@@ -83,6 +96,67 @@ ohos_static_library("edmservice_static") {
     print("defines _X86_64_")
   }
 
+  if (wifi_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/set_wifi_disabled_query.cpp",
+    ]
+  }
+
+  if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+      usb_manager_edm_enable) {
+    sources +=
+        [ "../../../../services/edm/src/query_policy/usb_read_only_query.cpp" ]
+  }
+
+  if (location_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/location_policy_query.cpp",
+    ]
+  }
+
+  if (useriam_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/fingerprint_auth_query.cpp",
+    ]
+  }
+
+  if (ability_runtime_edm_enable) {
+    sources += [ "../../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp" ]
+  }
+
+  if (bluetooth_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/allowed_bluetooth_devices_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_bluetooth_query.cpp",
+    ]
+  }
+
+  if (camera_framework_edm_enable) {
+    sources +=
+        [ "../../../../services/edm/src/query_policy/disable_camera_query.cpp" ]
+  }
+
+  if (audio_framework_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disable_hdc_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_microphone_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_printer_query.cpp",
+    ]
+  }
+
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/allowed_usb_devices_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_usb_query.cpp",
+    ]
+  }
+
+  if (pasteboard_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/clipboard_policy_query.cpp",
+    ]
+  }
+
   if (common_event_service_edm_enable) {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
   }
@@ -97,6 +171,8 @@ ohos_static_library("edmservice_static") {
     "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "file_api:securitylabel",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -105,6 +181,7 @@ ohos_static_library("edmservice_static") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
     "window_manager:sms",
   ]
 
@@ -112,6 +189,13 @@ ohos_static_library("edmservice_static") {
     external_deps += [
       "os_account:libaccountkits",
       "os_account:os_account_innerkits",
+    ]
+
+    sources += [
+      "../../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
+      "../../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
+      "../../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
+      "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
     ]
   }
 
@@ -162,8 +246,10 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/enterprise_device_mgr_ability_test.cpp",
     "./src/enterprise_update_connection_test.cpp",
     "./src/iplugin_template_test.cpp",
+    "./src/permission_checker_test.cpp",
     "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
+    "./src/plugin_policy_query_test.cpp",
     "./src/policy_manager_test.cpp",
     "./src/replace_execute_strategy_test.cpp",
     "./src/single_execute_strategy_test.cpp",
@@ -200,6 +286,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "file_api:securitylabel",
     "hilog:libhilog",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",

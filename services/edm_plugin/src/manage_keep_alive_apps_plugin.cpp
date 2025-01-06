@@ -25,12 +25,12 @@
 #include "edm_sys_manager.h"
 #include "element_name.h"
 #include "func_code_utils.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageKeepAliveAppsPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ManageKeepAliveAppsPlugin>());
 const ErrCode ERR_TARGET_BUNDLE_NOT_EXIST = 2097241;
 const ErrCode ERR_NO_MAIN_ABILITY = 29360135;
 const ErrCode ERR_NO_STATUS_BAR_ABILITY = 29360136;

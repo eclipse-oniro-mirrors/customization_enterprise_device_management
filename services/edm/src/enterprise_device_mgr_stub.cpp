@@ -25,7 +25,6 @@ using namespace OHOS::HiviewDFX;
 namespace OHOS {
 namespace EDM {
 #ifdef EDM_SUPPORT_ALL_ENABLE
-constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t WITHOUT_FUNCTION_CODE = -1;
 #endif
 EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
@@ -103,7 +102,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
     if (SERVICE_FLAG(code)) {
         if (std::find(systemCodeList.begin(), systemCodeList.end(), code) != systemCodeList.end() &&
-            !GetAccessTokenMgr()->IsSystemAppOrNative()) {
+            !PermissionChecker::GetInstance()->CheckIsSystemAppOrNative()) {
             EDMLOGE("EnterpriseDeviceMgrStub not system app or native process");
             reply.WriteInt32(EdmReturnErrCode::SYSTEM_API_DENIED);
             return ERR_OK;
@@ -116,7 +115,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     if (POLICY_FLAG(code)) {
         EDMLOGD("POLICY_FLAG(code:%{public}x)\n", code);
         int32_t hasUserId;
-        int32_t userId = DEFAULT_USER_ID;
+        int32_t userId = EdmConstants::DEFAULT_USER_ID;
         data.ReadInt32(hasUserId);
         if (hasUserId == 1) {
             data.ReadInt32(userId);
@@ -143,11 +142,6 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
 std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrStub::GetExternalManagerFactory()
 {
     return externalManagerFactory_;
-}
-
-std::shared_ptr<IEdmAccessTokenManager> EnterpriseDeviceMgrStub::GetAccessTokenMgr()
-{
-    return GetExternalManagerFactory()->CreateAccessTokenManager();
 }
 
 ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessageParcel &reply)

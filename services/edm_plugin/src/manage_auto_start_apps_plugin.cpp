@@ -25,11 +25,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
 const std::string SEPARATOR = "/";
 
 void ManageAutoStartAppsPlugin::InitPlugin(

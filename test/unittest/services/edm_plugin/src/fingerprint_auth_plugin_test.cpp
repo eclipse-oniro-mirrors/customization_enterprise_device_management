@@ -141,41 +141,6 @@ HWTEST_F(FingerprintAuthPluginTest, TestHandleFingerprintForAccountPolicy, TestS
     ASSERT_FALSE(policy.globalDisallow);
 }
 
-/**
- * @tc.name: TestOnGetPolicyFingerprintAuthType
- * @tc.desc: Test FingerprintAuthPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(FingerprintAuthPluginTest, TestOnGetPolicyFingerprintAuthType, TestSize.Level1)
-{
-    MessageParcel data;
-    data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
-    MessageParcel reply;
-    std::string policyData = "true";
-    FingerprintAuthPlugin plugin;
-    plugin.OnGetPolicy(policyData, data, reply, 100);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool());
-}
-
-/**
- * @tc.name: TestOnGetPolicyDisallowForAccountType
- * @tc.desc: Test FingerprintAuthPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(FingerprintAuthPluginTest, TestOnGetPolicyDisallowForAccountType, TestSize.Level1)
-{
-    MessageParcel data;
-    data.WriteString(EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE);
-    data.WriteInt32(100);
-    MessageParcel reply;
-    std::string policyData = "[100]";
-    FingerprintAuthPlugin plugin;
-    plugin.OnGetPolicy(policyData, data, reply, 100);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool());
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

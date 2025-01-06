@@ -22,11 +22,11 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedRunningBundlesPlugin::GetPlugin());
 
 void DisallowedRunningBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin, std::vector<std::string>>> ptr)
@@ -87,19 +87,6 @@ ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &da
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     currentData = mergeData;
-    return ERR_OK;
-}
-
-ErrCode DisallowedRunningBundlesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("DisallowedRunningBundlesPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d",
-        policyData.c_str(), userId);
-    std::vector<std::string> appIds;
-    pluginInstance_->serializer_->Deserialize(policyData, appIds);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(appIds.size());
-    reply.WriteStringVector(appIds);
     return ERR_OK;
 }
 

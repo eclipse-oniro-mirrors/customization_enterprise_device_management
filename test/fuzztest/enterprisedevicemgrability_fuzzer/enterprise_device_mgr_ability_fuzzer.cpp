@@ -104,7 +104,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     const std::string policyValue(reinterpret_cast<const char*>(data), size);
     enterpriseDeviceMgrAbility->RemoveAdminItem(adminName, policyName, policyValue, userId);
     std::string bundleName(reinterpret_cast<const char*>(data), size);
-    enterpriseDeviceMgrAbility->CheckCallingUid(bundleName);
     TEST::Utils::ResetTokenTypeAndUid();
     return 0;
 }

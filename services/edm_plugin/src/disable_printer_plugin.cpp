@@ -18,11 +18,11 @@
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisablePrinterPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisablePrinterPlugin::GetPlugin());
 
 void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrinterPlugin, bool>> ptr)
 {
@@ -45,18 +45,6 @@ void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePri
 
 ErrCode DisablePrinterPlugin::OnSetPolicy(bool &data)
 {
-    return ERR_OK;
-}
-
-ErrCode DisablePrinterPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("DisablePrinterPlugin OnGetPolicy %{public}s...", policyData.c_str());
-    bool isDisabled = false;
-    pluginInstance_->serializer_->Deserialize(policyData, isDisabled);
-    EDMLOGI("DisablePrinterPlugin isDisabled= %{public}d...", isDisabled);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisabled);
     return ERR_OK;
 }
 } // namespace EDM

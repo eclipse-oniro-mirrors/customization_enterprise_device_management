@@ -81,26 +81,6 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestOnGetPolicy
- * @tc.desc: Test DisableUsbPlugin::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisableUsbPluginTest, TestOnGetPolicy, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
-}
-
-/**
  * @tc.name: TestOnAdminRemoveTrue
  * @tc.desc: Test DisableUsbPlugin::OnAdminRemove function when policy is true.
  * @tc.type: FUNC

@@ -19,11 +19,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "os_account_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT = "constraint.os.account.create";
 const char* const CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY = "constraint.os.account.create.directly";
 

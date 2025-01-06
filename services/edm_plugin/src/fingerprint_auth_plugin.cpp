@@ -17,12 +17,12 @@
 
 #include "edm_ipc_interface_code.h"
 #include "fingerprint_policy_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(std::make_shared<FingerprintAuthPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<FingerprintAuthPlugin>());
 FingerprintAuthPlugin::FingerprintAuthPlugin()
 {
     policyCode_ = EdmInterfaceCode::FINGERPRINT_AUTH;
@@ -117,22 +117,6 @@ ErrCode FingerprintAuthPlugin::SetGlobalConfigParam(FingerprintPolicy policy)
 ErrCode FingerprintAuthPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("FingerprintAuthPlugin OnGetPolicy");
-    auto serializer_ = FingerprintPolicySerializer::GetInstance();
-    FingerprintPolicy policy;
-    serializer_->Deserialize(policyData, policy);
-    std::string type = data.ReadString();
-    bool isDisallow = false;
-    if (type == EdmConstants::FINGERPRINT_AUTH_TYPE) {
-        isDisallow = policy.globalDisallow;
-    } else if (type == EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE) {
-        int32_t accountId = data.ReadInt32();
-        auto it = policy.accountIds.find(accountId);
-        isDisallow = (it != policy.accountIds.end());
-    }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisallow);
-    EDMLOGI("FingerprintAuthPlugin OnGetPolicy result %{public}d", isDisallow);
     return ERR_OK;
 }
 } // namespace EDM

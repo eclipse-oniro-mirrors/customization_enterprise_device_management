@@ -20,11 +20,11 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AllowedBluetoothDevicesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowedBluetoothDevicesPlugin::GetPlugin());
 const char *const PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 const char *const BLUETOOTH_WHITELIST_CHANGED_EVENT = "com.ohos.edm.bluetoothdeviceschanged";
 
@@ -66,19 +66,6 @@ ErrCode AllowedBluetoothDevicesPlugin::OnSetPolicy(std::vector<std::string> &dat
         return EdmReturnErrCode::PARAM_ERROR;
     }
     currentData = mergeData;
-    return ERR_OK;
-}
-
-ErrCode AllowedBluetoothDevicesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("AllowedBluetoothDevicesPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d",
-        policyData.c_str(), userId);
-    std::vector<std::string> deviceIds;
-    pluginInstance_->serializer_->Deserialize(policyData, deviceIds);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(deviceIds.size());
-    reply.WriteStringVector(deviceIds);
     return ERR_OK;
 }
 

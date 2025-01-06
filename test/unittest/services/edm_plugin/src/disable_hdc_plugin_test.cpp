@@ -62,26 +62,6 @@ HWTEST_F(DisableHdcPluginTest, TestDisableHdcPluginTestSet, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
 }
-
-/**
- * @tc.name: TestDisableHdcPluginTestGet
- * @tc.desc: Test DisableHdcPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisableHdcPluginTest, TestDisableHdcPluginTestGet, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisableHdcPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

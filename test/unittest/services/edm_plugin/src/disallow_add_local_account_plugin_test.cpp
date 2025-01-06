@@ -51,26 +51,6 @@ HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPlugin, T
     ret = plugin.OnAdminRemove(adminName, allowAddLocalAccount, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
-
-/**
- * @tc.name: TestDisallowAddLocalAccountPluginGet
- * @tc.desc: Test DisallowAddLocalAccountPlugin::OnGetPolicy function.
- * @tc.type: FUNC
- */
-    HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPluginGet, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = DisallowAddLocalAccountPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

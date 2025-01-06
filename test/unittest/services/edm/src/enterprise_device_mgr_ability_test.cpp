@@ -80,11 +80,14 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
     accessTokenMgrMock_ = std::make_shared<EdmAccessTokenManagerImplMock>();
     factoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
+    permissionCheckerMock_ = std::make_shared<PermissionCheckerMock>();
     edmMgr_ = new (std::nothrow) EnterpriseDeviceMgrAbilityMock();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
     edmMgr_->pluginMgr_ = PluginManager::GetInstance();
     edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
     EXPECT_CALL(*edmMgr_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+    EXPECT_CALL(*edmMgr_, GetPermissionChecker).WillRepeatedly(DoAll(Return(permissionCheckerMock_)));
+    EXPECT_CALL(*permissionCheckerMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
     EXPECT_CALL(*factoryMock_, CreateBundleManager).WillRepeatedly(DoAll(Return(bundleMgrMock_)));
     EXPECT_CALL(*factoryMock_, CreateAppManager).WillRepeatedly(DoAll(Return(appMgrMock_)));
     EXPECT_CALL(*factoryMock_, CreateOsAccountManager).WillRepeatedly(DoAll(Return(osAccountMgrMock_)));

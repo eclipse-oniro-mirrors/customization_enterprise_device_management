@@ -15,13 +15,14 @@
 
 #include "plugin_manager.h"
 
-#include <cstring>
 #include <dirent.h>
 #include <dlfcn.h>
-#include <iostream>
-#include <mutex>
 #include <string_ex.h>
 #include <unistd.h>
+
+#include <cstring>
+#include <iostream>
+#include <mutex>
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -43,6 +44,8 @@ PluginManager::~PluginManager()
     EDMLOGD("PluginManager::~PluginManager.");
     pluginsCode_.clear();
     pluginsName_.clear();
+    persistentPluginsCode_.clear();
+    persistentPluginsName_.clear();
     for (auto handle : pluginHandles_) {
         if (handle != nullptr) {
             dlclose(handle);
@@ -75,6 +78,10 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByFuncCode(std::uint32_t funcCo
         if (it != pluginsCode_.end()) {
             return it->second;
         }
+        auto iter = persistentPluginsCode_.find(code);
+        if (iter != persistentPluginsCode_.end()) {
+            return iter->second;
+        }
     }
     EDMLOGD("GetPluginByFuncCode::return nullptr");
     return nullptr;
@@ -86,6 +93,10 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByPolicyName(const std::string 
     if (it != pluginsName_.end()) {
         return it->second;
     }
+    auto iter = persistentPluginsName_.find(policyName);
+    if (iter != persistentPluginsName_.end()) {
+        return iter->second;
+    }
     return nullptr;
 }
 
@@ -96,7 +107,11 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByCode(std::uint32_t code)
     if (it != pluginsCode_.end()) {
         return it->second;
     }
-    EDMLOGD("GetPluginByCode::return nullptr");
+    auto iter = persistentPluginsCode_.find(code);
+    if (iter != persistentPluginsCode_.end()) {
+        return iter->second;
+    }
+    EDMLOGI("GetPluginByCode::return nullptr");
     return nullptr;
 }
 
@@ -117,6 +132,24 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         return false;
     }
     EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
+    return AddPluginInner(plugin, false);
+}
+
+bool PluginManager::AddPersistentPlugin(std::shared_ptr<IPlugin> plugin)
+{
+    if (plugin == nullptr) {
+        return false;
+    }
+    EDMLOGD("AddPersistentPlugin %{public}d", plugin->GetCode());
+    return AddPluginInner(plugin, true);
+}
+
+bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin, bool isPersistent)
+{
+    if (plugin == nullptr) {
+        return false;
+    }
+    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     std::vector<IPlugin::PolicyPermissionConfig> configs = plugin->GetAllPermission();
     if (configs.empty()) {
         return false;
@@ -131,8 +164,13 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
             }
         }
     }
-    pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
-    pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+    if (isPersistent) {
+        persistentPluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
+        persistentPluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+    } else {
+        pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
+        pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
+    }
     if (extensionPluginMap_.find(plugin->GetCode()) != extensionPluginMap_.end()) {
         EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
             extensionPluginMap_[plugin->GetCode()]);
@@ -248,7 +286,7 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
     for (const auto &tagPermission : config.tagPermissions) {
         permissionStr.append("ApiTag: ");
         permissionStr.append(tagPermission.first);
-        for (const auto &tag: tagPermission.second) {
+        for (const auto &tag : tagPermission.second) {
             if (tag.first == IPlugin::PermissionType::NORMAL_DEVICE_ADMIN) {
                 permissionStr.append("NORMAL_DEVICE_ADMIN:");
             }
@@ -263,18 +301,25 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
 
 void PluginManager::DumpPlugin()
 {
-    for (auto it = pluginsCode_.begin(); it != pluginsCode_.end(); it++) {
+    DumpPluginInner(pluginsCode_, pluginsName_);
+    DumpPluginInner(persistentPluginsCode_, persistentPluginsName_);
+}
+
+void PluginManager::DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,
+    std::map<std::string, std::shared_ptr<IPlugin>> pluginsName)
+{
+    for (auto it = pluginsCode.begin(); it != pluginsCode.end(); it++) {
         std::vector<IPlugin::PolicyPermissionConfig> configs = it->second->GetAllPermission();
-        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s",
-            it->first, it->second->GetPolicyName().c_str());
+        EDMLOGD("PluginManager::Dump plugins_code.code:%{public}u,name:%{public}s", it->first,
+            it->second->GetPolicyName().c_str());
         for (auto &config : configs) {
             DumpPluginConfig(config);
         }
     }
-    for (auto it = pluginsName_.begin(); it != pluginsName_.end(); it++) {
+    for (auto it = pluginsName.begin(); it != pluginsName.end(); it++) {
         std::vector<IPlugin::PolicyPermissionConfig> configs = it->second->GetAllPermission();
-        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u",
-            it->first.c_str(), it->second->GetCode());
+        EDMLOGD("PluginManager::Dump plugins_name.name:%{public}s,code:%{public}u", it->first.c_str(),
+            it->second->GetCode());
         for (auto &config : configs) {
             DumpPluginConfig(config);
         }

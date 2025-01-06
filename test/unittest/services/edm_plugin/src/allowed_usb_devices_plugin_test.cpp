@@ -105,23 +105,6 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnSetPolicyWithDataWithoutCurrentData,
 }
 
 /**
- * @tc.name: TestOnGetPolicy
- * @tc.desc: Test AllowUsbDevicesPlugin::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(AllowedUsbDevicesPluginTest, TestOnGetPolicy, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = AllowUsbDevicesPlugin::GetPlugin();
-    std::string policyData{""};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestOnAdminRemovePolicyEmpty
  * @tc.desc: Test AllowUsbDevicesPlugin::OnAdminRemove function when policy is true.
  * @tc.type: FUNC

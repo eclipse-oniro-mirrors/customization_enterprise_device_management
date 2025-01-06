@@ -71,14 +71,6 @@ HWTEST_P(DisallowedPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
-
-    std::string policyData{"false"};
-    MessageParcel data1;
-    MessageParcel reply1;
-    ret = plugin->OnGetPolicy(policyData, data1, reply1, 100);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply1.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply1.ReadBool());
 }
 } // namespace TEST
 } // namespace EDM

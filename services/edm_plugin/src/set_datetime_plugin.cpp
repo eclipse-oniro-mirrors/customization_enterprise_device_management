@@ -18,11 +18,11 @@
 #include "edm_ipc_interface_code.h"
 #include "long_serializer.h"
 #include "time_service_client.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDateTimePlugin::GetPlugin());
 
 void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePlugin, int64_t>> ptr)
 {

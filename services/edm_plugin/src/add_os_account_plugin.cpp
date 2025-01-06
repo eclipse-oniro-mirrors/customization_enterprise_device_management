@@ -22,11 +22,11 @@
 #include "os_account_info.h"
 #include "os_account_manager.h"
 #include "want.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
 
 void AddOsAccountPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<AddOsAccountPlugin,
     std::map<std::string, std::string>>> ptr)

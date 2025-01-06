@@ -25,7 +25,6 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkipPlugin, std::vector<std::string>>> ptr) override;
     ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
     ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
     int32_t SetSnapshotSkipByUserIdAndBundleNameList(int32_t userId, const std::vector<std::string> &mergeData);

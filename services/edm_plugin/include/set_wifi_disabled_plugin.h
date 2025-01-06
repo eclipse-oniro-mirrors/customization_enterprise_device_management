@@ -25,8 +25,6 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr) override;
 
     ErrCode OnSetPolicy(bool &isDisable);
-
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

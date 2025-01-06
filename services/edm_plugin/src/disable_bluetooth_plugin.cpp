@@ -22,11 +22,11 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
 const std::string DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 
 void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
@@ -69,15 +69,5 @@ ErrCode DisableBluetoothPlugin::OnSetPolicy(bool &disable)
     EDMLOGI("DisableBluetoothPlugin set system para: %{public}d", disable);
     return ERR_OK;
 }
-
-ErrCode DisableBluetoothPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool paraValue = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(paraValue);
-    return ERR_OK;
-}
-
 } // namespace EDM
 } // namespace OHOS

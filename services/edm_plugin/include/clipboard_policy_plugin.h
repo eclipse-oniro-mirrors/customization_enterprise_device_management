@@ -29,8 +29,6 @@ public:
     ErrCode OnSetPolicy(std::map<int32_t, ClipboardPolicy> &data,
         std::map<int32_t, ClipboardPolicy> &currentData, int32_t userId);
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-
     ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardPolicy> &data, int32_t userId);
 };
 } // namespace EDM

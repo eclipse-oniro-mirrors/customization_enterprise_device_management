@@ -59,6 +59,7 @@ ohos_fuzztest("EdmPluginFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "file_api:securitylabel",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

@@ -20,11 +20,11 @@
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "wifi_device.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
 const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 
 void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
@@ -62,16 +62,6 @@ ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable)
         }
     }
     return system::SetParameter(KEY_DISABLE_WIFI, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode SetWifiDisabledPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("SetWifiDisabledPlugin OnGetPolicy.");
-    bool ret = system::GetBoolParameter(KEY_DISABLE_WIFI, false);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(ret);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

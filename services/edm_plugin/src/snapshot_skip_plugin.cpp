@@ -20,12 +20,12 @@
 #include "array_string_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(SnapshotSkipPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SnapshotSkipPlugin::GetPlugin());
 
 void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkipPlugin, std::vector<std::string>>> ptr)
 {
@@ -99,18 +99,6 @@ int32_t SnapshotSkipPlugin::SetSnapshotSkipByUserIdAndBundleNameList(int32_t use
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return mockSessionManagerServiceProxy->SetSnapshotSkipByUserIdAndBundleNames(userId, mergeData);
-}
-
-ErrCode SnapshotSkipPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("SnapshotSkipPlugin OnGetPolicy policyData :");
-    std::vector<std::string> bundles;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, bundles);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(bundles.size());
-    reply.WriteStringVector(bundles);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

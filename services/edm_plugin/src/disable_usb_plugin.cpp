@@ -20,11 +20,11 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
 #include "usb_policy_utils.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
 
 void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr)
 {
@@ -78,17 +78,6 @@ bool DisableUsbPlugin::HasConflictPolicy()
         return true;
     }
     return false;
-}
-
-ErrCode DisableUsbPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    EDMLOGI("DisableUsbPlugin OnGetPolicy %{public}s...", policyData.c_str());
-    bool isDisabled = false;
-    pluginInstance_->serializer_->Deserialize(policyData, isDisabled);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisabled);
-    return ERR_OK;
 }
 
 ErrCode DisableUsbPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)

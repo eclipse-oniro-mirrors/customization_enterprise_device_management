@@ -19,11 +19,11 @@
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
 constexpr int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
@@ -57,16 +57,6 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
     }
     EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisableMicrophonePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    bool isMicDisabled = system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false);
-    EDMLOGI("DisableMicrophonePlugin OnGetPolicy isMicDisabled = %{public}d", isMicDisabled);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isMicDisabled);
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

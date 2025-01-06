@@ -104,26 +104,6 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalseFail, T
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     Utils::SetEdmInitialEnv();
 }
-
-/**
- * @tc.name: TestSetWifiDisabledPluginTestGet
- * @tc.desc: Test SetWifiDisabledPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestGet, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(result == system::GetBoolParameter(KEY_DISABLE_WIFI, false));
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

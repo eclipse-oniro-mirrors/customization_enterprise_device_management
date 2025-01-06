@@ -28,7 +28,26 @@
             "virtual thunk to OHOS::EDM::UsbDeviceId::~UsbDeviceId()";
             VTT?for?OHOS::EDM::UsbDeviceId;
             vtable?for?OHOS::EDM::UsbDeviceId;
+            VTT?for?OHOS::EDM::ClipboardSerializer;
+            vtable?for?OHOS::EDM::ClipboardSerializer;
+            OHOS::EDM::ClipboardSerializer::*;
+            VTT?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
+            vtable?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
+            OHOS::EDM::ArrayUsbDeviceIdSerializer::*;
+            VTT?for?OHOS::EDM::InstallParamSerializer;
+            vtable?for?OHOS::EDM::InstallParamSerializer;
+            OHOS::EDM::InstallParamSerializer::*;
+            OHOS::EDM::InstallParam::*;
+            VTT?for?OHOS::EDM::FingerprintPolicySerializer;
+            vtable?for?OHOS::EDM::FingerprintPolicySerializer;
+            VTT?for?OHOS::EDM::PasswordSerializer;
+            vtable?for?OHOS::EDM::PasswordSerializer;
+            OHOS::EDM::FingerprintPolicySerializer::*;
             OHOS::EDM::UpdatePolicyUtils::*;
+            OHOS::EDM::ClipboardUtils::*;
+            OHOS::EDM::FingerprintPolicy::*;
+            OHOS::EDM::LocationPolicy::*;
+            OHOS::EDM::PasswordSerializer::*;
         };
     local:
         *;

@@ -46,6 +46,7 @@ ohos_shared_library("edmservice_kits") {
     "./bluetooth_manager/src/bluetooth_manager_proxy.cpp",
     "./browser/src/browser_proxy.cpp",
     "./bundle_manager/src/bundle_manager_proxy.cpp",
+    "./bundle_manager/src/install_param_serializer.cpp",
     "./common/src/edm_load_callback.cpp",
     "./common/src/edm_load_manager.cpp",
     "./common/src/ent_info.cpp",
@@ -57,10 +58,12 @@ ohos_shared_library("edmservice_kits") {
     "./device_settings/src/power_policy.cpp",
     "./location_manager/src/location_manager_proxy.cpp",
     "./network_manager/src/network_manager_proxy.cpp",
+    "./restrictions/src/fingerprint_policy_serializer.cpp",
     "./restrictions/src/restrictions_proxy.cpp",
     "./security_manager/src/security_manager_proxy.cpp",
     "./system_manager/src/system_manager_proxy.cpp",
     "./system_manager/src/update_policy_utils.cpp",
+    "./usb_manager/src/array_usb_device_id_serializer.cpp",
     "./usb_manager/src/usb_manager_proxy.cpp",
     "./wifi_manager/src/wifi_manager_proxy.cpp",
   ]
@@ -71,13 +74,18 @@ ohos_shared_library("edmservice_kits") {
 
   version_script = "libedmservice_kits.map"
 
-  deps = [ "../../common/native:edm_commom" ]
+  deps = [
+    "../../common/native:edm_commom",
+    "./plugin_kits:plugin_kits",
+  ]
 
   external_deps = [
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 
@@ -90,6 +98,10 @@ ohos_shared_library("edmservice_kits") {
   if (os_account_edm_enable) {
     external_deps += [ "os_account:os_account_innerkits" ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
+
+  if (useriam_edm_enable) {
+    sources += [ "./security_manager/src/password_policy_serializer.cpp" ]
   }
 
   if (netmanager_base_edm_enable) {
@@ -105,6 +117,14 @@ ohos_shared_library("edmservice_kits") {
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
     external_deps += [ "usb_manager:usbsrv_client" ]
     defines += [ "USB_EDM_ENABLE" ]
+  }
+
+  if (pasteboard_edm_enable) {
+    external_deps += [ "pasteboard:pasteboard_client" ]
+    sources += [
+      "./security_manager/src/clipboard_policy_serializer.cpp",
+      "./security_manager/src/clipboard_utils.cpp",
+    ]
   }
 
   sanitize = {

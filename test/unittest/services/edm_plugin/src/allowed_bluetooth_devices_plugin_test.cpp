@@ -144,23 +144,6 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 }
 
 /**
- * @tc.name: TestGetBluetoothDevicesSuc
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnGetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestGetBluetoothDevicesSuc, TestSize.Level1)
-{
-    std::shared_ptr<IPlugin> plugin = AllowedBluetoothDevicesPlugin::GetPlugin();
-    std::string policyValue{ "GetBluetoothDevices" };
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestRemoveBluetoothDevicesEmpty
  * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC

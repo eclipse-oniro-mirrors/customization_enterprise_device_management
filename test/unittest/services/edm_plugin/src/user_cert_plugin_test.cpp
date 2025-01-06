@@ -84,9 +84,6 @@ static const uint8_t CERT_DATA[] = {0x30, 0x82, 0x04, 0x31, 0x30, 0x82, 0x03, 0x
     0x77, 0x34, 0x8f, 0xca, 0xea, 0xcf, 0x3f, 0x31, 0x3e, 0xe3, 0x88, 0xe3, 0x80, 0x49, 0x25, 0xc8, 0x97, 0xb5, 0x9d,
     0x9a, 0x99, 0x4d, 0xb0, 0x3c, 0xf8, 0x4a, 0x00, 0x9b, 0x64, 0xdd, 0x9f, 0x39, 0x4b, 0xd1, 0x27, 0xd7, 0xb8};
 
-constexpr int32_t ACCOUTID_INVALID_VALUE = -1;
-constexpr int32_t ACCOUTID_VALID_VALUE = 100;
-
 class UserCertPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -107,21 +104,6 @@ void UserCertPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnGetPolicy
- * @tc.desc: Test OnGetPolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(UserCertPluginTest, TestOnGetPolicy, TestSize.Level1)
-{
-    std::shared_ptr<UserCertPlugin> plugin = std::make_shared<UserCertPlugin>();
-    std::string policyData{"TestOnGetPolicy"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestOnHandlePolicyGet
  * @tc.desc: Test UserCertPlugin::OnSetPolicy get case
  * @tc.type: FUNC
@@ -139,21 +121,19 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyGet, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestOnHandlePolicyInstall_001
- * @tc.desc: Test UserCertPlugin::OnHandlePolicy install with valid accountId
+ * @tc.name: TestOnHandlePolicyInstall
+ * @tc.desc: Test UserCertPlugin::OnHandlePolicy install
  * @tc.type: FUNC
  */
-HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall_001, TestSize.Level1)
+HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall, TestSize.Level1)
 {
     std::shared_ptr<UserCertPlugin> plugin = std::make_shared<UserCertPlugin>();
     std::vector<uint8_t> certArray;
     certArray.push_back(0x30);
     std::string alias = "edm_alias_test";
-    int32_t accountId = ACCOUTID_VALID_VALUE;
     MessageParcel data;
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
-    data.WriteInt32(accountId);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", false};
     std::uint32_t funcCode =
@@ -163,30 +143,6 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall_001, TestSize.Level1)
     int32_t replyCode = ERR_INVALID_VALUE;
     reply.ReadInt32(replyCode);
     ASSERT_TRUE(replyCode == EdmReturnErrCode::MANAGED_CERTIFICATE_FAILED);
-}
-
-/**
- * @tc.name: TestOnHandlePolicyInstall_002
- * @tc.desc: Test UserCertPlugin::OnHandlePolicy install with invalid accountId
- * @tc.type: FUNC
- */
-HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall_002, TestSize.Level1)
-{
-    std::shared_ptr<UserCertPlugin> plugin = std::make_shared<UserCertPlugin>();
-    std::vector<uint8_t> certArray;
-    certArray.push_back(0x30);
-    std::string alias = "edm_alias_test";
-    int32_t accountId = ACCOUTID_INVALID_VALUE;
-    MessageParcel data;
-    data.WriteUInt8Vector(certArray);
-    data.WriteString(alias);
-    data.WriteInt32(accountId);
-    MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**

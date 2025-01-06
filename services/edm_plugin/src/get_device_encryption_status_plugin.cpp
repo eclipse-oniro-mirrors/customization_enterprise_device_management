@@ -18,11 +18,11 @@
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "string_serializer.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = PluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
 
 void GetDeviceEncryptionStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceEncryptionStatusPlugin,
     std::string>> ptr)
@@ -31,16 +31,6 @@ void GetDeviceEncryptionStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate
     ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_ENCRYPTION_STATUS, "get_device_encryption_status",
         "ohos.permission.ENTERPRISE_MANAGE_SECURITY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
-}
-
-ErrCode GetDeviceEncryptionStatusPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
-{
-    EDMLOGI("GetDeviceEncryptionStatusPlugin OnGetPolicy.");
-    std::string res = system::GetParameter("fscrypt.policy.config", "");
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(!res.empty());
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
