@@ -20,6 +20,7 @@
 #include "system_manager_proxy.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "update_policy_utils.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -70,13 +71,16 @@ void SystemManagerProxyTest::TearDownTestSuite()
  */
 HWTEST_F(SystemManagerProxyTest, TestSetNTPServerSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("ntp.aliyun.com");
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::string server = "ntp.aliyun.com";
-    int32_t ret = systemmanagerProxy->SetNTPServer(admin, server);
+
+    int32_t ret = systemmanagerProxy->SetNTPServer(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -88,10 +92,13 @@ HWTEST_F(SystemManagerProxyTest, TestSetNTPServerSuc, TestSize.Level1)
 HWTEST_F(SystemManagerProxyTest, TestSetNTPServerFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string server = "ntp.aliyun.com";
-    int32_t ret = systemmanagerProxy->SetNTPServer(admin, server);
+    data.WriteParcelable(&admin);
+    data.WriteString("ntp.aliyun.com");
+
+    int32_t ret = systemmanagerProxy->SetNTPServer(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -102,13 +109,16 @@ HWTEST_F(SystemManagerProxyTest, TestSetNTPServerFail, TestSize.Level1)
  */
 HWTEST_F(SystemManagerProxyTest, TestGetNTPServerSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
-    std::string server = "ntp.aliyun.com";
-    int32_t ret = systemmanagerProxy->GetNTPServer(admin, server);
+
+    std::string server = "";
+    int32_t ret = systemmanagerProxy->GetNTPServer(data, server);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(server == RETURN_STRING);
 }
@@ -121,10 +131,12 @@ HWTEST_F(SystemManagerProxyTest, TestGetNTPServerSuc, TestSize.Level1)
 HWTEST_F(SystemManagerProxyTest, TestGetNTPServerFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     std::string server = "";
-    int32_t ret = systemmanagerProxy->GetNTPServer(admin, server);
+    int32_t ret = systemmanagerProxy->GetNTPServer(data, server);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -135,14 +147,18 @@ HWTEST_F(SystemManagerProxyTest, TestGetNTPServerFail, TestSize.Level1)
  */
 HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicySuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     UpdatePolicy updatePolicy;
+    UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
+
     std::string message;
-    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy, message);
+    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(data, message);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -153,14 +169,18 @@ HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicySuc, TestSize.Level1)
  */
 HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicyParamError, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
     UpdatePolicy updatePolicy;
+    UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
+
     std::string message;
-    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(admin, updatePolicy, message);
+    int32_t ret = systemmanagerProxy->SetOTAUpdatePolicy(data, message);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
     ASSERT_EQ(message, RETURN_STRING);
 }
@@ -173,10 +193,13 @@ HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicyParamError, TestSize.Leve
 HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
     UpdatePolicy updatePolicy;
-    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(admin, updatePolicy);
+    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(data, updatePolicy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -187,13 +210,16 @@ HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicyFail, TestSize.Level1)
  */
 HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicySuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetOTAUpdatePolicy));
+
     UpdatePolicy updatePolicy;
-    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(admin, updatePolicy);
+    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(data, updatePolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_EQ(updatePolicy.type, UpdatePolicyType::PROHIBIT);
     ASSERT_EQ(updatePolicy.version, UPGRADE_VERSION);

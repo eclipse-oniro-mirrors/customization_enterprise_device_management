@@ -40,17 +40,11 @@ std::shared_ptr<WifiManagerProxy> WifiManagerProxy::GetWifiManagerProxy()
     return instance_;
 }
 
-int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, bool &result, bool isSync)
+int32_t WifiManagerProxy::IsWifiActive(MessageParcel &data, bool &result)
 {
     EDMLOGD("WifiManagerProxy::IsWifiActive");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::IS_WIFI_ACTIVE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -62,34 +56,25 @@ int32_t WifiManagerProxy::IsWifiActive(const AppExecFwk::ElementName &admin, boo
     return ERR_OK;
 }
 #ifdef WIFI_EDM_ENABLE
-int32_t WifiManagerProxy::SetWifiProfile(const AppExecFwk::ElementName &admin, Wifi::WifiDeviceConfig &config,
-    WifiPassword &pwd, bool isSync)
+int32_t WifiManagerProxy::SetWifiProfile(MessageParcel &data)
 {
     EDMLOGD("WifiManagerProxy::SetWifiProfile");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_WIFI_PROFILE);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
-    MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 #endif
 
-int32_t WifiManagerProxy::SetWifiDisabled(const AppExecFwk::ElementName &admin, const bool &isDisabled)
+int32_t WifiManagerProxy::SetWifiDisabled(MessageParcel &data)
 {
-    EDMLOGD("WifiManagerProxy::SetWifiDisabled. isDisable: %{public}d", isDisabled);
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, isDisabled,
-        EdmInterfaceCode::DISABLE_WIFI, EdmConstants::PERMISSION_TAG_VERSION_11);
+    EDMLOGD("WifiManagerProxy::SetWifiDisabled.");
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(data, EdmInterfaceCode::DISABLE_WIFI);
 }
 
-int32_t WifiManagerProxy::IsWifiDisabled(AppExecFwk::ElementName *admin, bool &result)
+int32_t WifiManagerProxy::IsWifiDisabled(MessageParcel &data, bool &result)
 {
     EDMLOGD("WifiManagerProxy::IsWifiDisabled");
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, EdmInterfaceCode::DISABLE_WIFI, result,
-        EdmConstants::PERMISSION_TAG_VERSION_11);
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, EdmInterfaceCode::DISABLE_WIFI, result);
 }
 } // namespace EDM
 } // namespace OHOS

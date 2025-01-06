@@ -104,7 +104,9 @@ private:
     static bool ProcessEapTlsConfig(napi_env env, napi_value object, Wifi::WifiEapConfig &eapConfig);
 #endif
     static napi_value IsWifiActive(napi_env env, napi_callback_info info);
+    static napi_value IsWifiActiveHandler(napi_env env, napi_callback_info info, napi_async_execute_callback execute);
     static napi_value SetWifiProfile(napi_env env, napi_callback_info info);
+    static napi_value SetWifiProfileHandler(napi_env env, napi_callback_info info, napi_async_execute_callback execute);
     static void NativeIsWifiActive(napi_env env, void *data);
     static void NativeSetWifiProfile(napi_env env, void *data);
     static void CreateWifiSecurityTypeObject(napi_env env, napi_value value);

@@ -35,30 +35,18 @@ std::shared_ptr<SystemManagerProxy> SystemManagerProxy::GetSystemManagerProxy()
     return instance_;
 }
 
-int32_t SystemManagerProxy::SetNTPServer(const AppExecFwk::ElementName &admin, const std::string &value)
+int32_t SystemManagerProxy::SetNTPServer(MessageParcel &data)
 {
     EDMLOGD("SystemManagerProxy::SetNTPServer");
-    MessageParcel data;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(value);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::NTP_SERVER);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SystemManagerProxy::GetNTPServer(const AppExecFwk::ElementName &admin, std::string &value)
+int32_t SystemManagerProxy::GetNTPServer(MessageParcel &data, std::string &value)
 {
     EDMLOGD("SystemManagerProxy::GetNTPServer");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::NTP_SERVER, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -70,17 +58,10 @@ int32_t SystemManagerProxy::GetNTPServer(const AppExecFwk::ElementName &admin, s
     return ERR_OK;
 }
 
-int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
-    std::string &errorMsg)
+int32_t SystemManagerProxy::SetOTAUpdatePolicy(MessageParcel &data, std::string &errorMsg)
 {
     EDMLOGD("SystemManagerProxy::SetOTAUpdatePolicy");
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_OTA_UPDATE_POLICY);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
@@ -90,16 +71,10 @@ int32_t SystemManagerProxy::SetOTAUpdatePolicy(const AppExecFwk::ElementName &ad
     return ret;
 }
 
-int32_t SystemManagerProxy::GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy)
+int32_t SystemManagerProxy::GetOTAUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy)
 {
     EDMLOGD("SystemManagerProxy::GetOTAUpdatePolicy");
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_OTA_UPDATE_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);

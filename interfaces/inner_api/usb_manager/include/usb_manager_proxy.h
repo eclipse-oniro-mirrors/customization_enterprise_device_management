@@ -27,18 +27,17 @@ namespace EDM {
 class UsbManagerProxy {
 public:
     static std::shared_ptr<UsbManagerProxy> GetUsbManagerProxy();
-    int32_t SetUsbReadOnly(const AppExecFwk::ElementName &admin, bool readOnly);
-    int32_t DisableUsb(const AppExecFwk::ElementName &admin, bool disable);
-    int32_t IsUsbDisabled(const AppExecFwk::ElementName *admin, bool &result);
-    int32_t AddAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
-    int32_t RemoveAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> usbDeviceIds);
-    int32_t GetAllowedUsbDevices(const AppExecFwk::ElementName &admin, std::vector<UsbDeviceId> &result);
-    int32_t SetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t usbPolicy);
-    int32_t GetUsbStorageDeviceAccessPolicy(const AppExecFwk::ElementName &admin, int32_t &result);
+    int32_t SetUsbReadOnly(MessageParcel &data);
+    int32_t DisableUsb(MessageParcel &data);
+    int32_t IsUsbDisabled(MessageParcel &data, bool &result);
+    int32_t AddAllowedUsbDevices(MessageParcel &data);
+    int32_t RemoveAllowedUsbDevices(MessageParcel &data);
+    int32_t GetAllowedUsbDevices(MessageParcel &data, std::vector<UsbDeviceId> &result);
+    int32_t SetUsbStorageDeviceAccessPolicy(MessageParcel &data);
+    int32_t GetUsbStorageDeviceAccessPolicy(MessageParcel &data, int32_t &result);
 #ifdef USB_EDM_ENABLE
-    int32_t AddOrRemoveDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
-        std::vector<OHOS::USB::UsbDeviceType> UsbDeviceTypes, bool isAdd);
-    int32_t GetDisallowedUsbDevices(const AppExecFwk::ElementName &admin,
+    int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd);
+    int32_t GetDisallowedUsbDevices(MessageParcel &data,
         std::vector<OHOS::USB::UsbDeviceType> &result);
 #endif
 

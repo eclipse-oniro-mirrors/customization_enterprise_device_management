@@ -17,6 +17,8 @@
 #include "edm_log.h"
 #include "usb_manager_proxy.h"
 
+#include "napi_edm_adapter.h"
+
 using namespace OHOS::EDM;
 
 napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
@@ -76,47 +78,38 @@ void UsbManagerAddon::CreateDescriptorEnum(napi_env env, napi_value value)
 
 napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::SetUsbPolicy called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "type admin error");
-    bool usbPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, usbPolicy, "type usbPolicy error");
-    if (argc > ARGS_SIZE_TWO) {
-        bool hasCallback = MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "type callback error");
-    }
-
-    auto asyncCallbackInfo = new (std::nothrow) AsyncSetUsbPolicyCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncSetUsbPolicyCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "SetUsbPolicy: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->policy, argv[ARR_INDEX_ONE]),
-        "policy param error");
-    bool existUsbPolicy = std::any_of(std::begin(USB_POLICY), std::end(USB_POLICY),
-        [&](int item) { return item == asyncCallbackInfo->policy; });
-    ASSERT_AND_THROW_PARAM_ERROR(env, existUsbPolicy, "usb policy value error");
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_SetUsbPolicy argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "SetUsbPolicy", NativeSetUsbPolicy, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    auto convertpolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> bool {
+        bool usbPolicy = MatchValueType(env, argv, napi_number);
+        if (!usbPolicy) {
+            EDMLOGE("type usbPolicy error");
+            return false;
+        }
+        int32_t policy = EdmConstants::STORAGE_USB_POLICY_DISABLED;
+        if (!ParseInt(env, policy, argv)) {
+            EDMLOGE("policy param error");
+            return false;
+        }
+        const int32_t readOnly = 1;
+        const int32_t readWrite = 0;
+        switch (policy) {
+            case EdmConstants::STORAGE_USB_POLICY_READ_WRITE:
+                data.WriteInt32(readWrite);
+                break;
+            case EdmConstants::STORAGE_USB_POLICY_READ_ONLY:
+                data.WriteInt32(readOnly);
+                break;
+            default:
+                return false;
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setUsbPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertpolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetUsbPolicy, NativeVoidCallbackComplete);
 }
 
 void UsbManagerAddon::NativeSetUsbPolicy(napi_env env, void *data)
@@ -126,48 +119,30 @@ void UsbManagerAddon::NativeSetUsbPolicy(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetUsbPolicyCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetUsbPolicyCallbackInfo *>(data);
-    switch (asyncCallbackInfo->policy) {
-        case EdmConstants::STORAGE_USB_POLICY_READ_WRITE:
-            asyncCallbackInfo->ret =
-                UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, false);
-            break;
-        case EdmConstants::STORAGE_USB_POLICY_READ_ONLY:
-            asyncCallbackInfo->ret =
-                UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->elementName, true);
-            break;
-        default:
-            asyncCallbackInfo->ret = EdmReturnErrCode::PARAM_ERROR;
-            break;
-    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret =
+                UsbManagerProxy::GetUsbManagerProxy()->SetUsbReadOnly(asyncCallbackInfo->data);
 }
 
 napi_value UsbManagerAddon::DisableUsb(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::DisableUsb called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
-        "parameter disallow error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    bool disable = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disable, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "disableUsb";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    EDMLOGI("UsbManagerAddon::DisableUsb: %{public}d", disable);
-    int32_t ret = usbManagerProxy->DisableUsb(elementName, disable);
+    int32_t ret = usbManagerProxy->DisableUsb(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -176,30 +151,25 @@ napi_value UsbManagerAddon::DisableUsb(napi_env env, napi_callback_info info)
 
 napi_value UsbManagerAddon::IsUsbDisabled(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::IsUsbDisabled called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "isUsbDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     bool isDisabled = false;
     int32_t ret = ERR_OK;
-    if (hasAdmin) {
-        ret = UsbManagerProxy::GetUsbManagerProxy()->IsUsbDisabled(&elementName, isDisabled);
-    } else {
-        ret = UsbManagerProxy::GetUsbManagerProxy()->IsUsbDisabled(nullptr, isDisabled);
-    }
+    ret = UsbManagerProxy::GetUsbManagerProxy()->IsUsbDisabled(adapterAddonData.data, isDisabled);
     EDMLOGI("UsbManagerAddon::IsUsbDisabled return: %{public}d", isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
+    result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
@@ -218,22 +188,32 @@ napi_value UsbManagerAddon::RemoveAllowedUsbDevices(napi_env env, napi_callback_
 
 napi_value UsbManagerAddon::AddOrRemoveAllowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "parameter usbDeviceIds error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::vector<UsbDeviceId> usbDeviceIds;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseUsbDevicesArray(env, usbDeviceIds, argv[ARR_INDEX_ONE]),
-        "parameter usbDeviceIds error");
-
+    auto convertUsbDeviceIds2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            std::vector<UsbDeviceId> usbDeviceIds;
+            if (!ParseUsbDevicesArray(env, usbDeviceIds, argv)) {
+                EDMLOGE("parameter type parse error");
+                return false;
+            }
+            data.WriteUint32(usbDeviceIds.size());
+            for (const auto &usbDeviceId : usbDeviceIds) {
+                if (!usbDeviceId.Marshalling(data)) {
+                    EDMLOGE("UsbManagerProxy AddAllowedUsbDevices: write parcel failed!");
+                    return false;
+                }
+            }
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertUsbDeviceIds2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.name = (isAdd ? "addAllowedUsbDevices" : "removeAllowedUsbDevices");
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
@@ -241,9 +221,9 @@ napi_value UsbManagerAddon::AddOrRemoveAllowedUsbDevices(napi_env env, napi_call
     }
     int32_t ret = ERR_OK;
     if (isAdd) {
-        ret = usbManagerProxy->AddAllowedUsbDevices(elementName, usbDeviceIds);
+        ret = usbManagerProxy->AddAllowedUsbDevices(adapterAddonData.data);
     } else {
-        ret = usbManagerProxy->RemoveAllowedUsbDevices(elementName, usbDeviceIds);
+        ret = usbManagerProxy->RemoveAllowedUsbDevices(adapterAddonData.data);
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -299,17 +279,15 @@ bool UsbManagerAddon::GetUsbDeviceIdFromNAPI(napi_env env, napi_value value, Usb
 
 napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::GetAllowedUsbDevices called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getAllowedUsbDevices";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
@@ -317,7 +295,7 @@ napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_inf
         return nullptr;
     }
     std::vector<UsbDeviceId> usbDeviceIds;
-    int32_t ret = usbManagerProxy->GetAllowedUsbDevices(elementName, usbDeviceIds);
+    int32_t ret = usbManagerProxy->GetAllowedUsbDevices(adapterAddonData.data, usbDeviceIds);
     EDMLOGI("UsbManagerAddon::GetAllowedUsbDevices usbDeviceIds return size: %{public}zu", usbDeviceIds.size());
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -350,32 +328,22 @@ napi_value UsbManagerAddon::UsbDeviceIdToJsObj(napi_env env, const UsbDeviceId &
 
 napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::SetUsbStorageDeviceAccessPolicy called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
-        "parameter usbPolicy error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    int32_t usbPolicy = EdmConstants::STORAGE_USB_POLICY_READ_WRITE;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, usbPolicy, argv[ARR_INDEX_ONE]), "parameter type parse error");
-    bool existUsbPolicy = std::any_of(std::begin(USB_POLICY), std::end(USB_POLICY),
-        [&](int item) { return item == usbPolicy; });
-    ASSERT_AND_THROW_PARAM_ERROR(env, existUsbPolicy, "parameter usbPolicy value error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setUsbStorageDeviceAccessPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    EDMLOGI("UsbManagerAddon::SetUsbStorageDeviceAccessPolicy: %{public}d", usbPolicy);
-    int32_t ret = usbManagerProxy->SetUsbStorageDeviceAccessPolicy(elementName, usbPolicy);
+    int32_t ret = usbManagerProxy->SetUsbStorageDeviceAccessPolicy(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -384,17 +352,15 @@ napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 
 napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("UsbManagerAddon::GetUsbStorageDeviceAccessPolicy called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getUsbStorageDeviceAccessPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     int32_t usbPolicy = EdmConstants::STORAGE_USB_POLICY_READ_WRITE;
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
@@ -402,13 +368,13 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    int32_t ret = usbManagerProxy->GetUsbStorageDeviceAccessPolicy(elementName, usbPolicy);
+    int32_t ret = usbManagerProxy->GetUsbStorageDeviceAccessPolicy(adapterAddonData.data, usbPolicy);
     EDMLOGI("UsbManagerAddon::GetUsbStorageDeviceAccessPolicy return: %{public}d", usbPolicy);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
+    result = nullptr;
     NAPI_CALL(env, napi_create_int32(env, usbPolicy, &result));
     return result;
 }
@@ -427,28 +393,44 @@ napi_value UsbManagerAddon::RemoveDisallowedUsbDevices(napi_env env, napi_callba
 
 napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
 {
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "parameter usbDevices error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    std::vector<USB::UsbDeviceType> usbDeviceTypes;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv[ARR_INDEX_ONE]),
-        "parameter usbDevices error");
+    auto convertUsbDeviceType2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            std::vector<USB::UsbDeviceType> usbDeviceTypes;
+            if (!ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv)) {
+                EDMLOGE("parameter type parse error");
+                return false;
+            }
+            auto size = usbDeviceTypes.size();
+            if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+                EDMLOGE("UsbManagerProxy:AddOrRemoveDisallowedUsbDevices size=[%{public}zu] is too large", size);
+                return false;
+            }
+            data.WriteUint32(size);
+            for (const auto &usbDeviceType : usbDeviceTypes) {
+                if (!usbDeviceType.Marshalling(data)) {
+                    EDMLOGE("UsbManagerProxy AddOrRemoveDisallowedUsbDevices: write parcel failed!");
+                    return false;
+                }
+            }
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = (isAdd ? "addDisallowedUsbDevices" : "removeDisallowedUsbDevices");
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertUsbDeviceType2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    int32_t ret = usbManagerProxy->AddOrRemoveDisallowedUsbDevices(elementName, usbDeviceTypes, isAdd);
+    int32_t ret = usbManagerProxy->AddOrRemoveDisallowedUsbDevices(adapterAddonData.data, isAdd);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -458,16 +440,15 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
 napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getDisallowedUsbDevices";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
@@ -475,7 +456,7 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_
         return nullptr;
     }
     std::vector<USB::UsbDeviceType> usbDeviceTypes;
-    int32_t ret = usbManagerProxy->GetDisallowedUsbDevices(elementName, usbDeviceTypes);
+    int32_t ret = usbManagerProxy->GetDisallowedUsbDevices(adapterAddonData.data, usbDeviceTypes);
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices usbDeviceTypes return size: %{public}zu", usbDeviceTypes.size());
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));

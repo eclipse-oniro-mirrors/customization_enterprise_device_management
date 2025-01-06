@@ -16,7 +16,7 @@
 #ifndef INTERFACES_KITS_RESTRICTIONS_INCLUDE_RESTRICTIONS_ADDON_H
 #define INTERFACES_KITS_RESTRICTIONS_INCLUDE_RESTRICTIONS_ADDON_H
 
-#include "napi_edm_common.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_error.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -57,6 +57,7 @@ private:
     static napi_value IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
+    static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::vector<uint32_t> multiPermCodes;

@@ -40,10 +40,20 @@ int32_t RestrictionsProxy::SetDisallowedPolicy(const AppExecFwk::ElementName &ad
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, policyCode, permissionTag);
 }
 
+int32_t RestrictionsProxy::SetDisallowedPolicy(MessageParcel &data, uint32_t policyCode)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(data, policyCode);
+}
+
 int32_t RestrictionsProxy::GetDisallowedPolicy(AppExecFwk::ElementName *admin, int policyCode, bool &result,
     std::string permissionTag)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result, permissionTag);
+}
+
+int32_t RestrictionsProxy::GetDisallowedPolicy(MessageParcel &data, uint32_t policyCode, bool &result)
+{
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, policyCode, result);
 }
 
 int32_t RestrictionsProxy::SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow)
