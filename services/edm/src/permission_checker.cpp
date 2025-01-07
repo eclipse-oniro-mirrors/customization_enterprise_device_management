@@ -66,6 +66,10 @@ ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, c
         EDMLOGE("CheckCallerPermission delegated admin does not have permission to handle.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
+    if (!isNeedSuperAdmin && admin->GetAdminType() == AdminType::BYOD) {
+        EDMLOGE("CheckCallerPermission byod admin does not have permission to handle.");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     return ERR_OK;
 }
 

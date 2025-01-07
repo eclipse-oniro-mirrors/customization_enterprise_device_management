@@ -76,6 +76,7 @@ ohos_shared_library("edmplugin") {
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_tethering_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
+      "./src/get_adminprovision_info_plugin.cpp",
       "./src/get_device_encryption_status_plugin.cpp",
       "./src/get_device_info_plugin.cpp",
       "./src/get_display_version_plugin.cpp",

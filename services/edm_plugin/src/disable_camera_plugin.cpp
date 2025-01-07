@@ -31,9 +31,13 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableCam
 void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr)
 {
     EDMLOGI("DisableCameraPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA,
-        "disable_camera", "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    std::map<IPlugin::PermissionType, std::string> typePermissions;
+    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, "disable_camera", config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableCameraPlugin::OnSetPolicy, FuncOperateType::SET);
 }

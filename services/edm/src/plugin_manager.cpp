@@ -280,6 +280,9 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
         if (typePermission.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
             permissionStr.append("SUPER_DEVICE_ADMIN:");
         }
+        if (typePermission.first == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+            permissionStr.append("BYOD_DEVICE_ADMIN:");
+        }
         permissionStr.append(typePermission.second);
     }
     permissionStr.append("Tag Permissions:");
@@ -292,6 +295,9 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
             }
             if (tag.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
                 permissionStr.append("SUPER_DEVICE_ADMIN:");
+            }
+            if (tag.first == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+                permissionStr.append("BYOD_DEVICE_ADMIN:");
             }
             permissionStr.append(tag.second);
         }

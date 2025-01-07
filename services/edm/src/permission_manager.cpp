@@ -60,8 +60,12 @@ void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string>
         if (entry == permissions_.end()) {
             continue;
         }
-        if (adminType == AdminType::NORMAL && entry->second == AdminType::ENT) {
-            EDMLOGE("GetAdminGrantedPermission normal admin can request super admin permission.");
+        if (adminType == AdminType::NORMAL && (entry->second == AdminType::ENT || entry->second == AdminType::BYOD)) {
+            EDMLOGE("GetAdminGrantedPermission normal admin can not request super and byod admin permission.");
+            continue;
+        }
+        if (adminType == AdminType::BYOD && entry->second == AdminType::ENT) {
+            EDMLOGE("GetAdminGrantedPermission byod admin can not request super admin permission.");
             continue;
         }
         reqPermission.emplace_back(entry->first);

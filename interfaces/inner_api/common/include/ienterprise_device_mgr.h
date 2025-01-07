@@ -26,6 +26,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
@@ -38,6 +39,7 @@ public:
     virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
         MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
+    virtual ErrCode GetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) = 0;
     virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;
     virtual ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) = 0;
@@ -55,6 +57,7 @@ public:
         std::vector<std::string> &policies) = 0;
     virtual ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
         std::vector<std::string> &bundleNames) = 0;
+    virtual ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -240,7 +240,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
         return;
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role, userAdmin.size());
-    if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::BYOD) ||
+    if (static_cast<int32_t>(role) > static_cast<int32_t>(AdminType::BYOD) ||
         static_cast<int32_t>(role) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
         return;
@@ -272,6 +272,38 @@ ErrCode AdminManager::GetSubOrSuperAdminByPkgName(const std::string &subAdminNam
     }
     subOrSuperAdmin = *adminItem;
     return ERR_OK;
+}
+
+ErrCode AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
+{
+    bool ret = true;
+    ret = GetAdminsByTypeAndUserId(AdminType::ENT, admins, EdmConstants::DEFAULT_USER_ID);
+    ret &= GetAdminsByTypeAndUserId(AdminType::NORMAL, admins, currentUserId);
+    ret &= GetAdminsByTypeAndUserId(AdminType::BYOD, admins, EdmConstants::DEFAULT_USER_ID);
+    if (!ret) {
+        EDMLOGE("AdminManager::GetAdmins error");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+bool AdminManager::GetAdminsByTypeAndUserId(AdminType type, std::vector<std::shared_ptr<Admin>> &admins, int32_t userId)
+{
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(userId, userAdmin);
+    if (!ret) {
+        return false;
+    }
+    EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", type, userAdmin.size());
+    if (static_cast<int32_t>(type) >= static_cast<int32_t>(AdminType::UNKNOWN) ||
+        static_cast<int32_t>(type) < static_cast<int32_t>(AdminType::NORMAL)) {
+        EDMLOGD("there is no admin(%{public}u) device manager package name list!", type);
+        return false;
+    }
+    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+        return admin->adminInfo_.adminType_ == type;
+    });
+    return true;
 }
 
 ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins)
