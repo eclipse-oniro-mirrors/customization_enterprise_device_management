@@ -86,6 +86,16 @@ public:
     ErrCode GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems);
 
     /*
+     * This function is used to replace admin by admin name adn new admin name
+     *
+     * @param userId the user id
+     * @param adminName the old admin name
+     * @param newAdminName the new admin name
+     * @return return thr ErrCode of this function
+     */
+    ErrCode ReplacePolicyByAdminName(int32_t userId, const std::string &adminName, const std::string &newAdminName);
+
+    /*
      * This function is used to init the PolicyManager, must be called before any of other api
      * init function will read and parse json file and construct some std::unordered_map to
      * provide get and set operation

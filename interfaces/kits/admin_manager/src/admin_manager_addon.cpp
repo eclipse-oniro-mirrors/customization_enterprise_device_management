@@ -75,6 +75,44 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
+napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ReplaceSuperAdmin called");
+    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "ReplaceSuperAdmin", "");
+    AppExecFwk::ElementName oldAdmin;
+    AppExecFwk::ElementName newAdmin;
+    bool keepPolicy = true;
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error");
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) &&
+        MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean);
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, oldAdmin, argv[ARR_INDEX_ZERO]),
+        "oldAdmin param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, newAdmin, argv[ARR_INDEX_ONE]),
+        "newAdmin param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, keepPolicy, argv[ARR_INDEX_TWO]),
+        "keepPolicy param error");
+
+    EDMLOGD(
+        "ReplaceSuperAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        newAdmin.GetBundleName().c_str(),
+        newAdmin.GetAbilityName().c_str());
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    int32_t retCode = proxy->ReplaceSuperAdmin(oldAdmin, newAdmin, keepPolicy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
 AdminType AdminManager::ParseAdminType(int32_t type)
 {
     if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
@@ -762,6 +800,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setDelegatedPolicies", SetDelegatedPolicies),
         DECLARE_NAPI_FUNCTION("getDelegatedPolicies", GetDelegatedPolicies),
         DECLARE_NAPI_FUNCTION("getDelegatedBundleNames", GetDelegatedBundleNames),
+        DECLARE_NAPI_FUNCTION("replaceSuperAdmin", ReplaceSuperAdmin),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),

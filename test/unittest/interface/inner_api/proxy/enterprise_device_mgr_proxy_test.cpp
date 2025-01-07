@@ -1073,6 +1073,40 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetDelegatedPoliciesSuccess, TestSize
         EdmInterfaceCode::GET_DELEGATED_POLICIES, result);
     EXPECT_TRUE(errVal == ERR_OK);
 }
+
+/**
+ * @tc.name: TestReplaceSuperAdminSuc
+ * @tc.desc: Test ReplaceSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, ReplaceSuperAdminSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName oldAdmin;
+    AppExecFwk::ElementName newAdmin;
+    bool isKeepPolicy = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequest));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin, isKeepPolicy);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdminFail
+ * @tc.desc: Test ReplaceSuperAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestReplaceSuperAdminFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName oldAdmin;
+    AppExecFwk::ElementName newAdmin;
+    bool isKeepPolicy = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->ReplaceSuperAdmin(oldAdmin, newAdmin, isKeepPolicy);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

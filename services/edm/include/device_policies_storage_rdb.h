@@ -41,6 +41,7 @@ public:
     bool DeleteCombinedPolicy(int32_t userId, const std::string &policyName);
     bool QueryCombinedPolicy(int32_t userId, PolicyItemsMap &itemsMap);
     bool QueryAllUserId(std::vector<int32_t> &userIds);
+    bool ReplaceAdminPolicy(int32_t userId, const std::string &adminName, const std::string &newAdminName);
 private:
     void PraseAdminPolicies(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         std::unordered_map<std::string, PolicyItemsMap> &adminPolicies);

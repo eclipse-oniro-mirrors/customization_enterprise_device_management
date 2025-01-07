@@ -107,6 +107,7 @@ private:
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedBundleNames(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code);
+    static napi_value ReplaceSuperAdmin(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
