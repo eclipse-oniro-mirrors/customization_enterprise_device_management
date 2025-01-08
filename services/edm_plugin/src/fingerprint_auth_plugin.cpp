@@ -37,66 +37,79 @@ ErrCode FingerprintAuthPlugin::OnHandlePolicy(std::uint32_t funcCode, MessagePar
     HandlePolicyData &policyData, int32_t userId)
 {
     EDMLOGI("FingerprintAuthPlugin OnSetPolicy");
-    auto serializer_ = FingerprintPolicySerializer::GetInstance();
-    FingerprintPolicy policy;
-    serializer_->Deserialize(policyData.policyData, policy);
     std::string type = data.ReadString();
     bool disallow = data.ReadBool();
     ErrCode ret = ERR_INVALID_VALUE;
+    auto serializer = FingerprintPolicySerializer::GetInstance();
+    FingerprintPolicy currentPolicy;
+    FingerprintPolicy mergePolicy;
+    if (!serializer->Deserialize(policyData.policyData, currentPolicy) ||
+        !serializer->Deserialize(policyData.mergePolicyData, mergePolicy)) {
+        EDMLOGE("FingerprintAuthPlugin::OnHandlePolicy Deserialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     if (type == EdmConstants::FINGERPRINT_AUTH_TYPE) {
-        ret = HandleFingerprintAuthPolicy(disallow, policy);
+        ret = HandleFingerprintAuthPolicy(disallow, currentPolicy, mergePolicy);
     } else if (type == EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE) {
         int32_t accountId = data.ReadInt32();
-        ret = HandleFingerprintForAccountPolicy(disallow, accountId, policy);
+        ret = HandleFingerprintForAccountPolicy(disallow, accountId, currentPolicy, mergePolicy);
     }
-
     if (ret != ERR_OK) {
         return ret;
     }
-
-    ret = SetGlobalConfigParam(policy);
+    ret = SetGlobalConfigParam(mergePolicy);
     if (ret != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
     std::string afterHandle;
-    if (!serializer_->Serialize(policy, afterHandle)) {
-        EDMLOGE("FingerprintAuthPlugin Serialize failed");
+    std::string afterMerge;
+    if (!serializer->Serialize(currentPolicy, afterHandle) || !serializer->Serialize(mergePolicy, afterMerge)) {
+        EDMLOGE("FingerprintAuthPlugin Serialize current policy and merge policy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     policyData.isChanged = (afterHandle != policyData.policyData);
     if (policyData.isChanged) {
         policyData.policyData = afterHandle;
     }
+    policyData.mergePolicyData = afterMerge;
     return ERR_OK;
 }
 
-ErrCode FingerprintAuthPlugin::HandleFingerprintAuthPolicy(bool disallow, FingerprintPolicy &policy)
+ErrCode FingerprintAuthPlugin::HandleFingerprintAuthPolicy(bool disallow, FingerprintPolicy &currentPolicy,
+    FingerprintPolicy &mergePolicy)
 {
     if (disallow) {
-        policy.globalDisallow = true;
-        policy.accountIds.clear();
+        currentPolicy.globalDisallow = true;
+        currentPolicy.accountIds.clear();
+        mergePolicy.globalDisallow = true;
+        mergePolicy.accountIds.clear();
         return ERR_OK;
     }
-    if (policy.accountIds.size() != 0) {
+    if (!currentPolicy.accountIds.empty()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    policy.globalDisallow = false;
+    currentPolicy.globalDisallow = false;
     return ERR_OK;
 }
 
-ErrCode FingerprintAuthPlugin::HandleFingerprintForAccountPolicy(bool disallow,
-    int32_t accountId, FingerprintPolicy &policy)
+ErrCode FingerprintAuthPlugin::HandleFingerprintForAccountPolicy(bool disallow, int32_t accountId,
+    FingerprintPolicy &currentPolicy, FingerprintPolicy &mergePolicy)
 {
-    if (policy.globalDisallow) {
+    if (currentPolicy.globalDisallow) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     if (disallow) {
-        policy.accountIds.insert(accountId);
+        currentPolicy.accountIds.insert(accountId);
     } else {
-        auto it = policy.accountIds.find(accountId);
-        if (it != policy.accountIds.end()) {
-            policy.accountIds.erase(it);
+        auto it = currentPolicy.accountIds.find(accountId);
+        if (it != currentPolicy.accountIds.end()) {
+            currentPolicy.accountIds.erase(it);
+        }
+    }
+    if (!mergePolicy.globalDisallow) {
+        for (auto item : currentPolicy.accountIds) {
+            mergePolicy.accountIds.insert(item);
         }
     }
     return ERR_OK;
@@ -117,6 +130,74 @@ ErrCode FingerprintAuthPlugin::SetGlobalConfigParam(FingerprintPolicy policy)
 ErrCode FingerprintAuthPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
+    EDMLOGI("FingerprintAuthPlugin OnGetPolicy");
+    auto serializer_ = FingerprintPolicySerializer::GetInstance();
+    FingerprintPolicy policy;
+    serializer_->Deserialize(policyData, policy);
+    std::string type = data.ReadString();
+    bool isDisallow = false;
+    if (type == EdmConstants::FINGERPRINT_AUTH_TYPE) {
+        isDisallow = policy.globalDisallow;
+    } else if (type == EdmConstants::DISALLOW_FOR_ACCOUNT_TYPE) {
+        int32_t accountId = data.ReadInt32();
+        auto it = policy.accountIds.find(accountId);
+        isDisallow = (it != policy.accountIds.end());
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(isDisallow);
+    EDMLOGI("FingerprintAuthPlugin OnGetPolicy result %{public}d", isDisallow);
+    return ERR_OK;
+}
+
+ErrCode FingerprintAuthPlugin::GetOthersMergePolicyData(const std::string &adminName,
+    std::string &othersMergePolicyData)
+{
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    EDMLOGI("FingerprintAuthPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.",
+        GetPolicyName().c_str(), (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    // Remove the current admin policy value from the cache map.
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto serializer = FingerprintPolicySerializer::GetInstance();
+    std::vector<FingerprintPolicy> data;
+    for (const auto &item : adminValues) {
+        FingerprintPolicy dataItem;
+        if (!item.second.empty()) {
+            if (!serializer->Deserialize(item.second, dataItem)) {
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+            data.push_back(dataItem);
+        }
+    }
+    FingerprintPolicy result;
+    if (!serializer->MergePolicy(data, result)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (!serializer->Serialize(result, othersMergePolicyData)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode FingerprintAuthPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeData, int32_t userId)
+{
+    FingerprintPolicy policy;
+    FingerprintPolicySerializer::GetInstance()->Deserialize(mergeData, policy);
+    ErrCode ret = SetGlobalConfigParam(policy);
+    if (ret != ERR_OK) {
+        EDMLOGE("FingerprintAuthPlugin OnAdminRemove set global config param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 } // namespace EDM

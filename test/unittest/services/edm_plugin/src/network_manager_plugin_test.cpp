@@ -144,7 +144,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceNotExist, TestSize.Level1
     // data is empty.
     MessageParcel data;
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
     // NetworkInterface is invalid.
@@ -171,7 +171,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabled, TestSize.Level1
     std::map<std::string, std::string> policyMap;
     policyMap[VALID_NETWORK_INTERFACE] = "false";
     MapStringSerializer::GetInstance()->Serialize(policyMap, policyStr);
-    HandlePolicyData handlePolicyData {policyStr, false};
+    HandlePolicyData handlePolicyData {policyStr, "", false};
     // set network interface disabled.
     std::vector<std::string> key { VALID_NETWORK_INTERFACE };
     std::vector<std::string> value { "true" };
@@ -200,7 +200,7 @@ HWTEST_F(NetworkManagerPluginTest, TestNetworkInterfaceDisabledFalse, TestSize.L
     std::map<std::string, std::string> policyMap;
     policyMap[VALID_NETWORK_INTERFACE] = "true";
     MapStringSerializer::GetInstance()->Serialize(policyMap, policyStr);
-    HandlePolicyData handlePolicyData {policyStr, false};
+    HandlePolicyData handlePolicyData {policyStr, "", false};
     // set network interface disabled.
     std::vector<std::string> key { VALID_NETWORK_INTERFACE };
     std::vector<std::string> value { "false" };

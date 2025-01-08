@@ -22,9 +22,11 @@
 #include "iplugin.h"
 #include "iremote_stub.h"
 
+#include "basic_array_string_plugin.h"
+
 namespace OHOS {
 namespace EDM {
-class ManageKeepAliveAppsPlugin : public IPlugin {
+class ManageKeepAliveAppsPlugin : public IPlugin, public BasicArrayStringPlugin {
 public:
     ManageKeepAliveAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -32,18 +34,22 @@ public:
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
-    {
-        return ERR_OK;
-    };
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override;
-    ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
-    ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+        const std::string &mergeJsonData, int32_t userId) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override {};
+    ErrCode GetOthersMergePolicyData(const std::string &adminName,
+        std::string &othersMergePolicyData) override;
 
 private:
-    void UpdatePolicyData(std::vector<std::string> &allData, std::vector<std::string> &currentData,
-        HandlePolicyData &policyData);
-    void ParseErrCode(ErrCode &ret, std::string &errMessage, MessageParcel &reply);
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
+    ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
+    ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
+    ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
+    void ParseErrCode(ErrCode &ret);
+    void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
     sptr<AAFwk::IAbilityManager> GetAbilityManager();
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
 };

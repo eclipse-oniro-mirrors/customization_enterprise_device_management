@@ -40,16 +40,28 @@ void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlug
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC, "disabled_hdc", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC, "disabled_hdc", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableHdcPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableHdcPlugin::OnAdminRemove);
 }
 
-ErrCode DisableHdcPlugin::OnSetPolicy(bool &data)
+ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data)
 {
-    EDMLOGI("DisableHdcPlugin OnSetPolicy %{public}d", data);
-    std::string value = data ? "false" : "true";
-    return system::SetParameter(PERSIST_HDC_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    std::string newPara = data ? "false" : "true";
+    if (!system::SetParameter(PERSIST_HDC_CONTROL, newPara)) {
+        EDMLOGE("DisableHdcPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode DisableHdcPlugin::RemoveOtherModulePolicy()
+{
+    if (!system::SetParameter(PERSIST_HDC_CONTROL, "true")) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

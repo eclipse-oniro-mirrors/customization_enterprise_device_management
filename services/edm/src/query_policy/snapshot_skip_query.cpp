@@ -34,12 +34,7 @@ ErrCode SnapshotSkipQuery::QueryPolicy(std::string &policyData, MessageParcel &d
     int32_t userId)
 {
     EDMLOGI("SnapshotSkipQuery OnGetPolicy policyData :");
-    std::vector<std::string> bundles;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, bundles);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(bundles.size());
-    reply.WriteStringVector(bundles);
-    return ERR_OK;
+    return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

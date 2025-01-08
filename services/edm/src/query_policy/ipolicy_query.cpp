@@ -16,6 +16,8 @@
 #include "ipolicy_query.h"
 
 #include "admin_manager.h"
+#include "array_string_serializer.h"
+#include "bool_serializer.h"
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "element_name.h"
@@ -37,12 +39,22 @@ bool IPolicyQuery::IsPolicySaved()
     return true;
 }
 
-ErrCode IPolicyQuery::GetBoolSystemParamSuccess(MessageParcel &reply, std::string paramKey, bool defaultValue)
+ErrCode IPolicyQuery::GetBoolPolicy(const std::string &policyData, MessageParcel &reply)
 {
-    bool paraValue = system::GetBoolParameter(paramKey, defaultValue);
-    EDMLOGI("IPolicyQuery OnGetPolicy paramKey result %{public}d", paraValue);
+    bool policy = false;
+    BoolSerializer::GetInstance()->Deserialize(policyData, policy);
+    EDMLOGI("IPolicyQuery OnGetPolicy paramKey result %{public}d", policy);
     reply.WriteInt32(ERR_OK);
-    reply.WriteBool(paraValue);
+    reply.WriteBool(policy);
+    return ERR_OK;
+}
+
+ErrCode IPolicyQuery::GetArrayStringPolicy(const std::string &policyData, MessageParcel &reply)
+{
+    std::vector<std::string> policy;
+    ArrayStringSerializer::GetInstance()->Deserialize(policyData, policy);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteStringVector(policy);
     return ERR_OK;
 }
 

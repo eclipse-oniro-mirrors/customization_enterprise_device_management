@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define protected public
 #include "bundle_install_plugin_test.h"
+#undef protected
 
 #include "allowed_install_bundles_plugin.h"
 #include "bundle_mgr_proxy.h"
@@ -59,7 +61,8 @@ HWTEST_F(BundleInstallPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data;
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
     }
 }
@@ -77,7 +80,8 @@ HWTEST_F(BundleInstallPluginTest, TestOnSetPolicyFail, TestSize.Level1)
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data(EdmConstants::APPID_MAX_SIZE + 1, TEST_BUNDLE);
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -96,7 +100,8 @@ HWTEST_F(BundleInstallPluginTest, TestOnSetPolicySysAbnormally, TestSize.Level1)
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data = { TEST_BUNDLE };
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
     Utils::SetEdmInitialEnv();
@@ -139,7 +144,8 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPlugin005, TestSize.L
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data;
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
     }
 }
@@ -158,7 +164,8 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPlugin006, TestSize.L
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data = { TEST_BUNDLE };
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
     Utils::SetEdmInitialEnv();
@@ -177,7 +184,8 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPluginSuc, TestSize.L
         plugin.SetAppInstallControlRuleType(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType));
         std::vector<std::string> data = { TEST_BUNDLE };
         std::vector<std::string> currentData;
-        ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
     }
 }
@@ -199,10 +207,10 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPlugin007, TestSize.L
         // set policy that "testBundle" is allowed to install.
         std::vector<std::string> data = { TEST_BUNDLE };
         std::vector<std::string> currentData;
-        ErrCode res = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ErrCode res = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(res == ERR_OK);
-        ASSERT_TRUE(currentData.size() == 1);
-        ASSERT_TRUE(currentData[0] == TEST_BUNDLE);
+        ASSERT_TRUE(currentData.empty());
 
         // get current policy.
         std::vector<std::string> result;
@@ -214,7 +222,7 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPlugin007, TestSize.L
 
         // remove policy.
         std::string adminName = TEST_BUNDLE;
-        plugin.OnAdminRemoveDone(adminName, data, DEFAULT_USER_ID);
+        res = plugin.OnBasicAdminRemove(adminName, currentData, mergeData, DEFAULT_USER_ID);
 
         // get current policy.
         result.clear();

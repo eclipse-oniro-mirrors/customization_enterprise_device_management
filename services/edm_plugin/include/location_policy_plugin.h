@@ -24,7 +24,9 @@ class LocationPolicyPlugin : public PluginSingleton<LocationPolicyPlugin, int32_
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<LocationPolicyPlugin, int32_t>> ptr) override;
 
-    ErrCode OnSetPolicy(int32_t &data);
+    ErrCode OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId);
+
+    ErrCode OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mergeData, int32_t userId);
 
 private:
     void SetDefaultLocationPolicy();

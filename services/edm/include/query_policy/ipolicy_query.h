@@ -42,7 +42,9 @@ protected:
 
     virtual bool IsPolicySaved();
 
-    virtual ErrCode GetBoolSystemParamSuccess(MessageParcel &reply, std::string paramKey, bool defaultValue);
+    virtual ErrCode GetBoolPolicy(const std::string &policyData, MessageParcel &reply);
+
+    virtual ErrCode GetArrayStringPolicy(const std::string &policyData, MessageParcel &reply);
 
     virtual ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
 

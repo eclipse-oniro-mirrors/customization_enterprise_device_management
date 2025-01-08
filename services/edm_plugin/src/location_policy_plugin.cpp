@@ -29,14 +29,19 @@ void LocationPolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LocationPo
 {
     EDMLOGI("LocationPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::LOCATION_POLICY, "location_policy",
-        "ohos.permission.ENTERPRISE_MANAGE_LOCATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        "ohos.permission.ENTERPRISE_MANAGE_LOCATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&LocationPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&LocationPolicyPlugin::OnAdminRemove);
 }
 
-ErrCode LocationPolicyPlugin::OnSetPolicy(int32_t &data)
+ErrCode LocationPolicyPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId)
 {
     EDMLOGD("LocationPolicyPlugin set location policy value = %{public}d.", data);
+    if (mergeData != static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE)) {
+        EDMLOGE("LocationPolicyPlugin set location failed, anaother admin has already set location policy.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     switch (data) {
         case static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE):
             SetDefaultLocationPolicy();
@@ -53,6 +58,8 @@ ErrCode LocationPolicyPlugin::OnSetPolicy(int32_t &data)
             EDMLOGD("LocationPolicyPlugin location policy illegal. Value = %{public}d.", data);
             return EdmReturnErrCode::PARAM_ERROR;
     }
+    currentData = data;
+    mergeData = data;
     return ERR_OK;
 }
 
@@ -63,6 +70,16 @@ void LocationPolicyPlugin::SetDefaultLocationPolicy()
     if (currentState == "force_open") {
         Location::LocatorImpl::GetInstance()->EnableAbility(false);
     }
+}
+
+ErrCode LocationPolicyPlugin::OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mergeData,
+    int32_t userId)
+{
+    if (policyData == static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE)) {
+        return ERR_OK;
+    }
+    SetDefaultLocationPolicy();
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

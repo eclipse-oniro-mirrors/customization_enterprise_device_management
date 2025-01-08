@@ -33,6 +33,11 @@ bool IPlugin::IsGlobalPolicy()
     return isGlobal_;
 }
 
+bool IPlugin::IsOverridePolicy()
+{
+    return isOverridePolicy_;
+}
+
 std::vector<IPlugin::PolicyPermissionConfig> IPlugin::GetAllPermission()
 {
     std::vector<IPlugin::PolicyPermissionConfig> allPermission;
@@ -106,7 +111,7 @@ std::uint32_t IPlugin::GetCode()
     return policyCode_;
 }
 
-ErrCode IPlugin::MergePolicyData(const std::string &adminName, std::string &mergeJsonData)
+ErrCode IPlugin::GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData)
 {
     return ERR_OK;
 }

@@ -21,21 +21,20 @@
 
 namespace OHOS {
 namespace EDM {
-class DisallowedUsbDevicesPlugin : public IPlugin {
+class DisallowedUsbDevicesPlugin : public PluginSingleton<DisallowedUsbDevicesPlugin, std::vector<USB::UsbDeviceType>> {
 public:
-    DisallowedUsbDevicesPlugin();
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-        HandlePolicyData &policyData, int32_t userId) override;
-    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
-        int32_t userId) override{};
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override;
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUsbDevicesPlugin,
+        std::vector<USB::UsbDeviceType>>> ptr) override;
+    ErrCode OnSetPolicy(std::vector<USB::UsbDeviceType> &data, std::vector<USB::UsbDeviceType> &currentData,
+        std::vector<USB::UsbDeviceType> &mergeData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnRemovePolicy(std::vector<USB::UsbDeviceType> &data, std::vector<USB::UsbDeviceType> &currentData,
+        std::vector<USB::UsbDeviceType> &mergeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::vector<USB::UsbDeviceType> &data,
+        std::vector<USB::UsbDeviceType> &mergeData, int32_t userId);
 
 private:
-    bool HasConflictPolicy(const FuncOperateType type);
-    bool CombinePolicyDataAndBeforeData(const FuncOperateType type, std::vector<USB::UsbDeviceType> policyDevices,
-        std::vector<USB::UsbDeviceType> beforeDevices, std::vector<USB::UsbDeviceType> &mergeDevices);
+    bool HasConflictPolicy();
     void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
         std::vector<USB::UsbDeviceType> &combineData);
 };

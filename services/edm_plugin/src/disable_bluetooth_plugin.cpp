@@ -27,7 +27,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
-const std::string DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 
 void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
 {
@@ -42,31 +41,20 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, "disabled_bluetooth", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, "disabled_bluetooth", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableBluetoothPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableBluetoothPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.prohibit_bluetooth";
 }
 
-ErrCode DisableBluetoothPlugin::OnSetPolicy(bool &disable)
+ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data)
 {
-    std::string originalPara = system::GetParameter(PERSIST_BLUETOOTH_CONTROL, "false");
-    std::string newPara = disable ? "true" : "false";
-    bool setParaRet = system::SetParameter(PERSIST_BLUETOOTH_CONTROL, newPara);
-    if (!setParaRet) {
-        EDMLOGW("DisableBluetoothPlugin failed when set system para: %{public}d", disable);
+    if (data && Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled() &&
+        Bluetooth::BluetoothHost::GetDefaultHost().DisableBt() != Bluetooth::BT_NO_ERROR) {
+        EDMLOGW("DisableBluetoothPlugin close bluetooth failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-
-    if (disable && Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled()) {
-        int ret = Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
-        if (ret != Bluetooth::BT_NO_ERROR) {
-            setParaRet = system::SetParameter(PERSIST_BLUETOOTH_CONTROL, originalPara);
-            EDMLOGW("DisableBluetoothPlugin failed when disable bt: %{public}d, rollback: %{public}d", ret, setParaRet);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-    }
-
-    EDMLOGI("DisableBluetoothPlugin set system para: %{public}d", disable);
     return ERR_OK;
 }
 } // namespace EDM

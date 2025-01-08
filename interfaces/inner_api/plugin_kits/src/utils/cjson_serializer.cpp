@@ -19,6 +19,9 @@ namespace OHOS {
 namespace EDM {
 bool CjsonSerializer::Deserialize(const std::string &jsonString, cJSON* &dataObj)
 {
+    if (jsonString.empty()) {
+        return true;
+    }
     dataObj = cJSON_Parse(jsonString.c_str());
     return dataObj != nullptr;
 }

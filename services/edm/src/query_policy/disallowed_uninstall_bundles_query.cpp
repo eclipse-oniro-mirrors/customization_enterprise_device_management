@@ -35,12 +35,7 @@ ErrCode DisallowedUninstallBundlesQuery::QueryPolicy(std::string &policyData, Me
 {
     EDMLOGI("DisallowedUninstallBundlesQuery OnGetPolicy policyData : %{public}s, userId : %{public}d",
         policyData.c_str(), userId);
-    std::vector<std::string> appIds;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, appIds);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(appIds.size());
-    reply.WriteStringVector(appIds);
-    return ERR_OK;
+    return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

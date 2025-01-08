@@ -59,7 +59,8 @@ HWTEST_F(SnapshotSkipPluginTest, TestOnSetPolicyWhenInputDataEmpty, TestSize.Lev
     SnapshotSkipPlugin plugin;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -73,7 +74,8 @@ HWTEST_F(SnapshotSkipPluginTest, TestOnSetPolicyWhenInputDataOverLimit, TestSize
     SnapshotSkipPlugin plugin;
     std::vector<std::string> data(EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE + 1, TEST_BUNDLE_NAME);
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -87,7 +89,8 @@ HWTEST_F(SnapshotSkipPluginTest, TestOnSetPolicyWhenUnionDataOverLimit, TestSize
     SnapshotSkipPlugin plugin;
     std::vector<std::string> data(EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE, TEST_PACKAGE_NAME);
     std::vector<std::string> currentData(EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE, TEST_BUNDLE_NAME);
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -101,7 +104,8 @@ HWTEST_F(SnapshotSkipPluginTest, TestOnRemovePolicyWhenInputDataEmpty, TestSize.
     SnapshotSkipPlugin plugin;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -115,7 +119,8 @@ HWTEST_F(SnapshotSkipPluginTest, TestOnRemovePolicyWhenInputDataOverLimit, TestS
     SnapshotSkipPlugin plugin;
     std::vector<std::string> data(EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE + 1, TEST_BUNDLE_NAME);
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 

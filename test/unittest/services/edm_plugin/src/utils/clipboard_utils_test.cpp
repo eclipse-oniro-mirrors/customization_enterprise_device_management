@@ -49,23 +49,6 @@ HWTEST_F(ClipboardUtilsTest, TestHandlePasteboardPolicy, TestSize.Level1)
     ErrCode ret = ClipboardUtils::HandlePasteboardPolicy(result);
     ASSERT_TRUE(ret == ERR_OK);
 }
-
-/**
- * @tc.name: TestRemoveAllPasteboardPolicy
- * @tc.desc: Test ClipboardUtils::RemoveAllPasteboardPolicy when jsonString is empty
- * @tc.type: FUNC
- */
-HWTEST_F(ClipboardUtilsTest, TestRemoveAllPasteboardPolicy, TestSize.Level1)
-{
-    std::map<int32_t, ClipboardPolicy> result;
-    result.insert(std::make_pair(1, ClipboardPolicy::DEFAULT));
-    result.insert(std::make_pair(2, ClipboardPolicy::IN_APP));
-    result.insert(std::make_pair(3, ClipboardPolicy::LOCAL_DEVICE));
-    result.insert(std::make_pair(4, ClipboardPolicy::CROSS_DEVICE));
-    ErrCode ret = ClipboardUtils::RemoveAllPasteboardPolicy(result);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

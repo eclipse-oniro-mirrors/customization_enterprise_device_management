@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define private public
 #include "fingerprint_auth_plugin.h"
+#undef private
 
 #include <gtest/gtest.h>
 
@@ -98,19 +100,20 @@ HWTEST_F(FingerprintAuthPluginTest, TestHandleFingerprintAuthPolicy, TestSize.Le
 {
     FingerprintAuthPlugin plugin;
     FingerprintPolicy policy;
+    FingerprintPolicy mergePolicy;
     policy.accountIds.insert(100);
-    ErrCode ret = plugin.HandleFingerprintAuthPolicy(true, policy);
+    ErrCode ret = plugin.HandleFingerprintAuthPolicy(true, policy, mergePolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy.accountIds.empty());
     ASSERT_TRUE(policy.globalDisallow);
 
     policy.accountIds.insert(100);
     policy.globalDisallow = false;
-    ret = plugin.HandleFingerprintAuthPolicy(false, policy);
+    ret = plugin.HandleFingerprintAuthPolicy(false, policy, mergePolicy);
     ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     policy.accountIds.clear();
-    ret = plugin.HandleFingerprintAuthPolicy(false, policy);
+    ret = plugin.HandleFingerprintAuthPolicy(false, policy, mergePolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy.accountIds.empty());
     ASSERT_FALSE(policy.globalDisallow);
@@ -125,17 +128,18 @@ HWTEST_F(FingerprintAuthPluginTest, TestHandleFingerprintForAccountPolicy, TestS
 {
     FingerprintAuthPlugin plugin;
     FingerprintPolicy policy;
+    FingerprintPolicy mergePolicy;
     policy.globalDisallow = true;
-    ErrCode ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy);
+    ErrCode ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy, mergePolicy);
     ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     policy.globalDisallow = false;
-    ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy);
+    ret = plugin.HandleFingerprintForAccountPolicy(true, 100, policy, mergePolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy.accountIds.find(100) != policy.accountIds.end());
     ASSERT_FALSE(policy.globalDisallow);
 
-    ret = plugin.HandleFingerprintForAccountPolicy(false, 100, policy);
+    ret = plugin.HandleFingerprintForAccountPolicy(false, 100, policy, mergePolicy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy.accountIds.empty());
     ASSERT_FALSE(policy.globalDisallow);

@@ -210,7 +210,7 @@ public:
 
 class HandlePolicyBiFunctionPlg : public PluginSingleton<HandlePolicyBiFunctionPlg, std::string> {
 public:
-    ErrCode SetFunction(std::string &data, std::string &currentData, int32_t userId)
+    ErrCode SetFunction(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId)
     {
         std::string errStr{"ErrorData"};
         if (data == errStr) {
@@ -220,7 +220,7 @@ public:
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(std::string &data, std::string &currentData, int32_t userId)
+    ErrCode RemoveFunction(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId)
     {
         currentData = "";
         return ERR_OK;
@@ -295,7 +295,7 @@ public:
 
 class AdminRemoveBiFunctionPlg : public PluginSingleton<AdminRemoveBiFunctionPlg, std::string> {
 public:
-    ErrCode RemoveAdmin(const std::string &adminName, std::string &data, int32_t userId)
+    ErrCode RemoveAdmin(const std::string &adminName, std::string &data, std::string &mergeData, int32_t userId)
     {
         g_visit = true;
         return ERR_OK;
@@ -344,13 +344,13 @@ public:
 
 class HandlePolicyJsonBiFunctionPlg : public PluginSingleton<HandlePolicyJsonBiFunctionPlg, Json::Value> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
     {
         currentData = data;
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
     {
         currentData = Json::nullValue;
         return ERR_OK;
@@ -370,13 +370,13 @@ public:
 
 class HandlePolicyBiFunctionUnsavePlg : public PluginSingleton<HandlePolicyBiFunctionUnsavePlg, Json::Value> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
+    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
     {
         currentData = data;
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, int32_t userId)
+    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
     {
         currentData = Json::nullValue;
         return ERR_OK;

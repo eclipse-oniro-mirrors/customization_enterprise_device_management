@@ -39,64 +39,16 @@ void ManageAutoStartAppsPlugin::InitPlugin(
     ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, "manage_auto_start_apps",
         "ohos.permission.ENTERPRISE_MANAGE_APPLICATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveDoneListener(&ManageAutoStartAppsPlugin::OnAdminRemoveDone);
+    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&ManageAutoStartAppsPlugin::OnBasicAdminRemove);
+    maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
 }
 
-ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
-    int32_t userId)
+ErrCode ManageAutoStartAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
+    int32_t userId, std::vector<std::string> &failedData)
 {
-    EDMLOGI("ManageAutoStartAppsPlugin OnSetPolicy userId : %{public}d", userId);
-    if (data.empty()) {
-        EDMLOGW("ManageAutoStartAppsPlugin OnSetPolicy data is empty.");
-        return ERR_OK;
-    }
-
-    if (data.size() > EdmConstants::AUTO_START_APPS_MAX_SIZE) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    std::vector<std::string> allData =
-        ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-    if (allData.size() > EdmConstants::AUTO_START_APPS_MAX_SIZE) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
-    if (!autoStartupClient) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy GetAppControlProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    bool flag = false;
-    std::vector<std::string> mergeData;
-    for (const auto &str : data) {
-        std::string bundleName;
-        std::string abilityName;
-        if (!ParseAutoStartAppWant(str, bundleName, abilityName)) {
-            continue;
-        }
-        if (!CheckBundleAndAbilityExited(bundleName, abilityName)) {
-            EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
-                bundleName.c_str(), abilityName.c_str());
-            continue;
-        }
-        OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
-        autoStartupInfo.bundleName = bundleName;
-        autoStartupInfo.abilityName = abilityName;
-        ErrCode res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, true);
-        if (res != ERR_OK) {
-            EDMLOGW("OnSetPolicy SetApplicationAutoStartupByEDM err res: %{public}d bundleName: %{public}s "
-                "abilityName: %{public}s", res, bundleName.c_str(), abilityName.c_str());
-            break;
-        }
-        flag = true;
-        mergeData.push_back(str);
-    }
-    currentData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
-    return flag ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
+    return SetOrRemoveOtherModulePolicy(data, true, failedData);
 }
 
 ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -104,105 +56,49 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
 {
     EDMLOGI("ManageAutoStartAppsPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d", policyData.c_str(),
         userId);
-    auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
-    if (!autoStartupClient) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnGetPolicy GetAppControlProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<OHOS::AbilityRuntime::AutoStartupInfo> infoList;
-    ErrCode res = autoStartupClient->QueryAllAutoStartupApplications(infoList);
-    if (res != ERR_OK) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnGetPolicy Faild %{public}d:", res);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-
-    std::vector<std::string> autoStartAppsInfo;
-    std::for_each(infoList.begin(), infoList.end(), [&](const OHOS::AbilityRuntime::AutoStartupInfo &Info) {
-        std::string appInfo = Info.bundleName + SEPARATOR + Info.abilityName;
-        autoStartAppsInfo.push_back(appInfo);
-    });
-    reply.WriteInt32(ERR_OK);
-    reply.WriteStringVector(autoStartAppsInfo);
-    return ERR_OK;
+    return BasicGetPolicy(policyData, data, reply, userId);
 }
 
-ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
-    int32_t userId)
+ErrCode ManageAutoStartAppsPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
-    EDMLOGI("ManageAutoStartAppsPlugin OnRemovePolicy userId : %{public}d.", userId);
-    if (data.empty()) {
-        EDMLOGW("ManageAutoStartAppsPlugin OnRemovePolicy data is empty.");
-        return ERR_OK;
-    }
+    return SetOrRemoveOtherModulePolicy(data, false, failedData);
+}
 
-    if (data.size() > EdmConstants::AUTO_START_APPS_MAX_SIZE) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnRemovePolicy data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
+ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vector<std::string> &data, bool isSet,
+    std::vector<std::string> &failedData)
+{
+    EDMLOGI("ManageAutoStartAppsPlugin SetOrRemoveOtherModulePolicy: %{public}d.", isSet);
     auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
     if (!autoStartupClient) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnRemovePolicy GetAppControlProxy failed.");
+        EDMLOGE("ManageAutoStartAppsPlugin SetOrRemoveOtherModulePolicy GetAppControlProxy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     bool flag = false;
-    std::vector<std::string> mergeData;
     for (const auto &str : data) {
-        std::string bundleName;
-        std::string abilityName;
-        if (!ParseAutoStartAppWant(str, bundleName, abilityName)) {
-            continue;
-        }
-        if (!CheckBundleAndAbilityExited(bundleName, abilityName)) {
-            if (std::find(currentData.begin(), currentData.end(), str) != currentData.end()) {
-                flag = true;
-                mergeData.push_back(str);
-            }
-            EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
-                bundleName.c_str(), abilityName.c_str());
-            continue;
-        }
         OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
-        autoStartupInfo.bundleName = bundleName;
-        autoStartupInfo.abilityName = abilityName;
-
-        ErrCode res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, true);
-        if (res != ERR_OK) {
-            EDMLOGW("OnRemovePolicy CancelApplicationAutoStartupByEDM err res: %{public}d bundleName: %{public}s "
-                "abilityName: %{public}s", res, bundleName.c_str(), abilityName.c_str());
-            break;
+        if (!ParseAutoStartAppWant(str, autoStartupInfo.bundleName, autoStartupInfo.abilityName) ||
+            !CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
+            EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
+                autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
+            failedData.push_back(str);
+            continue;
         }
-        mergeData.push_back(str);
+        ErrCode res;
+        if (isSet) {
+            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, true);
+        } else {
+            res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, true);
+        }
+        if (res != ERR_OK) {
+            EDMLOGW("OnRemovePolicy SetOrCancelApplicationAutoStartupByEDM err res: %{public}d bundleName: %{public}s "
+                "abilityName:%{public}s", res, autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
+            failedData.push_back(str);
+            continue;
+        }
         flag = true;
     }
-    currentData = ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(mergeData, currentData);
     return flag ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
-}
-
-void ManageAutoStartAppsPlugin::OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data,
-    int32_t userId)
-{
-    EDMLOGI("ManageAutoStartAppsPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d", adminName.c_str(),
-        userId);
-
-    auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
-    if (!autoStartupClient) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy GetAppControlProxy failed.");
-        return;
-    }
-
-    std::for_each(data.begin(), data.end(), [&](const std::string &str) {
-        OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
-        std::string bundleName;
-        std::string abilityName;
-        if (!ParseAutoStartAppWant(str, bundleName, abilityName)) {
-            return;
-        }
-        autoStartupInfo.bundleName = bundleName;
-        autoStartupInfo.abilityName = abilityName;
-        ErrCode res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, true);
-        EDMLOGI("ManageAutoStartAppsPlugin OnAdminRemoveDone result %{public}d:", res);
-    });
 }
 
 bool ManageAutoStartAppsPlugin::ParseAutoStartAppWant(std::string appWant, std::string &bundleName,

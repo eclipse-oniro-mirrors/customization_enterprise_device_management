@@ -24,6 +24,8 @@ config("plugin_kits_config") {
 
 ohos_shared_library("plugin_kits") {
   sources = [
+    "./src/basic_array_string_plugin.cpp",
+    "./src/basic_bool_plugin.cpp",
     "./src/iplugin.cpp",
     "./src/iplugin_manager.cpp",
     "./src/ipolicy_manager.cpp",
@@ -52,6 +54,7 @@ ohos_shared_library("plugin_kits") {
     "c_utils:utils",
     "hilog:libhilog",
     "image_framework:image_native",
+    "init:libbegetutil",
     "ipc:ipc_single",
     "jsoncpp:jsoncpp",
   ]

@@ -113,7 +113,7 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyGet, TestSize.Level1)
     std::shared_ptr<UserCertPlugin> plugin = std::make_shared<UserCertPlugin>();
     MessageParcel data;
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -135,7 +135,7 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstall, TestSize.Level1)
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -157,7 +157,7 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyUninstall, TestSize.Level1)
     MessageParcel data;
     data.WriteString(alias);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::INSTALL_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -181,7 +181,7 @@ HWTEST_F(UserCertPluginTest, TestOnHandlePolicyInstallSuccess, TestSize.Level1)
     data.WriteUInt8Vector(certArray);
     data.WriteString(alias);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);

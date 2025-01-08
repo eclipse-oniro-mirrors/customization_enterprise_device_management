@@ -175,11 +175,6 @@ int32_t RestrictionsProxy::GetDisallowedListForAccount(AppExecFwk::ElementName &
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE) {
-        EDMLOGE("RestrictionsProxy:GetDisallowedListForAccount size=[%{public}d] is too large.", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     reply.ReadStringVector(&result);
     return ERR_OK;
 }

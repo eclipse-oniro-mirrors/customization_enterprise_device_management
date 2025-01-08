@@ -47,7 +47,9 @@ void LocationPolicyPluginTest::TearDownTestSuite(void)
 {
     LocationPolicyPlugin plugin;
     int32_t defaultPolicy = static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE);
-    ErrCode code = plugin.OnSetPolicy(defaultPolicy);
+    int32_t currentPolicy = 0;
+    int32_t mergePolicy = 0;
+    ErrCode code = plugin.OnSetPolicy(defaultPolicy, currentPolicy, mergePolicy, 100);
     EXPECT_TRUE(code == ERR_OK);
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -73,7 +75,9 @@ HWTEST_P(LocationPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
     LocationPolicyPlugin plugin;
     std::pair<int32_t, int32_t> keyValue = GetParam();
     std::cout << "LocationPolicyPluginTest " << keyValue.first << " " << keyValue.second << std::endl;
-    ErrCode code = plugin.OnSetPolicy(keyValue.first);
+    int32_t currentPolicy = 0;
+    int32_t mergePolicy = 0;
+    ErrCode code = plugin.OnSetPolicy(keyValue.first, currentPolicy, mergePolicy, 100);
     EXPECT_TRUE(code == keyValue.second);
 }
 

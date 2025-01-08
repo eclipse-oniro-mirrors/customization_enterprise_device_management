@@ -33,12 +33,7 @@ std::string DisallowedInstallBundlesQuery::GetPermission(IPlugin::PermissionType
 ErrCode DisallowedInstallBundlesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    std::vector<std::string> bundles;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, bundles);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(bundles.size());
-    reply.WriteStringVector(bundles);
-    return ERR_OK;
+    return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

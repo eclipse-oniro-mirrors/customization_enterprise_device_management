@@ -27,8 +27,11 @@ class DisallowAddOsAccountByUserPlugin : public PluginSingleton<DisallowAddOsAcc
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddOsAccountByUserPlugin,
         std::map<std::string, std::string>>> ptr) override;
-    ErrCode OnSetPolicy(std::map<std::string, std::string> &data);
+    ErrCode OnSetPolicy(std::map<std::string, std::string> &data, std::map<std::string, std::string> &currentData,
+        std::map<std::string, std::string> &mergeData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, std::map<std::string, std::string> &data,
+        std::map<std::string, std::string> &mergeData, int32_t userId);
 private:
     ErrCode SetSpecificOsAccountConstraints(int32_t userId, bool disallow);
 };

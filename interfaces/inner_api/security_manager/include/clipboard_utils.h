@@ -26,8 +26,6 @@ namespace EDM {
 class ClipboardUtils {
 public:
     static ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data);
-
-    static ErrCode RemoveAllPasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data);
 };
 } // namespace EDM
 } // namespace OHOS

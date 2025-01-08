@@ -14,7 +14,13 @@
  */
 
 #include "disallow_add_local_account_plugin_test.h"
+
+#define private public
+#define protected public
 #include "disallow_add_local_account_plugin.h"
+#undef private
+#undef protected
+
 #include "utils.h"
 
 using namespace testing::ext;
@@ -43,12 +49,14 @@ HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPlugin, T
 {
     DisallowAddLocalAccountPlugin plugin;
     bool data = true;
-    ErrCode ret = plugin.OnSetPolicy(data);
+    bool currentdata = false;
+    bool mergeData = false;
+    ErrCode ret = plugin.OnSetPolicy(data, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK && data);
 
     string adminName{"testAdminName"};
     bool allowAddLocalAccount = true;
-    ret = plugin.OnAdminRemove(adminName, allowAddLocalAccount, DEFAULT_USER_ID);
+    ret = plugin.OnAdminRemove(adminName, allowAddLocalAccount, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

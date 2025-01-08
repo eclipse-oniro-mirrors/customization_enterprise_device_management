@@ -53,6 +53,7 @@ ManagedBrowserPolicyPlugin::ManagedBrowserPolicyPlugin()
         FuncOperateType::SET, IPlugin::PolicyPermissionConfig("ohos.permission.ENTERPRISE_SET_BROWSER_POLICY",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC)));
     needSave_ = true;
+    isOverridePolicy_ = true;
 }
 
 ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -312,7 +313,7 @@ bool ManagedBrowserPolicyPlugin::GetCallingBundleName(std::string &bundleName)
 }
 
 ErrCode ManagedBrowserPolicyPlugin::OnAdminRemove(const std::string &adminName,
-    const std::string &policyData, int32_t userId)
+    const std::string &policyData, const std::string &mergeData, int32_t userId)
 {
     auto serializer = ManagedBrowserPolicySerializer::GetInstance();
     std::map<std::string, ManagedBrowserPolicyType> policies;

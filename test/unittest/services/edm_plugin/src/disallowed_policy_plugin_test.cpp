@@ -65,7 +65,7 @@ HWTEST_P(DisallowedPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = param.first;
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, param.second);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);

@@ -25,9 +25,12 @@ class AllowUsbDevicesPlugin : public PluginSingleton<AllowUsbDevicesPlugin, std:
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr) override;
 
-    ErrCode OnSetPolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data, int32_t userId);
+    ErrCode OnSetPolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData,
+        std::vector<UsbDeviceId> &mergeData, int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData,
+        std::vector<UsbDeviceId> &mergeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data,
+        std::vector<UsbDeviceId> &mergeData, int32_t userId);
 
 private:
     bool HasConflictPolicy();

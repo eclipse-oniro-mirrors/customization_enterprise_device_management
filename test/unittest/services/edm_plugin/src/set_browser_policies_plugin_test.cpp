@@ -243,7 +243,7 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestMergePolicyData, TestSize.Level1)
     SetBrowserPoliciesPlugin plugin;
     std::string adminName = TEST_ADMIN_NAME1;
     std::string policyData = TEST_POLICY_DATA1;
-    auto ret = plugin.MergePolicyData(adminName, policyData);
+    auto ret = plugin.GetOthersMergePolicyData(adminName, policyData);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

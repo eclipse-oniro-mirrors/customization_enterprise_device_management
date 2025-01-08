@@ -50,22 +50,29 @@ ErrCode UsbReadOnlyPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel 
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    if (type == FuncOperateType::SET) {
-        std::string beforeHandle = policyData.policyData;
-        int32_t accessPolicy = data.ReadInt32();
-        EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: %{public}d", accessPolicy);
-        std::string afterHandle = std::to_string(accessPolicy);
+    if (type != FuncOperateType::SET) {
+        EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy can not handle this operate type.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t currentPolicy = 0;
+    int32_t mergePolicy = 0;
+    if (!IntSerializer::GetInstance()->Deserialize(policyData.policyData, currentPolicy) ||
+        !IntSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergePolicy)) {
+        EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy deserialize current policy and merge policy failed.");
+        return  EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t accessPolicy = data.ReadInt32();
+    EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: %{public}d", accessPolicy);
+    if (mergePolicy == 0 || mergePolicy < accessPolicy) {
         ErrCode ret = SetUsbStorageAccessPolicy(accessPolicy, userId);
         if (ret != ERR_OK) {
             return ret;
         }
-        policyData.isChanged = afterHandle != beforeHandle;
-        if (policyData.isChanged) {
-            policyData.policyData = afterHandle;
-        }
-        return ERR_OK;
+        policyData.mergePolicyData = std::to_string(accessPolicy);
     }
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    policyData.isChanged = accessPolicy != currentPolicy;
+    policyData.policyData = std::to_string(accessPolicy);
+    return ERR_OK;
 }
 
 ErrCode UsbReadOnlyPlugin::SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId)
@@ -228,27 +235,60 @@ bool UsbReadOnlyPlugin::IsStorageDisabledByDisallowedPolicy()
         }) != usbDeviceTypes.end());
 }
 
-ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId)
+ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeData, int32_t userId)
 {
     EDMLOGI("UsbReadOnlyPlugin OnAdminRemove adminName: %{public}s, userId: %{public}d, value: %{public}s",
         adminName.c_str(), userId, policyData.c_str());
-    char* endptr;
-    errno = 0;
-    int32_t data = strtol(policyData.c_str(), &endptr, EdmConstants::DECIMAL);
-    if (errno == ERANGE || endptr == policyData.c_str() || *endptr != '\0') {
-        EDMLOGE("UsbReadOnlyPlugin strtol Error, policyData: %{public}s", policyData.c_str());
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    int32_t adminPolicy = 0;
+    int32_t mergePolicy = 0;
+    if (!IntSerializer::GetInstance()->Deserialize(policyData, adminPolicy) ||
+        !IntSerializer::GetInstance()->Deserialize(mergeData, mergePolicy)) {
+        EDMLOGE("UsbReadOnlyPlugin OnHandlePolicy deserialize admin policy and merge policy failed.");
+        return  EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (data == EdmConstants::STORAGE_USB_POLICY_DISABLED) {
-        ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(false);
-        if (disableUsbRet != ERR_OK) {
-            EDMLOGW("UsbReadOnlyPlugin OnAdminRemove SetUsbDisabled Error: %{public}d", disableUsbRet);
-            return disableUsbRet;
+    if (adminPolicy > mergePolicy) {
+        std::vector<USB::UsbDeviceType> usbDeviceTypes;
+        GetDisallowedUsbDeviceTypes(usbDeviceTypes);
+        std::string allowUsbDevicePolicy;
+        IPolicyManager::GetInstance()->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
+        return DealReadPolicy(mergePolicy, allowUsbDevicePolicy, usbDeviceTypes);
+    }
+    return ERR_OK;
+}
+
+ErrCode UsbReadOnlyPlugin::GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData)
+{
+    AdminValueItemsMap adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    EDMLOGD("UsbReadOnlyPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+        (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    int32_t result = 0;
+    for (const auto &item : adminValues) {
+        int32_t dataItem = 0;
+        if (!item.second.empty()) {
+            if (!IntSerializer::GetInstance()->Deserialize(item.second, dataItem)) {
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+            if (dataItem > result) {
+                result = dataItem;
+            }
         }
     }
-    std::string usbValue = "false";
-    bool ret = OHOS::system::SetParameter(PARAM_USB_READ_ONLY_KEY, usbValue);
-    return ret ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (!IntSerializer::GetInstance()->Serialize(result, othersMergePolicyData)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -36,7 +36,7 @@ std::string DisallowedThtheringQuery::GetPermission(IPlugin::PermissionType, con
 ErrCode DisallowedThtheringQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetBoolSystemParamSuccess(reply, PERSIST_TETHERING_CONTROL, true);
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

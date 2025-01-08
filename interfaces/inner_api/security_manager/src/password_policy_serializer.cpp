@@ -82,10 +82,17 @@ bool PasswordSerializer::WritePolicy(MessageParcel &reply, PasswordPolicy &resul
 
 bool PasswordSerializer::MergePolicy(std::vector<PasswordPolicy> &data, PasswordPolicy &result)
 {
-    if (data.empty()) {
-        return false;
+    for (auto policy : data) {
+        if (!policy.complexityReg.empty()) {
+            result.complexityReg = policy.complexityReg;
+        }
+        if (policy.validityPeriod != 0) {
+            result.validityPeriod = policy.validityPeriod;
+        }
+        if (!policy.additionalDescription.empty()) {
+            result.additionalDescription = policy.additionalDescription;
+        }
     }
-    result = data.back();
     return true;
 }
 } // namespace EDM

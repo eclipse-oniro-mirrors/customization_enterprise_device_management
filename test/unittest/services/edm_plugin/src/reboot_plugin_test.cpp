@@ -47,7 +47,7 @@ HWTEST_F(RebootPluginTest, TestReboot, TestSize.Level1)
     SetSelfTokenID(0);
     std::shared_ptr<IPlugin> plugin = RebootPlugin::GetPlugin();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::REBOOT);
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);

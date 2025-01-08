@@ -24,6 +24,10 @@ class NTPServerPlugin : public PluginSingleton<NTPServerPlugin, std::string> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr) override;
 
+private:
+    ErrCode OnAdminRemove(const std::string &adminName, std::string &policyData, std::string &mergeData,
+        int32_t userId);
+
     ErrCode OnSetPolicy(std::string &value);
 };
 } // namespace EDM

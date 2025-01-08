@@ -14,7 +14,11 @@
  */
 
 #include <gtest/gtest.h>
+
+#define private public
 #include "disable_bluetooth_plugin.h"
+#undef private
+
 #include "bluetooth_def.h"
 #include "bluetooth_errorcode.h"
 #include "bluetooth_host.h"
@@ -30,6 +34,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 class DisableBluetoothPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -66,11 +71,11 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestCloseSetTrue,
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false));
 }
 
 /**
@@ -85,11 +90,11 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSetFalse, Tes
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, true));
 }
 
 /**
@@ -104,18 +109,18 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, true));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, true));
     Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
     data.WriteBool(true);
     handlePolicyData.isChanged = false;
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(DisableBluetoothPlugin::PERSIST_BLUETOOTH_CONTROL, false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false));
 }
 } // namespace TEST
 } // namespace EDM

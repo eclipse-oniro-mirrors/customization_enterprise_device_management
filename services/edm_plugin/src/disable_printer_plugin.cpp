@@ -41,11 +41,7 @@ void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePri
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, "disabled_printer", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisablePrinterPlugin::OnSetPolicy, FuncOperateType::SET);
-}
-
-ErrCode DisablePrinterPlugin::OnSetPolicy(bool &data)
-{
-    return ERR_OK;
+    ptr->SetOnAdminRemoveListener(&DisablePrinterPlugin::OnAdminRemove);
 }
 } // namespace EDM
 } // namespace OHOS

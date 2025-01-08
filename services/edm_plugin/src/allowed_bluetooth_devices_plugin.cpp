@@ -36,14 +36,15 @@ void AllowedBluetoothDevicesPlugin::InitPlugin(
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, "allowed_bluetooth_devices",
         "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyDoneListener(&AllowedBluetoothDevicesPlugin::OnChangedPolicyDone, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnHandlePolicyDoneListener(&AllowedBluetoothDevicesPlugin::OnChangedPolicyDone, FuncOperateType::REMOVE);
+    maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
 }
 
-ErrCode AllowedBluetoothDevicesPlugin::OnSetPolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+ErrCode AllowedBluetoothDevicesPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
     EDMLOGI("AllowedBluetoothDevicesPlugin OnSetPolicy userId = %{public}d", userId);
     bool isDisabled = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
@@ -51,39 +52,6 @@ ErrCode AllowedBluetoothDevicesPlugin::OnSetPolicy(std::vector<std::string> &dat
         EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy failed, because bluetooth disabled.");
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    if (data.empty()) {
-        EDMLOGW("AllowedBluetoothDevicesPlugin OnSetPolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-    if (mergeData.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy merge data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    currentData = mergeData;
-    return ERR_OK;
-}
-
-ErrCode AllowedBluetoothDevicesPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
-{
-    EDMLOGD("AllowedBluetoothDevicesPlugin OnRemovePolicy userId : %{public}d:", userId);
-    if (data.empty()) {
-        EDMLOGW("AllowedBluetoothDevicesPlugin OnRemovePolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("AllowedBluetoothDevicesPlugin OnRemovePolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<std::string> mergeData =
-        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
-    currentData = mergeData;
     return ERR_OK;
 }
 

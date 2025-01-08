@@ -35,12 +35,7 @@ ErrCode AllowedBluetoothDevicesQuery::QueryPolicy(std::string &policyData, Messa
 {
     EDMLOGI("AllowedBluetoothDevicesQuery OnGetPolicy policyData : %{public}s, userId : %{public}d", policyData.c_str(),
         userId);
-    std::vector<std::string> deviceIds;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, deviceIds);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(deviceIds.size());
-    reply.WriteStringVector(deviceIds);
-    return ERR_OK;
+    return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

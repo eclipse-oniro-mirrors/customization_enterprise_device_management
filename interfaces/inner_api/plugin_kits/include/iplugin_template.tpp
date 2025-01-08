@@ -28,7 +28,7 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (entry == handlePolicyFuncMap_.end() || entry->second.handlePolicy_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = entry->second.handlePolicy_(data, reply, policyData.policyData, policyData.isChanged, type, userId);
+    ErrCode res = entry->second.handlePolicy_(data, reply, policyData, type, userId);
     EDMLOGI("IPluginTemplate::OnHandlePolicy operate: %{public}d, res: %{public}d", type, res);
     return res;
 }
@@ -47,7 +47,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Supplier &&listener, Fun
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData,
                       FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         auto entry = handlePolicyFuncMap_.find(funcOperate);
         if (entry == handlePolicyFuncMap_.end() || entry->second.supplier_ == nullptr) {
@@ -64,7 +64,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Function &&listener, Fun
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData,
                       FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
@@ -82,10 +82,11 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(Function &&listener, Fun
         if (!serializer_->Serialize(handleData, afterHandle)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        isChanged = (policyData != afterHandle);
-        if (isChanged) {
-            policyData = afterHandle;
+        policyData.isChanged = (policyData.policyData != afterHandle);
+        if (policyData.isChanged) {
+            policyData.policyData = afterHandle;
         }
+        policyData.mergePolicyData = afterHandle;
         return ERR_OK;
     };
     handlePolicyFuncMap_.insert(std::make_pair(type, HandlePolicyFunc(handle, listener)));
@@ -97,7 +98,7 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(ReplyFunction &&listener
     if (instance_ == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData,
                       FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
@@ -115,10 +116,11 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(ReplyFunction &&listener
         if (!serializer_->Serialize(handleData, afterHandle)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        isChanged = (policyData != afterHandle);
-        if (isChanged) {
-            policyData = afterHandle;
+        policyData.isChanged = (policyData.policyData != afterHandle);
+        if (policyData.isChanged) {
+            policyData.policyData = afterHandle;
         }
+        policyData.mergePolicyData = afterHandle;
         return ERR_OK;
     };
     handlePolicyFuncMap_.insert(std::make_pair(type, HandlePolicyFunc(handle, listener)));
@@ -130,25 +132,26 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
     if (instance_ == nullptr || instance_.get() == nullptr) {
         return;
     }
-    auto handle = [this](MessageParcel &data, MessageParcel &reply, std::string &policyData, bool &isChanged,
+    auto handle = [this](MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData,
                       FuncOperateType funcOperate, int32_t userId) -> ErrCode {
         DT handleData;
         if (!serializer_->GetPolicy(data, handleData)) {
             return ERR_EDM_OPERATE_PARCEL;
         }
         DT currentData;
-        if (!policyData.empty() && !serializer_->Deserialize(policyData, currentData)) {
+        if (!policyData.policyData.empty() && !serializer_->Deserialize(policyData.policyData, currentData)) {
             return ERR_EDM_OPERATE_JSON;
         }
         auto entry = handlePolicyFuncMap_.find(funcOperate);
         if (entry == handlePolicyFuncMap_.end() || entry->second.biFunction_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
-        std::string beforeHandle;
-        if (!serializer_->Serialize(currentData, beforeHandle)) {
+        DT mergeData;
+        if (!policyData.mergePolicyData.empty() &&
+            !serializer_->Deserialize(policyData.mergePolicyData, mergeData)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        ErrCode result = (instance_.get()->*(entry->second.biFunction_))(handleData, currentData, userId);
+        ErrCode result = (instance_.get()->*(entry->second.biFunction_))(handleData, currentData, mergeData, userId);
         if (result != ERR_OK) {
             return result;
         }
@@ -156,19 +159,26 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
         if (!serializer_->Serialize(currentData, afterHandle)) {
             return ERR_EDM_OPERATE_JSON;
         }
-        policyData = afterHandle;
-        isChanged = (beforeHandle != afterHandle);
+        std::string afterMerge;
+        if (!serializer_->Serialize(mergeData, afterMerge)) {
+            return ERR_EDM_OPERATE_JSON;
+        }
+        policyData.isChanged = (policyData.policyData != afterHandle);
+        policyData.policyData = afterHandle;
+        policyData.mergePolicyData = afterMerge;
         return ERR_OK;
     };
     handlePolicyFuncMap_.insert(std::make_pair(type, HandlePolicyFunc(handle, listener)));
 }
+
 using AdminValueItemsMap = std::unordered_map<std::string, std::string>;
 template <class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, std::string &policyData)
+ErrCode IPluginTemplate<CT, DT>::GetOthersMergePolicyData(const std::string &adminName,
+    std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;
     IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
-    EDMLOGD("IPluginTemplate::MergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+    EDMLOGD("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
         (uint32_t)adminValues.size());
     if (adminValues.empty()) {
         return ERR_OK;
@@ -179,7 +189,7 @@ ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, s
     if (entry != adminValues.end()) {
         adminValues.erase(entry);
     }
-    if (adminValues.empty() && policyData.empty()) {
+    if (adminValues.empty()) {
         return ERR_OK;
     }
     std::vector<DT> data;
@@ -192,19 +202,11 @@ ErrCode IPluginTemplate<CT, DT>::MergePolicyData(const std::string &adminName, s
             data.push_back(dataItem);
         }
     }
-    // Add current policy to last, some policy must ensure the order, Deserialize can not parse empty String
-    DT last;
-    if (!policyData.empty()) {
-        if (!serializer_->Deserialize(policyData, last)) {
-            return ERR_EDM_OPERATE_JSON;
-        }
-        data.push_back(last);
-    }
     DT result;
     if (!serializer_->MergePolicy(data, result)) {
         return ERR_EDM_OPERATE_JSON;
     }
-    if (!serializer_->Serialize(result, policyData)) {
+    if (!serializer_->Serialize(result, othersMergePolicyData)) {
         return ERR_EDM_OPERATE_JSON;
     }
     return ERR_OK;
@@ -267,12 +269,12 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyDoneListener(BiBoolConsumer &&lis
 
 template <class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
-    int32_t userId)
+    const std::string &mergeJsonData, int32_t userId)
 {
     if (adminRemoveFunc_.adminRemove_ == nullptr) {
         return ERR_OK;
     }
-    ErrCode res = (adminRemoveFunc_.adminRemove_)(adminName, currentJsonData, userId);
+    ErrCode res = (adminRemoveFunc_.adminRemove_)(adminName, currentJsonData, mergeJsonData, userId);
     EDMLOGI("IPluginTemplate::OnAdminRemove admin:%{public}s, res: %{public}d", adminName.c_str(), res);
     return res;
 }
@@ -284,7 +286,7 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(Supplier &&listener)
         return;
     }
     auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData,
-                           int32_t userId) -> ErrCode {
+                           const std::string &mergeJsonData, int32_t userId) -> ErrCode {
         if (adminRemoveFunc_.supplier_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
@@ -300,15 +302,20 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(BiAdminFunction &&listene
         return;
     }
     auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData,
-                           int32_t userId) -> ErrCode {
+                           const std::string &mergeJsonData, int32_t userId) -> ErrCode {
+        EDMLOGI("FY currentJsonData = %{public}s, mergeJsonData=%{public}s", currentJsonData.c_str(), mergeJsonData.c_str());
         DT currentData;
         if (!serializer_->Deserialize(currentJsonData, currentData)) {
+            return ERR_EDM_OPERATE_JSON;
+        }
+        DT mergeData;
+        if (!serializer_->Deserialize(mergeJsonData, mergeData)) {
             return ERR_EDM_OPERATE_JSON;
         }
         if (adminRemoveFunc_.biAdminFunction_ == nullptr) {
             return ERR_EDM_NOT_EXIST_FUNC;
         }
-        return (instance_.get()->*(adminRemoveFunc_.biAdminFunction_))(adminName, currentData, userId);
+        return (instance_.get()->*(adminRemoveFunc_.biAdminFunction_))(adminName, currentData, mergeData, userId);
     };
     adminRemoveFunc_ = AdminRemoveFunc(adminRemove, listener);
 }
@@ -467,6 +474,12 @@ void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(permission,
         permissionType, IPlugin::ApiType::PUBLIC);
     InitPermission(operateType, config);
+}
+
+template <class CT, class DT>
+void IPluginTemplate<CT, DT>::SetOverridePolicy(bool isOverridePolicy)
+{
+    isOverridePolicy_ = isOverridePolicy;
 }
 
 template <class CT, class DT>

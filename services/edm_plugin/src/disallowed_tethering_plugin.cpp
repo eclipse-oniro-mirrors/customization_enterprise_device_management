@@ -24,22 +24,17 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTetheringPlugin::GetPlugin());
-const std::string PERSIST_TETHERING_CONTROL = "persist.edm.tethering_disallowed";
 
 void DisallowedTetheringPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTetheringPlugin, bool>> ptr)
 {
     EDMLOGI("DisallowedTetheringPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TETHERING, "disallowed_tethering",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedTetheringPlugin::OnSetPolicy, FuncOperateType::SET);
-}
-
-ErrCode DisallowedTetheringPlugin::OnSetPolicy(bool &data)
-{
-    EDMLOGI("DisallowedTetheringPlugin OnSetPolicy %{public}d", data);
-    std::string value = data ? "true" : "false";
-    return system::SetParameter(PERSIST_TETHERING_CONTROL, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    ptr->SetOnHandlePolicyListener(&DisallowedTetheringPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisallowedTetheringPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.tethering_disallowed";
 }
 } // namespace EDM
 } // namespace OHOS

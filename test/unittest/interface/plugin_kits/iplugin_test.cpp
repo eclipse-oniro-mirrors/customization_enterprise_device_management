@@ -48,7 +48,7 @@ HWTEST_F(IPluginTest, TestIsGlobalPolicy, TestSize.Level1)
     EXPECT_TRUE(iplugin1.IsGlobalPolicy());
     iplugin1.MockSetPolicyName("test");
     std::string mergeJsonData;
-    ErrCode err = iplugin1.MergePolicyData("com.edm.test.demo", mergeJsonData);
+    ErrCode err = iplugin1.GetOthersMergePolicyData("com.edm.test.demo", mergeJsonData);
     EXPECT_TRUE(err == ERR_OK);
     MessageParcel reply;
     err = iplugin1.WritePolicyToParcel("name:test", reply);

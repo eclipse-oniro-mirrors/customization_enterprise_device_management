@@ -30,25 +30,9 @@ void BundleInstallPlugin::SetAppInstallControlRuleType(AppExecFwk::AppInstallCon
     controlRuleType_ = controlRuleType;
 }
 
-ErrCode BundleInstallPlugin::OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
-    int32_t userId)
+ErrCode BundleInstallPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
-    if (data.empty()) {
-        EDMLOGW("BundleInstallPlugin OnSetPolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("BundleInstallPlugin OnSetPolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-
-    if (mergeData.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("BundleInstallPlugin OnSetPolicy merge data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
     auto appControlProxy = GetAppControlProxy();
     if (!appControlProxy) {
         EDMLOGE("BundleInstallPlugin OnSetPolicy GetAppControlProxy failed.");
@@ -59,35 +43,12 @@ ErrCode BundleInstallPlugin::OnSetPolicy(std::vector<std::string> &data, std::ve
         EDMLOGE("BundleInstallPlugin OnSetPolicyDone Faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
     return ERR_OK;
 }
 
-ErrCode BundleInstallPlugin::GetBundlePolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+ErrCode BundleInstallPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
-    std::vector<std::string> bundles;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, bundles);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(bundles.size());
-    reply.WriteStringVector(bundles);
-    return ERR_OK;
-}
-
-ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
-    int32_t userId)
-{
-    if (data.empty()) {
-        EDMLOGW("BundleInstallPlugin OnRemovePolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("BundleInstallPlugin OnRemovePolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    std::vector<std::string> mergeData =
-        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
     auto appControlProxy = GetAppControlProxy();
     if (!appControlProxy) {
         EDMLOGE("BundleInstallPlugin OnRemovePolicy GetAppControlProxy failed.");
@@ -98,22 +59,7 @@ ErrCode BundleInstallPlugin::OnRemovePolicy(std::vector<std::string> &data, std:
         EDMLOGE("BundleInstallPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
     return ERR_OK;
-}
-
-void BundleInstallPlugin::OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data,
-    int32_t userId)
-{
-    EDMLOGI("AllowedInstallBundlesPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d",
-        adminName.c_str(), userId);
-    auto appControlProxy = GetAppControlProxy();
-    if (!appControlProxy) {
-        EDMLOGE("BundleInstallPlugin OnAdminRemoveDone GetAppControlProxy failed.");
-        return;
-    }
-    ErrCode res = appControlProxy->DeleteAppInstallControlRule(controlRuleType_, data, userId);
-    EDMLOGD("BundleInstallPlugin OnAdminRemoveDone result %{public}d:", res);
 }
 
 sptr<AppExecFwk::IAppControlMgr> BundleInstallPlugin::GetAppControlProxy()

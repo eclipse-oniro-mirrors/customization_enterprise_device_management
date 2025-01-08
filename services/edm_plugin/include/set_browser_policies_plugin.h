@@ -32,7 +32,8 @@ public:
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override;
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override
     {
         return ERR_OK;
     };
@@ -41,18 +42,19 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
-    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
     bool AddBrowserPoliciesToRoot(cJSON* root, const std::string &policiesString);
 private:
     void NotifyBrowserPolicyChanged();
-    ErrCode SetRootPolicy(const std::string policyData, std::string appid, std::string policyValue,
-        std::string &afterHandle);
-    ErrCode SetPolicy(const std::string policyData, std::string appid, std::string policyName,
-        std::string policyValue, std::string &afterHandle);
+    ErrCode SetRootPolicy(cJSON* currentPolicies, cJSON* mergePolicies, const std::string &appid,
+        const std::string &policyValue);
+    ErrCode SetPolicy(cJSON* currentPolicies, cJSON* mergePolicies, const std::string &appid,
+        const std::string &policyName, const std::string &policyValue);
     ErrCode SetPolicyValue(cJSON* policy, std::string policyName, std::string policyValue);
     ErrCode MergeBrowserPolicy(const AdminValueItemsMap &adminValues, std::string &policyData);
     bool AddBrowserPolicyToRoot(cJSON* root, const cJSON* adminPolicy);
+    ErrCode UpdateCurrentAndMergePolicy(cJSON* currentPolicies, cJSON* mergePolicies, HandlePolicyData &policyData);
 };
 } // namespace EDM
 } // namespace OHOS

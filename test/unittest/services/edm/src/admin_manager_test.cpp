@@ -39,6 +39,7 @@ void AdminManagerTest::SetUp()
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     adminMgr_ = AdminManager::GetInstance();
     adminMgr_->Init();
+    adminMgr_->admins_.clear();
 }
 
 void AdminManagerTest::TearDown()

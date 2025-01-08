@@ -46,7 +46,7 @@ HWTEST_F(PolicySerializerTest, BOOL, TestSize.Level1)
     ASSERT_NE(boolJsonString, "false");
 
     bool boolValue = false;
-    ASSERT_FALSE(serializer->Deserialize("", boolValue));
+    ASSERT_TRUE(serializer->Deserialize("", boolValue));
     ASSERT_TRUE(serializer->Deserialize("true", boolValue));
     ASSERT_EQ(boolValue, true);
     ASSERT_FALSE(serializer->Deserialize("truee", boolValue));

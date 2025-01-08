@@ -59,15 +59,44 @@ ErrCode SetWatermarkImagePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    if (type == FuncOperateType::SET) {
-        return SetPolicy(data, reply, policyData);
-    } else if (type == FuncOperateType::REMOVE) {
-        return CancelWatermarkImage(data, reply, policyData);
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> mergeData;
+    auto serializer = WatermarkImageSerializer::GetInstance();
+    if (!serializer->Deserialize(policyData.policyData, currentData) ||
+        !serializer->Deserialize(policyData.mergePolicyData, mergeData)) {
+        EDMLOGE("SetWatermarkImagePlugin::CancelWatermarkImage Deserialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (type != FuncOperateType::SET && type != FuncOperateType::REMOVE) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (type == FuncOperateType::SET) {
+        ret = SetPolicy(data, currentData, mergeData);
+    } else if (type == FuncOperateType::REMOVE) {
+        ret = CancelWatermarkImage(data, currentData, mergeData);
+    }
+    if (FAILED(ret)) {
+        return ret;
+    }
+
+    std::string afterHandle;
+    std::string afterMerge;
+    if (!serializer->Serialize(currentData, afterHandle) || !serializer->Serialize(mergeData, afterMerge)) {
+        EDMLOGE("FingerprintAuthPlugin Serialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    policyData.isChanged = (afterHandle != policyData.policyData);
+    if (policyData.isChanged) {
+        policyData.policyData = afterHandle;
+    }
+    policyData.mergePolicyData = afterMerge;
+    return ERR_OK;
 }
 
-ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData)
+ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData)
 {
     EDMLOGD("SetWatermarkImagePlugin start SetPolicy");
     std::string type = data.ReadString();
@@ -76,7 +105,7 @@ ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data, MessageParcel &r
         if (!GetWatermarkParam(param, data)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        return SetSingleWatermarkImage(param, policyData);
+        return SetSingleWatermarkImage(param, currentData, mergeData);
     } else if (type == EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE) {
         SetAllWatermarkImage();
         return ERR_OK;
@@ -84,8 +113,9 @@ ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data, MessageParcel &r
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data, MessageParcel &reply,
-    HandlePolicyData &policyData)
+ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData)
 {
     EDMLOGI("SetWatermarkImagePlugin CancelWatermarkImage start");
     std::string bundleName = data.ReadString();
@@ -94,10 +124,6 @@ ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data, Messa
         EDMLOGE("SetWatermarkImagePlugin CancelWatermarkImage param error");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
-    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
-    auto serializer = WatermarkImageSerializer::GetInstance();
-    serializer->Deserialize(policyData.policyData, currentData);
     auto key = std::make_pair(bundleName, accountId);
     auto it = currentData.find(key);
     if (it != currentData.end()) {
@@ -113,15 +139,11 @@ ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data, Messa
             EDMLOGE("SetWatermarkImagePlugin SetWatermarkImage remove failed");
         }
     }
-
-    if (currentData.empty()) {
-        UnsubscribeAppState();
+    for (auto item : currentData) {
+        mergeData[item.first] = item.second;
     }
-    std::string afterHandle;
-    serializer->Serialize(currentData, afterHandle);
-    policyData.isChanged = (afterHandle != policyData.policyData);
-    if (policyData.isChanged) {
-        policyData.policyData = afterHandle;
+    if (mergeData.empty()) {
+        UnsubscribeAppState();
     }
     return ERR_OK;
 }
@@ -179,19 +201,25 @@ void SetWatermarkImagePlugin::SetProcessWatermarkOnAppStart(const std::string &b
     }
 }
 
-ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param, HandlePolicyData &policyData)
+ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData)
 {
     auto pixelMap =
         CreatePixelMapFromUint8(reinterpret_cast<const uint8_t *>(param.pixels), param.size, param.width, param.height);
-    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
-    auto serializer = WatermarkImageSerializer::GetInstance();
-    serializer->Deserialize(policyData.policyData, currentData);
     auto key = std::make_pair(param.bundleName, param.accountId);
+    if (mergeData.find(key) != mergeData.end()) {
+        EDMLOGE("SetWatermarkImagePlugin policy failed, other admin have already set the watermark for this bundle.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::string oldFileName = currentData[key].fileName;
     std::string fileName = FILE_PREFIX + std::to_string(time(nullptr));
     std::string filePath = WATERMARK_IMAGE_DIR_PATH + fileName;
     currentData[key] = WatermarkImageType{fileName, param.width, param.height};
-    if (currentData.size() > MAX_POLICY_NUM) {
+    for (auto item : currentData) {
+        mergeData[item.first] = item.second;
+    }
+    if (mergeData.size() > MAX_POLICY_NUM) {
         EDMLOGE("SetWatermarkImagePlugin policy max");
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -217,13 +245,6 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param, 
         SetProcessWatermark(param.bundleName, oldFileName, param.accountId, false);
     }
     SetProcessWatermark(param.bundleName, fileName, param.accountId, true);
-
-    std::string afterHandle;
-    serializer->Serialize(currentData, afterHandle);
-    policyData.isChanged = (afterHandle != policyData.policyData);
-    if (policyData.isChanged) {
-        policyData.policyData = afterHandle;
-    }
     return ERR_OK;
 }
 
@@ -407,7 +428,7 @@ sptr<AppExecFwk::IAppMgr> SetWatermarkImagePlugin::GetAppManager()
 }
 
 ErrCode SetWatermarkImagePlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
-    int32_t userId)
+    const std::string &mergeData, int32_t userId)
 {
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();
@@ -419,8 +440,44 @@ ErrCode SetWatermarkImagePlugin::OnAdminRemove(const std::string &adminName, con
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    if (!UnsubscribeAppState()) {
+    if (mergeData.empty() && !UnsubscribeAppState()) {
         EDMLOGE("SetWatermarkImagePlugin OnAdminRemove UnsubscribeAppState fail");
+    }
+    return ERR_OK;
+}
+
+ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adminName,
+    std::string &othersMergePolicyData)
+{
+    AdminValueItemsMap adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    EDMLOGD("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+        (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> mergeData;
+    auto serializer = WatermarkImageSerializer::GetInstance();
+    for (const auto &item : adminValues) {
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> dataItem;
+        if (!item.second.empty()) {
+            if (!serializer->Deserialize(item.second, dataItem)) {
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+        }
+        for (auto policy : dataItem) {
+            mergeData[policy.first] = policy.second;
+        }
+    }
+    if (!serializer->Serialize(mergeData, othersMergePolicyData)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }

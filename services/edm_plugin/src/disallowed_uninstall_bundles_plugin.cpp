@@ -30,10 +30,11 @@ void DisallowedUninstallBundlesPlugin::InitPlugin(
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_UNINSTALL_BUNDLES, "disallowed_uninstall_bundles",
         "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveDoneListener(&DisallowedUninstallBundlesPlugin::OnAdminRemoveDone);
+    ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&DisallowedUninstallBundlesPlugin::OnBasicAdminRemove);
     SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL);
+    maxListSize_ = EdmConstants::APPID_MAX_SIZE;
 }
 } // namespace EDM
 } // namespace OHOS

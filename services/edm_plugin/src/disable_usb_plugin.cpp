@@ -46,13 +46,16 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
     ptr->SetOnAdminRemoveListener(&DisableUsbPlugin::OnAdminRemove);
 }
 
-ErrCode DisableUsbPlugin::OnSetPolicy(bool &data)
+ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data)
 {
     EDMLOGI("DisableUsbPlugin OnSetPolicy...disable = %{public}d", data);
     if (data && HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    return UsbPolicyUtils::SetUsbDisabled(data);
+    if (FAILED(UsbPolicyUtils::SetUsbDisabled(data))) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
 bool DisableUsbPlugin::HasConflictPolicy()
@@ -80,13 +83,9 @@ bool DisableUsbPlugin::HasConflictPolicy()
     return false;
 }
 
-ErrCode DisableUsbPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
+ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
 {
-    EDMLOGI("DisableUsbPlugin OnAdminRemove %{public}d...", data);
-    if (!data) {
-        return ERR_OK;
-    }
-    return UsbPolicyUtils::SetUsbDisabled(!data);
+    return UsbPolicyUtils::SetUsbDisabled(true);
 }
 } // namespace EDM
 } // namespace OHOS

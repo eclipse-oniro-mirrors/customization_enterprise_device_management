@@ -35,7 +35,7 @@ std::string DisableCameraQuery::GetPermission(IPlugin::PermissionType, const std
 ErrCode DisableCameraQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetBoolSystemParamSuccess(reply, PARAM_EDM_CAMERA_DISABLE, false);
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define protected public
 #include "manage_auto_start_apps_plugin_test.h"
+#undef protected
 
 #include "bundle_info.h"
 #include "bundle_mgr_interface.h"
@@ -64,7 +66,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySucWithNullData, TestSize
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -82,7 +85,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleExceededLim
         data.push_back(str);
     }
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -96,7 +100,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleNotExist, T
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -110,7 +115,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithInvalidData, Test
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data = {INVALID_TEST_BUNDLE};
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -132,7 +138,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         ManageAutoStartAppsPlugin plugin;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
         std::vector<std::string> currentData;
-        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
 
         std::string policyData = RIGHT_TEST_BUNDLE;
@@ -147,7 +154,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
 
         std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
-        ret = plugin.OnRemovePolicy(removeData, currentData, DEFAULT_USER_ID);
+        ret = plugin.OnBasicRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
 
         MessageParcel removeReply;
@@ -192,7 +199,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestS
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -206,7 +214,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, Tes
     ManageAutoStartAppsPlugin plugin;
     std::vector<std::string> data = {ERROR_TEST_BUNDLE};
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -228,15 +237,16 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         ManageAutoStartAppsPlugin plugin;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
         std::vector<std::string> currentData;
-        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
 
         data = {INVALID_TEST_BUNDLE};
-        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 
         data = {RIGHT_TEST_BUNDLE};
-        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
@@ -265,7 +275,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         ManageAutoStartAppsPlugin plugin;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
         std::vector<std::string> currentData;
-        ret = plugin.OnSetPolicy(data, currentData, DEFAULT_USER_ID);
+        std::vector<std::string> mergeData;
+        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
@@ -275,7 +286,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         ASSERT_TRUE(ret == ERR_OK);
 
         data = {RIGHT_TEST_BUNDLE};
-        ret = plugin.OnRemovePolicy(data, currentData, DEFAULT_USER_ID);
+        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
     }
 }

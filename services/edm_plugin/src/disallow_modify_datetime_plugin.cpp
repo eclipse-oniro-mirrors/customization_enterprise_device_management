@@ -15,6 +15,7 @@
 
 #include "disallow_modify_datetime_plugin.h"
 
+#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -40,11 +41,7 @@ void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disa
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallModifyDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
-}
-
-ErrCode DisallModifyDateTimePlugin::OnSetPolicy(bool &data)
-{
-    return ERR_OK;
+    ptr->SetOnAdminRemoveListener(&DisallModifyDateTimePlugin::OnAdminRemove);
 }
 } // namespace EDM
 } // namespace OHOS

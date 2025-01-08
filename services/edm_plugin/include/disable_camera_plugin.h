@@ -16,15 +16,19 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_CAMERA_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_CAMERA_PLUGIN_H
 
+#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableCameraPlugin : public PluginSingleton<DisableCameraPlugin, bool> {
+class DisableCameraPlugin : public PluginSingleton<DisableCameraPlugin, bool>, public BasicBoolPlugin  {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr) override;
 
-    ErrCode OnSetPolicy(bool &data);
+private:
+    ErrCode SetOtherModulePolicy(bool data) override;
+
+    ErrCode RemoveOtherModulePolicy() override;
 };
 } // namespace EDM
 } // namespace OHOS
