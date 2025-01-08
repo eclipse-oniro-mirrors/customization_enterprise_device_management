@@ -91,6 +91,27 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin,
+    AppExecFwk::ElementName &newAdmin, bool keepPolicy)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::ReplaceSuperAdmin");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteParcelable(&oldAdmin);
+    data.WriteParcelable(&newAdmin);
+    data.WriteBool(keepPolicy);
+    return remote->SendRequest(EdmInterfaceCode::REPLACE_SUPER_ADMIN, data, reply, option);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::DisableAdmin");

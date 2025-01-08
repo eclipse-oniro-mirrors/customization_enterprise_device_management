@@ -67,6 +67,8 @@ ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &da
             return GetDelegatedPoliciesInner(data, reply);
         case EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES:
             return GetDelegatedBundleNamesInner(data, reply);
+        case EdmInterfaceCode::REPLACE_SUPER_ADMIN:
+            return ReplaceSuperAdminInner(data, reply);
         default:
             return WITHOUT_FUNCTION_CODE;
     }
@@ -85,6 +87,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::IS_ADMIN_ENABLED,
         EdmInterfaceCode::AUTHORIZE_ADMIN,
         EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO,
+        EdmInterfaceCode::REPLACE_SUPER_ADMIN,
     };
 }
 
@@ -171,6 +174,30 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     ErrCode retCode = EnableAdmin(*admin, entInfo, adminType, userId);
     reply.WriteInt32(retCode);
     return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::ReplaceSuperAdminInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppExecFwk::ElementName> oldAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!oldAdmin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::unique_ptr<AppExecFwk::ElementName> newAdmin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!newAdmin) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+
+    bool keepPolicy = data.ReadBool();
+    EDMLOGD(
+        "ReplaceSuperAdminInner: oldAdmin.bundlename %{public}s, "
+        "oldAdmin.abilityname:%{public}s "
+        "ReplaceSuperAdminInner: newAdmin.bundlename %{public}s, "
+        "newAdmin.abilityname:%{public}s",
+        oldAdmin->GetBundleName().c_str(),
+        oldAdmin->GetAbilityName().c_str(),
+        newAdmin->GetBundleName().c_str(),
+        newAdmin->GetAbilityName().c_str());
+    return ReplaceSuperAdmin(*oldAdmin, *newAdmin, keepPolicy);
 }
 
 ErrCode EnterpriseDeviceMgrStub::DisableAdminInner(MessageParcel &data, MessageParcel &reply)

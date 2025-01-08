@@ -73,6 +73,8 @@ public:
     ErrCode GetSuperAdmin(MessageParcel &reply) override;
 
     virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
+    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
+        bool keepPolicy) override;
 
 protected:
     void OnStart() override;
@@ -104,6 +106,10 @@ private:
     ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
     ErrCode CheckDelegatedPolicies(std::shared_ptr<Admin> admin, const std::vector<std::string> &policies);
+    ErrCode CheckReplaceAdmins(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
+    ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const Admin &edmAdmin,
+        std::shared_ptr<Admin> adminPtr);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
@@ -149,6 +155,7 @@ private:
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
+    // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
     void UnloadPluginTask();
     void SetPasswordPolicy();

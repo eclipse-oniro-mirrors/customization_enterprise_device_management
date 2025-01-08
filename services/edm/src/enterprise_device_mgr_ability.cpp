@@ -20,6 +20,7 @@
 #include <thread>
 
 #include "application_state_observer.h"
+#include "bundle_info.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "device_policies_storage_rdb.h"
@@ -83,6 +84,7 @@ const std::string EDM_ADMIN_ENABLED_EVENT = "com.ohos.edm.edmadminenabled";
 const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
 const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
 const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
+const std::string DISALLOWED_UNINSTALL_POLICY =  "disallowed_uninstall_bundles";
 
 std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
 
@@ -959,12 +961,135 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(AppExecFwk::Eleme
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
     }
-    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
-        if (existAdmin == nullptr || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
-            EDMLOGW("EnableAdmin: There is another super admin enabled.");
-            return ERR_EDM_ADD_ADMIN_FAILED;
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(AppExecFwk::ElementName &oldAdmin,
+    AppExecFwk::ElementName &newAdmin, std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo,
+    std::vector<std::string> &permissionList)
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::ReplaceSuperAdmin check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+
+    auto edmAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (edmAdmin == nullptr || edmAdmin->adminInfo_.packageName_ != oldAdmin.GetBundleName() ||
+        edmAdmin->adminInfo_.className_ != oldAdmin.GetAbilityName()) {
+        EDMLOGE("CheckReplaceAdmins param oldAdmin is not super admin");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+
+    AAFwk::Want want;
+    want.SetElement(newAdmin);
+    if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, DEFAULT_USER_ID, abilityInfo) ||
+        abilityInfo.empty()) {
+        EDMLOGW("ReplaceSuperAdmin: QueryExtensionAbilityInfos_newAdmin failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+
+    if (FAILED(VerifyEnableAdminCondition(newAdmin, AdminType::ENT, DEFAULT_USER_ID, false))) {
+        EDMLOGW("ReplaceSuperAdmin: VerifyEnableAdminCondition failed.");
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
+    if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(newAdmin.GetBundleName(), AdminType::ENT,
+        DEFAULT_USER_ID, permissionList))) {
+        EDMLOGW("ReplaceSuperAdmin: GetAllPermissionsByAdmin failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std::string &newAdminName,
+    const Admin &edmAdmin, std::shared_ptr<Admin> adminPtr)
+{
+    if (FAILED(AdminManager::GetInstance()->ReplaceSuperAdminByPackageName(adminName, edmAdmin))) {
+        EDMLOGE("ReplaceSuperAdmin update Admin Policies Failed");
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
+    std::string adminPolicyValue;
+    policyMgr_->GetPolicy(adminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue);
+    std::string combinedPolicyValue;
+    policyMgr_->GetPolicy("", DISALLOWED_UNINSTALL_POLICY, combinedPolicyValue);
+
+    if (FAILED(policyMgr_->ReplaceAllPolicy(DEFAULT_USER_ID, adminName, newAdminName))) {
+        EDMLOGE("ReplaceSuperAdmin update device Policies Failed");
+        AdminManager::GetInstance()->ReplaceSuperAdminByPackageName(newAdminName, *adminPtr);
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
+    if (!adminPolicyValue.empty() && adminPolicyValue.find(adminName) != std::string::npos) {
+        AppExecFwk::BundleInfo bundleInfo;
+        GetBundleMgr()->GetBundleInfo(adminName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
+            bundleInfo, DEFAULT_USER_ID);
+        std::vector<std::string> data = {bundleInfo.appId};
+        if (FAILED(GetBundleMgr()->DeleteAppInstallControlRule(
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, data, DEFAULT_USER_ID))) {
+            EDMLOGE("ReplaceSuperAdmin DeleteAppInstallControlRule failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        AppExecFwk::BundleInfo newBundleInfo;
+        GetBundleMgr()->GetBundleInfo(newAdminName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
+            newBundleInfo, DEFAULT_USER_ID);
+        data = {newBundleInfo.appId};
+        if (FAILED(GetBundleMgr()->AddAppInstallControlRule(data,
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, DEFAULT_USER_ID))) {
+            EDMLOGE("ReplaceSuperAdmin AddAppInstallControlRule failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        adminPolicyValue.replace(adminPolicyValue.find(adminName), adminName.length(), newAdminName);
+        combinedPolicyValue.replace(combinedPolicyValue.find(adminName), adminName.length(), newAdminName);
+        EDMLOGD("ReplaceSuperAdmin uninstall new admin policy value: %{public}s", adminPolicyValue.c_str());
+        EDMLOGD("ReplaceSuperAdmin uninstall new combined policy value: %{public}s", combinedPolicyValue.c_str());
+        if (FAILED(policyMgr_->SetPolicy(newAdminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue,
+            combinedPolicyValue))) {
+            EDMLOGE("ReplaceSuperAdmin update uninstall policy failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin,
+    AppExecFwk::ElementName &newAdmin, bool keepPolicy)
+{
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
+    std::vector<std::string> permissionList;
+    ErrCode ret = CheckReplaceAdmins(oldAdmin, newAdmin, abilityInfo, permissionList);
+    if (FAILED(ret)) {
+        EDMLOGE("ReplaceSuperAdmin: CheckReplaceAdmins failed");
+        return ret;
+    }
+    std::string adminName = oldAdmin.GetBundleName();
+    std::shared_ptr<Admin> adminPtr = AdminManager::GetInstance()->GetAdminByPkgName(adminName, DEFAULT_USER_ID);
+    if (adminPtr == nullptr) {
+        EDMLOGE("ReplaceSuperAdmin adminName is not admin");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
+    Admin edmAdmin(abilityInfo.at(0), AdminType::ENT, entInfo, permissionList, false);
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    if (keepPolicy) {
+        std::string newAdminName = newAdmin.GetBundleName();
+        return HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
+    } else {
+        ErrCode res = DoDisableAdmin(adminName, DEFAULT_USER_ID, AdminType::ENT);
+        if (res != ERR_OK) {
+            EDMLOGE("ReplaceSuperAdmin: delete admin failed");
+            return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+        }
+    }
+    if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
+        EDMLOGE("EnableAdmin: SetAdminValue failed.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    system::SetParameter(PARAM_EDM_ENABLE, "true");
+    NotifyAdminEnabled(true);
+    OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
+        DEFAULT_USER_ID, true);
+
+    EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
     return ERR_OK;
 }
 
@@ -992,6 +1117,13 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     if (FAILED(VerifyEnableAdminCondition(admin, type, userId, isDebug))) {
         EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
+    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
+        if ((existAdmin == nullptr) || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
+            EDMLOGW("EnableAdmin: There is another super admin enabled.");
+            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        }
     }
 
     /* Get all request and registered permissions */
@@ -1154,18 +1286,20 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
     bool isSDA = IsSuperAdmin(admin.GetBundleName());
     userId = isSDA ? EdmConstants::DEFAULT_USER_ID : userId;
     AdminType adminType = isSDA ? AdminType::ENT : AdminType::NORMAL;
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
     return DoDisableAdmin(admin.GetBundleName(), userId, adminType);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleName)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
-    return DoDisableAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
 }
 
+// non-thread-safe function
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,

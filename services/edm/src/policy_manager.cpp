@@ -69,6 +69,12 @@ ErrCode PolicyManager::GetAllPolicyByAdmin(const std::string &adminName, PolicyI
     return userPolicyMgr->GetAllPolicyByAdmin(adminName, allAdminPolicy);
 }
 
+ErrCode PolicyManager::ReplaceAllPolicy(int32_t userId, const std::string &adminName, const std::string &newAdminName)
+{
+    auto userPolicyMgr = GetUserPolicyMgr(userId);
+    return userPolicyMgr->ReplacePolicyByAdminName(userId, adminName, newAdminName);
+}
+
 std::shared_ptr<UserPolicyManager> PolicyManager::GetUserPolicyMgr(int32_t userId)
 {
     EDMLOGD("PolicyManager::GetUserPolicyMgr by userId:%{public}d", userId);
