@@ -57,6 +57,7 @@ public:
     ErrCode GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
     bool GetAdminsByTypeAndUserId(AdminType type, std::vector<std::shared_ptr<Admin>> &admins, int32_t userId);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
+    ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin);
     ~AdminManager();
     void Dump();
 

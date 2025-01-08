@@ -212,6 +212,12 @@ public:
         return ERR_OK;
     }
 
+    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
+        bool isKeepPolicy) override
+    {
+        return ERR_OK;
+    }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

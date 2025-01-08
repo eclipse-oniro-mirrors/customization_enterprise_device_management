@@ -49,6 +49,8 @@ public:
 
     void GetPolicyUserIds(std::vector<int32_t> &userIds);
 
+    ErrCode ReplaceAllPolicy(int32_t userId, const std::string &adminName, const std::string &newAdminName);
+
     void Dump();
 
 private:

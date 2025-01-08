@@ -35,6 +35,9 @@ public:
     bool UpdateManagedEvents(int32_t userId, const std::string &packageName,
         const std::vector<ManagedEvent> &managedEvents);
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> QueryAllAdmin();
+    bool ReplaceAdmin(const std::string packageName, int32_t userId, const Admin &newAdmin);
+    bool UpdateParentName(const std::string packageName, const std::string currentParentName,
+        const std::string targetParentName);
 
 private:
     NativeRdb::ValuesBucket CreateInsertValuesBucket(int32_t userId, const Admin &admin);

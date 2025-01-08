@@ -59,6 +59,7 @@ private:
     ErrCode GetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetDelegatedBundleNamesInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetAdminsInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode ReplaceSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     #ifdef EDM_SUPPORT_ALL_ENABLE
     ErrCode CallFuncByCode(uint32_t code, MessageParcel &data, MessageParcel &reply);
     #endif
