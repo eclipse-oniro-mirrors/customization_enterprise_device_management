@@ -600,9 +600,8 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(MessageParcel &data, std::vector<std
         return resCode;
     }
 
-    uint32_t size = -1;
-    reply.ReadUint32(size);
-    if (size < 0 || size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    uint32_t size = reply.ReadUint32(size);
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetAdmins size error. size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
