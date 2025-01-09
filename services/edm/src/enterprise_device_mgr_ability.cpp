@@ -1876,10 +1876,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
 ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants)
 {
     std::vector<std::shared_ptr<Admin>> admins;
-    ErrCode ret = AdminManager::GetInstance()->GetAdmins(admins, GetCurrentUserId());
-    if (FAILED(ret)) {
-        return ret;
-    }
+    AdminManager::GetInstance()->GetAdmins(admins, GetCurrentUserId());
     for (auto admin : admins) {
         std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
         want->SetParam("bundleName", admin->adminInfo_.packageName_);

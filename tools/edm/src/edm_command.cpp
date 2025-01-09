@@ -86,7 +86,7 @@ ErrCode EdmCommand::RunAsEnableCommand()
 {
     std::string bundleName;
     std::string abilityName;
-    AdminType adminType = AdminType::UNKNOWN;
+    AdminType adminType = AdminType::ENT;
     ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName, adminType);
     if (result == ERR_EDM_TOOLS_COMMAND_HELP && bundleName.empty() &&
         abilityName.empty() && adminType == AdminType::UNKNOWN) {
@@ -202,7 +202,7 @@ ErrCode EdmCommand::ReportMessage(int32_t code, bool isEnable)
     }
     if (code == EdmReturnErrCode::COMPONENT_INVALID || code == EdmReturnErrCode::ENABLE_ADMIN_FAILED ||
         code == EdmReturnErrCode::DISABLE_ADMIN_FAILED) {
-        resultReceiver_.append("errorCode: %{public}d", code);
+        resultReceiver_.append("errorCode: " + std::to_string(code));
         return code;
     }
     if (isEnable) {
@@ -224,6 +224,7 @@ ErrCode EdmCommand::ConvertStringToAdminType(std::string optarg, AdminType &admi
     } else if (optarg == ADMIN_TYPE_BYOD_STRING) {
         adminType = AdminType::BYOD;
     } else {
+        adminType = AdminType::UNKNOWN;
         ret = ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE;
     }
     return ret;

@@ -312,17 +312,23 @@ ErrCode AdminManager::GetSubOrSuperAdminByPkgName(const std::string &subAdminNam
     return ERR_OK;
 }
 
-ErrCode AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
+void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
 {
-    bool ret = true;
-    ret = GetAdminsByTypeAndUserId(AdminType::ENT, admins, EdmConstants::DEFAULT_USER_ID);
-    ret &= GetAdminsByTypeAndUserId(AdminType::NORMAL, admins, currentUserId);
-    ret &= GetAdminsByTypeAndUserId(AdminType::BYOD, admins, EdmConstants::DEFAULT_USER_ID);
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
     if (!ret) {
-        EDMLOGE("AdminManager::GetAdmins error");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return;
     }
-    return ERR_OK;
+    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+        return admin->adminInfo_.adminType_ == AdminType::ENT || admin->adminInfo_.adminType_ == AdminType::BYOD;
+    });
+    ret = GetAdminByUserId(currentUserId, userAdmin);
+    if (!ret) {
+        return;
+    }
+    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+        return admin->adminInfo_.adminType_ == AdminType::NORMAL;
+    });
 }
 
 bool AdminManager::GetAdminsByTypeAndUserId(AdminType type, std::vector<std::shared_ptr<Admin>> &admins, int32_t userId)
