@@ -326,6 +326,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
             // remove super admin and super admin policy
             RemoveSuperAdminAndAdminPolicy(bundleName);
         }
+        if (admin->adminInfo_.adminType_ == AdminType::BYOD && userId == EdmConstants::DEFAULT_USER_ID) {
+            RemoveAdminAndAdminPolicy(bundleName, userId);
+        }
         if (!AdminManager::GetInstance()->IsAdminExist()) {
             system::SetParameter(PARAM_EDM_ENABLE, "false");
             NotifyAdminEnabled(false);
@@ -1347,11 +1350,9 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     if (adminType == AdminType::ENT && FAILED(RemoveSuperAdminAndAdminPolicy(bundleName))) {
         EDMLOGW("DoDisableAdmin: remove admin failed.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    } else if (adminType == AdminType::NORMAL && FAILED(RemoveAdminAndAdminPolicy(bundleName, userId))) {
-        EDMLOGW("DoDisableAdmin: disable normal admin failed.");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    } else if (adminType == AdminType::BYOD && FAILED(RemoveAdminAndAdminPolicy(bundleName, userId))) {
-        EDMLOGW("DoDisableAdmin: disable byod admin failed.");
+    } else if ((adminType == AdminType::NORMAL || adminType == AdminType::BYOD) &&
+        FAILED(RemoveAdminAndAdminPolicy(bundleName, userId))) {
+        EDMLOGW("DoDisableAdmin: disable normal or byod admin failed.");
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     if (!AdminManager::GetInstance()->IsAdminExist()) {
@@ -1581,6 +1582,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::vector<std::string> superList;
     std::vector<std::string> normalList;
+    std::vector<std::string> byodList;
     switch (type) {
         case AdminType::NORMAL:
             AdminManager::GetInstance()->GetEnabledAdmin(AdminType::NORMAL, normalList, GetCurrentUserId());
@@ -1588,6 +1590,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<
             break;
         case AdminType::ENT:
             AdminManager::GetInstance()->GetEnabledAdmin(AdminType::ENT, superList, EdmConstants::DEFAULT_USER_ID);
+            break;
+        case AdminType::BYOD:
+            AdminManager::GetInstance()->GetEnabledAdmin(AdminType::BYOD, byodList, EdmConstants::DEFAULT_USER_ID);
             break;
         case AdminType::UNKNOWN:
             break;
@@ -1600,6 +1605,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<
     if (!normalList.empty()) {
         enabledAdminList.insert(enabledAdminList.begin(), normalList.begin(), normalList.end());
     }
+    if (!byodList.empty()) {
+        enabledAdminList.insert(enabledAdminList.begin(), byodList.begin(), byodList.end());
+    }
     for (const auto &enabledAdmin : enabledAdminList) {
         EDMLOGD("GetEnabledAdmin: %{public}s", enabledAdmin.c_str());
     }
@@ -1610,8 +1618,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 {
     std::lock_guard<std::mutex> autoLock(mutexLock_);
     auto adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),  GetCurrentUserId());
-    if (adminItem != nullptr && adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
-        EDMLOGE("GetEnterpriseInfo delegated admin does not have permission to get enterprise info.");
+    if (adminItem != nullptr && (adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN ||
+        adminItem->GetAdminType() == AdminType::BYOD)) {
+        EDMLOGE("GetEnterpriseInfo delegated or byod admin does not have permission to get enterprise info.");
+        reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     EntInfo entInfo;
