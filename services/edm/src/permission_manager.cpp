@@ -37,7 +37,7 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
         return ERR_EDM_UNKNOWN_PERMISSION;
     }
     auto entry = permissions_.find(permission);
-    if (entry == permissions_.end()) {    
+    if (entry == permissions_.end()) {
         permissions_.insert(std::make_pair(permission, PermissionTypeToAdminType(permissionType)));
         EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
             permission.c_str(), static_cast<int32_t>(permissionType));

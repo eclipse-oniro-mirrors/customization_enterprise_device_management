@@ -1134,7 +1134,6 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     if (FAILED(VerifyEnableAdminCondition(admin, type, userId, isDebug))) {
-        EDMLOGW("EnableAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
@@ -1159,8 +1158,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
-    EDMLOGI("EnableAdmin: SetAdminValue success %{public}s, type:%{public}d", admin.GetBundleName().c_str(),
-        static_cast<uint32_t>(type));
+    EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
         true);
     if (type == AdminType::BYOD) {
