@@ -22,7 +22,6 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "napi_base_context.h"
-#include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -702,17 +701,18 @@ napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAdmins";
     addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
-    AdapterAddonData adapterAddonData{};
-    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+    auto adapterAddonData = new (std::nothrow) AsyncGetAdminsCallbackInfo();
+    if (adapterAddonData == nullptr) {
         return nullptr;
     }
-    std::vector<std::shared_ptr<AAFwk::Want>> wants;
-    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetAdmins(adapterAddonData.data, wants);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+    std::unique_ptr<AsyncGetAdminsCallbackInfo> callbackPtr{adapterAddonData};
+    if (JsObjectToData(env, info, addonMethodSign, adapterAddonData) == nullptr) {
         return nullptr;
     }
-    return ConvertWantToJsWithType(env, wants);
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, adapterAddonData, "GetAdmins", NativeGetAdmins, NativeGetAdminsComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
 }
 
 napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
@@ -855,6 +855,38 @@ void AdminManager::NativeGetSuperAdminComplete(napi_env env, napi_status status,
             napi_value accountValue = ConvertWantToJs(env, asyncCallbackInfo->bundleName,
                 asyncCallbackInfo->abilityName);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, accountValue);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+void AdminManager::NativeGetAdmins(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetAdmins called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncGetAdminsCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetAdminsCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    asyncCallbackInfo->ret = proxy->GetAdmins(asyncCallbackInfo->data, asyncCallbackInfo->wants);
+}
+
+void AdminManager::NativeGetAdminsComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncGetAdminsCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value admins = ConvertWantToJsWithType(env, asyncCallbackInfo->wants);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, admins);
         } else {
             napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
         }

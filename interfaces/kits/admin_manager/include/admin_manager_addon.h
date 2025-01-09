@@ -27,6 +27,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "want.h"
@@ -84,6 +85,10 @@ struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
     std::string abilityName;
 };
 
+struct AsyncGetAdminsCallbackInfo : AdapterAddonData {
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+};
+
 class AdminManager {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -130,6 +135,8 @@ private:
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);
+    static void NativeGetAdmins(napi_env env, void *data);
+    static void NativeGetAdminsComplete(napi_env env, napi_status status, void *data);
     static napi_value ConvertWantToJs(napi_env env, const std::string &bundleName, const std::string &abilityName);
     static napi_value ConvertWantToJsWithType(napi_env env, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
 
