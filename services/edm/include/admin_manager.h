@@ -37,6 +37,7 @@ public:
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
     ErrCode UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const Admin &adminItem);
     bool IsSuperAdminExist();
+    bool IsByodAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
     bool IsAdminExist();
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);

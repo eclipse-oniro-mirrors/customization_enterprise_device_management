@@ -960,13 +960,16 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
             EDMLOGW("EnableAdmin: a byod admin can't be enabled when alreadly enabled other admin.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
+        if (type != AdminType::BYOD && existAdmin->GetAdminType() == AdminType::BYOD) {
+            EDMLOGW("EnableAdmin: a admin can't be enabled when alreadly enabled byod admin.");
+            return ERR_EDM_ADD_ADMIN_FAILED;
+        }
         if (existAdmin->GetAdminType() == AdminType::SUB_SUPER_ADMIN ||
             existAdmin->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
             EDMLOGW("EnableAdmin: sub-super admin can not be enabled as a normal or super admin.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
-        if (existAdmin->GetAdminType() == AdminType::ENT &&
-            (type != AdminType::ENT || userId != EdmConstants::DEFAULT_USER_ID)) {
+        if (existAdmin->GetAdminType() == AdminType::ENT && type != AdminType::ENT) {
             EDMLOGW("EnableAdmin: an exist super admin can't be enabled twice with different role or user id.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
@@ -979,6 +982,18 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
             EDMLOGW("EnableAdmin: There is another admin ability enabled with the same package name.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
+    }
+    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
+        EDMLOGW("EnableAdmin: There is another super admin enabled.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    if (!isDebug && type == AdminType::NORMAL && AdminManager::GetInstance()->IsByodAdminExist()) {
+        EDMLOGW("EnableAdmin: normal admin not allowd enable when byod admin enabled.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    if (!isDebug && type == AdminType::BYOD && AdminManager::GetInstance()->IsAdminExist()) {
+        EDMLOGW("EnableAdmin: byod admin not allowd enable when another admin enabled.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     return ERR_OK;
 }
@@ -1135,13 +1150,6 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     }
     if (FAILED(VerifyEnableAdminCondition(admin, type, userId, isDebug))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
-    }
-    std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
-    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
-        if ((existAdmin == nullptr) || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
-            EDMLOGW("EnableAdmin: There is another super admin enabled.");
-            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
-        }
     }
 
     /* Get all request and registered permissions */

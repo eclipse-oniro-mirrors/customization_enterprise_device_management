@@ -25,13 +25,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ResetFacto
 void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr)
 {
     EDMLOGI("ResetFactoryPlugin InitPlugin...");
-    std::map<IPlugin::PermissionType, std::string> typePermissions;
-    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_RESET_DEVICE");
-    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
-        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::RESET_FACTORY, "reset_factory", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::RESET_FACTORY, "reset_factory", "ohos.permission.ENTERPRISE_RESET_DEVICE",
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ResetFactoryPlugin::OnSetPolicy, FuncOperateType::SET);
 }
