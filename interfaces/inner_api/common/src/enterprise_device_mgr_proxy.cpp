@@ -612,7 +612,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(MessageParcel &data, std::vector<std
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::GetAdminProvisionInfo(std::string &bundleName)
+ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(std::string &bundleName)
 {
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
@@ -629,16 +629,16 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdminProvisionInfo(std::string &bundleName)
     MessageOption option;
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetAdminProvisionInfo send request fail. %{public}d", res);
+        EDMLOGE("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo send request fail. %{public}d", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t resCode = ERR_INVALID_VALUE;
     if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetAdminProvisionInfo get result code fail. %{public}d", resCode);
+        EDMLOGE("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo get result code fail. %{public}d", resCode);
         return resCode;
     }
     bundleName = reply.ReadString();
-    EDMLOGI("EnterpriseDeviceMgrProxy:GetAdminProvisionInfo result. %{public}s", bundleName.c_str());
+    EDMLOGI("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo result. %{public}s", bundleName.c_str());
     return ERR_OK;
 }
 

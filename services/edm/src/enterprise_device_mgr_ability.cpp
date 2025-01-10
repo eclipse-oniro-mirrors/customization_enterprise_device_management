@@ -1550,7 +1550,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
     return getRet;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetAdminProvisionInfo(uint32_t code, MessageParcel &data,
+ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
     InitAllPlugins();
@@ -1559,12 +1559,12 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdminProvisionInfo(uint32_t code, Message
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (AdminManager::GetInstance()->IsAdminExist()) {
-        EDMLOGE("GetAdminProvisionInfo::device exist admin.");
+        EDMLOGE("CheckAndGetAdminProvisionInfo::device exist admin.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
-        EDMLOGE("GetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
+        EDMLOGE("CheckAndGetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::string policyValue;

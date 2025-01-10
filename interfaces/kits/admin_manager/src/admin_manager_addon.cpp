@@ -90,6 +90,17 @@ int32_t AdminManager::JsAdminTypeToAdminType(int32_t jsAdminType)
     return static_cast<int32_t>(AdminType::UNKNOWN);
 }
 
+int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
+{
+    if (AdminType == static_cast<int32_t>(AdminType::BYOD)) {
+        return JS_BYOD_TYPE;
+    }
+    if (AdminType == static_cast<int32_t>(AdminType::NORMAL) || AdminType == static_cast<int32_t>(AdminType::ENT)) {
+        return AdminType;
+    }
+    return static_cast<int32_t>(AdminType::UNKNOWN);
+}
+
 napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_ReplaceSuperAdmin called");
@@ -743,7 +754,7 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     int32_t adminType = JsAdminTypeToAdminType(jsAdminType);
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(adminType, parameters), "byod parameters error");
     std::string bundleName;
-    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetAdminProvisionInfo(bundleName);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(bundleName);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -930,7 +941,7 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
         napi_value parameters = nullptr;
         NAPI_CALL(env, napi_create_object(env, &parameters));
         napi_value adminTypeToJs = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, adminType, &adminTypeToJs));
+        NAPI_CALL(env, napi_create_int32(env, AdminTypeToJsAdminType(adminType), &adminTypeToJs));
         NAPI_CALL(env, napi_set_named_property(env, parameters, "adminType", adminTypeToJs));
         NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
         NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));

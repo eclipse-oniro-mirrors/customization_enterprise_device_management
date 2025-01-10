@@ -339,7 +339,7 @@ bool AdminManager::GetAdminsByTypeAndUserId(AdminType type, std::vector<std::sha
         return false;
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", type, userAdmin.size());
-    if (static_cast<int32_t>(type) >= static_cast<int32_t>(AdminType::UNKNOWN) ||
+    if (static_cast<int32_t>(type) > static_cast<int32_t>(AdminType::BYOD) ||
         static_cast<int32_t>(type) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", type);
         return false;

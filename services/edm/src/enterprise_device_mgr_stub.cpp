@@ -127,7 +127,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
             data.ReadInt32(userId);
         }
         if (FUNC_TO_POLICY(code) == (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO) {
-            return GetAdminProvisionInfoInner(code, data, reply, userId);
+            return CheckAndGetAdminProvisionInfoInner(code, data, reply, userId);
         }
         if (FUNC_TO_OPERATE(code) == static_cast<int>(FuncOperateType::GET)) {
             EDMLOGD("GetDevicePolicyInner");
@@ -251,10 +251,10 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrStub::GetAdminProvisionInfoInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+ErrCode EnterpriseDeviceMgrStub::CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
-    ErrCode errCode = GetAdminProvisionInfo(code, data, reply, userId);
+    ErrCode errCode = CheckAndGetAdminProvisionInfo(code, data, reply, userId);
     reply.WriteInt32(errCode);
     return ERR_OK;
 }
