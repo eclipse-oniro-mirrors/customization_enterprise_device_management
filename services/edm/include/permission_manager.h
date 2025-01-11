@@ -35,6 +35,7 @@ public:
         std::vector<std::string> &reqPermission);
 
 private:
+    AdminType PermissionTypeToAdminType(IPlugin::PermissionType permissionType);
     std::map<std::string, AdminType> permissions_;
 };
 } // namespace EDM

@@ -53,7 +53,10 @@ public:
         std::vector<std::string> &policies);
     void GetVirtualAdminsByPolicy(const std::string &policyName, const std::string &parentName,
         std::vector<std::string> &bundleNames);
-    ErrCode GetSubOrSuperAdminByPkgName(const std::string &subAdminName, std::shared_ptr<Admin> &subOrSuperAdmin);
+    ErrCode GetSubOrSuperOrByodAdminByPkgName(const std::string &subAdminName,
+        std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
+    void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
+    bool GetAdminsByTypeAndUserId(AdminType type, std::vector<std::shared_ptr<Admin>> &admins, int32_t userId);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
     ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin);
     ~AdminManager();

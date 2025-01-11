@@ -154,6 +154,17 @@ public:
         return 0;
     }
 
+    ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override
+    {
+        return 0;
+    }
+
+    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override
+    {
+        return 0;
+    }
+
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override { return 0; }
 
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override { return 0; }

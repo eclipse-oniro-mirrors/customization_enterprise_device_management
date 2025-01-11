@@ -1188,7 +1188,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Lev
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetBundleName(), superAdmin)));
 }
 
 /**
@@ -1215,7 +1215,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetBundleName(), superAdmin)));
 }
 
 /**
@@ -1234,8 +1234,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminSuc, TestSize.Level1)
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> subOrSuperAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(ADMIN_PACKAGENAME_1, subOrSuperAdmin)));
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetAbilityName(), subOrSuperAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(ADMIN_PACKAGENAME_1, subOrSuperAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetAbilityName(), subOrSuperAdmin)));
 }
 
 /**
@@ -1251,7 +1251,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicy, TestSize
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID)));
     std::shared_ptr<Admin> superAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetBundleName(), superAdmin)));
 
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
     EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID)));
@@ -2861,7 +2861,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerIpcFail, TestSiz
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetBundleName(), superAdmin)));
 }
 
 /**
@@ -2892,7 +2892,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminInnerWithoutReq, Test
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
-    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperAdminByPkgName(admin.GetBundleName(), superAdmin)));
+    EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetSubOrSuperOrByodAdminByPkgName(admin.GetBundleName(), superAdmin)));
 }
 
 /**

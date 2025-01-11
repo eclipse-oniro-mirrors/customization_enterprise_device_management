@@ -104,11 +104,11 @@ ErrCode AdminManager::SetAdminValue(int32_t userId, const Admin &adminItem)
 
 std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packageName, int32_t userId)
 {
-    std::shared_ptr<Admin> subOrSuperAdmin;
+    std::shared_ptr<Admin> subOrSuperOrByodAdmin;
     if (userId != EdmConstants::DEFAULT_USER_ID &&
-        SUCCEEDED(GetSubOrSuperAdminByPkgName(packageName, subOrSuperAdmin))) {
-        EDMLOGD("GetAdminByPkgName::get sub-super or super admin: %{public}s", packageName.c_str());
-        return subOrSuperAdmin;
+        SUCCEEDED(GetSubOrSuperOrByodAdminByPkgName(packageName, subOrSuperOrByodAdmin))) {
+        EDMLOGD("GetAdminByPkgName::get sub-super or super or byod admin: %{public}s", packageName.c_str());
+        return subOrSuperOrByodAdmin;
     }
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(userId, userAdmin)) {
@@ -225,7 +225,7 @@ bool AdminManager::IsSuperAdminExist()
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
     if (!ret) {
-        EDMLOGD("IsSuperAdminExist::not find super Admin");
+        EDMLOGD("IsSuperAdminExist::not find byod or super Admin");
         return false;
     }
     return std::any_of(userAdmin.begin(), userAdmin.end(),
@@ -278,7 +278,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
         return;
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role, userAdmin.size());
-    if (static_cast<int32_t>(role) >= static_cast<int32_t>(AdminType::BYOD) ||
+    if (static_cast<int32_t>(role) > static_cast<int32_t>(AdminType::BYOD) ||
         static_cast<int32_t>(role) < static_cast<int32_t>(AdminType::NORMAL)) {
         EDMLOGD("there is no admin(%{public}u) device manager package name list!", role);
         return;
@@ -292,24 +292,44 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
     }
 }
 
-ErrCode AdminManager::GetSubOrSuperAdminByPkgName(const std::string &subAdminName,
-    std::shared_ptr<Admin> &subOrSuperAdmin)
+ErrCode AdminManager::GetSubOrSuperOrByodAdminByPkgName(const std::string &subAdminName,
+    std::shared_ptr<Admin> &subOrSuperOrByodAdmin)
 {
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin)) {
-        EDMLOGW("GetSubOrSuperAdminByPkgName::not find Admin under default user id");
+        EDMLOGW("GetSubOrSuperOrByodAdminByPkgName::not find Admin under default user id");
         return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
     }
     auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(), [&](const std::shared_ptr<Admin> &admin) {
         return admin->adminInfo_.packageName_ == subAdminName && (admin->GetAdminType() == AdminType::ENT ||
-            admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN || admin->GetAdminType() == AdminType::VIRTUAL_ADMIN);
+            admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN || admin->GetAdminType() == AdminType::VIRTUAL_ADMIN ||
+            admin->GetAdminType() == AdminType::BYOD);
     });
     if (adminItem == userAdmin.end()) {
-        EDMLOGW("GetSubOrSuperAdminByPkgName::not find sub-super admin or super Admin");
+        EDMLOGW("GetSubOrSuperOrByodAdminByPkgName::not find sub-super admin or super or byod Admin");
         return ERR_EDM_SUPER_ADMIN_NOT_FOUND;
     }
-    subOrSuperAdmin = *adminItem;
+    subOrSuperOrByodAdmin = *adminItem;
     return ERR_OK;
+}
+
+void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
+{
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
+    if (!ret) {
+        return;
+    }
+    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+        return admin->adminInfo_.adminType_ == AdminType::ENT || admin->adminInfo_.adminType_ == AdminType::BYOD;
+    });
+    ret = GetAdminByUserId(currentUserId, userAdmin);
+    if (!ret) {
+        return;
+    }
+    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+        return admin->adminInfo_.adminType_ == AdminType::NORMAL;
+    });
 }
 
 ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins)

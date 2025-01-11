@@ -58,6 +58,8 @@ public:
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
     ErrCode SetDelegatedPolicies(MessageParcel &data);
     ErrCode GetDelegatedPolicies(MessageParcel &data, uint32_t code, std::vector<std::string> &result);
+    ErrCode GetAdmins(MessageParcel &data, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    ErrCode CheckAndGetAdminProvisionInfo(std::string &bundleName);
     ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin, bool keepPolicy);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);

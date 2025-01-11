@@ -27,8 +27,11 @@ std::string DisableCameraQuery::GetPolicyName()
     return "disable_camera";
 }
 
-std::string DisableCameraQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+std::string DisableCameraQuery::GetPermission(IPlugin::PermissionType permissionType, const std::string &permissionTag)
 {
+    if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+        return "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    }
     return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
 }
 

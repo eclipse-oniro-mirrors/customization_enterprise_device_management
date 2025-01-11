@@ -78,7 +78,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->IsSuperAdmin(bundleName);
     adminManager->IsSuperOrSubSuperAdmin(bundleName);
     adminManager->GetEnabledAdmin(role, packageNameList, userId);
-    adminManager->GetSubOrSuperAdminByPkgName(subAdminName, subOrSuperAdmin);
+    adminManager->GetSubOrSuperOrByodAdminByPkgName(subAdminName, subOrSuperAdmin);
     adminManager->GetSubSuperAdminsByParentName(parentName, subAdmins);
     adminManager->GetEntInfo(packageName, entInfo, userId);
     adminManager->SetEntInfo(packageName, entInfo, userId);

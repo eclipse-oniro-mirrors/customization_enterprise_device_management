@@ -67,6 +67,8 @@ ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &da
             return GetDelegatedPoliciesInner(data, reply);
         case EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES:
             return GetDelegatedBundleNamesInner(data, reply);
+        case EdmInterfaceCode::GET_ADMINS:
+            return GetAdminsInner(data, reply);
         case EdmInterfaceCode::REPLACE_SUPER_ADMIN:
             return ReplaceSuperAdminInner(data, reply);
         default:
@@ -87,6 +89,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::IS_ADMIN_ENABLED,
         EdmInterfaceCode::AUTHORIZE_ADMIN,
         EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO,
+        EdmInterfaceCode::GET_ADMINS,
         EdmInterfaceCode::REPLACE_SUPER_ADMIN,
     };
 }
@@ -122,6 +125,9 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         data.ReadInt32(hasUserId);
         if (hasUserId == 1) {
             data.ReadInt32(userId);
+        }
+        if (FUNC_TO_POLICY(code) == (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO) {
+            return CheckAndGetAdminProvisionInfoInner(code, data, reply, userId);
         }
         if (FUNC_TO_OPERATE(code) == static_cast<int>(FuncOperateType::GET)) {
             EDMLOGD("GetDevicePolicyInner");
@@ -165,7 +171,8 @@ ErrCode EnterpriseDeviceMgrStub::EnableAdminInner(MessageParcel &data, MessagePa
     int32_t type = data.ReadInt32();
     int32_t userId = data.ReadInt32();
     AdminType adminType = AdminType::UNKNOWN;
-    if (type != static_cast<int32_t>(AdminType::NORMAL) && type != static_cast<int32_t>(AdminType::ENT)) {
+    if (type != static_cast<int32_t>(AdminType::NORMAL) && type != static_cast<int32_t>(AdminType::ENT) &&
+        type != static_cast<int32_t>(AdminType::BYOD)) {
         EDMLOGE("EnableAdminInner: admin type is invalid.");
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_OK;
@@ -240,6 +247,14 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
     int32_t userId)
 {
     ErrCode errCode = GetDevicePolicy(code, data, reply, userId);
+    reply.WriteInt32(errCode);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    ErrCode errCode = CheckAndGetAdminProvisionInfo(code, data, reply, userId);
     reply.WriteInt32(errCode);
     return ERR_OK;
 }
@@ -427,6 +442,24 @@ ErrCode EnterpriseDeviceMgrStub::GetDelegatedBundleNamesInner(MessageParcel &dat
     }
     reply.WriteUint32(bundleNames.size());
     reply.WriteStringVector(bundleNames);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::GetAdminsInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:GetAdminsInner");
+    std::string bundleName = data.ReadString();
+    EDMLOGD("GetAdminsInner bundleName:: %{public}s :", bundleName.c_str());
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode ret = GetAdmins(wants);
+    if (FAILED(ret)) {
+        return ret;
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(wants.size());
+    for (std::shared_ptr<AAFwk::Want> want : wants) {
+        reply.WriteParcelable(want.get());
+    }
     return ERR_OK;
 }
 } // namespace EDM
