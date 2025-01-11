@@ -203,7 +203,8 @@ void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = networkManagerProxy->SetNetworkInterfaceDisabled(asyncCallbackInfo->data);
+    asyncCallbackInfo->ret = networkManagerProxy->GetIpOrMacAddress(asyncCallbackInfo->data,
+        asyncCallbackInfo->policyCode, asyncCallbackInfo->stringRet);
 }
 
 void NetworkManagerAddon::IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign,
