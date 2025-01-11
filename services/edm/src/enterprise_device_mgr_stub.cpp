@@ -27,7 +27,7 @@ namespace EDM {
 #ifdef EDM_SUPPORT_ALL_ENABLE
 constexpr int32_t WITHOUT_FUNCTION_CODE = -1;
 #endif
-EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(true)
+EnterpriseDeviceMgrStub::EnterpriseDeviceMgrStub() : IRemoteStub(false)
 {
     InitSystemCodeList();
     EDMLOGI("EnterpriseDeviceMgrStub()");

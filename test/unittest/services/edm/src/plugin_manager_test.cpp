@@ -303,9 +303,7 @@ HWTEST_F(PluginManagerTest, TestUnloadPlugin, TestSize.Level1)
         std::make_shared<TestExtensionPlugin>(), 0, ExecuteStrategy::REPLACE);
     PluginManager::GetInstance()->DumpPlugin();
     PluginManager::GetInstance()->UnloadPlugin();
-    auto extensionPlugin = PluginManager::GetInstance()->pluginsCode_.find(1);
-    PluginManager::GetInstance()->pluginsCode_.erase(extensionPlugin);
-    ASSERT_TRUE(PluginManager::GetInstance()->GetPluginByCode(1) == nullptr);
+    ASSERT_TRUE(PluginManager::GetInstance()->pluginsCode_.empty());
 }
 } // namespace TEST
 } // namespace EDM
