@@ -4439,6 +4439,107 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin003, TestSize.Leve
     ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
     ASSERT_TRUE(err == EdmReturnErrCode::COMPONENT_INVALID);
 }
+
+/**
+ * @tc.name: TestEnableAndDisableBYODAdmin
+ * @tc.desc: Test enable and disable BYOD admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAndDisableBYODAdmin, TestSize.Level1)
+{
+    // enable byod admin
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    // disable byod admin
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoWithAdminExists
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo With Admin Exists.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithAdminExits, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+    ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> byodAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    EXPECT_TRUE(byodAdmin == nullptr);
+}
+
+/**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoWithoutPermission
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithoutPermission, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoSuc
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+
+/**
+ * @tc.name: TestGetAdminsSuc
+ * @tc.desc: Test GetAdmins success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdmins, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    edmMgr_->GetAdmins(wants);
+    int32_t wantSize = wants.size();
+    ASSERT_TRUE(wantSize == 1);
+    std::shared_ptr<AAFwk::Want> want = wants[0];
+    ASSERT_TRUE(want != nullptr);
+    std::string bundleName = want->GetStringParam("bundleName");
+    EXPECT_TRUE(bundleName == ADMIN_PACKAGENAME);
+    std::string abilityName = want->GetStringParam("abilityName");
+    EXPECT_TRUE(abilityName == ADMIN_PACKAGENAME_ABILITY);
+    int32_t adminType = want->GetIntParam("adminType", -1);
+    EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::BYOD));
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
