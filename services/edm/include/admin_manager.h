@@ -37,7 +37,6 @@ public:
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
     ErrCode UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const Admin &adminItem);
     bool IsSuperAdminExist();
-    bool IsByodAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
     bool IsAdminExist();
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
@@ -54,7 +53,8 @@ public:
         std::vector<std::string> &policies);
     void GetVirtualAdminsByPolicy(const std::string &policyName, const std::string &parentName,
         std::vector<std::string> &bundleNames);
-    ErrCode GetSubOrSuperAdminByPkgName(const std::string &subAdminName, std::shared_ptr<Admin> &subOrSuperAdmin);
+    ErrCode GetSubOrSuperOrByodAdminByPkgName(const std::string &subAdminName,
+        std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
     void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
     bool GetAdminsByTypeAndUserId(AdminType type, std::vector<std::shared_ptr<Admin>> &admins, int32_t userId);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);

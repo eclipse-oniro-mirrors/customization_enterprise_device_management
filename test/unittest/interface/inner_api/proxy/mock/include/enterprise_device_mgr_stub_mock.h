@@ -154,7 +154,8 @@ public:
         return 0;
     }
 
-    ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override
+    ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override
     {
         return 0;
     }

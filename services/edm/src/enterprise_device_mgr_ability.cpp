@@ -987,10 +987,6 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
         EDMLOGW("EnableAdmin: There is another super admin enabled.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
-    if (!isDebug && type == AdminType::NORMAL && AdminManager::GetInstance()->IsByodAdminExist()) {
-        EDMLOGW("EnableAdmin: normal admin not allowd enable when byod admin enabled.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
-    }
     if (!isDebug && type == AdminType::BYOD && AdminManager::GetInstance()->IsAdminExist()) {
         EDMLOGW("EnableAdmin: byod admin not allowd enable when another admin enabled.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
