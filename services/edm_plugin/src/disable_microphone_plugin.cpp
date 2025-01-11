@@ -33,6 +33,8 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

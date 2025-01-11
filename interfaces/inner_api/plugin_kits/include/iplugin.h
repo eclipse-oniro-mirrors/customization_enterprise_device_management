@@ -107,7 +107,6 @@ public:
     std::string GetPolicyName();
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
-    bool IsOverridePolicy();
     std::vector<PolicyPermissionConfig> GetAllPermission();
     std::string GetPermission(FuncOperateType operaType, PermissionType permissionType, std::string permissionTag = "");
     IPlugin::ApiType GetApiType(FuncOperateType operaType);
@@ -129,7 +128,6 @@ protected:
     std::shared_ptr<IPluginExecuteStrategy> strategy_ = std::make_shared<IPluginExecuteStrategy>();
     bool needSave_ = true;
     bool isGlobal_ = true;
-    bool isOverridePolicy_ = false;
     IPlugin::PluginType type_ = PluginType::BASIC;
 
 private:

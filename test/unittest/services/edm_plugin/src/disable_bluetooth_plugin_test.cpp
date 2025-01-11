@@ -122,6 +122,21 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false));
 }
+
+/**
+ * @tc.name: TestDisableBluetoothPluginTestOnAdminRemove
+ * @tc.desc: Test DisableBluetoothPluginTest::OnAdminRemove function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOnAdminRemove, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::string currentPolicy = "true";
+    std::string mergePolicy = "false";
+    ErrCode ret = plugin->OnAdminRemove("test", currentPolicy, mergePolicy, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, true));
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

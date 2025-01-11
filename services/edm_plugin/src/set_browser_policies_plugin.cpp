@@ -109,16 +109,19 @@ ErrCode SetBrowserPoliciesPlugin::UpdateCurrentAndMergePolicy(cJSON* currentPoli
 {
     cJSON* currentItem;
     cJSON_ArrayForEach(currentItem, currentPolicies) {
-        cJSON* mergeItem = cJSON_GetObjectItem(mergePolicies, currentItem->string);
-        if (mergeItem == nullptr) {
-            cJSON* currentItemValue = cJSON_GetObjectItem(currentPolicies, currentItem->string);
-            cJSON_AddItemToObject(mergePolicies, currentItem->string, currentItemValue);
+        cJSON* policies = cJSON_Duplicate(currentItem, true);
+        if (!cJSON_HasObjectItem(mergePolicies, currentItem->string)) {
+            if (!cJSON_AddItemToObject(mergePolicies, currentItem->string, policies)) {
+                cJSON_Delete(policies);
+            }
             continue;
         }
         cJSON* policyItem;
-        cJSON_ArrayForEach(policyItem, currentItem) {
-            cJSON* policyItemValue = cJSON_GetObjectItem(currentItem, policyItem->string);
-            cJSON_AddItemToObject(mergeItem, policyItem->string, policyItemValue);
+        cJSON_ArrayForEach(policyItem, policies) {
+            cJSON* policy = cJSON_Duplicate(policyItem, true);
+            if (!cJSON_AddItemToObject(mergePolicies->child, policyItem->string, policy)) {
+                cJSON_Delete(policy);
+            }
         }
     }
 
@@ -167,8 +170,8 @@ ErrCode SetBrowserPoliciesPlugin::SetPolicy(cJSON* currentPolicies, cJSON* merge
     cJSON* mergePolicy = cJSON_GetObjectItem(mergePolicies, appid.c_str());
     if (mergePolicy != nullptr) {
         if (cJSON_GetObjectItem(mergePolicy, policyName.c_str()) != nullptr) {
-            EDMLOGE("SetBrowserPoliciesPlugin another admin has already set this item policy for this application");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            EDMLOGE("SetBrowserPoliciesPlugin another admin has already set this item policy for this application.");
+            return EdmReturnErrCode::PARAM_ERROR;
         }
     }
     cJSON* policy = cJSON_GetObjectItem(currentPolicies, appid.c_str());

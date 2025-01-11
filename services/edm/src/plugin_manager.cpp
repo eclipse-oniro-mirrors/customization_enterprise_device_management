@@ -42,16 +42,9 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
-    pluginsCode_.clear();
-    pluginsName_.clear();
     persistentPluginsCode_.clear();
     persistentPluginsName_.clear();
-    for (auto handle : pluginHandles_) {
-        if (handle != nullptr) {
-            dlclose(handle);
-        }
-    }
-    pluginHandles_.clear();
+    UnloadPlugin();
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
@@ -242,29 +235,23 @@ void PluginManager::UnloadPlugin()
         if (codeIter->second != nullptr) {
             codeIter->second->ResetExtensionPlugin();
         }
-        if (codeIter->second == nullptr || codeIter->first > static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END)) {
-            codeIter = pluginsCode_.erase(codeIter);
-        } else {
-            ++codeIter;
-        }
+        codeIter = pluginsCode_.erase(codeIter);
     }
-    for (auto nameIter = pluginsName_.begin(); nameIter != pluginsName_.end();) {
-        if (nameIter->second == nullptr ||
-            nameIter->second->GetCode() > static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END)) {
-            nameIter = pluginsName_.erase(nameIter);
-        } else {
-            ++nameIter;
-        }
-    }
-    for (auto handleIter = pluginHandles_.begin(); handleIter != pluginHandles_.end();) {
+    pluginsCode_.clear();
+    pluginsName_.clear();
+    for (auto handleIter = pluginHandles_.rbegin(); handleIter != pluginHandles_.rend(); ++handleIter) {
         auto handle = *handleIter;
-        if (handle == nullptr || dlclose(handle) == 0) {
-            handleIter = pluginHandles_.erase(handleIter);
+        if (handle == nullptr) {
+            continue;
+        }
+        int result = dlclose(handle);
+        if (result != 0) {
+            EDMLOGE("PluginManager::UnloadPlugin close lib failed: %{public}s.", dlerror());
         } else {
-            EDMLOGE("PluginManager::UnloadPlugin close handle failed.");
-            ++handleIter;
+            EDMLOGI("PluginManager::UnloadPlugin close lib success");
         }
     }
+    pluginHandles_.clear();
     EDMLOGI("PluginManager::UnloadPlugin finish.");
 }
 
@@ -280,6 +267,9 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
         if (typePermission.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
             permissionStr.append("SUPER_DEVICE_ADMIN:");
         }
+        if (typePermission.first == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+            permissionStr.append("BYOD_DEVICE_ADMIN:");
+        }
         permissionStr.append(typePermission.second);
     }
     permissionStr.append("Tag Permissions:");
@@ -292,6 +282,9 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
             }
             if (tag.first == IPlugin::PermissionType::SUPER_DEVICE_ADMIN) {
                 permissionStr.append("SUPER_DEVICE_ADMIN:");
+            }
+            if (tag.first == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+                permissionStr.append("BYOD_DEVICE_ADMIN:");
             }
             permissionStr.append(tag.second);
         }

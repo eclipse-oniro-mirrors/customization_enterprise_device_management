@@ -39,6 +39,8 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+
 private:
     ErrCode ModifyOrRemoveManagedBrowserPolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
         const std::string &bundleName, const std::string &policyName, const std::string &policyValue);
@@ -57,6 +59,10 @@ private:
 
     bool UpdatePolicyFile(std::map<std::string, ManagedBrowserPolicyType> &policies, const std::string &bundleName,
         std::string &url, std::string &tempUrl);
+
+    ErrCode UpdateCurrentAndMergePolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const std::string &bundleName,
+        const std::string &policyName, const std::string &policyValue);
 };
 } // namespace EDM
 } // namespace OHOS

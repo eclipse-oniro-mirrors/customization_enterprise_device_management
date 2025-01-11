@@ -63,6 +63,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesEmpty, TestSi
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -79,6 +80,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCu
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -96,6 +98,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSiz
 {
     Utils::SetBluetoothDisable();
     AllowedBluetoothDevicesPlugin devicesPlugin;
+    devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData{ "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -112,6 +115,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin devicesPlugin;
+    devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData(EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1);
     for (int i = 0; i < EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1; ++i) {
         std::stringstream ss;
@@ -132,6 +136,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, TestSize.Level1)
 {
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -147,6 +152,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, Tes
 HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
 {
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;

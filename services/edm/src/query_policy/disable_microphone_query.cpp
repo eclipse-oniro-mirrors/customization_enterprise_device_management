@@ -28,8 +28,12 @@ std::string DisableMicrophoneQuery::GetPolicyName()
     return "disable_microphone";
 }
 
-std::string DisableMicrophoneQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+std::string DisableMicrophoneQuery::GetPermission(IPlugin::PermissionType permissionType,
+    const std::string &permissionTag)
 {
+    if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+        return "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    }
     return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
 }
 

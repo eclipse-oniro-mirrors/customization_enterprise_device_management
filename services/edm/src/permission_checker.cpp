@@ -66,6 +66,10 @@ ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, c
         EDMLOGE("CheckCallerPermission delegated admin does not have permission to handle.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
+    if (!isNeedSuperAdmin && admin->GetAdminType() == AdminType::BYOD) {
+        EDMLOGE("CheckCallerPermission byod admin does not have permission to handle.");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     return ERR_OK;
 }
 
@@ -135,17 +139,20 @@ ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateTy
         EDMLOGE("CheckHandlePolicyPermission: CheckCallingUid failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    if (operateType == FuncOperateType::SET && deviceAdmin->GetAdminType() != AdminType::ENT &&
-        deviceAdmin->GetAdminType() != AdminType::SUB_SUPER_ADMIN &&
-        deviceAdmin->GetAdminType() != AdminType::VIRTUAL_ADMIN && userId != GetCurrentUserId()) {
+    if (operateType == FuncOperateType::SET && deviceAdmin->GetAdminType() == AdminType::NORMAL &&
+        userId != GetCurrentUserId()) {
         EDMLOGE("CheckHandlePolicyPermission: this admin does not have permission to handle policy of other account.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     if (!permissionName.empty()) {
+        EDMLOGE("CheckHandlePolicyPermission: permissionName:%{public}s", permissionName.c_str());
         auto ret = CheckAndUpdatePermission(deviceAdmin, IPCSkeleton::GetCallingTokenID(), permissionName, userId);
         if (FAILED(ret)) {
             return ret;
         }
+    }
+    if (permissionName.empty() && deviceAdmin->GetAdminType() == AdminType::BYOD) {
+        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     if (!AdminManager::GetInstance()->HasPermissionToHandlePolicy(deviceAdmin, policyName)) {
         EDMLOGE("CheckHandlePolicyPermission: this admin does not have permission to handle the policy.");
@@ -163,6 +170,8 @@ ErrCode PermissionChecker::CheckAndUpdatePermission(std::shared_ptr<Admin> admin
     }
     bool callingPermission = VerifyCallingPermission(tokenId, permission);
     bool adminPermission = admin->CheckPermission(permission);
+    EDMLOGI("CheckAndUpdatePermission::callingPermission: %{public}d.adminPermission:%{public}d", callingPermission,
+        adminPermission);
     if (callingPermission != adminPermission) {
         std::vector<std::string> permissionList;
         if (FAILED(GetAllPermissionsByAdmin(admin->adminInfo_.packageName_,

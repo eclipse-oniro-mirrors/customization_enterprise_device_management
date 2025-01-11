@@ -226,8 +226,6 @@ protected:
     void InitPermission(FuncOperateType operateType, const std::string &permission,
         IPlugin::PermissionType permissionType);
 
-    void SetOverridePolicy(bool isOverridePolicy);
-
     /*
      * Registering Listening for HandlePolicy Events.
      *

@@ -245,7 +245,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestModifyOrRemoveManagedBrowserPolicyF
 {
     ManagedBrowserPolicyPlugin plugin;
     std::map<std::string, ManagedBrowserPolicyType> policies;
-    const std::string bundleName = "com.invalid";
+    const std::string bundleName = TEST_BUNDLE_NAME;
     std::ofstream policyFile(URL, std::ios::app);
     if (policyFile.fail()) {
         ASSERT_TRUE(false);
@@ -255,7 +255,6 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestModifyOrRemoveManagedBrowserPolicyF
     ErrCode ret = plugin.ModifyOrRemoveManagedBrowserPolicy(policies, bundleName, TEST_POLICY_NAME, TEST_POLICY_VALUE);
     std::string tempUrl = MANAGED_BROWSER_POLICY_DIR + bundleName + "_tmp" + MANAGED_BROWSER_POLICY_SUFFIX;
     ASSERT_TRUE(remove(URL.c_str()) == ERR_OK);
-    ASSERT_TRUE(remove(tempUrl.c_str()) == ERR_OK);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 

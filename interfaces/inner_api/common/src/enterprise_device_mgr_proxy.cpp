@@ -577,6 +577,71 @@ ErrCode EnterpriseDeviceMgrProxy::GetDelegatedPolicies(MessageParcel &data,
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::GetAdmins(MessageParcel &data, std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetAdmins");
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::GET_ADMINS, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetAdmins send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t resCode = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetAdmins get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+
+    uint32_t size = reply.ReadUint32(size);
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetAdmins size error. size: %{public}d", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (uint32_t i = 0; i < size; i++) {
+        std::shared_ptr<AAFwk::Want> want(reply.ReadParcelable<AAFwk::Want>());
+        wants.push_back(want);
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(std::string &bundleName)
+{
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    MessageParcel reply;
+    MessageOption option;
+    ErrCode res = remote->SendRequest(funcCode, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t resCode = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    bundleName = reply.ReadString();
+    EDMLOGI("EnterpriseDeviceMgrProxy:CheckAndGetAdminProvisionInfo result. %{public}s", bundleName.c_str());
+    return ERR_OK;
+}
+
 bool EnterpriseDeviceMgrProxy::GetPolicyValue(MessageParcel &data, uint32_t policyCode, std::string &policyData)
 {
     MessageParcel reply;

@@ -32,7 +32,7 @@ void DisallowedUsbDevicesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedUsbDevicesPlugin, std::vector<USB::UsbDeviceType>>> ptr)
 {
     EDMLOGI("DisallowedUsbDevicesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::ALLOWED_USB_DEVICES, "disallowed_usb_devices",
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_USB_DEVICES, "disallowed_usb_devices",
         "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayUsbDeviceTypeSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);

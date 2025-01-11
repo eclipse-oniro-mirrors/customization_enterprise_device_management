@@ -477,12 +477,6 @@ void IPluginTemplate<CT, DT>::InitPermission(FuncOperateType operateType, const 
 }
 
 template <class CT, class DT>
-void IPluginTemplate<CT, DT>::SetOverridePolicy(bool isOverridePolicy)
-{
-    isOverridePolicy_ = isOverridePolicy;
-}
-
-template <class CT, class DT>
 IPluginTemplate<CT, DT>::~IPluginTemplate()
 {
     if (instance_ != nullptr) {

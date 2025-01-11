@@ -33,11 +33,6 @@ bool IPlugin::IsGlobalPolicy()
     return isGlobal_;
 }
 
-bool IPlugin::IsOverridePolicy()
-{
-    return isOverridePolicy_;
-}
-
 std::vector<IPlugin::PolicyPermissionConfig> IPlugin::GetAllPermission()
 {
     std::vector<IPlugin::PolicyPermissionConfig> allPermission;

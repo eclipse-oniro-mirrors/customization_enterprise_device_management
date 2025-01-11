@@ -55,6 +55,7 @@ void DisallowedRunningBundlesPluginTest::TearDownTestSuite(void)
 HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin001, TestSize.Level1)
 {
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -70,6 +71,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin002, TestSize.Level1)
 {
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data(EdmConstants::APPID_MAX_SIZE + 1, TEST_BUNDLE);
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -86,6 +88,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 {
     Utils::ResetTokenTypeAndUid();
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -102,6 +105,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin004, TestSize.Level1)
 {
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
@@ -117,6 +121,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin005, TestSize.Level1)
 {
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -133,6 +138,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
 {
     Utils::ResetTokenTypeAndUid();
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -153,6 +159,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
     sptr<AppExecFwk::IAppControlMgr> appControlProxy = bundleMgrProxy->GetAppControlProxy();
     // set policy that "testBundle" is disallowed to run.
     DisallowedRunningBundlesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::APPID_MAX_SIZE;
     std::vector<std::string> data = { TEST_BUNDLE };
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -171,6 +178,7 @@ HWTEST_F(DisallowedRunningBundlesPluginTest, TestDisallowedRunningBundlesPlugin0
     // remove policy.
     std::string adminName = TEST_BUNDLE;
     std::vector<std::string> appIds = { TEST_BUNDLE };
+    mergeData.clear();
     plugin.OnBasicAdminRemove(adminName, appIds, mergeData, DEFAULT_USER_ID);
 
     // get current policy.

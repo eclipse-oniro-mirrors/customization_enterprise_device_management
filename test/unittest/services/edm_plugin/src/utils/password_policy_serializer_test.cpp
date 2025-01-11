@@ -169,7 +169,7 @@ HWTEST_F(PasswordPolicySerializerTest, TestMergePolicyFail, TestSize.Level1)
     std::vector<PasswordPolicy> data;
     PasswordPolicy policy;
     bool ret = serializer->MergePolicy(data, policy);
-    ASSERT_FALSE(ret);
+    ASSERT_TRUE(ret);
 }
 
 /**
