@@ -52,6 +52,9 @@ ManagedBrowserPolicyPlugin::ManagedBrowserPolicyPlugin()
     permissionMap_.insert(std::make_pair(
         FuncOperateType::SET, IPlugin::PolicyPermissionConfig("ohos.permission.ENTERPRISE_SET_BROWSER_POLICY",
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC)));
+    permissionMap_.insert(std::make_pair(
+        FuncOperateType::GET, IPlugin::PolicyPermissionConfig("", IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC)));
     needSave_ = true;
 }
 
@@ -144,6 +147,7 @@ ErrCode ManagedBrowserPolicyPlugin::ModifyOrRemoveManagedBrowserPolicy(
         std::string policyNameInLine;
         if (!FindPolicyNameInLine(line, policyNameInLine)) {
             EDMLOGE("can not find policyNameInLine");
+            remove(tempUrl.c_str());
             inFile.close();
             tempOutFile.close();
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;

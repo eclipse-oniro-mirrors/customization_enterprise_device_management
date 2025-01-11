@@ -89,7 +89,8 @@ const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
 const std::string DISALLOWED_UNINSTALL_POLICY =  "disallowed_uninstall_bundles";
 
-std::mutex EnterpriseDeviceMgrAbility::mutexLock_;
+std::shared_mutex EnterpriseDeviceMgrAbility::dataLock_;
+std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
@@ -267,7 +268,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
         return;
     }
     EDMLOGI("OnCommonEventUserRemoved");
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     // include super admin, need to be removed
     std::vector<std::shared_ptr<Admin>> userAdmin;
     AdminManager::GetInstance()->GetAdminByUserId(userIdToRemove, userAdmin);
@@ -311,7 +312,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
     }
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (admin != nullptr) {
         if (admin->adminInfo_.adminType_ == AdminType::NORMAL) {
@@ -419,7 +420,7 @@ void EnterpriseDeviceMgrAbility::NotifyAdminEnabled(bool isEnabled)
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> autoLock(mutexLock_);
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
         if (instance_ == nullptr) {
             EDMLOGD("EnterpriseDeviceMgrAbility:GetInstance instance = new EnterpriseDeviceMgrAbility()");
             instance_ = new (std::nothrow) EnterpriseDeviceMgrAbility();
@@ -481,7 +482,7 @@ int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16s
 
 void EnterpriseDeviceMgrAbility::OnStart()
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
     InitAllAdmins();
     InitAllPolices();
@@ -505,6 +506,7 @@ void EnterpriseDeviceMgrAbility::InitAllAdmins()
 
 void EnterpriseDeviceMgrAbility::InitAllPlugins()
 {
+    std::unique_lock<std::shared_mutex> autoLock(dataLock_);
     if (!pluginMgr_) {
         pluginMgr_ = PluginManager::GetInstance();
     }
@@ -534,10 +536,10 @@ void EnterpriseDeviceMgrAbility::UnloadPluginTask()
                 return this->notifySignal_;
             });
         }
+        std::unique_lock<std::shared_mutex> autoLock(dataLock_);
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCallTime_).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
-            std::lock_guard<std::mutex> autoLock(mutexLock_);
             if (pluginMgr_) {
                 pluginMgr_->UnloadPlugin();
             }
@@ -857,7 +859,7 @@ void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart()
 void EnterpriseDeviceMgrAbility::OnStop()
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::OnStop()");
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (pluginHasInit_) {
         pluginHasInit_ = false;
         std::unique_lock<std::mutex> lock(waitMutex_);
@@ -982,10 +984,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
             EDMLOGW("EnableAdmin: There is another admin ability enabled with the same package name.");
             return ERR_EDM_ADD_ADMIN_FAILED;
         }
-    }
-    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
-        EDMLOGW("EnableAdmin: There is another super admin enabled.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        return ERR_OK;
     }
     if (!isDebug && type == AdminType::BYOD && AdminManager::GetInstance()->IsAdminExist()) {
         EDMLOGW("EnableAdmin: byod admin not allowd enable when another admin enabled.");
@@ -1099,7 +1098,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &o
     }
     EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
     Admin edmAdmin(abilityInfo.at(0), AdminType::ENT, entInfo, permissionList, false);
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (keepPolicy) {
         std::string newAdminName = newAdmin.GetBundleName();
         return HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
@@ -1127,7 +1126,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,
@@ -1147,7 +1146,13 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     if (FAILED(VerifyEnableAdminCondition(admin, type, userId, isDebug))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
-
+    std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
+    if (!isDebug && type == AdminType::ENT && AdminManager::GetInstance()->IsSuperAdminExist()) {
+        if ((existAdmin == nullptr) || existAdmin->adminInfo_.adminType_ != AdminType::ENT) {
+            EDMLOGW("EnableAdmin: There is another super admin enabled.");
+            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        }
+    }
     /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
     if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(admin.GetBundleName(), type, userId,
@@ -1157,7 +1162,6 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     }
     Admin edmAdmin(abilityInfo.at(0), type, entInfo, permissionList, isDebug);
     if (FAILED(AdminManager::GetInstance()->SetAdminValue(userId, edmAdmin))) {
-        EDMLOGE("EnableAdmin: SetAdminValue failed.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
@@ -1316,14 +1320,14 @@ ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(AppExecFwk::ElementName &admin,
     if (adminType == AdminType::ENT || adminType == AdminType::BYOD) {
         userId = DEFAULT_USER_ID;
     }
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     return DoDisableAdmin(admin.GetBundleName(), userId, adminType);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleName)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
 }
 
@@ -1371,13 +1375,11 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
 
 bool EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     return AdminManager::GetInstance()->IsSuperAdmin(bundleName);
 }
 
 bool EnterpriseDeviceMgrAbility::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (existAdmin != nullptr) {
         EDMLOGD("IsAdminEnabled: get admin successed");
@@ -1437,7 +1439,6 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
     InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
@@ -1455,6 +1456,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return systemCalling;
     }
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy userId = %{public}d", userId);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
     if (deviceAdmin == nullptr) {
@@ -1491,6 +1493,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
         EDMLOGW("GetDevicePolicy: GetPolicyByCode INTERFACE_UNSUPPORTED");
@@ -1581,7 +1584,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::vector<std::string> superList;
     std::vector<std::string> normalList;
     std::vector<std::string> byodList;
@@ -1618,7 +1621,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType type, std::vector<
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     auto adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),  GetCurrentUserId());
     if (adminItem != nullptr && (adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN ||
         adminItem->GetAdminType() == AdminType::BYOD)) {
@@ -1645,7 +1648,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 
 ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     int32_t userId = GetCurrentUserId();
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (adminItem == nullptr) {
@@ -1681,7 +1684,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleApplicationEvent(const std::vector<uin
 ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     RETURN_IF_FAILED(HandleApplicationEvent(events, true));
     int32_t userId = AdminManager::GetInstance()->IsSuperOrSubSuperAdmin(admin.GetBundleName()) ?
@@ -1693,7 +1696,7 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
 ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     int32_t userId = AdminManager::GetInstance()->IsSuperOrSubSuperAdmin(admin.GetBundleName()) ?
         EdmConstants::DEFAULT_USER_ID : GetCurrentUserId();
@@ -1742,7 +1745,7 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 
 ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN,
@@ -1767,7 +1770,7 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
 
 ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(MessageParcel &reply)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     reply.WriteInt32(ERR_OK);
     if (superAdmin == nullptr) {
@@ -1783,7 +1786,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(MessageParcel &reply)
 ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &parentAdminName,
     const std::string &bundleName, const std::vector<std::string> &policies)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
@@ -1823,7 +1826,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &pare
 ErrCode EnterpriseDeviceMgrAbility::GetDelegatedPolicies(const std::string &parentAdminName,
     const std::string &bundleName, std::vector<std::string> &policies)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
@@ -1839,7 +1842,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedBundleNames(const std::string &p
     if (allowDelegatedPolicies_.find(policyName) == allowDelegatedPolicies_.end()) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);

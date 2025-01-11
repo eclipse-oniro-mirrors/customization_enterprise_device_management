@@ -166,7 +166,8 @@ private:
     void SetPasswordPolicy();
     void SetFingerprintPolicy();
     
-    static std::mutex mutexLock_;
+    static std::shared_mutex adminLock_;
+    static std::shared_mutex dataLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
