@@ -56,16 +56,5 @@ ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy
     }
     return ERR_OK;
 }
-
-ErrCode ClipboardUtils::RemoveAllPasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data)
-{
-    EDMLOGI("ClipboardUtils removeAllPasteboardPolicy.");
-    auto pasteboardClient = MiscServices::PasteboardClient::GetInstance();
-    std::vector<uint32_t> removeVector;
-    for (auto it = data.begin(); it != data.end(); it++) {
-        removeVector.emplace_back(it->first);
-    }
-    return pasteboardClient->RemoveGlobalShareOption(removeVector);
-}
 } // namespace EDM
 } // namespace OHOS

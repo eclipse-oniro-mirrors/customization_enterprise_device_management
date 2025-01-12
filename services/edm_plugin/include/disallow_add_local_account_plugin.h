@@ -16,19 +16,22 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN_H
 
+#include "basic_bool_plugin.h"
 #include "bool_serializer.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowAddLocalAccountPlugin : public PluginSingleton<DisallowAddLocalAccountPlugin, bool> {
+class DisallowAddLocalAccountPlugin : public PluginSingleton<DisallowAddLocalAccountPlugin, bool>,
+    public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr) override;
 
-    ErrCode OnSetPolicy(bool &data);
-
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, int32_t userId);
 private:
+    ErrCode SetOtherModulePolicy(bool data) override;
+
+    ErrCode RemoveOtherModulePolicy() override;
+
     ErrCode SetGlobalOsAccountConstraints(bool data);
 };
 } // namespace EDM

@@ -1184,19 +1184,14 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
         EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, userId);
+    std::string mergedPolicyData;
+    plugin->GetOthersMergePolicyData(adminName, mergedPolicyData);
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
     if (ret != ERR_OK) {
         EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
             adminName.c_str(), policyValue.c_str(), ret);
     }
     if (plugin->NeedSavePolicy()) {
-        std::string mergedPolicyData;
-        ret = plugin->MergePolicyData(adminName, mergedPolicyData);
-        if (ret != ERR_OK) {
-            EDMLOGW("RemoveAdminItem: Get admin by policy name failed: %{public}s, ErrCode:%{public}d\n",
-                policyName.c_str(), ret);
-        }
-
         ErrCode setRet = ERR_OK;
         std::unordered_map<std::string, std::string> adminListMap;
         ret = policyMgr_->GetAdminByPolicyName(policyName, adminListMap, userId);
@@ -1410,8 +1405,11 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
     }
 
     std::string policyName = plugin->GetPolicyName();
-    HandlePolicyData handlePolicyData{"", false};
+    std::string oldCombinePolicy;
+    policyMgr_->GetPolicy("", policyName, oldCombinePolicy, userId);
+    HandlePolicyData handlePolicyData{"", "", false};
     policyMgr_->GetPolicy(bundleName, policyName, handlePolicyData.policyData, userId);
+    plugin->GetOthersMergePolicyData(bundleName, handlePolicyData.mergePolicyData);
     ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(code, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("UpdateDevicePolicy: OnHandlePolicy failed");
@@ -1419,18 +1417,11 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
     }
     EDMLOGD("UpdateDevicePolicy: isChanged:%{public}d, needSave:%{public}d", handlePolicyData.isChanged,
         plugin->NeedSavePolicy());
-    std::string oldCombinePolicy;
-    policyMgr_->GetPolicy("", policyName, oldCombinePolicy, userId);
-    std::string mergedPolicy = handlePolicyData.policyData;
     bool isGlobalChanged = false;
     if (plugin->NeedSavePolicy() && handlePolicyData.isChanged) {
-        ret = plugin->MergePolicyData(bundleName, mergedPolicy);
-        if (FAILED(ret)) {
-            EDMLOGW("UpdateDevicePolicy: MergePolicyData failed error:%{public}d", ret);
-            return ret;
-        }
-        policyMgr_->SetPolicy(bundleName, policyName, handlePolicyData.policyData, mergedPolicy, userId);
-        isGlobalChanged = (oldCombinePolicy != mergedPolicy);
+        policyMgr_->SetPolicy(bundleName, policyName, handlePolicyData.policyData, handlePolicyData.mergePolicyData,
+            userId);
+        isGlobalChanged = (oldCombinePolicy != handlePolicyData.mergePolicyData);
     }
     plugin->OnHandlePolicyDone(code, bundleName, isGlobalChanged, userId);
     return ERR_OK;

@@ -16,15 +16,19 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_HDC_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_HDC_PLUGIN_H
 
+#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableHdcPlugin : public PluginSingleton<DisableHdcPlugin, bool> {
+class DisableHdcPlugin : public PluginSingleton<DisableHdcPlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr) override;
 
-    ErrCode OnSetPolicy(bool &data);
+private:
+    ErrCode SetOtherModulePolicy(bool data) override;
+
+    ErrCode RemoveOtherModulePolicy() override;
 };
 } // namespace EDM
 } // namespace OHOS

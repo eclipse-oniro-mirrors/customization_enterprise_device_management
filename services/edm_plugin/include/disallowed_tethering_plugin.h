@@ -16,15 +16,14 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TETHERING_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TETHERING_H
 
+#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedTetheringPlugin : public PluginSingleton<DisallowedTetheringPlugin, bool> {
+class DisallowedTetheringPlugin : public PluginSingleton<DisallowedTetheringPlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTetheringPlugin, bool>> ptr) override;
-
-    ErrCode OnSetPolicy(bool &data);
 };
 } // namespace EDM
 } // namespace OHOS

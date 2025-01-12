@@ -30,9 +30,11 @@ public:
         HandlePolicyData &policyData, int32_t userId) override;
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override{};
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
 private:
     ErrCode SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId);

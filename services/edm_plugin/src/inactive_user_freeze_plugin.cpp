@@ -24,26 +24,16 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InactiveUserFreezePlugin::GetPlugin());
-const std::string PERSIST_INACTIVE_USER_FREEZE_CONTROL = "persist.edm.inactive_user_freeze";
 
 void InactiveUserFreezePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InactiveUserFreezePlugin, bool>> ptr)
 {
     EDMLOGI("InactiveUserFreezePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::INACTIVE_USER_FREEZE, "inactive_user_freeze",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&InactiveUserFreezePlugin::OnSetPolicy, FuncOperateType::SET);
-}
-
-ErrCode InactiveUserFreezePlugin::OnSetPolicy(bool &data)
-{
-    EDMLOGI("InactiveUserFreezePlugin OnSetPolicy %{public}d", data);
-    std::string value = data ? "true" : "false";
-    if (!system::SetParameter(PERSIST_INACTIVE_USER_FREEZE_CONTROL, value)) {
-        EDMLOGE("InactiveUserFreezePlugin::OnSetPolicy set sysparam failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
+    ptr->SetOnAdminRemoveListener(&InactiveUserFreezePlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.inactive_user_freeze";
 }
 } // namespace EDM
 } // namespace OHOS

@@ -25,7 +25,10 @@ class PasswordPolicyPlugin : public PluginSingleton<PasswordPolicyPlugin, Passwo
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<PasswordPolicyPlugin, PasswordPolicy>> ptr) override;
 
-    ErrCode OnSetPolicy(PasswordPolicy &policy);
+    ErrCode OnSetPolicy(PasswordPolicy &policy, PasswordPolicy &currentData, PasswordPolicy &mergeData, int32_t userId);
+
+    ErrCode OnAdminRemove(const std::string &adminName, PasswordPolicy &data, PasswordPolicy &mergeData,
+        int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

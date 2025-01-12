@@ -53,7 +53,8 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyEmpty, TestSize.Level1)
     ClipboardPolicyPlugin plugin;
     std::map<int32_t, ClipboardPolicy> data;
     std::map<int32_t, ClipboardPolicy> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, 0);
+    std::map<int32_t, ClipboardPolicy> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -68,7 +69,8 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
     std::map<int32_t, ClipboardPolicy> data;
     data.insert(std::make_pair(1, ClipboardPolicy::IN_APP));
     std::map<int32_t, ClipboardPolicy> currentData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, 0);
+    std::map<int32_t, ClipboardPolicy> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(currentData[1] == ClipboardPolicy::IN_APP);
 }
@@ -87,7 +89,8 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
     for (int i = 1; i <= 100; i++) {
         currentData.insert(std::make_pair(i, ClipboardPolicy::IN_APP));
     }
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, 0);
+    std::map<int32_t, ClipboardPolicy> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 

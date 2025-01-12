@@ -49,5 +49,15 @@ std::vector<std::string> ArrayStringSerializer::SetDifferencePolicyData(std::vec
     std::set_difference(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
     return mergeData;
 }
+
+std::vector<std::string> ArrayStringSerializer::SetIntersectionPolicyData(std::vector<std::string> &data,
+    std::vector<std::string> &currentData)
+{
+    std::vector<std::string> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_intersection(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
+    return mergeData;
+}
 } // namespace EDM
 } // namespace OHOS

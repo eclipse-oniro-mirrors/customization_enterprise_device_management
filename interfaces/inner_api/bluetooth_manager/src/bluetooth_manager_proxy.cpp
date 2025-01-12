@@ -91,11 +91,6 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(const AppExecFwk::Elem
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("BluetoothManagerProxy:GetAllowedBluetoothDevices size=[%{public}d] is too large.", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     reply.ReadStringVector(&deviceIds);
     return ERR_OK;
 }

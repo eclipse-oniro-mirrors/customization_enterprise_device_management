@@ -38,7 +38,7 @@ void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkip
 }
 
 ErrCode SnapshotSkipPlugin::OnSetPolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+    std::vector<std::string> &currentData, std::vector<std::string> &mergeData, int32_t userId)
 {
     EDMLOGD("SnapshotSkipPlugin OnSetPolicy");
     if (data.empty()) {
@@ -49,22 +49,25 @@ ErrCode SnapshotSkipPlugin::OnSetPolicy(std::vector<std::string> &data,
         EDMLOGE("SnapshotSkipPlugin OnSetPolicy input data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-    if (mergeData.size() > EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE) {
+    auto afterHandle = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(currentData, data);
+    auto afterMerge = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    if (afterMerge.size() > EdmConstants::DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE) {
         EDMLOGE("SnapshotSkipPlugin OnSetPolicy merge data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, mergeData);
+
+    int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, afterMerge);
     if (FAILED(ret)) {
-        EDMLOGE("SnapshotSkipPlugin OnRemovePolicy failed %{public}d", ret);
+        EDMLOGE("SnapshotSkipPlugin SetSnapshotSkipByUserIdAndBundleNameList failed %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
+    currentData = afterHandle;
+    mergeData = afterMerge;
     return ERR_OK;
 }
 
-ErrCode SnapshotSkipPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+ErrCode SnapshotSkipPlugin::OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
+    std::vector<std::string> &mergeData, int32_t userId)
 {
     if (data.empty()) {
         EDMLOGW("SnapshotSkipPlugin OnRemovePolicy data is empty.");
@@ -74,14 +77,16 @@ ErrCode SnapshotSkipPlugin::OnRemovePolicy(std::vector<std::string> &data,
         EDMLOGE("SnapshotSkipPlugin OnRemovePolicy input data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::vector<std::string> mergeData =
-        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
-    int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, mergeData);
+    auto afterHandle = ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
+    auto afterMerge = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
+
+    int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, afterMerge);
     if (FAILED(ret)) {
-        EDMLOGE("SnapshotSkipPlugin OnRemovePolicy failed %{public}d", ret);
+        EDMLOGE("SnapshotSkipPlugin SetSnapshotSkipByUserIdAndBundleNameList failed %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
+    currentData = afterHandle;
+    mergeData = afterMerge;
     return ERR_OK;
 }
 
@@ -99,6 +104,17 @@ int32_t SnapshotSkipPlugin::SetSnapshotSkipByUserIdAndBundleNameList(int32_t use
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return mockSessionManagerServiceProxy->SetSnapshotSkipByUserIdAndBundleNames(userId, mergeData);
+}
+
+ErrCode SnapshotSkipPlugin::OnAdminRemove(const std::string &adminName, std::vector<std::string> &data,
+    std::vector<std::string> &mergeData, int32_t userId)
+{
+    int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, mergeData);
+    if (FAILED(ret)) {
+        EDMLOGE("SnapshotSkipPlugin OnAdminRemove failed %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

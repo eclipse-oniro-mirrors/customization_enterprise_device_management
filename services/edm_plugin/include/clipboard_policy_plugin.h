@@ -27,9 +27,10 @@ public:
         std::map<int32_t, ClipboardPolicy>>> ptr) override;
 
     ErrCode OnSetPolicy(std::map<int32_t, ClipboardPolicy> &data,
-        std::map<int32_t, ClipboardPolicy> &currentData, int32_t userId);
+        std::map<int32_t, ClipboardPolicy> &currentData, std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId);
 
-    ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardPolicy> &data, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardPolicy> &data,
+        std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

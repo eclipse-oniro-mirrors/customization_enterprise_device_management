@@ -22,6 +22,7 @@ namespace OHOS {
 namespace EDM {
 struct HandlePolicyData {
     std::string policyData;
+    std::string mergePolicyData;
     bool isChanged = false;
 };
 } // namespace EDM

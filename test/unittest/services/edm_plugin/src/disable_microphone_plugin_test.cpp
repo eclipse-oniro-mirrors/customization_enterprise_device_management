@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define protected public
 #include "disable_microphone_plugin.h"
+#undef protected
 
 #include <gtest/gtest.h>
 
@@ -54,8 +56,10 @@ void DisableMicrophonePluginTest::TearDownTestSuite(void)
 HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetTrue, TestSize.Level1)
 {
     bool isDisallow = true;
+    bool currentdata = false;
+    bool mergeData = false;
     DisableMicrophonePlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(isDisallow);
+    ErrCode ret = plugin.OnSetPolicy(isDisallow, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
 }
@@ -68,8 +72,10 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetTrue, Te
 HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, TestSize.Level1)
 {
     bool isDisallow = false;
+    bool currentdata = false;
+    bool mergeData = false;
     DisableMicrophonePlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(isDisallow);
+    ErrCode ret = plugin.OnSetPolicy(isDisallow, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, true));
 }

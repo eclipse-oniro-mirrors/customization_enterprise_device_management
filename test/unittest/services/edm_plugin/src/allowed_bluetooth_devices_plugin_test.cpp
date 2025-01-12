@@ -15,7 +15,12 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "allowed_bluetooth_devices_plugin.h"
+#undef protected
+#undef private
+
 #include "edm_constants.h"
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
@@ -58,9 +63,11 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesEmpty, TestSi
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -73,25 +80,12 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCu
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin plugin;
-    std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
-    std::vector<std::string> currentData = { "00:00:5E:00:53:00", "FF:FF:FF:FF:FF:FF" };
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
-    plugin.OnChangedPolicyDone(true);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestSetBluetoothDevicesWithDataWithoutCurrentData
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataWithoutCurrentData, TestSize.Level1)
-{
-    Utils::SetBluetoothEnable();
-    AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    plugin.OnChangedPolicyDone(true);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -104,23 +98,12 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSiz
 {
     Utils::SetBluetoothDisable();
     AllowedBluetoothDevicesPlugin devicesPlugin;
+    devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData{ "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
-    ErrCode ret = devicesPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = devicesPlugin.OnBasicSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-}
-
-/**
- * @tc.name: TestOnChangedPolicyDoneSuc
- * @tc.desc: Test set bluetooth devices function.
- * @tc.type: FUNC
- */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestOnChangedPolicyDoneSuc, TestSize.Level1)
-{
-    Utils::SetBluetoothDisable();
-    AllowedBluetoothDevicesPlugin devicesPlugin;
-    devicesPlugin.OnChangedPolicyDone(false);
-    ASSERT_TRUE(true);
 }
 
 /**
@@ -132,6 +115,7 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 {
     Utils::SetBluetoothEnable();
     AllowedBluetoothDevicesPlugin devicesPlugin;
+    devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData(EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1);
     for (int i = 0; i < EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE + 1; ++i) {
         std::stringstream ss;
@@ -139,7 +123,8 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
         policyData[i] = ss.str();
     }
     std::vector<std::string> currentData;
-    ErrCode ret = devicesPlugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = devicesPlugin.OnBasicSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -151,9 +136,11 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, TestSize.Level1)
 {
     AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -165,23 +152,12 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, Tes
 HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
 {
     AllowedBluetoothDevicesPlugin plugin;
-    std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
-    std::vector<std::string> currentData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
-    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestRemoveBluetoothDevicesWithDataWithoutCurrentData
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataWithoutCurrentData, TestSize.Level1)
-{
-    AllowedBluetoothDevicesPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
-    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnBasicRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    plugin.OnChangedPolicyDone(false);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

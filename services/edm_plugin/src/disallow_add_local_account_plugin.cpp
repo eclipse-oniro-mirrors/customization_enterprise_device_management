@@ -34,14 +34,14 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
     ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);
 }
 
-ErrCode DisallowAddLocalAccountPlugin::OnSetPolicy(bool &data)
+ErrCode DisallowAddLocalAccountPlugin::SetOtherModulePolicy(bool data)
 {
     return SetGlobalOsAccountConstraints(data);
 }
 
-ErrCode DisallowAddLocalAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
+ErrCode DisallowAddLocalAccountPlugin::RemoveOtherModulePolicy()
 {
-    return data ? SetGlobalOsAccountConstraints(!data) : ERR_OK;
+    return SetGlobalOsAccountConstraints(false);
 }
 
 ErrCode DisallowAddLocalAccountPlugin::SetGlobalOsAccountConstraints(bool data)

@@ -38,7 +38,7 @@ void ClipboardPolicyPlugin::InitPlugin(
 }
 
 ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardPolicy> &data,
-    std::map<int32_t, ClipboardPolicy> &currentData, int32_t userId)
+    std::map<int32_t, ClipboardPolicy> &currentData, std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId)
 {
     EDMLOGI("ClipboardPolicyPlugin OnSetPolicy.");
     if (data.empty()) {
@@ -46,22 +46,49 @@ ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardPolicy> &d
         return EdmReturnErrCode::PARAM_ERROR;
     }
     auto it = data.begin();
+    std::map<int32_t, ClipboardPolicy> afterHandle = currentData;
     if (it->second == ClipboardPolicy::DEFAULT) {
-        currentData.erase(it->first);
+        afterHandle.erase(it->first);
     } else {
-        currentData[it->first] = it->second;
+        afterHandle[it->first] = it->second;
     }
-    if (currentData.size() > MAX_PASTEBOARD_POLICY_NUM) {
+    std::map<int32_t, ClipboardPolicy> afterMerge = mergeData;
+    for (auto policy : afterHandle) {
+        if (afterMerge.find(policy.first) == afterMerge.end() ||
+            static_cast<int32_t>(policy.second) < static_cast<int32_t>(afterMerge[policy.first])) {
+            afterMerge[policy.first] = policy.second;
+        }
+    }
+    if (afterMerge.size() > MAX_PASTEBOARD_POLICY_NUM) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    return ClipboardUtils::HandlePasteboardPolicy(data);
+    if (mergeData.find(it->first) != mergeData.end()) {
+        data[it->first] = afterMerge[it->first];
+    }
+    EDMLOGD("ClipboardPolicyPlugin HandlePasteboardPolicy.%{public}d, %{public}d", it->first,
+        static_cast<int32_t>(it->second));
+    if (FAILED(ClipboardUtils::HandlePasteboardPolicy(data))) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    currentData = afterHandle;
+    mergeData = afterMerge;
+    return ERR_OK;
 }
 
 ErrCode ClipboardPolicyPlugin::OnAdminRemove(const std::string &adminName,
-    std::map<int32_t, ClipboardPolicy> &data, int32_t userId)
+    std::map<int32_t, ClipboardPolicy> &data, std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId)
 {
     EDMLOGI("ClipboardPolicyPlugin OnAdminRemove.");
-    return ClipboardUtils::RemoveAllPasteboardPolicy(data);
+    for (auto &iter : data) {
+        if (mergeData.find(iter.first) != mergeData.end()) {
+            data[iter.first] = mergeData[iter.first];
+        } else {
+            data[iter.first] = ClipboardPolicy::DEFAULT;
+        }
+        EDMLOGD("ClipboardPolicyPlugin HandlePasteboardPolicy.%{public}d, %{public}d", iter.first,
+            static_cast<int32_t>(data[iter.first]));
+    }
+    return ClipboardUtils::HandlePasteboardPolicy(data);
 }
 } // namespace EDM
 } // namespace OHOS

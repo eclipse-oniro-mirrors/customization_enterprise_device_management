@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PARAM_EDM_CAMERA_DISABLE = "persist.edm.camera_disable";
 constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableCameraPlugin::GetPlugin());
 
@@ -37,12 +36,14 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, "disable_camera", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, "disable_camera", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableCameraPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableCameraPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.camera_disable";
 }
 
-ErrCode DisableCameraPlugin::OnSetPolicy(bool &data)
+ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data)
 {
     EDMLOGI("DisableCameraPlugin OnSetPolicy %{public}d", data);
     auto cameraManager = CameraStandard::CameraManager::GetInstance();
@@ -52,11 +53,24 @@ ErrCode DisableCameraPlugin::OnSetPolicy(bool &data)
     }
     int32_t ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, data);
     if (ret == ERR_OK || (!data && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
-        std::string disableStr = data ? "true" : "false";
-        system::SetParameter(PARAM_EDM_CAMERA_DISABLE, disableStr);
         return ERR_OK;
     }
-    EDMLOGE("DisableCameraPlugin MuteCameraPersist ret %{public}d", ret);
+    EDMLOGE("DisableCameraPlugin SetOtherModulePolicy MuteCameraPersist failed, %{public}d", ret);
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisableCameraPlugin::RemoveOtherModulePolicy()
+{
+    auto cameraManager = CameraStandard::CameraManager::GetInstance();
+    if (cameraManager == nullptr) {
+        EDMLOGE("DisableCameraPlugin CameraManager nullptr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, false);
+    if (ret == ERR_OK || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
+        return ERR_OK;
+    }
+    EDMLOGE("DisableCameraPlugin RemoveOtherModulePolicy MuteCameraPersist failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

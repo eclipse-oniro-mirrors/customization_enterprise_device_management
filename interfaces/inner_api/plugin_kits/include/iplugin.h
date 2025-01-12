@@ -92,10 +92,11 @@ public:
      * @param policyData in:Current cached policy data,out:comprehensive data of all admins currently cached.
      * @return If ERR_OK is returned,policyData incoming and outgoing data will be saved to a file.
      */
-    virtual ErrCode MergePolicyData(const std::string &adminName, std::string &policyData);
+    virtual ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData);
     virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) = 0;
-    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) = 0;
+    virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeJsonData, int32_t userId) = 0;
     virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
         int32_t userId) = 0;
     virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);

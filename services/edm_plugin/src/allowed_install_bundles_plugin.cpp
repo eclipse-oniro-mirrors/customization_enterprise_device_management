@@ -31,10 +31,11 @@ void AllowedInstallBundlesPlugin::InitPlugin(
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES, "allowed_install_bundles",
         "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveDoneListener(&AllowedInstallBundlesPlugin::OnAdminRemoveDone);
+    ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&AllowedInstallBundlesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&AllowedInstallBundlesPlugin::OnBasicAdminRemove);
     SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL);
+    maxListSize_ = EdmConstants::APPID_MAX_SIZE;
 }
 } // namespace EDM
 } // namespace OHOS

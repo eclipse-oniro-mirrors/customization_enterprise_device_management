@@ -42,15 +42,16 @@ public:
         return ERR_OK;
     }
 
-    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &policyData) override
     {
-        return IPlugin::MergePolicyData(adminName, policyData);
+        return IPlugin::GetOthersMergePolicyData(adminName, policyData);
     }
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override {}
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override
     {
         return ERR_OK;
     }
@@ -89,15 +90,16 @@ public:
         return ERR_OK;
     }
 
-    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &policyData) override
     {
-        return IPlugin::MergePolicyData(adminName, policyData);
+        return IPlugin::GetOthersMergePolicyData(adminName, policyData);
     }
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override {}
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override
     {
         return ERR_OK;
     }

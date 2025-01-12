@@ -25,47 +25,79 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedUsbDevicesPlugin>());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedUsbDevicesPlugin::GetPlugin());
 constexpr int32_t USB_DEVICE_TYPE_BASE_CLASS_STORAGE = 8;
 
-DisallowedUsbDevicesPlugin::DisallowedUsbDevicesPlugin()
+void DisallowedUsbDevicesPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<DisallowedUsbDevicesPlugin, std::vector<USB::UsbDeviceType>>> ptr)
 {
-    policyCode_ = EdmInterfaceCode::DISALLOWED_USB_DEVICES;
-    policyName_ = "disallowed_usb_devices";
-    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_USB");
-    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
-    needSave_ = true;
+    EDMLOGI("DisallowedUsbDevicesPlugin InitPlugin...");
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_USB_DEVICES, "disallowed_usb_devices",
+        "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->SetSerializer(ArrayUsbDeviceTypeSerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&DisallowedUsbDevicesPlugin::OnAdminRemove);
 }
 
-ErrCode DisallowedUsbDevicesPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-    HandlePolicyData &policyData, int32_t userId)
+ErrCode DisallowedUsbDevicesPlugin::OnSetPolicy(std::vector<USB::UsbDeviceType> &data,
+    std::vector<USB::UsbDeviceType> &currentData, std::vector<USB::UsbDeviceType> &mergeData, int32_t userId)
 {
-    uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
-    FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    EDMLOGI("DisallowedUsbDevicesPlugin OnHandlePolicy: type: %{public}u", static_cast<uint32_t>(type));
-    if (type != FuncOperateType::SET && type != FuncOperateType::REMOVE) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    EDMLOGI("AllowUsbDevicesPlugin OnSetPolicy userId = %{public}d", userId);
+    if (data.empty()) {
+        EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
+        return ERR_OK;
     }
-    if (HasConflictPolicy(type)) {
+    if (data.size() > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    if (HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    auto serializer_ = ArrayUsbDeviceTypeSerializer::GetInstance();
-    std::string beforeHandle = policyData.policyData;
-    std::vector<USB::UsbDeviceType> beforeDevices;
-    serializer_->Deserialize(beforeHandle, beforeDevices);
-    std::vector<USB::UsbDeviceType> policyDevices;
-    if (!serializer_->GetPolicy(data, policyDevices)) {
+
+    std::vector<USB::UsbDeviceType> afterHandle =
+        ArrayUsbDeviceTypeSerializer::GetInstance()->SetUnionPolicyData(currentData, data);
+    std::vector<USB::UsbDeviceType> afterMerge =
+        ArrayUsbDeviceTypeSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+
+    if (afterMerge.size() > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+        EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::vector<USB::UsbDeviceType> mergeData;
-    if (!CombinePolicyDataAndBeforeData(type, policyDevices, beforeDevices, mergeData)) {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
+
     std::vector<USB::UsbDeviceType> disallowedUsbDeviceTypes;
-    CombineDataWithStorageAccessPolicy(mergeData, disallowedUsbDeviceTypes);
+    CombineDataWithStorageAccessPolicy(afterMerge, disallowedUsbDeviceTypes);
+    ErrCode ret = UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    currentData = afterHandle;
+    mergeData = afterMerge;
+    return ERR_OK;
+}
+
+ErrCode DisallowedUsbDevicesPlugin::OnRemovePolicy(std::vector<USB::UsbDeviceType> &data,
+    std::vector<USB::UsbDeviceType> &currentData, std::vector<USB::UsbDeviceType> &mergeData, int32_t userId)
+{
+    EDMLOGD("DisallowedUsbDevicesPlugin OnRemovePolicy userId : %{public}d:", userId);
+    if (data.empty()) {
+        EDMLOGW("DisallowedUsbDevicesPlugin OnRemovePolicy data is empty:");
+        return ERR_OK;
+    }
+    if (data.size() > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+        EDMLOGE("DisallowedUsbDevicesPlugin OnRemovePolicy input data is too large");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+
+    std::vector<USB::UsbDeviceType> afterHandle =
+        ArrayUsbDeviceTypeSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
+    std::vector<USB::UsbDeviceType> afterMerge =
+        ArrayUsbDeviceTypeSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    std::vector<USB::UsbDeviceType> disallowedUsbDeviceTypes;
+    CombineDataWithStorageAccessPolicy(afterMerge, disallowedUsbDeviceTypes);
     ErrCode ret = ERR_OK;
-    if (disallowedUsbDeviceTypes.empty() && !beforeDevices.empty()) {
+    if (disallowedUsbDeviceTypes.empty() && !currentData.empty()) {
         ret = UsbPolicyUtils::SetUsbDisabled(false);
         if (ret != ERR_OK) {
             return ret;
@@ -75,20 +107,13 @@ ErrCode DisallowedUsbDevicesPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     if (ret != ERR_OK) {
         return ret;
     }
-    std::string afterHandle;
-    serializer_->Serialize(mergeData, afterHandle);
-    policyData.isChanged = afterHandle != beforeHandle;
-    if (policyData.isChanged) {
-        policyData.policyData = afterHandle;
-    }
+    currentData = afterHandle;
+    mergeData = afterMerge;
     return ERR_OK;
 }
 
-bool DisallowedUsbDevicesPlugin::HasConflictPolicy(const FuncOperateType type)
+bool DisallowedUsbDevicesPlugin::HasConflictPolicy()
 {
-    if (type != FuncOperateType::SET) {
-        return false;
-    }
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
     policyManager->GetPolicy("", "disable_usb", disableUsb);
@@ -103,24 +128,6 @@ bool DisallowedUsbDevicesPlugin::HasConflictPolicy(const FuncOperateType type)
         return true;
     }
     return false;
-}
-
-bool DisallowedUsbDevicesPlugin::CombinePolicyDataAndBeforeData(const FuncOperateType type,
-    std::vector<USB::UsbDeviceType> policyDevices, std::vector<USB::UsbDeviceType> beforeDevices,
-    std::vector<USB::UsbDeviceType> &mergeDevices)
-{
-    auto serializer_ = ArrayUsbDeviceTypeSerializer::GetInstance();
-    if (type == FuncOperateType::SET) {
-        mergeDevices = serializer_->SetUnionPolicyData(policyDevices, beforeDevices);
-    } else {
-        mergeDevices = serializer_->SetDifferencePolicyData(policyDevices, beforeDevices);
-    }
-    if (mergeDevices.size() > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
-        EDMLOGE("DisallowedUsbDevicesPlugin: OnHandlePolicy union data size=[%{public}zu] is too large",
-            mergeDevices.size());
-        return false;
-    }
-    return true;
 }
 
 void DisallowedUsbDevicesPlugin::CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
@@ -151,9 +158,8 @@ ErrCode DisallowedUsbDevicesPlugin::OnGetPolicy(std::string &policyData, Message
         reply.WriteUint32(0);
         return ERR_OK;
     }
-    auto serializer_ = ArrayUsbDeviceTypeSerializer::GetInstance();
     std::vector<USB::UsbDeviceType> disallowedDevices;
-    serializer_->Deserialize(policyData, disallowedDevices);
+    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(policyData, disallowedDevices);
     reply.WriteInt32(ERR_OK);
     reply.WriteUint32(disallowedDevices.size());
     for (const auto &usbDeviceType : disallowedDevices) {
@@ -165,15 +171,16 @@ ErrCode DisallowedUsbDevicesPlugin::OnGetPolicy(std::string &policyData, Message
     return ERR_OK;
 }
 
-ErrCode DisallowedUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
-    int32_t userId)
+ErrCode DisallowedUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::vector<USB::UsbDeviceType> &data,
+    std::vector<USB::UsbDeviceType> &mergeData, int32_t userId)
 {
     EDMLOGD("DisallowedUsbDevicesPlugin OnAdminRemove");
-    if (policyData.empty()) {
-        EDMLOGW("DisallowedUsbDevicesPlugin OnRemovePolicy data is empty:");
-        return ERR_OK;
+    std::vector<USB::UsbDeviceType> disallowedUsbDeviceTypes;
+    CombineDataWithStorageAccessPolicy(mergeData, disallowedUsbDeviceTypes);
+    if (disallowedUsbDeviceTypes.empty()) {
+        return UsbPolicyUtils::SetUsbDisabled(false);
     }
-    return UsbPolicyUtils::SetUsbDisabled(false);
+    return UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
 }
 } // namespace EDM
 } // namespace OHOS

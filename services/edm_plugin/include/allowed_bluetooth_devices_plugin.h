@@ -16,21 +16,21 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_DEVICES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_BLUETOOTH_DEVICES_PLUGIN_H
 
+#include "basic_array_string_plugin.h"
 #include "plugin_singleton.h"
-#include <vector>
 
 namespace OHOS {
 namespace EDM {
 class AllowedBluetoothDevicesPlugin : public PluginSingleton<AllowedBluetoothDevicesPlugin,
-    std::vector<std::string>> {
+    std::vector<std::string>>, public BasicArrayStringPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedBluetoothDevicesPlugin,
         std::vector<std::string>>> ptr) override;
-    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
     void OnChangedPolicyDone(bool isGlobalChanged);
 
 private:
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
     void NotifyBluetoothDevicesChanged();
 };
 } // namespace EDM

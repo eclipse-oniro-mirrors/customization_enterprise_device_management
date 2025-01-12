@@ -25,9 +25,6 @@ namespace EDM {
 std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::instance_ = nullptr;
 std::once_flag NetworkManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
-#ifdef NETMANAGER_BASE_EDM_ENABLE
-constexpr int32_t MAX_SIZE = 16;
-#endif
 
 NetworkManagerProxy::NetworkManagerProxy() {}
 
@@ -63,11 +60,6 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(const AppExecFwk::ElementNa
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
-    if (size > MAX_SIZE) {
-        EDMLOGE("networkInterface size=[%{public}d] is too large", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     reply.ReadStringVector(&networkInterface);
     return ERR_OK;
 #else
@@ -89,11 +81,6 @@ int32_t NetworkManagerProxy::GetAllNetworkInterfaces(MessageParcel &data,
     if (!blRes) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
-    }
-    int32_t size = reply.ReadInt32();
-    if (size > MAX_SIZE) {
-        EDMLOGE("networkInterface size=[%{public}d] is too large", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&networkInterface);
     return ERR_OK;

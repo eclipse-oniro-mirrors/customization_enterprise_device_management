@@ -203,7 +203,7 @@ HWTEST_F(BundleManagerProxyTest, TestGetAllowedInstallBundlesFailWithMax, TestSi
             .Times(1)
             .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyExceedsMax));
         ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(admin, DEFAULT_USER_ID, bundles, policyType);
-        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        ASSERT_TRUE(ret == ERR_OK);
     }
 }
 

@@ -14,7 +14,10 @@
  */
 
 #include <gtest/gtest.h>
+
+#define protected public
 #include "disable_camera_plugin.h"
+#undef protected
 #include "utils.h"
 
 using namespace testing::ext;
@@ -50,14 +53,15 @@ void DisableCameraPluginTest::TearDownTestSuite(void)
 HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestSet, TestSize.Level1)
 {
     bool data = true;
+    bool currentdata = false;
+    bool mergeData = false;
     DisableCameraPlugin plugin;
-    HandlePolicyData handlePolicyData;
-    ErrCode ret = plugin.OnSetPolicy(data);
+    ErrCode ret = plugin.OnSetPolicy(data, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(data);
 
     data = false;
-    ret = plugin.OnSetPolicy(data);
+    ret = plugin.OnSetPolicy(data, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(data);
 }

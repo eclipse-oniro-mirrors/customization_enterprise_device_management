@@ -61,7 +61,7 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetTrue, TestSi
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -79,7 +79,7 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalse, TestS
     MessageParcel reply;
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -98,7 +98,7 @@ HWTEST_F(SetWifiDisabledPluginTest, TestSetWifiDisabledPluginTestSetFalseFail, T
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = SetWifiDisabledPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_WIFI);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);

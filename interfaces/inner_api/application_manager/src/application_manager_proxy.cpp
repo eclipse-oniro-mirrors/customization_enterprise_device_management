@@ -89,11 +89,6 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("bundles size=[%{public}d] is too large", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     reply.ReadStringVector(&bundles);
     return ERR_OK;
 }

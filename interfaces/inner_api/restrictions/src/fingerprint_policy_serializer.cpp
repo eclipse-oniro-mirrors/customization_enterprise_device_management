@@ -81,8 +81,15 @@ bool FingerprintPolicySerializer::WritePolicy(MessageParcel &reply, FingerprintP
 
 bool FingerprintPolicySerializer::MergePolicy(std::vector<FingerprintPolicy> &data, FingerprintPolicy &result)
 {
-    if (!data.empty()) {
-        result = data.back();
+    for (const auto &dataItem : data) {
+        result.globalDisallow = result.globalDisallow || dataItem.globalDisallow;
+        if (result.globalDisallow) {
+            result.accountIds.clear();
+            break;
+        }
+        for (auto accountId : dataItem.accountIds) {
+            result.accountIds.insert(accountId);
+        }
     }
     return true;
 }

@@ -16,21 +16,26 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDRUNNINGBUNDLES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_ADDDISALLOWEDRUNNINGBUNDLES_PLUGIN_H
 
-#include <bundle_mgr_interface.h>
 #include <vector>
+
+#include "bundle_mgr_interface.h"
+
+#include "basic_array_string_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
 class DisallowedRunningBundlesPlugin : public PluginSingleton<DisallowedRunningBundlesPlugin,
-    std::vector<std::string>> {
+    std::vector<std::string>>, public BasicArrayStringPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin,
         std::vector<std::string>>> ptr) override;
 
-    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    void OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
+private:
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
+    ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
 
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
 };

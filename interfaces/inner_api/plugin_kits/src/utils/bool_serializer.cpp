@@ -19,6 +19,10 @@ namespace OHOS {
 namespace EDM {
 bool BoolSerializer::Deserialize(const std::string &jsonString, bool &dataObj)
 {
+    dataObj = false;
+    if (jsonString.empty()) {
+        return true;
+    }
     constexpr std::size_t TRUE_STRING_SIZE = 4;
     constexpr std::size_t FALSE_STRING_SIZE = 5;
     if (jsonString.size() != TRUE_STRING_SIZE && jsonString.size() != FALSE_STRING_SIZE) {
@@ -32,7 +36,6 @@ bool BoolSerializer::Deserialize(const std::string &jsonString, bool &dataObj)
         return true;
     }
     if (temp == FALSE_VALUE) {
-        dataObj = false;
         return true;
     }
     return false;

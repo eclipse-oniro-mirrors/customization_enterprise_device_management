@@ -90,8 +90,16 @@ bool ClipboardSerializer::WritePolicy(MessageParcel &reply, std::map<int32_t, Cl
 bool ClipboardSerializer::MergePolicy(std::vector<std::map<int32_t, ClipboardPolicy>> &data,
     std::map<int32_t, ClipboardPolicy> &result)
 {
-    if (!data.empty()) {
-        result = data.back();
+        for (auto policyMap : data) {
+        for (auto iter : policyMap) {
+            if (iter.second == ClipboardPolicy::DEFAULT) {
+                return false;
+            }
+            if (result.find(iter.first) == result.end() ||
+                static_cast<int32_t>(iter.second) < static_cast<int32_t>(result[iter.first])) {
+                result[iter.first] = iter.second;
+            }
+        }
     }
     return true;
 }

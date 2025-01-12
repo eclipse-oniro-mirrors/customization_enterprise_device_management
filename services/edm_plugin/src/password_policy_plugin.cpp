@@ -32,11 +32,17 @@ void PasswordPolicyPlugin::InitPlugin(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(PasswordSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&PasswordPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&PasswordPolicyPlugin::OnAdminRemove);
 }
 
-ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy)
+ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy &currentData,
+    PasswordPolicy &mergeData, int32_t userId)
 {
     EDMLOGI("PasswordPolicyPlugin OnSetPolicy...");
+    if (!mergeData.complexityReg.empty() || mergeData.validityPeriod != 0 || !mergeData.additionalDescription.empty()) {
+        EDMLOGE("LocationPolicyPlugin set location failed. Other admin has already set policies.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     UserIam::UserAuth::GlobalConfigParam param;
     param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
     param.value.pinExpiredPeriod = policy.validityPeriod;
@@ -44,6 +50,23 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy)
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != ERR_OK) {
         EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
+    }
+    currentData = policy;
+    mergeData = policy;
+    return ERR_OK;
+}
+
+ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, PasswordPolicy &data,
+    PasswordPolicy &mergeData, int32_t userId)
+{
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
+    param.value.pinExpiredPeriod = 0;
+    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != ERR_OK) {
+        EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }

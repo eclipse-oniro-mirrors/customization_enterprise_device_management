@@ -58,7 +58,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin001, TestSize.Level1)
     data.WriteInt32(1);
     std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
-    HandlePolicyData handlePolicyData{"0", false};
+    HandlePolicyData handlePolicyData{"0", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -80,7 +80,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin002, TestSize.Level1)
     data.WriteInt32(0);
     std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
-    HandlePolicyData handlePolicyData{"0", false};
+    HandlePolicyData handlePolicyData{"0", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -102,7 +102,7 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin003, TestSize.Level1)
     data.WriteInt32(2);
     std::shared_ptr<IPlugin> plugin = std::make_shared<UsbReadOnlyPlugin>();
     // origin policy is allowed to read write
-    HandlePolicyData handlePolicyData{"0", false};
+    HandlePolicyData handlePolicyData{"0", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USB_READ_ONLY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -138,7 +138,8 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin008, TestSize.Level1)
     UsbReadOnlyPlugin plugin;
     std::string adminName{"testAdminName"};
     std::string policyData = "0";
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::string mergeData;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -152,7 +153,8 @@ HWTEST_F(UsbReadOnlyPluginTest, TestUsbReadOnlyPlugin009, TestSize.Level1)
     UsbReadOnlyPlugin plugin;
     std::string adminName{"testAdminName"};
     std::string policyData = "2";
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::string mergeData;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

@@ -61,7 +61,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyFuncCodeError, TestSize.Level1
     std::shared_ptr<PowerPolicyPlugin> plugin = std::make_shared<PowerPolicyPlugin>();
     MessageParcel data;
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::POWER_POLICY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -80,7 +80,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyPowerPolicyUnmarshallingError,
     data.WriteUint32(1000); // error action
     data.WriteUint32(1000);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -99,7 +99,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyPowerSceneError, TestSize.Leve
     PowerPolicy powerPolicy;
     powerPolicy.Marshalling(data);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -118,7 +118,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyNormal, TestSize.Level1)
     PowerPolicy powerPolicy;
     powerPolicy.Marshalling(data);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     EdmDataAbilityUtils::SetResult("power_suspend_normal");
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -138,7 +138,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyJsonReaderError, TestSize.Leve
     PowerPolicy powerPolicy;
     powerPolicy.Marshalling(data);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     EdmDataAbilityUtils::SetResult("power_suspend_json_error");
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -157,7 +157,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyJsonNoPowerSceneKey, TestSize.
     PowerPolicy powerPolicy;
     powerPolicy.Marshalling(data);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     EdmDataAbilityUtils::SetResult("power_suspend_json_no_time_out");
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -177,7 +177,7 @@ HWTEST_F(PowerPolicyPluginTest, TestOnHandlePolicyPowerSceneKeyNotObject, TestSi
     PowerPolicy powerPolicy;
     powerPolicy.Marshalling(data);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::POWER_POLICY);
     EdmDataAbilityUtils::SetResult("power_suspend_json_key_not_object");
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);

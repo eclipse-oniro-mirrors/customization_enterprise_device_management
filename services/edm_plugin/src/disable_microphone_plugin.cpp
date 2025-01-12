@@ -39,9 +39,11 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMicrophonePlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableMicrophonePlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.mic_disable";
 }
 
-ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
+ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow)
 {
     EDMLOGI("DisableMicrophonePlugin OnSetPolicy...isDisallow = %{public}d", isDisallow);
     auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
@@ -53,11 +55,26 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
     int32_t ret = audioGroupManager
         ->SetMicrophoneMutePersistent(isDisallow, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
     if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || (!isDisallow && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
-        std::string disableStr = isDisallow ? "true" : "false";
-        system::SetParameter(PARAM_EDM_MIC_DISABLE, disableStr);
         return ERR_OK;
     }
-    EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
+    EDMLOGE("DisableMicrophonePlugin SetOtherModulePolicy SetMicrophoneMutePersistent failed, %{public}d", ret);
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisableMicrophonePlugin::RemoveOtherModulePolicy()
+{
+    auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
+        ->GetGroupManager(OHOS::AudioStandard::DEFAULT_VOLUME_GROUP_ID);
+    if (audioGroupManager == nullptr) {
+        EDMLOGE("DisableMicrophonePlugin audioGroupManager null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret =
+        audioGroupManager->SetMicrophoneMutePersistent(false, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
+    if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
+        return ERR_OK;
+    }
+    EDMLOGE("DisableMicrophonePlugin RemoveOtherModulePolicy SetMicrophoneMutePersistent failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

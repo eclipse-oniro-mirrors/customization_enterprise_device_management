@@ -58,7 +58,9 @@ HWTEST_F(DisallowAddOsAccountByUserPluginTest, TestOnSetPolicyEmpty, TestSize.Le
 {
     DisallowAddOsAccountByUserPlugin plugin;
     std::map<std::string, std::string> policies;
-    ErrCode ret = plugin.OnSetPolicy(policies);
+    std::map<std::string, std::string> currentData;
+    std::map<std::string, std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -72,7 +74,9 @@ HWTEST_F(DisallowAddOsAccountByUserPluginTest, TestOnSetPolicyUserIdEmpty, TestS
     DisallowAddOsAccountByUserPlugin plugin;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair("", "true"));
-    ErrCode ret = plugin.OnSetPolicy(policies);
+    std::map<std::string, std::string> currentData;
+    std::map<std::string, std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
@@ -86,7 +90,9 @@ HWTEST_F(DisallowAddOsAccountByUserPluginTest, TestOnSetPolicyUserIdUnavailable,
     DisallowAddOsAccountByUserPlugin plugin;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair(STR_UNAVAIL_USER_ID, "true"));
-    ErrCode ret = plugin.OnSetPolicy(policies);
+    std::map<std::string, std::string> currentData;
+    std::map<std::string, std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -100,7 +106,9 @@ HWTEST_F(DisallowAddOsAccountByUserPluginTest, TestOnSetPolicyTrue, TestSize.Lev
     DisallowAddOsAccountByUserPlugin plugin;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair(STR_DEFAULT_USER_ID, "true"));
-    ErrCode ret = plugin.OnSetPolicy(policies);
+    std::map<std::string, std::string> currentData;
+    std::map<std::string, std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -114,7 +122,9 @@ HWTEST_F(DisallowAddOsAccountByUserPluginTest, TestOnSetPolicyFalse, TestSize.Le
     DisallowAddOsAccountByUserPlugin plugin;
     std::map<std::string, std::string> policies;
     policies.insert(std::make_pair(STR_DEFAULT_USER_ID, "false"));
-    ErrCode ret = plugin.OnSetPolicy(policies);
+    std::map<std::string, std::string> currentData;
+    std::map<std::string, std::string> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

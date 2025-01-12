@@ -34,7 +34,7 @@ std::string InactiveUserFreezeQuery::GetPermission(IPlugin::PermissionType, cons
 ErrCode InactiveUserFreezeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetBoolSystemParamSuccess(reply, PERSIST_INACTIVE_USER_FREEZE_CONTROL, false);
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

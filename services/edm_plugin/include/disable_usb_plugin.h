@@ -16,17 +16,18 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
 
+#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableUsbPlugin : public PluginSingleton<DisableUsbPlugin, bool> {
+class DisableUsbPlugin : public PluginSingleton<DisableUsbPlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, int32_t userId);
 
 private:
+    ErrCode SetOtherModulePolicy(bool data) override;
+    ErrCode RemoveOtherModulePolicy() override;
     bool HasConflictPolicy();
 };
 } // namespace EDM

@@ -23,6 +23,10 @@ namespace EDM {
 
 bool IntSerializer::Deserialize(const std::string &jsonString, int32_t &dataObj)
 {
+    dataObj = 0;
+    if (jsonString.empty()) {
+        return true;
+    }
     char* endptr;
     errno = 0;
     dataObj = strtol(jsonString.c_str(), &endptr, EdmConstants::DECIMAL);
@@ -51,8 +55,10 @@ bool IntSerializer::WritePolicy(MessageParcel &reply, int32_t &result)
 
 bool IntSerializer::MergePolicy(std::vector<int32_t> &data, int32_t &result)
 {
-    if (!data.empty()) {
-        result = *(data.rbegin());
+    for (auto policy : data) {
+        if (policy != 0) {
+            result = policy;
+        }
     }
     return true;
 }

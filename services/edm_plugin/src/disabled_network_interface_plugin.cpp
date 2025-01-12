@@ -61,6 +61,7 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
     ptr->InitPermission(FuncOperateType::GET, getConfig);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisabledNetworkInterfacePlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisabledNetworkInterfacePlugin::OnAdminRemove);
 }
 
 ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -89,7 +90,7 @@ ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, Mes
 }
 
 ErrCode DisabledNetworkInterfacePlugin::OnSetPolicy(std::map<std::string, std::string> &data,
-    std::map<std::string, std::string> &currentData, int32_t userId)
+    std::map<std::string, std::string> &currentData, std::map<std::string, std::string> &mergeData, int32_t userId)
 {
     EDMLOGD("DisabledNetworkInterfacePlugin OnSetPolicy.");
     if (data.empty()) {
@@ -101,13 +102,20 @@ ErrCode DisabledNetworkInterfacePlugin::OnSetPolicy(std::map<std::string, std::s
     if (FAILED(ret)) {
         return ret;
     }
-    if (!SetInterfaceDisabled(it->first, it->second == "true")) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (mergeData.find(it->first) == mergeData.end()) {
+        if (!SetInterfaceDisabled(it->first, it->second == "true")) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
     }
     if (it->second == "true") {
         currentData[it->first] = "true";
     } else {
         currentData.erase(it->first);
+    }
+    for (auto policy : currentData) {
+        if (mergeData.find(policy.first) == mergeData.end()) {
+            mergeData[policy.first] = policy.second;
+        }
     }
     return ERR_OK;
 }
@@ -151,6 +159,18 @@ bool DisabledNetworkInterfacePlugin::SetInterfaceDisabled(const std::string &ifa
         return false;
     }
     return true;
+}
+
+ErrCode DisabledNetworkInterfacePlugin::OnAdminRemove(const std::string &adminName,
+    std::map<std::string, std::string> &data, std::map<std::string, std::string> &mergeData, int32_t userId)
+{
+    for (auto &iter : data) {
+        if (mergeData.find(iter.first) == mergeData.end() && !SetInterfaceDisabled(iter.first, false)) {
+            EDMLOGE("DisabledNetworkInterfacePlugin OnAdminRemove set %{public}s allowed failed.", iter.first.c_str());
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

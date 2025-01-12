@@ -48,7 +48,9 @@ HWTEST_F(PasswordPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
 {
     PasswordPolicyPlugin plugin;
     PasswordPolicy policy;
-    ErrCode ret = plugin.OnSetPolicy(policy);
+    PasswordPolicy currentData;
+    PasswordPolicy mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policy, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

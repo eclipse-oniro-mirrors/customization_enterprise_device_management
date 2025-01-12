@@ -16,18 +16,22 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEINSTALL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_BUNDLEINSTALL_PLUGIN_H
 
-#include <bundle_mgr_interface.h>
 #include <vector>
+
+#include "bundle_mgr_interface.h"
+
+#include "basic_array_string_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class BundleInstallPlugin {
-public:
+class BundleInstallPlugin : public BasicArrayStringPlugin {
+protected:
     void SetAppInstallControlRuleType(AppExecFwk::AppInstallControlRuleType controlRuleType);
-    ErrCode GetBundlePolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId);
-    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    void OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data, int32_t userId);
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
+    ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
+
 private:
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
     AppExecFwk::AppInstallControlRuleType controlRuleType_ = AppExecFwk::AppInstallControlRuleType::UNSPECIFIED;

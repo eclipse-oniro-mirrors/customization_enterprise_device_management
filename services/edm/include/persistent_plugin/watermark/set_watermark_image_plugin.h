@@ -41,7 +41,8 @@ public:
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override {};
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override;
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override {
     };
@@ -51,13 +52,20 @@ public:
         return ERR_OK;
     };
 
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
 
 private:
-    ErrCode SetPolicy(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData);
-    ErrCode CancelWatermarkImage(MessageParcel &data, MessageParcel &reply, HandlePolicyData &policyData);
-    ErrCode SetSingleWatermarkImage(WatermarkParam &param, HandlePolicyData &policyData);
+    ErrCode SetPolicy(MessageParcel &data, std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData);
+    ErrCode CancelWatermarkImage(MessageParcel &data,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData);
+    ErrCode SetSingleWatermarkImage(WatermarkParam &param,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData);
     bool GetWatermarkParam(WatermarkParam &param, MessageParcel &data);
     bool SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg);
     void SetProcessWatermark(const std::string &bundleName, const std::string &fileName, int32_t accountId,

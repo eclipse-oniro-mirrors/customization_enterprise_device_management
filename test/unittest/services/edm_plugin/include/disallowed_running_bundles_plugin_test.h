@@ -17,7 +17,6 @@
 #define EDM_UNIT_TEST_DISALLOWED_RUNNING_BUNDLES_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
-#include "disallowed_running_bundles_plugin.h"
 
 namespace OHOS {
 namespace EDM {

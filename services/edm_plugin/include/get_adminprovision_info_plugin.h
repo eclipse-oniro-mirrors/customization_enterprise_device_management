@@ -33,7 +33,8 @@ public:
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override{};
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override
     {
         return ERR_OK;
     };

@@ -23,8 +23,12 @@ namespace EDM {
 class SnapshotSkipPlugin : public PluginSingleton<SnapshotSkipPlugin, std::vector<std::string>> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkipPlugin, std::vector<std::string>>> ptr) override;
-    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData, int32_t userId);
+    ErrCode OnSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
+        std::vector<std::string> &mergePolicyData, int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
+        std::vector<std::string> &mergePolicyData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::vector<std::string> &data,
+        std::vector<std::string> &mergeData, int32_t userId);
 
 private:
     int32_t SetSnapshotSkipByUserIdAndBundleNameList(int32_t userId, const std::vector<std::string> &mergeData);

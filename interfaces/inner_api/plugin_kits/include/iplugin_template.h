@@ -41,12 +41,13 @@ public:
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
 
-    ErrCode MergePolicyData(const std::string &adminName, std::string &policyData) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
         bool isGlobalChanged, int32_t userId) override;
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+        const std::string &mergeJsonData, int32_t userId) override;
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData, int32_t userId) override;
 
@@ -82,7 +83,7 @@ protected:
      * @see OnHandlePolicy
      * @see HandlePolicyFunc
      */
-    typedef std::function<ErrCode(MessageParcel &, MessageParcel &, std::string &, bool &, FuncOperateType,
+    typedef std::function<ErrCode(MessageParcel &, MessageParcel &, HandlePolicyData &, FuncOperateType,
         int32_t userId)> HandlePolicy;
 
     /*
@@ -102,7 +103,8 @@ protected:
      * @see OnAdminRemove
      * @see AdminRemoveFunc
      */
-    typedef std::function<ErrCode(const std::string &, const std::string &, int32_t userId)> AdminRemove;
+    typedef std::function<ErrCode(const std::string &, const std::string &, const std::string &,
+        int32_t userId)> AdminRemove;
 
     /*
      * Represents a function that invoked after the admin is removed.
@@ -156,7 +158,7 @@ protected:
      * @return Whether the policy is handled successfully.
      * @see SetOnHandlePolicyListener
      */
-    typedef ErrCode (CT::*BiFunction)(DT &data, DT &currentData, int32_t userId);
+    typedef ErrCode (CT::*BiFunction)(DT &data, DT &currentData, DT &mergeData, int32_t userId);
 
     /*
      * This is a member function pointer type of CT class.
@@ -166,7 +168,7 @@ protected:
      * @param data Admin policy data
      * @see SetOnAdminRemoveListener
      */
-    typedef ErrCode (CT::*BiAdminFunction)(const std::string &adminName, DT &data, int32_t userId);
+    typedef ErrCode (CT::*BiAdminFunction)(const std::string &adminName, DT &data, DT &mergeData, int32_t userId);
 
     /*
      * This is a member function pointer type of CT class.

@@ -32,6 +32,8 @@ public:
     std::vector<std::string> SetUnionPolicyData(std::vector<std::string> &data, std::vector<std::string> &currentData);
     std::vector<std::string> SetDifferencePolicyData(std::vector<std::string> &data,
         std::vector<std::string> &currentData);
+    std::vector<std::string> SetIntersectionPolicyData(std::vector<std::string> &data,
+        std::vector<std::string> &currentData);
 };
 } // namespace EDM
 } // namespace OHOS

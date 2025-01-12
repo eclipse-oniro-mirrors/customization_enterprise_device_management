@@ -45,30 +45,16 @@ void DisallowedRunningBundlesPlugin::InitPlugin(
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles", config, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveDoneListener(&DisallowedRunningBundlesPlugin::OnAdminRemoveDone);
+    ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&DisallowedRunningBundlesPlugin::OnBasicAdminRemove);
+    maxListSize_ = EdmConstants::APPID_MAX_SIZE;
 }
 
-ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+ErrCode DisallowedRunningBundlesPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
     EDMLOGI("DisallowedRunningBundlesPlugin OnSetPolicy userId = %{public}d", userId);
-    if (data.empty()) {
-        EDMLOGW("DisallowedRunningBundlesPlugin OnSetPolicy data is empty:");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy input data is too large:");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    std::vector<std::string> mergeData = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
-    if (mergeData.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy merge data is too large:");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
     std::vector<AppExecFwk::AppRunningControlRule> controlRules;
     std::for_each(data.begin(), data.end(), [&](const std::string &str) {
         AppExecFwk::AppRunningControlRule controlRule;
@@ -86,24 +72,13 @@ ErrCode DisallowedRunningBundlesPlugin::OnSetPolicy(std::vector<std::string> &da
         EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicyDone Faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
     return ERR_OK;
 }
 
-ErrCode DisallowedRunningBundlesPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<std::string> &currentData, int32_t userId)
+ErrCode DisallowedRunningBundlesPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+    std::vector<std::string> &failedData)
 {
     EDMLOGD("DisallowedRunningBundlesPlugin OnRemovePolicy userId : %{public}d:", userId);
-    if (data.empty()) {
-        EDMLOGW("DisallowedRunningBundlesPlugin OnRemovePolicy data is empty:");
-        return ERR_OK;
-    }
-    if (data.size() > EdmConstants::APPID_MAX_SIZE) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnRemovePolicy input data is too large:");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<std::string> mergeData =
-        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
     std::vector<AppExecFwk::AppRunningControlRule> controlRules;
     std::for_each(data.begin(), data.end(), [&](const std::string &str) {
         AppExecFwk::AppRunningControlRule controlRule;
@@ -120,7 +95,6 @@ ErrCode DisallowedRunningBundlesPlugin::OnRemovePolicy(std::vector<std::string> 
         EDMLOGE("DisallowedRunningBundlesPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = mergeData;
     return ERR_OK;
 }
 
@@ -129,26 +103,6 @@ sptr<AppExecFwk::IAppControlMgr> DisallowedRunningBundlesPlugin::GetAppControlPr
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     return proxy->GetAppControlProxy();
-}
-
-void DisallowedRunningBundlesPlugin::OnAdminRemoveDone(const std::string &adminName, std::vector<std::string> &data,
-    int32_t userId)
-{
-    EDMLOGI("DisallowedRunningBundlesPlugin OnAdminRemoveDone adminName : %{public}s userId : %{public}d",
-        adminName.c_str(), userId);
-    std::vector<AppExecFwk::AppRunningControlRule> controlRules;
-    std::for_each(data.begin(), data.end(), [&](const std::string &str) {
-        AppExecFwk::AppRunningControlRule controlRule;
-        controlRule.appId = str;
-        controlRules.push_back(controlRule);
-    });
-    auto appControlProxy = GetAppControlProxy();
-    if (!appControlProxy) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnAdminRemoveDone GetAppControlProxy failed.");
-        return;
-    }
-    ErrCode res = appControlProxy->DeleteAppRunningControlRule(controlRules, userId);
-    EDMLOGI("DisallowedRunningBundlesPlugin OnAdminRemoveDone result %{public}d:", res);
 }
 } // namespace EDM
 } // namespace OHOS

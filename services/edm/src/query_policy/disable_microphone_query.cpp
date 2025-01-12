@@ -40,7 +40,7 @@ std::string DisableMicrophoneQuery::GetPermission(IPlugin::PermissionType permis
 ErrCode DisableMicrophoneQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetBoolSystemParamSuccess(reply, PARAM_EDM_MIC_DISABLE, false);
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

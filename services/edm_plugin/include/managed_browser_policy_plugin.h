@@ -32,11 +32,14 @@ public:
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override;
 
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override;
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
 private:
     ErrCode ModifyOrRemoveManagedBrowserPolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
@@ -56,6 +59,10 @@ private:
 
     bool UpdatePolicyFile(std::map<std::string, ManagedBrowserPolicyType> &policies, const std::string &bundleName,
         std::string &url, std::string &tempUrl);
+
+    ErrCode UpdateCurrentAndMergePolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const std::string &bundleName,
+        const std::string &policyName, const std::string &policyValue);
 };
 } // namespace EDM
 } // namespace OHOS

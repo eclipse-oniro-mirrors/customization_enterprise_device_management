@@ -52,7 +52,6 @@ ErrCode GetAllNetworkInterfacesPlugin::OnGetPolicy(std::string &policyData, Mess
     std::vector<std::string> interfaces;
     DelayedSingleton<NetManagerStandard::EthernetClient>::GetInstance()->GetAllActiveIfaces(interfaces);
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(interfaces.size());
     reply.WriteStringVector(interfaces);
     return ERR_OK;
 }

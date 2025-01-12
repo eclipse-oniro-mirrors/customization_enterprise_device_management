@@ -26,6 +26,7 @@
 #include "element_name.h"
 #include "func_code_utils.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -45,6 +46,7 @@ ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
         "ohos.permission.ENTERPRISE_MANAGE_APPLICATION");
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
+    maxListSize_ = EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE;
 }
 
 ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -55,47 +57,37 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     std::vector<std::string> keepAliveApps;
     data.ReadStringVector(&keepAliveApps);
-    if (keepAliveApps.size() > EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE) {
-        EDMLOGE("ManageKeepAliveAppsPlugin OnHandlePolicy data is too large.");
-        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
     std::vector<std::string> currentData;
     ArrayStringSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
-    ErrCode res = ERR_INVALID_VALUE;
+    std::vector<std::string> mergeData;
+    ArrayStringSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    ErrCode res = EdmReturnErrCode::PARAM_ERROR;
     std::string errMessage;
     if (type == FuncOperateType::SET) {
-        std::vector<std::string> allData =
-            ArrayStringSerializer::GetInstance()->SetUnionPolicyData(keepAliveApps, currentData);
-        if (allData.size() > EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE) {
-            EDMLOGE("ManageKeepAliveAppsPlugin OnHandlePolicy data is too large.");
-            reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        res = AddKeepAliveApps(keepAliveApps, userId);
-        if (res == ERR_OK) {
-            reply.WriteInt32(res);
-            UpdatePolicyData(allData, currentData, policyData);
-            return ERR_OK;
-        }
-        ParseErrCode(res, errMessage, reply);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        res = OnBasicSetPolicy(keepAliveApps, currentData, mergeData, userId);
+        GetErrorMessage(res, errMessage);
     } else if (type == FuncOperateType::REMOVE) {
-        std::vector<std::string> allData =
-            ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(keepAliveApps, currentData);
-        res = RemoveKeepAliveApps(keepAliveApps, userId);
-        if (res == ERR_OK) {
-            reply.WriteInt32(res);
-            UpdatePolicyData(allData, currentData, policyData);
-            return ERR_OK;
-        }
-        ParseErrCode(res, errMessage, reply);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        res = OnBasicRemovePolicy(keepAliveApps, currentData, mergeData, userId);
+        GetErrorMessage(res, errMessage);
     }
-    return EdmReturnErrCode::PARAM_ERROR;
+    if (res != ERR_OK) {
+        reply.WriteInt32(res);
+        reply.WriteString(errMessage);
+        return res;
+    }
+    reply.WriteInt32(ERR_OK);
+    std::string afterHandle;
+    std::string afterMerge;
+    ArrayStringSerializer::GetInstance()->Serialize(currentData, afterHandle);
+    ArrayStringSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    policyData.isChanged = (policyData.policyData != afterHandle);
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterMerge;
+    return ERR_OK;
 }
 
-ErrCode ManageKeepAliveAppsPlugin::AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId)
+ErrCode ManageKeepAliveAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
+    int32_t userId, std::vector<std::string> &failedData)
 {
     EDMLOGI("ManageKeepAliveAppsPlugin AddKeepAliveApps");
     auto abilityManager = GetAbilityManager();
@@ -117,25 +109,29 @@ ErrCode ManageKeepAliveAppsPlugin::AddKeepAliveApps(std::vector<std::string> &ke
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    int32_t res = EdmReturnErrCode::PARAM_ERROR;
+    bool flag = false;
+    int32_t res = ERR_OK;
     for (const auto &bundleName : keepAliveApps) {
         auto it = std::find(disallowedRunningBundles.begin(), disallowedRunningBundles.end(), bundleName);
         if (it != disallowedRunningBundles.end()) {
             EDMLOGE("ManageKeepAliveAppsPlugin AddKeepAliveApps bundleName: %{public}s is disallowed running.",
                 bundleName.c_str());
             return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-        } else {
-            res = abilityManager->SetApplicationKeepAliveByEDM(bundleName, userId, true);
-            if (res != ERR_OK) {
-                EDMLOGE("AddKeepAliveApps SetApplicationKeepAliveByEDM err res: %{public}d bundleName: %{public}s ",
-                    res, bundleName.c_str());
-                return res;
-            }
         }
+        res = abilityManager->SetApplicationKeepAliveByEDM(bundleName, userId, true);
+        if (res != ERR_OK) {
+            EDMLOGE("AddKeepAliveApps SetApplicationKeepAliveByEDM err res: %{public}d bundleName: %{public}s ",
+                res, bundleName.c_str());
+            failedData.push_back(bundleName);
+            continue;
+        }
+        flag = true;
     }
-    return res;
+    ParseErrCode(res);
+    return flag ? ERR_OK : res;
 }
-ErrCode ManageKeepAliveAppsPlugin::RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId)
+ErrCode ManageKeepAliveAppsPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
+    int32_t userId, std::vector<std::string> &failedData)
 {
     EDMLOGI("ManageKeepAliveAppsPlugin RemoveKeepAliveApps");
     auto abilityManager = GetAbilityManager();
@@ -143,119 +139,113 @@ ErrCode ManageKeepAliveAppsPlugin::RemoveKeepAliveApps(std::vector<std::string> 
         EDMLOGE("ManageKeepAliveAppsPlugin RemoveKeepAliveApps get abilityManager failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-
-    int32_t res = EdmReturnErrCode::PARAM_ERROR;
+    bool flag = false;
+    int32_t res = ERR_OK;
     for (const auto &bundleName : keepAliveApps) {
         res = abilityManager->SetApplicationKeepAliveByEDM(bundleName, userId, false);
         if (res != ERR_OK) {
             EDMLOGE("RemoveKeepAliveApps SetApplicationKeepAliveByEDM err res: %{public}d bundleName: %{public}s ", res,
                 bundleName.c_str());
-            return res;
+            failedData.push_back(bundleName);
+            continue;
         }
+        flag = true;
     }
-    return res;
+    ParseErrCode(res);
+    return flag ? ERR_OK : res;
 }
 
 ErrCode ManageKeepAliveAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     EDMLOGI("ManageKeepAliveAppsPlugin OnGetPolicy.");
-
-    auto abilityManager = GetAbilityManager();
-    if (!abilityManager) {
-        EDMLOGE("ManageKeepAliveAppsPlugin OnGetPolicy get abilityManager failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<OHOS::AbilityRuntime::KeepAliveInfo> infoList;
-    int32_t appType = static_cast<int32_t>(OHOS::AbilityRuntime::KeepAliveAppType::UNSPECIFIED);
-    int32_t res = abilityManager->QueryKeepAliveApplicationsByEDM(appType, userId, infoList);
-    if (res != ERR_OK) {
-        EDMLOGE("ManageKeepAliveAppsPlugin OnGetPolicy QueryKeepAliveApplicationByEDM failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-
-    std::vector<std::string> keepAliveAppsInfo;
-    std::for_each(infoList.begin(), infoList.end(), [&](const OHOS::AbilityRuntime::KeepAliveInfo &Info) {
-        if (Info.setter == OHOS::AbilityRuntime::KeepAliveSetter::SYSTEM) {
-            keepAliveAppsInfo.push_back(Info.bundleName);
-        }
-    });
-    reply.WriteInt32(ERR_OK);
-    reply.WriteStringVector(keepAliveAppsInfo);
-    return ERR_OK;
+    return BasicGetPolicy(policyData, data, reply, userId);
 }
 
-void ManageKeepAliveAppsPlugin::OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
-    int32_t userId)
+ErrCode ManageKeepAliveAppsPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+    const std::string &mergeJsonData, int32_t userId)
 {
     EDMLOGI("ManageKeepAliveAppsPlugin OnAdminRemoveDone");
     
-    auto abilityManager = GetAbilityManager();
-    if (!abilityManager) {
-        EDMLOGE("ManageKeepAliveAppsPlugin OnAdminRemoveDone get abilityManager failed.");
-        return;
-    }
+    std::vector<std::string> currentData;
+    ArrayStringSerializer::GetInstance()->Deserialize(currentJsonData, currentData);
+    std::vector<std::string> mergeData;
+    ArrayStringSerializer::GetInstance()->Deserialize(mergeJsonData, mergeData);
+    return OnBasicAdminRemove(adminName, currentData, mergeData, userId);
+}
 
-    std::vector<OHOS::AbilityRuntime::KeepAliveInfo> infoList;
-    int32_t appType = static_cast<int32_t>(OHOS::AbilityRuntime::KeepAliveAppType::UNSPECIFIED);
-    int32_t res = abilityManager->QueryKeepAliveApplicationsByEDM(appType, userId, infoList);
-    if (res != ERR_OK) {
-        EDMLOGE("ManageKeepAliveAppsPlugin OnAdminRemoveDone QueryKeepAliveApplicationByEDM failed.");
+ErrCode ManageKeepAliveAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
+    std::string &othersMergePolicyData)
+{
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    EDMLOGI("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+        (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<std::vector<std::string>> data;
+    for (const auto &item : adminValues) {
+        std::vector<std::string> dataItem;
+        if (!item.second.empty()) {
+            if (!serializer->Deserialize(item.second, dataItem)) {
+                return ERR_EDM_OPERATE_JSON;
+            }
+            data.push_back(dataItem);
+        }
+    }
+    std::vector<std::string> result;
+    if (!serializer->MergePolicy(data, result)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+    if (!serializer->Serialize(result, othersMergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+    return ERR_OK;
+}
+
+void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res)
+{
+    if (res == ERR_CAPABILITY_NOT_SUPPORT) {
+        res = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
         return;
     }
-    std::vector<std::string> keepAliveAppsInfo;
-    std::for_each(infoList.begin(), infoList.end(), [&](const OHOS::AbilityRuntime::KeepAliveInfo &Info) {
-        if (Info.setter == OHOS::AbilityRuntime::KeepAliveSetter::SYSTEM) {
-            keepAliveAppsInfo.push_back(Info.bundleName);
-        }
-    });
-    
-    for (const auto &bundleName : keepAliveAppsInfo) {
-        int32_t res = abilityManager->SetApplicationKeepAliveByEDM(bundleName, userId, false);
-        if (res != ERR_OK) {
-            EDMLOGE("ManageKeepAliveAppsPlugin OnAdminRemoveDone SetApplicationKeepAliveByEDM"
-                "err res: %{public}d bundleName: %{public}s ", res, bundleName.c_str());
-            return;
-        }
+    if (res != ERR_TARGET_BUNDLE_NOT_EXIST && res != ERR_NO_MAIN_ABILITY && res != ERR_NO_STATUS_BAR_ABILITY &&
+        res != ERR_NOT_ATTACHED_TO_STATUS_BAR) {
+        res = EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 }
 
-void ManageKeepAliveAppsPlugin::UpdatePolicyData(std::vector<std::string> &allData,
-    std::vector<std::string> &currentData, HandlePolicyData &policyData)
+void ManageKeepAliveAppsPlugin::GetErrorMessage(ErrCode &errCode, std::string &errMessage)
 {
-    policyData.isChanged = allData != currentData;
-    if (policyData.isChanged) {
-        ArrayStringSerializer::GetInstance()->Serialize(allData, policyData.policyData);
-    }
-}
-
-void ManageKeepAliveAppsPlugin::ParseErrCode(ErrCode &res, std::string &errMessage, MessageParcel &reply)
-{
-    switch (res) {
+    switch (errCode) {
         case ERR_TARGET_BUNDLE_NOT_EXIST:
-            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "Application is not installed";
+            errCode = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
+            errMessage = "Application is not installed.";
             break;
         case ERR_NO_MAIN_ABILITY:
-            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "Application does not have mainability";
+            errCode = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
+            errMessage = "Application does not have mainability.";
             break;
         case ERR_NO_STATUS_BAR_ABILITY:
-            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "Application does not have status bar ability";
+            errCode = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
+            errMessage = "Application does not have status bar ability.";
             break;
         case ERR_NOT_ATTACHED_TO_STATUS_BAR:
-            res = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
-            errMessage = "Application does not attach to status bar";
-            break;
-        case ERR_CAPABILITY_NOT_SUPPORT:
-            res = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            errCode = EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED;
+            errMessage = "Application does not attach to status bar.";
             break;
         default:
             break;
     }
-    reply.WriteInt32(res);
-    reply.WriteString(errMessage);
 }
 
 sptr<AAFwk::IAbilityManager> ManageKeepAliveAppsPlugin::GetAbilityManager()

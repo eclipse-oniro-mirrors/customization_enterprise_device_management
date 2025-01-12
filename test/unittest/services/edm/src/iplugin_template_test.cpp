@@ -78,7 +78,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicySupplier, TestSize.Level1)
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicySupplierPlg::GetPlugin());
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -118,7 +118,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyFunctionPlg::GetPlugin());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
@@ -167,7 +167,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
@@ -255,6 +255,7 @@ HWTEST_F(PluginTemplateTest, TestAdminRemove, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin;
     std::string adminName;
     std::string policyValue;
+    std::string mergeValue;
     PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveSupplierPlg::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveBiFunctionPlg::GetPlugin());
 
@@ -265,7 +266,7 @@ HWTEST_F(PluginTemplateTest, TestAdminRemove, TestSize.Level1)
         adminName = "com.edm.test.demo";
         policyValue = "testValue";
         g_visit = false;
-        plugin->OnAdminRemove(adminName, policyValue, DEFAULT_USER_ID);
+        plugin->OnAdminRemove(adminName, policyValue, mergeValue, DEFAULT_USER_ID);
         ASSERT_TRUE(g_visit);
     }
 }
@@ -349,7 +350,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyReplyFunctionPlg, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     ASSERT_TRUE(plugin != nullptr);
     std::string setPolicyValue = "testValue";
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
     data.WriteString(setPolicyValue);
     MessageParcel reply;

@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define protected public
 #include "disable_usb_plugin.h"
+#undef protected
 
 #include <gtest/gtest.h>
 
@@ -57,7 +59,7 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
@@ -75,7 +77,7 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
-    HandlePolicyData handlePolicyData{"false", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -90,7 +92,8 @@ HWTEST_F(DisableUsbPluginTest, TestOnAdminRemoveTrue, TestSize.Level1)
     DisableUsbPlugin plugin;
     std::string adminName{"testAdminName"};
     bool policyData = true;
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -104,7 +107,8 @@ HWTEST_F(DisableUsbPluginTest, TestOnAdminRemoveFalse, TestSize.Level1)
     DisableUsbPlugin plugin;
     std::string adminName{"testAdminName"};
     bool policyData = false;
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

@@ -55,7 +55,7 @@ void IptablesRulePluginTest::ResetIptablesRule()
     MessageParcel removeData;
     MessageParcel removeReply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(removeFilter, removeData);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t removeFuncCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     std::shared_ptr<IptablesRulePlugin> plugin = std::make_shared<IptablesRulePlugin>();
@@ -78,7 +78,7 @@ HWTEST_F(IptablesRulePluginTest, TestIptablesRulePluginErrorFuncCode, TestSize.L
     std::shared_ptr<IptablesRulePlugin> plugin = std::make_shared<IptablesRulePlugin>();
     MessageParcel data;
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -96,7 +96,7 @@ HWTEST_F(IptablesRulePluginTest, TestIptablesRulePluginSetFunction, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteAddFilterConfig(addFilter, data);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -114,7 +114,7 @@ HWTEST_F(IptablesRulePluginTest, TestIptablesRulePluginRemoveFunction, TestSize.
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -171,7 +171,7 @@ HWTEST_F(IptablesRulePluginTest, TestAddIptablesFilterRule, TestSize.Level1)
     ASSERT_TRUE(addFilter2.srcPort == "999");
     ASSERT_TRUE(addFilter2.destPort == "888");
     
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -208,7 +208,7 @@ HWTEST_F(IptablesRulePluginTest, TestRemoveIptablesFilterRule, TestSize.Level1)
     ASSERT_TRUE(filter2.destAddr == "192.192.192.1929999");
     ASSERT_TRUE(filter2.destPort == "errorport");
     
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -227,7 +227,7 @@ HWTEST_F(IptablesRulePluginTest, TestExecRemoveFilterIptablesCommand, TestSize.L
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
@@ -246,7 +246,7 @@ HWTEST_F(IptablesRulePluginTest, TestOnHandlePolicyExecRemoveFilterBySimpleComma
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
@@ -288,7 +288,7 @@ HWTEST_F(IptablesRulePluginTest, TestExecRemoveFilterByDetailedCommand, TestSize
     MessageParcel data;
     MessageParcel reply;
     IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
-    HandlePolicyData handlePolicyData{"TestString", false};
+    HandlePolicyData handlePolicyData{"TestString", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::IPTABLES_RULE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);

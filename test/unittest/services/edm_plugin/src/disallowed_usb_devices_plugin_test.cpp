@@ -56,13 +56,13 @@ void DisallowedUsbDevicesPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataSetAllEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
     data.WriteUint32(0);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData.empty());
@@ -76,7 +76,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataSetAllEmpty, Test
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetCurrentDataEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -92,7 +92,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetCurrentDataEmpty, 
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     std::string result;
@@ -111,13 +111,13 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetCurrentDataEmpty, 
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
     data.WriteUint32(0);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     std::string result;
@@ -135,7 +135,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataEmpty, TestSiz
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataSame, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -151,7 +151,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataSame, TestSize
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     std::string result;
@@ -169,7 +169,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataSame, TestSize
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataDiff, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -185,7 +185,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataDiff, TestSize
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_CURRENT_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_CURRENT_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
@@ -198,13 +198,13 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicySetDataDiff, TestSize
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataRemoveAllEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
     data.WriteUint32(0);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData.empty());
@@ -218,7 +218,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyDataRemoveAllEmpty, T
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveCurrentDataEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -234,7 +234,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveCurrentDataEmpt
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{"", false};
+    HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData.empty());
@@ -248,13 +248,13 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveCurrentDataEmpt
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
     data.WriteUint32(0);
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     std::string result;
@@ -272,7 +272,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataEmpty, Test
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataSame, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -288,7 +288,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataSame, TestS
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_POLICY_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData.empty());
@@ -302,7 +302,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataSame, TestS
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataDiff, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
     MessageParcel data;
@@ -318,7 +318,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataDiff, TestS
         usbDeviceType.Marshalling(data);
     });
     MessageParcel reply;
-    HandlePolicyData handlePolicyData{TEST_CURRENT_DATA, false};
+    HandlePolicyData handlePolicyData{TEST_CURRENT_DATA, "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     std::string result;
@@ -336,7 +336,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnHandlePolicyRemoveDataDiff, TestS
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnGetPolicyEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::string policyData{""};
     MessageParcel data;
     MessageParcel reply;
@@ -353,7 +353,7 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnGetPolicyEmpty, TestSize.Level1)
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnGetPolicySuc, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::string policyData{TEST_POLICY_DATA};
     MessageParcel data;
     MessageParcel reply;
@@ -370,10 +370,11 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnGetPolicySuc, TestSize.Level1)
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnAdminRemovePolicyEmpty, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::string adminName{"testAdminName"};
     std::string policyData{""};
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::string mergeData;
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -384,10 +385,11 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnAdminRemovePolicyEmpty, TestSize.
  */
 HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnAdminRemoveHasPolicy, TestSize.Level1)
 {
-    std::shared_ptr<DisallowedUsbDevicesPlugin> plugin = std::make_shared<DisallowedUsbDevicesPlugin>();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbDevicesPlugin::GetPlugin();
     std::string adminName{"testAdminName"};
     std::string policyData{TEST_POLICY_DATA};
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::string mergeData;
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

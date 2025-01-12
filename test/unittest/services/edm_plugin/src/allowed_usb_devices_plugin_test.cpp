@@ -60,7 +60,8 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnSetPolicyEmpty, TestSize.Level1)
     AllowUsbDevicesPlugin plugin;
     std::vector<UsbDeviceId> policyData;
     std::vector<UsbDeviceId> currentData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -82,7 +83,8 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnSetPolicyWithDataAndCurrentData, Tes
     id2.SetVendorId(DEVICE_VID_2);
     id2.SetProductId(DEVICE_PID_2);
     policyData.emplace_back(id2);
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -100,7 +102,8 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnSetPolicyWithDataWithoutCurrentData,
     id.SetProductId(DEVICE_PID_1);
     policyData.emplace_back(id);
     std::vector<UsbDeviceId> currentData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -114,7 +117,8 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnAdminRemovePolicyEmpty, TestSize.Lev
     AllowUsbDevicesPlugin plugin;
     std::string adminName{"testAdminName"};
     std::vector<UsbDeviceId> policyData;
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> mergeData;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -132,7 +136,8 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnAdminRemoveHasPolicy, TestSize.Level
     id.SetVendorId(DEVICE_VID_1);
     id.SetProductId(DEVICE_PID_1);
     policyData.emplace_back(id);
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> mergeData;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
-const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
 
 void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
 {
@@ -41,27 +40,22 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetWifiDisabledPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&SetWifiDisabledPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.wifi_enable";
 }
 
-ErrCode SetWifiDisabledPlugin::OnSetPolicy(bool &isDisable)
+ErrCode SetWifiDisabledPlugin::SetOtherModulePolicy(bool isDisable)
 {
-    EDMLOGI("SetWifiDisabledPlugin OnSetPolicy %{public}d", isDisable);
-    std::string value = isDisable ? "true" : "false";
     if (isDisable) {
         auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
-        if (wifiDevice == nullptr) {
-            EDMLOGE("wifiDevice GetInstance null");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        ErrCode ret = wifiDevice->DisableWifi();
-        if (ret != ERR_OK) {
+        if (wifiDevice == nullptr || FAILED(wifiDevice->DisableWifi())) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    return system::SetParameter(KEY_DISABLE_WIFI, value) ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
