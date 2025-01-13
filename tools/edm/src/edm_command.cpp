@@ -89,7 +89,7 @@ ErrCode EdmCommand::RunAsEnableCommand()
     AdminType adminType = AdminType::ENT;
     ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName, adminType);
     if (result == ERR_EDM_TOOLS_COMMAND_HELP && bundleName.empty() &&
-        abilityName.empty() && adminType == AdminType::UNKNOWN) {
+        abilityName.empty()) {
         return ReportMessage(ERR_EDM_TOOLS_COMMAND_HELP, true);
     }
     if (result != ERR_EDM_TOOLS_COMMAND_HELP && result != ERR_OK) {

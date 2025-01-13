@@ -316,17 +316,11 @@ ErrCode AdminManager::GetSubOrSuperOrByodAdminByPkgName(const std::string &subAd
 void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
 {
     std::vector<std::shared_ptr<Admin>> userAdmin;
-    bool ret = GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
-    if (!ret) {
-        return;
-    }
+    GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
     std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
         return admin->adminInfo_.adminType_ == AdminType::ENT || admin->adminInfo_.adminType_ == AdminType::BYOD;
     });
-    ret = GetAdminByUserId(currentUserId, userAdmin);
-    if (!ret) {
-        return;
-    }
+    GetAdminByUserId(currentUserId, userAdmin);
     std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
         return admin->adminInfo_.adminType_ == AdminType::NORMAL;
     });
