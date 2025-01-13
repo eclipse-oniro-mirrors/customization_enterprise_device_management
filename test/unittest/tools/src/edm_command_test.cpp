@@ -195,7 +195,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdmin, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID) + "errorCode: 9200003");
 }
 
 /**
@@ -274,7 +274,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminOfLong, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID) + "errorCode: 9200003");
 }
 /**
  * @tc.name: TestDisableAdminWithoutOption
@@ -364,7 +364,7 @@ HWTEST_F(EdmCommandTest, TestDisableAdmin, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED) + "errorCode: 9200005");
 }
 
 /**
@@ -401,7 +401,7 @@ HWTEST_F(EdmCommandTest, TestDisableAdminOfLong, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED) + "errorCode: 9200005");
 }
 } // TEST
 } // EDM
