@@ -4418,7 +4418,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdmin002, TestSize.Leve
     ASSERT_TRUE(err == EdmReturnErrCode::PERMISSION_DENIED);
 }
 
-
 /**
  * @tc.name: TestReplaceSuperAdmin
  * @tc.desc: Test TestReplaceSuperAdmin without extensionAbility.

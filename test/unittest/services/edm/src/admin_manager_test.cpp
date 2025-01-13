@@ -344,6 +344,30 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdminExist, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestIsByodAdminExist
+ * @tc.desc: Test AdminManager::IsByodAdminExist function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestIsByodAdminExist, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    ASSERT_FALSE(adminMgr_->IsByodAdminExist());
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::BYOD, entInfo, permissions, false);
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmAdmin.adminInfo_.adminType_ = AdminType::NORMAL;
+    edmAdmin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION"};
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    ASSERT_TRUE(adminMgr_->IsByodAdminExist());
+}
+
+/**
  * @tc.name: TestGetAdminBySubscribeEvent
  * @tc.desc: Test AdminManager::GetAdminBySubscribeEvent function.
  * @tc.type: FUNC

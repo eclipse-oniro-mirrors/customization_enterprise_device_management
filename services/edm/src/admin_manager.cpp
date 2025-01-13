@@ -234,6 +234,20 @@ bool AdminManager::IsSuperAdminExist()
         });
 }
 
+bool AdminManager::IsByodAdminExist()
+{
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    bool ret = GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
+    if (!ret) {
+        EDMLOGD("IsByodAdminExist::not find byod or super Admin");
+        return false;
+    }
+    return std::any_of(userAdmin.begin(), userAdmin.end(),
+        [](const std::shared_ptr<Admin> &admin) {
+            return admin->adminInfo_.adminType_ == AdminType::BYOD;
+        });
+}
+
 bool AdminManager::IsSuperAdmin(const std::string &bundleName)
 {
     std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, EdmConstants::DEFAULT_USER_ID);
