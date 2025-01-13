@@ -68,6 +68,10 @@
 #include "usb_read_only_query.h"
 #endif
 
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
+#include "set_browser_policies_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
@@ -295,6 +299,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::USB_READ_ONLY:
 #ifdef USB_STORAGE_SERVICE_EDM_ENABLE
             obj = std::make_shared<UsbReadOnlyQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::SET_BROWSER_POLICIES:
+#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
+            obj = std::make_shared<SetBrowserPoliciesQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
