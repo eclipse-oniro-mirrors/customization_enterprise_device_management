@@ -217,28 +217,6 @@ void SetBrowserPoliciesPlugin::OnHandlePolicyDone(std::uint32_t funcCode, const 
 ErrCode SetBrowserPoliciesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    std::string appId = data.ReadString();
-    if (appId.empty() && FAILED(BundleManagerUtils::GetAppIdByCallingUid(appId))) {
-        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    if (policyData.empty()) {
-        policyData = EMPTY_OBJECT_STRING;
-    }
-    cJSON* policies = nullptr;
-    auto serializer = CjsonSerializer::GetInstance();
-    if (!serializer->Deserialize(policyData, policies)) {
-        EDMLOGE("SetBrowserPolicyPlugin OnGetPolicy Deserialize error!");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::string retString;
-    cJSON* policy = cJSON_GetObjectItem(policies, appId.c_str());
-    if (policy != nullptr) {
-        serializer->Serialize(policy, retString);
-    }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteString(retString);
-    cJSON_Delete(policies);
     return ERR_OK;
 }
 

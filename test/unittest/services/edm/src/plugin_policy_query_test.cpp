@@ -21,6 +21,8 @@
 
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_usb_devices_query.h"
+#include "cJSON.h"
+#include "cjson_serializer.h"
 #include "clipboard_policy.h"
 #include "clipboard_policy_query.h"
 #include "clipboard_policy_serializer.h"
@@ -48,6 +50,7 @@
 #include "password_policy.h"
 #include "password_policy_query.h"
 #include "password_policy_serializer.h"
+#include "set_browser_policies_query.h"
 #include "set_wifi_disabled_query.h"
 #include "snapshot_skip_query.h"
 #include "usb_read_only_query.h"
@@ -487,6 +490,31 @@ HWTEST_F(PluginPolicyQueryTest, TestPasswordPolicyQuery003, TestSize.Level1)
     ASSERT_TRUE(policy.additionalDescription == TEST_VALUE_ADDITIONAL_DESCRIPTION);
     ASSERT_TRUE(policy.validityPeriod == TEST_VALUE_VALIDITY_PERIOD);
     ASSERT_TRUE(policy.complexityReg == TEST_VALUE_COMPLEXITYREG);
+}
+
+/**
+ * @tc.name: TestSetBrowserPoliciesQuery
+ * @tc.desc: Test SetBrowserPoliciesQuery::QueryPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestSetBrowserPoliciesQuery, TestSize.Level1)
+{
+    const std::string TestAppId = "test_app_id";
+    const std::string TestPolicyData = "{\"test_app_id\": {\"test_policy_name\":\"test_policy_value\"}}";
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<SetBrowserPoliciesQuery>();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(TestAppId);
+    std::string policyData = TestPolicyData;
+    plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    auto serializer = CjsonSerializer::GetInstance();
+    cJSON* root = nullptr;
+    serializer->Deserialize(TestPolicyData, root);
+    cJSON* policy = cJSON_GetObjectItem(root, TestAppId.c_str());
+    std::string retString;
+    serializer->Serialize(policy, retString);
+    ASSERT_TRUE(reply.ReadString() == retString);
 }
 
 } // namespace TEST

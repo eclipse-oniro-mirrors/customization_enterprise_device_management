@@ -322,8 +322,10 @@ ohos_static_library("edmservice_fuzz_static") {
     if (common_event_service_edm_enable) {
       external_deps += [ "common_event_service:cesfwk_innerkits" ]
       public_external_deps += [ "common_event_service:cesfwk_innerkits" ]
-      sources +=
-          [ "../../../services/edm_plugin/src/set_browser_policies_plugin.cpp" ]
+      sources += [
+        "../../../services/edm/src/query_policy/set_browser_policies_query.cpp",
+        "../../../services/edm_plugin/src/set_browser_policies_plugin.cpp",
+      ]
       defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
     }
 
