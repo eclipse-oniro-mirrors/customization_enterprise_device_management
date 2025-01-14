@@ -43,10 +43,7 @@ void SecurityReport::ReportSecurityInfo(const std::string &bundleName, const std
     jsonResult["outcome"] = reportInfo.outcome_;
     jsonResult["extra"] = reportInfo.extra_; // reserved
     std::shared_ptr<EventInfo> eventInfo = std::make_shared<EventInfo>(EVENT_ID, "1.1", jsonResult.dump());
-    int32_t ret = OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfo(eventInfo);
-    if (ret != ERR_OK) {
-        EDMLOGE("SecurityReport::ReportSecurityInfo ret: %{public}d", ret);
-    }
+    OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfoAsync(eventInfo);
 #endif
 }
 } // namespace EDM

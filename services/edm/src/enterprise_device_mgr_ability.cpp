@@ -1424,6 +1424,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
         isGlobalChanged = (oldCombinePolicy != handlePolicyData.mergePolicyData);
     }
     plugin->OnHandlePolicyDone(code, bundleName, isGlobalChanged, userId);
+    EDMLOGI("UpdateDevicePolicy: handle policy success.");
     return ERR_OK;
 }
 
