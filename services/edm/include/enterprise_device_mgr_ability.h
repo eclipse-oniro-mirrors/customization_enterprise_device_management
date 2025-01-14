@@ -92,6 +92,7 @@ private:
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     void NotifyAdminEnabled(bool isEnabled);
+    void CheckAndUpdateByodSettingsData();
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
@@ -115,6 +116,9 @@ private:
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
     ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const Admin &edmAdmin,
         std::shared_ptr<Admin> adminPtr);
+    ErrCode AddDisallowUninstallApp(const std::string &bundleName);
+    ErrCode DelDisallowUninstallApp(const std::string &bundleName);
+    void AfterEnableAdmin(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

@@ -496,6 +496,19 @@ void EnterpriseDeviceMgrAbility::OnStart()
     }
     AddOnAddSystemAbilityFuncMap();
     AddSystemAbilityListeners();
+    CheckAndUpdateByodSettingsData();
+}
+
+void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
+{
+    if (AdminManager::GetInstance()->IsByodAdminExist()) {
+        EDMLOGD("CheckAndUpdateByodSettingsData:byod exist.");
+        std::string data;
+        if (!FAILED(EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_EDM_DISPLAY, data)) && data == "false") {
+            EDMLOGD("CheckAndUpdateByodSettingsData:settingsData is false.");
+            EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
+        }
+    }
 }
 
 void EnterpriseDeviceMgrAbility::InitAllAdmins()
@@ -1031,6 +1044,34 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(AppExecFwk::ElementName &
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::AddDisallowUninstallApp(const std::string &bundleName)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    GetBundleMgr()->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
+        bundleInfo, DEFAULT_USER_ID);
+    std::vector<std::string> data = {bundleInfo.appId};
+    if (FAILED(GetBundleMgr()->AddAppInstallControlRule(data,
+        AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, DEFAULT_USER_ID))) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::AddDisallowUninstallApp failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::DelDisallowUninstallApp(const std::string &bundleName)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    GetBundleMgr()->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
+        bundleInfo, DEFAULT_USER_ID);
+    std::vector<std::string> data = {bundleInfo.appId};
+    if (FAILED(GetBundleMgr()->DeleteAppInstallControlRule(
+        AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, data, DEFAULT_USER_ID))) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::DelDisallowUninstallApp failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std::string &newAdminName,
     const Admin &edmAdmin, std::shared_ptr<Admin> adminPtr)
 {
@@ -1049,22 +1090,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     if (!adminPolicyValue.empty() && adminPolicyValue.find(adminName) != std::string::npos) {
-        AppExecFwk::BundleInfo bundleInfo;
-        GetBundleMgr()->GetBundleInfo(adminName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-            bundleInfo, DEFAULT_USER_ID);
-        std::vector<std::string> data = {bundleInfo.appId};
-        if (FAILED(GetBundleMgr()->DeleteAppInstallControlRule(
-            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, data, DEFAULT_USER_ID))) {
-            EDMLOGE("ReplaceSuperAdmin DeleteAppInstallControlRule failed");
+        if (FAILED(DelDisallowUninstallApp(adminName))) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        AppExecFwk::BundleInfo newBundleInfo;
-        GetBundleMgr()->GetBundleInfo(newAdminName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-            newBundleInfo, DEFAULT_USER_ID);
-        data = {newBundleInfo.appId};
-        if (FAILED(GetBundleMgr()->AddAppInstallControlRule(data,
-            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, DEFAULT_USER_ID))) {
-            EDMLOGE("ReplaceSuperAdmin AddAppInstallControlRule failed");
+        if (FAILED(AddDisallowUninstallApp(newAdminName))) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         adminPolicyValue.replace(adminPolicyValue.find(adminName), adminName.length(), newAdminName);
@@ -1164,15 +1193,21 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     if (FAILED(AdminManager::GetInstance()->SetAdminValue(userId, edmAdmin))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    AfterEnableAdmin(admin, type, userId);
+    return ERR_OK;
+}
+
+void EnterpriseDeviceMgrAbility::AfterEnableAdmin(AppExecFwk::ElementName &admin, AdminType type, int32_t userId)
+{
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
         true);
     if (type == AdminType::BYOD) {
+        AddDisallowUninstallApp(admin.GetBundleName());
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
     }
-    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
@@ -1363,6 +1398,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
     if (adminType == AdminType::BYOD) {
+        DelDisallowUninstallApp(bundleName);
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
     return ERR_OK;
