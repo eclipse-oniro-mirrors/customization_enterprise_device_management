@@ -503,9 +503,9 @@ void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
 {
     if (AdminManager::GetInstance()->IsByodAdminExist()) {
         EDMLOGD("CheckAndUpdateByodSettingsData:byod exist.");
-        std::string data;
-        if (!FAILED(EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_EDM_DISPLAY, data)) && data == "false") {
-            EDMLOGD("CheckAndUpdateByodSettingsData:settingsData is false.");
+        std::string data = "false";
+        EdmDataAbilityUtils::GetStringFromSettingsDataShare(KEY_EDM_DISPLAY, data);
+        if (data == "false") {
             EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
         }
     }
