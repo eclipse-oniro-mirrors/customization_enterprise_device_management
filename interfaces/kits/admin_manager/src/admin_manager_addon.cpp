@@ -825,6 +825,18 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE),
         &nSystemUpdate));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_SYSTEM_UPDATE", nSystemUpdate));
+    napi_value nUserAdded;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::USER_ADDED),
+        &nUserAdded));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_ACCOUNT_ADDED", nUserAdded));
+    napi_value nUserSwitched;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
+        &nUserSwitched));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_ACCOUNT_SWITCHED", nUserSwitched));
+    napi_value nUserRemoved;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::USER_REMOVED),
+        &nUserRemoved));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_ACCOUNT_REMOVED", nUserRemoved));
 }
 
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
