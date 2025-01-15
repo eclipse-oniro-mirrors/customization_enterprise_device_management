@@ -533,6 +533,53 @@ HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsByParentName, TestSize.Level1)
     ASSERT_TRUE(std::find(subAdminNames.begin(), subAdminNames.end(), subAbilityInfo.bundleName) !=
         subAdminNames.end());
 }
+HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
+{
+    ErrCode res;
+    std::vector<std::string> permissions;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    Admin admin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    res = adminMgr_->SetAdminValue(TEST_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<std::shared_ptr<Admin>> userAdmins;
+    adminMgr_->GetAdmins(userAdmins, TEST_USER_ID);
+    int32_t sizeofAdmin = userAdmins.size();
+    ASSERT_TRUE(sizeofAdmin == 1);
+    std::shared_ptr<Admin> userAdmin = userAdmins[0];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::NORMAL);
+    userAdmins.clear();
+    res = adminMgr_->DeleteAdmin(abilityInfo.bundleName, TEST_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+
+    admin.adminInfo_.adminType_ = AdminType::BYOD;
+    admin.adminInfo_.packageName_ = "com.edm.test.demo1";
+    admin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+    admin.adminInfo_.adminType_ = AdminType::ENT;
+    admin.adminInfo_.packageName_ = "com.edm.test.demo2";
+    admin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, admin);
+    ASSERT_TRUE(res == ERR_OK);
+
+    adminMgr_->GetAdmins(userAdmins, DEFAULT_USER_ID);
+    sizeofAdmin = userAdmins.size();
+    ASSERT_TRUE(sizeofAdmin == 2);
+    userAdmin = userAdmins[0];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::BYOD);
+    userAdmin = userAdmins[1];
+    ASSERT_TRUE(userAdmin != nullptr);
+    ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::ENT);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
