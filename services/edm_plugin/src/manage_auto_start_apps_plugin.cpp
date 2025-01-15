@@ -77,10 +77,18 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
     bool flag = false;
     for (const auto &str : data) {
         OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
-        if (!ParseAutoStartAppWant(str, autoStartupInfo.bundleName, autoStartupInfo.abilityName) ||
-            !CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
+        if (!ParseAutoStartAppWant(str, autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
+            EDMLOGW("ParseAutoStartAppWant failed bundleName: %{public}s, abilityName: %{public}s",
+                autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
+            failedData.push_back(str);
+            continue;
+        }
+        if (!CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
             EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
                 autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
+            if (!isSet) {
+                flag = true;
+            }
             failedData.push_back(str);
             continue;
         }
