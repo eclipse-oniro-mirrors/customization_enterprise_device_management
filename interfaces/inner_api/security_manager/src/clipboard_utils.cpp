@@ -23,6 +23,10 @@ ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy
 {
     EDMLOGI("ClipboardUtils handlePasteboardPolicy.");
     auto pasteboardClient = MiscServices::PasteboardClient::GetInstance();
+    if (pasteboardClient == nullptr) {
+        EDMLOGE("ClipboardUtils::HandlePasteboardPolicy PasteboardClient null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     std::map<uint32_t, MiscServices::ShareOption> setMap;
     std::vector<uint32_t> removeVector;
     for (const auto &item : data) {
