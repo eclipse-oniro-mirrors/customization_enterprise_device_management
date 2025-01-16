@@ -1501,15 +1501,9 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     }
 #endif
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
-    CreateSecurityContent(admin.GetBundleName(), admin.GetAbilityName(), code, plugin->GetPolicyName(), ret);
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(ret));
+    SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;
-}
-
-void EnterpriseDeviceMgrAbility::CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
-    uint32_t code, const std::string &policyName, ErrCode errorCode)
-{
-    ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(errorCode));
-    SecurityReport::ReportSecurityInfo(bundleName, abilityName, reportInfo);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -1580,8 +1574,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
         policyMgr_->GetPolicy(elementName.GetBundleName(), policyName, policyValue, userId);
     }
     ErrCode getRet = plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, userId);
-    CreateSecurityContent(elementName.GetBundleName(), elementName.GetAbilityName(), code, plugin->GetPolicyName(),
-        getRet);
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(getRet));
+    SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), info, true);
     return getRet;
 }
 
@@ -1605,8 +1599,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     std::string policyValue;
     AppExecFwk::ElementName elementName;
     ErrCode getRet = plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, userId);
-    CreateSecurityContent(elementName.GetBundleName(), elementName.GetAbilityName(), code, plugin->GetPolicyName(),
-        getRet);
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(getRet));
+    SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), info, false);
     return getRet;
 }
 

@@ -152,8 +152,6 @@ private:
     void OnWindowManagerServiceStart();
     void OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
-    void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
-        uint32_t code, const std::string &policyName, ErrCode errorCode);
     void InitAllAdmins();
     void InitAllPlugins();
     void InitAllPolices();
