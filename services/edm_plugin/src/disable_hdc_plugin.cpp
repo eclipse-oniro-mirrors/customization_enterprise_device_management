@@ -34,8 +34,12 @@ void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlug
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         "ohos.permission.ENTERPRISE_RESTRICT_POLICY");
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    typePermissionsForTag12.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
