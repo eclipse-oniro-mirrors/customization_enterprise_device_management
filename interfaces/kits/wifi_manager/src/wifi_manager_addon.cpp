@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 #include "wifi_manager_addon.h"
+
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "message_parcel_utils.h"
 #include "securec.h"
 
+#include "napi_edm_adapter.h"
 using namespace OHOS::EDM;
 
 void WifiManagerAddon::CreateWifiSecurityTypeObject(napi_env env, napi_value value)
@@ -168,62 +171,22 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("WifiManagerAddon::IsWifiActive called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    if (argc > ARGS_SIZE_ONE) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncIsWifiActiveCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncIsWifiActiveCallbackInfo> callbackPtr {asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD("IsWifiActive: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    if (argc > ARGS_SIZE_ONE) {
-        EDMLOGD("NAPI_IsWifiActive argc == ARGS_SIZE_TWO");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_ONE], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "IsWifiActive",
-        NativeIsWifiActive, NativeBoolCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    return IsWifiActiveHandler(env, info, NativeIsWifiActive);
 }
 
 napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("WifiManagerAddon::SetWifiDisabled called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean), "parameter bool error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "SetWifiDisabled: elementName.bundlename: %{public}s, "
-        "elementName.abilityname: %{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    bool isDisabled = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisabled, argv[ARR_INDEX_ONE]),
-        "parameter isDisabled error");
-    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->SetWifiDisabled(elementName, isDisabled);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setWifiDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->SetWifiDisabled(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -232,80 +195,31 @@ napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info in
 
 napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("WifiManagerAddon::IsWifiDisabled called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
-    bool isDisabled = false;
-    int32_t ret = ERR_OK;
-    if (hasAdmin) {
-        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(&elementName, isDisabled);
-    } else {
-        ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(nullptr, isDisabled);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "isWifiDisabled";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
+    int32_t ret = ERR_OK;
+    bool isDisabled = false;
+    ret = WifiManagerProxy::GetWifiManagerProxy()->IsWifiDisabled(adapterAddonData.data, isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
+    result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
 
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)
 {
-#ifdef WIFI_EDM_ENABLE
-    EDMLOGI("WifiManagerAddon::SetWifiProfile called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
-    if (argc > ARGS_SIZE_TWO) {
-        matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncSetWifiProfileCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncSetWifiProfileCallbackInfo> callbackPtr {asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env,
-        ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]), "element name param error");
-    EDMLOGD("SetWifiProfile: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    bool parseRet = JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->wifiDeviceConfig,
-        asyncCallbackInfo->pwd);
-    if (!parseRet) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
-        return nullptr;
-    }
-
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_SetWifiProfile argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARGS_SIZE_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetWifiProfile",
-        NativeSetWifiProfile, NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
-#else
-    EDMLOGW("WifiManagerAddon::SetWifiProfile Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    return nullptr;
-#endif
+    return SetWifiProfileHandler(env, info, NativeSetWifiProfile);
 }
 
 #ifdef WIFI_EDM_ENABLE
@@ -316,14 +230,13 @@ void WifiManagerAddon::NativeSetWifiProfile(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncSetWifiProfileCallbackInfo *asyncCallbackInfo = static_cast<AsyncSetWifiProfileCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
     if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = wifiManagerProxy->SetWifiProfile(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->wifiDeviceConfig, asyncCallbackInfo->pwd);
+    asyncCallbackInfo->ret = wifiManagerProxy->SetWifiProfile(asyncCallbackInfo->data);
 }
 #endif
 
@@ -334,13 +247,13 @@ void WifiManagerAddon::NativeIsWifiActive(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncIsWifiActiveCallbackInfo *asyncCallbackInfo = static_cast<AsyncIsWifiActiveCallbackInfo *>(data);
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
     if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return;
     }
-    asyncCallbackInfo->ret = wifiManagerProxy->IsWifiActive(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = wifiManagerProxy->IsWifiActive(asyncCallbackInfo->data,
         asyncCallbackInfo->boolRet);
 }
 #ifdef WIFI_EDM_ENABLE
@@ -546,69 +459,82 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
 
 napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("WifiManagerAddon::IsWifiActiveSync called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    return IsWifiActiveHandler(env, info, nullptr);
+}
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    EDMLOGD("IsWifiActiveSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+napi_value WifiManagerAddon::IsWifiActiveHandler(napi_env env,
+    napi_callback_info info, napi_async_execute_callback execute)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "isWifiActive";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
+    if (execute != nullptr) {
+        return AddonMethodAdapter(env, info, addonMethodSign, execute, NativeBoolCallbackComplete);
+    }
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
     if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return nullptr;
     }
     bool isActive = false;
-    int32_t ret = wifiManagerProxy->IsWifiActive(elementName, isActive, true);
+    int32_t ret = wifiManagerProxy->IsWifiActive(adapterAddonData.data, isActive);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
+    result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isActive, &result));
     return result;
 }
 
 napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info info)
 {
-#ifdef WIFI_EDM_ENABLE
-    EDMLOGI("WifiManagerAddon::SetWifiProfileSync called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    return SetWifiProfileHandler(env, info, nullptr);
+}
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "parameter profile error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    EDMLOGD("SetWifiProfileSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    Wifi::WifiDeviceConfig config;
-    WifiPassword pwd;
-    bool parseRet = JsObjToDeviceConfig(env, argv[ARR_INDEX_ONE], config, pwd);
-    if (!parseRet) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
+napi_value WifiManagerAddon::SetWifiProfileHandler(napi_env env,
+    napi_callback_info info, napi_async_execute_callback execute)
+{
+#ifdef WIFI_EDM_ENABLE
+    auto convertWifiDeviceConfigAndPwd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        Wifi::WifiDeviceConfig config;
+        WifiPassword pwd;
+        bool parseRet = JsObjToDeviceConfig(env, argv, config, pwd);
+        if (!parseRet) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
+            return false;
+        }
+        MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setWifiProfile";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertWifiDeviceConfigAndPwd2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    if (execute != nullptr) {
+        return AddonMethodAdapter(env, info, addonMethodSign, execute, NativeVoidCallbackComplete);
+    }
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
         return nullptr;
     }
-
     auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
     if (wifiManagerProxy == nullptr) {
         EDMLOGE("can not get WifiManagerProxy");
         return nullptr;
     }
-    int32_t ret = wifiManagerProxy->SetWifiProfile(elementName, config, pwd, true);
+    int32_t ret = wifiManagerProxy->SetWifiProfile(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

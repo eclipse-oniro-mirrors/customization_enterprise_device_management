@@ -90,46 +90,23 @@ napi_value RestrictionsAddon::SetHdcDisabled(napi_env env, napi_callback_info in
     return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
+void RestrictionsAddon::SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode)
+{
+    addonMethodSign.name = "SetPolicyDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = policyCode;
+    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+        policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_11;
+    addonMethodSign.apiVersionTag = permissionTag;
+}
+
 napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabled called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be bool.");
-    if (argc > ARGS_SIZE_TWO) {
-        bool hasCallback = MatchValueType(env, argv[ARR_INDEX_TWO], napi_function);
-        ASSERT_AND_THROW_PARAM_ERROR(env, hasCallback, "The third parameter must be function");
-    }
-    auto asyncCallbackInfo = new (std::nothrow) AsyncRestrictionsCallbackInfo();
-    if (asyncCallbackInfo == nullptr) {
-        return nullptr;
-    }
-    std::unique_ptr<AsyncRestrictionsCallbackInfo> callbackPtr{asyncCallbackInfo};
-    bool ret = ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "element name param error");
-    EDMLOGD(
-        "SetPolicyDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(),
-        asyncCallbackInfo->elementName.GetAbilityName().c_str());
-    ret = ParseBool(env, asyncCallbackInfo->isDisabled, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ret, "isDisabled param error");
-    if (argc > ARGS_SIZE_TWO) {
-        EDMLOGD("NAPI_SetPolicyDisabled argc == ARGS_SIZE_THREE");
-        NAPI_CALL(env, napi_create_reference(env, argv[ARR_INDEX_TWO], NAPI_RETURN_ONE, &asyncCallbackInfo->callback));
-    }
-    asyncCallbackInfo->policyCode = policyCode;
-    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetPolicyDisabled", NativeSetPolicyDisabled,
-        NativeVoidCallbackComplete);
-    callbackPtr.release();
-    return asyncWorkReturn;
+    AddonMethodSign addonMethodSign;
+    SetPolicyDisabledCommon(addonMethodSign, policyCode);
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetPolicyDisabled, NativeVoidCallbackComplete);
 }
 
 void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
@@ -139,12 +116,9 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncRestrictionsCallbackInfo *asyncCallbackInfo = static_cast<AsyncRestrictionsCallbackInfo *>(data);
-    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        asyncCallbackInfo->policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG :
-        EdmConstants::PERMISSION_TAG_VERSION_11;
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(
-        asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled, asyncCallbackInfo->policyCode, permissionTag);
+        asyncCallbackInfo->data, asyncCallbackInfo->policyCode);
 }
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
@@ -306,24 +280,14 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
 napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabledSync called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean), "parameter bool error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    bool isDisallow = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isDisallow, argv[ARR_INDEX_ONE]), "bool name param error");
+    AddonMethodSign addonMethodSign;
+    SetPolicyDisabledCommon(addonMethodSign, policyCode);
 
-    std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-        policyCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_11;
-    ErrCode ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(elementName, isDisallow, policyCode,
-        permissionTag);
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    ErrCode ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(adapterAddonData.data, policyCode);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

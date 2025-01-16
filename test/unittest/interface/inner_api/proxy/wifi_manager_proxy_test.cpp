@@ -19,6 +19,7 @@
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "message_parcel_utils.h"
 #include "utils.h"
 #include "wifi_manager_proxy.h"
 
@@ -71,13 +72,15 @@ void WifiManagerProxyTest::TearDownTestSuite()
  */
 HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool isActive = false;
-    int32_t ret = wifiManagerProxy->IsWifiActive(admin, isActive);
+    int32_t ret = wifiManagerProxy->IsWifiActive(data, isActive);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isActive);
 }
@@ -90,10 +93,12 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveSuc, TestSize.Level1)
 HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     bool isActive = false;
-    int32_t ret = wifiManagerProxy->IsWifiActive(admin, isActive);
+    int32_t ret = wifiManagerProxy->IsWifiActive(data, isActive);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isActive);
 }
@@ -105,15 +110,19 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiActiveFail, TestSize.Level1)
  */
 HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     Wifi::WifiDeviceConfig config;
     config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
     WifiPassword pwd;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config, pwd);
+    MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
+
+    int32_t ret = wifiManagerProxy->SetWifiProfile(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -125,12 +134,16 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileSuc, TestSize.Level1)
 HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     Wifi::WifiDeviceConfig config;
     config.wifiIpConfig.staticIpAddress.ipAddress.address.addressIpv6 = { 0x01 };
     WifiPassword pwd;
-    int32_t ret = wifiManagerProxy->SetWifiProfile(admin, config, pwd);
+    MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
+
+    int32_t ret = wifiManagerProxy->SetWifiProfile(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -141,13 +154,16 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiProfileFail, TestSize.Level1)
  */
 HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    bool isDisable = true;
-    int32_t ret = wifiManagerProxy->SetWifiDisabled(admin, isDisable);
+
+    int32_t ret = wifiManagerProxy->SetWifiDisabled(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -159,10 +175,13 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledSuc, TestSize.Level1)
 HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    bool isDisable = true;
-    int32_t ret = wifiManagerProxy->SetWifiDisabled(admin, isDisable);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+
+    int32_t ret = wifiManagerProxy->SetWifiDisabled(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -173,13 +192,15 @@ HWTEST_F(WifiManagerProxyTest, TestSetWifiDisabledFail, TestSize.Level1)
  */
 HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledSuc, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool isDisable = false;
-    int32_t ret = wifiManagerProxy->IsWifiDisabled(&admin, isDisable);
+    int32_t ret = wifiManagerProxy->IsWifiDisabled(data, isDisable);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isDisable);
 }
@@ -192,10 +213,12 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledSuc, TestSize.Level1)
 HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    AppExecFwk::ElementName admin;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     bool isDisable = false;
-    int32_t ret = wifiManagerProxy->IsWifiDisabled(&admin, isDisable);
+    int32_t ret = wifiManagerProxy->IsWifiDisabled(data, isDisable);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isDisable);
 }

@@ -82,6 +82,24 @@ HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicySuc, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestSetDisallowedPolicySuc_01
+ * @tc.desc: Test SetDisallowedPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicySuc_01, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetDisallowedPolicy(data,  EdmInterfaceCode::DISABLED_HDC);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestSetDisallowedPolicyFail
  * @tc.desc: Test SetDisallowedPolicy without enable edm service func.
  * @tc.type: FUNC
@@ -92,6 +110,22 @@ HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = proxy_->SetDisallowedPolicy(admin, true, EdmInterfaceCode::DISABLED_HDC);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyFail_01
+ * @tc.desc: Test SetDisallowedPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyFail_01, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    int32_t ret = proxy_->SetDisallowedPolicy(data, EdmInterfaceCode::DISABLED_HDC);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -114,6 +148,26 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicySuc, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestGetDisallowedPolicySuc_01
+ * @tc.desc: Test GetDisallowedPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicySuc_01, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicy(data, EdmInterfaceCode::DISABLED_HDC, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
  * @tc.name: TestGetDisallowedPolicyFail
  * @tc.desc: Test GetDisallowedPolicy func.
  * @tc.type: FUNC
@@ -125,6 +179,23 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool result = false;
     int32_t ret = proxy_->GetDisallowedPolicy(&admin, EdmInterfaceCode::DISABLED_HDC, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyFail_01
+ * @tc.desc: Test GetDisallowedPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyFail_01, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicy(data, EdmInterfaceCode::DISABLED_HDC, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

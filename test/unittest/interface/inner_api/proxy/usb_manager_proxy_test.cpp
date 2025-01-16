@@ -74,12 +74,16 @@ void UsbManagerProxyTest::TearDownTestSuite()
  */
 HWTEST_F(UsbManagerProxyTest, TestSetUsbReadOnlySuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(1);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetUsbReadOnly(admin, true);
+
+    int32_t ret = proxy_->SetUsbReadOnly(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -91,9 +95,13 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbReadOnlySuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestSetUsbReadOnlyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetUsbReadOnly(admin, true);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(1);
+
+    int32_t ret = proxy_->SetUsbReadOnly(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -104,12 +112,16 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbReadOnlyFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestDisableUsbSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->DisableUsb(admin, true);
+
+    int32_t ret = proxy_->DisableUsb(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -121,9 +133,13 @@ HWTEST_F(UsbManagerProxyTest, TestDisableUsbSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestDisableUsbFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->DisableUsb(admin, true);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+
+    int32_t ret = proxy_->DisableUsb(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -134,14 +150,16 @@ HWTEST_F(UsbManagerProxyTest, TestDisableUsbFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
 
     bool isDisable = false;
-    int32_t ret = proxy_->IsUsbDisabled(&admin, isDisable);
+    int32_t ret = proxy_->IsUsbDisabled(data, isDisable);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isDisable);
 }
@@ -154,11 +172,13 @@ HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
 
     bool isDisable = false;
-    int32_t ret = proxy_->IsUsbDisabled(&admin, isDisable);
+    int32_t ret = proxy_->IsUsbDisabled(data, isDisable);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isDisable);
 }
@@ -170,17 +190,20 @@ HWTEST_F(UsbManagerProxyTest, TestIsUsbDisabledFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<UsbDeviceId> usbDeviceIds;
     UsbDeviceId id1;
     id1.SetVendorId(1);
     id1.SetProductId(9);
-    usbDeviceIds.push_back(id1);
-    int32_t ret = proxy_->AddAllowedUsbDevices(admin, usbDeviceIds);
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = proxy_->AddAllowedUsbDevices(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -192,14 +215,17 @@ HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<UsbDeviceId> usbDeviceIds;
+    data.WriteParcelable(&admin);
     UsbDeviceId id1;
     id1.SetVendorId(1);
     id1.SetProductId(9);
-    usbDeviceIds.push_back(id1);
-    int32_t ret = proxy_->AddAllowedUsbDevices(admin, usbDeviceIds);
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = proxy_->AddAllowedUsbDevices(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -210,17 +236,20 @@ HWTEST_F(UsbManagerProxyTest, TestAddAllowedUsbDevicesFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<UsbDeviceId> usbDeviceIds;
     UsbDeviceId id1;
     id1.SetVendorId(1);
     id1.SetProductId(9);
-    usbDeviceIds.push_back(id1);
-    int32_t ret = proxy_->RemoveAllowedUsbDevices(admin, usbDeviceIds);
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = proxy_->RemoveAllowedUsbDevices(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -232,14 +261,17 @@ HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<UsbDeviceId> usbDeviceIds;
+    data.WriteParcelable(&admin);
     UsbDeviceId id1;
     id1.SetVendorId(1);
     id1.SetProductId(9);
-    usbDeviceIds.push_back(id1);
-    int32_t ret = proxy_->RemoveAllowedUsbDevices(admin, usbDeviceIds);
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = proxy_->RemoveAllowedUsbDevices(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -250,15 +282,17 @@ HWTEST_F(UsbManagerProxyTest, TestRemoveAllowedUsbDevicesFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(),
             &EnterpriseDeviceMgrStubMock::InvokeAllowedUsbDevicesSendRequestGetPolicy));
 
     std::vector<UsbDeviceId> usbDeviceIds;
-    int32_t ret = proxy_->GetAllowedUsbDevices(admin, usbDeviceIds);
+    int32_t ret = proxy_->GetAllowedUsbDevices(data, usbDeviceIds);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(usbDeviceIds.size() == 1);
 }
@@ -271,10 +305,13 @@ HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
     std::vector<UsbDeviceId> usbDeviceIds;
-    int32_t ret = proxy_->GetAllowedUsbDevices(admin, usbDeviceIds);
+    int32_t ret = proxy_->GetAllowedUsbDevices(data, usbDeviceIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(usbDeviceIds.empty());
 }
@@ -286,12 +323,15 @@ HWTEST_F(UsbManagerProxyTest, TestGetAllowedUsbDevicesFail, TestSize.Level1)
  */
 HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicySuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(2);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(admin, 2);
+    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -303,9 +343,13 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicySuc, TestSize.L
 HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(admin, 2);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(2);
+
+    int32_t ret = proxy_->SetUsbStorageDeviceAccessPolicy(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -316,14 +360,16 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbStorageDeviceAccessPolicyFail, TestSize.
  */
 HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicySuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
 
     int32_t policy = 0;
-    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(admin, policy);
+    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(data, policy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy == 0);
 }
@@ -336,10 +382,13 @@ HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicySuc, TestSize.L
 HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicyFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
     int32_t policy = 0;
-    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(admin, policy);
+    int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(data, policy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -350,19 +399,22 @@ HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicyFail, TestSize.
  */
 HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<USB::UsbDeviceType> usbDeviceTypes;
     USB::UsbDeviceType type;
     type.baseClass = 3;
     type.subClass = 1;
     type.protocol = 2;
     type.isDeviceType = false;
-    usbDeviceTypes.push_back(type);
-    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, true);
+    data.WriteUint32(1);
+    type.Marshalling(data);
+
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(data, true);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -374,16 +426,19 @@ HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddSuc, TestSiz
 HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    data.WriteParcelable(&admin);
     USB::UsbDeviceType type;
     type.baseClass = 3;
     type.subClass = 1;
     type.protocol = 2;
     type.isDeviceType = false;
-    usbDeviceTypes.push_back(type);
-    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, true);
+    data.WriteUint32(1);
+    type.Marshalling(data);
+
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(data, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -394,19 +449,21 @@ HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesAddFail, TestSi
  */
 HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::vector<USB::UsbDeviceType> usbDeviceTypes;
     USB::UsbDeviceType type;
     type.baseClass = 3;
     type.subClass = 1;
     type.protocol = 2;
-    type.isDeviceType = false;
-    usbDeviceTypes.push_back(type);
-    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, false);
+    data.WriteUint32(1);
+    type.Marshalling(data);
+
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(data, false);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -418,16 +475,19 @@ HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveSuc, Test
 HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    data.WriteParcelable(&admin);
     USB::UsbDeviceType type;
     type.baseClass = 3;
     type.subClass = 1;
     type.protocol = 2;
     type.isDeviceType = false;
-    usbDeviceTypes.push_back(type);
-    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(admin, usbDeviceTypes, false);
+    data.WriteUint32(1);
+    type.Marshalling(data);
+
+    int32_t ret = proxy_->AddOrRemoveDisallowedUsbDevices(data, false);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -438,14 +498,17 @@ HWTEST_F(UsbManagerProxyTest, TestAddOrRemoveDisallowedUsbDevicesRemoveFail, Tes
  */
 HWTEST_F(UsbManagerProxyTest, TestGetDisallowedUsbDevicesSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(),
             &EnterpriseDeviceMgrStubMock::InvokeDisallowedUsbDevicesSendRequestGetPolicy));
+
     std::vector<USB::UsbDeviceType> result;
-    int32_t ret = proxy_->GetDisallowedUsbDevices(admin, result);
+    int32_t ret = proxy_->GetDisallowedUsbDevices(data, result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result.size() == 1);
 }
@@ -458,10 +521,13 @@ HWTEST_F(UsbManagerProxyTest, TestGetDisallowedUsbDevicesSuc, TestSize.Level1)
 HWTEST_F(UsbManagerProxyTest, TestGetDisallowedUsbDevicesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
     std::vector<USB::UsbDeviceType> result;
-    int32_t ret = proxy_->GetDisallowedUsbDevices(admin, result);
+    int32_t ret = proxy_->GetDisallowedUsbDevices(data, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(result.empty());
 }

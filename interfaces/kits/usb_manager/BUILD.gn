@@ -20,17 +20,14 @@ ohos_shared_library("usbmanager") {
     "include",
   ]
 
-  sources = [
-    "../common/src/napi_edm_common.cpp",
-    "../common/src/napi_edm_error.cpp",
-    "./src/usb_manager_addon.cpp",
-  ]
+  sources = [ "./src/usb_manager_addon.cpp" ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
     "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
+    "../common:napi_edm_common",
   ]
 
   external_deps = [

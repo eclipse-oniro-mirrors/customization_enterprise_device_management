@@ -25,11 +25,10 @@ namespace EDM {
 class SystemManagerProxy {
 public:
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
-    int32_t SetNTPServer(const AppExecFwk::ElementName &admin, const std::string &value);
-    int32_t GetNTPServer(const AppExecFwk::ElementName &admin, std::string &value);
-    int32_t SetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, const UpdatePolicy &updatePolicy,
-        std::string &errorMsg);
-    int32_t GetOTAUpdatePolicy(const AppExecFwk::ElementName &admin, UpdatePolicy &updatePolicy);
+    int32_t SetNTPServer(MessageParcel &data);
+    int32_t GetNTPServer(MessageParcel &data, std::string &value);
+    int32_t SetOTAUpdatePolicy(MessageParcel &data, std::string &errorMsg);
+    int32_t GetOTAUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy);
     int32_t NotifyUpdatePackages(const AppExecFwk::ElementName &admin, UpgradePackageInfo &packageInfo,
         std::string &errMsg);
     int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,

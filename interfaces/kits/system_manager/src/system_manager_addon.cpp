@@ -15,6 +15,8 @@
 #include "system_manager_addon.h"
 #include "edm_log.h"
 
+#include "napi_edm_adapter.h"
+
 using namespace OHOS::EDM;
 
 napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
@@ -104,26 +106,17 @@ void SystemManagerAddon::CreateUpgradeStatusObject(napi_env env, napi_value valu
 
 napi_value SystemManagerAddon::SetNTPServer(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetNTPServer called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter string error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "GetNTPServer: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
-    std::string ntpParm;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, ntpParm, argv[ARR_INDEX_ONE]), "element name param error");
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetNTPServer(elementName, ntpParm);
+    EDMLOGI("SetNTPServer Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetNTPServer";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetNTPServer(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("SetNTPServer failed!");
@@ -133,24 +126,18 @@ napi_value SystemManagerAddon::SetNTPServer(napi_env env, napi_callback_info inf
 
 napi_value SystemManagerAddon::GetNTPServer(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetNTPServer called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD(
-        "GetNTPServer: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(),
-        elementName.GetAbilityName().c_str());
+    EDMLOGI("GetNTPServer Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetNTPServer";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     std::string ntpParm;
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetNTPServer(elementName, ntpParm);
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetNTPServer(adapterAddonData.data, ntpParm);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("GetNTPServer failed!");
@@ -163,27 +150,29 @@ napi_value SystemManagerAddon::GetNTPServer(napi_env env, napi_callback_info inf
 
 napi_value SystemManagerAddon::SetOTAUpdatePolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetOTAUpdatePolicy called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "the admin parameter type is incorrect");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
-        "the policy parameter type is incorrect");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "the admin parameter parsing error");
-    EDMLOGD("SetOTAUpdatePolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    UpdatePolicy updatePolicy;
-    std::string errorMsg;
-    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToUpdatePolicy(env, argv[ARR_INDEX_ONE], updatePolicy, errorMsg), errorMsg);
+    auto convertupdatePolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            UpdatePolicy updatePolicy;
+            std::string errorMsg;
+            if (!JsObjToUpdatePolicy(env, argv, updatePolicy, errorMsg)) {
+                EDMLOGE("%{public}s", errorMsg.c_str());
+                return false;
+            }
+            UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetOTAUpdatePolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertupdatePolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     std::string message;
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOTAUpdatePolicy(elementName, updatePolicy, message);
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOTAUpdatePolicy(adapterAddonData.data, message);
     if (ret == EdmReturnErrCode::PARAM_ERROR) {
         napi_throw(env, CreateError(env, ret, message));
     } else if (FAILED(ret)) {
@@ -194,21 +183,17 @@ napi_value SystemManagerAddon::SetOTAUpdatePolicy(napi_env env, napi_callback_in
 
 napi_value SystemManagerAddon::GetOTAUpdatePolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetOTAUpdatePolicy called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD("GetOTAUpdatePolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetOTAUpdatePolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     UpdatePolicy updatePolicy;
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetOTAUpdatePolicy(elementName, updatePolicy);
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetOTAUpdatePolicy(adapterAddonData.data, updatePolicy);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
