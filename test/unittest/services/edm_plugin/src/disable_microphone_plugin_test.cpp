@@ -59,6 +59,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetTrue, Te
     bool currentdata = false;
     bool mergeData = false;
     DisableMicrophonePlugin plugin;
+    plugin.persistParam_ = "persist.edm.mic_disable";
     ErrCode ret = plugin.OnSetPolicy(isDisallow, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, false));
@@ -75,6 +76,7 @@ HWTEST_F(DisableMicrophonePluginTest, TestDisableMicrophonePluginTestSetFalse, T
     bool currentdata = false;
     bool mergeData = false;
     DisableMicrophonePlugin plugin;
+    plugin.persistParam_ = "persist.edm.mic_disable";
     ErrCode ret = plugin.OnSetPolicy(isDisallow, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(system::GetBoolParameter(PARAM_EDM_MIC_DISABLE, true));

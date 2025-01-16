@@ -27,8 +27,6 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
-
 class SetWifiDisabledPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
