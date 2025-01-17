@@ -34,8 +34,6 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         "ohos.permission.ENTERPRISE_MANAGE_WIFI");
-    typePermissionsForTag11.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
-        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
     typePermissionsForTag12.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
