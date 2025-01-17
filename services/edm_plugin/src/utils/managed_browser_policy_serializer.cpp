@@ -72,6 +72,7 @@ bool ManagedBrowserPolicySerializer::Serialize(const std::map<std::string, Manag
         if (array == nullptr) {
             cJSON_Delete(root);
             cJSON_Delete(policyObject);
+            return false;
         }
         for (auto& vectorIt : mapIt.second.policyNames) {
             cJSON* policyValue = cJSON_CreateString(vectorIt.c_str());

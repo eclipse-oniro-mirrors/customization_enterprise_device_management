@@ -68,6 +68,26 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithEmptyBundleNa
 }
 
 /**
+ * @tc.name: TestOnHandlePolicyFailWithInvalidBundleName
+ * @tc.desc: Test ManagedBrowserPolicyPluginTest::OnHandlePolicy when BundleName is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithInvalidBundleName, TestSize.Level1)
+{
+    ManagedBrowserPolicyPlugin plugin;
+    std::uint32_t funcCode = 0;
+    std::string invalidBundleName = "../invalidBundleName";
+    MessageParcel data;
+    data.WriteString(invalidBundleName);
+    data.WriteString(TEST_POLICY_NAME);
+    data.WriteString(TEST_POLICY_VALUE);
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
  * @tc.name: TestOnHandlePolicyFailWithEmptyPolicyName
  * @tc.desc: Test ManagedBrowserPolicyPluginTest::OnHandlePolicy when PolicyName is empty.
  * @tc.type: FUNC
@@ -135,6 +155,25 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnGetPolicyFailWithEmptyBundleName,
     std::string policyData;
     std::string type = EdmConstants::Browser::GET_MANAGED_BROWSER_FILE_DATA;
     std::string bundleName;
+    MessageParcel data;
+    data.WriteString(type);
+    data.WriteString(bundleName);
+    MessageParcel reply;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyFailWithInvalidBundleName
+ * @tc.desc: Test ManagedBrowserPolicyPluginTest::OnGetPolicy with invalid bundle name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnGetPolicyFailWithInvalidBundleName, TestSize.Level1)
+{
+    ManagedBrowserPolicyPlugin plugin;
+    std::string policyData;
+    std::string type = EdmConstants::Browser::GET_MANAGED_BROWSER_FILE_DATA;
+    std::string bundleName = "../invalidbundleName";
     MessageParcel data;
     data.WriteString(type);
     data.WriteString(bundleName);
@@ -232,7 +271,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestModifyOrRemoveManagedBrowserPolicyF
     const std::string policyName;
     const std::string policyValue;
     ErrCode ret = plugin.ModifyOrRemoveManagedBrowserPolicy(policies, bundleName, policyName, policyValue);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
@@ -255,20 +294,6 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestModifyOrRemoveManagedBrowserPolicyF
     std::string tempUrl = MANAGED_BROWSER_POLICY_DIR + bundleName + "_tmp" + MANAGED_BROWSER_POLICY_SUFFIX;
     ASSERT_TRUE(remove(URL.c_str()) == ERR_OK);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-}
-
-/**
- * @tc.name: TestAddManagedBrowserPolicyFailWithInvalidBundleName
- * @tc.desc: Test ManagedBrowserPolicyPluginTest::AddManagedBrowserPolicy failed with invalid bundle name.
- * @tc.type: FUNC
- */
-HWTEST_F(ManagedBrowserPolicyPluginTest, TestAddManagedBrowserPolicyFailWithInvalidBundleName, TestSize.Level1)
-{
-    ManagedBrowserPolicyPlugin plugin;
-    std::map<std::string, ManagedBrowserPolicyType> policies;
-    const std::string bundleName = "com.invalid../../";
-    ErrCode ret = plugin.AddManagedBrowserPolicy(policies, bundleName, TEST_POLICY_NAME, TEST_POLICY_VALUE);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 } // namespace TEST
 } // namespace EDM

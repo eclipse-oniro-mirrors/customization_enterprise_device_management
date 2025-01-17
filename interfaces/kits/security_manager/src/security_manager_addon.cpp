@@ -555,7 +555,7 @@ std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::s
     });
     Media::SourceOptions sourceOption;
     auto imageSourcePtr = Media::ImageSource::CreateImageSource(*fdPtr, sourceOption, ret);
-    if (ret != ERR_OK) {
+    if (ret != ERR_OK || imageSourcePtr == nullptr) {
         EDMLOGE("CreateImageSource error");
         return nullptr;
     }

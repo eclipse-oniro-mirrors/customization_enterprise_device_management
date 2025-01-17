@@ -187,6 +187,10 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret == ERR_OK) {
         OHOS::AccountSA::OsAccountInfo *result = OHOS::AccountSA::OsAccountInfo::Unmarshalling(reply);
+        if (result == nullptr) {
+            EDMLOGE("AccountManagerProxy::AddOsAccount Unmarshalling null");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
         accountInfo = *result;
     }
     return ret;
