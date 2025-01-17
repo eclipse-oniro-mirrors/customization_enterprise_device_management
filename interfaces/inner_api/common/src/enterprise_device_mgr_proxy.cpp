@@ -612,7 +612,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(MessageParcel &data, std::vector<std
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(const AppExecFwk::ElementName &admin,
+ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin,
     std::string &bundleName)
 {
     std::uint32_t funcCode =
@@ -623,8 +623,8 @@ ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(const AppExecFwk
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteParcelable(&admin);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     MessageParcel reply;
     MessageOption option;

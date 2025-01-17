@@ -782,29 +782,32 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     return nullptr;
 }
 
-bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, std::string callerBundleName,
+bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
     int32_t adminType, std::map<std::string, std::string> &parameters)
 {
     if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
+        EDMLOGE("CheckByodParams: bundleName or abilityName is empty.");
         return false;
     }
     if (callerBundleName != elementName.GetBundleName()) {
+        EDMLOGE("CheckByodParams: callerBundleName is not the input bundleName.");
         return false;
     }
     if (adminType != static_cast<int32_t>(AdminType::BYOD)) {
+        EDMLOGE("CheckByodParams: admin type is not byod.");
         return false;
     }
     if (parameters.size() > MAX_ADMINPROVISION_PARAM_NUM) {
+        EDMLOGE("CheckByodParams: parameters size is too much. Max is ten.");
         return false;
     }
-    if (parameters.find(ACTIVATEID) == parameters.end()) {
-        return false;
-    }
-    if (parameters[ACTIVATEID].length() != ACTIVATEID_LEN) {
+    if (parameters.find(ACTIVATEID) == parameters.end() || parameters[ACTIVATEID].length() != ACTIVATEID_LEN) {
+        EDMLOGE("CheckByodParams: activateId is not exist or the length of activateId is not 64.");
         return false;
     }
     if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
         parameters[CUSTOMIZEDINFO].length() > MAX_CUSTOMIZEDINFO_LEN) {
+        EDMLOGE("CheckByodParams: the length of customizedInfo is more than 2048.");
         return false;
     }
     return true;

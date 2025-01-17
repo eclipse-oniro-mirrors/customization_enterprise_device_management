@@ -1003,6 +1003,10 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
         EDMLOGW("EnableAdmin: byod admin not allowd enable when another admin enabled.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    if (!isDebug && type != AdminType::BYOD && AdminManager::GetInstance()->IsByodAdminExist()) {
+        EDMLOGW("EnableAdmin: other admin not allowd enable when byod admin enabled.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
     return ERR_OK;
 }
 
@@ -1589,13 +1593,19 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     MessageParcel &reply, int32_t userId)
 {
     std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        EDMLOGW("CheckAndGetAdminProvisionInfo: ReadParcelable failed");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    EDMLOGD("CheckAndGetAdminProvisionInfo bundleName: %{public}s, abilityName : %{public}s ",
+        admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     AAFwk::Want want;
     want.SetElement(*admin);
     if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
         AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo) ||
         abilityInfo.empty()) {
-        EDMLOGW("EnableAdmin: QueryExtensionAbilityInfos failed");
+        EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
