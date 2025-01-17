@@ -26,10 +26,14 @@ std::string SetWifiDisabledQuery::GetPolicyName()
     return "disable_wifi";
 }
 
-std::string SetWifiDisabledQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+std::string SetWifiDisabledQuery::GetPermission(IPlugin::PermissionType permissionType,
+    const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
         return "ohos.permission.ENTERPRISE_MANAGE_WIFI";
+    }
+    if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+        return "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
     }
     return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
 }

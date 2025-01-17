@@ -145,7 +145,7 @@ ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateTy
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     if (!permissionName.empty()) {
-        EDMLOGE("CheckHandlePolicyPermission: permissionName:%{public}s", permissionName.c_str());
+        EDMLOGI("CheckHandlePolicyPermission: permissionName:%{public}s", permissionName.c_str());
         auto ret = CheckAndUpdatePermission(deviceAdmin, IPCSkeleton::GetCallingTokenID(), permissionName, userId);
         if (FAILED(ret)) {
             return ret;
