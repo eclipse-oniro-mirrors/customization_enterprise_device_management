@@ -42,7 +42,6 @@ void ManagedBrowserPolicyPluginTest::SetUpTestSuite(void)
 
 void ManagedBrowserPolicyPluginTest::TearDownTestSuite(void)
 {
-    ASSERT_TRUE(remove(URL.c_str()) == ERR_OK);
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
