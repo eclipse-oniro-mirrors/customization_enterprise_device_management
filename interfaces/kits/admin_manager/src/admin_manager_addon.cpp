@@ -31,6 +31,10 @@ using namespace OHOS::EDM;
 const std::string ADMIN_PROVISIONING_ABILITY_NAME = "ByodAdminProvisionAbility";
 const int32_t JS_BYOD_TYPE = 2;
 const int32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
+const int32_t ACTIVATEID_LEN = 64;
+const int32_t MAX_CUSTOMIZEDINFO_LEN = 2048;
+const std::string ACTIVATEID = "activateId";
+const std::string CUSTOMIZEDINFO = "customizedInfo";
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
@@ -735,7 +739,6 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
-
     AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
@@ -748,13 +751,17 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
         "Parse param context failed, must be a context of stageMode.");
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[ARR_INDEX_TWO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, context != nullptr, "Parse param context failed, must not be nullptr.");
+    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
+    ASSERT_AND_THROW_PARAM_ERROR(env, uiAbilityContext != nullptr,
+        "Parse param context failed, must be UIAbilityContext.");
     std::map<std::string, std::string> parameters;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, parameters, argv[ARR_INDEX_THREE]),
         "parameter parameters error");
     int32_t adminType = JsAdminTypeToAdminType(jsAdminType);
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(adminType, parameters), "byod parameters error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(elementName, uiAbilityContext->GetBundleName(), adminType,
+        parameters), "byod parameters error");
     std::string bundleName;
-    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(bundleName);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(elementName, bundleName);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -767,9 +774,6 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     for (auto &param : parameters) {
         want.SetParam(param.first, param.second);
     }
-    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
-    ASSERT_AND_THROW_PARAM_ERROR(env, uiAbilityContext != nullptr,
-        "Parse param context failed, must be UIAbilityContext.");
     auto token = uiAbilityContext->GetToken();
     ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token);
     if (FAILED(ret)) {
@@ -778,15 +782,29 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     return nullptr;
 }
 
-bool AdminManager::CheckByodParams(int32_t adminType, std::map<std::string, std::string> &parameters)
+bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, std::string callerBundleName,
+    int32_t adminType, std::map<std::string, std::string> &parameters)
 {
+    if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
+        return false;
+    }
+    if (callerBundleName != elementName.GetBundleName()) {
+        return false;
+    }
     if (adminType != static_cast<int32_t>(AdminType::BYOD)) {
         return false;
     }
     if (parameters.size() > MAX_ADMINPROVISION_PARAM_NUM) {
         return false;
     }
-    if (parameters.find("activateId") == parameters.end()) {
+    if (parameters.find(ACTIVATEID) == parameters.end()) {
+        return false;
+    }
+    if (parameters[ACTIVATEID].length() != ACTIVATEID_LEN) {
+        return false;
+    }
+    if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
+        parameters[CUSTOMIZEDINFO].length() > MAX_CUSTOMIZEDINFO_LEN) {
         return false;
     }
     return true;

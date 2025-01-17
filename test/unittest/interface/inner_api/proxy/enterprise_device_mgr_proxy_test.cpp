@@ -1189,7 +1189,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestCheckAndGetAdminProvisionInfoSucc, Te
         .WillOnce(Invoke(object_.GetRefPtr(),
             &EnterpriseDeviceMgrStubMock::InvokeSendRequestCheckAndGetAdminProvisionInfo));
     std::string bundleName;
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(bundleName);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(admin, bundleName);
     ASSERT_TRUE(errVal == ERR_OK);
     ASSERT_TRUE(bundleName == "com.edm.test.demo");
 }
@@ -1209,7 +1209,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestCheckAndGetAdminProvisionInfoIpcFail,
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     std::string bundleName;
-    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(bundleName);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(admin, bundleName);
     EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST

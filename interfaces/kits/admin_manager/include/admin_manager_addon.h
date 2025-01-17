@@ -147,7 +147,8 @@ private:
     static napi_value HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe);
     static int32_t JsAdminTypeToAdminType(int32_t jsAdminType);
     static int32_t AdminTypeToJsAdminType(int32_t AdminType);
-    static bool CheckByodParams(int32_t adminType, std::map<std::string, std::string> &parameters);
+    static bool CheckByodParams(AppExecFwk::ElementName elementName, std::string callerBundleName,
+        int32_t adminType, std::map<std::string, std::string> &parameters);
 };
 } // namespace EDM
 } // namespace OHOS
