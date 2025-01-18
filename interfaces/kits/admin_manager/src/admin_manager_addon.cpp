@@ -31,8 +31,9 @@ using namespace OHOS::EDM;
 const std::string ADMIN_PROVISIONING_ABILITY_NAME = "ByodAdminProvisionAbility";
 const int32_t JS_BYOD_TYPE = 2;
 const int32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
-const int32_t ACTIVATEID_LEN = 64;
-const int32_t MAX_CUSTOMIZEDINFO_LEN = 2048;
+const int32_t MIN_ACTIVATEID_LEN = 32;
+const int32_t MAX_ACTIVATEID_LEN = 256;
+const int32_t MAX_CUSTOMIZEDINFO_LEN = 10240;
 const std::string ACTIVATEID = "activateId";
 const std::string CUSTOMIZEDINFO = "customizedInfo";
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
@@ -801,13 +802,14 @@ bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const st
         EDMLOGE("CheckByodParams: parameters size is too much. Max is ten.");
         return false;
     }
-    if (parameters.find(ACTIVATEID) == parameters.end() || parameters[ACTIVATEID].length() != ACTIVATEID_LEN) {
-        EDMLOGE("CheckByodParams: activateId is not exist or the length of activateId is not 64.");
+    if (parameters.find(ACTIVATEID) == parameters.end() || parameters[ACTIVATEID].length() < MIN_ACTIVATEID_LEN ||
+        parameters[ACTIVATEID].length() > MAX_ACTIVATEID_LEN) {
+        EDMLOGE("CheckByodParams: activateId is not exist or the length of activateId is not in [32, 256].");
         return false;
     }
     if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
         parameters[CUSTOMIZEDINFO].length() > MAX_CUSTOMIZEDINFO_LEN) {
-        EDMLOGE("CheckByodParams: the length of customizedInfo is more than 2048.");
+        EDMLOGE("CheckByodParams: the length of customizedInfo is more than 10240.");
         return false;
     }
     return true;
