@@ -802,9 +802,14 @@ bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const st
         EDMLOGE("CheckByodParams: parameters size is too much. Max is ten.");
         return false;
     }
-    if (parameters.find(ACTIVATEID) == parameters.end() || parameters[ACTIVATEID].length() < MIN_ACTIVATEID_LEN ||
-        parameters[ACTIVATEID].length() > MAX_ACTIVATEID_LEN) {
-        EDMLOGE("CheckByodParams: activateId is not exist or the length of activateId is not in [32, 256].");
+    if (parameters.find(ACTIVATEID) == parameters.end()) {
+        EDMLOGE("CheckByodParams: activateId is not exist.");
+        return false;
+    }
+    int32_t activateIdLen = parameters[ACTIVATEID].length();
+    EDMLOGE("CheckByodParams:The length is %{public}d", activateIdLen);
+    if (activateIdLen < MIN_ACTIVATEID_LEN || activateIdLen > MAX_ACTIVATEID_LEN) {
+        EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}d", activateIdLen);
         return false;
     }
     if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&

@@ -1599,6 +1599,18 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     }
     EDMLOGD("CheckAndGetAdminProvisionInfo bundleName: %{public}s, abilityName : %{public}s ",
         admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
+
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
+        EDMLOGE("CheckAndGetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo)) ||
+        hapTokenInfo.bundleName != admin->GetBundleName()) {
+        EDMLOGE("CheckAndGetAdminProvisionInfo::calling bundleName is not input bundleName.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     AAFwk::Want want;
     want.SetElement(*admin);
@@ -1608,7 +1620,6 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
         EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
     InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
@@ -1617,11 +1628,6 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     if (AdminManager::GetInstance()->IsAdminExist()) {
         EDMLOGE("CheckAndGetAdminProvisionInfo::device exist admin.");
         return EdmReturnErrCode::PARAM_ERROR;
-    }
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
-        EDMLOGE("CheckAndGetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::string policyValue;
     AppExecFwk::ElementName elementName;

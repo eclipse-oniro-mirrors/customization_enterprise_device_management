@@ -28,6 +28,7 @@
 
 namespace OHOS {
 namespace EDM {
+const int32_t MAX_STRING_LEN = 10256;
 static void NativeCallbackComplete(napi_env env, napi_status status, AsyncCallbackInfo *asyncCallbackInfo,
     napi_value result)
 {
@@ -124,7 +125,7 @@ bool ParseMapStringAndString(napi_env env, std::map<std::string, std::string> &p
         napi_value value;
         NAPI_CALL_BASE(env, napi_get_property(env, args, key, &value), false);
 
-        char valueBuf[256] = {0};
+        char valueBuf[MAX_STRING_LEN] = {0};
         size_t valueLen;
         NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, value, valueBuf, sizeof(valueBuf) - 1, &valueLen), false);
 
