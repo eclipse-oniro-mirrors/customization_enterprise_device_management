@@ -31,6 +31,11 @@ using namespace OHOS::EDM;
 const std::string ADMIN_PROVISIONING_ABILITY_NAME = "ByodAdminProvisionAbility";
 const int32_t JS_BYOD_TYPE = 2;
 const int32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
+const int32_t MIN_ACTIVATEID_LEN = 32;
+const int32_t MAX_ACTIVATEID_LEN = 256;
+const int32_t MAX_CUSTOMIZEDINFO_LEN = 10240;
+const std::string ACTIVATEID = "activateId";
+const std::string CUSTOMIZEDINFO = "customizedInfo";
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
@@ -735,7 +740,6 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
-
     AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
@@ -748,13 +752,17 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
         "Parse param context failed, must be a context of stageMode.");
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[ARR_INDEX_TWO]);
     ASSERT_AND_THROW_PARAM_ERROR(env, context != nullptr, "Parse param context failed, must not be nullptr.");
+    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
+    ASSERT_AND_THROW_PARAM_ERROR(env, uiAbilityContext != nullptr,
+        "Parse param context failed, must be UIAbilityContext.");
     std::map<std::string, std::string> parameters;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, parameters, argv[ARR_INDEX_THREE]),
         "parameter parameters error");
     int32_t adminType = JsAdminTypeToAdminType(jsAdminType);
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(adminType, parameters), "byod parameters error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(elementName, uiAbilityContext->GetBundleName(), adminType,
+        parameters), "byod parameters error");
     std::string bundleName;
-    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(bundleName);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(elementName, bundleName);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -767,9 +775,6 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     for (auto &param : parameters) {
         want.SetParam(param.first, param.second);
     }
-    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
-    ASSERT_AND_THROW_PARAM_ERROR(env, uiAbilityContext != nullptr,
-        "Parse param context failed, must be UIAbilityContext.");
     auto token = uiAbilityContext->GetToken();
     ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token);
     if (FAILED(ret)) {
@@ -778,15 +783,37 @@ napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info in
     return nullptr;
 }
 
-bool AdminManager::CheckByodParams(int32_t adminType, std::map<std::string, std::string> &parameters)
+bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
+    int32_t adminType, std::map<std::string, std::string> &parameters)
 {
+    if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
+        EDMLOGE("CheckByodParams: bundleName or abilityName is empty.");
+        return false;
+    }
+    if (callerBundleName != elementName.GetBundleName()) {
+        EDMLOGE("CheckByodParams: callerBundleName is not the input bundleName.");
+        return false;
+    }
     if (adminType != static_cast<int32_t>(AdminType::BYOD)) {
+        EDMLOGE("CheckByodParams: admin type is not byod.");
         return false;
     }
     if (parameters.size() > MAX_ADMINPROVISION_PARAM_NUM) {
+        EDMLOGE("CheckByodParams: parameters size is too much. Max is ten.");
         return false;
     }
-    if (parameters.find("activateId") == parameters.end()) {
+    if (parameters.find(ACTIVATEID) == parameters.end()) {
+        EDMLOGE("CheckByodParams: activateId is not exist.");
+        return false;
+    }
+    int32_t activateIdLen = parameters[ACTIVATEID].length();
+    if (activateIdLen < MIN_ACTIVATEID_LEN || activateIdLen > MAX_ACTIVATEID_LEN) {
+        EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}d", activateIdLen);
+        return false;
+    }
+    if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
+        parameters[CUSTOMIZEDINFO].length() > MAX_CUSTOMIZEDINFO_LEN) {
+        EDMLOGE("CheckByodParams: the length of customizedInfo is more than 10240.");
         return false;
     }
     return true;

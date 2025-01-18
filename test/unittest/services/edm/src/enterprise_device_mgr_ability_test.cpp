@@ -4480,14 +4480,33 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithAd
 }
 
 /**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoWithoutAdmin
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo without admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithoutAdmin, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+    ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
  * @tc.name: TestCheckAndGetAdminProvisionInfoWithoutPermission
  * @tc.desc: Test CheckAndGetAdminProvisionInfo without permission.
  * @tc.type: FUNC
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithoutPermission, TestSize.Level1)
 {
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteParcelable(&admin);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
@@ -4497,22 +4516,25 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithou
 }
 
 /**
- * @tc.name: TestCheckAndGetAdminProvisionInfoSuc
- * @tc.desc: Test CheckAndGetAdminProvisionInfo success.
+ * @tc.name: TestCheckAndGetAdminProvisionInfoGetHapTokenInfoFaild
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo with GetHapTokenInfoFaild.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoGetHapTokenInfoFaild, TestSize.Level1)
 {
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     MessageParcel data;
     MessageParcel reply;
+    data.WriteParcelable(&admin);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
-
 
 /**
  * @tc.name: TestGetAdminsSuc

@@ -612,7 +612,8 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(MessageParcel &data, std::vector<std
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(std::string &bundleName)
+ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin,
+    std::string &bundleName)
 {
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
@@ -623,8 +624,8 @@ ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(std::string &bun
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(WITHOUT_ADMIN);
     MessageParcel reply;
     MessageOption option;
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);

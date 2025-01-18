@@ -1003,6 +1003,10 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(Ap
         EDMLOGW("EnableAdmin: byod admin not allowd enable when another admin enabled.");
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    if (!isDebug && type != AdminType::BYOD && AdminManager::GetInstance()->IsByodAdminExist()) {
+        EDMLOGW("EnableAdmin: other admin not allowd enable when byod admin enabled.");
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
     return ERR_OK;
 }
 
@@ -1588,6 +1592,34 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
 ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        EDMLOGW("CheckAndGetAdminProvisionInfo: ReadParcelable failed");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    EDMLOGD("CheckAndGetAdminProvisionInfo bundleName: %{public}s, abilityName : %{public}s ",
+        admin->GetBundleName().c_str(), admin->GetAbilityName().c_str());
+
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
+        EDMLOGE("CheckAndGetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo)) ||
+        hapTokenInfo.bundleName != admin->GetBundleName()) {
+        EDMLOGE("CheckAndGetAdminProvisionInfo::calling bundleName is not input bundleName.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
+    AAFwk::Want want;
+    want.SetElement(*admin);
+    if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo) ||
+        abilityInfo.empty()) {
+        EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     InitAllPlugins();
     std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
@@ -1596,11 +1628,6 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     if (AdminManager::GetInstance()->IsAdminExist()) {
         EDMLOGE("CheckAndGetAdminProvisionInfo::device exist admin.");
         return EdmReturnErrCode::PARAM_ERROR;
-    }
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
-        EDMLOGE("CheckAndGetAdminProvisionInfo::VerifyCallingPermission check permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::string policyValue;
     AppExecFwk::ElementName elementName;
@@ -1651,9 +1678,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(AppExecFwk::ElementName &a
 {
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     auto adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),  GetCurrentUserId());
-    if (adminItem != nullptr && (adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN ||
-        adminItem->GetAdminType() == AdminType::BYOD)) {
-        EDMLOGE("GetEnterpriseInfo delegated or byod admin does not have permission to get enterprise info.");
+    if (adminItem != nullptr && adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
+        EDMLOGE("GetEnterpriseInfo delegated admin does not have permission to get enterprise info.");
         reply.WriteInt32(EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
