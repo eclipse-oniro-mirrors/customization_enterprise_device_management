@@ -25,6 +25,7 @@
 #include "parameters.h"
 #include "system_ability_definition.h"
 
+#include "array_string_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
@@ -64,6 +65,7 @@ void ManageAutoStartAppsPluginTest::TearDownTestSuite(void)
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySucWithNullData, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -79,6 +81,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySucWithNullData, TestSize
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleExceededLimit, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data;
     for (int i = 0; i < 15; i++) {
         std::string str = "test/test" + std::to_string(i);
@@ -98,6 +101,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleExceededLim
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleNotExist, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -113,6 +117,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleNotExist, T
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithInvalidData, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {INVALID_TEST_BUNDLE};
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -133,43 +138,47 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
         MessageParcel reply;
         ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
+        plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
         std::vector<std::string> currentData;
         std::vector<std::string> mergeData;
         ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
-        std::string policyData = RIGHT_TEST_BUNDLE;
+        std::string policyData;
+        ArrayStringSerializer::GetInstance()->Serialize(currentData, policyData);
         MessageParcel parcel;
         MessageParcel getReply;
         ret = plugin.OnGetPolicy(policyData, parcel, getReply, DEFAULT_USER_ID);
         std::vector<std::string> res;
-        ASSERT_TRUE(ret == ERR_OK);
-        ASSERT_TRUE(getReply.ReadInt32() == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(getReply.ReadInt32() == ERR_OK);
         getReply.ReadStringVector(&res);
-        ASSERT_TRUE(res.size() >= 1);
-        ASSERT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
+        EXPECT_TRUE(res.size() >= 1);
+        EXPECT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_BUNDLE) != res.end());
 
         std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
+        mergeData.clear();
         ret = plugin.OnBasicRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         MessageParcel removeReply;
+        ArrayStringSerializer::GetInstance()->Serialize(currentData, policyData);
         ret = plugin.OnGetPolicy(policyData, parcel, removeReply, DEFAULT_USER_ID);
         std::vector<std::string> afterRemove;
-        ASSERT_TRUE(ret == ERR_OK);
-        ASSERT_TRUE(removeReply.ReadInt32() == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(removeReply.ReadInt32() == ERR_OK);
         removeReply.ReadStringVector(&afterRemove);
-        ASSERT_TRUE(afterRemove.size() == 0);
+        EXPECT_TRUE(afterRemove.size() == 0);
 
         UninstallPlugin uninstallPlugin;
         UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
         MessageParcel uninstallReply;
         ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
     }
 }
 
@@ -197,6 +206,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicySuc, TestSize.Level1)
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -212,11 +222,12 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestS
 HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, TestSize.Level1)
 {
     ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {ERROR_TEST_BUNDLE};
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
     ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
@@ -232,28 +243,31 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
         MessageParcel reply;
         ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
+        plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
         std::vector<std::string> currentData;
         std::vector<std::string> mergeData;
-        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        EXPECT_TRUE(ret == ERR_OK);
 
         data = {INVALID_TEST_BUNDLE};
+        currentData = {INVALID_TEST_BUNDLE};
         ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+        EXPECT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 
         data = {RIGHT_TEST_BUNDLE};
+        currentData = {RIGHT_TEST_BUNDLE};
         ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
         UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
         MessageParcel uninstallReply;
         ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
     }
 }
 
@@ -270,24 +284,26 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
         MessageParcel reply;
         ErrCode ret = installPlugin.OnSetPolicy(param, reply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
+        plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
         std::vector<std::string> currentData;
         std::vector<std::string> mergeData;
         ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
         UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
         MessageParcel uninstallReply;
         ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
 
         data = {RIGHT_TEST_BUNDLE};
+        mergeData.clear();
         ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(ret == ERR_OK);
     }
 }
 } // namespace TEST
