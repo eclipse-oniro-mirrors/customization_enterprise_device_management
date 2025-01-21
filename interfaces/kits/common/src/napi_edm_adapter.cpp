@@ -148,7 +148,7 @@ static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSig
 {
     auto it = std::find(methodSign.argsType.begin(), methodSign.argsType.end(), EdmAddonCommonType::USERID);
     if (it != methodSign.argsType.end()) {
-        size_t index = it - methodSign.argsType.begin();
+        int32_t index = it - methodSign.argsType.begin();
         JsArgToData argConvert = methodSign.argsConvert[index];
         std::ostringstream errorMsg;
         errorMsg << "The " << index << "th parameter must be number.";

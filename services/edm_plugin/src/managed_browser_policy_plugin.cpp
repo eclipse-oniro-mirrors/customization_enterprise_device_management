@@ -65,7 +65,7 @@ ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     std::string bundleName = data.ReadString();
     std::string policyName = data.ReadString();
     std::string policyValue = data.ReadString();
-    if (bundleName.empty() || policyName.empty()) {
+    if (bundleName.empty() || policyName.empty() || bundleName.find("..") != std::string::npos) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
@@ -198,7 +198,7 @@ ErrCode ManagedBrowserPolicyPlugin::ModifyOrRemoveManagedBrowserPolicy(
     std::string url = MANAGED_BROWSER_POLICY_DIR + bundleName + MANAGED_BROWSER_POLICY_SUFFIX;
     if (!EdmUtils::CheckRealPath(url, MANAGED_BROWSER_POLICY_DIR)) {
         EDMLOGE("ManagedBrowserPolicyPlugin::CheckRealPath fail");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::ifstream inFile(url);
     if (inFile.fail()) {
@@ -245,10 +245,6 @@ ErrCode ManagedBrowserPolicyPlugin::ModifyOrRemoveManagedBrowserPolicy(
 ErrCode ManagedBrowserPolicyPlugin::AddManagedBrowserPolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
     const std::string &bundleName, const std::string &policyName, const std::string &policyValue)
 {
-    if (bundleName.find("../") != std::string::npos || bundleName.find("..\\") != std::string::npos) {
-        EDMLOGE("ManagedBrowserPolicyPlugin::AddManagedBrowserPolicy bundleName invalid");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
     std::string url = MANAGED_BROWSER_POLICY_DIR + bundleName + MANAGED_BROWSER_POLICY_SUFFIX;
     std::ofstream outfile(url, std::ios::app);
     if (outfile.fail()) {
@@ -285,8 +281,8 @@ ErrCode ManagedBrowserPolicyPlugin::OnGetPolicy(std::string &policyData, Message
     } else if (!GetCallingBundleName(bundleName)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (bundleName.empty()) {
-        EDMLOGI("ManagedBrowserPolicyPlugin::OnGetPolicy bundleName empty");
+    if (bundleName.empty() || bundleName.find("..") != std::string::npos) {
+        EDMLOGI("ManagedBrowserPolicyPlugin::OnGetPolicy bundleName error");
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
@@ -304,6 +300,13 @@ ErrCode ManagedBrowserPolicyPlugin::OnGetPolicy(std::string &policyData, Message
 ErrCode ManagedBrowserPolicyPlugin::GetManagedBrowserPolicyFileData(const std::string &bundleName, MessageParcel &reply)
 {
     std::string url = MANAGED_BROWSER_POLICY_DIR + bundleName + MANAGED_BROWSER_POLICY_SUFFIX;
+    if (!EdmUtils::CheckRealPath(url, MANAGED_BROWSER_POLICY_DIR)) {
+        EDMLOGE("ManagedBrowserPolicyPlugin::CheckRealPath fail");
+        reply.WriteInt32(ERR_OK);
+        reply.WriteInt32(EMPTY_POLICY_SIZE);
+        reply.WriteRawData(reinterpret_cast<const void*>(EMPTY_POLICY), EMPTY_POLICY_SIZE);
+        return ERR_OK;
+    }
     std::ifstream infile(url, std::ios::binary | std::ios::ate);
     if (infile.fail()) {
         EDMLOGE("ManagedBrowserPolicyPlugin::OnGetPolicy open file fail");

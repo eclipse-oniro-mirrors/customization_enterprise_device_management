@@ -77,7 +77,8 @@ bool EdmUtils::CheckRealPath(const std::string &path, const std::string &expectP
     if (path.size() > PATH_MAX || realpath(path.c_str(), canonicalPath) == nullptr) {
         return false;
     }
-    if (path.find(expectPath) == 0) {
+    std::string canonicalPathString(canonicalPath);
+    if (canonicalPathString.find(expectPath) != std::string::npos) {
         return true;
     }
     return false;

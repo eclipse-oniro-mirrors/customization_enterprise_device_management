@@ -373,8 +373,12 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
             std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            int32_t currentUserId = GetCurrentUserId();
+            if (currentUserId < 0) {
+                return;
+            }
             sptr<IEnterpriseConnection> connection =
-                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), GetCurrentUserId(), accountId);
+                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), currentUserId, accountId);
             manager->ConnectAbility(connection);
         }
     }
