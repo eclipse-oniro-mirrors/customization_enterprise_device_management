@@ -23,7 +23,6 @@
 #include "edm_os_account_manager_impl_mock.h"
 #include "external_manager_factory_mock.h"
 #include "get_device_info_plugin.h"
-#include "get_display_version_plugin.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {

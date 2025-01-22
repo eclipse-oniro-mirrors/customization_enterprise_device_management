@@ -25,7 +25,7 @@ namespace OHOS {
 namespace EDM {
 
 void SecurityReport::ReportSecurityInfo(const std::string &bundleName, const std::string &abilityName,
-    const ReportInfo &reportInfo)
+    const ReportInfo &reportInfo, bool isAsync)
 {
 #ifdef SECURITY_GUARDE_ENABLE
     const int64_t EVENT_ID = 1011015013; // 1011015013: report event id
@@ -43,7 +43,14 @@ void SecurityReport::ReportSecurityInfo(const std::string &bundleName, const std
     jsonResult["outcome"] = reportInfo.outcome_;
     jsonResult["extra"] = reportInfo.extra_; // reserved
     std::shared_ptr<EventInfo> eventInfo = std::make_shared<EventInfo>(EVENT_ID, "1.1", jsonResult.dump());
-    OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfoAsync(eventInfo);
+    if (isAsync) {
+        OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfoAsync(eventInfo);
+        return;
+    }
+    int32_t ret = OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfo(eventInfo);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityReport::ReportSecurityInfo ret: %{public}d", ret);
+    }
 #endif
 }
 } // namespace EDM

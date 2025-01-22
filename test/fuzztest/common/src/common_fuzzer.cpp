@@ -48,12 +48,9 @@
 #include "func_code.h"
 #include "get_all_network_interfaces_plugin.h"
 #include "get_bluetooth_info_plugin.h"
-#include "get_device_encryption_status_plugin.h"
 #include "get_device_info_plugin.h"
-#include "get_display_version_plugin.h"
 #include "get_ip_address_plugin.h"
 #include "get_mac_plugin.h"
-#include "get_security_patch_tag_plugin.h"
 #include "global_proxy_plugin.h"
 #include "ienterprise_device_mgr.h"
 #include "install_plugin.h"
@@ -131,15 +128,9 @@ const bool REGISTER_GET_ALL_NETWORK_INTERFACES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
 const bool REGISTER_GET_BLUETOOTH_INFO_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
-const bool REGISTER_GET_DEVICE_ENCRYPTION_STATUS_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetDeviceEncryptionStatusPlugin::GetPlugin());
 const bool REGISTER_GET_DEVICE_INFO_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
-const bool REGISTER_GET_DISPLAY_VERSION_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetDisplayVersionPlugin::GetPlugin());
 const bool REGISTER_GET_IP_ADDRESS_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());
 const bool REGISTER_GET_MAC_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetMacPlugin::GetPlugin());
-const bool REGISTER_GET_SECURITY_PATCH_TAG_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetSecurityPatchTagPlugin::GetPlugin());
 const bool REGISTER_GLOBAL_PROXY_PLUGIN = PluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 const bool REGISTER_INSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const bool REGISTER_IPTABLES_RULE_PLUGIN =

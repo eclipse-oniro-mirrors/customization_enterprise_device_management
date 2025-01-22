@@ -47,10 +47,6 @@ protected:
     virtual ErrCode GetArrayStringPolicy(const std::string &policyData, MessageParcel &reply);
 
     virtual ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
-
-private:
-    void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName, uint32_t code,
-        const std::string &policyName, ErrCode errorCode);
 };
 } // namespace EDM
 } // namespace OHOS

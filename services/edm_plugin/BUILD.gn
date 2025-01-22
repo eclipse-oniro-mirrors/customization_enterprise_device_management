@@ -15,7 +15,10 @@ import("//build/ohos.gni")
 import("../../common/config/common.gni")
 
 config("edm_plugin_config") {
-  cflags = [ "-Wno-error=implicit-fallthrough" ]
+  cflags = [
+    "-Wno-error=implicit-fallthrough",
+    "-fvisibility=hidden",
+  ]
   include_dirs = [
     "./include",
     "./include/network",
@@ -77,10 +80,7 @@ ohos_shared_library("edmplugin") {
       "./src/disallowed_tethering_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
       "./src/get_adminprovision_info_plugin.cpp",
-      "./src/get_device_encryption_status_plugin.cpp",
       "./src/get_device_info_plugin.cpp",
-      "./src/get_display_version_plugin.cpp",
-      "./src/get_security_patch_tag_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",

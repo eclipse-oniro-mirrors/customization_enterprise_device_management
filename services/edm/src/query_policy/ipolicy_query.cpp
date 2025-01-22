@@ -98,15 +98,9 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
         policyManager->GetPolicy(elementName.GetBundleName(), policyName, policyValue, userId);
     }
     ErrCode getRet = this->QueryPolicy(policyValue, data, reply, userId);
-    CreateSecurityContent(elementName.GetBundleName(), elementName.GetAbilityName(), code, policyName, getRet);
+    ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
+    SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), reportInfo, true);
     return getRet;
-}
-
-void IPolicyQuery::CreateSecurityContent(const std::string &bundleName, const std::string &abilityName, uint32_t code,
-    const std::string &policyName, ErrCode errorCode)
-{
-    ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(errorCode));
-    SecurityReport::ReportSecurityInfo(bundleName, abilityName, reportInfo);
 }
 } // namespace EDM
 } // namespace OHOS

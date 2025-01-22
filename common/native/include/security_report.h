@@ -43,7 +43,7 @@ struct ReportInfo {
 class SecurityReport {
 public:
     static void ReportSecurityInfo(const std::string &bundleName, const std::string &abilityName,
-        const ReportInfo &reportInfo);
+        const ReportInfo &reportInfo, bool isAsync);
 };
 } // namespace EDM
 } // namespace OHOS
