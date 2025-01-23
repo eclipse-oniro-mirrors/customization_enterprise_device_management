@@ -63,7 +63,7 @@ struct AddonMethodSign {
     std::string apiVersionTag;
     MethodAttribute methodAttribute = MethodAttribute::GET;
     int32_t defaultArgSize = 0;
-    uint32_t policyCode = 0;
+    int32_t policyCode = 0;
 };
 
 struct AsyncAddonData {

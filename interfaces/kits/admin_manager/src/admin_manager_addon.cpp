@@ -28,14 +28,16 @@
 #include "system_ability_definition.h"
 
 using namespace OHOS::EDM;
+namespace {
 const std::string ADMIN_PROVISIONING_ABILITY_NAME = "ByodAdminProvisionAbility";
 const int32_t JS_BYOD_TYPE = 2;
-const int32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
-const int32_t MIN_ACTIVATEID_LEN = 32;
-const int32_t MAX_ACTIVATEID_LEN = 256;
-const int32_t MAX_CUSTOMIZEDINFO_LEN = 10240;
+const uint32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
+const uint32_t MIN_ACTIVATEID_LEN = 32;
+const uint32_t MAX_ACTIVATEID_LEN = 256;
+const uint32_t MAX_CUSTOMIZEDINFO_LEN = 10240;
 const std::string ACTIVATEID = "activateId";
 const std::string CUSTOMIZEDINFO = "customizedInfo";
+}
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
@@ -806,7 +808,7 @@ bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const st
         EDMLOGE("CheckByodParams: activateId is not exist.");
         return false;
     }
-    int32_t activateIdLen = parameters[ACTIVATEID].length();
+    size_t activateIdLen = parameters[ACTIVATEID].length();
     if (activateIdLen < MIN_ACTIVATEID_LEN || activateIdLen > MAX_ACTIVATEID_LEN) {
         EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}d", activateIdLen);
         return false;
