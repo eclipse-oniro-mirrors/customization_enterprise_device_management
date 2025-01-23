@@ -1911,6 +1911,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
     if (admin == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
+    InitAllPlugins();
     for (const std::string &policy : policies) {
         if (allowDelegatedPolicies_.find(policy) == allowDelegatedPolicies_.end()) {
             return EdmReturnErrCode::PARAM_ERROR;
