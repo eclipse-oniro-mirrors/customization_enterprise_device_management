@@ -56,6 +56,8 @@ public:
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,
         int32_t accountId = -1);
+    int32_t SetGlobalHttpProxyByAccountId(MessageParcel &data);
+    int32_t GetGlobalHttpProxyByAccountId(NetManagerStandard::HttpProxy &httpProxy, int32_t accountId = -1);
 #endif
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;

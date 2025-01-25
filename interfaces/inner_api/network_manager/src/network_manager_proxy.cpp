@@ -374,6 +374,15 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(MessageParcel &data)
     return ret;
 }
 
+int32_t NetworkManagerProxy::SetGlobalHttpProxyByAccountId(MessageParcel &data)
+{
+    EDMLOGD("NetworkManagerProxy::SetGlobalHttpProxy");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::GLOBAL_PROXY);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    EDMLOGI("NetworkManagerProxy::SetGlobalHttpProxy ret = %{public}d", ret);
+    return ret;
+}
+
 int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *admin,
     NetManagerStandard::HttpProxy &httpProxy, int32_t accountId)
 {
@@ -402,6 +411,30 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
     }
     if (!NetManagerStandard::HttpProxy::Unmarshalling(reply, httpProxy)) {
         EDMLOGE("NetworkManagerProxy::GetGlobalHttpProxy Unmarshalling proxy fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+int32_t NetworkManagerProxy::GetGlobalHttpProxyByAccountId(NetManagerStandard::HttpProxy &httpProxy, int32_t accountId)
+{
+    EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxyByAccountId");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("GetGlobalHttpProxyByAccountId:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!NetManagerStandard::HttpProxy::Unmarshalling(reply, httpProxy)) {
+        EDMLOGE("NetworkManagerProxy::GetGlobalHttpProxyByAccountId Unmarshalling proxy fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

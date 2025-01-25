@@ -97,6 +97,8 @@ private:
     static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxySync(napi_env env, napi_callback_info info);
+    static napi_value SetGlobalHttpProxyByAccountIdSync(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxyByAccountIdSync(napi_env env, napi_callback_info info);
     static void SetNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
         int32_t policyCode);
