@@ -37,7 +37,7 @@ protected:
     virtual ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
         std::vector<std::string> &failedData);
 
-    int32_t maxListSize_ = 0;
+    uint32_t maxListSize_ = 0;
 };
 } // namespace EDM
 } // namespace OHOS

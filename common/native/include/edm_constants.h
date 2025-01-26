@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 namespace EdmConstants {
     constexpr int32_t DECIMAL = 10;
-    constexpr int32_t APPID_MAX_SIZE = 200;
+    constexpr uint32_t APPID_MAX_SIZE = 200;
     constexpr int32_t DEFAULT_USER_ID = 100;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
@@ -32,9 +32,9 @@ namespace EdmConstants {
     constexpr int32_t USB_INTERFACE_DESCRIPTOR = 0;
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
-    constexpr int32_t AUTO_START_APPS_MAX_SIZE = 10;
-    constexpr int32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
-    constexpr int32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
+    constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
+    constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
+    constexpr uint32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
