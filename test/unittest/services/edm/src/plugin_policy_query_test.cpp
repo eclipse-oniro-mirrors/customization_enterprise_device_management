@@ -31,6 +31,8 @@
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
 #include "disable_printer_query.h"
+#include "disable_mtp_client_query.h"
+#include "disable_mtp_server_query.h"
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
 #include "disallow_modify_datetime_query.h"
@@ -202,6 +204,46 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery002, TestSize.Level1)
 HWTEST_F(PluginPolicyQueryTest, TestDisablePrinterQuery001, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisablePrinterQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: DisableMtpClientQuery001
+ * @tc.desc: Test DisableMtpPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMtpClientQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableMtpClientQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: DisableMtpServerQuery001
+ * @tc.desc: Test DisableMtpPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMtpServerQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableMtpServerQuery>();
     std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;

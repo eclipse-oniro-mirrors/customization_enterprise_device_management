@@ -73,6 +73,8 @@
 #endif
 
 #include "allowed_install_bundles_query.h"
+#include "disable_mtp_client_query.h"
+#include "disable_mtp_server_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -310,6 +312,12 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISABLE_MTP_CLIENT:
+            obj = std::make_shared<DisableMtpClientQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISABLE_MTP_SERVER:
+            obj = std::make_shared<DisableMtpServerQuery>();
+            return ERR_OK;
         default:
             break;
     }

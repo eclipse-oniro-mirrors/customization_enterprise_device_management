@@ -85,6 +85,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE = "inactiveUserFreeze";
         const char* const LABEL_DISALLOWED_POLICY_CAMERA = "camera";
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
+        const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
+        const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
     } // namespace Restrictions
 
     namespace SecurityManager {
