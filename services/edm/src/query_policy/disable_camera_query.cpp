@@ -20,8 +20,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PARAM_EDM_CAMERA_DISABLE = "persist.edm.camera_disable";
-
 std::string DisableCameraQuery::GetPolicyName()
 {
     return "disable_camera";

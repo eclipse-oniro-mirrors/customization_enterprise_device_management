@@ -18,7 +18,6 @@
 #include <system_ability_definition.h>
 
 #include "common_fuzzer.h"
-#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"

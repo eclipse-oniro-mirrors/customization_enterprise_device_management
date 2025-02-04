@@ -15,7 +15,6 @@
 
 #include "location_manager_addon.h"
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
 

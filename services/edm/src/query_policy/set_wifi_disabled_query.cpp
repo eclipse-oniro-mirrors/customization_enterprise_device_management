@@ -19,8 +19,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string KEY_DISABLE_WIFI = "persist.edm.wifi_enable";
-
 std::string SetWifiDisabledQuery::GetPolicyName()
 {
     return "disable_wifi";

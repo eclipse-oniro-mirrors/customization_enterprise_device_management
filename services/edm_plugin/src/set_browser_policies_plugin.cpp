@@ -20,7 +20,6 @@
 #include "cjson_serializer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
-#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "map_string_serializer.h"
 #include "want.h"

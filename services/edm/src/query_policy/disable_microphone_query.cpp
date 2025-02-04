@@ -15,14 +15,11 @@
 
 #include "disable_microphone_query.h"
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
-
 std::string DisableMicrophoneQuery::GetPolicyName()
 {
     return "disable_microphone";

@@ -34,12 +34,7 @@ std::string DisallowAddLocalAccountQuery::GetPermission(IPlugin::PermissionType,
 ErrCode DisallowAddLocalAccountQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisallowAddLocalAccountQuery OnGetPolicy %{public}s...", policyData.c_str());
-    bool isDisallowed = false;
-    BoolSerializer::GetInstance()->Deserialize(policyData, isDisallowed);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisallowed);
-    return ERR_OK;
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

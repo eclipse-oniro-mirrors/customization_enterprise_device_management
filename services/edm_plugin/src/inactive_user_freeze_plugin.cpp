@@ -16,7 +16,6 @@
 #include "inactive_user_freeze_plugin.h"
 
 #include "bool_serializer.h"
-#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"

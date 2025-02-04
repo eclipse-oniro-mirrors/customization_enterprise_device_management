@@ -15,7 +15,6 @@
 
 #include "admin_policies_storage_rdb.h"
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_rdb_filed_const.h"
 

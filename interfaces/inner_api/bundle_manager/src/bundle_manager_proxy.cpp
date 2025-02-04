@@ -22,7 +22,6 @@
 #include <unistd.h>
 
 #include "directory_ex.h"
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"

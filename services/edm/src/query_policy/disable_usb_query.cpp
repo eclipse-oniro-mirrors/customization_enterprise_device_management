@@ -40,12 +40,7 @@ std::string DisableUsbQuery::GetPermission(IPlugin::PermissionType permissionTyp
 
 ErrCode DisableUsbQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("DisableUsbQuery OnGetPolicy %{public}s...", policyData.c_str());
-    bool isDisabled = false;
-    BoolSerializer::GetInstance()->Deserialize(policyData, isDisabled);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(isDisabled);
-    return ERR_OK;
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

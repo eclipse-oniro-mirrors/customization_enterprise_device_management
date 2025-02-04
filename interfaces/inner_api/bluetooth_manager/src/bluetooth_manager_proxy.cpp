@@ -15,7 +15,6 @@
 
 #include "bluetooth_manager_proxy.h"
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "func_code.h"
@@ -108,11 +107,6 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(MessageParcel &data, s
     if (!blRes) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
-    }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE) {
-        EDMLOGE("BluetoothManagerProxy:GetAllowedBluetoothDevices size=[%{public}d] is too large.", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.ReadStringVector(&deviceIds);
     return ERR_OK;
