@@ -37,7 +37,8 @@ DomainExecuter::DomainExecuter(std::string actualChainName, const std::string &c
 ErrCode DomainExecuter::Init()
 {
     std::ostringstream oss;
-    oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53 " << JUMP_OPTION << chainName_;
+    oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53 " 
+        << JUMP_OPTION << chainName_;
     std::string result;
     ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
     if (ret != ERR_OK) {

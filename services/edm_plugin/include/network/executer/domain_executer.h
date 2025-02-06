@@ -30,7 +30,6 @@ public:
 
 private:
     std::string actualChainName_;
-
 };
 } // namespace IPTABLES
 } // namespace EDM

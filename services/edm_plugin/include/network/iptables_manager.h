@@ -53,7 +53,9 @@ private:
     bool ExistForwardAllowFirewallRule();
     bool ExistOutputAllowDomainRule();
     bool ExistForwardAllowDomainRule();
-    bool CheckRemoveParams(Action action, std::string appUid, std::string domainName);
+    bool CheckRemoveDomainParams(Action action, std::string appUid, std::string domainName);
+    bool CheckRemoveFirewallParams(Direction direction, FirewallRule rule);
+    bool CheckAddFirewallParams(Direction direction, FirewallRule rule)
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
 

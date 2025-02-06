@@ -42,13 +42,13 @@ HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
     DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT};
     DomainChainRule domainChainRule{domainFilterRule};
 
-    EXPECT_EQ(domainChainRule.ToFilterRule(), domainFilterRule);
+    EXPECT_EQ(domainChainRule.ToFilterRule(Direction::OUTPUT), domainFilterRule);
 
     std::string rule =
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
         "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
     DomainChainRule domainChainRule1{rule};
-    EXPECT_EQ(domainChainRule1.ToFilterRule(), domainFilterRule);
+    EXPECT_EQ(domainChainRule1.ToFilterRule(Direction::OUTPUT), domainFilterRule);
 }
 
 /**

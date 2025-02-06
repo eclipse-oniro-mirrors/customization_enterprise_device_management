@@ -73,13 +73,17 @@ std::shared_ptr<ExecuterFactory> ExecuterFactory::GetInstance()
                 EDM_ALLOW_FORWARD_CHAIN_NAME));
             
             instance_->chainNames_.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
-            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN, EDM_DNS_DENY_OUTPUT_CHAIN_NAME));
+            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN,
+                EDM_DNS_DENY_OUTPUT_CHAIN_NAME));
             instance_->chainNames_.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
-            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(FORWARD_CHAIN, EDM_DNS_DENY_FORWARD_CHAIN_NAME));
+            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(FORWARD_CHAIN,
+                EDM_DNS_DENY_FORWARD_CHAIN_NAME));
             instance_->chainNames_.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
-            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN, EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME));
+            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN,
+                EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME));
             instance_->chainNames_.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
-            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(FORWARD_CHAIN, EDM_DNS_ALLOW_FORWARD_CHAIN_NAME));
+            instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(FORWARD_CHAIN,
+                EDM_DNS_ALLOW_FORWARD_CHAIN_NAME));
         }
     }
     return instance_;

@@ -366,14 +366,14 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
 
     std::vector<DomainFilterRule> invalidRules{
         {Action::ALLOW, "1000", "", Direction::OUTPUT},
-        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT}, 
+        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT}, 
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT},
         {Action::INVALID, "1000", invalidDomainName, Direction::OUTPUT},
         {Action::ALLOW, "1000", "", Direction::FORWARD},
-        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD}, 
+        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD}, 
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
         {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}};
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
@@ -664,7 +664,8 @@ HWTEST_F(IptablesManagerTest, TestChainExistRule, TestSize.Level1)
         .WillRepeatedly(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<std::string> chainNameList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME,
-        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME};
+        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_ALLOW_FORWARD_CHAIN_NAME,
+        EDM_DENY_FORWARD_CHAIN_NAME};
     EXPECT_TRUE(iptablesManager->ChainExistRule(chainNameList));
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Return(ERR_OK)));

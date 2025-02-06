@@ -61,11 +61,11 @@ HWTEST_F(DomainExecuterTest, TestInit, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    DomainExecuter initOk{"chainName"};
+    DomainExecuter initOk{"actualChainName", "chainName"};
     EXPECT_TRUE(initOk.Init() == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    DomainExecuter initFail{"chainName"};
+    DomainExecuter initFail{"actualChainName","chainName"};
     EXPECT_FALSE(initFail.Init() == ERR_OK);
 }
 } // namespace TEST
