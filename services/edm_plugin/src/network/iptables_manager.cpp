@@ -32,8 +32,10 @@ namespace IPTABLES {
 const int32_t MAX_DOMAIN_LENGTH = 255;
 
 bool IptablesManager::g_chainInit = false;
-bool IptablesManager::g_defaultFirewallChainInit = false;
-bool IptablesManager::g_defaultDomainChainInit = false;
+bool IptablesManager::g_defaultFirewallOutputChainInit = false;
+bool IptablesManager::g_defaultFirewallForwardChainInit = false;
+bool IptablesManager::g_defaultDomainOutputChainInit = false;
+bool IptablesManager::g_defaultDomainForwardChainInit = false;
 std::shared_ptr<IptablesManager> IptablesManager::instance_ = nullptr;
 std::mutex IptablesManager::mutexLock_;
 
@@ -68,10 +70,14 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall)
         chainName = EDM_ALLOW_INPUT_CHAIN_NAME;
     } else if (action == Action::ALLOW && direction == Direction::OUTPUT) {
         chainName = EDM_ALLOW_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::ALLOW && direction == Direction::FORWARD) {
+        chainName = EDM_ALLOW_FORWARD_CHAIN_NAME;
     } else if (action == Action::DENY && direction == Direction::INPUT) {
         chainName = EDM_DENY_INPUT_CHAIN_NAME;
     } else if (action == Action::DENY && direction == Direction::OUTPUT) {
         chainName = EDM_DENY_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::DENY && direction == Direction::FORWARD) {
+        chainName = EDM_DENY_FORWARD_CHAIN_NAME;
     } else {
         EDMLOGE("AddFirewallRule: illegal parameter: action, direction");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -83,7 +89,7 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (action == Action::ALLOW) {
-        SetDefaultFirewallDenyChain();
+        SetDefaultFirewallDenyChain(direction);
     }
     auto chainRule = std::make_shared<FirewallChainRule>(rule);
     return executer->Add(chainRule);
@@ -137,8 +143,11 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall)
             executer->Remove(chainRule);
         }
     }
-    if (!ExistAllowFirewallRule()) {
-        ClearDefaultFirewallDenyChain();
+    if (!ExistOutputAllowFirewallRule()) {
+        ClearDefaultFirewallOutputDenyChain();
+    }
+    if (!ExistForwardAllowFirewallRule()) {
+        ClearDefaultFirewallForwardDenyChain();
     }
     return ERR_OK;
 }
@@ -177,6 +186,22 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::OUTPUT)};
         list.emplace_back(firewall);
     }
+
+    std::vector<std::string> forwardRuleList;
+    std::vector<std::string> forwardChainVector{EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME};
+    for (const auto& chainName : forwardChainVector) {
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
+        if (executer == nullptr) {
+            EDMLOGE("GetFirewallRules:GetExecuter fail, this should not happen.");
+            continue;
+        }
+        executer->GetAll(forwardRuleList);
+    }
+    for (const auto& rule : forwardRuleList) {
+        FirewallChainRule firewallRule{rule};
+        FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::FORWARD)};
+        list.emplace_back(firewall);
+    }
     return ERR_OK;
 }
 
@@ -186,10 +211,17 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
     Action action = std::get<DOMAIN_ACTION_IND>(rule);
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     std::string chainName;
+    Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
     if (action == Action::ALLOW) {
         chainName = EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME;
+        if(direction == Direction::FORWARD){
+            chainName = EDM_DNS_ALLOW_FORWARD_CHAIN_NAME;
+        }
     } else if (action == Action::DENY) {
         chainName = EDM_DNS_DENY_OUTPUT_CHAIN_NAME;
+        if(direction == Direction::FORWARD){
+            chainName = EDM_DNS_DENY_FORWARD_CHAIN_NAME;
+        }
     } else {
         EDMLOGE("AddDomainFilterRule: illegal parameter: action");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -211,7 +243,7 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
     }
     if (action == Action::ALLOW) {
         EDMLOGD("AddDomainFilterRule:GetExecuter before SetDefaultDomainDenyChain.");
-        SetDefaultDomainDenyChain();
+        SetDefaultDomainDenyChain(direction);
     }
     auto chainRule = std::make_shared<DomainChainRule>(rule);
     return executer->Add(chainRule);
@@ -223,59 +255,78 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     Action action = std::get<DOMAIN_ACTION_IND>(rule);
     std::string appUid = std::get<DOMAIN_APPUID_IND>(rule);
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
+    Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
     if (!CheckRemoveParams(action, appUid, domainName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> chainNameList;
-    if (action == Action::ALLOW) {
-        chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
-    } else if (action == Action::DENY) {
-        chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
-    } else {
-        chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
-        chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+    ErrCode ret = GetDomainRemoveChainName(direction, action, chainNameList);
+    if (ret != ERR_OK) {
+        EDMLOGE("RemoveDomainRule: illegal parameter: action, direction");
+        return ret;
+    }
+    if (chainNameList.size() > 1) {
         for (const auto& chainName : chainNameList) {
             auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
             if (executer == nullptr) {
-                EDMLOGE("RemoveDomainFilterRules:GetExecuter fail.");
+                EDMLOGE("RemoveDomainFilterRules:GetExecuter fail, this should not happen.");
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
             // flush chain
             executer->Remove(nullptr);
         }
-        ClearDefaultDomainDenyChain();
-        return ERR_OK;
+    } else if (chainNameList.size() == 1){
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainNameList[0]);
+        if (executer == nullptr) {
+            EDMLOGE("RemoveDomainFilterRules:GetExecuter fail, this should not happen.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        auto chainRule = std::make_shared<DomainChainRule>(rule);
+        executer->Remove(chainRule);
     }
-
-    auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainNameList[0]);
-    if (executer == nullptr) {
-        EDMLOGE("RemoveDomainFilterRules:GetExecuter fail, this should not happen.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    
+    if (!ExistOutputAllowDomainRule()) {
+        ClearDefaultDomainOutputDenyChain();
     }
-    auto chainRule = std::make_shared<DomainChainRule>(rule);
-    auto ret = executer->Remove(chainRule);
-    if (ret == ERR_OK && !ExistAllowDomainRule()) {
-        ClearDefaultDomainDenyChain();
+        if (!ExistForwardAllowDomainRule()) {
+        ClearDefaultDomainForwardDenyChain();
     }
-    return ret;
+    return ERR_OK;
 }
 
 ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel>& list)
 {
-    std::vector<std::string> ruleList;
-    std::vector<std::string> chainNameVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME, EDM_DNS_DENY_OUTPUT_CHAIN_NAME};
-    for (const auto& chainName : chainNameVector) {
+
+    std::vector<std::string> outputRuleList;
+    std::vector<std::string> outputChainVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME, EDM_DNS_DENY_OUTPUT_CHAIN_NAME};
+    for (const auto& chainName : outputChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
             EDMLOGE("ChainExistRule executer null");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        executer->GetAll(ruleList);
+        executer->GetAll(outputRuleList);
     }
-    for (const auto& rule : ruleList) {
+    for (const auto& rule : outputRuleList) {
         DomainChainRule chainRule{rule};
-        list.emplace_back(chainRule.ToFilterRule());
+        list.emplace_back(chainRule.ToFilterRule(Direction::OUTPUT));
     }
+
+    std::vector<std::string> forwardRuleList;
+    std::vector<std::string> forwardChainVector{EDM_DNS_ALLOW_FORWARD_CHAIN_NAME, EDM_DNS_DENY_FORWARD_CHAIN_NAME};
+    for (const auto& chainName : forwardChainVector) {
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
+        if (executer == nullptr) {
+            EDMLOGE("GetFirewallRules:GetExecuter fail, this should not happen.");
+            continue;
+        }
+        executer->GetAll(forwardRuleList);
+    }
+    for (const auto& rule : forwardRuleList) {
+        DomainChainRule chainRule{rule};
+        list.emplace_back(chainRule.ToFilterRule(Direction::FORWARD));
+    }
+
     return ERR_OK;
 }
 
@@ -299,6 +350,15 @@ ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, 
             chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
         }
+    } else if (direction == Direction::FORWARD) {
+        if (action == Action::ALLOW) {
+            chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
+        } else if (action == Action::DENY) {
+            chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+        } else {
+            chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+        }
     } else {
         if (action == Action::INVALID) {
             chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
@@ -307,6 +367,40 @@ ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, 
             chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
         } else {
             EDMLOGE("GetRemoveChainName: illegal parameter: direction, action");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+    }
+    return ERR_OK;
+}
+
+ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action action, std::vector<std::string>& chainNameList)
+{
+    if (direction == Direction::OUTPUT) {
+        if (action == Action::ALLOW) {
+            chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
+        } else if (action == Action::DENY) {
+            chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+        } else {
+            chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+        }
+    } else if (direction == Direction::FORWARD) {
+        if (action == Action::ALLOW) {
+            chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
+        } else if (action == Action::DENY) {
+            chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+        } else {
+            chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+        }
+    } else {
+        if (action == Action::INVALID) {
+            chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+        } else {
+            EDMLOGE("GetDomainRemoveChainName: illegal parameter: direction, action");
             return EdmReturnErrCode::PARAM_ERROR;
         }
     }
@@ -341,9 +435,9 @@ void IptablesManager::Init()
     }
 }
 
-void IptablesManager::SetDefaultFirewallDenyChain()
+void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
 {
-    if (!g_defaultFirewallChainInit) {
+    if (!g_defaultFirewallOutputChainInit && direction == Direction::OUTPUT) {
         FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", ""};
         FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", ""};
 
@@ -356,62 +450,129 @@ void IptablesManager::SetDefaultFirewallDenyChain()
                 EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
             } else {
                 executer->Add(chainRule);
-                g_defaultFirewallChainInit = true;
+                g_defaultFirewallOutputChainInit = true;
+            }
+        }
+    }
+    if (!g_defaultFirewallForwardChainInit && direction == Direction::FORWARD) {
+        FirewallRule firewallRule1{Direction::FORWARD, Action::DENY, Protocol::UDP, "", "", "", "", ""};
+        FirewallRule firewallRule2{Direction::FORWARD, Action::DENY, Protocol::TCP, "", "", "", "", ""};
+
+        std::vector<std::shared_ptr<ChainRule>> chainRuleVector{std::make_shared<FirewallChainRule>(),
+            std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
+
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
+        for (const auto& chainRule : chainRuleVector) {
+            if (executer == nullptr) {
+                EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
+            } else {
+                executer->Add(chainRule);
+                g_defaultFirewallForwardChainInit = true;
             }
         }
     }
 }
 
-void IptablesManager::ClearDefaultFirewallDenyChain()
+void IptablesManager::ClearDefaultFirewallOutputDenyChain()
 {
-    if (g_defaultFirewallChainInit) {
+    if (g_defaultFirewallOutputChainInit) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
         if (executer == nullptr) {
-            EDMLOGE("ClearDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
+            EDMLOGE("ClearDefaultFirewallOutputDenyChain:GetExecuter fail, this should not happen.");
         } else {
             executer->Remove(nullptr);
-            g_defaultFirewallChainInit = false;
+            g_defaultFirewallOutputChainInit = false;
         }
     }
 }
 
-void IptablesManager::SetDefaultDomainDenyChain()
+void IptablesManager::ClearDefaultFirewallForwardDenyChain()
 {
-    if (!g_defaultDomainChainInit) {
-        DomainFilterRule domainFilterRule{Action::DENY, "", ""};
+    if (g_defaultFirewallForwardChainInit) {
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
+        if (executer == nullptr) {
+            EDMLOGE("ClearDefaultFirewallForwardDenyChain:GetExecuter fail, this should not happen.");
+        } else {
+            executer->Remove(nullptr);
+            g_defaultFirewallForwardChainInit = false;
+        }
+    }
+}
+
+void IptablesManager::SetDefaultDomainDenyChain(Direction direction)
+{
+    if (!g_defaultDomainOutputChainInit && direction == Direction::OUTPUT) {
+        DomainFilterRule domainFilterRule{Action::DENY, "", "", Direction::OUTPUT};
         std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
         if (executer == nullptr) {
             EDMLOGE("SetDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
         } else {
             executer->Add(chainRule);
-            g_defaultDomainChainInit = true;
+            g_defaultDomainOutputChainInit = true;
+        }
+    }
+
+    if (!g_defaultDomainForwardChainInit && direction == Direction::FORWARD) {
+        DomainFilterRule domainFilterRule{Action::DENY, "", "", Direction::FORWARD};
+        std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME);
+        if (executer == nullptr) {
+            EDMLOGE("SetDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
+        } else {
+            executer->Add(chainRule);
+            g_defaultDomainForwardChainInit = true;
         }
     }
 }
 
-void IptablesManager::ClearDefaultDomainDenyChain()
+void IptablesManager::ClearDefaultDomainOutputDenyChain()
 {
-    if (g_defaultDomainChainInit) {
+    if (g_defaultDomainOutputChainInit) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
         if (executer == nullptr) {
             EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
         } else {
             executer->Remove(nullptr);
-            g_defaultDomainChainInit = false;
+            g_defaultDomainOutputChainInit = false;
         }
     }
 }
 
-bool IptablesManager::ExistAllowFirewallRule()
+void IptablesManager::ClearDefaultDomainForwardDenyChain()
+{
+    if (g_defaultDomainForwardChainInit) {
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME);
+        if (executer == nullptr) {
+            EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
+        } else {
+            executer->Remove(nullptr);
+            g_defaultDomainForwardChainInit = false;
+        }
+    }
+}
+
+bool IptablesManager::ExistOutputAllowFirewallRule()
 {
     std::vector<std::string> chainNameVector{EDM_ALLOW_INPUT_CHAIN_NAME, EDM_ALLOW_OUTPUT_CHAIN_NAME};
     return ChainExistRule(chainNameVector);
 }
 
-bool IptablesManager::ExistAllowDomainRule()
+bool IptablesManager::ExistForwardAllowFirewallRule()
+{
+    std::vector<std::string> chainNameVector{EDM_ALLOW_FORWARD_CHAIN_NAME};
+    return ChainExistRule(chainNameVector);
+}
+
+bool IptablesManager::ExistOutputAllowDomainRule()
 {
     std::vector<std::string> chainNameVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME};
+    return ChainExistRule(chainNameVector);
+}
+
+bool IptablesManager::ExistForwardAllowDomainRule()
+{
+    std::vector<std::string> chainNameVector{EDM_DNS_ALLOW_FORWARD_CHAIN_NAME};
     return ChainExistRule(chainNameVector);
 }
 
@@ -435,6 +596,7 @@ bool IptablesManager::CheckRemoveParams(Action action, std::string appUid, std::
         EDMLOGE("RemoveDomainFilterRules: illegal parameter: Too many parameters set");
         return false;
     }
+
     return true;
 }
 

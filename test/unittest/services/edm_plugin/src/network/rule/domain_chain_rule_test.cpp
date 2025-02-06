@@ -39,7 +39,7 @@ class DomainChainRuleTest : public testing::Test {};
  */
 HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com"};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT};
     DomainChainRule domainChainRule{domainFilterRule};
 
     EXPECT_EQ(domainChainRule.ToFilterRule(), domainFilterRule);
@@ -58,14 +58,14 @@ HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
  */
 HWTEST_F(DomainChainRuleTest, TestParameter, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com"};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT};
     std::string parameter =
         " -p udp --dport 53 -m owner --uid-owner 9696 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule{domainFilterRule};
     EXPECT_EQ(domainChainRule.Parameter(), parameter);
 
-    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com"};
+    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com", Direction::OUTPUT};
     std::string parameter1 = " -p udp --dport 53 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule1{domainFilterRule1};

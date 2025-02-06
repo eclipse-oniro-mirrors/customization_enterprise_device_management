@@ -25,15 +25,19 @@ namespace EDM {
 namespace IPTABLES {
 
 const std::string SELECT_TABLE_OPTION = "-t ";
+const std::string JUMP_OPTION = " -j ";
+const std::string INSERT_OPTION = " -I ";
 
-DomainExecuter::DomainExecuter(const std::string& chainName) : IExecuter(chainName)
+DomainExecuter::DomainExecuter(std::string actualChainName, const std::string &chainName) : IExecuter(chainName),
+    actualChainName_(std::move(actualChainName))
 {
 }
+
 
 ErrCode DomainExecuter::Init()
 {
     std::ostringstream oss;
-    oss << SELECT_TABLE_OPTION << tableName_ << " -I OUTPUT -p udp --dport 53 -j " << chainName_;
+    oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53 " << JUMP_OPTION << chainName_;
     std::string result;
     ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
     if (ret != ERR_OK) {

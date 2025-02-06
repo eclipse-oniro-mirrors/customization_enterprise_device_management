@@ -92,7 +92,7 @@ bool IptablesUtils::ProcessFirewallMethod(int32_t type, AddMethod &method)
 
 bool IptablesUtils::ProcessFirewallDirection(int32_t type, Direction &direction)
 {
-    if (type >= static_cast<int32_t>(Direction::INPUT) && type <= static_cast<int32_t>(Direction::OUTPUT)) {
+    if (type >= static_cast<int32_t>(Direction::INPUT) && type <= static_cast<int32_t>(Direction::FORWARD)) {
         direction = Direction(type);
         return true;
     }

@@ -25,7 +25,7 @@ namespace EDM {
 namespace IPTABLES {
 enum class AddMethod { INVALID = -1, APPEND, INSERT };
 
-enum class Direction { INVALID = -1, INPUT, OUTPUT };
+enum class Direction { INVALID = -1, INPUT, OUTPUT, FORWARD };
 
 enum class Action { INVALID = -1, ALLOW, DENY };
 

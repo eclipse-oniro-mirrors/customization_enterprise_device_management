@@ -86,13 +86,19 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallSuccess, TestSize.Level1)
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80:90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "99", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901:1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
@@ -115,6 +121,7 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallFail, TestSize.Level1)
         {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "", "90", ""},
         {Direction::INPUT, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""},
         {Direction::INVALID, Action::DENY, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""}};
     for (const auto &item : invalidRules) {
@@ -143,13 +150,19 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallError, TestSize.Level1)
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
@@ -170,6 +183,7 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallParamError, TestSize.Level1)
 
     std::vector<FirewallRule> validRules{
         {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555"},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555"},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "123"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
@@ -195,13 +209,19 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallSuccess, TestSize.Level1)
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->RemoveFirewallRule(validFirewallRule);
@@ -311,10 +331,14 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
-        {Action::ALLOW, "1000", "www.example.com"},
-        {Action::DENY, "1000", "www.example.com"},
-        {Action::ALLOW, "", "www.example.com"},
-        {Action::DENY, "", "www.example.com"},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
@@ -340,9 +364,17 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
         invalidDomainName += ".";
     }
 
-    std::vector<DomainFilterRule> invalidRules{{Action::ALLOW, "1000", ""},
-        {Action::INVALID, "1000", "www.example.com"}, {Action::DENY, "1000", "www.ex||ample.com"},
-        {Action::ALLOW, "1000", "www.ex/ample.com"}, {Action::INVALID, "1000", invalidDomainName}};
+    std::vector<DomainFilterRule> invalidRules{
+        {Action::ALLOW, "1000", "", Direction::OUTPUT},
+        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT}, 
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT}, 
+        {Action::INVALID, "1000", invalidDomainName, Direction::OUTPUT},
+        {Action::ALLOW, "1000", "", Direction::FORWARD},
+        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD}, 
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD}, 
+        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}};
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
         ErrCode ret = iptablesManager->AddDomainFilterRule(invalidDomainFilterRuleParcel);
@@ -362,10 +394,14 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterError, TestSize.Level1)
     ExecuterFactory::instance_ = std::make_shared<ExecuterFactory>();
 
     std::vector<DomainFilterRule> validRules{
-        {Action::ALLOW, "1000", "www.example.com"},
-        {Action::DENY, "1000", "www.example.com"},
-        {Action::ALLOW, "", "www.example.com"},
-        {Action::DENY, "", "www.example.com"},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
@@ -384,13 +420,20 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
-        {Action::INVALID, "", ""},
-        {Action::ALLOW, "", ""},
-        {Action::DENY, "", ""},
-        {Action::ALLOW, "1000", "www.example.com"},
-        {Action::DENY, "1000", "www.example.com"},
-        {Action::ALLOW, "", "www.example.com"},
-        {Action::DENY, "", "www.example.com"},
+        {Action::INVALID, "", "", Direction::OUTPUT},
+        {Action::ALLOW, "", "", Direction::OUTPUT},
+        {Action::DENY, "", "", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
+        {Action::INVALID, "", "", Direction::FORWARD},
+        {Action::ALLOW, "", "", Direction::FORWARD},
+        {Action::DENY, "", "", Direction::FORWARD},
+        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
@@ -409,12 +452,18 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> invalidRules{
-        {Action::ALLOW, "1000", ""},
-        {Action::DENY, "1000", ""},
-        {Action::INVALID, "", "www.example.com"},
-        {Action::INVALID, "1000", "www.example.com"},
-        {Action::DENY, "1000", "www.ex||ample.com"},
-        {Action::ALLOW, "1000", "www.ex/ample.com"},
+        {Action::ALLOW, "1000", "", Direction::OUTPUT},
+        {Action::DENY, "1000", "", Direction::OUTPUT},
+        {Action::INVALID, "", "www.example.com", Direction::OUTPUT},
+        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT},
+        {Action::ALLOW, "1000", "", Direction::FORWARD},
+        {Action::DENY, "1000", "", Direction::FORWARD},
+        {Action::INVALID, "", "www.example.com", Direction::FORWARD},
+        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
     };
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
@@ -529,7 +578,7 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess2, TestSize.Level1)
     chainNameList = {};
     ret = iptablesManager->GetRemoveChainName(Direction::INVALID, Action::INVALID, chainNameList);
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_TRUE(chainNameList.size() == 4);
+    EXPECT_TRUE(chainNameList.size() == 6);
 }
 
 /**
@@ -552,11 +601,11 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestExistAllowFirewallRule
- * @tc.desc: Test ExistAllowFirewallRule func.
+ * @tc.name: TestExistOutputAllowFirewallRule
+ * @tc.desc: Test ExistOutputAllowFirewallRule func.
  * @tc.type: FUNC
  */
-HWTEST_F(IptablesManagerTest, TestExistAllowFirewallRule, TestSize.Level1)
+HWTEST_F(IptablesManagerTest, TestExistOutputAllowFirewallRule, TestSize.Level1)
 {
     std::string result =
         "Chain edm_deny_output (1 references)\n"
@@ -571,18 +620,18 @@ HWTEST_F(IptablesManagerTest, TestExistAllowFirewallRule, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistAllowFirewallRule());
+    EXPECT_TRUE(iptablesManager->ExistOutputAllowFirewallRule());
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(2).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistAllowFirewallRule());
+    EXPECT_FALSE(iptablesManager->ExistOutputAllowFirewallRule());
 }
 
 /**
- * @tc.name: TestExistAllowDomainRule
- * @tc.desc: Test ExistAllowDomainRule func.
+ * @tc.name: TestExistOutputAllowDomainRule
+ * @tc.desc: Test ExistOutputAllowDomainRule func.
  * @tc.type: FUNC
  */
-HWTEST_F(IptablesManagerTest, TestExistAllowDomainRule, TestSize.Level1)
+HWTEST_F(IptablesManagerTest, TestExistOutputAllowDomainRule, TestSize.Level1)
 {
     std::string result =
         "Chain edm_dns_deny_output (1 references)\n"
@@ -593,10 +642,10 @@ HWTEST_F(IptablesManagerTest, TestExistAllowDomainRule, TestSize.Level1)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistAllowDomainRule());
+    EXPECT_TRUE(iptablesManager->ExistOutputAllowDomainRule());
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistAllowDomainRule());
+    EXPECT_FALSE(iptablesManager->ExistOutputAllowDomainRule());
 }
 
 /**
@@ -615,7 +664,7 @@ HWTEST_F(IptablesManagerTest, TestChainExistRule, TestSize.Level1)
         .WillRepeatedly(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<std::string> chainNameList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME,
-        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME};
+        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME};
     EXPECT_TRUE(iptablesManager->ChainExistRule(chainNameList));
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Return(ERR_OK)));
@@ -631,19 +680,33 @@ HWTEST_F(IptablesManagerTest, TestStaticAttribute, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Return(ERR_OK)));
 
-    IptablesManager::g_defaultFirewallChainInit = false;
-    IptablesManager::SetDefaultFirewallDenyChain();
-    EXPECT_TRUE(IptablesManager::g_defaultFirewallChainInit);
+    IptablesManager::g_defaultFirewallOutputChainInit = false;
+    IptablesManager::SetDefaultFirewallDenyChain(IPTABLES::Direction::OUTPUT);
+    EXPECT_TRUE(IptablesManager::g_defaultFirewallOutputChainInit);
 
-    IptablesManager::ClearDefaultFirewallDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultFirewallChainInit);
+    IptablesManager::ClearDefaultFirewallOutputDenyChain();
+    EXPECT_FALSE(IptablesManager::g_defaultFirewallOutputChainInit);
 
-    IptablesManager::g_defaultDomainChainInit = false;
-    IptablesManager::SetDefaultDomainDenyChain();
-    EXPECT_TRUE(IptablesManager::g_defaultDomainChainInit);
+    IptablesManager::g_defaultFirewallForwardChainInit = false;
+    IptablesManager::SetDefaultFirewallDenyChain(IPTABLES::Direction::FORWARD);
+    EXPECT_TRUE(IptablesManager::g_defaultFirewallForwardChainInit);
 
-    IptablesManager::ClearDefaultDomainDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultDomainChainInit);
+    IptablesManager::ClearDefaultFirewallForwardDenyChain();
+    EXPECT_FALSE(IptablesManager::g_defaultFirewallForwardChainInit);
+
+    IptablesManager::g_defaultDomainOutputChainInit = false;
+    IptablesManager::SetDefaultDomainDenyChain(IPTABLES::Direction::OUTPUT);
+    EXPECT_TRUE(IptablesManager::g_defaultDomainOutputChainInit);
+
+    IptablesManager::ClearDefaultDomainOutputDenyChain();
+    EXPECT_FALSE(IptablesManager::g_defaultDomainOutputChainInit);
+
+    IptablesManager::g_defaultDomainForwardChainInit = false;
+    IptablesManager::SetDefaultDomainDenyChain(IPTABLES::Direction::FORWARD);
+    EXPECT_TRUE(IptablesManager::g_defaultDomainForwardChainInit);
+
+    IptablesManager::ClearDefaultDomainForwardDenyChain();
+    EXPECT_FALSE(IptablesManager::g_defaultDomainForwardChainInit);
 }
 } // namespace TEST
 } // namespace IPTABLES

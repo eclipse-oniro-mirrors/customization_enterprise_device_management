@@ -106,7 +106,7 @@ HWTEST_F(IExecuterTest, TestAdd, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     EXPECT_TRUE(executer->Add(nullptr) != ERR_OK);
 
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com"};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
     EXPECT_TRUE(executer->Add(rule) == ERR_OK);
@@ -114,7 +114,7 @@ HWTEST_F(IExecuterTest, TestAdd, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     EXPECT_FALSE(executer->Add(rule) == ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com"};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)
@@ -138,7 +138,7 @@ HWTEST_F(IExecuterTest, TestRemove, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     EXPECT_TRUE(executer->Remove(nullptr) != ERR_OK);
 
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com"};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
     EXPECT_TRUE(executer->Remove(rule) == ERR_OK);
@@ -192,7 +192,7 @@ HWTEST_F(IExecuterTest, TestExecWithOption, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
     std::ostringstream oss{};
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com"};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
