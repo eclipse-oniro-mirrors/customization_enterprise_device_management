@@ -146,7 +146,7 @@ HWTEST_F(IExecuterTest, TestRemove, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     EXPECT_FALSE(executer->Remove(rule) == ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com"};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)
@@ -201,7 +201,7 @@ HWTEST_F(IExecuterTest, TestExecWithOption, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     EXPECT_TRUE(executer->ExecWithOption(oss, rule) != ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com"};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)

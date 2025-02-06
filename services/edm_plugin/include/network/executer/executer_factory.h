@@ -36,6 +36,9 @@ public:
     std::vector<std::shared_ptr<IExecuter>> GetAllExecuter() const;
 
     static std::shared_ptr<ExecuterFactory> GetInstance();
+    static void InitDefaultExecuter();
+    static void InitFirewallExecuter();
+    static void InitDomainExecuter();
 private:
     static std::shared_ptr<ExecuterFactory> instance_;
     static std::mutex mutexLock_;

@@ -105,9 +105,9 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall)
     }
 
     if (chainNameList.size() > 1) {
-        bool ifParamNotEmpty = !std::get<FIREWALL_SRCADDR_IND>(rule).empty() || !std::get<FIREWALL_DESTADDR_IND>(rule).empty() ||
-            !std::get<FIREWALL_SRCPORT_IND>(rule).empty() || !std::get<FIREWALL_DESTPORT_IND>(rule).empty() ||
-            !std::get<FIREWALL_APPUID_IND>(rule).empty();
+        bool ifParamNotEmpty = !std::get<FIREWALL_SRCADDR_IND>(rule).empty() ||
+            !std::get<FIREWALL_DESTADDR_IND>(rule).empty() || !std::get<FIREWALL_SRCPORT_IND>(rule).empty() ||
+            !std::get<FIREWALL_DESTPORT_IND>(rule).empty() || !std::get<FIREWALL_APPUID_IND>(rule).empty();
         if (std::get<FIREWALL_PROT_IND>(rule) != IPTABLES::Protocol::INVALID || ifParamNotEmpty) {
             EDMLOGE("RemoveFirewallRule: illegal parameter: Too many parameters set");
             return EdmReturnErrCode::PARAM_ERROR;
@@ -201,12 +201,12 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
     Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
     if (action == Action::ALLOW) {
         chainName = EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME;
-        if(direction == Direction::FORWARD) {
+        if (direction == Direction::FORWARD) {
             chainName = EDM_DNS_ALLOW_FORWARD_CHAIN_NAME;
         }
     } else if (action == Action::DENY) {
         chainName = EDM_DNS_DENY_OUTPUT_CHAIN_NAME;
-        if(direction == Direction::FORWARD) {
+        if (direction == Direction::FORWARD) {
             chainName = EDM_DNS_DENY_FORWARD_CHAIN_NAME;
         }
     } else {
