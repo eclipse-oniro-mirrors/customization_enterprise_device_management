@@ -21,8 +21,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string DisableBluetoothQuery::PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
-
 std::string DisableBluetoothQuery::GetPolicyName()
 {
     return "disabled_bluetooth";

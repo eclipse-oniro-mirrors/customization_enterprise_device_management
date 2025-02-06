@@ -75,6 +75,7 @@ const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";
 const std::string TEST_POLICY_DATA =
     "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
     "\"additionalDescription\": \"testDescription\"}";
+const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 void PluginPolicyQueryTest::SetUp() {}
 
 void PluginPolicyQueryTest::TearDown() {}
@@ -171,7 +172,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery001, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     int32_t flag = ERR_INVALID_VALUE;
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    ASSERT_EQ(OHOS::system::GetBoolParameter(DisableBluetoothQuery::PERSIST_BLUETOOTH_CONTROL, false),
+    ASSERT_EQ(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false),
         reply.ReadBool());
 }
 
@@ -430,7 +431,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     int32_t flag = ERR_INVALID_VALUE;
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
-    ASSERT_EQ(OHOS::system::GetBoolParameter(DisableBluetoothQuery::PERSIST_BLUETOOTH_CONTROL, false),
+    ASSERT_EQ(OHOS::system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false),
         reply.ReadBool());
 }
 

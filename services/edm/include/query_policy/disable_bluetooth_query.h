@@ -25,8 +25,6 @@ class DisableBluetoothQuery : public IPolicyQuery {
 public:
     ~DisableBluetoothQuery() override = default;
 
-    static const std::string PERSIST_BLUETOOTH_CONTROL;
-
     std::string GetPolicyName() override;
 
     std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;

@@ -233,10 +233,12 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc, TestSize.
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBluetoothProxySendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
     std::vector<std::string> deviceIds;
     int32_t ret = proxy_->GetAllowedBluetoothDevices(&admin, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
 }
 
 /**
@@ -263,10 +265,12 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSu
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
     std::vector<std::string> deviceIds;
     int32_t ret = proxy_->GetAllowedBluetoothDevices(nullptr, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
 }
 
 /**
@@ -282,11 +286,13 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc001, TestSi
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBluetoothProxySendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
 
     std::vector<std::string> deviceIds;
     int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
 }
 
 /**
@@ -298,12 +304,14 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSu
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
     std::vector<std::string> deviceIds;
     MessageParcel data;
     data.WriteParcelable(nullptr);
     int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
 }
 
 /**

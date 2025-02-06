@@ -19,7 +19,6 @@
 
 #include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
-#include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_sys_manager.h"
 

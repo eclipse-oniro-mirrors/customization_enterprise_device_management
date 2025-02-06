@@ -15,7 +15,6 @@
 #include <gtest/gtest.h>
 
 #include "fingerprint_policy_serializer_test.h"
-#include "edm_constants.h"
 #include "utils.h"
 
 using namespace testing::ext;

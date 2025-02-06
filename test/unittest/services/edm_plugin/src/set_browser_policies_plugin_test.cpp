@@ -14,7 +14,6 @@
  */
 
 #include "cjson_serializer.h"
-#include "edm_constants.h"
 #include "set_browser_policies_plugin_test.h"
 #include "map_string_serializer.h"
 #include "utils.h"

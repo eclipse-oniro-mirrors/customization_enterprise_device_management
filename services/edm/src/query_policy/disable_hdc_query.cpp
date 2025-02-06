@@ -41,10 +41,7 @@ std::string DisableHdcQuery::GetPermission(IPlugin::PermissionType permissionTyp
 
 ErrCode DisableHdcQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    bool ret = system::GetBoolParameter(PERSIST_HDC_CONTROL, true);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(!ret);
-    return ERR_OK;
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

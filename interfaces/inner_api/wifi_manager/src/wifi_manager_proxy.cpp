@@ -15,7 +15,6 @@
 
 #include "wifi_manager_proxy.h"
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"

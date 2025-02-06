@@ -17,7 +17,6 @@
 
 #include <sstream>
 
-#include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"

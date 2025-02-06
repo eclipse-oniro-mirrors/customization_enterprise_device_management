@@ -19,8 +19,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PERSIST_INACTIVE_USER_FREEZE_CONTROL = "persist.edm.inactive_user_freeze";
-
 std::string InactiveUserFreezeQuery::GetPolicyName()
 {
     return "inactive_user_freeze";

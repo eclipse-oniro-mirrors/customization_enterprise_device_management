@@ -21,8 +21,6 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string PERSIST_TETHERING_CONTROL = "persist.edm.tethering_disallowed";
-
 std::string DisallowedThtheringQuery::GetPolicyName()
 {
     return "disallowed_tethering";

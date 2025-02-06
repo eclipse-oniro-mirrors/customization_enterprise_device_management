@@ -39,11 +39,7 @@ std::string DisallowModifyDateTimeQuery::GetPermission(IPlugin::PermissionType, 
 ErrCode DisallowModifyDateTimeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    bool disallow = false;
-    BoolSerializer::GetInstance()->Deserialize(policyData, disallow);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(disallow);
-    return ERR_OK;
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS
