@@ -104,6 +104,7 @@ private:
         int32_t policyCode);
     static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
+    static void SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &addonMethodSign);
 };
 } // namespace EDM
 } // namespace OHOS

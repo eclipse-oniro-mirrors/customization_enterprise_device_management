@@ -29,6 +29,7 @@ const char *const PORT_PROP_NAME = "port";
 const char *const PROXY_USER_NAME = "username";
 const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
+static int32_t g_tempUserId = -1;
 #endif
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
@@ -1131,13 +1132,11 @@ void NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &a
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         NetManagerStandard::HttpProxy httpProxy;
+        httpProxy.SetUserId(g_tempUserId);
         bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
         if (!isParseOk) {
             return false;
         }
-        int32_t accountId = -1;
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
-        httpProxy.SetUserId(accountId);
         if (!httpProxy.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon Marshalling proxy fail.");
             return false;
@@ -1145,7 +1144,7 @@ void NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &a
         return true;
     };
     addonMethodSign.name = "SetGlobalHttpProxy";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::UINT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data, nullptr};
 }
@@ -1184,6 +1183,11 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxyByAccountIdSync(napi_env env, 
     EDMLOGI("NAPI_SetGlobalHttpProxyByAccountIdSync called");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     AddonMethodSign addonMethodSign;
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, g_tempUserId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
     SetGlobalHttpProxyByAccountIdCommon(addonMethodSign);
 
     AdapterAddonData adapterAddonData{};
@@ -1270,7 +1274,7 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyByAccountIdSync(napi_env env, 
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
         "parameter accountId error");
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ZERO0]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ZERO]),
         "parameter accountId parse error");
 
     NetManagerStandard::HttpProxy httpProxy;
@@ -1280,7 +1284,6 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyByAccountIdSync(napi_env env, 
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
-    NetManagerStandard::HttpProxy httpProxy;
     ret = networkManagerProxy->GetGlobalHttpProxyByAccountId(httpProxy, accountId);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
