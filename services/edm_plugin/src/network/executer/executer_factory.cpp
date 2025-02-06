@@ -50,7 +50,8 @@ std::shared_ptr<ExecuterFactory> ExecuterFactory::GetInstance()
     return instance_;
 }
 
-void ExecuterFactory::InitDefaultExecuter() {
+void ExecuterFactory::InitDefaultExecuter()
+{
     instance_->chainNames_.emplace_back(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(OUTPUT_CHAIN,
         EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME));
@@ -62,10 +63,11 @@ void ExecuterFactory::InitDefaultExecuter() {
         EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME));
     instance_->chainNames_.emplace_back(EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(FORWARD_CHAIN,
-        EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME));        
+        EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME));
 }
 
-void ExecuterFactory::InitFirewallExecuter() {
+void ExecuterFactory::InitFirewallExecuter()
+{
     instance_->chainNames_.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(OUTPUT_CHAIN,
         EDM_DENY_OUTPUT_CHAIN_NAME));
@@ -83,10 +85,11 @@ void ExecuterFactory::InitFirewallExecuter() {
         EDM_ALLOW_INPUT_CHAIN_NAME));
     instance_->chainNames_.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(FORWARD_CHAIN,
-        EDM_ALLOW_FORWARD_CHAIN_NAME));     
+        EDM_ALLOW_FORWARD_CHAIN_NAME));
 }
 
-void ExecuterFactory::InitDomainExecuter() {
+void ExecuterFactory::InitDomainExecuter()
+{
     instance_->chainNames_.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN,
         EDM_DNS_DENY_OUTPUT_CHAIN_NAME));
