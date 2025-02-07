@@ -49,6 +49,11 @@ public:
 private:
     ErrCode GetRemoveChainName(Direction direction, Action action, std::vector<std::string> &chainNameList);
     ErrCode GetDomainRemoveChainName(Direction direction, Action action, std::vector<std::string>& chainNameList);
+    ErrCode GetRemoveInputChainName(Action action, std::vector<std::string>& chainNameList);
+    ErrCode GetRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    ErrCode GetRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
+    ErrCode GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    ErrCode GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
     bool ExistOutputAllowFirewallRule();
     bool ExistForwardAllowFirewallRule();
     bool ExistOutputAllowDomainRule();
@@ -56,8 +61,11 @@ private:
     bool CheckRemoveDomainParams(Action action, std::string appUid, std::string domainName);
     bool CheckRemoveFirewallParams(Direction direction, FirewallRule rule);
     bool CheckAddFirewallParams(Direction direction, FirewallRule rule);
+    bool GetFirewallChainName(Direction direction, Action action, std::string chainName);
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
+    void IptablesManager::ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
+        std::vector<std::string> ruleList, Direction direction);
 
     static void SetDefaultFirewallDenyChain(Direction direction);
     static void ClearDefaultFirewallOutputDenyChain();

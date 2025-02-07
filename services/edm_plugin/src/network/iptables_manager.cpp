@@ -58,31 +58,11 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall)
     if (!CheckAddFirewallParams(direction, rule)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
     Action action = std::get<FIREWALL_ACTION_IND>(rule);
-    if (action == Action::ALLOW && direction == Direction::INPUT) {
-        chainName = EDM_ALLOW_INPUT_CHAIN_NAME;
-    } else if (action == Action::ALLOW && direction == Direction::OUTPUT) {
-        chainName = EDM_ALLOW_OUTPUT_CHAIN_NAME;
-    } else if (action == Action::ALLOW && direction == Direction::FORWARD) {
-        chainName = EDM_ALLOW_FORWARD_CHAIN_NAME;
-    } else if (action == Action::DENY && direction == Direction::INPUT) {
-        chainName = EDM_DENY_INPUT_CHAIN_NAME;
-    } else if (action == Action::DENY && direction == Direction::OUTPUT) {
-        chainName = EDM_DENY_OUTPUT_CHAIN_NAME;
-    } else if (action == Action::DENY && direction == Direction::FORWARD) {
-        chainName = EDM_DENY_FORWARD_CHAIN_NAME;
-    } else if (action == Action::REJECT && direction == Direction::INPUT) {
-        chainName = EDM_REJECT_INPUT_CHAIN_NAME;
-    } else if (action == Action::REJECT && direction == Direction::OUTPUT) {
-        chainName = EDM_REJECT_OUTPUT_CHAIN_NAME;
-    } else if (action == Action::REJECT && direction == Direction::FORWARD) {
-        chainName = EDM_REJECT_FORWARD_CHAIN_NAME;
-    } else {
-        EDMLOGE("AddFirewallRule: illegal parameter: action, direction");
+    
+    if (!GetFirewallChainName(action, direction, chainName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
     auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
     if (executer == nullptr) {
         EDMLOGE("AddFirewallRule:GetExecuter fail, this should not happen.");
@@ -158,12 +138,7 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         }
         executer->GetAll(inputRuleList);
     }
-
-    for (const auto& rule : inputRuleList) {
-        FirewallChainRule firewallRule{rule};
-        FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::INPUT)};
-        list.emplace_back(firewall);
-    }
+    ConvertFirewallRuleList(list, inputRuleList, Direction::INPUT);
 
     std::vector<std::string> outputRuleList;
     std::vector<std::string> outputChainVector{EDM_ALLOW_OUTPUT_CHAIN_NAME,
@@ -176,11 +151,7 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         }
         executer->GetAll(outputRuleList);
     }
-    for (const auto& rule : outputRuleList) {
-        FirewallChainRule firewallRule{rule};
-        FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::OUTPUT)};
-        list.emplace_back(firewall);
-    }
+    ConvertFirewallRuleList(list, outputRuleList, Direction::OUTPUT);
 
     std::vector<std::string> forwardRuleList;
     std::vector<std::string> forwardChainVector{EDM_ALLOW_FORWARD_CHAIN_NAME,
@@ -193,11 +164,7 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
         }
         executer->GetAll(forwardRuleList);
     }
-    for (const auto& rule : forwardRuleList) {
-        FirewallChainRule firewallRule{rule};
-        FirewallRuleParcel firewall{firewallRule.ToFilterRule(Direction::FORWARD)};
-        list.emplace_back(firewall);
-    }
+    ConvertFirewallRuleList(list, forwardRuleList, Direction::FORWARD);
     return ERR_OK;
 }
 
@@ -337,41 +304,11 @@ ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel
 ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, std::vector<std::string>& chainNameList)
 {
     if (direction == Direction::INPUT) {
-        if (action == Action::ALLOW) {
-            chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
-        } else if (action == Action::DENY) {
-            chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
-        } else if (action == Action::REJECT) {
-            chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
-        } else {
-            chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
-        }
+        GetRemoveInputChainName(action, chainNameList);
     } else if (direction == Direction::OUTPUT) {
-        if (action == Action::ALLOW) {
-            chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
-        } else if (action == Action::DENY) {
-            chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
-        } else if (action == Action::REJECT) {
-            chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
-        } else {
-            chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
-        }
+        GetRemoveOutputChainName(action, chainNameList);
     } else if (direction == Direction::FORWARD) {
-        if (action == Action::ALLOW) {
-            chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
-        } else if (action == Action::DENY) {
-            chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
-        } else if (action == Action::REJECT) {
-            chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
-        } else {
-            chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
-        }
+        GetRemoveForwardChainName(action, chainNameList);
     } else {
         if (action == Action::INVALID) {
             chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
@@ -391,33 +328,61 @@ ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, 
     return ERR_OK;
 }
 
+ErrCode IptablesManager::GetRemoveInputChainName(Action action,
+    std::vector<std::string>& chainNameList)
+{
+    if (action == Action::ALLOW) {
+        chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
+    } else if (action == Action::DENY) {
+        chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
+    } else if (action == Action::REJECT) {
+        chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
+    } else {
+        chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
+    }
+}
+
+ErrCode IptablesManager::GetRemoveOutputChainName(Action action,
+    std::vector<std::string>& chainNameList)
+{
+    if (action == Action::ALLOW) {
+        chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
+    } else if (action == Action::DENY) {
+        chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
+    } else if (action == Action::REJECT) {
+        chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
+    } else {
+        chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
+    }
+}
+
+ErrCode IptablesManager::GetRemoveForwardChainName(Action action,
+    std::vector<std::string>& chainNameList)
+{
+    if (action == Action::ALLOW) {
+        chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
+    } else if (action == Action::DENY) {
+        chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+    } else if (action == Action::REJECT) {
+        chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
+    } else {
+        chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
+    }
+}
+
 ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action action,
     std::vector<std::string>& chainNameList)
 {
     if (direction == Direction::OUTPUT) {
-        if (action == Action::ALLOW) {
-            chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
-        } else if (action == Action::DENY) {
-            chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
-        } else if (action == Action::REJECT) {
-            chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
-        } else {
-            chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
-        }
+        GetDomainRemoveOutputChainName(action, chainNameList);
     } else if (direction == Direction::FORWARD) {
-        if (action == Action::ALLOW) {
-            chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
-        } else if (action == Action::DENY) {
-            chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
-        } else if (action == Action::REJECT) {
-            chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
-        } else {
-            chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
-            chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
-        }
+        GetDomainRemoveForwardChainName(action, chainNameList);
     } else {
         if (action == Action::INVALID) {
             chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
@@ -432,6 +397,38 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
         }
     }
     return ERR_OK;
+}
+
+ErrCode IptablesManager::GetDomainRemoveOutputChainName(Action action,
+    std::vector<std::string>& chainNameList)
+{
+    if (action == Action::ALLOW) {
+        chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
+    } else if (action == Action::DENY) {
+        chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+    } else if (action == Action::REJECT) {
+        chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
+    } else {
+        chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
+    }
+}
+
+ErrCode IptablesManager::GetDomainRemoveForwardChainName(Action action,
+    std::vector<std::string>& chainNameList)
+{
+    if (action == Action::ALLOW) {
+        chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
+    } else if (action == Action::DENY) {
+        chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+    } else if (action == Action::REJECT) {
+        chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
+    } else {
+        chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+        chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
+    }
 }
 
 bool IptablesManager::HasInit()
@@ -655,6 +652,33 @@ bool IptablesManager::CheckRemoveDomainParams(Action action, std::string appUid,
     return true;
 }
 
+bool IptablesManager::GetFirewallChainName(Direction direction, Action action, std::string chainName)
+{
+    if (action == Action::ALLOW && direction == Direction::INPUT) {
+        chainName = EDM_ALLOW_INPUT_CHAIN_NAME;
+    } else if (action == Action::ALLOW && direction == Direction::OUTPUT) {
+        chainName = EDM_ALLOW_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::ALLOW && direction == Direction::FORWARD) {
+        chainName = EDM_ALLOW_FORWARD_CHAIN_NAME;
+    } else if (action == Action::DENY && direction == Direction::INPUT) {
+        chainName = EDM_DENY_INPUT_CHAIN_NAME;
+    } else if (action == Action::DENY && direction == Direction::OUTPUT) {
+        chainName = EDM_DENY_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::DENY && direction == Direction::FORWARD) {
+        chainName = EDM_DENY_FORWARD_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::INPUT) {
+        chainName = EDM_REJECT_INPUT_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::OUTPUT) {
+        chainName = EDM_REJECT_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::FORWARD) {
+        chainName = EDM_REJECT_FORWARD_CHAIN_NAME;
+    } else {
+        EDMLOGE("AddFirewallRule: illegal parameter: action, direction");
+        return false;
+    }
+    return true;
+}
+
 bool IptablesManager::ChainExistRule(const std::vector<std::string>& chainNames)
 {
     std::vector<std::string> ruleList;
@@ -670,6 +694,16 @@ bool IptablesManager::ChainExistRule(const std::vector<std::string>& chainNames)
         }
     }
     return false;
+}
+
+void IptablesManager::ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
+    std::vector<std::string> ruleList, Direction direction)
+{
+    for (const auto& rule : ruleList) {
+        FirewallChainRule firewallRule{rule};
+        FirewallRuleParcel firewall{firewallRule.ToFilterRule(direction)};
+        list.emplace_back(firewall);
+    }
 }
 
 } // namespace IPTABLES

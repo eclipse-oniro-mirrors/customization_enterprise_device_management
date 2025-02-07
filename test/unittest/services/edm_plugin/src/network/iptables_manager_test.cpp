@@ -260,11 +260,11 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: GetFirewallRulesTest
+ * @tc.name: GetFirewallRulesTest1
  * @tc.desc: Test GetFirewallRules func.
  * @tc.type: FUNC
  */
-HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
+HWTEST_F(IptablesManagerTest, GetFirewallRulesTest1, TestSize.Level1)
 {
     std::string result =
         "Chain edm_deny_output (1 references)\n"
@@ -290,12 +290,23 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
     ErrCode ret = iptablesManager->GetFirewallRules(list);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
+}
 
-    result =
+/**
+ * @tc.name: GetFirewallRulesTest2
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, GetFirewallRulesTest2, TestSize.Level1)
+{
+    std::string result =
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
+    std::string resultEmpty =
+        "Chain edm_deny_output (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(9)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
@@ -312,12 +323,23 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
     ret = iptablesManager->GetFirewallRules(list);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
+}
 
-    result =
+/**
+ * @tc.name: GetFirewallRulesTest3
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, GetFirewallRulesTest3, TestSize.Level1)
+{
+    std::string result =
         "Chain edm_deny_input (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
+    std::string resultEmpty =
+        "Chain edm_deny_output (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(9)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
