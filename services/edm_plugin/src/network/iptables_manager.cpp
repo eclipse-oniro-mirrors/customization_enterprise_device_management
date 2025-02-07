@@ -72,6 +72,12 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall)
         chainName = EDM_DENY_OUTPUT_CHAIN_NAME;
     } else if (action == Action::DENY && direction == Direction::FORWARD) {
         chainName = EDM_DENY_FORWARD_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::INPUT) {
+        chainName = EDM_REJECT_INPUT_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::OUTPUT) {
+        chainName = EDM_REJECT_OUTPUT_CHAIN_NAME;
+    } else if (action == Action::REJECT && direction == Direction::FORWARD) {
+        chainName = EDM_REJECT_FORWARD_CHAIN_NAME;
     } else {
         EDMLOGE("AddFirewallRule: illegal parameter: action, direction");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -142,7 +148,8 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall)
 ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
 {
     std::vector<std::string> inputRuleList;
-    std::vector<std::string> inputChainVector{EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME};
+    std::vector<std::string> inputChainVector{EDM_ALLOW_INPUT_CHAIN_NAME,
+        EDM_DENY_INPUT_CHAIN_NAME, EDM_REJECT_INPUT_CHAIN_NAME};
     for (const auto& chainName : inputChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
@@ -159,7 +166,8 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
     }
 
     std::vector<std::string> outputRuleList;
-    std::vector<std::string> outputChainVector{EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME};
+    std::vector<std::string> outputChainVector{EDM_ALLOW_OUTPUT_CHAIN_NAME,
+        EDM_DENY_OUTPUT_CHAIN_NAME, EDM_REJECT_OUTPUT_CHAIN_NAME};
     for (const auto& chainName : outputChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
@@ -175,7 +183,8 @@ ErrCode IptablesManager::GetFirewallRules(std::vector<FirewallRuleParcel>& list)
     }
 
     std::vector<std::string> forwardRuleList;
-    std::vector<std::string> forwardChainVector{EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME};
+    std::vector<std::string> forwardChainVector{EDM_ALLOW_FORWARD_CHAIN_NAME,
+        EDM_DENY_FORWARD_CHAIN_NAME, EDM_REJECT_FORWARD_CHAIN_NAME};
     for (const auto& chainName : forwardChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
@@ -208,6 +217,11 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
         chainName = EDM_DNS_DENY_OUTPUT_CHAIN_NAME;
         if (direction == Direction::FORWARD) {
             chainName = EDM_DNS_DENY_FORWARD_CHAIN_NAME;
+        }
+    } else if (action == Action::REJECT) {
+        chainName = EDM_DNS_REJECT_OUTPUT_CHAIN_NAME;
+        if (direction == Direction::FORWARD) {
+            chainName = EDM_DNS_REJECT_FORWARD_CHAIN_NAME;
         }
     } else {
         EDMLOGE("AddDomainFilterRule: illegal parameter: action");
@@ -275,7 +289,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     if (!ExistOutputAllowDomainRule()) {
         ClearDefaultDomainOutputDenyChain();
     }
-        if (!ExistForwardAllowDomainRule()) {
+    if (!ExistForwardAllowDomainRule()) {
         ClearDefaultDomainForwardDenyChain();
     }
     return ERR_OK;
@@ -284,7 +298,8 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
 ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel>& list)
 {
     std::vector<std::string> outputRuleList;
-    std::vector<std::string> outputChainVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME, EDM_DNS_DENY_OUTPUT_CHAIN_NAME};
+    std::vector<std::string> outputChainVector{EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME,
+        EDM_DNS_DENY_OUTPUT_CHAIN_NAME, EDM_DNS_REJECT_OUTPUT_CHAIN_NAME};
     for (const auto& chainName : outputChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
@@ -295,11 +310,13 @@ ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel
     }
     for (const auto& rule : outputRuleList) {
         DomainChainRule chainRule{rule};
-        list.emplace_back(chainRule.ToFilterRule(Direction::OUTPUT));
+        DomainFilterRuleParcel domain{chainRule.ToFilterRule(Direction::OUTPUT)};
+        list.emplace_back(domain);
     }
 
     std::vector<std::string> forwardRuleList;
-    std::vector<std::string> forwardChainVector{EDM_DNS_ALLOW_FORWARD_CHAIN_NAME, EDM_DNS_DENY_FORWARD_CHAIN_NAME};
+    std::vector<std::string> forwardChainVector{EDM_DNS_ALLOW_FORWARD_CHAIN_NAME,
+        EDM_DNS_DENY_FORWARD_CHAIN_NAME, EDM_DNS_REJECT_FORWARD_CHAIN_NAME};
     for (const auto& chainName : forwardChainVector) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
@@ -310,7 +327,8 @@ ErrCode IptablesManager::GetDomainFilterRules(std::vector<DomainFilterRuleParcel
     }
     for (const auto& rule : forwardRuleList) {
         DomainChainRule chainRule{rule};
-        list.emplace_back(chainRule.ToFilterRule(Direction::FORWARD));
+        DomainFilterRuleParcel domain{chainRule.ToFilterRule(Direction::FORWARD)};
+        list.emplace_back(domain);
     }
 
     return ERR_OK;
@@ -323,34 +341,48 @@ ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, 
             chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
         } else if (action == Action::DENY) {
             chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
+        } else if (action == Action::REJECT) {
+            chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
         } else {
             chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
         }
     } else if (direction == Direction::OUTPUT) {
         if (action == Action::ALLOW) {
             chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
         } else if (action == Action::DENY) {
             chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
+        } else if (action == Action::REJECT) {
+            chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
         } else {
             chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
         }
     } else if (direction == Direction::FORWARD) {
         if (action == Action::ALLOW) {
             chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
         } else if (action == Action::DENY) {
             chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+        } else if (action == Action::REJECT) {
+            chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
         } else {
             chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
         }
     } else {
         if (action == Action::INVALID) {
             chainNameList.emplace_back(EDM_ALLOW_INPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_ALLOW_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_ALLOW_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_INPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DENY_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DENY_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_INPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_REJECT_FORWARD_CHAIN_NAME);
         } else {
             EDMLOGE("GetRemoveChainName: illegal parameter: direction, action");
             return EdmReturnErrCode::PARAM_ERROR;
@@ -367,18 +399,24 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
             chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
         } else if (action == Action::DENY) {
             chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+        } else if (action == Action::REJECT) {
+            chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
         } else {
             chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
         }
     } else if (direction == Direction::FORWARD) {
         if (action == Action::ALLOW) {
             chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
         } else if (action == Action::DENY) {
             chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+        } else if (action == Action::REJECT) {
+            chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
         } else {
             chainNameList.emplace_back(EDM_DNS_ALLOW_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
         }
     } else {
         if (action == Action::INVALID) {
@@ -386,6 +424,8 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
             chainNameList.emplace_back(EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_DENY_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_DENY_OUTPUT_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
+            chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
         } else {
             EDMLOGE("GetDomainRemoveChainName: illegal parameter: direction, action");
             return EdmReturnErrCode::PARAM_ERROR;

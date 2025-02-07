@@ -275,11 +275,16 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
         "Chain edm_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
-        .Times(4)
+        .Times(9)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
-        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
     ErrCode ret = iptablesManager->GetFirewallRules(list);
@@ -292,11 +297,16 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
     EXPECT_CALL(*executerUtilsMock, Execute)
-        .Times(4)
+        .Times(9)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
-        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     list = {};
     ret = iptablesManager->GetFirewallRules(list);
@@ -309,9 +319,14 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest, TestSize.Level1)
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080 owner UID match 9696";
     EXPECT_CALL(*executerUtilsMock, Execute)
-        .Times(4)
+        .Times(9)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
@@ -488,9 +503,13 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules, TestSize.Level1)
         "Chain edm_dns_deny_output (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
-        .Times(2)
+        .Times(6)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
-        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<DomainFilterRuleParcel> list;
     ErrCode ret = iptablesManager->GetDomainFilterRules(list);
@@ -524,10 +543,17 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess, TestSize.Level1)
     EXPECT_EQ(chainNameList, expectList);
 
     chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::INPUT, Action::REJECT, chainNameList);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 1);
+    expectList = {EDM_REJECT_INPUT_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+
+    chainNameList = {};
     ret = iptablesManager->GetRemoveChainName(Direction::INPUT, Action::INVALID, chainNameList);
     EXPECT_TRUE(ret == ERR_OK);
-    EXPECT_TRUE(chainNameList.size() == 2);
-    expectList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME};
+    EXPECT_TRUE(chainNameList.size() == 3);
+    expectList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME, EDM_REJECT_INPUT_CHAIN_NAME};
     EXPECT_EQ(chainNameList, expectList);
 }
 
@@ -556,11 +582,18 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess1, TestSize.Level1)
     expectList = {EDM_DENY_OUTPUT_CHAIN_NAME};
     EXPECT_EQ(chainNameList, expectList);
 
+        chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::OUTPUT, Action::REJECT, chainNameList);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 1);
+    expectList = {EDM_REJECT_OUTPUT_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+
     chainNameList = {};
     ret = iptablesManager->GetRemoveChainName(Direction::OUTPUT, Action::INVALID, chainNameList);
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_TRUE(chainNameList.size() == 2);
-    expectList = {EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME};
+    EXPECT_TRUE(chainNameList.size() == 3);
+    expectList = {EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_REJECT_OUTPUT_CHAIN_NAME};
     EXPECT_EQ(chainNameList, expectList);
 }
 
@@ -578,8 +611,53 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess2, TestSize.Level1)
     chainNameList = {};
     ret = iptablesManager->GetRemoveChainName(Direction::INVALID, Action::INVALID, chainNameList);
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_TRUE(chainNameList.size() == 6);
+    EXPECT_TRUE(chainNameList.size() == 9);
+    expectList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME, EDM_REJECT_INPUT_CHAIN_NAME,
+        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_REJECT_OUTPUT_CHAIN_NAME,
+        EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME, EDM_REJECT_FORWARD_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
 }
+
+/**
+ * @tc.name: TestGetRemoveChainNameSuccess3
+ * @tc.desc: Test GetRemoveChainName func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess3, TestSize.Level1)
+{
+    std::vector<std::string> chainNameList;
+    std::vector<std::string> expectList;
+    ErrCode ret = ERR_OK;
+
+    chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::FORWARD, Action::ALLOW, chainNameList);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 1);
+    expectList = {EDM_ALLOW_FORWARD_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+
+    chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::FORWARD, Action::DENY, chainNameList);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 1);
+    expectList = {EDM_DENY_FORWARD_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+
+    chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::FORWARD, Action::REJECT, chainNameList);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 1);
+    expectList = {EDM_REJECT_FORWARD_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+
+    chainNameList = {};
+    ret = iptablesManager->GetRemoveChainName(Direction::FORWARD, Action::INVALID, chainNameList);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(chainNameList.size() == 3);
+    expectList = {EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME, EDM_REJECT_FORWARD_CHAIN_NAME};
+    EXPECT_EQ(chainNameList, expectList);
+}
+
 
 /**
  * @tc.name: TestGetRemoveChainNameFail
@@ -646,6 +724,54 @@ HWTEST_F(IptablesManagerTest, TestExistOutputAllowDomainRule, TestSize.Level1)
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK)));
     EXPECT_FALSE(iptablesManager->ExistOutputAllowDomainRule());
+}
+
+/**
+ * @tc.name: TestExistForwardAllowFirewallRule
+ * @tc.desc: Test ExistForwardAllowFirewallRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_deny_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+    std::string resultEmpty =
+        "Chain edm_deny_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(2)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+
+    EXPECT_TRUE(iptablesManager->ExistForwardAllowFirewallRule());
+
+    EXPECT_CALL(*executerUtilsMock, Execute).Times(2).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
+    EXPECT_FALSE(iptablesManager->ExistForwardAllowFirewallRule());
+}
+
+/**
+ * @tc.name: TestExistForwardAllowDomainRule
+ * @tc.desc: Test ExistForwardAllowDomainRule func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, TestExistForwardAllowDomainRule, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_dns_deny_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(1)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+
+    EXPECT_TRUE(iptablesManager->ExistForwardAllowDomainRule());
+
+    EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK)));
+    EXPECT_FALSE(iptablesManager->ExistForwardAllowDomainRule());
 }
 
 /**

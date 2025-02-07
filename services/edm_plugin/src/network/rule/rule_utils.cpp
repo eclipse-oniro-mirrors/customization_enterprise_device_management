@@ -28,6 +28,8 @@ std::string RuleUtils::EnumToString(Action action)
             return ACCEPT_TARGET;
         case Action::DENY:
             return DROP_TARGET;
+        case Action::REJECT:
+            return REJECT_TARGET;
     }
     return {};
 }
@@ -38,6 +40,8 @@ Action RuleUtils::StringToAction(const std::string &action)
         return Action::ALLOW;
     } else if (action == DROP_TARGET) {
         return Action::DENY;
+    } else if (action == REJECT_TARGET) {
+        return Action::REJECT;
     } else {
         return Action::INVALID;
     }

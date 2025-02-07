@@ -40,6 +40,9 @@ const char* const EDM_DENY_INPUT_CHAIN_NAME = "edm_deny_input";
 const char* const EDM_ALLOW_OUTPUT_CHAIN_NAME = "edm_allow_output";
 const char* const EDM_ALLOW_FORWARD_CHAIN_NAME = "edm_allow_forward";
 const char* const EDM_ALLOW_INPUT_CHAIN_NAME = "edm_allow_input";
+const char* const EDM_REJECT_OUTPUT_CHAIN_NAME = "edm_reject_output";
+const char* const EDM_REJECT_FORWARD_CHAIN_NAME = "edm_reject_forward";
+const char* const EDM_REJECT_INPUT_CHAIN_NAME = "edm_reject_input";
 const char* const EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME = "edm_default_deny_output";
 const char* const EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME = "edm_default_deny_forward";
 
@@ -47,6 +50,8 @@ const char* const EDM_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_dns_deny_output";
 const char* const EDM_DNS_DENY_FORWARD_CHAIN_NAME = "edm_dns_deny_forward";
 const char* const EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME = "edm_dns_allow_output";
 const char* const EDM_DNS_ALLOW_FORWARD_CHAIN_NAME = "edm_dns_allow_forward";
+const char* const EDM_DNS_REJECT_OUTPUT_CHAIN_NAME = "edm_dns_reject_output";
+const char* const EDM_DNS_REJECT_FORWARD_CHAIN_NAME = "edm_dns_reject_forward";
 const char* const EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME = "edm_default_dns_deny_output";
 const char* const EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME = "edm_default_dns_deny_forward";
 

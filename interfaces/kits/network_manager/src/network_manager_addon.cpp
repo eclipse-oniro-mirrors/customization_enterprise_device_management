@@ -39,6 +39,9 @@ void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value va
     napi_value nDeny;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::DENY), &nDeny));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DENY", nDeny));
+    napi_value nReject;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::REJECT), &nReject));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "REJECT", nReject));
 }
 
 void NetworkManagerAddon::CreateFirewallProtocolObject(napi_env env, napi_value value)

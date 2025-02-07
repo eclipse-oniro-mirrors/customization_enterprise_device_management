@@ -172,7 +172,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestFail, TestSize.Level1
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "1000", "www.example.com", IPTABLES::Direction::INVALID};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
