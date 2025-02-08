@@ -319,8 +319,8 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest2, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
-    list = {};
-    ret = iptablesManager->GetFirewallRules(list);
+    std::vector<FirewallRuleParcel> list;
+    ErrCode ret = iptablesManager->GetFirewallRules(list);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -352,8 +352,8 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest3, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
-    list = {};
-    ret = iptablesManager->GetFirewallRules(list);
+    std::vector<FirewallRuleParcel> list;
+    ErrCode ret = iptablesManager->GetFirewallRules(list);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
