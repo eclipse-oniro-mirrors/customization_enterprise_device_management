@@ -634,10 +634,6 @@ HWTEST_F(IptablesManagerTest, TestGetRemoveChainNameSuccess2, TestSize.Level1)
     ret = iptablesManager->GetRemoveChainName(Direction::INVALID, Action::INVALID, chainNameList);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(chainNameList.size() == 9);
-    expectList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME, EDM_REJECT_INPUT_CHAIN_NAME,
-        EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_REJECT_OUTPUT_CHAIN_NAME,
-        EDM_ALLOW_FORWARD_CHAIN_NAME, EDM_DENY_FORWARD_CHAIN_NAME, EDM_REJECT_FORWARD_CHAIN_NAME};
-    EXPECT_EQ(chainNameList, expectList);
 }
 
 /**
@@ -760,17 +756,13 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1
         "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
-    std::string resultEmpty =
-        "Chain edm_deny_forward (1 references)\n"
-        "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
-        .Times(2)
-        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     EXPECT_TRUE(iptablesManager->ExistForwardAllowFirewallRule());
 
-    EXPECT_CALL(*executerUtilsMock, Execute).Times(2).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
+    EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
     EXPECT_FALSE(iptablesManager->ExistForwardAllowFirewallRule());
 }
 

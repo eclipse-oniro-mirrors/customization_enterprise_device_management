@@ -652,7 +652,7 @@ bool IptablesManager::CheckRemoveDomainParams(Action action, std::string appUid,
     return true;
 }
 
-bool IptablesManager::GetFirewallChainName(Direction direction, Action action, std::string chainName)
+bool IptablesManager::GetFirewallChainName(Direction direction, Action action, std::string& chainName)
 {
     if (action == Action::ALLOW && direction == Direction::INPUT) {
         chainName = EDM_ALLOW_INPUT_CHAIN_NAME;

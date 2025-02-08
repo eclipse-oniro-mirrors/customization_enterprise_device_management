@@ -54,7 +54,7 @@ private:
     void GetRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
     void GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
     void GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
-    
+
     bool ExistOutputAllowFirewallRule();
     bool ExistForwardAllowFirewallRule();
     bool ExistOutputAllowDomainRule();
@@ -62,7 +62,7 @@ private:
     bool CheckRemoveDomainParams(Action action, std::string appUid, std::string domainName);
     bool CheckRemoveFirewallParams(Direction direction, FirewallRule rule);
     bool CheckAddFirewallParams(Direction direction, FirewallRule rule);
-    bool GetFirewallChainName(Direction direction, Action action, std::string chainName);
+    bool GetFirewallChainName(Direction direction, Action action, std::string& chainName);
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
     void ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
