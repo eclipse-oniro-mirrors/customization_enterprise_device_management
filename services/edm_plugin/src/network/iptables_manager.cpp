@@ -60,7 +60,7 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall)
     }
     Action action = std::get<FIREWALL_ACTION_IND>(rule);
     
-    if (!GetFirewallChainName(action, direction, chainName)) {
+    if (!GetFirewallChainName(direction, action, chainName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);

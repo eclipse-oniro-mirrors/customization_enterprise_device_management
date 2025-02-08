@@ -64,7 +64,7 @@ private:
     bool GetFirewallChainName(Direction direction, Action action, std::string chainName);
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
-    void IptablesManager::ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
+    void ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
         std::vector<std::string> ruleList, Direction direction);
 
     static void SetDefaultFirewallDenyChain(Direction direction);
