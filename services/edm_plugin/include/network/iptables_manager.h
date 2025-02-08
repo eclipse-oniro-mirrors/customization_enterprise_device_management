@@ -49,11 +49,12 @@ public:
 private:
     ErrCode GetRemoveChainName(Direction direction, Action action, std::vector<std::string> &chainNameList);
     ErrCode GetDomainRemoveChainName(Direction direction, Action action, std::vector<std::string>& chainNameList);
-    ErrCode GetRemoveInputChainName(Action action, std::vector<std::string>& chainNameList);
-    ErrCode GetRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
-    ErrCode GetRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
-    ErrCode GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
-    ErrCode GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveInputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
+    
     bool ExistOutputAllowFirewallRule();
     bool ExistForwardAllowFirewallRule();
     bool ExistOutputAllowDomainRule();

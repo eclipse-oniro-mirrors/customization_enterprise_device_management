@@ -328,7 +328,7 @@ ErrCode IptablesManager::GetRemoveChainName(Direction direction, Action action, 
     return ERR_OK;
 }
 
-ErrCode IptablesManager::GetRemoveInputChainName(Action action,
+void IptablesManager::GetRemoveInputChainName(Action action,
     std::vector<std::string>& chainNameList)
 {
     if (action == Action::ALLOW) {
@@ -344,7 +344,7 @@ ErrCode IptablesManager::GetRemoveInputChainName(Action action,
     }
 }
 
-ErrCode IptablesManager::GetRemoveOutputChainName(Action action,
+void IptablesManager::GetRemoveOutputChainName(Action action,
     std::vector<std::string>& chainNameList)
 {
     if (action == Action::ALLOW) {
@@ -360,7 +360,7 @@ ErrCode IptablesManager::GetRemoveOutputChainName(Action action,
     }
 }
 
-ErrCode IptablesManager::GetRemoveForwardChainName(Action action,
+void IptablesManager::GetRemoveForwardChainName(Action action,
     std::vector<std::string>& chainNameList)
 {
     if (action == Action::ALLOW) {
@@ -376,7 +376,7 @@ ErrCode IptablesManager::GetRemoveForwardChainName(Action action,
     }
 }
 
-ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action action,
+void IptablesManager::GetDomainRemoveChainName(Direction direction, Action action,
     std::vector<std::string>& chainNameList)
 {
     if (direction == Direction::OUTPUT) {
@@ -396,10 +396,9 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
             return EdmReturnErrCode::PARAM_ERROR;
         }
     }
-    return ERR_OK;
 }
 
-ErrCode IptablesManager::GetDomainRemoveOutputChainName(Action action,
+void IptablesManager::GetDomainRemoveOutputChainName(Action action,
     std::vector<std::string>& chainNameList)
 {
     if (action == Action::ALLOW) {
@@ -415,7 +414,7 @@ ErrCode IptablesManager::GetDomainRemoveOutputChainName(Action action,
     }
 }
 
-ErrCode IptablesManager::GetDomainRemoveForwardChainName(Action action,
+void IptablesManager::GetDomainRemoveForwardChainName(Action action,
     std::vector<std::string>& chainNameList)
 {
     if (action == Action::ALLOW) {
