@@ -376,7 +376,7 @@ void IptablesManager::GetRemoveForwardChainName(Action action,
     }
 }
 
-void IptablesManager::GetDomainRemoveChainName(Direction direction, Action action,
+ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action action,
     std::vector<std::string>& chainNameList)
 {
     if (direction == Direction::OUTPUT) {
@@ -396,6 +396,7 @@ void IptablesManager::GetDomainRemoveChainName(Direction direction, Action actio
             return EdmReturnErrCode::PARAM_ERROR;
         }
     }
+    return ERR_OK;
 }
 
 void IptablesManager::GetDomainRemoveOutputChainName(Action action,
