@@ -56,7 +56,7 @@ void ExecuterFactory::InitDefaultExecuter()
     instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(OUTPUT_CHAIN,
         EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME));
     instance_->chainNames_.emplace_back(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
-    instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(OUTPUT_CHAIN,
+    instance_->executerVector_.emplace_back(std::make_shared<FirewallExecuter>(FORWARD_CHAIN,
         EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME));
     instance_->chainNames_.emplace_back(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
     instance_->executerVector_.emplace_back(std::make_shared<DomainExecuter>(OUTPUT_CHAIN,

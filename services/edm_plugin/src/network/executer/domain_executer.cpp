@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "edm_log.h"
 
@@ -28,7 +29,7 @@ const std::string SELECT_TABLE_OPTION = "-t ";
 const std::string JUMP_OPTION = " -j ";
 const std::string INSERT_OPTION = " -I ";
 
-DomainExecuter::DomainExecuter(std::string actualChainName, const std::string &chainName) : IExecuter(chainName),
+DomainExecuter::DomainExecuter(std::string actualChainName, const std::string& chainName) : IExecuter(chainName),
     actualChainName_(std::move(actualChainName))
 {
 }
@@ -37,12 +38,12 @@ DomainExecuter::DomainExecuter(std::string actualChainName, const std::string &c
 ErrCode DomainExecuter::Init()
 {
     std::ostringstream oss;
-    oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53 "
+    oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53" 
         << JUMP_OPTION << chainName_;
     std::string result;
     ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
     if (ret != ERR_OK) {
-        EDMLOGE("DomainExecuter:Init error.");
+        EDMLOGE("DomainExecuter:Init error.ret:%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

@@ -25,8 +25,8 @@ namespace IPTABLES {
 
 class DomainExecuter final: public IExecuter {
 public:
-    explicit DomainExecuter(std::string actualChainName, const std::string &chainName);
     ErrCode Init() override;
+    explicit DomainExecuter(std::string actualChainName, const std::string &chainName);
 
 private:
     std::string actualChainName_;
