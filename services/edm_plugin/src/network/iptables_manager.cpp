@@ -461,7 +461,7 @@ void IptablesManager::Init()
 
 void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
 {
-    if (!g_defaultFirewallOutputChainInit && direction == Direction::OUTPUT) {
+    if (!g_defaultFirewallOutputChainInit && (direction == Direction::OUTPUT || direction == Direction::INPUT)) {
         FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", ""};
         FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", ""};
 
