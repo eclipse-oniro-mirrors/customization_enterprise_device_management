@@ -125,7 +125,7 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule(uint32_t c
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ruleParcel.Marshalling(reply);
     return 0;

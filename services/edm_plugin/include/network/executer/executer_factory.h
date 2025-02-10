@@ -36,6 +36,7 @@ public:
     std::vector<std::shared_ptr<IExecuter>> GetAllExecuter() const;
 
     static std::shared_ptr<ExecuterFactory> GetInstance();
+
 private:
     static std::shared_ptr<ExecuterFactory> instance_;
     static std::mutex mutexLock_;
@@ -43,6 +44,10 @@ private:
     std::unordered_map<std::string, std::shared_ptr<IExecuter>> executerMap_;
     std::vector<std::string> chainNames_;
     std::vector<std::shared_ptr<IExecuter>> executerVector_;
+    
+    static void InitDefaultExecuter();
+    static void InitFirewallExecuter();
+    static void InitDomainExecuter();
 };
 } // namespace IPTABLES
 } // namespace EDM

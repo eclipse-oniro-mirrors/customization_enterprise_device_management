@@ -27,7 +27,7 @@ class DomainChainRule final: public ChainRule {
 public:
     explicit DomainChainRule(DomainFilterRule domainFilterRule);
     explicit DomainChainRule(const std::string& rule);
-    DomainFilterRule ToFilterRule();
+    DomainFilterRule ToFilterRule(Direction direction);
     [[nodiscard]] std::string Parameter() const override;
 
 private:

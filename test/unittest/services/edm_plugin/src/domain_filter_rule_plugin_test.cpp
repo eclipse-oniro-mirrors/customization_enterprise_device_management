@@ -109,7 +109,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestS
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -124,7 +124,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccess, TestSize.Level1
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -140,7 +140,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
@@ -156,7 +156,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestSuccess, TestSize.Lev
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -172,7 +172,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestFail, TestSize.Level1
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "1000", "www.example.com", IPTABLES::Direction::INVALID};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
