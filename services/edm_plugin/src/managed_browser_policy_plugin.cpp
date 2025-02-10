@@ -40,7 +40,7 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ManagedBrowserPolicyPlugin>());
 const char* const MANAGED_BROWSER_POLICY_DIR = "/data/service/el1/public/edm/browser/";
 const char* const MANAGED_BROWSER_POLICY_SUFFIX = ".dat";
-const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.managedbrowserpolicychanged";
+const char* const BROWSER_POLICY_CHANGED_EVENT = "usual.event.MANAGED_BROWSER_POLICY_CHANGED";
 const char* const EMPTY_POLICY = "{}";
 constexpr int32_t EMPTY_POLICY_SIZE = 3;
 constexpr int32_t MAX_POLICY_FILE_SIZE = 134217728; // 128 * 1024 * 1024
