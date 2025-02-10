@@ -38,8 +38,13 @@ std::string GetDisplayVersionQuery::GetPermission(IPlugin::PermissionType, const
 ErrCode GetDisplayVersionQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("GetDisplayVersionQuery OnGetPolicy.");
-    std::string version = GetDisplayVersion();
+    EDMLOGI("GetDisplayVersionQuery QueryPolicy.");
+    const char *versionPtr = GetDisplayVersion();
+    if (versionPtr == nullptr) {
+        EDMLOGE("GetDisplayVersionQuery QueryPolicy Failed. GetDisplayVersion is nullptr.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::string version = versionPtr;
     reply.WriteInt32(ERR_OK);
     reply.WriteString(version);
     return ERR_OK;

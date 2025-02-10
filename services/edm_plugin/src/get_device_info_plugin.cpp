@@ -94,7 +94,12 @@ ErrCode GetDeviceInfoPlugin::GetDeviceName(MessageParcel &reply)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (name.empty()) {
-        name = GetMarketName();
+        const char *marketName = GetMarketName();
+        if (marketName == nullptr) {
+            EDMLOGE("GetDeviceInfoPlugin GetDeviceName Failed. GetMarketName is nullptr.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        name = marketName;
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteString(name);
@@ -103,7 +108,12 @@ ErrCode GetDeviceInfoPlugin::GetDeviceName(MessageParcel &reply)
 
 ErrCode GetDeviceInfoPlugin::GetDeviceSerial(MessageParcel &reply)
 {
-    std::string serial = GetSerial();
+    const char* serialPtr = GetSerial();
+    if (serialPtr == nullptr) {
+        EDMLOGE("GetDeviceInfoPlugin GetDeviceSerial Failed. GetSerial is nullptr.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::string serial = serialPtr;
     reply.WriteInt32(ERR_OK);
     reply.WriteString(serial);
     return ERR_OK;
