@@ -736,10 +736,10 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     napi_value domainName = nullptr;
     std::string domainNameStr = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, domainNameStr.c_str(), domainNameStr.length(), &domainName));
-    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direcion", direction));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "domainName", domainName));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direcion", direction));
     return jsRule;
 }
 
