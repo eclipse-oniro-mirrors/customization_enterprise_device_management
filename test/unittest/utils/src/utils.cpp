@@ -81,7 +81,7 @@ void Utils::SetNativeTokenTypeAndPermissions(const char* permissions[], int size
         .aplStr = "system_basic",
     };
 
-    infoInstance.processName = "EdmServicesUnitTest";
+    infoInstance.processName = "edm";
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     seteuid(ROOT_UID);
