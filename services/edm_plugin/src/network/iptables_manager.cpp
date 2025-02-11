@@ -175,6 +175,10 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     std::string chainName;
     Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
+    if ((direction == Direction::FORWARD) && !std::get<DOMAIN_APPUID_IND>(rule).empty()) {
+        EDMLOGE("AddDomainFilterRule: illegal parameter: appUid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     if (action == Action::ALLOW) {
         chainName = EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME;
         if (direction == Direction::FORWARD) {
@@ -602,7 +606,7 @@ bool IptablesManager::ExistForwardAllowDomainRule()
 
 bool IptablesManager::CheckAddFirewallParams(Direction direction, FirewallRule rule)
 {
-    if (direction == Direction::INPUT && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
         EDMLOGE("AddFirewallRule: illegal parameter: appUid");
         return false;
     }
@@ -616,7 +620,7 @@ bool IptablesManager::CheckAddFirewallParams(Direction direction, FirewallRule r
 
 bool IptablesManager::CheckRemoveFirewallParams(Direction direction, FirewallRule rule)
 {
-    if (direction == Direction::INPUT && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
         EDMLOGE("RemoveFirewallRule: illegal parameter: appUid");
         return false;
     }
@@ -630,6 +634,10 @@ bool IptablesManager::CheckRemoveFirewallParams(Direction direction, FirewallRul
 
 bool IptablesManager::CheckRemoveDomainParams(Action action, std::string appUid, std::string domainName)
 {
+    if ((direction == Direction::FORWARD) && !std::get<DOMAIN_APPUID_IND>(rule).empty()) {
+        EDMLOGE("RemoveDomainFilterRule: illegal parameter: appUid");
+        return false;
+    }
     if (domainName.empty() && !appUid.empty()) {
         EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
         return false;

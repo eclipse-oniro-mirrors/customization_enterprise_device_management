@@ -80,19 +80,25 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallSuccess, TestSize.Level1)
 
     std::vector<FirewallRule> validRules{
         {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80:90", "", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80:90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "99", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901:1000", ""},
@@ -117,13 +123,15 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallFail, TestSize.Level1)
 
     std::vector<FirewallRule> invalidRules{
         {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
         {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "80", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "", "90", ""},
         {Direction::INPUT, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""},
-        {Direction::INVALID, Action::DENY, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""}};
+        {Direction::INVALID, Action::DENY, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""},
+        {Direction::INVALID, Action::REJECT, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""}};
     for (const auto &item : invalidRules) {
         FirewallRuleParcel invalidFirewallRule{item};
         ErrCode ret = iptablesManager->RemoveFirewallRule(invalidFirewallRule);
@@ -144,19 +152,25 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallError, TestSize.Level1)
 
     std::vector<FirewallRule> validRules{
         {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
@@ -203,19 +217,25 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallSuccess, TestSize.Level1)
 
     std::vector<FirewallRule> validRules{{Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
         {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
         {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
         {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
@@ -359,6 +379,72 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest3, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetFirewallRulesTest4
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, GetFirewallRulesTest4, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n";
+        "1        0     0 REJECT     all  --  *      *       172.16.100.2         172.19.90.131        "
+        "reject-with icmp-port-unreachable";
+    std::string resultEmpty =
+        "Chain edm_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(9)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+
+    std::vector<FirewallRuleParcel> list;
+    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_TRUE(list.size() == 1);
+}
+
+/**
+ * @tc.name: GetFirewallRulesTest5
+ * @tc.desc: Test GetFirewallRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, GetFirewallRulesTest5, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 REJECT     udp  --  *      *       172.16.100.2         172.19.90.131        "
+        "reject-with icmp-port-unreachable";
+    std::string resultEmpty =
+        "Chain edm_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(9)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+
+    std::vector<FirewallRuleParcel> list;
+    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_TRUE(list.size() == 1);
+}
+
+/**
  * @tc.name: TestAddDomainFilterSuccess
  * @tc.desc: Test AddDomainFilter func.
  * @tc.type: FUNC
@@ -412,6 +498,11 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
         {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
         {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
         {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}};
+        {Action::ALLOW, "1000", "", Direction::INVALID},
+        {Action::INVALID, "1000", "www.example.com", Direction::INVALID},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::INVALID},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::INVALID},
+        {Action::INVALID, "1000", invalidDomainName, Direction::INVALID}};
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
         ErrCode ret = iptablesManager->AddDomainFilterRule(invalidDomainFilterRuleParcel);
@@ -457,6 +548,7 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
+        {Action::INVALID, "", "", Direction::INVALID},
         {Action::INVALID, "", "", Direction::OUTPUT},
         {Action::ALLOW, "", "", Direction::OUTPUT},
         {Action::DENY, "", "", Direction::OUTPUT},
@@ -510,11 +602,11 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestGetDomainFilterRules
+ * @tc.name: TestGetDomainFilterRules1
  * @tc.desc: Test GetDomainFilterRules func.
  * @tc.type: FUNC
  */
-HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules, TestSize.Level1)
+HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules1, TestSize.Level1)
 {
     std::string result =
         "Chain edm_dns_deny_output (1 references)\n"
@@ -522,7 +614,7 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules, TestSize.Level1)
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
         "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
     std::string resultEmpty =
-        "Chain edm_dns_deny_output (1 references)\n"
+        "Chain edm_dns_deny_forward (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(6)
@@ -532,6 +624,36 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
+
+    std::vector<DomainFilterRuleParcel> list;
+    ErrCode ret = iptablesManager->GetDomainFilterRules(list);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(list.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetDomainFilterRules2
+ * @tc.desc: Test GetDomainFilterRules func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules2, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_dns_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 REJECT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 reject-with icmp-port-unreachable";
+    std::string resultEmpty =
+        "Chain edm_dns_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination";
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .Times(6)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<DomainFilterRuleParcel> list;
     ErrCode ret = iptablesManager->GetDomainFilterRules(list);
@@ -752,10 +874,10 @@ HWTEST_F(IptablesManagerTest, TestExistOutputAllowDomainRule, TestSize.Level1)
 HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1)
 {
     std::string result =
-        "Chain edm_deny_forward (1 references)\n"
-        "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
-        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+        "Chain edm_reject_forward (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n";
+        "1        0     0 REJECT     all  --  *      *       172.16.100.2         172.19.90.131        "
+        "reject-with icmp-port-unreachable";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
@@ -774,10 +896,10 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1
 HWTEST_F(IptablesManagerTest, TestExistForwardAllowDomainRule, TestSize.Level1)
 {
     std::string result =
-        "Chain edm_dns_deny_forward (1 references)\n"
+        "Chain edm_dns_reject_forward (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
-        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
-        "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
+        "1        0     0 REJECT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
+        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 reject-with icmp-port-unreachable";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
