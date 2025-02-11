@@ -497,7 +497,7 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
         {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
         {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
-        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}，
+        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD},
         {Action::ALLOW, "1000", "", Direction::INVALID},
         {Action::INVALID, "1000", "www.example.com", Direction::INVALID},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::INVALID},
