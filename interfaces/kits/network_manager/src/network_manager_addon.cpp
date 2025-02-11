@@ -715,7 +715,7 @@ bool NetworkManagerAddon::JsObjToDomainFilterRule(napi_env env, napi_value objec
 
     int32_t direction = -1;
     JsObjectToInt(env, object, "direction", false, direction);
-    IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
+    IPTABLES::Direction directionEnum = IPTABLES::Direction::OUTPUT;
     IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
     rule = {actionEnum, appUid, domainName, directionEnum};
     return true;
