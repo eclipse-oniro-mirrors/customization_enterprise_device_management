@@ -639,7 +639,8 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules2, TestSize.Level1)
         "Chain edm_dns_reject_forward (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 REJECT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
-        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 reject-with icmp-port-unreachable";
+        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 "
+        "reject-with icmp-port-unreachable";
     std::string resultEmpty =
         "Chain edm_dns_reject_forward (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination";
@@ -896,7 +897,8 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowDomainRule, TestSize.Level1)
         "Chain edm_dns_reject_forward (1 references)\n"
         "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 REJECT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
-        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 reject-with icmp-port-unreachable";
+        "udp dpt:53 STRING match  \"|037777770667697468756203636f6d|\" ALGO name bm TO 65535 "
+        "reject-with icmp-port-unreachable";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
