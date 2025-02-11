@@ -388,7 +388,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest4, TestSize.Level1)
 {
     std::string result =
         "Chain edm_reject_forward (1 references)\n"
-        "num   pkts bytes target     prot opt in     out     source               destination\n";
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 REJECT     all  --  *      *       172.16.100.2         172.19.90.131        "
         "reject-with icmp-port-unreachable";
     std::string resultEmpty =
@@ -875,7 +875,7 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1
 {
     std::string result =
         "Chain edm_reject_forward (1 references)\n"
-        "num   pkts bytes target     prot opt in     out     source               destination\n";
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
         "1        0     0 REJECT     all  --  *      *       172.16.100.2         172.19.90.131        "
         "reject-with icmp-port-unreachable";
     EXPECT_CALL(*executerUtilsMock, Execute)
