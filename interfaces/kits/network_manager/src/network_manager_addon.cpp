@@ -29,7 +29,6 @@ const char *const PORT_PROP_NAME = "port";
 const char *const PROXY_USER_NAME = "username";
 const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
-static int32_t g_tempUserId = -1;
 #endif
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
@@ -1132,7 +1131,6 @@ void NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &a
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         NetManagerStandard::HttpProxy httpProxy;
-        httpProxy.SetUserId(g_tempUserId);
         bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
         if (!isParseOk) {
             return false;
@@ -1183,11 +1181,6 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxyByAccountIdSync(napi_env env, 
     EDMLOGI("NAPI_SetGlobalHttpProxyByAccountIdSync called");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     AddonMethodSign addonMethodSign;
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, g_tempUserId, argv[ARR_INDEX_TWO]),
-        "parameter accountId parse error");
     SetGlobalHttpProxyByAccountIdCommon(addonMethodSign);
 
     AdapterAddonData adapterAddonData{};
@@ -1240,7 +1233,6 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callba
         return nullptr;
     }
     int32_t accountId = -1;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
     NetManagerStandard::HttpProxy httpProxy;
     int32_t ret = ERR_OK;
     if (hasAdmin) {
@@ -1262,29 +1254,43 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callba
 
 napi_value NetworkManagerAddon::GetGlobalHttpProxyByAccountIdSync(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetGlobalHttpProxySync called");
+    EDMLOGI("NAPI_GetGlobalHttpProxyByAccountIdSync called");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
-        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = false;
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ZERO]),
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
         "parameter accountId parse error");
+    if (hasAdmin) {
+        EDMLOGD("GetGlobalHttpProxyByAccountIdSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+            elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    } else {
+        EDMLOGD("GetGlobalHttpProxyByAccountIdSync: elementName is null");
+    }
 
-    NetManagerStandard::HttpProxy httpProxy;
-    int32_t ret = ERR_OK;
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
-    ret = networkManagerProxy->GetGlobalHttpProxyByAccountId(httpProxy, accountId);
+    NetManagerStandard::HttpProxy httpProxy;
+    int32_t ret = ERR_OK;
+    if (hasAdmin) {
+        ret = networkManagerProxy->GetGlobalHttpProxy(&elementName, httpProxy, accountId);
+    } else {
+        ret = networkManagerProxy->GetGlobalHttpProxy(nullptr, httpProxy, accountId);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
