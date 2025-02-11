@@ -175,6 +175,10 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& Domai
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     std::string chainName;
     Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
+    if (direction == Direction::FORWARD && !std::get<DOMAIN_APPUID_IND>(rule).empty()) {
+        EDMLOGE("AddDomainFilterRule: illegal parameter: appUid");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     if (action == Action::ALLOW) {
         chainName = EDM_DNS_ALLOW_OUTPUT_CHAIN_NAME;
         if (direction == Direction::FORWARD) {
@@ -224,7 +228,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
     std::string appUid = std::get<DOMAIN_APPUID_IND>(rule);
     std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule);
-    if (!CheckRemoveDomainParams(action, appUid, domainName)) {
+    if (!CheckRemoveDomainParams(direction, action, appUid, domainName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> chainNameList;
@@ -392,8 +396,7 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
             chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
         } else {
-            EDMLOGE("GetDomainRemoveChainName: illegal parameter: direction, action");
-            return EdmReturnErrCode::PARAM_ERROR;
+            GetDomainRemoveOutputChainName(action, chainNameList);
         }
     }
     return ERR_OK;
@@ -461,7 +464,7 @@ void IptablesManager::Init()
 
 void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
 {
-    if (!g_defaultFirewallOutputChainInit && direction == Direction::OUTPUT) {
+    if (!g_defaultFirewallOutputChainInit && (direction == Direction::OUTPUT || direction == Direction::INPUT)) {
         FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", ""};
         FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", ""};
 
@@ -602,7 +605,8 @@ bool IptablesManager::ExistForwardAllowDomainRule()
 
 bool IptablesManager::CheckAddFirewallParams(Direction direction, FirewallRule rule)
 {
-    if (direction == Direction::INPUT && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
+        !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
         EDMLOGE("AddFirewallRule: illegal parameter: appUid");
         return false;
     }
@@ -616,7 +620,8 @@ bool IptablesManager::CheckAddFirewallParams(Direction direction, FirewallRule r
 
 bool IptablesManager::CheckRemoveFirewallParams(Direction direction, FirewallRule rule)
 {
-    if (direction == Direction::INPUT && !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
+        !std::get<FIREWALL_APPUID_IND>(rule).empty()) {
         EDMLOGE("RemoveFirewallRule: illegal parameter: appUid");
         return false;
     }
@@ -628,8 +633,13 @@ bool IptablesManager::CheckRemoveFirewallParams(Direction direction, FirewallRul
     return true;
 }
 
-bool IptablesManager::CheckRemoveDomainParams(Action action, std::string appUid, std::string domainName)
+bool IptablesManager::CheckRemoveDomainParams(Direction direction, Action action,
+    std::string appUid, std::string domainName)
 {
+    if (direction == Direction::FORWARD && !appUid.empty()) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
+        return false;
+    }
     if (domainName.empty() && !appUid.empty()) {
         EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
         return false;
