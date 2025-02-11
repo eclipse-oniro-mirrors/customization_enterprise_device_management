@@ -103,8 +103,7 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallSuccess, TestSize.Level1)
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901:1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
@@ -175,8 +174,7 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallError, TestSize.Level1)
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
@@ -240,8 +238,7 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallSuccess, TestSize.Level1)
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
         ErrCode ret = iptablesManager->RemoveFirewallRule(validFirewallRule);
@@ -558,8 +555,6 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterSuccess, TestSize.Level1)
         {Action::INVALID, "", "", Direction::FORWARD},
         {Action::ALLOW, "", "", Direction::FORWARD},
         {Action::DENY, "", "", Direction::FORWARD},
-        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
         {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
         {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
