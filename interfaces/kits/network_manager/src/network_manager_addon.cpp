@@ -1101,48 +1101,51 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, nap
     return result;
 }
 
-void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign)
+bool NetworkManagerAddon::ConvertHttpProxyToData(
+    napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign, bool includeAccountId)
 {
-    auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
-        NetManagerStandard::HttpProxy httpProxy;
-        bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
-        if (!isParseOk) {
-            return false;
-        }
+    NetManagerStandard::HttpProxy httpProxy;
+    bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
+    if (!isParseOk) {
+        return false;
+    }
+
+    if (includeAccountId) {
         int32_t accountId = -1;
         httpProxy.SetUserId(accountId);
-        if (!httpProxy.Marshalling(data)) {
-            EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommon Marshalling proxy fail.");
-            return false;
-        }
-        return true;
-    };
+    }
+
+    if (!httpProxy.Marshalling(data)) {
+        EDMLOGE("NetworkManagerAddon::Marshalling proxy fail.");
+        return false;
+    }
+    return true;
+}
+
+void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign)
+{
     addonMethodSign.name = "SetGlobalHttpProxy";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data};
+    
+    addonMethodSign.argsConvert = { nullptr,
+        [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
+            return ConvertHttpProxyToData(env, argv, data, methodSign, true);
+        }};
 }
 
 void NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &addonMethodSign)
 {
-    auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
-        NetManagerStandard::HttpProxy httpProxy;
-        bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
-        if (!isParseOk) {
-            return false;
-        }
-        if (!httpProxy.Marshalling(data)) {
-            EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyByAccountIdCommon Marshalling proxy fail.");
-            return false;
-        }
-        return true;
-    };
     addonMethodSign.name = "SetGlobalHttpProxy";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data, nullptr};
+    
+    addonMethodSign.argsConvert = { nullptr,
+        [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
+            return ConvertHttpProxyToData(env, argv, data, methodSign, false);
+        },
+        nullptr};
 }
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callback_info info)

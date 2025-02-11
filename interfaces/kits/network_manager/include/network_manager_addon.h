@@ -103,6 +103,8 @@ private:
     static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
         int32_t policyCode);
     static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
+    static bool ConvertHttpProxyToData(napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign, bool includeAccountId);
     static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
     static void SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &addonMethodSign);
 };
