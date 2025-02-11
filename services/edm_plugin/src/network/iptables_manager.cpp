@@ -396,8 +396,7 @@ ErrCode IptablesManager::GetDomainRemoveChainName(Direction direction, Action ac
             chainNameList.emplace_back(EDM_DNS_REJECT_FORWARD_CHAIN_NAME);
             chainNameList.emplace_back(EDM_DNS_REJECT_OUTPUT_CHAIN_NAME);
         } else {
-            EDMLOGE("GetDomainRemoveChainName: illegal parameter: direction, action");
-            return EdmReturnErrCode::PARAM_ERROR;
+            GetDomainRemoveOutputChainName(action, chainNameList);
         }
     }
     return ERR_OK;

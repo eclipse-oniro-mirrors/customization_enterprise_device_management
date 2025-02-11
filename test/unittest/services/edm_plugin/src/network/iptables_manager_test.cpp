@@ -455,6 +455,7 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
+        {Action::ALLOW, "1000", "www.example.com", Direction::INVALID},
         {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
         {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
         {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
@@ -547,6 +548,7 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterSuccess, TestSize.Level1)
     std::vector<DomainFilterRule> validRules{
         {Action::INVALID, "", "", Direction::INVALID},
         {Action::INVALID, "", "", Direction::OUTPUT},
+        {Action::ALLOW, "", "", Direction::INVALID},
         {Action::ALLOW, "", "", Direction::OUTPUT},
         {Action::DENY, "", "", Direction::OUTPUT},
         {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
