@@ -260,6 +260,7 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallFail, TestSize.Level1)
 
     std::vector<FirewallRule> invalidRules{
         {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
         {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "80", "", ""},
         {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "", "90", ""},
         {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "", "", "", "", ""},
@@ -458,8 +459,6 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterSuccess, TestSize.Level1)
         {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
         {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
         {Action::DENY, "", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
         {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
         {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
@@ -497,7 +496,7 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
         {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
         {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
-        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}};
+        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD}，
         {Action::ALLOW, "1000", "", Direction::INVALID},
         {Action::INVALID, "1000", "www.example.com", Direction::INVALID},
         {Action::DENY, "1000", "www.ex||ample.com", Direction::INVALID},
@@ -526,8 +525,6 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterError, TestSize.Level1)
         {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
         {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
         {Action::DENY, "", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "1000", "www.example.com", Direction::FORWARD},
         {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
         {Action::DENY, "", "www.example.com", Direction::FORWARD},
     };
