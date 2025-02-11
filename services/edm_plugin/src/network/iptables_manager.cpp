@@ -637,7 +637,7 @@ bool IptablesManager::CheckRemoveDomainParams(Direction direction, Action action
     std::string appUid, std::string domainName)
 {
     if (direction == Direction::FORWARD && !appUid.empty()) {
-        EDMLOGE("RemoveDomainFilterRule: illegal parameter: appUid");
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
         return false;
     }
     if (domainName.empty() && !appUid.empty()) {
