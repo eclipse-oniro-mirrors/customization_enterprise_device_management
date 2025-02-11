@@ -943,7 +943,6 @@ void NetworkManagerAddon::NativeGetGlobalHttpProxy(napi_env env, void *data)
     }
     AsyncHttpProxyCallbackInfo *asyncCallbackInfo = static_cast<AsyncHttpProxyCallbackInfo *>(data);
     int32_t accountId = -1;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
     if (asyncCallbackInfo->hasAdmin) {
         asyncCallbackInfo->ret = NetworkManagerProxy::GetNetworkManagerProxy()->GetGlobalHttpProxy(
             &asyncCallbackInfo->elementName, asyncCallbackInfo->httpProxy, accountId);
@@ -1112,7 +1111,6 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodS
             return false;
         }
         int32_t accountId = -1;
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(accountId);
         httpProxy.SetUserId(accountId);
         if (!httpProxy.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommon Marshalling proxy fail.");
@@ -1273,7 +1271,8 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyByAccountIdSync(napi_env env, 
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
         "parameter accountId parse error");
     if (hasAdmin) {
-        EDMLOGD("GetGlobalHttpProxyByAccountIdSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        EDMLOGD("GetGlobalHttpProxyByAccountIdSync: elementName.bundleName %{public}s,"
+        "elementName.abilityName:%{public}s",
             elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     } else {
         EDMLOGD("GetGlobalHttpProxyByAccountIdSync: elementName is null");
