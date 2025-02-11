@@ -97,16 +97,18 @@ private:
     static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxySync(napi_env env, napi_callback_info info);
-    static napi_value SetGlobalHttpProxyByAccountIdSync(napi_env env, napi_callback_info info);
-    static napi_value GetGlobalHttpProxyByAccountIdSync(napi_env env, napi_callback_info info);
+    static napi_value SetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info);
+    static napi_value SetGlobalHttpProxyCommonLogic(napi_env env, napi_callback_info info,
+                                                    const std::function<void(AddonMethodSign&)>& commonFunc);
+    static napi_value GetGlobalHttpProxyCommon(napi_env env, napi_value *argv, size_t argc, bool hasAdmin,
+        OHOS::AppExecFwk::ElementName &elementName, int32_t accountId);
     static void SetNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
         int32_t policyCode);
     static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
-    static bool ConvertHttpProxyToData(napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign, bool includeAccountId);
     static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
-    static void SetGlobalHttpProxyByAccountIdCommon(AddonMethodSign &addonMethodSign);
+    static void SetGlobalHttpProxyCommonForAccount(AddonMethodSign &addonMethodSign);
 };
 } // namespace EDM
 } // namespace OHOS
