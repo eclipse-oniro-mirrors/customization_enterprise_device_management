@@ -1103,6 +1103,7 @@ napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, nap
 
 void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         NetManagerStandard::HttpProxy httpProxy;
@@ -1122,10 +1123,12 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodS
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data};
+#endif
 }
 
 void NetworkManagerAddon::SetGlobalHttpProxyCommonForAccount(AddonMethodSign &addonMethodSign)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         NetManagerStandard::HttpProxy httpProxy;
@@ -1139,15 +1142,17 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommonForAccount(AddonMethodSign &ad
         }
         return true;
     };
-    addonMethodSign.name = "SetGlobalHttpProxy";
+    addonMethodSign.name = "SetGlobalHttpProxyForAccountSync";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, convertHttpProxy2Data, nullptr};
+#endif
 }
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxyCommonLogic(napi_env env, napi_callback_info info,
     AddonMethodSign& addonMethodSign)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -1165,6 +1170,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxyCommonLogic(napi_env env, napi
         return nullptr;
     }
     return nullptr;
+#endif
 }
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callback_info info)
@@ -1201,6 +1207,7 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyCommon(
     napi_env env, napi_value *argv, size_t argc, bool hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName, int32_t accountId)
 {
+#ifdef NETMANAGER_BASE_EDM_ENABLE
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
@@ -1232,6 +1239,11 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyCommon(
     }
 
     return ConvertHttpProxyToJS(env, httpProxy);
+#else
+    EDMLOGW("NetworkManagerAddon::GetGlobalHttpProxyCommon Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
 napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callback_info info)
