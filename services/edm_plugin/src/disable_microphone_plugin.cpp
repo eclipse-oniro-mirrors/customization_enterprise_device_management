@@ -30,10 +30,16 @@ constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
 void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr)
 {
     EDMLOGI("DisableMicrophonePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    std::map<IPlugin::PermissionType, std::string> typePermissions;
+    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS");
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone", config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMicrophonePlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableMicrophonePlugin::OnAdminRemove);
 }
 
 ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
@@ -54,6 +60,16 @@ ErrCode DisableMicrophonePlugin::OnSetPolicy(bool &isDisallow)
     }
     EDMLOGE("DisableMicrophonePlugin DisableMicrophone result %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisableMicrophonePlugin::OnAdminRemove(const std::string &adminName, bool &data, int32_t userId)
+{
+    EDMLOGI("DisableMicrophonePlugin OnAdminRemove %{public}d...", data);
+    if (!data) {
+        return ERR_OK;
+    }
+    bool reset = false;
+    return OnSetPolicy(reset);
 }
 
 ErrCode DisableMicrophonePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

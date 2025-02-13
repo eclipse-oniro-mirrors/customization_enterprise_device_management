@@ -40,6 +40,7 @@ public:
     enum class PermissionType {
         NORMAL_DEVICE_ADMIN = 0,
         SUPER_DEVICE_ADMIN,
+        BYOD_DEVICE_ADMIN,
         UNKNOWN,
     };
 
@@ -50,24 +51,26 @@ public:
     };
 
     struct PolicyPermissionConfig {
-        std::string permission;
-        std::map<std::string, std::string> tagPermissions;
-        PermissionType permissionType;
+        std::map<std::string, std::map<PermissionType, std::string>> tagPermissions;
+        std::map<PermissionType, std::string> typePermissions;
         ApiType apiType;
 
         PolicyPermissionConfig()
         {
-            permissionType = PermissionType::UNKNOWN;
             apiType = ApiType::UNKNOWN;
         }
 
-        PolicyPermissionConfig(std::string _permission, PermissionType _permissionType, ApiType _apiType)
-            : permission(std::move(_permission)), permissionType(std::move(_permissionType)),
-            apiType(std::move(_apiType)) {}
+        PolicyPermissionConfig(std::map<std::string, std::map<PermissionType, std::string>> _tagPermissions,
+            ApiType _apiType) : tagPermissions(std::move(_tagPermissions)), apiType(std::move(_apiType)) {}
 
-        PolicyPermissionConfig(std::map<std::string, std::string> _tagPermissions,
-            PermissionType _permissionType, ApiType _apiType) : tagPermissions(std::move(_tagPermissions)),
-            permissionType(std::move(_permissionType)), apiType(std::move(_apiType)) {}
+        PolicyPermissionConfig(std::string _permission, PermissionType _permissionType, ApiType _apiType)
+            : apiType(std::move(_apiType))
+        {
+            typePermissions.emplace(_permissionType, _permission);
+        }
+
+        PolicyPermissionConfig(std::map<PermissionType, std::string> _typePermissions,
+            ApiType _apiType) : typePermissions(std::move(_typePermissions)), apiType(std::move(_apiType)) {}
     };
 
     /*
@@ -103,8 +106,8 @@ public:
     std::string GetPolicyName();
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
-    PolicyPermissionConfig GetAllPermission(FuncOperateType operaType);
-    std::string GetPermission(FuncOperateType operaType, std::string permissionTag = "");
+    std::vector<PolicyPermissionConfig> GetAllPermission();
+    std::string GetPermission(FuncOperateType operaType, PermissionType permissionType, std::string permissionTag = "");
     IPlugin::PermissionType GetPermissionType(FuncOperateType operaType);
     IPlugin::ApiType GetApiType(FuncOperateType operaType);
     void SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin);
@@ -128,8 +131,9 @@ protected:
     IPlugin::PluginType type_ = PluginType::BASIC;
 
 private:
-    std::string CheckAndGetPermissionFromConfig(const std::string &permissionTag,
-        std::map<std::string, std::string> tagPermissions, const std::string &commonPermission);
+    std::string CheckAndGetPermissionFromConfig(PermissionType permissionType, const std::string &permissionTag,
+        std::map<std::string, std::map<PermissionType, std::string>> tagPermissions,
+        std::map<PermissionType, std::string> typePermissions);
 };
 } // namespace EDM
 } // namespace OHOS

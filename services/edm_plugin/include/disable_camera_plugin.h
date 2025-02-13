@@ -26,6 +26,8 @@ public:
 
     ErrCode OnSetPolicy(bool &data);
 
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, int32_t userId);
+
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM

@@ -178,6 +178,45 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithoutNOption, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestEnableAdminWithoutTArgument
+ * @tc.desc: Test EdmCommand: edm enable-admin -t.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmCommandTest, TestEnableAdminWithoutTArgument, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("edm"),
+        const_cast<char*>("enable-admin"),
+        const_cast<char*>("-t"),
+        const_cast<char*>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    EdmCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(),
+        cmd.GetMessageFromCode(ERR_EDM_TOOLS_COMMAND_T_OPTION_REQUIRES_AN_ARGUMENT) + HELP_MSG_ENABLE_ADMIN);
+}
+
+/**
+ * @tc.name: TestEnableAdminWithTInvalidOption
+ * @tc.desc: Test EdmCommand: edm enable-admin -t.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmCommandTest, TestEnableAdminWithTInvalidOption, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("edm"),
+        const_cast<char*>("enable-admin"),
+        const_cast<char*>("-t"),
+        const_cast<char*>("XXX"),
+        const_cast<char*>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    EdmCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(),
+        cmd.GetMessageFromCode(ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE) + HELP_MSG_ENABLE_ADMIN);
+}
+
+/**
  * @tc.name: TestEnableAdmin
  * @tc.desc: Test EdmCommand: edm enable-admin -n <bundle-name> -a <ability-name>.
  * @tc.type: FUNC
@@ -195,7 +234,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdmin, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID) + "errorCode: 9200003");
 }
 
 /**
@@ -274,7 +313,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminOfLong, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::COMPONENT_INVALID) + "errorCode: 9200003");
 }
 /**
  * @tc.name: TestDisableAdminWithoutOption
@@ -364,7 +403,7 @@ HWTEST_F(EdmCommandTest, TestDisableAdmin, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED) + "errorCode: 9200005");
 }
 
 /**
@@ -401,7 +440,7 @@ HWTEST_F(EdmCommandTest, TestDisableAdminOfLong, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     EdmCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED));
+    EXPECT_EQ(cmd.ExecCommand(), cmd.GetMessageFromCode(EdmReturnErrCode::DISABLE_ADMIN_FAILED) + "errorCode: 9200005");
 }
 } // TEST
 } // EDM

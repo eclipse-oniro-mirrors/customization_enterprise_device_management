@@ -1006,6 +1006,111 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetDelegatedPoliciesSuccess, TestSize
         EdmInterfaceCode::GET_DELEGATED_POLICIES, result);
     EXPECT_TRUE(errVal == ERR_OK);
 }
+
+/**
+ * @tc.name: TestGetAdminsSucc
+ * @tc.desc: Test GetAdmins func succ.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsSucc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString("com.edm.test.demo");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetAdmins));
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdmins(wants);
+    ASSERT_TRUE(errVal == ERR_OK);
+    int32_t wantSize = wants.size();
+    ASSERT_TRUE(wantSize == 1);
+    std::shared_ptr<AAFwk::Want> want = wants[0];
+    ASSERT_TRUE(want != nullptr);
+    std::string bundleName = want->GetStringParam("bundleName");
+    EXPECT_TRUE(bundleName == "com.edm.test.demo");
+    std::string abilityName = want->GetStringParam("abilityName");
+    EXPECT_TRUE(abilityName == "test.ability");
+    int32_t adminType = want->GetIntParam("adminType", -1);
+    EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::BYOD));
+}
+
+/**
+ * @tc.name: TestGetAdminsIpcFail
+ * @tc.desc: Test GetAdmins func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsIpcFail, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString("com.edm.test.demo");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdmins(wants);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetAdminsWithEdmDisable
+ * @tc.desc: Test GetAdmins without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString("com.edm.test.demo");
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdmins(wants);
+    ASSERT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoSucc
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo func succ.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestCheckAndGetAdminProvisionInfoSucc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString("com.edm.test.demo");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestCheckAndGetAdminProvisionInfo));
+    std::string bundleName;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(admin, bundleName);
+    ASSERT_TRUE(errVal == ERR_OK);
+    ASSERT_TRUE(bundleName == "com.edm.test.demo");
+}
+
+/**
+ * @tc.name: TestCheckAndGetAdminProvisionInfoFail
+ * @tc.desc: Test CheckAndGetAdminProvisionInfo func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestCheckAndGetAdminProvisionInfoIpcFail, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString("com.edm.test.demo");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    std::string bundleName;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(admin, bundleName);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

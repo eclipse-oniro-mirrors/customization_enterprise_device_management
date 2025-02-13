@@ -38,10 +38,10 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
     }
     auto entry = permissions_.find(permission);
     if (entry == permissions_.end()) {
-        permissions_.insert(std::make_pair(permission, static_cast<AdminType>(permissionType)));
+        permissions_.insert(std::make_pair(permission, PermissionTypeToAdminType(permissionType)));
         EDMLOGI("AddPermission::insert permission : %{public}s permissionType : %{public}d",
             permission.c_str(), static_cast<int32_t>(permissionType));
-    } else if (entry->second != static_cast<AdminType>(permissionType)) {
+    } else if (entry->second != PermissionTypeToAdminType(permissionType)) {
         EDMLOGE("AddPermission::conflict permission type");
         return ERR_EDM_DENY_PERMISSION;
     } else {
@@ -49,6 +49,14 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
     }
     EDMLOGD("AddPermission::return ok");
     return ERR_OK;
+}
+
+AdminType PermissionManager::PermissionTypeToAdminType(IPlugin::PermissionType permissionType)
+{
+    if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
+        return AdminType::BYOD;
+    }
+    return static_cast<AdminType>(permissionType);
 }
 
 void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,
@@ -60,11 +68,20 @@ void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string>
         if (entry == permissions_.end()) {
             continue;
         }
-        if (adminType == AdminType::NORMAL && entry->second == AdminType::ENT) {
-            EDMLOGE("GetAdminGrantedPermission normal admin can request super admin permission.");
+        if (adminType == AdminType::NORMAL && (entry->second == AdminType::ENT || entry->second == AdminType::BYOD)) {
+            EDMLOGE("GetAdminGrantedPermission normal admin can not request super and byod admin permission.");
+            continue;
+        }
+        if (adminType == AdminType::BYOD && entry->second == AdminType::ENT) {
+            EDMLOGE("GetAdminGrantedPermission byod admin can not request super admin permission.");
+            continue;
+        }
+        if (adminType == AdminType::ENT && entry->second == AdminType::BYOD) {
+            EDMLOGE("GetAdminGrantedPermission super admin can not request byod admin permission.");
             continue;
         }
         reqPermission.emplace_back(entry->first);
+        EDMLOGI("reqPermission.emplace_back:%{public}s:", entry->first.c_str());
     }
 }
 } // namespace EDM

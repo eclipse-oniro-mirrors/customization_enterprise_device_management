@@ -44,6 +44,8 @@ private:
     ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t
+        userId);
     ErrCode GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
     ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
@@ -57,6 +59,7 @@ private:
     ErrCode SetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply);
     ErrCode GetDelegatedBundleNamesInner(MessageParcel &data, MessageParcel &reply);
+    ErrCode GetAdminsInner(MessageParcel &data, MessageParcel &reply);
     #ifdef EDM_SUPPORT_ALL_ENABLE
     ErrCode CallFuncByCode(uint32_t code, MessageParcel &data, MessageParcel &reply);
     #endif

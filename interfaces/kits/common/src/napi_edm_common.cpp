@@ -28,6 +28,7 @@
 
 namespace OHOS {
 namespace EDM {
+const int32_t MAX_STRING_LEN = 10256;
 static void NativeCallbackComplete(napi_env env, napi_status status, AsyncCallbackInfo *asyncCallbackInfo,
     napi_value result)
 {
@@ -94,6 +95,43 @@ bool ParseElementName(napi_env env, AppExecFwk::ElementName &elementName, napi_v
 
     elementName.SetBundleName(bundleName);
     elementName.SetAbilityName(abilityName);
+    return true;
+}
+
+bool ParseMapStringAndString(napi_env env, std::map<std::string, std::string> &parameters, napi_value args)
+{
+    napi_valuetype valueType;
+
+    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
+    if (valueType != napi_object) {
+        EDMLOGE("Parameter 'args' is not an object.");
+        return false;
+    }
+
+    napi_value propertyNames;
+    NAPI_CALL_BASE(env, napi_get_property_names(env, args, &propertyNames), false);
+
+    uint32_t propertyCount;
+    NAPI_CALL_BASE(env, napi_get_array_length(env, propertyNames, &propertyCount), false);
+
+    for (uint32_t i = 0; i < propertyCount; ++i) {
+        napi_value key;
+        NAPI_CALL_BASE(env, napi_get_element(env, propertyNames, i, &key), false);
+
+        char keyBuf[256] = {0};
+        size_t keyLen;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, key, keyBuf, sizeof(keyBuf) - 1, &keyLen), false);
+
+        napi_value value;
+        NAPI_CALL_BASE(env, napi_get_property(env, args, key, &value), false);
+
+        char valueBuf[MAX_STRING_LEN] = {0};
+        size_t valueLen;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, value, valueBuf, sizeof(valueBuf) - 1, &valueLen), false);
+
+        parameters[keyBuf] = valueBuf;
+    }
+
     return true;
 }
 

@@ -84,6 +84,10 @@ struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
     std::string abilityName;
 };
 
+struct AsyncGetAdminsCallbackInfo : AsyncCallbackInfo {
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+};
+
 class AdminManager {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -107,7 +111,8 @@ private:
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedBundleNames(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code);
-
+    static napi_value StartAdminProvision(napi_env env, napi_callback_info info);
+    static napi_value GetAdmins(napi_env env, napi_callback_info info);
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
     static void NativeDisableAdmin(napi_env env, void *data);
@@ -127,13 +132,20 @@ private:
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);
+    static void NativeGetAdmins(napi_env env, void *data);
+    static void NativeGetAdminsComplete(napi_env env, napi_status status, void *data);
     static napi_value ConvertWantToJs(napi_env env, const std::string &bundleName, const std::string &abilityName);
+    static napi_value ConvertWantToJsWithType(napi_env env, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
 
     static AdminType ParseAdminType(int32_t type);
     static bool CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
         bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
     static napi_value HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe);
+    static int32_t JsAdminTypeToAdminType(int32_t jsAdminType);
+    static int32_t AdminTypeToJsAdminType(int32_t AdminType);
+    static bool CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
+        int32_t adminType, std::map<std::string, std::string> &parameters);
 };
 } // namespace EDM
 } // namespace OHOS

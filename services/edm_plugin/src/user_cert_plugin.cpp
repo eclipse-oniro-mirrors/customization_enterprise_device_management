@@ -33,8 +33,8 @@ UserCertPlugin::UserCertPlugin()
 {
     policyCode_ = EdmInterfaceCode::INSTALL_CERTIFICATE;
     policyName_ = "install_certificate";
-    permissionConfig_.permission = "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE";
-    permissionConfig_.permissionType = IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE");
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }

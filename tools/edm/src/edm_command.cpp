@@ -24,13 +24,16 @@
 
 namespace OHOS {
 namespace EDM {
-const std::string SHORT_OPTIONS = "hn:a:";
-constexpr int32_t OPTION_NUM = 3;
+const std::string SHORT_OPTIONS = "hn:a:t:";
+const std::string ADMIN_TYPE_ENT_STRING = "super";
+const std::string ADMIN_TYPE_BYOD_STRING = "byod";
+constexpr int32_t OPTION_NUM = 4;
 
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"bundle-name", required_argument, nullptr, 'n'},
-    {"ability-name", required_argument, nullptr, 'a'}
+    {"ability-name", required_argument, nullptr, 'a'},
+    {"admin-type", required_argument, nullptr, 't'}
 };
 
 EdmCommand::EdmCommand(int argc, char *argv[]) : ShellCommand(argc, argv, TOOL_NAME) {}
@@ -51,9 +54,12 @@ ErrCode EdmCommand::CreateMessageMap()
         {ERR_EDM_TOOLS_COMMAND_NO_OPTION, "error: command requires option."},
         {ERR_EDM_TOOLS_COMMAND_N_OPTION_REQUIRES_AN_ARGUMENT, "error: -n, --bundle-name option requires an argument."},
         {ERR_EDM_TOOLS_COMMAND_A_OPTION_REQUIRES_AN_ARGUMENT, "error: -a, --ability-name option requires an argument."},
+        {ERR_EDM_TOOLS_COMMAND_T_OPTION_REQUIRES_AN_ARGUMENT, "error: -t, --admin-type option requires an argument."},
         {ERR_EDM_TOOLS_COMMAND_UNKNOWN_OPTION, "error: unknown option."},
         {ERR_EDM_TOOLS_COMMAND_NO_BUNDLE_NAME_OPTION, "error: -n <bundle-name> is expected."},
         {ERR_EDM_TOOLS_COMMAND_NO_ABILITY_NAME_OPTION, "error: -a <ability-name> is expected."},
+        {ERR_EDM_TOOLS_COMMAND_NO_ADMIN_TYPE_OPTION, "error: -t <admin-type> is expected."},
+        {ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE, "error: argument <admin-type> is unknown value."},
         {EdmReturnErrCode::COMPONENT_INVALID, "error: the administrator ability component is invalid."},
         {EdmReturnErrCode::ENABLE_ADMIN_FAILED, "error: failed to enable the administrator application of the device."},
         {EdmReturnErrCode::DISABLE_ADMIN_FAILED,
@@ -80,8 +86,10 @@ ErrCode EdmCommand::RunAsEnableCommand()
 {
     std::string bundleName;
     std::string abilityName;
-    ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName);
-    if (result == ERR_EDM_TOOLS_COMMAND_HELP && bundleName.empty() && abilityName.empty()) {
+    AdminType adminType = AdminType::ENT;
+    ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName, adminType);
+    if (result == ERR_EDM_TOOLS_COMMAND_HELP && bundleName.empty() &&
+        abilityName.empty()) {
         return ReportMessage(ERR_EDM_TOOLS_COMMAND_HELP, true);
     }
     if (result != ERR_EDM_TOOLS_COMMAND_HELP && result != ERR_OK) {
@@ -97,7 +105,7 @@ ErrCode EdmCommand::RunAsEnableCommand()
     elementName.SetElementBundleName(&elementName, bundleName.c_str());
     elementName.SetElementAbilityName(&elementName, abilityName.c_str());
     EntInfo info;
-    result = enterpriseDeviceMgrProxy_->EnableAdmin(elementName, info, AdminType::ENT, DEFAULT_USER_ID);
+    result = enterpriseDeviceMgrProxy_->EnableAdmin(elementName, info, adminType, DEFAULT_USER_ID);
     return ReportMessage(result, true);
 }
 
@@ -105,7 +113,8 @@ ErrCode EdmCommand::RunAsDisableAdminCommand()
 {
     std::string bundleName;
     std::string abilityName;
-    ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName);
+    AdminType adminType = AdminType::UNKNOWN;
+    ErrCode result = ParseEnableAdminCommandOption(bundleName, abilityName, adminType);
     if (result == ERR_EDM_TOOLS_COMMAND_HELP && bundleName.empty()) {
         return ReportMessage(ERR_EDM_TOOLS_COMMAND_HELP, false);
     }
@@ -115,11 +124,15 @@ ErrCode EdmCommand::RunAsDisableAdminCommand()
     if (bundleName.empty()) {
         return ReportMessage(ERR_EDM_TOOLS_COMMAND_NO_BUNDLE_NAME_OPTION, false);
     }
-    result = enterpriseDeviceMgrProxy_->DisableSuperAdmin(bundleName);
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetElementBundleName(&elementName, bundleName.c_str());
+    elementName.SetElementAbilityName(&elementName, abilityName.c_str());
+    result = enterpriseDeviceMgrProxy_->DisableAdmin(elementName, DEFAULT_USER_ID);
     return ReportMessage(result, false);
 }
 
-ErrCode EdmCommand::ParseEnableAdminCommandOption(std::string &bundleName, std::string &abilityName)
+ErrCode EdmCommand::ParseEnableAdminCommandOption(std::string &bundleName, std::string &abilityName,
+    AdminType &adminType)
 {
     int count = 0;
     ErrCode ret = ERR_INVALID_VALUE;
@@ -136,7 +149,7 @@ ErrCode EdmCommand::ParseEnableAdminCommandOption(std::string &bundleName, std::
             ret = RunAsEnableCommandMissingOptionArgument();
             break;
         }
-        ret = RunAsEnableCommandParseOptionArgument(option, bundleName, abilityName);
+        ret = RunAsEnableCommandParseOptionArgument(option, bundleName, abilityName, adminType);
     }
     return ret;
 }
@@ -148,12 +161,15 @@ ErrCode EdmCommand::RunAsEnableCommandMissingOptionArgument()
             return ERR_EDM_TOOLS_COMMAND_N_OPTION_REQUIRES_AN_ARGUMENT;
         case 'a':
             return ERR_EDM_TOOLS_COMMAND_A_OPTION_REQUIRES_AN_ARGUMENT;
+        case 't':
+            return ERR_EDM_TOOLS_COMMAND_T_OPTION_REQUIRES_AN_ARGUMENT;
         default:
             return ERR_EDM_TOOLS_COMMAND_UNKNOWN_OPTION;
     }
 }
 
-ErrCode EdmCommand::RunAsEnableCommandParseOptionArgument(int option, std::string &bundleName, std::string &abilityName)
+ErrCode EdmCommand::RunAsEnableCommandParseOptionArgument(int option, std::string &bundleName,
+    std::string &abilityName, AdminType &adminType)
 {
     ErrCode ret = ERR_OK;
     switch (option) {
@@ -165,6 +181,9 @@ ErrCode EdmCommand::RunAsEnableCommandParseOptionArgument(int option, std::strin
             break;
         case 'a':
             abilityName = optarg;
+            break;
+        case 't':
+            ret = ConvertStringToAdminType(optarg, adminType);
             break;
         default:
             break;
@@ -183,6 +202,7 @@ ErrCode EdmCommand::ReportMessage(int32_t code, bool isEnable)
     }
     if (code == EdmReturnErrCode::COMPONENT_INVALID || code == EdmReturnErrCode::ENABLE_ADMIN_FAILED ||
         code == EdmReturnErrCode::DISABLE_ADMIN_FAILED) {
+        resultReceiver_.append("errorCode: " + std::to_string(code));
         return code;
     }
     if (isEnable) {
@@ -194,6 +214,20 @@ ErrCode EdmCommand::ReportMessage(int32_t code, bool isEnable)
         return ERR_OK;
     }
     return code;
+}
+
+ErrCode EdmCommand::ConvertStringToAdminType(std::string optarg, AdminType &adminType)
+{
+    ErrCode ret = ERR_OK;
+    if (optarg == ADMIN_TYPE_ENT_STRING) {
+        adminType = AdminType::ENT;
+    } else if (optarg == ADMIN_TYPE_BYOD_STRING) {
+        adminType = AdminType::BYOD;
+    } else {
+        adminType = AdminType::UNKNOWN;
+        ret = ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE;
+    }
+    return ret;
 }
 } // namespace EDM
 } // namespace OHOS

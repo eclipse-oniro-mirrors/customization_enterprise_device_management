@@ -30,8 +30,8 @@ public:
     {
         policyCode_ = 0;
         policyName_ = "TestPlugin";
-        permissionConfig_.permission = "ohos.permission.EDM_TEST_PERMISSION";
-        permissionConfig_.permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN;
+        permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+            "ohos.permission.EDM_TEST_PERMISSION";
         permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
         EDMLOGD("TestPlugin constructor");
     }
@@ -76,8 +76,9 @@ public:
     {
         policyCode_ = 1;
         policyName_ = "TestExtensionPlugin";
-        permissionConfig_.permission = "ohos.permission.EDM_TEST_PERMISSION";
-        permissionConfig_.permissionType = IPlugin::PermissionType::NORMAL_DEVICE_ADMIN;
+        permissionConfig_.typePermissions.clear();
+        permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::NORMAL_DEVICE_ADMIN,
+            "ohos.permission.EDM_TEST_PERMISSION");
         permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
         EDMLOGD("TestExtensionPlugin constructor");
     }

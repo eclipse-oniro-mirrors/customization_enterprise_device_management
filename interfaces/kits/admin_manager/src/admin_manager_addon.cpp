@@ -15,17 +15,27 @@
 
 #include "admin_manager_addon.h"
 
+#include "ability_context.h"
+#include "ability_manager_client.h"
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "napi_base_context.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
 #include "system_ability_definition.h"
 
 using namespace OHOS::EDM;
-
+const std::string ADMIN_PROVISIONING_ABILITY_NAME = "ByodAdminProvisionAbility";
+const int32_t JS_BYOD_TYPE = 2;
+const uint32_t MAX_ADMINPROVISION_PARAM_NUM = 10;
+const uint32_t MIN_ACTIVATEID_LEN = 32;
+const uint32_t MAX_ACTIVATEID_LEN = 256;
+const uint32_t MAX_CUSTOMIZEDINFO_LEN = 10240;
+const std::string ACTIVATEID = "activateId";
+const std::string CUSTOMIZEDINFO = "customizedInfo";
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
@@ -49,9 +59,9 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseEnterpriseInfo(env, asyncCallbackInfo->entInfo, argv[ARR_INDEX_ONE]),
         "Parameter enterprise info error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->adminType, argv[ARR_INDEX_TWO]),
-        "Parameter admin type error");
-
+    int32_t jsAdminType;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsAdminType, argv[ARR_INDEX_TWO]), "Parameter admin type error");
+    asyncCallbackInfo->adminType = JsAdminTypeToAdminType(jsAdminType);
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s , adminType:%{public}d",
         asyncCallbackInfo->elementName.GetBundleName().c_str(), asyncCallbackInfo->elementName.GetAbilityName().c_str(),
@@ -74,9 +84,32 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
+int32_t AdminManager::JsAdminTypeToAdminType(int32_t jsAdminType)
+{
+    if (jsAdminType == JS_BYOD_TYPE) {
+        return static_cast<int32_t>(AdminType::BYOD);
+    }
+    if (jsAdminType == static_cast<int32_t>(AdminType::NORMAL) || jsAdminType == static_cast<int32_t>(AdminType::ENT)) {
+        return jsAdminType;
+    }
+    return static_cast<int32_t>(AdminType::UNKNOWN);
+}
+
+int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
+{
+    if (AdminType == static_cast<int32_t>(AdminType::BYOD)) {
+        return JS_BYOD_TYPE;
+    }
+    if (AdminType == static_cast<int32_t>(AdminType::NORMAL) || AdminType == static_cast<int32_t>(AdminType::ENT)) {
+        return AdminType;
+    }
+    return static_cast<int32_t>(AdminType::UNKNOWN);
+}
+
 AdminType AdminManager::ParseAdminType(int32_t type)
 {
-    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT)) {
+    if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT) ||
+        type == static_cast<int32_t>(AdminType::BYOD)) {
         return static_cast<AdminType>(type);
     }
     return AdminType::UNKNOWN;
@@ -703,6 +736,108 @@ napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info i
     return result;
 }
 
+napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
+{
+    auto asnycCallbackInfo = new (std::nothrow) AsyncGetAdminsCallbackInfo();
+    if (asnycCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncGetAdminsCallbackInfo> callbackPtr{asnycCallbackInfo};
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asnycCallbackInfo, "GetAdmins", NativeGetAdmins, NativeGetAdminsComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_StartAdminProvision called.");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+    int32_t jsAdminType;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsAdminType, argv[ARR_INDEX_ONE]),
+        "parameter adminType error");
+    bool stageMode = false;
+    napi_status status = OHOS::AbilityRuntime::IsStageContext(env, argv[ARR_INDEX_TWO], stageMode);
+    ASSERT_AND_THROW_PARAM_ERROR(env, status == napi_ok && stageMode,
+        "Parse param context failed, must be a context of stageMode.");
+    auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[ARR_INDEX_TWO]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, context != nullptr, "Parse param context failed, must not be nullptr.");
+    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
+    ASSERT_AND_THROW_PARAM_ERROR(env, uiAbilityContext != nullptr,
+        "Parse param context failed, must be UIAbilityContext.");
+    std::map<std::string, std::string> parameters;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, parameters, argv[ARR_INDEX_THREE]),
+        "parameter parameters error");
+    int32_t adminType = JsAdminTypeToAdminType(jsAdminType);
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckByodParams(elementName, uiAbilityContext->GetBundleName(), adminType,
+        parameters), "byod parameters error");
+    std::string bundleName;
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->CheckAndGetAdminProvisionInfo(elementName, bundleName);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    AppExecFwk::ElementName adminProvisionElement("", bundleName, ADMIN_PROVISIONING_ABILITY_NAME);
+    AAFwk::Want want;
+    want.SetElement(adminProvisionElement);
+    want.SetParam("bundleName", elementName.GetBundleName());
+    want.SetParam("abilityName", elementName.GetAbilityName());
+    for (auto &param : parameters) {
+        want.SetParam(param.first, param.second);
+    }
+    auto token = uiAbilityContext->GetToken();
+    ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    }
+    return nullptr;
+}
+
+bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
+    int32_t adminType, std::map<std::string, std::string> &parameters)
+{
+    if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
+        EDMLOGE("CheckByodParams: bundleName or abilityName is empty.");
+        return false;
+    }
+    if (callerBundleName != elementName.GetBundleName()) {
+        EDMLOGE("CheckByodParams: callerBundleName is not the input bundleName.");
+        return false;
+    }
+    if (adminType != static_cast<int32_t>(AdminType::BYOD)) {
+        EDMLOGE("CheckByodParams: admin type is not byod.");
+        return false;
+    }
+    if (parameters.size() > MAX_ADMINPROVISION_PARAM_NUM) {
+        EDMLOGE("CheckByodParams: parameters size is too much. Max is ten.");
+        return false;
+    }
+    if (parameters.find(ACTIVATEID) == parameters.end()) {
+        EDMLOGE("CheckByodParams: activateId is not exist.");
+        return false;
+    }
+    size_t activateIdLen = parameters[ACTIVATEID].length();
+    if (activateIdLen < MIN_ACTIVATEID_LEN || activateIdLen > MAX_ACTIVATEID_LEN) {
+        EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}zu",
+            activateIdLen);
+        return false;
+    }
+    if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
+        parameters[CUSTOMIZEDINFO].length() > MAX_CUSTOMIZEDINFO_LEN) {
+        EDMLOGE("CheckByodParams: the length of customizedInfo is more than 10240.");
+        return false;
+    }
+    return true;
+}
+
 void AdminManager::CreateAdminTypeObject(napi_env env, napi_value value)
 {
     napi_value nNomal;
@@ -711,6 +846,9 @@ void AdminManager::CreateAdminTypeObject(napi_env env, napi_value value)
     napi_value nSuper;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(AdminType::ENT), &nSuper));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_SUPER", nSuper));
+    napi_value nByod;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, JS_BYOD_TYPE, &nByod));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ADMIN_TYPE_BYOD", nByod));
 }
 
 void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
@@ -782,6 +920,38 @@ void AdminManager::NativeGetSuperAdminComplete(napi_env env, napi_status status,
     delete asyncCallbackInfo;
 }
 
+void AdminManager::NativeGetAdmins(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetAdmins called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncGetAdminsCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetAdminsCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    asyncCallbackInfo->ret = proxy->GetAdmins(asyncCallbackInfo->wants);
+}
+
+void AdminManager::NativeGetAdminsComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncGetAdminsCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGD("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value admins = ConvertWantToJsWithType(env, asyncCallbackInfo->wants);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, admins);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
 napi_value AdminManager::ConvertWantToJs(napi_env env, const std::string &bundleName,
     const std::string &abilityName)
 {
@@ -793,6 +963,35 @@ napi_value AdminManager::ConvertWantToJs(napi_env env, const std::string &bundle
     napi_value abilityNameToJs = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, abilityName.c_str(), NAPI_AUTO_LENGTH, &abilityNameToJs));
     NAPI_CALL(env, napi_set_named_property(env, result, "abilityName", abilityNameToJs));
+    return result;
+}
+
+napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    size_t idx = 0;
+    for (std::shared_ptr<AAFwk::Want> want : wants) {
+        std::string bundleName = want->GetStringParam("bundleName");
+        std::string abilityName = want->GetStringParam("abilityName");
+        int32_t adminType = want->GetIntParam("adminType", -1);
+        if (bundleName.empty() || abilityName.empty() || adminType == -1) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+            return nullptr;
+        }
+        napi_value wantItem = ConvertWantToJs(env, bundleName, abilityName);
+        if (wantItem == nullptr) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+            return nullptr;
+        }
+        napi_value parameters = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &parameters));
+        napi_value adminTypeToJs = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, AdminTypeToJsAdminType(adminType), &adminTypeToJs));
+        NAPI_CALL(env, napi_set_named_property(env, parameters, "adminType", adminTypeToJs));
+        NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
+        NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));
+    }
     return result;
 }
 
@@ -823,6 +1022,8 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setDelegatedPolicies", SetDelegatedPolicies),
         DECLARE_NAPI_FUNCTION("getDelegatedPolicies", GetDelegatedPolicies),
         DECLARE_NAPI_FUNCTION("getDelegatedBundleNames", GetDelegatedBundleNames),
+        DECLARE_NAPI_FUNCTION("startAdminProvision", StartAdminProvision),
+        DECLARE_NAPI_FUNCTION("getAdmins", GetAdmins),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
