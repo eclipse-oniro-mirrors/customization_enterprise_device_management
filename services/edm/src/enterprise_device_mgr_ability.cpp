@@ -1779,20 +1779,11 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
 
 bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 {
-    switch (event) {
-        case static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED):
-        case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
-        case static_cast<uint32_t>(ManagedEvent::APP_START):
-        case static_cast<uint32_t>(ManagedEvent::APP_STOP):
-        case static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE):
-        case static_cast<uint32_t>(ManagedEvent::USER_ADDED):
-        case static_cast<uint32_t>(ManagedEvent::USER_SWITCHED):
-        case static_cast<uint32_t>(ManagedEvent::USER_REMOVED):
-            break;
-        default:
-            return false;
+    if (event >= static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED) &&
+        event <= static_cast<uint32_t>(ManagedEvent::USER_REMOVED)) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName)
