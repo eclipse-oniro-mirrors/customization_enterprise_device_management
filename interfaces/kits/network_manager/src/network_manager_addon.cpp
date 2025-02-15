@@ -1120,12 +1120,12 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodS
         if (!isParseOk) {
             return false;
         }
-        int32_t accountId = -1;
-        httpProxy.SetUserId(accountId);
         if (!httpProxy.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommon Marshalling proxy fail.");
             return false;
         }
+        int32_t accountId = -1;
+        data.WriteInt32(accountId);
         return true;
     };
     addonMethodSign.name = "SetGlobalHttpProxy";
