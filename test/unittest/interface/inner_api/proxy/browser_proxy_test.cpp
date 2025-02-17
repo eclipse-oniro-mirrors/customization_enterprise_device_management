@@ -177,6 +177,138 @@ HWTEST_F(BrowserProxyTest, TestGetPoliciesWithTwoParamsFail, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policies.empty());
 }
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicy
+ * @tc.desc: Test SetManagedBrowserPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicySuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    MessageParcel data;
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyFail
+ * @tc.desc: Test SetManagedBrowserPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetManagedBrowserPolicySuc
+ * @tc.desc: Test GetManagedBrowserPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetManagedBrowserPolicySuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetManagedBrowserPolicy));
+    MessageParcel data;
+    void* rawData = nullptr;
+    int32_t size = -1;
+    ErrCode ret = browserProxy_->GetManagedBrowserPolicy(data, &rawData, size);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(rawData != nullptr);
+    ASSERT_TRUE(size == 200);
+    free(rawData);
+}
+
+/**
+ * @tc.name: TestGetManagedBrowserPolicyFail
+ * @tc.desc: Test GetManagedBrowserPolicy fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetManagedBrowserPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
+    void* rawData = nullptr;
+    int32_t size = -1;
+    ErrCode ret = browserProxy_->GetManagedBrowserPolicy(data, &rawData, size);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetSelfManagedBrowserPolicyVersionSuc
+ * @tc.desc: Test GetSelfManagedBrowserPolicyVersion success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetSelfManagedBrowserPolicyVersionSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    MessageParcel data;
+    int32_t version = -1;
+    ErrCode ret = browserProxy_->GetSelfManagedBrowserPolicyVersion(version);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(version == 0);
+}
+
+/**
+ * @tc.name: TestGetSelfManagedBrowserPolicyVersionFail
+ * @tc.desc: Test GetSelfManagedBrowserPolicyVersion fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetSelfManagedBrowserPolicyVersionFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
+    int32_t version = -1;
+    ErrCode ret = browserProxy_->GetSelfManagedBrowserPolicyVersion(version);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetSelfManagedBrowserPolicySuc
+ * @tc.desc: Test GetSelfManagedBrowserPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetSelfManagedBrowserPolicySuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetManagedBrowserPolicy));
+    MessageParcel data;
+    void* rawData = nullptr;
+    int32_t size = -1;
+    ErrCode ret = browserProxy_->GetSelfManagedBrowserPolicy(&rawData, size);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(rawData != nullptr);
+    ASSERT_TRUE(size == 200);
+    free(rawData);
+}
+
+/**
+ * @tc.name: TestGetSelfManagedBrowserPolicyFail
+ * @tc.desc: Test GetSelfManagedBrowserPolicy fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetSelfManagedBrowserPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
+    void* rawData = nullptr;
+    int32_t size = -1;
+    ErrCode ret = browserProxy_->GetSelfManagedBrowserPolicy(&rawData, size);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

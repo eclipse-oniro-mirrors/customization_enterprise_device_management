@@ -18,12 +18,14 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<BrowserProxy> BrowserProxy::instance_ = nullptr;
 std::mutex BrowserProxy::mutexLock_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+constexpr int32_t MAX_POLICY_FILE_SIZE = 134217728; // 128 * 1024 * 1024
 
 std::shared_ptr<BrowserProxy> BrowserProxy::GetBrowserProxy()
 {
@@ -125,6 +127,90 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
     std::vector<std::string> params{appId, policyName, policyValue};
     data.WriteStringVector(params);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t BrowserProxy::SetManagedBrowserPolicy(MessageParcel &data)
+{
+    EDMLOGI("BrowserProxy::SetManagedBrowserPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGED_BROWSER_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t BrowserProxy::GetManagedBrowserPolicy(MessageParcel &data, void** rawData, int32_t &size)
+{
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::MANAGED_BROWSER_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetManagedBrowserPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    return GetRawData(reply, rawData, size);
+}
+
+int32_t BrowserProxy::GetSelfManagedBrowserPolicyVersion(int32_t &version)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    data.WriteString(EdmConstants::Browser::GET_MANAGED_BROWSER_VERSION);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::MANAGED_BROWSER_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetSelfManagedBrowserPolicyVersion fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32(version);
+    return ERR_OK;
+}
+
+int32_t BrowserProxy::GetSelfManagedBrowserPolicy(void** rawData, int32_t &size)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    data.WriteString(EdmConstants::Browser::GET_SELF_MANAGED_BROWSER_FILE_DATA);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::MANAGED_BROWSER_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetSelfManagedBrowserPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    return GetRawData(reply, rawData, size);
+}
+
+int32_t BrowserProxy::GetRawData(MessageParcel &reply, void** rawData, int32_t &size)
+{
+    reply.ReadInt32(size);
+    if (size < 0 || size >= MAX_POLICY_FILE_SIZE) {
+        EDMLOGE("BrowserProxy::GetRawData fileData.size error.size: %{public}d",
+            size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    void* tempData = const_cast<void*>(reply.ReadRawData(size));
+    *rawData = malloc(size);
+    if (*rawData == nullptr) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetManagedBrowserPolicy malloc fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    errno_t cpRet = memcpy_s(*rawData, size, tempData, size);
+    if (cpRet != EOK) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetManagedBrowserPolicy memcpy fail.ret:%{public}d", cpRet);
+        free(*rawData);
+        *rawData = nullptr;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

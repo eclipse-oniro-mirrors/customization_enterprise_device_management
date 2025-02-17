@@ -28,9 +28,14 @@ public:
     int32_t GetPolicies(std::string &policies);
     int32_t SetPolicy(const AppExecFwk::ElementName &admin, const std::string &appId, const std::string &policyName,
         const std::string &policyValue);
+    int32_t SetManagedBrowserPolicy(MessageParcel &data);
+    int32_t GetManagedBrowserPolicy(MessageParcel &data, void** rawData, int32_t &size);
+    int32_t GetSelfManagedBrowserPolicyVersion(int32_t &version);
+    int32_t GetSelfManagedBrowserPolicy(void** rawData, int32_t &size);
 
 private:
     int32_t GetPolicies(AppExecFwk::ElementName *admin, const std::string &appId, std::string &policies);
+    int32_t GetRawData(MessageParcel& reply, void** rawData, int32_t& size);
     static std::shared_ptr<BrowserProxy> instance_;
     static std::mutex mutexLock_;
 };
