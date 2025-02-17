@@ -381,8 +381,7 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
-    data.WriteInt32(accountId);
+    data.WriteInt32(WITHOUT_USERID);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
@@ -393,6 +392,7 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
         }
         data.WriteInt32(WITHOUT_ADMIN);
     }
+    data.WriteInt32(accountId);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
