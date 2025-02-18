@@ -198,6 +198,10 @@ int32_t BrowserProxy::GetRawData(MessageParcel &reply, void** rawData, int32_t &
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     void* tempData = const_cast<void*>(reply.ReadRawData(size));
+    if (tempData == nullptr) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetRawData ReadRawData fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     *rawData = malloc(size);
     if (*rawData == nullptr) {
         EDMLOGW("EnterpriseDeviceMgrProxy:GetManagedBrowserPolicy malloc fail.");
