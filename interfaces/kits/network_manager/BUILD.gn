@@ -46,6 +46,10 @@ ohos_shared_library("networkmanager") {
     defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true

@@ -120,6 +120,10 @@ private:
     static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
     static napi_value GetGlobalHttpProxySync(napi_env env, napi_callback_info info);
+    static napi_value SetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info);
+    static napi_value GetGlobalHttpProxyCommon(napi_env env, napi_value *argv, size_t argc, bool hasAdmin,
+        OHOS::AppExecFwk::ElementName &elementName, int32_t accountId);
 };
 } // namespace EDM
 } // namespace OHOS

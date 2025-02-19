@@ -341,7 +341,7 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(const AppExecFwk::ElementName 
 
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &admin,
-    const NetManagerStandard::HttpProxy &httpProxy)
+    const NetManagerStandard::HttpProxy &httpProxy, int32_t accountId)
 {
     EDMLOGD("NetworkManagerProxy::SetGlobalHttpProxy");
     MessageParcel data;
@@ -354,13 +354,14 @@ int32_t NetworkManagerProxy::SetGlobalHttpProxy(const AppExecFwk::ElementName &a
         EDMLOGE("NetworkManagerProxy::SetGlobalHttpProxy Marshalling proxy fail.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    data.WriteInt32(accountId);
     int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
     EDMLOGI("NetworkManagerProxy::SetGlobalHttpProxy ret = %{public}d", ret);
     return ret;
 }
 
 int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *admin,
-    NetManagerStandard::HttpProxy &httpProxy)
+    NetManagerStandard::HttpProxy &httpProxy, int32_t accountId)
 {
     EDMLOGD("NetworkManagerProxy::GetGlobalHttpProxy");
     MessageParcel data;
@@ -377,6 +378,7 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
         }
         data.WriteInt32(WITHOUT_ADMIN);
     }
+    data.WriteInt32(accountId);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GLOBAL_PROXY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);

@@ -29,7 +29,10 @@ bool HttpProxySerializer::Serialize(const NetManagerStandard::HttpProxy &config,
 
 bool HttpProxySerializer::GetPolicy(MessageParcel &data, NetManagerStandard::HttpProxy &httpProxy)
 {
-    return OHOS::NetManagerStandard::HttpProxy::Unmarshalling(data, httpProxy);
+    bool res = OHOS::NetManagerStandard::HttpProxy::Unmarshalling(data, httpProxy);
+    int32_t userId = data.ReadInt32();
+    httpProxy.SetUserId(userId);
+    return res;
 }
 
 bool HttpProxySerializer::WritePolicy(MessageParcel &reply, NetManagerStandard::HttpProxy &result)
