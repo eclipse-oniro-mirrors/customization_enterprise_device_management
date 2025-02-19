@@ -1200,7 +1200,7 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callba
 napi_value NetworkManagerAddon::SetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetGlobalHttpProxyForAccountSync called");
-#ifdef NETMANAGER_BASE_EDM_ENABLE
+#if defined(FEATURE_PC_ONLY) && defined(NETMANAGER_BASE_EDM_ENABLE)
     AddonMethodSign addonMethodSign;
     SetGlobalHttpProxyCommonForAccount(addonMethodSign);
 
@@ -1279,7 +1279,7 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callba
 napi_value NetworkManagerAddon::GetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetGlobalHttpProxyForAccountSync called");
-#ifdef NETMANAGER_BASE_EDM_ENABLE
+#if defined(FEATURE_PC_ONLY) && defined(NETMANAGER_BASE_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
