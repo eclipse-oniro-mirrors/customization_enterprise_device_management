@@ -74,7 +74,7 @@ void IptablesUtils::ReadRemoveFilterConfig(RemoveFilter &filter, MessageParcel &
 
 bool IptablesUtils::ProcessFirewallAction(int32_t type, Action &action)
 {
-    if (type >= static_cast<int32_t>(Action::ALLOW) && type <= static_cast<int32_t>(Action::DENY)) {
+    if (type >= static_cast<int32_t>(Action::ALLOW) && type <= static_cast<int32_t>(Action::REJECT)) {
         action = Action(type);
         return true;
     }
@@ -92,7 +92,7 @@ bool IptablesUtils::ProcessFirewallMethod(int32_t type, AddMethod &method)
 
 bool IptablesUtils::ProcessFirewallDirection(int32_t type, Direction &direction)
 {
-    if (type >= static_cast<int32_t>(Direction::INPUT) && type <= static_cast<int32_t>(Direction::OUTPUT)) {
+    if (type >= static_cast<int32_t>(Direction::INPUT) && type <= static_cast<int32_t>(Direction::FORWARD)) {
         direction = Direction(type);
         return true;
     }

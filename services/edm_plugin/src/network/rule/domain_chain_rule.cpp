@@ -61,10 +61,10 @@ std::string DomainChainRule::Parameter() const
     return parameter.str();
 }
 
-DomainFilterRule DomainChainRule::ToFilterRule()
+DomainFilterRule DomainChainRule::ToFilterRule(Direction direction)
 {
     Action action = RuleUtils::StringToAction(target_);
-    return {action, appUid_, domainName_};
+    return {action, appUid_, domainName_, direction};
 }
 
 std::string DomainChainRule::DomainToFormatData(const std::string &domainName)

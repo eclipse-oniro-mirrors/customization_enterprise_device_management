@@ -26,16 +26,19 @@ bool DomainFilterRuleParcel::Marshalling(MessageParcel& parcel) const
     parcel.WriteUint32(static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule_)));
     parcel.WriteString(std::get<DOMAIN_APPUID_IND>(rule_));
     parcel.WriteString(std::get<DOMAIN_DOMAINNAME_IND>(rule_));
+    parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_DIRECTION_IND>(rule_)));
     return true;
 }
 
 bool DomainFilterRuleParcel::Unmarshalling(MessageParcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel)
 {
     IPTABLES::Action action = IPTABLES::Action::INVALID;
+    IPTABLES::Direction direction = IPTABLES::Direction::INVALID;
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
     std::string appUid = parcel.ReadString();
     std::string domainName = parcel.ReadString();
-    domainFilterRuleParcel.rule_ = {action, appUid, domainName};
+    IptablesUtils::ProcessFirewallDirection(parcel.ReadInt32(), direction);
+    domainFilterRuleParcel.rule_ = {action, appUid, domainName, direction};
     return true;
 }
 

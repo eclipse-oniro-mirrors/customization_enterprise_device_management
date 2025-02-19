@@ -38,6 +38,9 @@ void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value va
     napi_value nDeny;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::DENY), &nDeny));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DENY", nDeny));
+    napi_value nReject;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Action::REJECT), &nReject));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "REJECT", nReject));
 }
 
 void NetworkManagerAddon::CreateFirewallProtocolObject(napi_env env, napi_value value)
@@ -748,7 +751,7 @@ napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
+    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID};
     ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
         "DomainFilterRule param error");
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddDomainFilterRule(elementName, rule);
@@ -776,7 +779,7 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", ""};
+    IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID};
     if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
             "DomainFilterRule param error");
@@ -831,7 +834,11 @@ bool NetworkManagerAddon::JsObjToDomainFilterRule(napi_env env, napi_value objec
     std::string domainName;
     JsObjectToString(env, object, "domainName", false, domainName);
 
-    rule = {actionEnum, appUid, domainName};
+    int32_t direction = -1;
+    JsObjectToInt(env, object, "direction", false, direction);
+    IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
+    rule = {actionEnum, appUid, domainName, directionEnum};
     return true;
 }
 
@@ -840,6 +847,8 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     napi_value jsRule = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsRule));
 
+    napi_value direction = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_DIRECTION_IND>(rule)), &direction));
     napi_value action = nullptr;
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_ACTION_IND>(rule)), &action));
     napi_value appUid = nullptr;
@@ -848,10 +857,10 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     napi_value domainName = nullptr;
     std::string domainNameStr = std::get<DOMAIN_DOMAINNAME_IND>(rule);
     NAPI_CALL(env, napi_create_string_utf8(env, domainNameStr.c_str(), domainNameStr.length(), &domainName));
-
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "domainName", domainName));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direcion", direction));
     return jsRule;
 }
 

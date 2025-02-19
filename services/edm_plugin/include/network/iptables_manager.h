@@ -48,20 +48,38 @@ public:
 
 private:
     ErrCode GetRemoveChainName(Direction direction, Action action, std::vector<std::string> &chainNameList);
+    ErrCode GetDomainRemoveChainName(Direction direction, Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveInputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
+    void GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
 
-    bool ExistAllowFirewallRule();
-    bool ExistAllowDomainRule();
+    bool ExistOutputAllowFirewallRule();
+    bool ExistForwardAllowFirewallRule();
+    bool ExistOutputAllowDomainRule();
+    bool ExistForwardAllowDomainRule();
+    bool CheckRemoveDomainParams(Direction direction, Action action, std::string appUid, std::string domainName);
+    bool CheckRemoveFirewallParams(Direction direction, FirewallRule rule);
+    bool CheckAddFirewallParams(Direction direction, FirewallRule rule);
+    bool GetFirewallChainName(Direction direction, Action action, std::string& chainName);
 
     bool ChainExistRule(const std::vector<std::string> &chainNames);
+    void ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
+        std::vector<std::string> ruleList, Direction direction);
 
-    static void SetDefaultFirewallDenyChain();
-    static void ClearDefaultFirewallDenyChain();
-    static void SetDefaultDomainDenyChain();
-    static void ClearDefaultDomainDenyChain();
+    static void SetDefaultFirewallDenyChain(Direction direction);
+    static void ClearDefaultFirewallOutputDenyChain();
+    static void ClearDefaultFirewallForwardDenyChain();
+    static void SetDefaultDomainDenyChain(Direction direction);
+    static void ClearDefaultDomainOutputDenyChain();
+    static void ClearDefaultDomainForwardDenyChain();
 
     static bool g_chainInit;
-    static bool g_defaultFirewallChainInit;
-    static bool g_defaultDomainChainInit;
+    static bool g_defaultFirewallOutputChainInit;
+    static bool g_defaultFirewallForwardChainInit;
+    static bool g_defaultDomainOutputChainInit;
+    static bool g_defaultDomainForwardChainInit;
 
     static std::shared_ptr<IptablesManager> instance_;
     static std::mutex mutexLock_;

@@ -481,7 +481,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddAddDomainFilterRuleSuc, TestSize.Level1
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
     int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -496,7 +496,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
     int32_t ret = networkManagerProxy->AddDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
@@ -513,7 +513,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleSuc, TestSize.Level1
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
     int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -528,7 +528,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleFail, TestSize.Level
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com"};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
     int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
