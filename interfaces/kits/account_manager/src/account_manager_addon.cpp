@@ -34,6 +34,8 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disallowOsAccountAddition", DisallowAddOsAccount),
         DECLARE_NAPI_FUNCTION("isOsAccountAdditionDisallowed", IsAddOsAccountDisallowed),
         DECLARE_NAPI_FUNCTION("addOsAccountAsync", AddOsAccountAsync),
+        DECLARE_NAPI_FUNCTION("setDomainAccountPolicy", SetDomainAccountPolicy),
+        DECLARE_NAPI_FUNCTION("getDomainAccountPolicy", GetDomainAccountPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -476,6 +478,160 @@ void AccountManagerAddon::NativeAddOsAccountCallbackComplete(napi_env env, napi_
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
+}
+#endif
+
+napi_value AccountManagerAddon::SetDomainAccountPolicy(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
+    EDMLOGI("NAPI_SetDomainAccountPolicy called");
+    auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
+        bool isDomainAccountInfo = ParseDomainAccountInfo(env, domainAccountInfo, argv);
+        if (!isDomainAccountInfo) {
+            return false;
+        }
+        domainAccountInfo.Marshalling(data);
+        return true;
+    };
+    auto convertDomainAccountPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        DomainAccountPolicy domainAccountPolicy;
+        bool isDomainAccountPolicy = ParseDomainAccountPolicy(env, domainAccountPolicy, argv);
+        if (!isDomainAccountPolicy) {
+            return false;
+        }
+        domainAccountPolicy.Marshalling(data);
+        return true;
+    };
+
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetDomainAccountPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertDomainAccountInfo2Data, convertDomainAccountPolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->SetDomainAccountPolicy(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("NAPI_SetDomainAccountPolicy failed!");
+    }
+    return nullptr;
+#else
+    EDMLOGW("AccountManagerAddon::SetDomainAccountPolicy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
+    EDMLOGI("NAPI_GetDomainAccountPolicy called");
+    auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
+        bool isDomainAccountInfo = ParseDomainAccountInfo(env, domainAccountInfo, argv);
+        if (!isDomainAccountInfo) {
+            return false;
+        }
+        domainAccountInfo.Marshalling(data);
+        return true;
+    };
+
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDomainAccountPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertDomainAccountInfo2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value jsObjectToData = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (jsObjectToData == nullptr) {
+        return nullptr;
+    }
+
+    MessageParcel reply;
+    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->GetDomainAccountPolicy(adapterAddonData.data, reply);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("NAPI_GetDomainAccountPolicy failed!");
+    }
+    DomainAccountPolicy domainAccountPolicy;
+    DomainAccountPolicy::Unmarshalling(reply, domainAccountPolicy);
+    napi_value result;
+    napi_create_object(env, &result);
+    napi_value value = nullptr;
+    
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.authenticationValidityPeriod, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "authenticationValidityPeriod", value));
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordValidityPeriod, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
+    return result;
+#else
+    EDMLOGW("AccountManagerAddon::GetDomainAccountPolicy Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+
+bool AccountManagerAddon::ParseDomainAccountPolicy(napi_env env, DomainAccountPolicy &domainAccountPolicy,
+    napi_value args)
+{
+    napi_valuetype valueType;
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_object) {
+        EDMLOGE("Parse DomainAccountPolicy error");
+        return false;
+    }
+
+    int32_t authenticationValidityPeriod;
+    int32_t passwordValidityPeriod;
+    int32_t passwordExpirationNotification;
+    if (!JsObjectToInt(env, args, "authenticationValidityPeriod", true, authenticationValidityPeriod) ||
+        !JsObjectToInt(env, args, "passwordValidityPeriod", true, passwordValidityPeriod) ||
+        !JsObjectToInt(env, args, "passwordExpirationNotification", true, passwordExpirationNotification)) {
+        EDMLOGE("AccountManagerAddon::ParseDomainAccountPolicy param error");
+        return false;
+    }
+    domainAccountPolicy.authenticationValidityPeriod = authenticationValidityPeriod;
+    domainAccountPolicy.passwordValidityPeriod = passwordValidityPeriod;
+    domainAccountPolicy.passwordExpirationNotification = passwordExpirationNotification;
+    return true;
+}
+
+#if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
+bool AccountManagerAddon::ParseDomainAccountInfo(napi_env env, OHOS::AccountSA::DomainAccountInfo &domainAccountInfo,
+    napi_value args)
+{
+    napi_valuetype valueType;
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_object) {
+        EDMLOGE("Parse DomainAccountInfo error");
+        return false;
+    }
+    std::string accountId;
+    std::string accountName;
+    std::string domain;
+    std::string serverConfigId;
+    if (!JsObjectToString(env, args, "accountId", false, accountId) ||
+        !JsObjectToString(env, args, "accountName", true, accountName) ||
+        !JsObjectToString(env, args, "domain", true, domain) ||
+        !JsObjectToString(env, args, "serverConfigId", false, serverConfigId)) {
+        EDMLOGE("AccountManagerAddon::ParseDomainAccountInfo param error");
+        return false;
+    }
+    domainAccountInfo.accountId_ = accountId;
+    domainAccountInfo.accountName_ = accountName;
+    domainAccountInfo.domain_ = domain;
+    domainAccountInfo.serverConfigId_ = serverConfigId;
+    return true;
 }
 #endif
 
