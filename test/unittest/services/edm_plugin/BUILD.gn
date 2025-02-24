@@ -42,6 +42,7 @@ ohos_unittest("EdmPluginTest") {
     "../../common/mock/src/edm_data_ability_utils_mock.cpp",
     "./src/bundle_install_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
+    "./src/disable_maintenance_mode_plugin_test.cpp",
     "./src/disable_mtp_client_plugin_test.cpp",
     "./src/disable_mtp_server_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
