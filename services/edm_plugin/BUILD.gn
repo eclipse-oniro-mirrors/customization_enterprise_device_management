@@ -113,6 +113,11 @@ ohos_shared_library("edmplugin") {
       defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
     }
 
+    if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+      external_deps += [ "os_account:domain_account_innerkits" ]
+      sources += [ "./src/set_domain_account_policy_plugin.cpp" ]
+    }
+
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
       sources += [ "./src/lock_screen_plugin.cpp" ]
