@@ -28,7 +28,7 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 {
     EDMLOGI("NotifyUpdatePackagesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, "notify_upgrade_packages",
-        "ohos.permission.ENTERPRISE_MANAGE_SYSTEM", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(UpgradePackageInfoSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&NotifyUpdatePackagesPlugin::OnSetPolicy, FuncOperateType::SET);
 }

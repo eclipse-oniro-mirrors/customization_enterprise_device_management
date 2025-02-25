@@ -15,6 +15,7 @@
 
 #include "iptables_rule_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
@@ -36,7 +37,7 @@ IptablesRulePlugin::IptablesRulePlugin()
     policyCode_ = EdmInterfaceCode::IPTABLES_RULE;
     policyName_ = "iptables_rule";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     permissionConfig_.apiType = IPlugin::ApiType::SYSTEM;
     needSave_ = false;
 }

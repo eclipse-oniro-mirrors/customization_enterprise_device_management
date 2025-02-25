@@ -28,9 +28,9 @@ std::string DisallowedRunningBundlesQuery::GetPolicyName()
 std::string DisallowedRunningBundlesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
-        return "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY";
+        return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY;
     }
-    return "ohos.permission.ENTERPRISE_MANAGE_APPLICATION";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
 }
 
 ErrCode DisallowedRunningBundlesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

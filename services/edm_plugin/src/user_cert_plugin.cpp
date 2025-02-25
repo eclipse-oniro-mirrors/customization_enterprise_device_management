@@ -20,6 +20,7 @@
 
 #include "cert_manager_api.h"
 #include "cm_type.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
@@ -55,7 +56,7 @@ UserCertPlugin::UserCertPlugin()
     policyCode_ = EdmInterfaceCode::INSTALL_CERTIFICATE;
     policyName_ = "install_certificate";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_CERTIFICATE);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }

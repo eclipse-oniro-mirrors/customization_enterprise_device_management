@@ -26,7 +26,7 @@ std::string InactiveUserFreezeQuery::GetPolicyName()
 
 std::string InactiveUserFreezeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode InactiveUserFreezeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

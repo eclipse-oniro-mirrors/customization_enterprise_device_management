@@ -34,7 +34,7 @@ void AllowedBluetoothDevicesPlugin::InitPlugin(
 {
     EDMLOGI("AllowedBluetoothDevicesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, "allowed_bluetooth_devices",
-        "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyDoneListener(&AllowedBluetoothDevicesPlugin::OnChangedPolicyDone, FuncOperateType::SET);

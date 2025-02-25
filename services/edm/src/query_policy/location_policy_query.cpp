@@ -29,7 +29,7 @@ std::string LocationPolicyQuery::GetPolicyName()
 
 std::string LocationPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_LOCATION";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_LOCATION;
 }
 
 ErrCode LocationPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

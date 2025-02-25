@@ -26,7 +26,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ShutdownPl
 void ShutdownPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, int32_t>> ptr)
 {
     EDMLOGI("ShutdownPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SHUTDOWN, "shutdown_device", "ohos.permission.ENTERPRISE_REBOOT",
+    ptr->InitAttribute(EdmInterfaceCode::SHUTDOWN, "shutdown_device", EdmPermission::PERMISSION_ENTERPRISE_REBOOT,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ShutdownPlugin::OnSetPolicy, FuncOperateType::SET);

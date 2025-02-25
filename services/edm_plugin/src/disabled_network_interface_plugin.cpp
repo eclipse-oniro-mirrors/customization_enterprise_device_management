@@ -38,9 +38,9 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForSet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForSet;
     typePermissionsForTag11ForSet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_SET_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_SET_NETWORK);
     typePermissionsForTag12ForSet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     tagPermissionsForSet.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11ForSet);
     tagPermissionsForSet.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12ForSet);
     IPlugin::PolicyPermissionConfig setConfig = IPlugin::PolicyPermissionConfig(tagPermissionsForSet,
@@ -51,9 +51,9 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForGet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForGet;
     typePermissionsForTag11ForGet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO");
+        EdmPermission::PERMISSION_ENTERPRISE_GET_NETWORK_INFO);
     typePermissionsForTag12ForGet.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     tagPermissionsForGet.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11ForGet);
     tagPermissionsForGet.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12ForGet);
     IPlugin::PolicyPermissionConfig getConfig = IPlugin::PolicyPermissionConfig(tagPermissionsForGet,

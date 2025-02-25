@@ -43,7 +43,7 @@ constexpr int32_t EDM_GID = 3057;
 void InstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstallPlugin, InstallParam>> ptr)
 {
     EDMLOGI("InstallPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::INSTALL, "install", "ohos.permission.ENTERPRISE_INSTALL_BUNDLE",
+    ptr->InitAttribute(EdmInterfaceCode::INSTALL, "install", EdmPermission::PERMISSION_ENTERPRISE_INSTALL_BUNDLE,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(InstallParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&InstallPlugin::OnSetPolicy, FuncOperateType::SET);

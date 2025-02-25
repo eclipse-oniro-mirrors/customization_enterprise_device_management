@@ -31,9 +31,9 @@ std::string DisallowModifyDateTimeQuery::GetPolicyName()
 std::string DisallowModifyDateTimeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
-        return "ohos.permission.ENTERPRISE_SET_DATETIME";
+        return EdmPermission::PERMISSION_ENTERPRISE_SET_DATETIME;
     }
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisallowModifyDateTimeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -16,6 +16,7 @@
 #include "power_policy_plugin.h"
 
 #include "battery_utils.h"
+#include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -38,7 +39,7 @@ PowerPolicyPlugin::PowerPolicyPlugin()
     policyCode_ = EdmInterfaceCode::POWER_POLICY;
     policyName_ = "power_policy";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }

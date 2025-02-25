@@ -30,7 +30,7 @@ void ClipboardPolicyPlugin::InitPlugin(
 {
     EDMLOGI("ClipboardPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::CLIPBOARD_POLICY,
-        "clipboard_policy", "ohos.permission.ENTERPRISE_MANAGE_SECURITY",
+        "clipboard_policy", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ClipboardSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ClipboardPolicyPlugin::OnSetPolicy, FuncOperateType::SET);

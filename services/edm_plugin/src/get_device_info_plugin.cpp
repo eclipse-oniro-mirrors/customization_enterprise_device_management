@@ -37,7 +37,7 @@ void GetDeviceInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceIn
 {
     EDMLOGI("GetDeviceInfoPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_INFO, "get_device_info",
-        "ohos.permission.ENTERPRISE_GET_DEVICE_INFO", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

@@ -27,7 +27,7 @@ std::string AllowedBluetoothDevicesQuery::GetPolicyName()
 
 std::string AllowedBluetoothDevicesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH;
 }
 
 ErrCode AllowedBluetoothDevicesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -37,7 +37,7 @@ void ManageAutoStartAppsPlugin::InitPlugin(
 {
     EDMLOGI("ManageAutoStartAppsPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, "manage_auto_start_apps",
-        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);

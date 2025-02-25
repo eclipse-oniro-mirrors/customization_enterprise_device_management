@@ -77,9 +77,9 @@ HWTEST_F(FirewallRulePluginTest, TestInitPluginSuccess, TestSize.Level1)
     ASSERT_TRUE(plugin->GetCode() == (std::uint32_t)EdmInterfaceCode::FIREWALL_RULE);
     ASSERT_EQ(plugin->GetPolicyName(), "firewall_rule");
     ASSERT_EQ(plugin->GetPermission(FuncOperateType::SET, IPlugin::PermissionType::SUPER_DEVICE_ADMIN),
-        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     ASSERT_TRUE(plugin->GetPermission(FuncOperateType::GET, IPlugin::PermissionType::SUPER_DEVICE_ADMIN)
-        == "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        == EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
 }
 
 /**

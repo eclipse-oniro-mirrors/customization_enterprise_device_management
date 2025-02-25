@@ -43,7 +43,7 @@ ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
     policyCode_ = EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS;
     policyName_ = "manage_keep_alive_apps";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_APPLICATION");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
     maxListSize_ = EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE;

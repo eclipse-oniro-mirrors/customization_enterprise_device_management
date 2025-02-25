@@ -31,9 +31,9 @@ void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePl
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_SET_DATETIME");
+        EdmPermission::PERMISSION_ENTERPRISE_SET_DATETIME);
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_SETTINGS");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 

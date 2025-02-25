@@ -29,7 +29,7 @@ const std::string ADMIN_TYPE_ENT_STRING = "super";
 const std::string ADMIN_TYPE_BYOD_STRING = "byod";
 constexpr int32_t OPTION_NUM = 4;
 
-const struct option LONG_OPTIONS[] = {
+const struct option LONG_OPTIONS[OPTION_NUM] = {
     {"help", no_argument, nullptr, 'h'},
     {"bundle-name", required_argument, nullptr, 'n'},
     {"ability-name", required_argument, nullptr, 'a'},

@@ -34,9 +34,9 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_SET_WIFI");
+        EdmPermission::PERMISSION_ENTERPRISE_SET_WIFI);
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_WIFI");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 

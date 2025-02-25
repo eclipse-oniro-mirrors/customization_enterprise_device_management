@@ -27,7 +27,7 @@ std::string AllowedUsbDevicesQuery::GetPolicyName()
 
 std::string AllowedUsbDevicesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_USB";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB;
 }
 
 ErrCode AllowedUsbDevicesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -27,7 +27,7 @@ std::string DisallowedUninstallBundlesQuery::GetPolicyName()
 
 std::string DisallowedUninstallBundlesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY";
+    return EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY;
 }
 
 ErrCode DisallowedUninstallBundlesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

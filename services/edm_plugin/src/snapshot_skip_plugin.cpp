@@ -31,7 +31,7 @@ void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkip
 {
     EDMLOGI("SnapshotSkipPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SNAPSHOT_SKIP, "snapshot_skip",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnRemovePolicy, FuncOperateType::REMOVE);

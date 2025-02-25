@@ -28,7 +28,7 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
 {
     EDMLOGI("DisallowAddLocalAccountPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, "disallow_add_local_account",
-        "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddLocalAccountPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);

@@ -37,7 +37,7 @@ void AllowUsbDevicesPlugin::InitPlugin(
 {
     EDMLOGI("AllowUsbDevicesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::ALLOWED_USB_DEVICES, "allowed_usb_devices",
-        "ohos.permission.ENTERPRISE_MANAGE_USB", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayUsbDeviceIdSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AllowUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&AllowUsbDevicesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);

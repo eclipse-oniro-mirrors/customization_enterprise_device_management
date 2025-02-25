@@ -27,7 +27,7 @@ std::string GetSecurityPatchTagQuery::GetPolicyName()
 
 std::string GetSecurityPatchTagQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY;
 }
 
 ErrCode GetSecurityPatchTagQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

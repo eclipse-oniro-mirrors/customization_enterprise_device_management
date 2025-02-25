@@ -27,7 +27,7 @@ std::string ClipboardPolicyQuery::GetPolicyName()
 
 std::string ClipboardPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY;
 }
 
 ErrCode ClipboardPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -28,7 +28,7 @@ void DisableMtpServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableM
 {
     EDMLOGI("DisableMtpServerPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_MTP_SERVER, "disabled_mtp_server",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMtpServerPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableMtpServerPlugin::OnAdminRemove);
