@@ -306,6 +306,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
