@@ -94,6 +94,23 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
+/**
+ * @tc.name: TestHandlePasteboardPolicy
+ * @tc.desc: Test ClipboardPolicyPluginTest::TestHandlePasteboardPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClipboardPolicyPluginTest, TestHandlePasteboardPolicy, TestSize.Level1)
+{
+    ClipboardPolicyPlugin plugin;
+    std::map<int32_t, ClipboardPolicy> result;
+    result.insert(std::make_pair(1, ClipboardPolicy::DEFAULT));
+    result.insert(std::make_pair(2, ClipboardPolicy::IN_APP));
+    result.insert(std::make_pair(3, ClipboardPolicy::LOCAL_DEVICE));
+    result.insert(std::make_pair(4, ClipboardPolicy::CROSS_DEVICE));
+    ErrCode ret = plugin.HandlePasteboardPolicy(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

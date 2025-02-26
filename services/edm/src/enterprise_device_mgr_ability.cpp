@@ -47,11 +47,6 @@
 #include "func_code_utils.h"
 #include "plugin_policy_reader.h"
 
-#ifdef PASTEBOARD_EDM_ENABLE
-#include "clipboard_policy_serializer.h"
-#include "clipboard_utils.h"
-#endif
-
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
 #include "net_policy_client.h"

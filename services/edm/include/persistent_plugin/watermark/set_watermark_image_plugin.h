@@ -20,17 +20,10 @@
 #include "iplugin.h"
 #include "pixel_map.h"
 #include "watermark_image_type.h"
+#include "watermark_param.h"
 
 namespace OHOS {
 namespace EDM {
-struct WatermarkParam {
-    std::string bundleName;
-    int32_t accountId = 0;
-    int32_t width = 0;
-    int32_t height = 0;
-    int32_t size = 0;
-    const void *pixels;
-};
 class SetWatermarkImagePlugin : public IPlugin {
 public:
     SetWatermarkImagePlugin();

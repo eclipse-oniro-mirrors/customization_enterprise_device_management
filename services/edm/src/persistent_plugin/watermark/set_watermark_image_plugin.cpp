@@ -250,25 +250,24 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
 
 bool SetWatermarkImagePlugin::GetWatermarkParam(WatermarkParam &param, MessageParcel &data)
 {
-    std::string bundleName = data.ReadString();
-    int32_t accountId = data.ReadInt32();
-    int32_t width = data.ReadInt32();
-    int32_t height = data.ReadInt32();
-    int32_t size = data.ReadInt32();
-    if (size <= 0 || size > static_cast<int32_t>(data.GetRawDataCapacity())) {
+    param.bundleName = data.ReadString();
+    param.accountId = data.ReadInt32();
+    param.width = data.ReadInt32();
+    param.height = data.ReadInt32();
+    param.size = data.ReadInt32();
+    if (param.size <= 0 || param.size > static_cast<int32_t>(data.GetRawDataCapacity())) {
         EDMLOGE("GetWatermarkParam size error");
         return false;
     }
-    const void *pixels = data.ReadRawData(size);
-    if (pixels == nullptr) {
+    param.SetPixels(const_cast<void*>(data.ReadRawData(param.size)));
+    if (param.pixels == nullptr) {
         EDMLOGE("GetWatermarkParam pixels error");
         return false;
     }
-    if (bundleName.empty() || width <= 0 || height <= 0 || accountId <= 0) {
+    if (param.bundleName.empty() || param.width <= 0 || param.height <= 0 || param.accountId <= 0) {
         EDMLOGE("GetWatermarkParam param error");
         return false;
     }
-    param = {bundleName, accountId, width, height, size, pixels};
     return true;
 }
 

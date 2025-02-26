@@ -19,7 +19,7 @@
 #include "clipboard_policy.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "password_policy.h"
-#include "pixel_map.h"
+#include "watermark_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -48,15 +48,13 @@ public:
     int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
         std::string &policy);
-    int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
-        const std::shared_ptr<Media::PixelMap> pixelMap, const int32_t accountId);
+    int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, const WatermarkParam &param);
     int32_t CancelWatermarkImage(MessageParcel &data);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,
         const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);
     int32_t GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
-    bool WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data);
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::once_flag flag_;
 };

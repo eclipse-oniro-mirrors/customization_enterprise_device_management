@@ -375,15 +375,8 @@ HWTEST_F(SecurityManagerProxyTest, TestSetWatermarkImageSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    std::string bundleName = "testBundleName";
-    Media::InitializationOptions opt;
-    opt.size.width = 100;
-    opt.size.height = 100;
-    auto pixelMap = Media::PixelMap::Create(opt);
-    uint8_t* data = (uint8_t*)malloc(200);
-    pixelMap->WritePixels(data, 200);
-    int32_t ret = proxy_->SetWatermarkImage(admin, bundleName,
-        std::shared_ptr<Media::PixelMap>(std::move(pixelMap)), 100);
+    WatermarkParam param;
+    int32_t ret = proxy_->SetWatermarkImage(admin, param);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

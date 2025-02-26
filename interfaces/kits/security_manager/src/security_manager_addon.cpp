@@ -489,12 +489,11 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
         "accountId type error");
 
     OHOS::AppExecFwk::ElementName elementName;
-    std::string bundleName;
+    WatermarkParam param;
     std::shared_ptr<Media::PixelMap> pixelMap;
-    int32_t accountId = -1;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]),
         "Parameter bundleName error");
     if (imageValueType == napi_object) {
         pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_TWO]);
@@ -506,11 +505,13 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
     }
     ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr &&
         pixelMap->GetByteCount() <= MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_THREE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, param.accountId, argv[ARR_INDEX_THREE]),
         "Parameter accountId error");
-    int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()
-        ->SetWatermarkImage(elementName, bundleName, pixelMap, accountId);
+    if (!GetPixelMapData(pixelMap, param)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetWatermarkImage(elementName, param);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
@@ -566,6 +567,29 @@ std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::s
         return nullptr;
     }
     return std::shared_ptr<Media::PixelMap>(std::move(pixelMapPtr));
+}
+
+bool SecurityManagerAddon::GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, WatermarkParam &param)
+{
+    param.size = pixelMap->GetByteCount();
+    if (param.size <= 0) {
+        EDMLOGE("GetPixelMapData size %{public}d", param.size);
+        return false;
+    }
+    void* data = malloc(param.size);
+    if (data == nullptr) {
+        EDMLOGE("GetPixelMapData malloc fail");
+        return false;
+    }
+    uint32_t ret = pixelMap->ReadPixels(param.size, reinterpret_cast<uint8_t*>(data));
+    param.SetPixels(data);
+    if (ret != ERR_OK) {
+        EDMLOGE("GetPixelMapData ReadPixels fail!");
+        return false;
+    }
+    param.width = pixelMap->GetWidth();
+    param.height = pixelMap->GetHeight();
+    return true;
 }
 
 static napi_module g_securityModule = {

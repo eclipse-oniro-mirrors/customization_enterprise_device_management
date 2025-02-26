@@ -79,6 +79,7 @@ ohos_shared_library("edmservice") {
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
       "./src/application_state_observer.cpp",
+      "./src/clipboard_utils.cpp",
       "./src/connection/enterprise_account_connection.cpp",
       "./src/connection/enterprise_admin_connection.cpp",
       "./src/connection/enterprise_admin_proxy.cpp",
@@ -178,6 +179,7 @@ ohos_shared_library("edmservice") {
   if (pasteboard_edm_enable) {
     sources += [ "./src/query_policy/clipboard_policy_query.cpp" ]
     defines += [ "PASTEBOARD_EDM_ENABLE" ]
+    external_deps += [ "pasteboard:pasteboard_client" ]
   }
 
   if (os_account_edm_enable) {

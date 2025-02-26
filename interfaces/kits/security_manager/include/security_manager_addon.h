@@ -25,6 +25,7 @@
 #include "pixel_map.h"
 #include "security_manager_proxy.h"
 #include "want.h"
+#include "watermark_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -60,6 +61,7 @@ private:
     static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);
     static std::shared_ptr<Media::PixelMap> Decode(const std::string url);
+    static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, WatermarkParam &param);
 };
 } // namespace EDM
 } // namespace OHOS
