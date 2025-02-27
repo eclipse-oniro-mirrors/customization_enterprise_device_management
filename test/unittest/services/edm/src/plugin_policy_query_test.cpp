@@ -279,6 +279,26 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMaintenanceModeQuery001, TestSize.Lev
 }
 
 /**
+ * @tc.name: DisableMaintenanceModeQuery002
+ * @tc.desc: Test DisableMtpPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMaintenanceModeQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableMaintenanceModeQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
  * @tc.name: TestDisableUsbQuery
  * @tc.desc: Test DisableUsbQuery::QueryPolicy function.
  * @tc.type: FUNC

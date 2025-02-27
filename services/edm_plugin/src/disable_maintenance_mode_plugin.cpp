@@ -32,7 +32,7 @@ void DisableMaintenanceModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMaintenanceModePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableMaintenanceModePlugin::OnAdminRemove);
-    persistParam_ = "persist.edm.mtp_maintenance_mode";
+    persistParam_ = "persist.edm.maintenance_mode";
 }
 } // namespace EDM
 } // namespace OHOS

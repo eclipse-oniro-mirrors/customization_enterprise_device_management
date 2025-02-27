@@ -26,6 +26,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.maintenance_mode";
 class DisableMaintenanceModePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
@@ -35,22 +36,24 @@ protected:
 
 void DisableMaintenanceModePluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
 void DisableMaintenanceModePluginTest::TearDownTestSuite(void)
 {
+    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**
- * @tc.name: TestDisableMaintenanceModePluginTestSet
+ * @tc.name: TestDisableMaintenanceModePluginTestSet001
  * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSet, TestSize.Level1)
+HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -61,8 +64,26 @@ HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestS
         EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
-    ASSERT_TRUE(handlePolicyData.isChanged);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
+}
+
+/**
+ * @tc.name: TestDisableMaintenanceModePluginTestSet002
+ * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableMaintenanceModePlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
 }
 } // namespace TEST
 } // namespace EDM
