@@ -29,7 +29,7 @@ std::string DisableMtpClientQuery::GetPolicyName()
 
 std::string DisableMtpClientQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisableMtpClientQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

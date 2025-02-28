@@ -27,7 +27,7 @@ std::string FingerprintAuthQuery::GetPolicyName()
 
 std::string FingerprintAuthQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode FingerprintAuthQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

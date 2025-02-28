@@ -30,9 +30,9 @@ std::string DisablePrinterQuery::GetPolicyName()
 std::string DisablePrinterQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
-        return "ohos.permission.ENTERPRISE_RESTRICT_POLICY";
+        return EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY;
     }
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisablePrinterQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

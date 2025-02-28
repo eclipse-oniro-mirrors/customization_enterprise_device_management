@@ -69,11 +69,7 @@ namespace EDM {
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(EnterpriseDeviceMgrAbility::GetInstance().GetRefPtr());
 
-const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
-const std::string PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
-const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT = "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
-const std::string PERMISSION_SET_DELEGATED_POLICY = "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
 const std::string PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PROVISIONING_MESSAGE";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
@@ -1019,7 +1015,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(AppExecFwk::ElementName &
     std::vector<std::string> &permissionList)
 {
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::ReplaceSuperAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1167,7 +1164,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(AppExecFwk::ElementName &admin, 
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1375,7 +1372,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         EDMLOGW("DoDisableAdmin::DisableSuperAdmin check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -1706,7 +1703,8 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &a
     if (adminItem == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_ENTERPRISE_INFO, false);
+    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
+        EdmPermission::PERMISSION_SET_ENTERPRISE_INFO, false);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1762,7 +1760,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
-        PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT, false);
+        EdmPermission::PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT, false);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1791,8 +1789,8 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN,
-        true);
+    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1832,7 +1830,8 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &pare
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
+    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1872,7 +1871,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedPolicies(const std::string &pare
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
+    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1888,7 +1888,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedBundleNames(const std::string &p
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(parentAdminName,
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem, PERMISSION_SET_DELEGATED_POLICY, true);
+    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY, true);
     if (FAILED(ret)) {
         return ret;
     }

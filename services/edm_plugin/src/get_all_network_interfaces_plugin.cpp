@@ -34,9 +34,9 @@ void GetAllNetworkInterfacesPlugin::InitPlugin(
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_GET_NETWORK_INFO");
+        EdmPermission::PERMISSION_ENTERPRISE_GET_NETWORK_INFO);
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_NETWORK");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 

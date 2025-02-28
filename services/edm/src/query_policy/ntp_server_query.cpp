@@ -29,7 +29,7 @@ std::string NTPServerQuery::GetPolicyName()
 
 std::string NTPServerQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM;
 }
 
 ErrCode NTPServerQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)

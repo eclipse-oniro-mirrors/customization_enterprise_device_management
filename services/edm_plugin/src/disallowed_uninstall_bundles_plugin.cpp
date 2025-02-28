@@ -28,7 +28,8 @@ void DisallowedUninstallBundlesPlugin::InitPlugin(
 {
     EDMLOGI("DisallowedUninstallBundlesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_UNINSTALL_BUNDLES, "disallowed_uninstall_bundles",
-        "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedUninstallBundlesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);

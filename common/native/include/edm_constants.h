@@ -110,6 +110,52 @@ namespace EdmConstants {
         const char* const LOCK_SCREEN = "lockScreen";
     } // namespace DeviceControl
 } // namespace EdmConstants
+
+namespace EdmPermission {
+    // api 9
+    const char* const PERMISSION_ENTERPRISE_SET_DATETIME = "ohos.permission.ENTERPRISE_SET_DATETIME";
+    const char* const PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT =
+        "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
+    const char* const PERMISSION_SET_ENTERPRISE_INFO = "ohos.permission.SET_ENTERPRISE_INFO";
+    const char* const PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
+    // api 10
+    const char* const PERMISSION_ENTERPRISE_SET_SCREEN_OFF_TIME = "ohos.permission.ENTERPRISE_SET_SCREENOFF_TIME";
+    const char* const PERMISSION_ENTERPRISE_RESTRICT_POLICY = "ohos.permission.ENTERPRISE_RESTRICT_POLICY";
+    const char* const PERMISSION_ENTERPRISE_GET_SETTINGS = "ohos.permission.ENTERPRISE_GET_SETTINGS";
+    const char* const PERMISSION_ENTERPRISE_RESET_DEVICE = "ohos.permission.ENTERPRISE_RESET_DEVICE";
+    const char* const PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY =
+        "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY";
+    const char* const PERMISSION_ENTERPRISE_GET_DEVICE_INFO = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
+    const char* const PERMISSION_ENTERPRISE_GET_NETWORK_INFO = "ohos.permission.ENTERPRISE_GET_NETWORK_INFO";
+    const char* const PERMISSION_ENTERPRISE_SET_NETWORK = "ohos.permission.ENTERPRISE_SET_NETWORK";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_NETWORK = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
+    const char* const PERMISSION_ENTERPRISE_INSTALL_BUNDLE = "ohos.permission.ENTERPRISE_INSTALL_BUNDLE";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY =
+        "ohos.permission.ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY";
+    const char* const PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY = "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY";
+    const char* const PERMISSION_ENTERPRISE_SET_WIFI = "ohos.permission.ENTERPRISE_SET_WIFI";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_USB = "ohos.permission.ENTERPRISE_MANAGE_USB";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_CERTIFICATE = "ohos.permission.ENTERPRISE_MANAGE_CERTIFICATE";
+    const char* const PERMISSION_ENTERPRISE_SET_BROWSER_POLICY = "ohos.permission.ENTERPRISE_SET_BROWSER_POLICY";
+    // api 11
+    const char* const PERMISSION_ENTERPRISE_LOCK_DEVICE = "ohos.permission.ENTERPRISE_LOCK_DEVICE";
+    const char* const PERMISSION_ENTERPRISE_REBOOT = "ohos.permission.ENTERPRISE_REBOOT";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_SETTINGS = "ohos.permission.ENTERPRISE_MANAGE_SETTINGS";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_SECURITY = "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_LOCATION = "ohos.permission.ENTERPRISE_MANAGE_LOCATION";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_WIFI = "ohos.permission.ENTERPRISE_MANAGE_WIFI";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS = "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_APPLICATION = "ohos.permission.ENTERPRISE_MANAGE_APPLICATION";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_SYSTEM = "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
+    // api 12
+    const char* const PERMISSION_ENTERPRISE_OPERATE_DEVICE = "ohos.permission.ENTERPRISE_OPERATE_DEVICE";
+    // api 14
+    const char* const PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY =
+        "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
+    // api 15
+    const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+} // namespace EdmPermission
 } // namespace EDM
 } // namespace OHOS
 

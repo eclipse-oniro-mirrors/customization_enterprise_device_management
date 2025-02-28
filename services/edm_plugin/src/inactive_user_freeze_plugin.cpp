@@ -28,7 +28,7 @@ void InactiveUserFreezePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Inacti
 {
     EDMLOGI("InactiveUserFreezePlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::INACTIVE_USER_FREEZE, "inactive_user_freeze",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&InactiveUserFreezePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&InactiveUserFreezePlugin::OnAdminRemove);

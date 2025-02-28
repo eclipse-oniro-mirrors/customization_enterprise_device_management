@@ -30,7 +30,7 @@ void NTPServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin
 {
     EDMLOGI("NTPServerPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::NTP_SERVER, "ntp_server",
-        "ohos.permission.ENTERPRISE_MANAGE_SYSTEM", IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(StringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&NTPServerPlugin::OnSetPolicy, FuncOperateType::SET);
 }

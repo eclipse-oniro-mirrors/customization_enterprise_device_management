@@ -30,8 +30,8 @@ void GlobalProxyPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<GlobalProxyPlugin, NetManagerStandard::HttpProxy>> ptr)
 {
     EDMLOGI("GlobalProxyPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GLOBAL_PROXY, "global_proxy", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::GLOBAL_PROXY, "global_proxy",
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(HttpProxySerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&GlobalProxyPlugin::OnSetPolicy, FuncOperateType::SET);
 }

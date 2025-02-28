@@ -31,8 +31,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(OperateDev
 void OperateDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevicePlugin, OperateDeviceParam>> ptr)
 {
     EDMLOGI("OperateDevicePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::OPERATE_DEVICE, "operate_device", "ohos.permission.ENTERPRISE_OPERATE_DEVICE",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::OPERATE_DEVICE, "operate_device",
+        EdmPermission::PERMISSION_ENTERPRISE_OPERATE_DEVICE, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(OperateDeviceParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&OperateDevicePlugin::OnSetPolicy, FuncOperateType::SET);
 }

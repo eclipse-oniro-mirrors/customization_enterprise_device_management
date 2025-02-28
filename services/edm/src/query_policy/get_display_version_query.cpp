@@ -32,7 +32,7 @@ std::string GetDisplayVersionQuery::GetPolicyName()
 
 std::string GetDisplayVersionQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
+    return EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO;
 }
 
 ErrCode GetDisplayVersionQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

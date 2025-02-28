@@ -56,10 +56,6 @@ constexpr uint32_t APP_START_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STA
 constexpr uint32_t APP_STOP_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STOP);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_FOUR = 4;
-const std::string PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN_TEST = "ohos.permission.MANAGE_ENTERPRISE_DEVICE_ADMIN";
-const std::string PERMISSION_SET_ENTERPRISE_INFO_TEST = "ohos.permission.SET_ENTERPRISE_INFO";
-const std::string PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT_TEST =
-    "ohos.permission.ENTERPRISE_SUBSCRIBE_MANAGED_EVENT";
 const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const std::string ADMIN_PACKAGENAME = "com.edm.test";
 const std::string ADMIN_PACKAGENAME_1 = "com.edm.test_1";

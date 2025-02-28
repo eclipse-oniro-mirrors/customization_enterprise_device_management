@@ -40,7 +40,7 @@ UsbReadOnlyPlugin::UsbReadOnlyPlugin()
     policyCode_ = EdmInterfaceCode::USB_READ_ONLY;
     policyName_ = "usb_read_only";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_USB");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }

@@ -29,7 +29,7 @@ void LocationPolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LocationPo
 {
     EDMLOGI("LocationPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::LOCATION_POLICY, "location_policy",
-        "ohos.permission.ENTERPRISE_MANAGE_LOCATION", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_LOCATION, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&LocationPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&LocationPolicyPlugin::OnAdminRemove);

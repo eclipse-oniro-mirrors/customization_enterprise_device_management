@@ -49,7 +49,7 @@ SetWatermarkImagePlugin::SetWatermarkImagePlugin()
     policyCode_ = EdmInterfaceCode::WATERMARK_IMAGE;
     policyName_ = "watermark_image_policy";
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_SECURITY");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }
@@ -212,7 +212,10 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
         EDMLOGE("SetWatermarkImagePlugin policy failed, other admin have already set the watermark for this bundle.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::string oldFileName = currentData[key].fileName;
+    std::string oldFileName;
+    if (currentData.find(key) != currentData.end()) {
+        oldFileName = currentData[key].fileName;
+    }
     std::string fileName = FILE_PREFIX + std::to_string(time(nullptr));
     std::string filePath = WATERMARK_IMAGE_DIR_PATH + fileName;
     currentData[key] = WatermarkImageType{fileName, param.width, param.height};

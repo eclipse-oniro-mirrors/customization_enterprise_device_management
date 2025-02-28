@@ -32,8 +32,8 @@ void FirewallRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FirewallRulePlugin, IPTABLES::FirewallRuleParcel>> ptr)
 {
     EDMLOGI("FirewallRulePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::FIREWALL_RULE, "firewall_rule", "ohos.permission.ENTERPRISE_MANAGE_NETWORK",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::FIREWALL_RULE, "firewall_rule",
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(FirewallRuleSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&FirewallRulePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&FirewallRulePlugin::OnRemovePolicy, FuncOperateType::REMOVE);

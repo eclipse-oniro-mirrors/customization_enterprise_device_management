@@ -31,7 +31,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(UninstallP
 void UninstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UninstallPlugin, UninstallParam>> ptr)
 {
     EDMLOGI("UninstallPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::UNINSTALL, "uninstall", "ohos.permission.ENTERPRISE_INSTALL_BUNDLE",
+    ptr->InitAttribute(EdmInterfaceCode::UNINSTALL, "uninstall", EdmPermission::PERMISSION_ENTERPRISE_INSTALL_BUNDLE,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(UninstallParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&UninstallPlugin::OnSetPolicy, FuncOperateType::SET);

@@ -30,12 +30,12 @@ std::string DisableBluetoothQuery::GetPermission(IPlugin::PermissionType permiss
     const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
-        return "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
+        return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH;
     }
     if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
-        return "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+        return EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS;
     }
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisableBluetoothQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -319,10 +319,16 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
 
 void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)
 {
+    if (str.empty()) {
+        EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: str is empty.");
+        return;
+    }
     Json::String err;
     Json::CharReaderBuilder builder;
     std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    reader->parse(str.c_str(), str.c_str() + str.length(), &json, &err);
+    if (!reader->parse(str.c_str(), str.c_str() + str.length(), &json, &err)) {
+        EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: %{public}s", err.c_str());
+    }
 }
 } // namespace EDM
 } // namespace OHOS

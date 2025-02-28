@@ -28,7 +28,7 @@ void PasswordPolicyPlugin::InitPlugin(
 {
     EDMLOGI("PasswordPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::PASSWORD_POLICY,
-        "password_policy", "ohos.permission.ENTERPRISE_MANAGE_SECURITY",
+        "password_policy", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(PasswordSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&PasswordPolicyPlugin::OnSetPolicy, FuncOperateType::SET);

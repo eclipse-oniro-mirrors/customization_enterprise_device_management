@@ -28,7 +28,7 @@ std::string DisallowAddLocalAccountQuery::GetPolicyName()
 
 std::string DisallowAddLocalAccountQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY";
+    return EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY;
 }
 
 ErrCode DisallowAddLocalAccountQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

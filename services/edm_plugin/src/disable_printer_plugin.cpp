@@ -31,9 +31,9 @@ void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePri
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
     typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_RESTRICT_POLICY");
+        EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY);
     typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS");
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
