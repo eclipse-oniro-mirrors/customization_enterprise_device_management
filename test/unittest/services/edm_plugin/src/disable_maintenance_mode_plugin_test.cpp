@@ -17,6 +17,7 @@
 #include "disable_maintenance_mode_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -49,7 +50,7 @@ void DisableMaintenanceModePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableMaintenanceModePluginTestSet001
+ * @tc.name: TestDisableMaintenanceModePluginTestSetTrue
  * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
@@ -68,7 +69,7 @@ HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestS
 }
 
 /**
- * @tc.name: TestDisableMaintenanceModePluginTestSet002
+ * @tc.name: TestDisableMaintenanceModePluginTestSetFalse
  * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
