@@ -210,8 +210,7 @@ int32_t SecurityManagerProxy::GetAppClipboardPolicy(const AppExecFwk::ElementNam
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &admin, const std::string &bundleName,
-    const std::shared_ptr<Media::PixelMap> pixelMap, const int32_t accountId)
+int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &admin, const WatermarkParam &param)
 {
     EDMLOGD("SecurityManagerProxy::SetWatermarkImage");
     MessageParcel data;
@@ -222,38 +221,13 @@ int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &a
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(EdmConstants::SecurityManager::SET_SINGLE_WATERMARK_TYPE);
-    data.WriteString(bundleName);
-    data.WriteInt32(accountId);
-    if (!WritePixelMap(pixelMap, data)) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    data.WriteString(param.bundleName);
+    data.WriteInt32(param.accountId);
+    data.WriteInt32(param.width);
+    data.WriteInt32(param.height);
+    data.WriteInt32(param.size);
+    data.WriteRawData(reinterpret_cast<const void*>(param.pixels), param.size);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-}
-
-bool SecurityManagerProxy::WritePixelMap(const std::shared_ptr<Media::PixelMap> pixelMap, MessageParcel &data)
-{
-    int32_t size = pixelMap->GetByteCount();
-    if (size <= 0) {
-        EDMLOGE("WritePixelMap size %{public}d", size);
-        return false;
-    }
-    void* pixels = malloc(size);
-    if (pixels == nullptr) {
-        EDMLOGE("WritePixelMap malloc fail");
-        return false;
-    }
-    uint32_t ret = pixelMap->ReadPixels(size, reinterpret_cast<uint8_t*>(pixels));
-    if (ret != ERR_OK) {
-        EDMLOGE("WritePixelMap ReadPixels fail!");
-        free(pixels);
-        return false;
-    }
-    data.WriteInt32(pixelMap->GetWidth());
-    data.WriteInt32(pixelMap->GetHeight());
-    data.WriteInt32(size);
-    data.WriteRawData(reinterpret_cast<const void*>(pixels), size);
-    free(pixels);
-    return true;
 }
 
 int32_t SecurityManagerProxy::CancelWatermarkImage(MessageParcel &data)

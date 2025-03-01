@@ -32,6 +32,12 @@
 #include "security_report.h"
 #include "system_ability.h"
 
+#ifdef PASTEBOARD_EDM_ENABLE
+#include "clipboard_policy_serializer.h"
+#include "clipboard_utils.h"
+#include "pasteboard_client.h"
+#endif
+
 namespace OHOS {
 namespace EDM {
 class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDeviceMgrStub {

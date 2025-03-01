@@ -31,6 +31,8 @@ public:
 
     ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardPolicy> &data,
         std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId);
+    
+    ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -14,7 +14,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "clipboard_utils_test.h"
+#include "clipboard_utils.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -22,6 +22,13 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+class ClipboardUtilsTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+};
+
 void ClipboardUtilsTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
