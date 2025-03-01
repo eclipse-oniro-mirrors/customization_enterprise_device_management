@@ -45,7 +45,7 @@ void DisableMaintenanceModePluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
-    OHOS::system::SetParameter(PERSIST_EDM_MAINTENANCE_MODE, false)
+    OHOS::system::SetParameter(PERSIST_EDM_MAINTENANCE_MODE, false);
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
