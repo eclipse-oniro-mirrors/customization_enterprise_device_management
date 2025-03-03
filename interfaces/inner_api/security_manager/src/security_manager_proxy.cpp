@@ -210,7 +210,8 @@ int32_t SecurityManagerProxy::GetAppClipboardPolicy(const AppExecFwk::ElementNam
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &admin, const WatermarkParam &param)
+int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &admin,
+    std::shared_ptr<WatermarkParam> param)
 {
     EDMLOGD("SecurityManagerProxy::SetWatermarkImage");
     MessageParcel data;
@@ -221,12 +222,12 @@ int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &a
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(EdmConstants::SecurityManager::SET_SINGLE_WATERMARK_TYPE);
-    data.WriteString(param.bundleName);
-    data.WriteInt32(param.accountId);
-    data.WriteInt32(param.width);
-    data.WriteInt32(param.height);
-    data.WriteInt32(param.size);
-    data.WriteRawData(reinterpret_cast<const void*>(param.pixels), param.size);
+    data.WriteString(param->bundleName);
+    data.WriteInt32(param->accountId);
+    data.WriteInt32(param->width);
+    data.WriteInt32(param->height);
+    data.WriteInt32(param->size);
+    data.WriteRawData(reinterpret_cast<const void*>(param->pixels), param->size);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 

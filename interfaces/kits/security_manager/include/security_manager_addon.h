@@ -61,7 +61,9 @@ private:
     static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);
     static std::shared_ptr<Media::PixelMap> Decode(const std::string url);
-    static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, WatermarkParam &param);
+    static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, std::shared_ptr<WatermarkParam> param);
+    static napi_value CheckBuildWatermarkParam(napi_env env, napi_value* argv,
+        std::shared_ptr<WatermarkParam> &paramPtr);
 };
 } // namespace EDM
 } // namespace OHOS
