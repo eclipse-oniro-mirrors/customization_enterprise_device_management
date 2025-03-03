@@ -87,6 +87,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
+        const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
     } // namespace Restrictions
 
     namespace SecurityManager {

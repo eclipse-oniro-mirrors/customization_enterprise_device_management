@@ -67,6 +67,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
     "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
@@ -165,6 +166,7 @@ ohos_static_library("edmservice_fuzz_static") {
     sources += [
       "../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
+      "../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
       "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",

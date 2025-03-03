@@ -95,6 +95,7 @@ ohos_shared_library("edmservice") {
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
       "./src/query_policy/allowed_install_bundles_query.cpp",
+      "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",

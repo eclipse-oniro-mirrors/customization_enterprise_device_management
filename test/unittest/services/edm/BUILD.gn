@@ -197,6 +197,7 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
       "../../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
       "../../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
+      "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
