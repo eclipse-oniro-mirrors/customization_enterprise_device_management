@@ -480,38 +480,21 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
-    napi_valuetype imageValueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType));
-    ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object || imageValueType == napi_string,
-        "image type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number),
-        "accountId type error");
 
     OHOS::AppExecFwk::ElementName elementName;
-    WatermarkParam param;
-    std::shared_ptr<Media::PixelMap> pixelMap;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]),
-        "Parameter bundleName error");
-    if (imageValueType == napi_object) {
-        pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_TWO]);
-    } else {
-        std::string url;
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, url, argv[ARR_INDEX_TWO]),
-            "Parameter pixelMap error");
-        pixelMap = Decode(url);
-    }
-    ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr &&
-        pixelMap->GetByteCount() <= MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, param.accountId, argv[ARR_INDEX_THREE]),
-        "Parameter accountId error");
-    if (!GetPixelMapData(pixelMap, param)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    std::shared_ptr<WatermarkParam> paramPtr = nullptr;
+    napi_value ret = CheckBuildWatermarkParam(env, argv, paramPtr);
+    if (ret == nullptr) {
         return nullptr;
     }
-    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetWatermarkImage(elementName, param);
+    int32_t retCode = -1;
+    NAPI_CALL(env, napi_get_value_int32(env, ret, &retCode));
+    if (FAILED(retCode)) {
+        return nullptr;
+    }
+    retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetWatermarkImage(elementName, paramPtr);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
@@ -569,27 +552,72 @@ std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::s
     return std::shared_ptr<Media::PixelMap>(std::move(pixelMapPtr));
 }
 
-bool SecurityManagerAddon::GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, WatermarkParam &param)
+bool SecurityManagerAddon::GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap,
+    std::shared_ptr<WatermarkParam> param)
 {
-    param.size = pixelMap->GetByteCount();
-    if (param.size <= 0) {
-        EDMLOGE("GetPixelMapData size %{public}d", param.size);
+    param->size = pixelMap->GetByteCount();
+    if (param->size <= 0) {
+        EDMLOGE("GetPixelMapData size %{public}d", param->size);
         return false;
     }
-    void* data = malloc(param.size);
+    void* data = malloc(param->size);
     if (data == nullptr) {
         EDMLOGE("GetPixelMapData malloc fail");
         return false;
     }
-    uint32_t ret = pixelMap->ReadPixels(param.size, reinterpret_cast<uint8_t*>(data));
-    param.SetPixels(data);
+    uint32_t ret = pixelMap->ReadPixels(param->size, reinterpret_cast<uint8_t*>(data));
+    param->SetPixels(data);
     if (ret != ERR_OK) {
         EDMLOGE("GetPixelMapData ReadPixels fail!");
         return false;
     }
-    param.width = pixelMap->GetWidth();
-    param.height = pixelMap->GetHeight();
+    param->width = pixelMap->GetWidth();
+    param->height = pixelMap->GetHeight();
     return true;
+}
+
+napi_value SecurityManagerAddon::CheckBuildWatermarkParam(napi_env env, napi_value* argv,
+    std::shared_ptr<WatermarkParam> &paramPtr)
+{
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "bundleName type error");
+    napi_valuetype imageValueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType));
+    ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object || imageValueType == napi_string,
+        "image type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number),
+        "accountId type error");
+    auto param = new (std::nothrow) WatermarkParam();
+    if (param == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    paramPtr = std::shared_ptr<WatermarkParam>(param, [](WatermarkParam *param) {
+        param->CheckAndFreePixels();
+        delete param;
+    });
+    std::shared_ptr<Media::PixelMap> pixelMap;
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, paramPtr->bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundleName error");
+    if (imageValueType == napi_object) {
+        pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_TWO]);
+    } else {
+        std::string url;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, url, argv[ARR_INDEX_TWO]),
+            "Parameter pixelMap error");
+        pixelMap = Decode(url);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr &&
+        pixelMap->GetByteCount() <= MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, paramPtr->accountId, argv[ARR_INDEX_THREE]),
+        "Parameter accountId error");
+    if (!GetPixelMapData(pixelMap, paramPtr)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
 }
 
 static napi_module g_securityModule = {

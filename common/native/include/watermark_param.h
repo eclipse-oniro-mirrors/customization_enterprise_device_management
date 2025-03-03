@@ -39,11 +39,6 @@ struct WatermarkParam {
             pixels = nullptr;
         }
     }
-
-    ~WatermarkParam()
-    {
-        CheckAndFreePixels();
-    }
 };
 }
 }

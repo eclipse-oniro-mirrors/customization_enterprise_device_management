@@ -48,7 +48,7 @@ public:
     int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
         std::string &policy);
-    int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, const WatermarkParam &param);
+    int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, std::shared_ptr<WatermarkParam> param);
     int32_t CancelWatermarkImage(MessageParcel &data);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,
         const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);

@@ -375,8 +375,8 @@ HWTEST_F(SecurityManagerProxyTest, TestSetWatermarkImageSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    WatermarkParam param;
-    int32_t ret = proxy_->SetWatermarkImage(admin, param);
+    std::shared_ptr<WatermarkParam> paramPtr = std::make_shared<WatermarkParam>();
+    int32_t ret = proxy_->SetWatermarkImage(admin, paramPtr);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
