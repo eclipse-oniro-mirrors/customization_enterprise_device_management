@@ -41,7 +41,8 @@
     "syscap": [ "SystemCapability.Customization.EnterpriseDeviceManager" ],
     "features": [
       "enterprise_device_management_support_all",
-      "enterprise_device_management_feature_coverage"
+      "enterprise_device_management_feature_coverage",
+      "enterprise_device_management_feature_pc_only"
     ],
     "adapted_system_type": [
       "standard"
