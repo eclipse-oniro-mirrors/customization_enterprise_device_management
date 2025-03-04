@@ -67,6 +67,9 @@ void NetworkManagerAddon::CreateFirewallDirectionObject(napi_env env, napi_value
     napi_value nOutput;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Direction::OUTPUT), &nOutput));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OUTPUT", nOutput));
+    napi_value nForward;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::Direction::FORWARD), &nForward));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FORWARD", nForward));
 }
 
 void NetworkManagerAddon::CreateFirewallAddMethodObject(napi_env env, napi_value value)
@@ -862,7 +865,7 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "domainName", domainName));
-    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direcion", direction));
+    NAPI_CALL(env, napi_set_named_property(env, jsRule, "direction", direction));
     return jsRule;
 }
 
