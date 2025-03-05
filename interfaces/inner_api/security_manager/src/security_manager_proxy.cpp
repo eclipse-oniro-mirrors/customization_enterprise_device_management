@@ -187,18 +187,10 @@ int32_t SecurityManagerProxy::SetAppClipboardPolicy(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SecurityManagerProxy::GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-    std::string &policy)
+int32_t SecurityManagerProxy::GetAppClipboardPolicy(MessageParcel &data, std::string &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetAppClipboardPolicy");
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteInt32(tokenId);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::CLIPBOARD_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     reply.ReadInt32(ret);

@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
-#define SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
+#ifndef COMMON_NATIVE_INCLUDE_CLIPBOARD_INFO_H
+#define COMMON_NATIVE_INCLUDE_CLIPBOARD_INFO_H
 
-#include <map>
-
-#include "clipboard_info.h"
+#include <string>
 #include "clipboard_policy.h"
-#include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
-class ClipboardUtils {
-public:
-    static ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data);
+struct ClipboardInfo {
+    ClipboardPolicy policy = ClipboardPolicy::DEFAULT;
+    int32_t userId = -1;
+    std::string bundleName;
 };
-} // namespace EDM
-} // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
+}
+}
+#endif //COMMON_NATIVE_INCLUDE_CLIPBOARD_INFO_H

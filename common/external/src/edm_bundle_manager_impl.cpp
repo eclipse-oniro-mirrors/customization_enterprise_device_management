@@ -95,6 +95,21 @@ std::string EdmBundleManagerImpl::GetApplicationInfo(const std::string &appName,
     return appInfo.appDistributionType;
 }
 
+int32_t EdmBundleManagerImpl::GetTokenId(const std::string &appName, int userId)
+{
+    AppExecFwk::ApplicationInfo appInfo;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
+        return 0;
+    }
+    if (!proxy->GetApplicationInfo(appName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo)) {
+        return 0;
+    }
+    return appInfo.accessTokenId;
+}
+
 ErrCode EdmBundleManagerImpl::AddAppInstallControlRule(std::vector<std::string> &data,
     AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId)
 {

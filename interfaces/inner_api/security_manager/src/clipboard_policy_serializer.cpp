@@ -17,11 +17,11 @@
 
 #include "cJSON.h"
 #include "cjson_check.h"
-
+#include "edm_log.h"
 namespace OHOS {
 namespace EDM {
 
-bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t, ClipboardPolicy> &result)
+bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t, ClipboardInfo> &result)
 {
     cJSON* root = cJSON_Parse(data.c_str());
     if (root == nullptr) {
@@ -30,7 +30,10 @@ bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t,
     cJSON* item;
     cJSON_ArrayForEach(item, root) {
         cJSON* tokenId = cJSON_GetObjectItem(item, TOKEN_ID.c_str());
+        cJSON* userId = cJSON_GetObjectItem(item, USER_ID.c_str());
+        cJSON* bundleName = cJSON_GetObjectItem(item, BUNDLE_NAME.c_str());
         cJSON* clipboardPolicy = cJSON_GetObjectItem(item, CLIPBOARD_POLICY_STR.c_str());
+        ClipboardInfo info;
         if (tokenId == nullptr || clipboardPolicy == nullptr) {
             cJSON_Delete(root);
             return false;
@@ -38,14 +41,26 @@ bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t,
         if (!cJSON_IsNumber(clipboardPolicy) || !cJSON_IsNumber(tokenId)) {
             continue;
         }
-        auto policyEnum = ConvertToClipboardPolicy(clipboardPolicy->valueint);
-        result.insert(std::make_pair(tokenId->valueint, policyEnum));
+        info.policy = ConvertToClipboardPolicy(clipboardPolicy->valueint);
+        if (userId != nullptr) {
+            if (!cJSON_IsNumber(userId)) {
+                continue;
+            }
+            info.userId = userId->valueint;
+        }
+        if (bundleName != nullptr) {
+            if (!cJSON_IsString(bundleName)) {
+                continue;
+            }
+            info.bundleName = bundleName->valuestring;
+        }
+        result.insert(std::make_pair(tokenId->valueint, info));
     }
     cJSON_Delete(root);
     return true;
 }
 
-bool ClipboardSerializer::Serialize(const std::map<int32_t, ClipboardPolicy> &result, std::string &data)
+bool ClipboardSerializer::Serialize(const std::map<int32_t, ClipboardInfo> &result, std::string &data)
 {
     if (result.empty()) {
         return true;
@@ -56,7 +71,9 @@ bool ClipboardSerializer::Serialize(const std::map<int32_t, ClipboardPolicy> &re
         cJSON* item = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
         cJSON_AddNumberToObject(item, TOKEN_ID.c_str(), it.first);
-        cJSON_AddNumberToObject(item, CLIPBOARD_POLICY_STR.c_str(), static_cast<int32_t>(it.second));
+        cJSON_AddNumberToObject(item, USER_ID.c_str(), it.second.userId);
+        cJSON_AddStringToObject(item, BUNDLE_NAME.c_str(), it.second.bundleName.c_str());
+        cJSON_AddNumberToObject(item, CLIPBOARD_POLICY_STR.c_str(), static_cast<int32_t>(it.second.policy));
         if (!cJSON_AddItemToArray(root, item)) {
             cJSON_Delete(root);
             cJSON_Delete(item);
@@ -74,29 +91,39 @@ bool ClipboardSerializer::Serialize(const std::map<int32_t, ClipboardPolicy> &re
     return true;
 }
 
-bool ClipboardSerializer::GetPolicy(MessageParcel &data, std::map<int32_t, ClipboardPolicy> &result)
+bool ClipboardSerializer::GetPolicy(MessageParcel &data, std::map<int32_t, ClipboardInfo> &result)
 {
-    int32_t tokenId = data.ReadInt32();
-    int32_t policy = data.ReadInt32();
-    result.insert(std::make_pair(tokenId, ConvertToClipboardPolicy(policy)));
+    ClipboardInfo info;
+    int32_t tokenId = 0;
+    int32_t flag = data.ReadInt32();
+    if (flag == ClipboardFunctionType::SET_HAS_TOKEN_ID) {
+        tokenId = data.ReadInt32();
+        info.policy = ConvertToClipboardPolicy(data.ReadInt32());
+    }
+    if (flag == ClipboardFunctionType::SET_HAS_BUNDLE_NAME) {
+        info.bundleName = data.ReadString();
+        info.userId = data.ReadInt32();
+        info.policy = ConvertToClipboardPolicy(data.ReadInt32());
+    }
+    result.insert(std::make_pair(tokenId, info));
     return true;
 }
 
-bool ClipboardSerializer::WritePolicy(MessageParcel &reply, std::map<int32_t, ClipboardPolicy> &result)
+bool ClipboardSerializer::WritePolicy(MessageParcel &reply, std::map<int32_t, ClipboardInfo> &result)
 {
     return true;
 }
 
-bool ClipboardSerializer::MergePolicy(std::vector<std::map<int32_t, ClipboardPolicy>> &data,
-    std::map<int32_t, ClipboardPolicy> &result)
+bool ClipboardSerializer::MergePolicy(std::vector<std::map<int32_t, ClipboardInfo>> &data,
+    std::map<int32_t, ClipboardInfo> &result)
 {
         for (auto policyMap : data) {
         for (auto iter : policyMap) {
-            if (iter.second == ClipboardPolicy::DEFAULT) {
+            if (iter.second.policy == ClipboardPolicy::DEFAULT) {
                 return false;
             }
             if (result.find(iter.first) == result.end() ||
-                static_cast<int32_t>(iter.second) < static_cast<int32_t>(result[iter.first])) {
+                static_cast<int32_t>(iter.second.policy) < static_cast<int32_t>(result[iter.first].policy)) {
                 result[iter.first] = iter.second;
             }
         }

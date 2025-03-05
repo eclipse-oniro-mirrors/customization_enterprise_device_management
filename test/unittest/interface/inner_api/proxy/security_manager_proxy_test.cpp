@@ -341,10 +341,11 @@ HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicySuc, TestSize.Level1
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string policy;
+    MessageParcel data;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
-    int32_t ret = proxy_->GetAppClipboardPolicy(admin, 123, policy);
+    int32_t ret = proxy_->GetAppClipboardPolicy(data, policy);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -359,7 +360,8 @@ HWTEST_F(SecurityManagerProxyTest, TestGetAppClipboardPolicyFail, TestSize.Level
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string policy;
-    int32_t ret = proxy_->GetAppClipboardPolicy(admin, 123, policy);
+    MessageParcel data;
+    int32_t ret = proxy_->GetAppClipboardPolicy(data, policy);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

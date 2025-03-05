@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_CLIPBOARD_POLICY_SERIALIZER_H
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_CLIPBOARD_POLICY_SERIALIZER_H
 
+#include "clipboard_info.h"
 #include "clipboard_policy.h"
 #include "ipolicy_serializer.h"
 
@@ -23,25 +24,27 @@ namespace OHOS {
 namespace EDM {
 
 const std::string TOKEN_ID = "tokenId";
+const std::string USER_ID = "userId";
+const std::string BUNDLE_NAME = "bundleName";
 const std::string CLIPBOARD_POLICY_STR = "clipboardPolicy";
 
 /*
  * Policy data serializer of type int.
  */
-class ClipboardSerializer : public IPolicySerializer<std::map<int32_t, ClipboardPolicy>>,
+class ClipboardSerializer : public IPolicySerializer<std::map<int32_t, ClipboardInfo>>,
     public DelayedSingleton<ClipboardSerializer> {
 public:
 
-    bool Deserialize(const std::string &policy, std::map<int32_t, ClipboardPolicy> &dataObj) override;
+    bool Deserialize(const std::string &policy, std::map<int32_t, ClipboardInfo> &dataObj) override;
 
-    bool Serialize(const std::map<int32_t, ClipboardPolicy> &dataObj, std::string &policy) override;
+    bool Serialize(const std::map<int32_t, ClipboardInfo> &dataObj, std::string &policy) override;
 
-    bool GetPolicy(MessageParcel &data, std::map<int32_t, ClipboardPolicy> &result) override;
+    bool GetPolicy(MessageParcel &data, std::map<int32_t, ClipboardInfo> &result) override;
 
-    bool WritePolicy(MessageParcel &reply, std::map<int32_t, ClipboardPolicy> &result) override;
+    bool WritePolicy(MessageParcel &reply, std::map<int32_t, ClipboardInfo> &result) override;
 
-    bool MergePolicy(std::vector<std::map<int32_t, ClipboardPolicy>> &data,
-        std::map<int32_t, ClipboardPolicy> &result) override;
+    bool MergePolicy(std::vector<std::map<int32_t, ClipboardInfo>> &data,
+        std::map<int32_t, ClipboardInfo> &result) override;
 
 private:
     ClipboardPolicy ConvertToClipboardPolicy(int32_t policy);

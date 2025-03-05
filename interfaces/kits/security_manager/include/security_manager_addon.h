@@ -20,6 +20,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "pixel_map.h"
@@ -64,6 +65,8 @@ private:
     static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, std::shared_ptr<WatermarkParam> param);
     static napi_value CheckBuildWatermarkParam(napi_env env, napi_value* argv,
         std::shared_ptr<WatermarkParam> &paramPtr);
+    static void SetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
+    static void GetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
 };
 } // namespace EDM
 } // namespace OHOS

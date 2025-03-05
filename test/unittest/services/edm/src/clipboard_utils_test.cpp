@@ -14,6 +14,7 @@
  */
 #include <gtest/gtest.h>
 
+#include "clipboard_info.h"
 #include "clipboard_utils.h"
 #include "utils.h"
 
@@ -48,11 +49,15 @@ void ClipboardUtilsTest::TearDownTestSuite(void)
  */
 HWTEST_F(ClipboardUtilsTest, TestHandlePasteboardPolicy, TestSize.Level1)
 {
-    std::map<int32_t, ClipboardPolicy> result;
-    result.insert(std::make_pair(1, ClipboardPolicy::DEFAULT));
-    result.insert(std::make_pair(2, ClipboardPolicy::IN_APP));
-    result.insert(std::make_pair(3, ClipboardPolicy::LOCAL_DEVICE));
-    result.insert(std::make_pair(4, ClipboardPolicy::CROSS_DEVICE));
+    std::map<int32_t, ClipboardInfo> result;
+    ClipboardInfo info1 = {ClipboardPolicy::DEFAULT, -1, ""};
+    ClipboardInfo info2 = {ClipboardPolicy::IN_APP, -1, ""};
+    ClipboardInfo info3 = {ClipboardPolicy::LOCAL_DEVICE, -1, ""};
+    ClipboardInfo info4 = {ClipboardPolicy::CROSS_DEVICE, -1, ""};
+    result.insert(std::make_pair(1, info1));
+    result.insert(std::make_pair(2, info2));
+    result.insert(std::make_pair(3, info3));
+    result.insert(std::make_pair(4, info4));
     ErrCode ret = ClipboardUtils::HandlePasteboardPolicy(result);
     ASSERT_TRUE(ret == ERR_OK);
 }

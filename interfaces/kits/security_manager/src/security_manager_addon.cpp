@@ -19,10 +19,10 @@
 #include <fstream>
 #include "cJSON.h"
 #include "cjson_check.h"
+#include "clipboard_policy.h"
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
-#include "napi_edm_adapter.h"
 #include "pixel_map_napi.h"
 
 using namespace OHOS::EDM;
@@ -402,9 +402,28 @@ bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncC
 
 napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callback_info info)
 {
+    EDMLOGI("NAPI_SetAppClipboardPolicy called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     AddonMethodSign addonMethodSign;
+    if (argc == ARGS_SIZE_THREE) {
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+        EDMLOGI(" SetAppClipboardPolicy argc == ARGS_SIZE_THREE");
+        SetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::SET_HAS_TOKEN_ID);
+    } else if (argc > ARGS_SIZE_THREE) {
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
+            EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+        EDMLOGI(" SetAppClipboardPolicy argc > ARGS_SIZE_THREE");
+        SetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
+    } else {
+        EDMLOGI(" argc < ARGS_SIZE_THREE Parameter error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter error"));
+        return nullptr;
+    }
     addonMethodSign.name = "SetAppClipboardPolicy";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -419,30 +438,119 @@ napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callba
     return nullptr;
 }
 
+void SecurityManagerAddon::SetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag)
+{
+    if (flag == ClipboardFunctionType::SET_HAS_TOKEN_ID) {
+        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
+                              const AddonMethodSign &methodSign) {
+            int32_t tokenId;
+            if (!ParseInt(env, tokenId, argv)) {
+                EDMLOGE("element tokenId error");
+                return false;
+            }
+            data.WriteInt32(ClipboardFunctionType::SET_HAS_TOKEN_ID);
+            data.WriteInt32(tokenId);
+            return true;
+        };
+        addonMethodSign.argsConvert = {nullptr, convertData, nullptr};
+    }
+    if (flag == ClipboardFunctionType::SET_HAS_BUNDLE_NAME) {
+        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
+                              const AddonMethodSign &methodSign) {
+            std::string bundleName;
+            if (!ParseString(env, bundleName, argv)) {
+                EDMLOGE("Parameter bundleName error");
+                return false;
+            }
+            data.WriteInt32(ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
+            data.WriteString(bundleName);
+            return true;
+        };
+        addonMethodSign.argsConvert = {nullptr, convertData, nullptr, nullptr};
+    }
+}
+
+void SecurityManagerAddon::GetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag)
+{
+    if (flag == ClipboardFunctionType::GET_HAS_TOKEN_ID) {
+        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
+                              const AddonMethodSign &methodSign) {
+            int32_t tokenId;
+            if (!ParseInt(env, tokenId, argv)) {
+                EDMLOGE("element tokenId error");
+                return false;
+            }
+            data.WriteInt32(ClipboardFunctionType::GET_HAS_TOKEN_ID);
+            data.WriteInt32(tokenId);
+            return true;
+        };
+        addonMethodSign.argsConvert = {nullptr, convertData};
+    }
+    if (flag == ClipboardFunctionType::GET_HAS_BUNDLE_NAME) {
+        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
+                              const AddonMethodSign &methodSign) {
+            std::string bundleName;
+            if (!ParseString(env, bundleName, argv)) {
+                EDMLOGE("Parameter bundleName error");
+                return false;
+            }
+            data.WriteInt32(ClipboardFunctionType::GET_HAS_BUNDLE_NAME);
+            data.WriteString(bundleName);
+            return true;
+        };
+        addonMethodSign.argsConvert = {nullptr, convertData, nullptr};
+    }
+    if (flag == ClipboardFunctionType::GET_NO_TOKEN_ID) {
+        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
+                              const AddonMethodSign &methodSign) {
+            OHOS::AppExecFwk::ElementName elementName;
+            if (!ParseElementName(env, elementName, argv)) {
+                EDMLOGE("Parameter admin error");
+                return false;
+            }
+            data.WriteParcelable(&elementName);
+            data.WriteInt32(ClipboardFunctionType::GET_NO_TOKEN_ID);
+            return true;
+        };
+        addonMethodSign.argsConvert = {convertData};
+    }
+}
+
 napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetAppClipboardPolicy called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    int32_t tokenId = 0;
-    std::string policy;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-
-    if (argc > ARGS_SIZE_ONE) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number), "tokenId type error");
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, tokenId, argv[ARR_INDEX_ONE]),
-        "Parameter tokenId error");
+    AddonMethodSign addonMethodSign;
+    if (argc == ARGS_SIZE_ONE) {
+        EDMLOGI(" GetAppClipboardPolicy argc == ARGS_SIZE_ONE");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_NO_TOKEN_ID);
+    } else if (argc == ARGS_SIZE_TWO) {
+        EDMLOGI(" GetAppClipboardPolicy argc == ARGS_SIZE_TWO");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_TOKEN_ID);
+    } else if (argc >= ARGS_SIZE_THREE) {
+        EDMLOGI(" GetAppClipboardPolicy argc >= ARGS_SIZE_THREE");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_BUNDLE_NAME);
+    } else {
+        EDMLOGI(" argc < ARGS_SIZE_ONE Parameter error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter error"));
+        return nullptr;
     }
+    addonMethodSign.name = "GetAppClipboardPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::string policy;
     int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->GetAppClipboardPolicy(elementName, tokenId, policy);
+        SecurityManagerProxy::GetSecurityManagerProxy()->GetAppClipboardPolicy(adapterAddonData.data, policy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
