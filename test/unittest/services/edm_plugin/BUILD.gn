@@ -73,7 +73,6 @@ ohos_unittest("EdmPluginTest") {
     "../../test_bundle/ohos_test:copy_ohos_test",
     "../../test_bundle/right_hap:right",
     "../../utils:edm_unittest_utils",
-    "//third_party/googletest:gmock_main",
   ]
 
   external_deps = [
@@ -85,6 +84,7 @@ ohos_unittest("EdmPluginTest") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "googletest:gmock_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -267,7 +267,6 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../utils:edm_unittest_utils",
-    "//third_party/googletest:gmock_main",
   ]
 
   external_deps = [
@@ -275,6 +274,7 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "googletest:gmock_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
