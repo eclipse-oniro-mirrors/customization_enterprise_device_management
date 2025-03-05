@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 
+#include "clipboard_info.h"
 #include "clipboard_policy.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "password_policy.h"
@@ -46,8 +47,7 @@ public:
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
     int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
     int32_t SetAppClipboardPolicy(MessageParcel &data);
-    int32_t GetAppClipboardPolicy(const AppExecFwk::ElementName &admin, const int32_t tokenId,
-        std::string &policy);
+    int32_t GetAppClipboardPolicy(MessageParcel &data, std::string &policy);
     int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, std::shared_ptr<WatermarkParam> param);
     int32_t CancelWatermarkImage(MessageParcel &data);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,

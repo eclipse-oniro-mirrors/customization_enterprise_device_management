@@ -21,18 +21,21 @@
 
 namespace OHOS {
 namespace EDM {
-class ClipboardPolicyPlugin : public PluginSingleton<ClipboardPolicyPlugin, std::map<int32_t, ClipboardPolicy>> {
+class ClipboardPolicyPlugin : public PluginSingleton<ClipboardPolicyPlugin, std::map<int32_t, ClipboardInfo>> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<ClipboardPolicyPlugin,
-        std::map<int32_t, ClipboardPolicy>>> ptr) override;
+        std::map<int32_t, ClipboardInfo>>> ptr) override;
 
-    ErrCode OnSetPolicy(std::map<int32_t, ClipboardPolicy> &data,
-        std::map<int32_t, ClipboardPolicy> &currentData, std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId);
+    ErrCode OnSetPolicy(std::map<int32_t, ClipboardInfo> &data,
+        std::map<int32_t, ClipboardInfo> &currentData,
+        std::map<int32_t, ClipboardInfo> &mergeData, int32_t userId);
 
-    ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardPolicy> &data,
-        std::map<int32_t, ClipboardPolicy> &mergeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, std::map<int32_t, ClipboardInfo> &data,
+        std::map<int32_t, ClipboardInfo> &mergeData, int32_t userId);
     
-    ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data);
+    ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data);
+    ErrCode DeleteHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
+    ErrCode UpdateHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
 };
 } // namespace EDM
 } // namespace OHOS

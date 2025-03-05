@@ -99,6 +99,7 @@ private:
     bool UnsubscribeAppState();
     void NotifyAdminEnabled(bool isEnabled);
     void CheckAndUpdateByodSettingsData();
+    void UpdateClipboardInfo(const std::string &bundleName, int32_t userId);
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);

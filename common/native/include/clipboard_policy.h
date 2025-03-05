@@ -24,6 +24,14 @@ enum class ClipboardPolicy {
     LOCAL_DEVICE = 2,
     CROSS_DEVICE = 3
 };
+
+enum ClipboardFunctionType : uint32_t {
+    SET_HAS_TOKEN_ID = 1,
+    SET_HAS_BUNDLE_NAME = 2,
+    GET_HAS_TOKEN_ID = 3,
+    GET_HAS_BUNDLE_NAME = 4,
+    GET_NO_TOKEN_ID = 5
+};
 }
 }
 #endif // COMMON_NATIVE_INCLUDE_CLIPBOARD_POLICY_H

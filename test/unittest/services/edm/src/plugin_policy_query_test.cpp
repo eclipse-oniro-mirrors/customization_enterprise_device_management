@@ -23,6 +23,7 @@
 #include "allowed_usb_devices_query.h"
 #include "cJSON.h"
 #include "cjson_serializer.h"
+#include "clipboard_info.h"
 #include "clipboard_policy.h"
 #include "clipboard_policy_query.h"
 #include "clipboard_policy_serializer.h"
@@ -71,7 +72,8 @@ protected:
 
     void TearDown() override;
 };
-const std::string POLICY_DATA = "[{\"tokenId\":1,\"clipboardPolicy\":1},{\"tokenId\":2,\"clipboardPolicy\":2}]";
+const std::string POLICY_DATA = "[{\"tokenId\":1,\"userId\":100,\"bundleName\":\"com.ohos.test1\","
+    "\"clipboardPolicy\":1},{\"tokenId\":2,\"userId\":100,\"bundleName\":\"com.ohos.test2\",\"clipboardPolicy\":2}]";
 const std::string TEST_VALUE_COMPLEXITYREG = "^(?=.*[a-zA-Z]).{1,9}$";
 const int TEST_VALUE_VALIDITY_PERIOD = 2;
 const std::string TEST_VALUE_ADDITIONAL_DESCRIPTION = "testDescription";
@@ -127,11 +129,12 @@ HWTEST_F(PluginPolicyQueryTest, TestClipboardPolicyQuery001, TestSize.Level1)
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<ClipboardPolicyQuery>();
     MessageParcel data;
     MessageParcel reply;
+    data.WriteInt32(5);
     std::string policyData = POLICY_DATA;
     queryObj->QueryPolicy(policyData, data, reply, 0);
     int32_t ret = reply.ReadInt32();
     std::string policy = reply.ReadString();
-    std::map<int32_t, ClipboardPolicy> policyMap;
+    std::map<int32_t, ClipboardInfo> policyMap;
     auto serializer = ClipboardSerializer::GetInstance();
     serializer->Deserialize(policy, policyMap);
     ASSERT_TRUE(ret == ERR_OK);
@@ -149,15 +152,16 @@ HWTEST_F(PluginPolicyQueryTest, TestClipboardPolicyQuery002, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     std::string policyData = POLICY_DATA;
+    data.WriteInt32(3);
     data.WriteInt32(1);
     queryObj->QueryPolicy(policyData, data, reply, 0);
     int32_t ret = reply.ReadInt32();
     std::string policy = reply.ReadString();
-    std::map<int32_t, ClipboardPolicy> policyMap;
+    std::map<int32_t, ClipboardInfo> policyMap;
     auto serializer = ClipboardSerializer::GetInstance();
     serializer->Deserialize(policy, policyMap);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(policyMap[1] == ClipboardPolicy::IN_APP);
+    ASSERT_TRUE(policyMap[1].policy == ClipboardPolicy::IN_APP);
 }
 
 /**

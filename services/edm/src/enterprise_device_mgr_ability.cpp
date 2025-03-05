@@ -21,6 +21,7 @@
 
 #include "application_state_observer.h"
 #include "bundle_info.h"
+#include "clipboard_policy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "device_policies_storage_rdb.h"
@@ -86,6 +87,10 @@ std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
 constexpr int32_t TIMER_TIMEOUT = 360000; // 6 * 60 * 1000;
+constexpr const char *WITHOUT_PERMISSION_TAG = "";
+#ifndef EDM_FUZZ_TEST
+const int EDM_UID = 3057;
+#endif
 
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
@@ -294,6 +299,28 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
 }
 
+void EnterpriseDeviceMgrAbility::UpdateClipboardInfo(const std::string &bundleName, int32_t userId)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateClipboardInfo");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLIPBOARD_POLICY);
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        data.WriteInt32(ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
+        data.WriteString(bundleName);
+        data.WriteInt32(userId);
+        data.WriteInt32(static_cast<int32_t>(ClipboardPolicy::DEFAULT));
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data)
 {
     EDMLOGI("OnCommonEventPackageRemoved");
@@ -327,6 +354,8 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
+    autoLock.unlock();
+    UpdateClipboardInfo(bundleName, userId);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
@@ -676,7 +705,7 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart()
     std::string policyData;
     policyMgr_->GetPolicy("", "clipboard_policy", policyData, EdmConstants::DEFAULT_USER_ID);
     auto clipboardSerializer_ = ClipboardSerializer::GetInstance();
-    std::map<int32_t, ClipboardPolicy> policyMap;
+    std::map<int32_t, ClipboardInfo> policyMap;
     clipboardSerializer_->Deserialize(policyData, policyMap);
     ClipboardUtils::HandlePasteboardPolicy(policyMap);
 }
@@ -1491,13 +1520,17 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         EDMLOGE("HandleDevicePolicy: %{public}s is not activated", admin.GetBundleName().c_str());
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
-    std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
-        GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), data.ReadString());
-    EDMLOGD("HandleDevicePolicy: HandleDevicePolicy GetPermission = %{public}s", setPermission.c_str());
-    ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
-        admin.GetBundleName(), plugin->GetPolicyName(), setPermission, userId);
-    if (FAILED(checkAdminPermission)) {
-        return checkAdminPermission;
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string permissionTag = data.ReadString();
+    if (uid != EDM_UID) {
+        std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
+            GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
+        EDMLOGD("HandleDevicePolicy: HandleDevicePolicy GetPermission = %{public}s", setPermission.c_str());
+        ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
+            admin.GetBundleName(), plugin->GetPolicyName(), setPermission, userId);
+        if (FAILED(checkAdminPermission)) {
+            return checkAdminPermission;
+        }
     }
 #endif
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include "clipboard_info.h"
 #include "clipboard_policy_plugin.h"
 #include "clipboard_policy_serializer.h"
 #include "utils.h"
@@ -51,9 +52,9 @@ void ClipboardPolicyPluginTest::TearDownTestSuite(void)
 HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyEmpty, TestSize.Level1)
 {
     ClipboardPolicyPlugin plugin;
-    std::map<int32_t, ClipboardPolicy> data;
-    std::map<int32_t, ClipboardPolicy> currentData;
-    std::map<int32_t, ClipboardPolicy> mergeData;
+    std::map<int32_t, ClipboardInfo> data;
+    std::map<int32_t, ClipboardInfo> currentData;
+    std::map<int32_t, ClipboardInfo> mergeData;
     ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
@@ -66,13 +67,14 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyEmpty, TestSize.Level1)
 HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
 {
     ClipboardPolicyPlugin plugin;
-    std::map<int32_t, ClipboardPolicy> data;
-    data.insert(std::make_pair(1, ClipboardPolicy::IN_APP));
-    std::map<int32_t, ClipboardPolicy> currentData;
-    std::map<int32_t, ClipboardPolicy> mergeData;
+    std::map<int32_t, ClipboardInfo> data;
+    ClipboardInfo info = {ClipboardPolicy::IN_APP, -1, ""};
+    data.insert(std::make_pair(1, info));
+    std::map<int32_t, ClipboardInfo> currentData;
+    std::map<int32_t, ClipboardInfo> mergeData;
     ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(currentData[1] == ClipboardPolicy::IN_APP);
+    ASSERT_TRUE(currentData[1].policy == ClipboardPolicy::IN_APP);
 }
 
 /**
@@ -83,13 +85,15 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
 HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
 {
     ClipboardPolicyPlugin plugin;
-    std::map<int32_t, ClipboardPolicy> data;
-    data.insert(std::make_pair(101, ClipboardPolicy::IN_APP));
-    std::map<int32_t, ClipboardPolicy> currentData;
+    std::map<int32_t, ClipboardInfo> data;
+    ClipboardInfo info1 = {ClipboardPolicy::IN_APP, -1, ""};
+    data.insert(std::make_pair(101, info1));
+    std::map<int32_t, ClipboardInfo> currentData;
     for (int i = 1; i <= 100; i++) {
-        currentData.insert(std::make_pair(i, ClipboardPolicy::IN_APP));
+        ClipboardInfo info2 = {ClipboardPolicy::IN_APP, -1, ""};
+        currentData.insert(std::make_pair(i, info2));
     }
-    std::map<int32_t, ClipboardPolicy> mergeData;
+    std::map<int32_t, ClipboardInfo> mergeData;
     ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
@@ -102,11 +106,15 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
 HWTEST_F(ClipboardPolicyPluginTest, TestHandlePasteboardPolicy, TestSize.Level1)
 {
     ClipboardPolicyPlugin plugin;
-    std::map<int32_t, ClipboardPolicy> result;
-    result.insert(std::make_pair(1, ClipboardPolicy::DEFAULT));
-    result.insert(std::make_pair(2, ClipboardPolicy::IN_APP));
-    result.insert(std::make_pair(3, ClipboardPolicy::LOCAL_DEVICE));
-    result.insert(std::make_pair(4, ClipboardPolicy::CROSS_DEVICE));
+    std::map<int32_t, ClipboardInfo> result;
+    ClipboardInfo info1 = {ClipboardPolicy::DEFAULT, -1, ""};
+    ClipboardInfo info2 = {ClipboardPolicy::IN_APP, -1, ""};
+    ClipboardInfo info3 = {ClipboardPolicy::LOCAL_DEVICE, -1, ""};
+    ClipboardInfo info4 = {ClipboardPolicy::CROSS_DEVICE, -1, ""};
+    result.insert(std::make_pair(1, info1));
+    result.insert(std::make_pair(2, info2));
+    result.insert(std::make_pair(3, info3));
+    result.insert(std::make_pair(4, info4));
     ErrCode ret = plugin.HandlePasteboardPolicy(result);
     ASSERT_TRUE(ret == ERR_OK);
 }

@@ -19,7 +19,7 @@
 #include "pasteboard_client.h"
 namespace OHOS {
 namespace EDM {
-ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy> &data)
+ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data)
 {
     EDMLOGI("ClipboardUtils handlePasteboardPolicy.");
     auto pasteboardClient = MiscServices::PasteboardClient::GetInstance();
@@ -30,7 +30,7 @@ ErrCode ClipboardUtils::HandlePasteboardPolicy(std::map<int32_t, ClipboardPolicy
     std::map<uint32_t, MiscServices::ShareOption> setMap;
     std::vector<uint32_t> removeVector;
     for (const auto &item : data) {
-        switch (item.second) {
+        switch (item.second.policy) {
             case ClipboardPolicy::DEFAULT:
                 removeVector.emplace_back(item.first);
                 break;

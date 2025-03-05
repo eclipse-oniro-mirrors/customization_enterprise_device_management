@@ -37,6 +37,7 @@ public:
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) = 0;
     virtual bool IsBundleInstalled(const std::string &bundleName, int32_t userId) = 0;
     virtual std::string GetApplicationInfo(const std::string &appName, int userId) = 0;
+    virtual int32_t GetTokenId(const std::string &appName, int userId) = 0;
     virtual ErrCode AddAppInstallControlRule(std::vector<std::string> &data,
         AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) = 0;
     virtual ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,

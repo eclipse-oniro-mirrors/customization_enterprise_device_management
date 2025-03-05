@@ -16,6 +16,7 @@
 #include "clipboard_policy_query.h"
 
 #include "clipboard_policy_serializer.h"
+#include "edm_bundle_manager_impl.h"
 #include "edm_log.h"
 
 namespace OHOS {
@@ -33,16 +34,38 @@ std::string ClipboardPolicyQuery::GetPermission(IPlugin::PermissionType, const s
 ErrCode ClipboardPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("ClipboardPolicyQuery OnGetPolicy.");
-    int32_t tokenId = data.ReadInt32();
+    EDMLOGI("ClipboardPolicyQuery OnGetPolicy");
     std::string policy = policyData;
-    if (tokenId != 0) {
-        std::map<int32_t, ClipboardPolicy> policyMap;
-        if (!ClipboardSerializer::GetInstance()->Deserialize(policyData, policyMap)) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    std::map<int32_t, ClipboardInfo> policyMap;
+    if (!ClipboardSerializer::GetInstance()->Deserialize(policyData, policyMap)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::map<int32_t, ClipboardInfo> resultMap;
+    int32_t flag = data.ReadInt32();
+    ClipboardInfo info;
+    if (flag == ClipboardFunctionType::GET_HAS_TOKEN_ID) {
+        int32_t tokenId = data.ReadInt32();
+        auto it = policyMap.find(tokenId);
+        if (it != policyMap.end()) {
+            resultMap[tokenId] = policyMap[it->first];
+        } else {
+            info = {ClipboardPolicy::DEFAULT, -1, ""};
+            resultMap[tokenId] = info;
         }
-        std::map<int32_t, ClipboardPolicy> resultMap;
-        resultMap[tokenId] = policyMap[tokenId];
+        ClipboardSerializer::GetInstance()->Serialize(resultMap, policy);
+    }
+    if (flag == ClipboardFunctionType::GET_HAS_BUNDLE_NAME) {
+        info.bundleName = data.ReadString();
+        info.userId = data.ReadInt32();
+        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+        int32_t tokenId = bundleMgr->GetTokenId(info.bundleName, info.userId);
+        auto it = policyMap.find(tokenId);
+        if (it != policyMap.end()) {
+            resultMap[tokenId] = policyMap[it->first];
+        } else {
+            info.policy = ClipboardPolicy::DEFAULT;
+            resultMap[tokenId] = info;
+        }
         ClipboardSerializer::GetInstance()->Serialize(resultMap, policy);
     }
     reply.WriteInt32(ERR_OK);
