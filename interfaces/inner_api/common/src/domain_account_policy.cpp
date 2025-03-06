@@ -54,35 +54,45 @@ bool DomainAccountPolicy::Unmarshalling(MessageParcel &parcel, DomainAccountPoli
 
 bool DomainAccountPolicy::ReadFromParcel(MessageParcel &parcel)
 {
-    authenticationValidityPeriod = parcel.ReadInt32();
-    passwordValidityPeriod = parcel.ReadInt32();
-    passwordExpirationNotification = parcel.ReadInt32();
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, authenticationValidityPeriod);
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordValidityPeriod);
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordExpirationNotification);
     return true;
 }
 
-bool DomainAccountPolicy::ConvertDomainAccountPolicyToJsStr(std::string &jsStr)
+bool DomainAccountPolicy::ConvertDomainAccountPolicyToJsonStr(std::string &jsonStr)
 {
     cJSON *json = nullptr;
     CJSON_CREATE_OBJECT_AND_CHECK(json, false);
 
-    cJSON_AddNumberToObject(json, "authenticationValidityPeriod", authenticationValidityPeriod);
-    cJSON_AddNumberToObject(json, "passwordMaximumAge", passwordValidityPeriod);
-    cJSON_AddNumberToObject(json, "passwordExpirationNotification", passwordExpirationNotification);
-
-    char *jsonStr = cJSON_PrintUnformatted(json);
-    if (jsonStr == nullptr) {
+    if (cJSON_AddNumberToObject(json, "authenticationValidityPeriod", authenticationValidityPeriod) == NULL) {
         cJSON_Delete(json);
         return false;
     }
-    jsStr = std::string(jsonStr);
+    if (cJSON_AddNumberToObject(json, "passwordMaximumAge", passwordValidityPeriod) == NULL) {
+        cJSON_Delete(json);
+        return false;
+    }
+    if (cJSON_AddNumberToObject(json, "passwordExpirationNotification", passwordExpirationNotification) == NULL) {
+        cJSON_Delete(json);
+        return false;
+    }
+
+    char *jsonStrTemp = cJSON_PrintUnformatted(json);
+    if (jsonStrTemp == nullptr) {
+        cJSON_Delete(json);
+        return false;
+    }
+    jsonStr = std::string(jsonStrTemp);
     cJSON_Delete(json);
-    cJSON_free(jsonStr);
+    cJSON_free(jsonStrTemp);
     return true;
 }
 
-bool DomainAccountPolicy::JsStrToDomainAccountPolicy(std::string &jsStr, DomainAccountPolicy &domainAccountPolicy)
+bool DomainAccountPolicy::JsonStrToDomainAccountPolicy(const std::string &jsonStr,
+    DomainAccountPolicy &domainAccountPolicy)
 {
-    cJSON *json = cJSON_Parse(jsStr.c_str());
+    cJSON *json = cJSON_Parse(jsonStr.c_str());
     if (json == nullptr) {
         return false;
     }
@@ -90,23 +100,32 @@ bool DomainAccountPolicy::JsStrToDomainAccountPolicy(std::string &jsStr, DomainA
     cJSON *itemPasswordMaximumAge = cJSON_GetObjectItem(json, "passwordMaximumAge");
     cJSON *itemPasswordExpirationNotification = cJSON_GetObjectItem(json, "passwordExpirationNotification");
 
-    if (!cJSON_IsNumber(itemAuthenticationValidityPeriod) || !cJSON_IsNumber(itemPasswordMaximumAge) ||
-        !cJSON_IsNumber(itemPasswordExpirationNotification)) {
-        cJSON_Delete(json);
-        return false;
-    }
+    bool ret1 = cJSON_IsNumber(itemAuthenticationValidityPeriod);
+    bool ret2 = cJSON_IsNumber(itemPasswordMaximumAge);
+    bool ret3 = cJSON_IsNumber(itemPasswordExpirationNotification);
 
-    domainAccountPolicy.authenticationValidityPeriod = itemAuthenticationValidityPeriod->valueint;
-    domainAccountPolicy.passwordValidityPeriod = itemPasswordMaximumAge->valueint;
-    domainAccountPolicy.passwordExpirationNotification = itemPasswordExpirationNotification->valueint;
+    if (ret1) {
+        domainAccountPolicy.authenticationValidityPeriod = itemAuthenticationValidityPeriod->valueint;
+    }
+    if (ret2) {
+        domainAccountPolicy.passwordValidityPeriod = itemPasswordMaximumAge->valueint;
+    }
+    if (ret3) {
+        domainAccountPolicy.passwordExpirationNotification = itemPasswordExpirationNotification->valueint;
+    }
     cJSON_Delete(json);
-    return true;
+    return ret1 || ret2 || ret3;
 }
 
 bool DomainAccountPolicy::CheckParameterValidity()
 {
     return (authenticationValidityPeriod >= -1) && (passwordValidityPeriod >= -1) &&
         (passwordExpirationNotification >= 0);
+}
+
+bool DomainAccountPolicy::IsParameterNeedShow(int32_t param)
+{
+    return param != INT32_MIN;
 }
 } // namespace EDM
 } // namespace OHOS

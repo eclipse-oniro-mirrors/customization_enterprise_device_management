@@ -232,6 +232,14 @@ ohos_unittest("EdmPluginTest") {
     sources += [ "./src/disable_camera_plugin_test.cpp" ]
   }
 
+  if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [ "os_account:domain_account_innerkits" ]
+    sources += [
+      "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
+      "./src/set_domain_account_policy_plugin_test.cpp",
+    ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
