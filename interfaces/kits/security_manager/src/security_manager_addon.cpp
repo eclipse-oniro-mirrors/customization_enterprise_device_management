@@ -508,6 +508,8 @@ void SecurityManagerAddon::GetClipboardPolicyParamHandle(AddonMethodSign &addonM
                 EDMLOGE("Parameter admin error");
                 return false;
             }
+            data.WriteString(methodSign.apiVersionTag);
+            data.WriteInt32(HAS_ADMIN);
             data.WriteParcelable(&elementName);
             data.WriteInt32(ClipboardFunctionType::GET_NO_TOKEN_ID);
             return true;
