@@ -15,6 +15,8 @@
 
 #include "notify_update_packages_plugin.h"
 
+#include "securec.h"
+
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "upgrade_package_info_serializer.h"
@@ -35,6 +37,9 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 
 ErrCode NotifyUpdatePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
 {
+    if (memset_s(policy.authInfo, policy.authInfoSize, 0, policy.authInfoSize) != EOK) {
+        EDMLOGE("NotifyUpdatePackagesPlugin::OnSetPolicy memset_s faile.");
+    }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
