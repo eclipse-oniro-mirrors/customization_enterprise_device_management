@@ -17,6 +17,9 @@
 
 #include <unistd.h>
 
+#include "securec.h"
+
+#include "edm_constants.h"
 #include "edm_log.h"
 
 namespace OHOS {
@@ -70,7 +73,7 @@ void UpdatePolicyUtils::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &upda
     data.ReadInt64(updatePolicy.installTime.installWindowEnd);
 }
 
-void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, const UpgradePackageInfo &packageInfo)
+void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo)
 {
     data.WriteString(packageInfo.version);
     data.WriteUint32(packageInfo.packages.size());
@@ -81,6 +84,16 @@ void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, const Upgra
     }
     data.WriteString(packageInfo.description.notify.installTips);
     data.WriteString(packageInfo.description.notify.installTipsDetail);
+    data.WriteUint32(packageInfo.authInfoSize);
+    if (packageInfo.authInfoSize >= EdmConstants::AUTH_INFO_MAX_SIZE) {
+        EDMLOGE("UpdatePolicyUtils::WriteUpgradePackageInfo auth info too long.");
+        return;
+    }
+    data.WriteCString(packageInfo.authInfo);
+    errno_t err = memset_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), 0, sizeof(packageInfo.authInfo));
+    if (err != EOK) {
+        EDMLOGE("UpdatePolicyUtils::WriteUpgradePackageInfo memset_s failed: %{public}d.", err);
+    }
 }
 
 void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo)
@@ -99,6 +112,16 @@ void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePacka
     }
     data.ReadString(packageInfo.description.notify.installTips);
     data.ReadString(packageInfo.description.notify.installTipsDetail);
+    data.ReadUint32(packageInfo.authInfoSize);
+    if (packageInfo.authInfoSize >= EdmConstants::AUTH_INFO_MAX_SIZE) {
+        EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo auth info too long.");
+        return;
+    }
+    errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), data.ReadCString(),
+        packageInfo.authInfoSize);
+    if (err != EOK) {
+        EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo memset_s failed: %{public}d.", err);
+    }
 }
 
 void UpdatePolicyUtils::WriteUpgradeResult(MessageParcel &data, const UpgradeResult &result)
