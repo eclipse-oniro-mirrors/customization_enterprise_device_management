@@ -42,7 +42,7 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
-    ErrCode SetPowerPolicy(MessageParcel &data);
+    ErrCode SetPolicy(MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS

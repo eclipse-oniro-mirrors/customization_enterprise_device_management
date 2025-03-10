@@ -72,6 +72,7 @@ private:
     static napi_value AddOsAccountAsync(napi_env env, napi_callback_info info);
     static napi_value SetDomainAccountPolicy(napi_env env, napi_callback_info info);
     static napi_value GetDomainAccountPolicy(napi_env env, napi_callback_info info);
+    static napi_value ConvertDomainAccountPolicyToJs(napi_env env, DomainAccountPolicy &domainAccountPolicy);
     static bool ParseDomainAccountPolicy(napi_env env, DomainAccountPolicy &domainAccountPolicy, napi_value args);
 #if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
     static bool ParseDomainAccountInfo(napi_env env, OHOS::AccountSA::DomainAccountInfo &domainAccountInfo,

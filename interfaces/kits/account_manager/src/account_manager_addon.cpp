@@ -556,25 +556,14 @@ napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callba
         return nullptr;
     }
 
-    MessageParcel reply;
-    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->GetDomainAccountPolicy(adapterAddonData.data, reply);
+    DomainAccountPolicy domainAccountPolicy;
+    int32_t ret = AccountManagerProxy::GetAccountManagerProxy()->GetDomainAccountPolicy(adapterAddonData.data,
+        domainAccountPolicy);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("NAPI_GetDomainAccountPolicy failed!");
     }
-    DomainAccountPolicy domainAccountPolicy;
-    DomainAccountPolicy::Unmarshalling(reply, domainAccountPolicy);
-    napi_value result;
-    napi_create_object(env, &result);
-    napi_value value = nullptr;
-    
-    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.authenticationValidityPeriod, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "authenticationValidityPeriod", value));
-    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordValidityPeriod, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
-    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
-    NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
-    return result;
+    return ConvertDomainAccountPolicyToJs(env, domainAccountPolicy);
 #else
     EDMLOGW("AccountManagerAddon::GetDomainAccountPolicy Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -582,6 +571,27 @@ napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callba
 #endif
 }
 
+napi_value AccountManagerAddon::ConvertDomainAccountPolicyToJs(napi_env env,
+    DomainAccountPolicy &domainAccountPolicy)
+{
+    napi_value result = nullptr;
+    napi_create_object(env, &result);
+    napi_value value = nullptr;
+
+    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.authenticationValidityPeriod)) {
+        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.authenticationValidityPeriod, &value));
+        NAPI_CALL(env, napi_set_named_property(env, result, "authenticationValidityPeriod", value));
+    }
+    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.passwordValidityPeriod)) {
+        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordValidityPeriod, &value));
+        NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
+    }
+    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.passwordExpirationNotification)) {
+        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
+        NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
+    }
+    return result;
+}
 
 bool AccountManagerAddon::ParseDomainAccountPolicy(napi_env env, DomainAccountPolicy &domainAccountPolicy,
     napi_value args)
@@ -592,12 +602,12 @@ bool AccountManagerAddon::ParseDomainAccountPolicy(napi_env env, DomainAccountPo
         return false;
     }
 
-    int32_t authenticationValidityPeriod;
-    int32_t passwordValidityPeriod;
-    int32_t passwordExpirationNotification;
-    if (!JsObjectToInt(env, args, "authenticationValidityPeriod", true, authenticationValidityPeriod) ||
-        !JsObjectToInt(env, args, "passwordValidityPeriod", true, passwordValidityPeriod) ||
-        !JsObjectToInt(env, args, "passwordExpirationNotification", true, passwordExpirationNotification)) {
+    int32_t authenticationValidityPeriod = -1;
+    int32_t passwordValidityPeriod = -1;
+    int32_t passwordExpirationNotification = 0;
+    if (!JsObjectToInt(env, args, "authenticationValidityPeriod", false, authenticationValidityPeriod) ||
+        !JsObjectToInt(env, args, "passwordValidityPeriod", false, passwordValidityPeriod) ||
+        !JsObjectToInt(env, args, "passwordExpirationNotification", false, passwordExpirationNotification)) {
         EDMLOGE("AccountManagerAddon::ParseDomainAccountPolicy param error");
         return false;
     }

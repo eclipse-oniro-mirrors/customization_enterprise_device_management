@@ -15,10 +15,8 @@
 
 #include "set_domain_account_policy_plugin.h"
 
-#ifdef OS_ACCOUNT_EDM_ENABLE
 #include "domain_account_client.h"
 #include "domain_account_common.h"
-#endif
 #include "domain_account_policy.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -45,12 +43,12 @@ ErrCode SetDomainAccountPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     if (type == FuncOperateType::SET) {
-        return SetPowerPolicy(data);
+        return SetPolicy(data);
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode SetDomainAccountPolicyPlugin::SetPowerPolicy(MessageParcel &data)
+ErrCode SetDomainAccountPolicyPlugin::SetPolicy(MessageParcel &data)
 {
     OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
     if (!domainAccountInfo.ReadFromParcel(data)) {
@@ -67,8 +65,8 @@ ErrCode SetDomainAccountPolicyPlugin::SetPowerPolicy(MessageParcel &data)
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::string policy;
-    if (!domainAccountPolicy.ConvertDomainAccountPolicyToJsStr(policy)) {
-        EDMLOGE("SetDomainAccountPolicyPlugin ConvertDomainAccountPolicyToJsStr error");
+    if (!domainAccountPolicy.ConvertDomainAccountPolicyToJsonStr(policy)) {
+        EDMLOGE("SetDomainAccountPolicyPlugin ConvertDomainAccountPolicyToJsonStr error, should not happen");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t ret = OHOS::AccountSA::DomainAccountClient::GetInstance().SetAccountPolicy(domainAccountInfo, policy);
@@ -85,19 +83,23 @@ ErrCode SetDomainAccountPolicyPlugin::OnGetPolicy(std::string &policyData, Messa
     OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
     if (!domainAccountInfo.ReadFromParcel(data)) {
         EDMLOGE("SetDomainAccountPolicyPlugin::OnGetPolicy domainAccountInfo ReadFromParcel error");
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::string policy;
     int32_t ret = OHOS::AccountSA::DomainAccountClient::GetInstance().GetAccountPolicy(domainAccountInfo, policy);
     if (FAILED(ret)) {
         EDMLOGE("SetDomainAccountPolicyPlugin::OnGetPolicy GetAccountPolicy error");
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     DomainAccountPolicy domainAccountPolicy;
-    if (!DomainAccountPolicy::JsStrToDomainAccountPolicy(policy, domainAccountPolicy)) {
-        EDMLOGE("SetDomainAccountPolicyPlugin::OnGetPolicy JsStrToDomainAccountPolicy error");
+    if (!DomainAccountPolicy::JsonStrToDomainAccountPolicy(policy, domainAccountPolicy)) {
+        EDMLOGE("SetDomainAccountPolicyPlugin::OnGetPolicy JsonStrToDomainAccountPolicy error");
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    reply.WriteInt32(ERR_OK);
     if (!domainAccountPolicy.Marshalling(reply)) {
         EDMLOGE("SetDomainAccountPolicyPlugin::OnGetPolicy Marshalling error");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
