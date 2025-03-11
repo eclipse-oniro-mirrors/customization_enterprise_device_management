@@ -279,7 +279,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../utils:edm_unittest_utils",
-    "//third_party/googletest:gmock_main",
   ]
 
   external_deps = [
@@ -293,6 +292,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "file_api:securitylabel",
+    "googletest:gmock_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
