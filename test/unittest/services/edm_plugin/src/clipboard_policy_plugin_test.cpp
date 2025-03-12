@@ -99,6 +99,23 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestOnSetPolicyFail2
+ * @tc.desc: Test ClipboardPolicyPluginTest::OnSetPolicy UNKNOWN Policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail2, TestSize.Level1)
+{
+    ClipboardPolicyPlugin plugin;
+    std::map<int32_t, ClipboardInfo> data;
+    ClipboardInfo info = {ClipboardPolicy::UNKNOWN, -1, ""};
+    data.insert(std::make_pair(1, info));
+    std::map<int32_t, ClipboardInfo> currentData;
+    std::map<int32_t, ClipboardInfo> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
  * @tc.name: TestHandlePasteboardPolicy
  * @tc.desc: Test ClipboardPolicyPluginTest::TestHandlePasteboardPolicy.
  * @tc.type: FUNC

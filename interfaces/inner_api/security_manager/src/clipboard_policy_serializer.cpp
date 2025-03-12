@@ -134,6 +134,8 @@ bool ClipboardSerializer::MergePolicy(std::vector<std::map<int32_t, ClipboardInf
 ClipboardPolicy ClipboardSerializer::ConvertToClipboardPolicy(int32_t policy)
 {
     switch (policy) {
+        case static_cast<int32_t>(ClipboardPolicy::DEFAULT):
+            return ClipboardPolicy::DEFAULT;
         case static_cast<int32_t>(ClipboardPolicy::IN_APP):
             return ClipboardPolicy::IN_APP;
         case static_cast<int32_t>(ClipboardPolicy::LOCAL_DEVICE):
@@ -141,7 +143,7 @@ ClipboardPolicy ClipboardSerializer::ConvertToClipboardPolicy(int32_t policy)
         case static_cast<int32_t>(ClipboardPolicy::CROSS_DEVICE):
             return ClipboardPolicy::CROSS_DEVICE;
         default:
-            return ClipboardPolicy::DEFAULT;
+            return ClipboardPolicy::UNKNOWN;
     }
 }
 } // namespace EDM

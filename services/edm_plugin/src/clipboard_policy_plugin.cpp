@@ -49,12 +49,17 @@ ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardInfo> &dat
     std::map<int32_t, ClipboardInfo> afterHandle = currentData;
     auto it = data.begin();
     ErrCode ret;
+    if (it->second.policy == ClipboardPolicy::UNKNOWN) {
+        EDMLOGE("OnSetPolicy ClipboardPolicy is UNKNOWN.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     if (it->second.policy == ClipboardPolicy::DEFAULT) {
         ret = DeleteHandle(data, afterHandle);
     } else {
         ret = UpdateHandle(data, afterHandle);
     }
     if (ret != ERR_OK) {
+        EDMLOGE("OnSetPolicy ClipboardPolicy PARAM_ERROR.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     it = data.begin();
