@@ -26,9 +26,9 @@ struct DomainAccountPolicy {
         int32_t passwordExpirationNotification);
     ~DomainAccountPolicy();
 
-    int32_t authenticationValidityPeriod = INT32_MIN;
-    int32_t passwordValidityPeriod = INT32_MIN;
-    int32_t passwordExpirationNotification = INT32_MIN;
+    int32_t authenticationValidityPeriod = -1;
+    int32_t passwordValidityPeriod = -1;
+    int32_t passwordExpirationNotification = 0;
 
     bool ReadFromParcel(MessageParcel &parcel);
     bool Marshalling(MessageParcel &parcel) const;
@@ -38,7 +38,6 @@ struct DomainAccountPolicy {
     static bool JsonStrToDomainAccountPolicy(const std::string &jsonStr, DomainAccountPolicy &domainAccountPolicy);
 
     bool CheckParameterValidity();
-    bool IsParameterNeedShow(int32_t param);
 };
 } // namespace EDM
 } // namespace OHOS

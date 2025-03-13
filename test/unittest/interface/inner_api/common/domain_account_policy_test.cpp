@@ -127,18 +127,6 @@ HWTEST_F(DomainAccountPolicyTest, TestCheckParameterValidity, TestSize.Level1)
     DomainAccountPolicy domainAccountPolicyInValid4(-2, -2, 2);
     ASSERT_FALSE(domainAccountPolicyInValid4.CheckParameterValidity());
 }
-
-/**
- * @tc.name: TestIsParameterNeedShow
- * @tc.desc: Test IsParameterNeedShow func.
- * @tc.type: FUNC
- */
-HWTEST_F(DomainAccountPolicyTest, TestIsParameterNeedShow, TestSize.Level1)
-{
-    DomainAccountPolicy domainAccountPolicy;
-    ASSERT_FALSE(domainAccountPolicy.IsParameterNeedShow(INT32_MIN));
-    ASSERT_TRUE(domainAccountPolicy.IsParameterNeedShow(0));
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
