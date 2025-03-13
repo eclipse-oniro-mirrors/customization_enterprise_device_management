@@ -578,18 +578,12 @@ napi_value AccountManagerAddon::ConvertDomainAccountPolicyToJs(napi_env env,
     napi_create_object(env, &result);
     napi_value value = nullptr;
 
-    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.authenticationValidityPeriod)) {
-        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.authenticationValidityPeriod, &value));
-        NAPI_CALL(env, napi_set_named_property(env, result, "authenticationValidityPeriod", value));
-    }
-    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.passwordValidityPeriod)) {
-        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordValidityPeriod, &value));
-        NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
-    }
-    if (domainAccountPolicy.IsParameterNeedShow(domainAccountPolicy.passwordExpirationNotification)) {
-        NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
-        NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
-    }
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.authenticationValidityPeriod, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "authenticationValidityPeriod", value));
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordValidityPeriod, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
+    NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
     return result;
 }
 

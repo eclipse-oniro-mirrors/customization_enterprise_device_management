@@ -122,10 +122,5 @@ bool DomainAccountPolicy::CheckParameterValidity()
     return (authenticationValidityPeriod >= -1) && (passwordValidityPeriod >= -1) &&
         (passwordExpirationNotification >= 0);
 }
-
-bool DomainAccountPolicy::IsParameterNeedShow(int32_t param)
-{
-    return param != INT32_MIN;
-}
 } // namespace EDM
 } // namespace OHOS
