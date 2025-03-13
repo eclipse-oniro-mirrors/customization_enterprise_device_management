@@ -22,7 +22,8 @@ enum class ClipboardPolicy {
     DEFAULT = 0,
     IN_APP = 1,
     LOCAL_DEVICE = 2,
-    CROSS_DEVICE = 3
+    CROSS_DEVICE = 3,
+    UNKNOWN = 99,
 };
 
 enum ClipboardFunctionType : uint32_t {
