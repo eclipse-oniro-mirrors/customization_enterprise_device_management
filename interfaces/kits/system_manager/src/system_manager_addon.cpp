@@ -443,6 +443,9 @@ bool SystemManagerAddon::JsObjToUpgradePackageInfo(napi_env env, napi_value obje
         EDMLOGE("JsObjToUpgradePackageInfo authInfo trans failed!");
         return false;
     }
+    if (ret.size() == 0) {
+        return true;
+    }
     errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), ret.data(), ret.size());
     memset_s(ret.data(), ret.size(), 0, ret.size());
     if (err != EOK) {
