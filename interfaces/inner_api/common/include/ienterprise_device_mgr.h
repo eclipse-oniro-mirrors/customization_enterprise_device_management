@@ -61,6 +61,7 @@ public:
     virtual ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) = 0;
     virtual ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
         bool keepPolicy) = 0;
+    virtual ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

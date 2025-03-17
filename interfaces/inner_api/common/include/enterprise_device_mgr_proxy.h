@@ -61,6 +61,7 @@ public:
     ErrCode GetAdmins(MessageParcel &data, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
     ErrCode CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin, bool keepPolicy);
+    ErrCode SetAdminRunningMode(MessageParcel &data);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

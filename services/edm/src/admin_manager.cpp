@@ -178,6 +178,7 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
     getAdmin->adminInfo_.entInfo_ = adminItem.adminInfo_.entInfo_;
     getAdmin->adminInfo_.permission_ = adminItem.adminInfo_.permission_;
     getAdmin->adminInfo_.accessiblePolicies_ = adminItem.adminInfo_.accessiblePolicies_;
+    getAdmin->adminInfo_.runningMode_ = adminItem.adminInfo_.runningMode_;
     return ERR_OK;
 }
 

@@ -24,6 +24,7 @@
 #include "enterprise_device_mgr_proxy.h"
 #include "ienterprise_device_mgr.h"
 #include "managed_event.h"
+#include "running_mode.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -115,6 +116,7 @@ private:
     static napi_value StartAdminProvision(napi_env env, napi_callback_info info);
     static napi_value GetAdmins(napi_env env, napi_callback_info info);
     static napi_value ReplaceSuperAdmin(napi_env env, napi_callback_info info);
+    static napi_value SetAdminRunningMode(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -132,6 +134,7 @@ private:
     static bool ParseManagedEvent(napi_env env, std::vector<uint32_t> &managedEvent, napi_value args);
     static void CreateAdminTypeObject(napi_env env, napi_value value);
     static void CreateManagedEventObject(napi_env env, napi_value value);
+    static void CreateRunningModeObject(napi_env env, napi_value value);
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);

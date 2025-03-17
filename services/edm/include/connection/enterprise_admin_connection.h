@@ -48,6 +48,8 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode) override;
 
 private:
+    int32_t GetCurrentUserId();
+
     bool isOnAdminEnabled_;
 };
 } // namespace EDM

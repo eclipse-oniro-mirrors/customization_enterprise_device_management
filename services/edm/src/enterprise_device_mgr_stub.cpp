@@ -71,6 +71,8 @@ ErrCode EnterpriseDeviceMgrStub::CallFuncByCode(uint32_t code, MessageParcel &da
             return GetAdminsInner(data, reply);
         case EdmInterfaceCode::REPLACE_SUPER_ADMIN:
             return ReplaceSuperAdminInner(data, reply);
+        case EdmInterfaceCode::SET_ADMIN_RUNNING_MODE:
+            return SetAdminRunningModeInner(data, reply);
         default:
             return WITHOUT_FUNCTION_CODE;
     }
@@ -91,6 +93,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::GET_SUPER_ADMIN_WANT_INFO,
         EdmInterfaceCode::GET_ADMINS,
         EdmInterfaceCode::REPLACE_SUPER_ADMIN,
+        EdmInterfaceCode::SET_ADMIN_RUNNING_MODE,
     };
 }
 
@@ -335,6 +338,20 @@ ErrCode EnterpriseDeviceMgrStub::SetEnterpriseInfoInner(MessageParcel &data, Mes
         return ERR_OK;
     }
     ErrCode ret = SetEnterpriseInfo(*admin, entInfo);
+    reply.WriteInt32(ret);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::SetAdminRunningModeInner(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrStub:SetAdminRunningModeInner");
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return ERR_OK;
+    }
+    uint32_t runningMode = data.ReadUint32();
+    ErrCode ret = SetAdminRunningMode(*admin, runningMode);
     reply.WriteInt32(ret);
     return ERR_OK;
 }

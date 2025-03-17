@@ -279,6 +279,26 @@ bool BundleManagerAddon::CheckAndParseUninstallParamType(napi_env env, size_t ar
 }
 
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
+bool BundleManagerAddon::ParseParameters(napi_env env, napi_value object,
+    std::map<std::string, std::string> &parameters)
+{
+    bool hasProperty = false;
+    bool isNecessaryProp = false;
+    if (napi_has_named_property(env, object, "parameters", &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed");
+        return false;
+    }
+    if (!isNecessaryProp && !hasProperty) {
+        return false;
+    }
+    napi_value prop = nullptr;
+    if (hasProperty) {
+        return napi_get_named_property(env, object, "parameters", &prop) == napi_ok &&
+            ParseMapStringAndString(env, parameters, prop);
+    }
+    return true;
+}
+
 bool BundleManagerAddon::jsObjectToInstallParam(napi_env env, napi_value object,
     OHOS::AppExecFwk::InstallParam &installParam)
 {
@@ -298,6 +318,9 @@ bool BundleManagerAddon::jsObjectToInstallParam(napi_env env, napi_value object,
         return false;
     }
     installParam.installFlag = static_cast<OHOS::AppExecFwk::InstallFlag>(installFlag);
+    if (!ParseParameters(env, object, installParam.parameters)) {
+        EDMLOGE("parse parameters fail");
+    }
     return true;
 }
 

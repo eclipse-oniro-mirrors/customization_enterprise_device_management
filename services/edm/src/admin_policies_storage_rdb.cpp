@@ -44,7 +44,8 @@ bool AdminPoliciesStorageRdb::CreateAdminPoliciesTable()
         .append(EdmRdbFiledConst::FILED_SUBSCRIBE_EVENTS + " TEXT,")
         .append(EdmRdbFiledConst::FILED_PARENT_ADMIN + " TEXT,")
         .append(EdmRdbFiledConst::FILED_IS_DEBUG + " INTEGER,")
-        .append(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT);");
+        .append(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT,")
+        .append(EdmRdbFiledConst::FILED_RUNNING_MODE + " INTEGER);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
         return edmRdbDataManager->CreateTable(createTableSql);
@@ -137,6 +138,7 @@ bool AdminPoliciesStorageRdb::UpdateParentName(const std::string packageName, co
 NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_t userId, const Admin &admin)
 {
     NativeRdb::ValuesBucket valuesBucket;
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<int>(admin.adminInfo_.runningMode_));
     CreateUpdateValuesBucket(userId, admin, valuesBucket);
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, userId);
     valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.adminInfo_.packageName_);
@@ -169,6 +171,10 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
             policiesJson.append(policy);
         }
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES, Json::writeString(builder, policiesJson));
+    }
+    RunningMode runningMode = admin.adminInfo_.runningMode_;
+    if (runningMode != RunningMode::DEFAULT) {
+        valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<uint32_t>(runningMode));
     }
 }
 
@@ -264,6 +270,19 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
     return admins;
 }
 
+void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info)
+{
+    if (!stringInfo.empty() && stringInfo != "null") {
+        Json::Value jsonInfo;
+        ConvertStrToJson(stringInfo, jsonInfo);
+        for (uint32_t i = 0; i < jsonInfo.size(); i++) {
+            if (jsonInfo[i].isString()) {
+                info.emplace_back(jsonInfo[i].asString());
+            }
+        }
+    }
+}
+
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
     std::shared_ptr<Admin> item)
 {
@@ -280,15 +299,7 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
     std::string permissionStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
-    if (!permissionStr.empty() && permissionStr != "null") {
-        Json::Value permissionJson;
-        ConvertStrToJson(permissionStr, permissionJson);
-        for (uint32_t i = 0; i < permissionJson.size(); i++) {
-            if (permissionJson[i].isString()) {
-                item->adminInfo_.permission_.push_back(permissionJson[i].asString());
-            }
-        }
-    }
+    SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
     std::string managedEventsStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
     if (!managedEventsStr.empty() && managedEventsStr != "null") {
@@ -306,15 +317,10 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     item->adminInfo_.isDebug_ = isDebug != 0;
     std::string policiesStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
-    if (!policiesStr.empty() && policiesStr != "null") {
-        Json::Value policiesJson;
-        ConvertStrToJson(policiesStr, policiesJson);
-        for (uint32_t i = 0; i < policiesJson.size(); i++) {
-            if (policiesJson[i].isString()) {
-                item->adminInfo_.accessiblePolicies_.emplace_back(policiesJson[i].asString());
-            }
-        }
-    }
+    SetAdminStringInfo(policiesStr, item->adminInfo_.accessiblePolicies_);
+    int32_t runningMode = 0;
+    resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWELVE, runningMode);
+    item->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);
 }
 
 void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)

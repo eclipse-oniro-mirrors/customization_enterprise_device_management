@@ -225,6 +225,11 @@ public:
         return ERR_OK;
     }
 
+    ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode)
+    {
+        return ERR_OK;
+    }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM
