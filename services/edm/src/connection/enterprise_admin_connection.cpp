@@ -18,6 +18,7 @@
 #include "admin_manager.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "enterprise_conn_manager.h"
 
 namespace OHOS {
@@ -57,11 +58,32 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
 {
     EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
     if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
+        int32_t userId = EdmConstants::DEFAULT_USER_ID;
+        auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+        if (superAdmin == nullptr) {
+            EDMLOGE("OnAbilityDisconnectDone superAdmin is null");
+            return;
+        }
+        if (superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+            userId = GetCurrentUserId();
+        }
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
         sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(want_,
-            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
         manager->ConnectAbility(connection);
     }
+}
+
+int32_t EnterpriseAdminConnection::GetCurrentUserId()
+{
+    std::vector<int32_t> ids;
+    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
+    if (FAILED(ret) || ids.empty()) {
+        EDMLOGE("EnterpriseAdminConnection GetCurrentUserId failed");
+        return -1;
+    }
+    EDMLOGD("EnterpriseAdminConnection GetCurrentUserId user id = %{public}d", ids.at(0));
+    return (ids.at(0));
 }
 }  // namespace EDM
 }  // namespace OHOS

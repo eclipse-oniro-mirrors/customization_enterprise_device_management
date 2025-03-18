@@ -32,6 +32,17 @@ bool InstallParamSerializer::GetPolicy(MessageParcel &data, InstallParam &result
     data.ReadStringVector(&result.hapFilePaths);
     result.userId = data.ReadInt32();
     result.installFlag = data.ReadInt32();
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
+    data.ReadStringVector(&keys);
+    data.ReadStringVector(&values);
+    if (keys.size() != values.size()) {
+        EDMLOGE("key and value size is not equal");
+        return false;
+    }
+    for (size_t i = 0; i < keys.size(); ++i) {
+        result.parameters[keys[i]] = values[i];
+    }
     return true;
 }
 

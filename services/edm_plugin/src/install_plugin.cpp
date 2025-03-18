@@ -190,6 +190,7 @@ ErrCode InstallPlugin::InstallParamInit(InstallParam &param, MessageParcel &repl
         }
         realPaths.emplace_back(realPath);
     }
+    installParam.parameters = param.parameters;
     return ERR_OK;
 }
 } // namespace EDM

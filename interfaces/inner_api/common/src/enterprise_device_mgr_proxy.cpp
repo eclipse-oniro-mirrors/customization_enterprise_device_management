@@ -280,6 +280,31 @@ ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseInfo(MessageParcel &data)
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrProxy::SetAdminRunningMode(MessageParcel &data)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SetAdminRunningMode");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    ErrCode res = remote->SendRequest(EdmInterfaceCode::SET_ADMIN_RUNNING_MODE, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:SetAdminRunningMode send request fail. %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t resCode = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:SetAdminRunningMode get result code fail. %{public}d", resCode);
+        return resCode;
+    }
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events, bool subscribe)
 {

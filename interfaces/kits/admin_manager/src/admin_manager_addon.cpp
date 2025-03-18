@@ -424,6 +424,25 @@ void AdminManager::NativeSetEnterpriseInfo(napi_env env, void *data)
     asyncCallbackInfo->ret = proxy->SetEnterpriseInfo(asyncCallbackInfo->data);
 }
 
+napi_value AdminManager::SetAdminRunningMode(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetAdminRunningMode called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetAdminRunningMode";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
+    addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetAdminRunningMode(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
 napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsSuperAdmin called");
@@ -868,6 +887,16 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_ACCOUNT_REMOVED", nUserRemoved));
 }
 
+void AdminManager::CreateRunningModeObject(napi_env env, napi_value value)
+{
+    napi_value nDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(RunningMode::DEFAULT), &nDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+    napi_value nMultiUser;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(RunningMode::MULTI_USER), &nMultiUser));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MULTI_USER", nMultiUser));
+}
+
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSuperAdmin called");
@@ -1000,6 +1029,10 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nManagedEvent));
     CreateManagedEventObject(env, nManagedEvent);
 
+    napi_value nRunningMode = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nRunningMode));
+    CreateRunningModeObject(env, nRunningMode);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("enableAdmin", EnableAdmin),
         DECLARE_NAPI_FUNCTION("disableAdmin", DisableAdmin),
@@ -1020,9 +1053,11 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("startAdminProvision", StartAdminProvision),
         DECLARE_NAPI_FUNCTION("getAdmins", GetAdmins),
         DECLARE_NAPI_FUNCTION("replaceSuperAdmin", ReplaceSuperAdmin),
+        DECLARE_NAPI_FUNCTION("setAdminRunningMode", SetAdminRunningMode),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
+        DECLARE_NAPI_PROPERTY("RunningMode", nRunningMode),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;

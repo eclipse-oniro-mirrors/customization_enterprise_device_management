@@ -24,6 +24,7 @@
 #include "edm_errors.h"
 #include "ent_info.h"
 #include "managed_event.h"
+#include "running_mode.h"
 #include "parcel_macro.h"
 
 namespace OHOS {
@@ -38,6 +39,7 @@ struct AdminInfo {
     std::vector<std::string> accessiblePolicies_;
     AdminType adminType_ = AdminType::UNKNOWN;
     bool isDebug_ = false;
+    RunningMode runningMode_ = RunningMode::DEFAULT;
 };
 
 class Admin {

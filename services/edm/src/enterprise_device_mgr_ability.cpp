@@ -253,6 +253,15 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
         return;
     }
     EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin == nullptr) {
+        EDMLOGE("EnterpriseDeviceMgrAbility superAdmin is null");
+        return;
+    }
+    bool isInstall = GetBundleMgr()->IsBundleInstalled(superAdmin->adminInfo_.packageName_, userIdToSwitch);
+    if (isInstall && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+        ConnectAbility(userIdToSwitch, superAdmin);
+    }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
 }
 
@@ -404,6 +413,16 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
     }
 }
 
+void EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin)
+{
+    AAFwk::Want want;
+    want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection =
+        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
+    manager->ConnectAbility(connection);
+}
+
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
     ManagedEvent event, int32_t userId)
 {
@@ -418,8 +437,12 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
             std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            int32_t currentUserId = subAdmin.first;
+            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+                currentUserId = GetCurrentUserId();
+            }
             sptr<IEnterpriseConnection> connection =
-                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), subAdmin.first, bundleName, userId);
+                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
             manager->ConnectAbility(connection);
         }
     }
@@ -1741,6 +1764,36 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(AppExecFwk::ElementName &a
     }
     ErrCode code = AdminManager::GetInstance()->SetEntInfo(admin.GetBundleName(), entInfo, userId);
     return (code != ERR_OK) ? EdmReturnErrCode::ADMIN_INACTIVE : ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode)
+{
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+    int32_t userId = GetCurrentUserId();
+    std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
+    if (adminItem == nullptr) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::SetAdminRunningMode check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (!CheckRunningMode(runningMode)) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    adminItem->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);
+    return AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, *adminItem);
+}
+
+bool EnterpriseDeviceMgrAbility::CheckRunningMode(uint32_t runningMode)
+{
+    if (runningMode >= static_cast<uint32_t>(RunningMode::DEFAULT) &&
+        runningMode <= static_cast<uint32_t>(RunningMode::MULTI_USER)) {
+        return true;
+    }
+    return false;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe)

@@ -44,6 +44,7 @@ private:
     void CreateUpdateValuesBucket(int32_t userId, const Admin &admin, NativeRdb::ValuesBucket &valuesBucket);
     void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
     void ConvertStrToJson(const std::string &str, Json::Value &json);
+    void SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info);
     static bool CreateAdminPoliciesTable();
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;
     static std::once_flag flag_;

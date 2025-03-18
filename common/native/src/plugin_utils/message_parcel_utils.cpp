@@ -237,6 +237,14 @@ void MessageParcelUtils::WriteInstallParam(const AppExecFwk::InstallParam &insta
 {
     data.WriteInt32(installParam.userId);
     data.WriteInt32(static_cast<int>(installParam.installFlag));
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
+    for (const auto &pair : installParam.parameters) {
+        keys.push_back(pair.first);
+        values.push_back(pair.second);
+    }
+    data.WriteStringVector(keys);
+    data.WriteStringVector(values);
 }
 
 void MessageParcelUtils::WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data)

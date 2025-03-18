@@ -98,6 +98,7 @@ private:
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);
     static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
+    static bool ParseParameters(napi_env env, napi_value object, std::map<std::string, std::string> &parameters);
 #endif
     static napi_value AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info, const std::string &workName,
         bool isAdd);

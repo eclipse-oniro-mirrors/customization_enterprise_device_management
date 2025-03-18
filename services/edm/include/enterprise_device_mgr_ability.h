@@ -73,6 +73,7 @@ public:
     bool IsSuperAdmin(const std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
+    void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
         std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
         commonEventFuncMap_;
@@ -84,6 +85,7 @@ public:
     virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
     ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
         bool keepPolicy) override;
+    ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode) override;
 
 protected:
     void OnStart() override;
@@ -142,6 +144,7 @@ private:
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
     void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
+    bool CheckRunningMode(uint32_t runningMode);
 #ifdef PASTEBOARD_EDM_ENABLE
     void OnPasteboardServiceStart();
 #endif
