@@ -288,7 +288,7 @@ bool BundleManagerAddon::ParseParameters(napi_env env, napi_value object,
         EDMLOGE("get js property failed");
         return false;
     }
-    if (!isNecessaryProp && !hasProperty) {
+    if (isNecessaryProp && !hasProperty) {
         return false;
     }
     napi_value prop = nullptr;
@@ -320,6 +320,7 @@ bool BundleManagerAddon::jsObjectToInstallParam(napi_env env, napi_value object,
     installParam.installFlag = static_cast<OHOS::AppExecFwk::InstallFlag>(installFlag);
     if (!ParseParameters(env, object, installParam.parameters)) {
         EDMLOGE("parse parameters fail");
+        return false;
     }
     return true;
 }
