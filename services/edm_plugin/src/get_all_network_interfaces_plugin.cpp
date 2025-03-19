@@ -41,7 +41,8 @@ void GetAllNetworkInterfacesPlugin::InitPlugin(
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::GET_NETWORK_INTERFACES, "get_network_interfaces", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_NETWORK_INTERFACES, PolicyName::POLICY_GET_NETWORK_INTERFACES,
+        config, false);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
 }
 

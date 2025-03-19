@@ -32,7 +32,7 @@ void FirewallRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<FirewallRulePlugin, IPTABLES::FirewallRuleParcel>> ptr)
 {
     EDMLOGI("FirewallRulePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::FIREWALL_RULE, "firewall_rule",
+    ptr->InitAttribute(EdmInterfaceCode::FIREWALL_RULE, PolicyName::POLICY_FIREWALL_RULE,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(FirewallRuleSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&FirewallRulePlugin::OnSetPolicy, FuncOperateType::SET);

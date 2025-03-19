@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisableCameraQuery::GetPolicyName()
 {
-    return "disable_camera";
+    return PolicyName::POLICY_DISABLE_CAMERA;
 }
 
 std::string DisableCameraQuery::GetPermission(IPlugin::PermissionType permissionType, const std::string &permissionTag)

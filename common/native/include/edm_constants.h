@@ -158,6 +158,77 @@ namespace EdmPermission {
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
 } // namespace EdmPermission
+namespace PolicyName {
+    // open-source
+    const char* const POLICY_ADD_OS_ACCOUNT = "add_os_account";
+    const char* const POLICY_ALLOWED_BLUETOOTH_DEVICES = "allowed_bluetooth_devices";
+    const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
+    const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
+    const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";
+    const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";
+    const char* const POLICY_DISABLE_CAMERA = "disable_camera";
+    const char* const POLICY_DISABLED_HDC = "disabled_hdc";
+    const char* const POLICY_DISABLED_MAINTENANCE_MODE = "disabled_maintenance_mode";
+    const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
+    const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
+    const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
+    const char* const POLICY_DISABLE_USB = "disable_usb";
+    const char* const POLICY_DISABLED_NETWORK_INTERFACE = "disabled_network_interface";
+    const char* const POLICY_DISALLOW_ADD_LOCAL_ACCOUNT = "disallow_add_local_account";
+    const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";
+    const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
+    const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
+    const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
+    const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
+    const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
+    const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
+    const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
+    const char* const POLICY_FIREWALL_RULE = "firewall_rule";
+    const char* const POLICY_GET_ADMINPROVISION_INFO = "get_adminprovision_info";
+    const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
+    const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
+    const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
+    const char* const POLICY_GET_IP_ADDRESS = "get_ip_address";
+    const char* const POLICY_GET_MAC = "get_mac";
+    const char* const POLICY_GLOBAL_PROXY = "global_proxy";
+    const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
+    const char* const POLICY_INSTALL = "install";
+    const char* const POLICY_IPTABLES_RULE = "iptables_rule";
+    const char* const POLICY_IS_WIFI_ACTIVE = "is_wifi_active";
+    const char* const POLICY_LOCATION_POLICY = "location_policy";
+    const char* const POLICY_LOCK_SCREEN = "lock_screen";
+    const char* const POLICY_MANAGE_AUTO_START_APPS = "manage_auto_start_apps";
+    const char* const POLICY_MANAGE_KEEP_ALIVE_APPS = "manage_keep_alive_apps";
+    const char* const POLICY_MANAGED_BROWSER_POLICY = "managed_browser_policy";
+    const char* const POLICY_NOTIFY_UPGRADE_PACKAGES = "notify_upgrade_packages";
+    const char* const POLICY_NTP_SERVER = "ntp_server";
+    const char* const POLICY_OPERATE_DEVICE = "operate_device";
+    const char* const POLICY_PASSWORD_POLICY = "password_policy";
+    const char* const POLICY_POWER_POLICY = "power_policy";
+    const char* const POLICY_REBOOT = "reboot";
+    const char* const POLICY_RESET_FACTORY = "reset_factory";
+    const char* const POLICY_SCREEN_OFF_TIME = "screen_off_time";
+    const char* const POLICY_SET_BROWSER_POLICIES = "set_browser_policies";
+    const char* const POLICY_SET_DATETIME = "set_datetime";
+    const char* const POLICY_SET_DOMAIN_ACCOUNT_POLICY = "set_domain_account_policy";
+    const char* const POLICY_SET_UPDATE_POLICY = "set_update_policy";
+    const char* const POLICY_DISABLE_WIFI = "disable_wifi";
+    const char* const POLICY_SET_WIFI_PROFILE = "set_wifi_profile";
+    const char* const POLICY_SHUTDOWN_DEVICE = "shutdown_device";
+    const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
+    const char* const POLICY_UNINSTALL = "uninstall";
+    const char* const POLICY_USB_READ_ONLY = "usb_read_only";
+    const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
+    const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    // closed-source
+    const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
+    const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
+    const char* const POLICY_GET_SECURITY_PATCH_TAG = "get_security_patch_tag";
+    const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
+    const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
+} // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
 

@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisableMicrophoneQuery::GetPolicyName()
 {
-    return "disable_microphone";
+    return PolicyName::POLICY_DISABLE_MICROPHONE;
 }
 
 std::string DisableMicrophoneQuery::GetPermission(IPlugin::PermissionType permissionType,

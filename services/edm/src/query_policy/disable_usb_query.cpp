@@ -24,7 +24,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisableUsbQuery::GetPolicyName()
 {
-    return "disable_usb";
+    return PolicyName::POLICY_DISABLE_USB;
 }
 
 std::string DisableUsbQuery::GetPermission(IPlugin::PermissionType permissionType, const std::string &permissionTag)

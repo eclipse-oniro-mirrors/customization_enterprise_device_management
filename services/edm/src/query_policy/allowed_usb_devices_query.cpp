@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string AllowedUsbDevicesQuery::GetPolicyName()
 {
-    return "allowed_usb_devices";
+    return PolicyName::POLICY_ALLOWED_USB_DEVICES;
 }
 
 std::string AllowedUsbDevicesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

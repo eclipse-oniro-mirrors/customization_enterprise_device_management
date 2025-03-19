@@ -42,7 +42,7 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, "disable_wifi", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_WIFI, PolicyName::POLICY_DISABLE_WIFI, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetWifiDisabledPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&SetWifiDisabledPlugin::OnAdminRemove);

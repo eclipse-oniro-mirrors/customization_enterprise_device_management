@@ -79,7 +79,6 @@ const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
 const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
 const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
-const std::string DISALLOWED_UNINSTALL_POLICY =  "disallowed_uninstall_bundles";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::dataLock_;
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
@@ -623,15 +622,26 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
     EDMLOGI("InitAllPolices userIds size %{public}zu", userIds.size());
     devicePolicies->QueryAllUserId(userIds);
     policyMgr_->Init(userIds);
-    allowDelegatedPolicies_ = { "disallow_add_local_account", "disallow_add_os_account_by_user",
-        "disallow_running_bundles", "manage_auto_start_apps", "allowed_bluetooth_devices", "set_browser_policies",
-        "allowed_install_bundles", "disallowed_install_bundles", "disallowed_uninstall_bundles", "snapshot_skip",
-        "location_policy", "disabled_network_interface", "global_proxy", "disabled_bluetooth",
-        "disallow_modify_datetime", "disabled_printer", "policy_screen_shot", "disabled_hdc", "disable_microphone",
-        "fingerprint_auth", "disable_usb", "disable_wifi", "disallowed_tethering", "inactive_user_freeze",
-        "password_policy", "clipboard_policy", "ntp_server", "set_update_policy", "notify_upgrade_packages",
-        "allowed_usb_devices", "usb_read_only", "disallowed_usb_devices", "get_device_info", "watermark_image_policy",
-        "policy_screen_record" };
+    allowDelegatedPolicies_ = {
+        PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+        PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
+        PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES, PolicyName::POLICY_SET_BROWSER_POLICIES,
+        PolicyName::POLICY_ALLOWED_INSTALL_BUNDLES, PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES,
+        PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, PolicyName::POLICY_SNAPSHOT_SKIP,
+        PolicyName::POLICY_LOCATION_POLICY, PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
+        PolicyName::POLICY_GLOBAL_PROXY, PolicyName::POLICY_DISABLED_BLUETOOTH,
+        PolicyName::POLICY_DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISABLED_PRINTER,
+        PolicyName::POLICY_POLICY_SCREEN_SHOT, PolicyName::POLICY_DISABLED_HDC,
+        PolicyName::POLICY_DISABLE_MICROPHONE, PolicyName::POLICY_FINGERPRINT_AUTH,
+        PolicyName::POLICY_DISABLE_USB, PolicyName::POLICY_DISABLE_WIFI,
+        PolicyName::POLICY_DISALLOWED_TETHERING, PolicyName::POLICY_INACTIVE_USER_FREEZE,
+        PolicyName::POLICY_PASSWORD_POLICY, PolicyName::POLICY_CLIPBOARD_POLICY,
+        PolicyName::POLICY_NTP_SERVER, PolicyName::POLICY_SET_UPDATE_POLICY,
+        PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
+        PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
+        PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        PolicyName::POLICY_POLICY_SCREEN_RECORD
+    };
 }
 
 void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
@@ -726,7 +736,7 @@ void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart()
 {
     EDMLOGI("OnPasteboardServiceStart");
     std::string policyData;
-    policyMgr_->GetPolicy("", "clipboard_policy", policyData, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_CLIPBOARD_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
     auto clipboardSerializer_ = ClipboardSerializer::GetInstance();
     std::map<int32_t, ClipboardInfo> policyMap;
     clipboardSerializer_->Deserialize(policyData, policyMap);
@@ -739,7 +749,7 @@ void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart()
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart");
     std::string policyData;
-    policyMgr_->GetPolicy("", "disabled_network_interface", policyData, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_DISABLED_NETWORK_INTERFACE, policyData, EdmConstants::DEFAULT_USER_ID);
     std::map<std::string, std::string> policyMap;
     MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
     HandleDisallowedNetworkInterface(policyMap);
@@ -774,7 +784,7 @@ void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart()
 void EnterpriseDeviceMgrAbility::SetPasswordPolicy()
 {
     std::string policyData;
-    policyMgr_->GetPolicy("", "password_policy", policyData, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_PASSWORD_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
     auto serializer_ = PasswordSerializer::GetInstance();
     PasswordPolicy policy;
     serializer_->Deserialize(policyData, policy);
@@ -791,7 +801,7 @@ void EnterpriseDeviceMgrAbility::SetPasswordPolicy()
 void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
 {
     std::string policyData;
-    policyMgr_->GetPolicy("", "fingerprint_auth", policyData, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_FINGERPRINT_AUTH, policyData, EdmConstants::DEFAULT_USER_ID);
     auto serializer_ = FingerprintPolicySerializer::GetInstance();
     FingerprintPolicy policy;
     serializer_->Deserialize(policyData, policy);
@@ -814,7 +824,7 @@ void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
 {
     EDMLOGI("OnUsbServiceStart");
     std::string disableUsbPolicy;
-    policyMgr_->GetPolicy("", "disable_usb", disableUsbPolicy, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsbPolicy, EdmConstants::DEFAULT_USER_ID);
     bool isUsbDisabled = false;
     BoolSerializer::GetInstance()->Deserialize(policyData, isUsbDisabled);
     if (isUsbDisabled) {
@@ -826,7 +836,8 @@ void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
     }
 
     std::string allowUsbDevicePolicy;
-    policyMgr_->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevicePolicy,
+        EdmConstants::DEFAULT_USER_ID);
     std::vector<UsbDeviceId> usbDeviceIds;
     ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
     if (!usbDeviceIds.empty()) {
@@ -838,10 +849,11 @@ void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
     }
 
     std::string usbStoragePolicy;
-    policyMgr_->GetPolicy("", "usb_read_only", usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
 
     std::string disallowUsbDevicePolicy;
-    policyMgr_->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy, EdmConstants::DEFAULT_USER_ID);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy,
+        EdmConstants::DEFAULT_USER_ID);
     std::vector<USB::UsbDeviceType> disallowedDevices;
     ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(policyData, disallowedDevices);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
@@ -890,7 +902,7 @@ void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart()
     std::unordered_map<int32_t, std::vector<std::string>> policyMap;
     for (int32_t userId : userIds) {
         std::string policyData;
-        policyMgr_->GetPolicy("", "snapshot_skip", policyData, userId);
+        policyMgr_->GetPolicy("", PolicyName::POLICY_SNAPSHOT_SKIP, policyData, userId);
         std::vector<std::string> vecData;
         serializer->Deserialize(policyData, vecData);
         if (vecData.empty()) {
@@ -1132,9 +1144,9 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     std::string adminPolicyValue;
-    policyMgr_->GetPolicy(adminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue);
+    policyMgr_->GetPolicy(adminName, PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, adminPolicyValue);
     std::string combinedPolicyValue;
-    policyMgr_->GetPolicy("", DISALLOWED_UNINSTALL_POLICY, combinedPolicyValue);
+    policyMgr_->GetPolicy("", PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, combinedPolicyValue);
 
     if (FAILED(policyMgr_->ReplaceAllPolicy(DEFAULT_USER_ID, adminName, newAdminName))) {
         EDMLOGE("ReplaceSuperAdmin update device Policies Failed");
@@ -1152,8 +1164,8 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
         combinedPolicyValue.replace(combinedPolicyValue.find(adminName), adminName.length(), newAdminName);
         EDMLOGD("ReplaceSuperAdmin uninstall new admin policy value: %{public}s", adminPolicyValue.c_str());
         EDMLOGD("ReplaceSuperAdmin uninstall new combined policy value: %{public}s", combinedPolicyValue.c_str());
-        if (FAILED(policyMgr_->SetPolicy(newAdminName, DISALLOWED_UNINSTALL_POLICY, adminPolicyValue,
-            combinedPolicyValue))) {
+        if (FAILED(policyMgr_->SetPolicy(newAdminName, PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES,
+            adminPolicyValue, combinedPolicyValue))) {
             EDMLOGE("ReplaceSuperAdmin update uninstall policy failed");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }

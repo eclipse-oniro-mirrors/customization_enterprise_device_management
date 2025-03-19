@@ -32,7 +32,7 @@ void AddOsAccountPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<AddOsAccount
     std::map<std::string, std::string>>> ptr)
 {
     EDMLOGI("AddOsAccountPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::ADD_OS_ACCOUNT, "add_os_account",
+    ptr->InitAttribute(EdmInterfaceCode::ADD_OS_ACCOUNT, PolicyName::POLICY_ADD_OS_ACCOUNT,
         EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AddOsAccountPlugin::OnSetPolicy, FuncOperateType::SET);

@@ -48,7 +48,7 @@ constexpr int32_t MAX_POLICY_FILE_SIZE = 134217728; // 128 * 1024 * 1024
 ManagedBrowserPolicyPlugin::ManagedBrowserPolicyPlugin()
 {
     policyCode_ = EdmInterfaceCode::MANAGED_BROWSER_POLICY;
-    policyName_ = "managed_browser_policy";
+    policyName_ = PolicyName::POLICY_MANAGED_BROWSER_POLICY;
     permissionMap_.insert(std::make_pair(
         FuncOperateType::SET, IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_SET_BROWSER_POLICY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC)));

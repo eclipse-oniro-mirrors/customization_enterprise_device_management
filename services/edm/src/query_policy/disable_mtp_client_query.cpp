@@ -24,7 +24,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisableMtpClientQuery::GetPolicyName()
 {
-    return "disabled_mtp_client";
+    return PolicyName::POLICY_DISABLED_MTP_CLIENT;
 }
 
 std::string DisableMtpClientQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

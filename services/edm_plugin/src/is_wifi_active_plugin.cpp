@@ -41,7 +41,7 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, "is_wifi_active", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, PolicyName::POLICY_IS_WIFI_ACTIVE, config, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
 }
 

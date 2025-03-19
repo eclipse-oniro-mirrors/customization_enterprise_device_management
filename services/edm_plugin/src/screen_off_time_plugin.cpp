@@ -35,7 +35,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ScreenOffT
 void ScreenOffTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ScreenOffTimePlugin, int32_t>> ptr)
 {
     EDMLOGI("ScreenOffTimePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SCREEN_OFF_TIME, "screen_off_time", false);
+    ptr->InitAttribute(EdmInterfaceCode::SCREEN_OFF_TIME, PolicyName::POLICY_SCREEN_OFF_TIME, false);
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissionsForSet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForSet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForSet;

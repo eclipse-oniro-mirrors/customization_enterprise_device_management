@@ -41,7 +41,7 @@ void GetBluetoothInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetBluet
     std::string>> ptr)
 {
     EDMLOGI("GetBluetoothInfoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_BLUETOOTH_INFO, "get_bluetooth_info",
+    ptr->InitAttribute(EdmInterfaceCode::GET_BLUETOOTH_INFO, PolicyName::POLICY_GET_BLUETOOTH_INFO,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }

@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string GetSecurityPatchTagQuery::GetPolicyName()
 {
-    return "get_security_patch_tag";
+    return PolicyName::POLICY_GET_SECURITY_PATCH_TAG;
 }
 
 std::string GetSecurityPatchTagQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

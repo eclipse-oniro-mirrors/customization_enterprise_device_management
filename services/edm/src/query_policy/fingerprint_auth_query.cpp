@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string FingerprintAuthQuery::GetPolicyName()
 {
-    return "fingerprint_auth";
+    return PolicyName::POLICY_FINGERPRINT_AUTH;
 }
 
 std::string FingerprintAuthQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

@@ -21,7 +21,7 @@ namespace OHOS {
 namespace EDM {
 std::string SetWifiDisabledQuery::GetPolicyName()
 {
-    return "disable_wifi";
+    return PolicyName::POLICY_DISABLE_WIFI;
 }
 
 std::string SetWifiDisabledQuery::GetPermission(IPlugin::PermissionType permissionType,

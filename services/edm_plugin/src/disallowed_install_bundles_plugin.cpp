@@ -27,7 +27,7 @@ void DisallowedInstallBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedInstallBundlesPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("DisallowedInstallBundlesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES, "disallowed_install_bundles",
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES, PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES,
         EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());

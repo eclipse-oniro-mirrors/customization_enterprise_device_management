@@ -18,6 +18,7 @@
 #include "domain_account_client.h"
 #include "domain_account_common.h"
 #include "domain_account_policy.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
@@ -30,9 +31,9 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_
 SetDomainAccountPolicyPlugin::SetDomainAccountPolicyPlugin()
 {
     policyCode_ = EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY;
-    policyName_ = "set_domain_account_policy";
+    policyName_ = PolicyName::POLICY_SET_DOMAIN_ACCOUNT_POLICY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY");
+        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = false;
 }

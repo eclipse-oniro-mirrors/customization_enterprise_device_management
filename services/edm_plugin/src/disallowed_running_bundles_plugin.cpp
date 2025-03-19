@@ -43,7 +43,8 @@ void DisallowedRunningBundlesPlugin::InitPlugin(
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, "disallow_running_bundles", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES,
+        config, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnBasicSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedRunningBundlesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);

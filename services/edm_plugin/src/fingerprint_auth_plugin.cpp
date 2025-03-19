@@ -26,7 +26,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_
 FingerprintAuthPlugin::FingerprintAuthPlugin()
 {
     policyCode_ = EdmInterfaceCode::FINGERPRINT_AUTH;
-    policyName_ = "fingerprint_auth";
+    policyName_ = PolicyName::POLICY_FINGERPRINT_AUTH;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;

@@ -37,7 +37,7 @@ const std::string KEY_TIME_OUT = "timeout";
 PowerPolicyPlugin::PowerPolicyPlugin()
 {
     policyCode_ = EdmInterfaceCode::POWER_POLICY;
-    policyName_ = "power_policy";
+    policyName_ = PolicyName::POLICY_POWER_POLICY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;

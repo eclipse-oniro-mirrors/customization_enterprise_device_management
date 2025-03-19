@@ -36,7 +36,7 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, "disable_microphone", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, PolicyName::POLICY_DISABLE_MICROPHONE, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMicrophonePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableMicrophonePlugin::OnAdminRemove);

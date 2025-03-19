@@ -14,6 +14,7 @@
  */
 #include "get_adminprovision_info_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
@@ -26,7 +27,7 @@ const char* const BUNDLE_NAME = "com.ohos.adminprovisioning";
 GetAdminProvisionInfoPlugin::GetAdminProvisionInfoPlugin()
 {
     policyCode_ = EdmInterfaceCode::GET_ADMINPROVISION_INFO;
-    policyName_ = "get_adminprovision_info";
+    policyName_ = PolicyName::POLICY_GET_ADMINPROVISION_INFO;
 }
 
 ErrCode GetAdminProvisionInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

@@ -29,7 +29,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(NTPServerP
 void NTPServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr)
 {
     EDMLOGI("NTPServerPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::NTP_SERVER, "ntp_server",
+    ptr->InitAttribute(EdmInterfaceCode::NTP_SERVER, PolicyName::POLICY_NTP_SERVER,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(StringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&NTPServerPlugin::OnSetPolicy, FuncOperateType::SET);

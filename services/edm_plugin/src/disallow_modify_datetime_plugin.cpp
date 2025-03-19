@@ -38,7 +38,8 @@ void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disa
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, "disallow_modify_datetime", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISALLOW_MODIFY_DATETIME,
+        config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallModifyDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallModifyDateTimePlugin::OnAdminRemove);

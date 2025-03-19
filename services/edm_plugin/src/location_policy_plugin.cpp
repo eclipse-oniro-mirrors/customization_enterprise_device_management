@@ -28,7 +28,7 @@ const std::string PARAM_EDM_LOCATION_POLICY = "persist.edm.location_policy";
 void LocationPolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LocationPolicyPlugin, int32_t>> ptr)
 {
     EDMLOGI("LocationPolicyPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::LOCATION_POLICY, "location_policy",
+    ptr->InitAttribute(EdmInterfaceCode::LOCATION_POLICY, PolicyName::POLICY_LOCATION_POLICY,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_LOCATION, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&LocationPolicyPlugin::OnSetPolicy, FuncOperateType::SET);

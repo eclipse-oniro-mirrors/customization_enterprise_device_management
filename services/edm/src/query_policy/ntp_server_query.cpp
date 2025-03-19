@@ -24,7 +24,7 @@ const std::string KEY_NTP_SERVER = "persist.time.ntpserver_specific";
 
 std::string NTPServerQuery::GetPolicyName()
 {
-    return "ntp_server";
+    return PolicyName::POLICY_NTP_SERVER;
 }
 
 std::string NTPServerQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

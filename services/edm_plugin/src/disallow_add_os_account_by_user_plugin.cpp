@@ -31,8 +31,9 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddOsAccountByUserPlugin, std::map<std::string, std::string>>> ptr)
 {
     EDMLOGI("DisallowAddOsAccountByUserPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER, "disallow_add_os_account_by_user",
-        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+        PolicyName::POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER, EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddOsAccountByUserPlugin::OnSetPolicy, FuncOperateType::SET);
 }

@@ -31,7 +31,7 @@ void ClipboardPolicyPlugin::InitPlugin(
 {
     EDMLOGI("ClipboardPolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::CLIPBOARD_POLICY,
-        "clipboard_policy", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
+        PolicyName::POLICY_CLIPBOARD_POLICY, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ClipboardSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ClipboardPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
