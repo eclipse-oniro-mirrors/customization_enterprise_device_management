@@ -144,10 +144,14 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
         return;
     }
     AAFwk::Want want;
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate EnterpriseConnManager null");
+        return;
+    }
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
             sptr<IEnterpriseConnection> connection =
                 manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
             manager->ConnectAbility(connection);
