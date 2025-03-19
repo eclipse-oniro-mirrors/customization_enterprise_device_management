@@ -36,7 +36,10 @@ ErrCode AllowedUsbDevicesQuery::QueryPolicy(std::string &policyData, MessageParc
     EDMLOGI("AllowedUsbDevicesQuery OnGetPolicy policyData : %{public}s, userId : %{public}d", policyData.c_str(),
         userId);
     std::vector<UsbDeviceId> usbDeviceIds;
-    ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
+    if (!ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds)) {
+        EDMLOGE("AllowedUsbDevicesQuery OnGetPolicy Deserialize error");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     reply.WriteInt32(ERR_OK);
     reply.WriteUint32(usbDeviceIds.size());
     for (const auto &usbDeviceId : usbDeviceIds) {
