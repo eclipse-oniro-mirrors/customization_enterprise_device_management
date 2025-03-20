@@ -300,16 +300,10 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     std::string permissionStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
     SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
-    std::string managedEventsStr;
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
-    if (!managedEventsStr.empty() && managedEventsStr != "null") {
-        Json::Value managedEventsJson;
-        ConvertStrToJson(managedEventsStr, managedEventsJson);
-        for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
-            if (managedEventsJson[i].isUInt()) {
-                item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
-            }
-        }
+    bool isManagedEventStrNull = false;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, isManagedEventStrNull);
+    if (!isManagedEventStrNull) {
+        SetManagedEventStr(resultSet, item);
     }
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_NINE, item->adminInfo_.parentAdminName_);
     int isDebug = 0;
@@ -321,6 +315,22 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     int32_t runningMode = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWELVE, runningMode);
     item->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);
+}
+
+void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet,
+    std::shared_ptr<Admin> item)
+{
+    std::string managedEventsStr;
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
+    if (!managedEventsStr.empty() && managedEventsStr != "null") {
+        Json::Value managedEventsJson;
+        ConvertStrToJson(managedEventsStr, managedEventsJson);
+        for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
+            if (managedEventsJson[i].isUInt()) {
+                item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
+            }
+        }
+    }
 }
 
 void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)
