@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisableBluetoothQuery::GetPolicyName()
 {
-    return "disabled_bluetooth";
+    return PolicyName::POLICY_DISABLED_BLUETOOTH;
 }
 
 std::string DisableBluetoothQuery::GetPermission(IPlugin::PermissionType permissionType,

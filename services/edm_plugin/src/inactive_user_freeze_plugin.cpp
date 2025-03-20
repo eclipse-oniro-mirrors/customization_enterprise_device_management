@@ -27,7 +27,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InactiveUs
 void InactiveUserFreezePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InactiveUserFreezePlugin, bool>> ptr)
 {
     EDMLOGI("InactiveUserFreezePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::INACTIVE_USER_FREEZE, "inactive_user_freeze",
+    ptr->InitAttribute(EdmInterfaceCode::INACTIVE_USER_FREEZE, PolicyName::POLICY_INACTIVE_USER_FREEZE,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&InactiveUserFreezePlugin::OnSetPolicy, FuncOperateType::SET);

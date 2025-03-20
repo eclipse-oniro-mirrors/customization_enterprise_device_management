@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 std::string ClipboardPolicyQuery::GetPolicyName()
 {
-    return "clipboard_policy";
+    return PolicyName::POLICY_CLIPBOARD_POLICY;
 }
 
 std::string ClipboardPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

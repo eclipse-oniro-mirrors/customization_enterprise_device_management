@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 std::string PasswordPolicyQuery::GetPolicyName()
 {
-    return "password_policy";
+    return PolicyName::POLICY_PASSWORD_POLICY;
 }
 
 std::string PasswordPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

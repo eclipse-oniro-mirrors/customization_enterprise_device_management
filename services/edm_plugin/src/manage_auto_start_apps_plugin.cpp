@@ -36,7 +36,7 @@ void ManageAutoStartAppsPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<ManageAutoStartAppsPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("ManageAutoStartAppsPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, "manage_auto_start_apps",
+    ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicSetPolicy, FuncOperateType::SET);

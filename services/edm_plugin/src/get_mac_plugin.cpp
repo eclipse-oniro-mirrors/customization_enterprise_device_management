@@ -40,7 +40,7 @@ void GetMacPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std:
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::GET_MAC, "get_mac", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_MAC, PolicyName::POLICY_GET_MAC, config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

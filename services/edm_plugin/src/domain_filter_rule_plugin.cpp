@@ -32,7 +32,7 @@ void DomainFilterRulePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DomainFilterRulePlugin, IPTABLES::DomainFilterRuleParcel>> ptr)
 {
     EDMLOGI("DomainFilterRulePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, "domain_filter_rule",
+    ptr->InitAttribute(EdmInterfaceCode::DOMAIN_FILTER_RULE, PolicyName::POLICY_DOMAIN_FILTER_RULE,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(DomainFilterRuleSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DomainFilterRulePlugin::OnSetPolicy, FuncOperateType::SET);

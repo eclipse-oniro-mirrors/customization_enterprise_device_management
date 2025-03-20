@@ -33,7 +33,7 @@ void AllowedBluetoothDevicesPlugin::InitPlugin(
 
 {
     EDMLOGI("AllowedBluetoothDevicesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, "allowed_bluetooth_devices",
+    ptr->InitAttribute(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnBasicSetPolicy, FuncOperateType::SET);

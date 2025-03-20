@@ -27,7 +27,7 @@ IPlugin::ApiType GetDisplayVersionQuery::GetApiType()
 
 std::string GetDisplayVersionQuery::GetPolicyName()
 {
-    return "get_display_version";
+    return PolicyName::POLICY_GET_DISPLAY_VERSION;
 }
 
 std::string GetDisplayVersionQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

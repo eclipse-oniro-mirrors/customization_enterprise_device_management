@@ -36,7 +36,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceI
 void GetDeviceInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceInfoPlugin, std::string>> ptr)
 {
     EDMLOGI("GetDeviceInfoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_INFO, "get_device_info",
+    ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_INFO, PolicyName::POLICY_GET_DEVICE_INFO,
         EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }

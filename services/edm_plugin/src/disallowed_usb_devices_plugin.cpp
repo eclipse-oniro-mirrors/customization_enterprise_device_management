@@ -32,7 +32,7 @@ void DisallowedUsbDevicesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedUsbDevicesPlugin, std::vector<USB::UsbDeviceType>>> ptr)
 {
     EDMLOGI("DisallowedUsbDevicesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_USB_DEVICES, "disallowed_usb_devices",
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_USB_DEVICES, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayUsbDeviceTypeSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
@@ -116,13 +116,13 @@ bool DisallowedUsbDevicesPlugin::HasConflictPolicy()
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
-    policyManager->GetPolicy("", "disable_usb", disableUsb);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
     if (disableUsb == "true") {
         EDMLOGE("DisallowedUsbDevicesPlugin policy conflict! Usb is disabled.");
         return true;
     }
     std::string allowUsbDevice;
-    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevice);
+    policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
     if (!allowUsbDevice.empty()) {
         EDMLOGE("DisallowedUsbDevicesPlugin policy conflict! AllowedUsbDevice: %{public}s", allowUsbDevice.c_str());
         return true;
@@ -135,7 +135,7 @@ void DisallowedUsbDevicesPlugin::CombineDataWithStorageAccessPolicy(std::vector<
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     std::vector<USB::UsbDeviceType> usbStorageTypes;
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
         USB::UsbDeviceType storageType;

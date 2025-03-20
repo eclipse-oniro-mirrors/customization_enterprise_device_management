@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string AllowedBluetoothDevicesQuery::GetPolicyName()
 {
-    return "allowed_bluetooth_devices";
+    return PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES;
 }
 
 std::string AllowedBluetoothDevicesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

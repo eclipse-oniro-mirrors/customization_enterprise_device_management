@@ -43,7 +43,7 @@ void SetWifiProfilePlugin::InitPlugin(
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::SET_WIFI_PROFILE, "set_wifi_profile", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::SET_WIFI_PROFILE, PolicyName::POLICY_SET_WIFI_PROFILE, config, false);
     ptr->SetSerializer(WifiDeviceConfigSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetWifiProfilePlugin::OnSetPolicy, FuncOperateType::SET);
 }

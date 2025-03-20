@@ -27,7 +27,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMtp
 void DisableMtpServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpServerPlugin, bool>> ptr)
 {
     EDMLOGI("DisableMtpServerPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MTP_SERVER, "disabled_mtp_server",
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MTP_SERVER, PolicyName::POLICY_DISABLED_MTP_SERVER,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMtpServerPlugin::OnSetPolicy, FuncOperateType::SET);

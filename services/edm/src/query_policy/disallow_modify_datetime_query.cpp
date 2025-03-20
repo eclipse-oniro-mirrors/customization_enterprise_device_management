@@ -25,7 +25,7 @@ namespace EDM {
 
 std::string DisallowModifyDateTimeQuery::GetPolicyName()
 {
-    return "disallow_modify_datetime";
+    return PolicyName::POLICY_DISALLOW_MODIFY_DATETIME;
 }
 
 std::string DisallowModifyDateTimeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

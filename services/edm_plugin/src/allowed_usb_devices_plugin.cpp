@@ -36,7 +36,7 @@ void AllowUsbDevicesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowUsbDevicesPlugin, std::vector<UsbDeviceId>>> ptr)
 {
     EDMLOGI("AllowUsbDevicesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::ALLOWED_USB_DEVICES, "allowed_usb_devices",
+    ptr->InitAttribute(EdmInterfaceCode::ALLOWED_USB_DEVICES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayUsbDeviceIdSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AllowUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
@@ -86,21 +86,21 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsbPolicy;
-    policyManager->GetPolicy("", "disable_usb", disableUsbPolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsbPolicy);
     if (disableUsbPolicy == "true") {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb is disabled.");
         return true;
     }
 
     std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbStoragePolicy is disabled.");
         return true;
     }
 
     std::string disallowUsbDevicePolicy;
-    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy);
     if (!disallowUsbDevicePolicy.empty()) {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! disallowedUsbDevice: %{public}s",
             disallowUsbDevicePolicy.c_str());

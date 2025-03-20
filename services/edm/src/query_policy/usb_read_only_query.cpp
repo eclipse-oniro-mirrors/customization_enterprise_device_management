@@ -24,7 +24,7 @@ namespace OHOS {
 namespace EDM {
 std::string UsbReadOnlyQuery::GetPolicyName()
 {
-    return "usb_read_only";
+    return PolicyName::POLICY_USB_READ_ONLY;
 }
 
 std::string UsbReadOnlyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

@@ -35,7 +35,7 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, "disable_camera", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, PolicyName::POLICY_DISABLE_CAMERA, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableCameraPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableCameraPlugin::OnAdminRemove);

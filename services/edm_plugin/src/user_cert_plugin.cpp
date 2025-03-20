@@ -54,7 +54,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_
 UserCertPlugin::UserCertPlugin()
 {
     policyCode_ = EdmInterfaceCode::INSTALL_CERTIFICATE;
-    policyName_ = "install_certificate";
+    policyName_ = PolicyName::POLICY_INSTALL_CERTIFICATE;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_CERTIFICATE);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;

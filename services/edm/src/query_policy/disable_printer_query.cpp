@@ -24,7 +24,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisablePrinterQuery::GetPolicyName()
 {
-    return "disabled_printer";
+    return PolicyName::POLICY_DISABLED_PRINTER;
 }
 
 std::string DisablePrinterQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

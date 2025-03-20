@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisallowedInstallBundlesQuery::GetPolicyName()
 {
-    return "disallowed_install_bundles";
+    return PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES;
 }
 
 std::string DisallowedInstallBundlesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

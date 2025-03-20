@@ -38,7 +38,7 @@ void SetDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDateTimePl
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, "set_datetime", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::SET_DATETIME, PolicyName::POLICY_SET_DATETIME, config, false);
     ptr->SetSerializer(LongSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
 }

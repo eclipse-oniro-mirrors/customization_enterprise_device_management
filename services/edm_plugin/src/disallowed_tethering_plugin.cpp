@@ -33,9 +33,8 @@ void DisallowedTetheringPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disal
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TETHERING, "disallowed_tethering", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TETHERING, PolicyName::POLICY_DISALLOWED_TETHERING, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedTetheringPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedTetheringPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowedTetheringPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.tethering_disallowed";

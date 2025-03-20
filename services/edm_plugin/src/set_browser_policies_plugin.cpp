@@ -39,7 +39,7 @@ const char* const EMPTY_OBJECT_STRING = "{}";
 SetBrowserPoliciesPlugin::SetBrowserPoliciesPlugin()
 {
     policyCode_ = EdmInterfaceCode::SET_BROWSER_POLICIES;
-    policyName_ = "set_browser_policies";
+    policyName_ = PolicyName::POLICY_SET_BROWSER_POLICIES;
     permissionMap_.insert(std::make_pair(
         FuncOperateType::SET, IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_SET_BROWSER_POLICY,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC)));

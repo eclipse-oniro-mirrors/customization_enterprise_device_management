@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisallowAddLocalAccountQuery::GetPolicyName()
 {
-    return "disallow_add_local_account";
+    return PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT;
 }
 
 std::string DisallowAddLocalAccountQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

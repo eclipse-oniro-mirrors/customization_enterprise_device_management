@@ -38,7 +38,7 @@ void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePri
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, "disabled_printer", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, PolicyName::POLICY_DISABLED_PRINTER, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisablePrinterPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisablePrinterPlugin::OnAdminRemove);

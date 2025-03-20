@@ -40,7 +40,7 @@ void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddress
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, "get_ip_address", config, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, PolicyName::POLICY_GET_IP_ADDRESS, config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 

@@ -24,12 +24,12 @@ namespace OHOS {
 namespace EDM {
 std::string DisableMaintenanceModeQuery::GetPolicyName()
 {
-    return "disabled_maintenance_mode";
+    return PolicyName::POLICY_DISABLED_MAINTENANCE_MODE;
 }
 
 std::string DisableMaintenanceModeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisableMaintenanceModeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

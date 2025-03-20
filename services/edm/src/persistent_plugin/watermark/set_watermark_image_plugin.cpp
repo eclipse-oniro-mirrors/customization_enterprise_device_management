@@ -47,7 +47,7 @@ SetWatermarkImagePlugin::SetWatermarkImagePlugin()
 {
     EDMLOGI("SetWatermarkImagePlugin InitPlugin...");
     policyCode_ = EdmInterfaceCode::WATERMARK_IMAGE;
-    policyName_ = "watermark_image_policy";
+    policyName_ = PolicyName::POLICY_WATERMARK_IMAGE_POLICY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
@@ -153,7 +153,7 @@ void SetWatermarkImagePlugin::SetAllWatermarkImage()
     EDMLOGI("SetAllWatermarkImage");
     std::string policyData;
     auto policyManager = IPolicyManager::GetInstance();
-    policyManager->GetPolicy("", "watermark_image_policy", policyData, DEFAULT_USER_ID);
+    policyManager->GetPolicy("", PolicyName::POLICY_WATERMARK_IMAGE_POLICY, policyData, DEFAULT_USER_ID);
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();
     serializer->Deserialize(policyData, currentData);
@@ -186,7 +186,7 @@ void SetWatermarkImagePlugin::SetProcessWatermarkOnAppStart(const std::string &b
 
     std::string policyData;
     auto policyManager = IPolicyManager::GetInstance();
-    policyManager->GetPolicy("", "watermark_image_policy", policyData, DEFAULT_USER_ID);
+    policyManager->GetPolicy("", PolicyName::POLICY_WATERMARK_IMAGE_POLICY, policyData, DEFAULT_USER_ID);
 
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();

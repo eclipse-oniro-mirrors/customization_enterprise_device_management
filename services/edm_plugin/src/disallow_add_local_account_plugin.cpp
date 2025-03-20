@@ -27,7 +27,7 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr)
 {
     EDMLOGI("DisallowAddLocalAccountPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, "disallow_add_local_account",
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT,
         EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddLocalAccountPlugin::OnSetPolicy, FuncOperateType::SET);

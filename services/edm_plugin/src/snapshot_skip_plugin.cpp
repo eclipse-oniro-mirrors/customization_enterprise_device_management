@@ -30,7 +30,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SnapshotSk
 void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkipPlugin, std::vector<std::string>>> ptr)
 {
     EDMLOGI("SnapshotSkipPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SNAPSHOT_SKIP, "snapshot_skip",
+    ptr->InitAttribute(EdmInterfaceCode::SNAPSHOT_SKIP, PolicyName::POLICY_SNAPSHOT_SKIP,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnSetPolicy, FuncOperateType::SET);

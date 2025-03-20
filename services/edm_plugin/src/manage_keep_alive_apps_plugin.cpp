@@ -41,7 +41,7 @@ const ErrCode ERR_CAPABILITY_NOT_SUPPORT = 2097230;
 ManageKeepAliveAppsPlugin::ManageKeepAliveAppsPlugin()
 {
     policyCode_ = EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS;
-    policyName_ = "manage_keep_alive_apps";
+    policyName_ = PolicyName::POLICY_MANAGE_KEEP_ALIVE_APPS;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;

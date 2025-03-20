@@ -33,7 +33,8 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisabledNetworkInterfacePlugin, std::map<std::string, std::string>>> ptr)
 {
     EDMLOGI("DisabledNetworkInterfacePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "disabled_network_interface", true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
+        true);
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissionsForSet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11ForSet;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12ForSet;

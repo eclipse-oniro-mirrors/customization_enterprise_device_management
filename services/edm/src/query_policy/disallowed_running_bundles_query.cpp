@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisallowedRunningBundlesQuery::GetPolicyName()
 {
-    return "disallow_running_bundles";
+    return PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES;
 }
 
 std::string DisallowedRunningBundlesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

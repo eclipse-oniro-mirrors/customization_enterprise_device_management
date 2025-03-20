@@ -25,7 +25,7 @@ namespace EDM {
 const char* const EMPTY_OBJECT_STRING = "{}";
 std::string SetBrowserPoliciesQuery::GetPolicyName()
 {
-    return "set_browser_policies";
+    return PolicyName::POLICY_SET_BROWSER_POLICIES;
 }
 
 std::string SetBrowserPoliciesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

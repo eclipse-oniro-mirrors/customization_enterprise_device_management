@@ -25,7 +25,7 @@ const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
 
 std::string DisableHdcQuery::GetPolicyName()
 {
-    return "disabled_hdc";
+    return PolicyName::POLICY_DISABLED_HDC;
 }
 
 std::string DisableHdcQuery::GetPermission(IPlugin::PermissionType permissionType, const std::string &permissionTag)

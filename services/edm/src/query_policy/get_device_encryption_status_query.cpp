@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string GetDeviceEncryptionStatusQuery::GetPolicyName()
 {
-    return "get_device_encryption_status";
+    return PolicyName::POLICY_GET_DEVICE_ENCRYPTION_STATUS;
 }
 
 std::string GetDeviceEncryptionStatusQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

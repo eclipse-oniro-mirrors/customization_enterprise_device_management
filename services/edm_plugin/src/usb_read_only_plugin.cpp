@@ -38,7 +38,7 @@ const std::string PARAM_USB_READ_ONLY_KEY = "persist.filemanagement.usb.readonly
 UsbReadOnlyPlugin::UsbReadOnlyPlugin()
 {
     policyCode_ = EdmInterfaceCode::USB_READ_ONLY;
-    policyName_ = "usb_read_only";
+    policyName_ = PolicyName::POLICY_USB_READ_ONLY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
@@ -79,7 +79,7 @@ ErrCode UsbReadOnlyPlugin::SetUsbStorageAccessPolicy(int32_t accessPolicy, int32
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string allowUsbDevicePolicy;
-    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevicePolicy);
     if (HasConflictPolicy(accessPolicy, allowUsbDevicePolicy)) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
@@ -105,7 +105,7 @@ bool UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::strin
     }
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
-    policyManager->GetPolicy("", "disable_usb", disableUsb);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
     if (disableUsb == "true") {
         EDMLOGE("UsbReadOnlyPlugin policy conflict! Usb is disabled.");
         return true;
@@ -117,7 +117,7 @@ void UsbReadOnlyPlugin::GetDisallowedUsbDeviceTypes(std::vector<USB::UsbDeviceTy
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disallowUsbDevicePolicy;
-    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevicePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy);
     ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(disallowUsbDevicePolicy, usbDeviceTypes);
     EDMLOGI("UsbReadOnlyPlugin GetDisallowedUsbDeviceTypes: size: %{public}zu", usbDeviceTypes.size());
 }
@@ -251,7 +251,7 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std
         std::vector<USB::UsbDeviceType> usbDeviceTypes;
         GetDisallowedUsbDeviceTypes(usbDeviceTypes);
         std::string allowUsbDevicePolicy;
-        IPolicyManager::GetInstance()->GetPolicy("", "allowed_usb_devices", allowUsbDevicePolicy);
+        IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevicePolicy);
         return DealReadPolicy(mergePolicy, allowUsbDevicePolicy, usbDeviceTypes);
     }
     return ERR_OK;

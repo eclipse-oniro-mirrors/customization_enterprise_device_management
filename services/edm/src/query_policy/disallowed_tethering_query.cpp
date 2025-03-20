@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 std::string DisallowedThtheringQuery::GetPolicyName()
 {
-    return "disallowed_tethering";
+    return PolicyName::POLICY_DISALLOWED_TETHERING;
 }
 
 std::string DisallowedThtheringQuery::GetPermission(IPlugin::PermissionType permissionType,

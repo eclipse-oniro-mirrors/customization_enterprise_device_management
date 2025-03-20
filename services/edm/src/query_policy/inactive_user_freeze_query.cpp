@@ -21,7 +21,7 @@ namespace OHOS {
 namespace EDM {
 std::string InactiveUserFreezeQuery::GetPolicyName()
 {
-    return "inactive_user_freeze";
+    return PolicyName::POLICY_INACTIVE_USER_FREEZE;
 }
 
 std::string InactiveUserFreezeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

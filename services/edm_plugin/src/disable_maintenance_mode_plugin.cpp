@@ -27,8 +27,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMai
 void DisableMaintenanceModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMaintenanceModePlugin, bool>> ptr)
 {
     EDMLOGI("DisableMaintenanceModePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, "disabled_maintenance_mode",
-        "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS", IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, PolicyName::POLICY_DISABLED_MAINTENANCE_MODE,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableMaintenanceModePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableMaintenanceModePlugin::OnAdminRemove);

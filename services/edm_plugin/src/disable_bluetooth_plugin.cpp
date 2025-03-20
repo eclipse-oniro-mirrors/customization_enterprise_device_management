@@ -43,7 +43,7 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, "disabled_bluetooth", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, PolicyName::POLICY_DISABLED_BLUETOOTH, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableBluetoothPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableBluetoothPlugin::OnAdminRemove);

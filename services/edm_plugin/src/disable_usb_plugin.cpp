@@ -42,7 +42,7 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, "disable_usb", config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_USB, PolicyName::POLICY_DISABLE_USB, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableUsbPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableUsbPlugin::OnAdminRemove);
@@ -64,19 +64,19 @@ bool DisableUsbPlugin::HasConflictPolicy()
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string allowUsbDevice;
-    policyManager->GetPolicy("", "allowed_usb_devices", allowUsbDevice);
+    policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
     if (!allowUsbDevice.empty()) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! allowedUsbDevice: %{public}s", allowUsbDevice.c_str());
         return true;
     }
     std::string disallowUsbDevice;
-    policyManager->GetPolicy("", "disallowed_usb_devices", disallowUsbDevice);
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevice);
     if (!disallowUsbDevice.empty()) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! disallowUsbDevice: %{public}s", disallowUsbDevice.c_str());
         return true;
     }
     std::string usbStoragePolicy;
-    policyManager->GetPolicy("", "usb_read_only", usbStoragePolicy);
+    policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
         usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! usbStoragePolicy: %{public}s", usbStoragePolicy.c_str());

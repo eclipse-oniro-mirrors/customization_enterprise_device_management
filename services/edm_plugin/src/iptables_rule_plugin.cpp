@@ -35,7 +35,7 @@ bool IptablesRulePlugin::isChainInit_ = false;
 IptablesRulePlugin::IptablesRulePlugin()
 {
     policyCode_ = EdmInterfaceCode::IPTABLES_RULE;
-    policyName_ = "iptables_rule";
+    policyName_ = PolicyName::POLICY_IPTABLES_RULE;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     permissionConfig_.apiType = IPlugin::ApiType::SYSTEM;

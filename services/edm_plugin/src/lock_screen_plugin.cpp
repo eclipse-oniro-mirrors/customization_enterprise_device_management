@@ -27,8 +27,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(LockScreen
 void LockScreenPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<LockScreenPlugin, int32_t>> ptr)
 {
     EDMLOGI("LockScreenPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::LOCK_SCREEN, "lock_screen", EdmPermission::PERMISSION_ENTERPRISE_LOCK_DEVICE,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+    ptr->InitAttribute(EdmInterfaceCode::LOCK_SCREEN, PolicyName::POLICY_LOCK_SCREEN,
+        EdmPermission::PERMISSION_ENTERPRISE_LOCK_DEVICE, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(IntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&LockScreenPlugin::OnSetPolicy, FuncOperateType::SET);
 }

@@ -24,7 +24,7 @@ namespace EDM {
 const std::string PARAM_EDM_LOCATION_POLICY = "persist.edm.location_policy";
 std::string LocationPolicyQuery::GetPolicyName()
 {
-    return "location_policy";
+    return PolicyName::POLICY_LOCATION_POLICY;
 }
 
 std::string LocationPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)

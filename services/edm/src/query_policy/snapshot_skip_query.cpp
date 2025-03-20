@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 std::string SnapshotSkipQuery::GetPolicyName()
 {
-    return "snapshot_skip";
+    return PolicyName::POLICY_SNAPSHOT_SKIP;
 }
 
 std::string SnapshotSkipQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
