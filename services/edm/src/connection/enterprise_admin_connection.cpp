@@ -60,11 +60,7 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
     if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
         int32_t userId = EdmConstants::DEFAULT_USER_ID;
         auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-        if (superAdmin == nullptr) {
-            EDMLOGE("OnAbilityDisconnectDone superAdmin is null");
-            return;
-        }
-        if (superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+        if (superAdmin && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
             userId = GetCurrentUserId();
         }
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
