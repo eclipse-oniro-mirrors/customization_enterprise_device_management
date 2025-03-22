@@ -257,13 +257,13 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     }
     EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-    if (superAdmin == nullptr) {
-        EDMLOGE("EnterpriseDeviceMgrAbility superAdmin is null");
-        return;
-    }
-    bool isInstall = GetBundleMgr()->IsBundleInstalled(superAdmin->adminInfo_.packageName_, userIdToSwitch);
-    if (isInstall && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
-        ConnectAbility(userIdToSwitch, superAdmin);
+    if (superAdmin) {
+        bool isInstall = GetBundleMgr()->IsBundleInstalled(superAdmin->adminInfo_.packageName_, userIdToSwitch);
+        if (isInstall && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+            ConnectAbility(userIdToSwitch, superAdmin);
+        } else {
+            ConnectAbility(EdmConstants::DEFAULT_USER_ID, superAdmin);
+        }
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
 }
@@ -307,6 +307,12 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
     if (userId == AppExecFwk::Constants::INVALID_USERID) {
         EDMLOGE("OnCommonEventPackageAdded get INVALID_USERID");
         return;
+    }
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER &&
+        superAdmin->adminInfo_.packageName_ == bundleName &&
+        superAdmin->adminInfo_.adminType_ != AdminType::NORMAL) {
+        AddDisallowUninstallApp(bundleName, userId);
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
 }
@@ -405,12 +411,16 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
             std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+            int32_t userId = subAdmin.first;
             int32_t currentUserId = GetCurrentUserId();
             if (currentUserId < 0) {
                 return;
             }
+            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+                userId = currentUserId;
+            }
             sptr<IEnterpriseConnection> connection =
-                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), currentUserId, accountId);
+                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
             manager->ConnectAbility(connection);
         }
     }
@@ -1112,14 +1122,14 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(AppExecFwk::ElementName &
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::AddDisallowUninstallApp(const std::string &bundleName)
+ErrCode EnterpriseDeviceMgrAbility::AddDisallowUninstallApp(const std::string &bundleName, int32_t userId)
 {
     AppExecFwk::BundleInfo bundleInfo;
     GetBundleMgr()->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-        bundleInfo, DEFAULT_USER_ID);
+        bundleInfo, userId);
     std::vector<std::string> data = {bundleInfo.appId};
     if (FAILED(GetBundleMgr()->AddAppInstallControlRule(data,
-        AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, DEFAULT_USER_ID))) {
+        AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL, userId))) {
         EDMLOGE("EnterpriseDeviceMgrAbility::AddDisallowUninstallApp failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -1186,6 +1196,11 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &o
     if (FAILED(ret)) {
         EDMLOGE("ReplaceSuperAdmin: CheckReplaceAdmins failed");
         return ret;
+    }
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
+        EDMLOGE("multi user not support replace admin");
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
     std::string adminName = oldAdmin.GetBundleName();
     std::shared_ptr<Admin> adminPtr = AdminManager::GetInstance()->GetAdminByPkgName(adminName, DEFAULT_USER_ID);
@@ -1272,7 +1287,7 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(AppExecFwk::ElementName &admin
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
         true);
-    if (type == AdminType::BYOD) {
+    if (type != AdminType::NORMAL) {
         AddDisallowUninstallApp(admin.GetBundleName());
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
     }

@@ -125,7 +125,7 @@ private:
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
     ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const Admin &edmAdmin,
         std::shared_ptr<Admin> adminPtr);
-    ErrCode AddDisallowUninstallApp(const std::string &bundleName);
+    ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     void AfterEnableAdmin(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
