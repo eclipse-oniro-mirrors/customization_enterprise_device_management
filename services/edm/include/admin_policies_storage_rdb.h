@@ -20,6 +20,9 @@
 
 #include "admin.h"
 #include "edm_rdb_data_manager.h"
+#ifndef JSON_NOEXCEPTION
+#define JSON_NOEXCEPTION
+#endif
 #include "json/json.h"
 
 namespace OHOS {

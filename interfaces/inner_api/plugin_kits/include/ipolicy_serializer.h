@@ -22,6 +22,9 @@
 #include <string>
 #include <string_ex.h>
 
+#ifndef JSON_NOEXCEPTION
+#define JSON_NOEXCEPTION
+#endif
 #include "json/json.h"
 #include "singleton.h"
 
