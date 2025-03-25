@@ -264,6 +264,20 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
     return admins;
 }
 
+
+void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info)
+{
+    if (!stringInfo.empty() && stringInfo != "null") {
+        Json::Value jsonInfo;
+        ConvertStrToJson(stringInfo, jsonInfo);
+        for (uint32_t i = 0; i < jsonInfo.size(); i++) {
+            if (jsonInfo[i].isString()) {
+                info.emplace_back(jsonInfo[i].asString());
+            }
+        }
+    }
+}
+
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
     std::shared_ptr<Admin> item)
 {
@@ -278,17 +292,34 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
-    std::string permissionStr;
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
-    if (!permissionStr.empty() && permissionStr != "null") {
-        Json::Value permissionJson;
-        ConvertStrToJson(permissionStr, permissionJson);
-        for (uint32_t i = 0; i < permissionJson.size(); i++) {
-            if (permissionJson[i].isString()) {
-                item->adminInfo_.permission_.push_back(permissionJson[i].asString());
-            }
-        }
+    bool isPermissionStrNull;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, isPermissionStrNull);
+    if (!isPermissionStrNull) {
+        std::string permissionStr;
+        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
+        SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
     }
+    bool isManagedEventStrNull = false;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, isManagedEventStrNull);
+    if (!isManagedEventStrNull) {
+        SetManagedEventStr(resultSet, item);
+    }
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_NINE, item->adminInfo_.parentAdminName_);
+    int isDebug = 0;
+    resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
+    item->adminInfo_.isDebug_ = isDebug != 0;
+    bool isPoliciesStrNull;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, isPoliciesStrNull);
+    if (!isPoliciesStrNull) {
+        std::string policiesStr;
+        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
+        SetAdminStringInfo(policiesStr, item->adminInfo_.accessiblePolicies_);
+    }
+}
+
+void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet,
+    std::shared_ptr<Admin> item)
+{
     std::string managedEventsStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
     if (!managedEventsStr.empty() && managedEventsStr != "null") {
@@ -297,21 +328,6 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
         for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
             if (managedEventsJson[i].isUInt()) {
                 item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
-            }
-        }
-    }
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_NINE, item->adminInfo_.parentAdminName_);
-    int isDebug = 0;
-    resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
-    item->adminInfo_.isDebug_ = isDebug != 0;
-    std::string policiesStr;
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
-    if (!policiesStr.empty() && policiesStr != "null") {
-        Json::Value policiesJson;
-        ConvertStrToJson(policiesStr, policiesJson);
-        for (uint32_t i = 0; i < policiesJson.size(); i++) {
-            if (policiesJson[i].isString()) {
-                item->adminInfo_.accessiblePolicies_.emplace_back(policiesJson[i].asString());
             }
         }
     }
