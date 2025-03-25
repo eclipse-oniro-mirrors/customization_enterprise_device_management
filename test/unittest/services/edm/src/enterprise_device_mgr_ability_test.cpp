@@ -4557,6 +4557,57 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdmins, TestSize.Level1)
     int32_t adminType = want->GetIntParam("adminType", -1);
     EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::BYOD));
 }
+
+/**
+ * @tc.name: TestSetAdminRunningModeWithoutPermission
+ * @tc.desc: Test SetAdminRunningMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetAdminRunningModeWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ErrCode res = edmMgr_->SetAdminRunningMode(admin, static_cast<uint32_t>(RunningMode::MULTI_USER));
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSetAdminRunningModeWithoutActiveAdmin
+ * @tc.desc: Test SetAdminRunningMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetAdminRunningModeWithoutActiveAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+
+    ErrCode res = edmMgr_->SetAdminRunningMode(admin, static_cast<uint32_t>(RunningMode::MULTI_USER));
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetAdminRunningModeSuc
+ * @tc.desc: Test SetAdminRunningMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetAdminRunningModeSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    ErrCode res = edmMgr_->SetAdminRunningMode(admin, static_cast<uint32_t>(RunningMode::MULTI_USER));
+    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
