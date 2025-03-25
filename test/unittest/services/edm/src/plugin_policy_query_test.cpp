@@ -81,6 +81,21 @@ const std::string TEST_POLICY_DATA =
     "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
     "\"additionalDescription\": \"testDescription\"}";
 const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
+const std::string TEST_PERMISSION_TAG_VERSION_11 = "version_11";
+const std::string TEST_PERMISSION_TAG_VERSION_12 = "version_12";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_USB = "ohos.permission.ENTERPRISE_MANAGE_USB";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY = "ohos.permission.ENTERPRISE_MANAGE_SECURITY";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS = "ohos.permission.ENTERPRISE_MANAGE_RESTRICTIONS";
+const std::string TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+const std::string TEST_PERMISSION_ENTERPRISE_RESTRICT_POLICY = "ohos.permission.ENTERPRISE_RESTRICT_POLICY";
+const std::string TEST_PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY = "ohos.permission.ENTERPRISE_SET_ACCOUNT_POLICY";
+const std::string TEST_PERMISSION_ENTERPRISE_SET_DATETIME = "ohos.permission.ENTERPRISE_SET_DATETIME";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI = "ohos.permission.ENTERPRISE_MANAGE_WIFI";
+const std::string TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY =
+    "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY";
+const std::string TEST_PERMISSION_ENTERPRISE_GET_DEVICE_INFO = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM = "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
 void PluginPolicyQueryTest::SetUp() {}
 
 void PluginPolicyQueryTest::TearDown() {}
@@ -103,6 +118,20 @@ HWTEST_F(PluginPolicyQueryTest, TestAllowedBluetoothDevicesQuery, TestSize.Level
 }
 
 /**
+ * @tc.name: TestAllowedBluetoothDevicesQuery001
+ * @tc.desc: Test AllowedBluetoothDevicesQuery GetPolicyName and GetPermission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedBluetoothDevicesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedBluetoothDevicesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_bluetooth_devices");
+}
+
+/**
  * @tc.name: TestAllowedUsbDevicesQuery
  * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
  * @tc.type: FUNC
@@ -117,6 +146,20 @@ HWTEST_F(PluginPolicyQueryTest, TestAllowedUsbDevicesQuery, TestSize.Level1)
     int32_t flag = ERR_INVALID_VALUE;
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAllowedUsbDevicesQuery001
+ * @tc.desc: Test AllowedUsbDevicesQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedUsbDevicesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedUsbDevicesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_usb_devices");
 }
 
 /**
@@ -165,6 +208,20 @@ HWTEST_F(PluginPolicyQueryTest, TestClipboardPolicyQuery002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestClipboardPolicyQuery003
+ * @tc.desc: Test ClipboardPolicyQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestClipboardPolicyQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<ClipboardPolicyQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "clipboard_policy");
+}
+
+/**
  * @tc.name: TestDisableBluetoothQuery001
  * @tc.desc: Test DisableBluetoothQuery::QueryPolicy function.
  * @tc.type: FUNC
@@ -203,6 +260,26 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestDisableBluetoothQuery003
+ * @tc.desc: Test DisableBluetoothQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableBluetoothQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_bluetooth");
+}
+
+/**
  * @tc.name: DisablePrinterQuery001
  * @tc.desc: Test DisablePrinterPluginTest::QueryPolicy function.
  * @tc.type: FUNC
@@ -220,6 +297,24 @@ HWTEST_F(PluginPolicyQueryTest, TestDisablePrinterQuery001, TestSize.Level1)
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisablePrinterQuery002
+ * @tc.desc: Test DisablePrinterQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisablePrinterQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisablePrinterQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_RESTRICT_POLICY);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_printer");
 }
 
 /**
@@ -243,6 +338,20 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMtpClientQuery001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestDisableMtpClientQuery002
+ * @tc.desc: Test DisableMtpClientQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMtpClientQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableMtpClientQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_mtp_client");
+}
+
+/**
  * @tc.name: DisableMtpServerQuery001
  * @tc.desc: Test DisableMtpPluginTest::QueryPolicy function.
  * @tc.type: FUNC
@@ -260,6 +369,20 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMtpServerQuery001, TestSize.Level1)
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisableMtpServerQuery002
+ * @tc.desc: Test DisableMtpServerQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMtpServerQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableMtpServerQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_mtp_server");
 }
 
 /**
@@ -303,6 +426,20 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMaintenanceModeQuery002, TestSize.Lev
 }
 
 /**
+ * @tc.name: TestDisableMaintenanceModeQuery003
+ * @tc.desc: Test DisableMaintenanceModeQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableMaintenanceModeQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableMaintenanceModeQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_maintenance_mode");
+}
+
+/**
  * @tc.name: TestDisableUsbQuery
  * @tc.desc: Test DisableUsbQuery::QueryPolicy function.
  * @tc.type: FUNC
@@ -320,6 +457,26 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbQuery, TestSize.Level1)
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisableUsbQuery001
+ * @tc.desc: Test DisableUsbQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableUsbQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableUsbQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disable_usb");
 }
 
 /**
@@ -343,6 +500,20 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowAddLocalAccountQuery, TestSize.Level
 }
 
 /**
+ * @tc.name: TestDisallowAddLocalAccountQuery001
+ * @tc.desc: Test DisallowAddLocalAccountQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowAddLocalAccountQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowAddLocalAccountQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_add_local_account");
+}
+
+/**
  * @tc.name: TestDisallowModifyDateTimeQuery
  * @tc.desc: Test TestDisallowModifyDateTimeQuery::QueryPolicy function.
  * @tc.type: FUNC
@@ -362,6 +533,24 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyDateTimeQuery, TestSize.Level1
     ASSERT_TRUE(ret == ERR_OK);
     // get policy is disallow to modify date time.
     ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowModifyDateTimeQuery001
+ * @tc.desc: Test DisallowModifyDateTimeQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyDateTimeQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyDateTimeQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_DATETIME);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_datetime");
 }
 
 /**
@@ -400,6 +589,20 @@ HWTEST_F(PluginPolicyQueryTest, TestFingerprintAuthQuery002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestFingerprintAuthQuery003
+ * @tc.desc: Test FingerprintAuthQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestFingerprintAuthQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<FingerprintAuthQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "fingerprint_auth");
+}
+
+/**
  * @tc.name: TestGetDeviceEncryptionStatusQuery
  * @tc.desc: Test get device encryption status function.
  * @tc.type: FUNC
@@ -416,6 +619,20 @@ HWTEST_F(PluginPolicyQueryTest, TestGetDeviceEncryptionStatusQuery, TestSize.Lev
 }
 
 /**
+ * @tc.name: TestGetDeviceEncryptionStatusQuery001
+ * @tc.desc: Test GetDeviceEncryptionStatusQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetDeviceEncryptionStatusQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetDeviceEncryptionStatusQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "get_device_encryption_status");
+}
+
+/**
  * @tc.name: TestGetSecurityPatchTagSuc
  * @tc.desc: Test get security patch tag function.
  * @tc.type: FUNC
@@ -429,6 +646,20 @@ HWTEST_F(PluginPolicyQueryTest, TestGetSecurityPatchTagSuc, TestSize.Level1)
     plugin->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
     ASSERT_TRUE(reply.ReadString() != "");
+}
+
+/**
+ * @tc.name: TestGetSecurityPatchTagQuery001
+ * @tc.desc: Test GetSecurityPatchTagQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetSecurityPatchTagQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetSecurityPatchTagQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "get_security_patch_tag");
 }
 
 /**
@@ -483,6 +714,20 @@ HWTEST_F(PluginPolicyQueryTest, TestUsbReadOnlyQuery003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestUsbReadOnlyQuery004
+ * @tc.desc: Test UsbReadOnlyQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestUsbReadOnlyQuery004, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<UsbReadOnlyQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "usb_read_only");
+}
+
+/**
  * @tc.name: TestSetWifiDisabledQuery
  * @tc.desc: Test SetWifiDisabledQuery::QueryPolicy function.
  * @tc.type: FUNC
@@ -501,6 +746,26 @@ HWTEST_F(PluginPolicyQueryTest, TestSetWifiDisabledQuery, TestSize.Level1)
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result == system::GetBoolParameter(KEY_DISABLE_WIFI, false));
+}
+
+/**
+ * @tc.name: TestSetWifiDisabledQuery001
+ * @tc.desc: Test SetWifiDisabledQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestSetWifiDisabledQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<SetWifiDisabledQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disable_wifi");
 }
 
 /**
@@ -581,6 +846,20 @@ HWTEST_F(PluginPolicyQueryTest, TestPasswordPolicyQuery003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestPasswordPolicyQuery004
+ * @tc.desc: Test PasswordPolicyQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestPasswordPolicyQuery004, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<PasswordPolicyQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "password_policy");
+}
+
+/**
  * @tc.name: TestSetBrowserPoliciesQuery
  * @tc.desc: Test SetBrowserPoliciesQuery::QueryPolicy.
  * @tc.type: FUNC
@@ -603,6 +882,240 @@ HWTEST_F(PluginPolicyQueryTest, TestSetBrowserPoliciesQuery, TestSize.Level1)
     std::string retString;
     serializer->Serialize(policy, retString);
     ASSERT_TRUE(reply.ReadString() == retString);
+}
+
+/**
+ * @tc.name: TestDisallowedInstallBundlesQuery001
+ * @tc.desc: Test DisallowedInstallBundlesQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedInstallBundlesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedInstallBundlesQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedInstallBundlesQuery002
+ * @tc.desc: Test DisallowedInstallBundlesQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedInstallBundlesQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedInstallBundlesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_install_bundles");
+}
+
+/**
+ * @tc.name: TestDisallowedThtheringQuery001
+ * @tc.desc: Test DisallowedThtheringQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedThtheringQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedThtheringQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedThtheringQuery002
+ * @tc.desc: Test DisallowedThtheringQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedThtheringQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedThtheringQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_tethering");
+}
+
+/**
+ * @tc.name: TestDisallowedUninstallBundlesQuery001
+ * @tc.desc: Test DisallowedUninstallBundlesQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedUninstallBundlesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedUninstallBundlesQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedUninstallBundlesQuery002
+ * @tc.desc: Test DisallowedUninstallBundlesQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedUninstallBundlesQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedUninstallBundlesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_uninstall_bundles");
+}
+
+/**
+ * @tc.name: TestGetDisplayVersionQuery001
+ * @tc.desc: Test GetDisplayVersionQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetDisplayVersionQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetDisplayVersionQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDisplayVersionQuery002
+ * @tc.desc: Test GetDisplayVersionQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetDisplayVersionQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetDisplayVersionQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_GET_DEVICE_INFO);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "get_display_version");
+    ASSERT_TRUE(queryObj->GetApiType() == IPlugin::ApiType::SYSTEM);
+}
+
+/**
+ * @tc.name: TestInactiveUserFreezeQuery001
+ * @tc.desc: Test InactiveUserFreezeQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestInactiveUserFreezeQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InactiveUserFreezeQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInactiveUserFreezeQuery002
+ * @tc.desc: Test InactiveUserFreezeQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestInactiveUserFreezeQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InactiveUserFreezeQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "inactive_user_freeze");
+}
+
+/**
+ * @tc.name: TestNTPServerQuery001
+ * @tc.desc: Test NTPServerQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestNTPServerQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<NTPServerQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestNTPServerQuery002
+ * @tc.desc: Test NTPServerQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestNTPServerQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<NTPServerQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "ntp_server");
+}
+
+/**
+ * @tc.name: TestSnapshotSkipQuery001
+ * @tc.desc: Test SnapshotSkipQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestSnapshotSkipQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<SnapshotSkipQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSnapshotSkipQuery002
+ * @tc.desc: Test SnapshotSkipQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestSnapshotSkipQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<SnapshotSkipQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "snapshot_skip");
 }
 
 } // namespace TEST
