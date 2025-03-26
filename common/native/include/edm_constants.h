@@ -88,7 +88,6 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
-        const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -168,7 +167,6 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";
     const char* const POLICY_DISABLE_CAMERA = "disable_camera";
     const char* const POLICY_DISABLED_HDC = "disabled_hdc";
-    const char* const POLICY_DISABLED_MAINTENANCE_MODE = "disabled_maintenance_mode";
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
