@@ -255,6 +255,8 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& D
         }
         auto chainRule = std::make_shared<DomainChainRule>(rule);
         executer->Remove(chainRule);
+    } else {
+        // this branch should never happen
     }
     
     if (!ExistOutputAllowDomainRule()) {
@@ -472,10 +474,10 @@ void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
             std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
 
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
-        for (const auto& chainRule : chainRuleVector) {
-            if (executer == nullptr) {
-                EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
-            } else {
+        if (executer == nullptr) {
+            EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
+        } else {
+            for (const auto& chainRule : chainRuleVector) {
                 executer->Add(chainRule);
                 g_defaultFirewallOutputChainInit = true;
             }
@@ -489,10 +491,10 @@ void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
             std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
 
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
-        for (const auto& chainRule : chainRuleVector) {
-            if (executer == nullptr) {
-                EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
-            } else {
+        if (executer == nullptr) {
+            EDMLOGE("SetDefaultFirewallDenyChain:GetExecuter fail, this should not happen.");
+        } else {
+            for (const auto& chainRule : chainRuleVector) {
                 executer->Add(chainRule);
                 g_defaultFirewallForwardChainInit = true;
             }
@@ -502,27 +504,31 @@ void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
 
 void IptablesManager::ClearDefaultFirewallOutputDenyChain()
 {
-    if (g_defaultFirewallOutputChainInit) {
-        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
-        if (executer == nullptr) {
-            EDMLOGE("ClearDefaultFirewallOutputDenyChain:GetExecuter fail, this should not happen.");
-        } else {
-            executer->Remove(nullptr);
-            g_defaultFirewallOutputChainInit = false;
-        }
+    if (!g_defaultFirewallOutputChainInit) {
+        EDMLOGW("g_defaultFirewallOutputChainInit is not init.");
+        return;
+    }
+    auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
+    if (executer == nullptr) {
+        EDMLOGE("ClearDefaultFirewallOutputDenyChain:GetExecuter fail, this should not happen.");
+    } else {
+        executer->Remove(nullptr);
+        g_defaultFirewallOutputChainInit = false;
     }
 }
 
 void IptablesManager::ClearDefaultFirewallForwardDenyChain()
 {
-    if (g_defaultFirewallForwardChainInit) {
-        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
-        if (executer == nullptr) {
-            EDMLOGE("ClearDefaultFirewallForwardDenyChain:GetExecuter fail, this should not happen.");
-        } else {
-            executer->Remove(nullptr);
-            g_defaultFirewallForwardChainInit = false;
-        }
+    if (!g_defaultFirewallForwardChainInit) {
+        EDMLOGW("g_defaultFirewallForwardChainInit is not init.");
+        return;
+    }
+    auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
+    if (executer == nullptr) {
+        EDMLOGE("ClearDefaultFirewallForwardDenyChain:GetExecuter fail, this should not happen.");
+    } else {
+        executer->Remove(nullptr);
+        g_defaultFirewallForwardChainInit = false;
     }
 }
 
