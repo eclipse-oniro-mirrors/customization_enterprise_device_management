@@ -42,8 +42,6 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
-    persistentPluginsCode_.clear();
-    persistentPluginsName_.clear();
     UnloadPlugin();
 }
 
@@ -71,10 +69,6 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByFuncCode(std::uint32_t funcCo
         if (it != pluginsCode_.end()) {
             return it->second;
         }
-        auto iter = persistentPluginsCode_.find(code);
-        if (iter != persistentPluginsCode_.end()) {
-            return iter->second;
-        }
     }
     EDMLOGD("GetPluginByFuncCode::return nullptr");
     return nullptr;
@@ -86,10 +80,6 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByPolicyName(const std::string 
     if (it != pluginsName_.end()) {
         return it->second;
     }
-    auto iter = persistentPluginsName_.find(policyName);
-    if (iter != persistentPluginsName_.end()) {
-        return iter->second;
-    }
     return nullptr;
 }
 
@@ -99,10 +89,6 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByCode(std::uint32_t code)
     auto it = pluginsCode_.find(code);
     if (it != pluginsCode_.end()) {
         return it->second;
-    }
-    auto iter = persistentPluginsCode_.find(code);
-    if (iter != persistentPluginsCode_.end()) {
-        return iter->second;
     }
     EDMLOGI("GetPluginByCode::return nullptr");
     return nullptr;
@@ -125,19 +111,10 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         return false;
     }
     EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
-    return AddPluginInner(plugin, false);
+    return AddPluginInner(plugin);
 }
 
-bool PluginManager::AddPersistentPlugin(std::shared_ptr<IPlugin> plugin)
-{
-    if (plugin == nullptr) {
-        return false;
-    }
-    EDMLOGD("AddPersistentPlugin %{public}d", plugin->GetCode());
-    return AddPluginInner(plugin, true);
-}
-
-bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin, bool isPersistent)
+bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin)
 {
     if (plugin == nullptr) {
         return false;
@@ -157,13 +134,8 @@ bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin, bool isPersi
             }
         }
     }
-    if (isPersistent) {
-        persistentPluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
-        persistentPluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
-    } else {
-        pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
-        pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
-    }
+    pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
+    pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));
     if (extensionPluginMap_.find(plugin->GetCode()) != extensionPluginMap_.end()) {
         EDMLOGD("PluginManager::AddPlugin %{public}d add extension plugin %{public}d", plugin->GetCode(),
             extensionPluginMap_[plugin->GetCode()]);
@@ -295,7 +267,6 @@ void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
 void PluginManager::DumpPlugin()
 {
     DumpPluginInner(pluginsCode_, pluginsName_);
-    DumpPluginInner(persistentPluginsCode_, persistentPluginsName_);
 }
 
 void PluginManager::DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,

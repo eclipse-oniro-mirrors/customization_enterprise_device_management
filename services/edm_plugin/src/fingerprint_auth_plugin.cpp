@@ -18,6 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "fingerprint_policy_serializer.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
@@ -59,6 +60,7 @@ ErrCode FingerprintAuthPlugin::OnHandlePolicy(std::uint32_t funcCode, MessagePar
     }
     ret = SetGlobalConfigParam(mergePolicy);
     if (ret != ERR_OK) {
+        EDMLOGE("FingerprintAuthPlugin::OnHandlePolicy SetGlobalConfigParam fail.ret: %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
@@ -199,6 +201,20 @@ ErrCode FingerprintAuthPlugin::OnAdminRemove(const std::string &adminName, const
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void FingerprintAuthPlugin::OnOtherServiceStart()
+{
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_FINGERPRINT_AUTH,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    auto serializer_ = FingerprintPolicySerializer::GetInstance();
+    FingerprintPolicy policy;
+    serializer_->Deserialize(policyData, policy);
+    int32_t ret = SetGlobalConfigParam(policy);
+    if (ret != ERR_OK) {
+        EDMLOGE("FingerprintAuthPlugin::OnOtherServiceStart SetGlobalConfigParam fail.ret: %{public}d", ret);
+    }
 }
 } // namespace EDM
 } // namespace OHOS

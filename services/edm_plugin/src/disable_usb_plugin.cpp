@@ -21,6 +21,7 @@
 #include "edm_utils.h"
 #include "usb_policy_utils.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -46,6 +47,7 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableUsbPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableUsbPlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&DisableUsbPlugin::OnOtherServiceStart);
 }
 
 ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data)
@@ -88,6 +90,22 @@ bool DisableUsbPlugin::HasConflictPolicy()
 ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
 {
     return UsbPolicyUtils::SetUsbDisabled(true);
+}
+
+void DisableUsbPlugin::OnOtherServiceStart()
+{
+    EDMLOGI("DisableUsbPlugin::OnOtherServiceStart start");
+    std::string disableUsbPolicy;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLE_USB,
+        disableUsbPolicy, EdmConstants::DEFAULT_USER_ID);
+    bool isUsbDisabled = false;
+    BoolSerializer::GetInstance()->Deserialize(disableUsbPolicy, isUsbDisabled);
+    if (isUsbDisabled) {
+        ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(isUsbDisabled);
+        if (disableUsbRet != ERR_OK) {
+            EDMLOGW("SetUsbDisabled Error: %{public}d", disableUsbRet);
+        }
+    }
 }
 } // namespace EDM
 } // namespace OHOS

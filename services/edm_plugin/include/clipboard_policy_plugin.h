@@ -36,6 +36,7 @@ public:
     ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data);
     ErrCode DeleteHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
     ErrCode UpdateHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
+    void OnOtherServiceStart();
 };
 } // namespace EDM
 } // namespace OHOS

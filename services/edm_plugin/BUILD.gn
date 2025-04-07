@@ -67,6 +67,7 @@ ohos_shared_library("edmplugin") {
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
     "window_manager:sms",
   ]
 
@@ -103,6 +104,7 @@ ohos_shared_library("edmplugin") {
 
     if (os_account_edm_enable) {
       external_deps += [
+        "graphic_2d:librender_service_client",
         "os_account:libaccountkits",
         "os_account:os_account_innerkits",
       ]
@@ -110,6 +112,7 @@ ohos_shared_library("edmplugin") {
         "./src/add_os_account_plugin.cpp",
         "./src/disallow_add_local_account_plugin.cpp",
         "./src/disallow_add_os_account_by_user_plugin.cpp",
+        "./src/set_watermark_image_plugin.cpp",
       ]
       defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
     }
@@ -218,6 +221,7 @@ ohos_shared_library("edmplugin") {
         usb_manager_edm_enable) {
       external_deps += [ "storage_service:storage_manager_sa_proxy" ]
       sources += [ "./src/usb_read_only_plugin.cpp" ]
+      defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
     if (audio_framework_edm_enable) {

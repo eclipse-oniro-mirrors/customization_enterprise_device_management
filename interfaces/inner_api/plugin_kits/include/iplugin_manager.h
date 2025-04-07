@@ -33,11 +33,6 @@ public:
         return true;
     }
 
-    virtual bool AddPersistentPlugin(std::shared_ptr<IPlugin> plugin)
-    {
-        return true;
-    }
-
     virtual bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
         ExecuteStrategy strategy)
     {
