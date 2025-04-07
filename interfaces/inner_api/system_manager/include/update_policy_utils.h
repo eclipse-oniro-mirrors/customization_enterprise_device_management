@@ -62,6 +62,7 @@ struct UpdatePolicy {
     UpdatePolicyType type = UpdatePolicyType::DEFAULT;
     std::string version;
     UpdateTime installTime;
+    bool disableSystemOtaUpdate = false;
 };
 
 struct Package {

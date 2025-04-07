@@ -61,6 +61,7 @@ void UpdatePolicyUtils::WriteUpdatePolicy(MessageParcel &data, const UpdatePolic
     data.WriteInt64(updatePolicy.installTime.delayUpdateTime);
     data.WriteInt64(updatePolicy.installTime.installWindowStart);
     data.WriteInt64(updatePolicy.installTime.installWindowEnd);
+    data.WriteBool(updatePolicy.disableSystemOtaUpdate);
 }
 
 void UpdatePolicyUtils::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy)
@@ -71,6 +72,7 @@ void UpdatePolicyUtils::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &upda
     data.ReadInt64(updatePolicy.installTime.delayUpdateTime);
     data.ReadInt64(updatePolicy.installTime.installWindowStart);
     data.ReadInt64(updatePolicy.installTime.installWindowEnd);
+    data.ReadBool(updatePolicy.disableSystemOtaUpdate);
 }
 
 void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo)
