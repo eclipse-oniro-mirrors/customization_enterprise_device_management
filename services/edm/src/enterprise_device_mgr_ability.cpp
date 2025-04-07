@@ -30,7 +30,6 @@
 #include "iservice_registry.h"
 #include "matching_skills.h"
 #include "message_parcel.h"
-#include "mock_session_manager_service_interface.h"
 #include "parameters.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
@@ -50,14 +49,14 @@
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
-#include "net_policy_client.h"
+#endif
+#ifdef PASTEBOARD_EDM_ENABLE
+#include "clipboard_policy_serializer.h"
 #endif
 #ifdef USERIAM_EDM_ENABLE
 #include "fingerprint_policy.h"
 #include "fingerprint_policy_serializer.h"
 #include "password_policy_serializer.h"
-#include "usb_device_id.h"
-#include "user_auth_client.h"
 #endif
 
 namespace OHOS {
@@ -174,29 +173,38 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         };
     addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnWindowManagerServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnPasteboardServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::CLIPBOARD_POLICY);
         };
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     addSystemAbilityFuncMap_[COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnNetManagerBaseServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
         };
 #endif
-#ifdef USB_EDM_ENABLE
+#ifdef USB_SERVICE_EDM_ENABLE
     addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnUsbServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+        };
+#endif
+#ifdef USERIAM_EDM_ENABLE
+    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::PASSWORD_POLICY);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::FINGERPRINT_AUTH);
         };
 #endif
     addSystemAbilityFuncMap_[RENDER_SERVICE] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnRenderSystemStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::WATERMARK_IMAGE);
         };
 }
 
@@ -554,6 +562,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
         }
         registerToService_ = true;
     }
+    WatermarkObserverManager::GetInstance();
     AddOnAddSystemAbilityFuncMap();
     AddSystemAbilityListeners();
     CheckAndUpdateByodSettingsData();
@@ -726,6 +735,20 @@ void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
     }
 }
 
+void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::CallOnOtherServiceStart %{public}d", interfaceCode);
+    InitAllPlugins();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, interfaceCode);
+    auto plugin = pluginMgr_->GetPluginByFuncCode(funcCode);
+    if (plugin == nullptr) {
+        EDMLOGE("get Plugin fail %{public}d", interfaceCode);
+        return;
+    }
+    plugin->OnOtherServiceStart();
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
 {
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
@@ -745,202 +768,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
 #endif
 }
 
-#ifdef PASTEBOARD_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnPasteboardServiceStart()
-{
-    EDMLOGI("OnPasteboardServiceStart");
-    std::string policyData;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_CLIPBOARD_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
-    auto clipboardSerializer_ = ClipboardSerializer::GetInstance();
-    std::map<int32_t, ClipboardInfo> policyMap;
-    clipboardSerializer_->Deserialize(policyData, policyMap);
-    ClipboardUtils::HandlePasteboardPolicy(policyMap);
-}
-#endif
-
-#ifdef NET_MANAGER_BASE_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart()
-{
-    EDMLOGI("EnterpriseDeviceMgrAbility::OnNetManagerBaseServiceStart");
-    std::string policyData;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_DISABLED_NETWORK_INTERFACE, policyData, EdmConstants::DEFAULT_USER_ID);
-    std::map<std::string, std::string> policyMap;
-    MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
-    HandleDisallowedNetworkInterface(policyMap);
-}
-
-void EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap)
-{
-    std::vector<std::string> netList;
-    for (const auto& iter : policyMap) {
-        netList.emplace_back(iter.first);
-        EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
-    }
-    auto netPolicyClient = DelayedSingleton<NetManagerStandard::NetPolicyClient>::GetInstance();
-    if (netPolicyClient != nullptr) {
-        if (FAILED(netPolicyClient->SetNicTrafficAllowed(netList, false))) {
-            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface SetNicTrafficAllowed failed.");
-        } else {
-            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface get NetPolicyClient failed.");
-        }
-    }
-}
-#endif
-
-#ifdef USERIAM_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnUserAuthFrameworkStart()
-{
-    EDMLOGI("OnUserAuthFrameworkStart");
-    SetPasswordPolicy();
-    SetFingerprintPolicy();
-}
-
-void EnterpriseDeviceMgrAbility::SetPasswordPolicy()
-{
-    std::string policyData;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_PASSWORD_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
-    auto serializer_ = PasswordSerializer::GetInstance();
-    PasswordPolicy policy;
-    serializer_->Deserialize(policyData, policy);
-    UserIam::UserAuth::GlobalConfigParam param;
-    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
-    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
-    param.value.pinExpiredPeriod = policy.validityPeriod;
-    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
-    if (ret != 0) {
-        EDMLOGW("SetGlobalConfigParam SetPasswordPolicy Error");
-    }
-}
-
-void EnterpriseDeviceMgrAbility::SetFingerprintPolicy()
-{
-    std::string policyData;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_FINGERPRINT_AUTH, policyData, EdmConstants::DEFAULT_USER_ID);
-    auto serializer_ = FingerprintPolicySerializer::GetInstance();
-    FingerprintPolicy policy;
-    serializer_->Deserialize(policyData, policy);
-    std::vector<int32_t> userIds(policy.accountIds.size());
-    std::copy(policy.accountIds.begin(), policy.accountIds.end(), userIds.begin());
-    UserIam::UserAuth::GlobalConfigParam param;
-    param.userIds = userIds;
-    param.authTypes.push_back(UserIam::UserAuth::AuthType::FINGERPRINT);
-    param.type = UserIam::UserAuth::GlobalConfigType::ENABLE_STATUS;
-    param.value.enableStatus = !policy.globalDisallow && userIds.size() == 0;
-    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
-    if (ret != ERR_OK) {
-        EDMLOGW("SetGlobalConfigParam SetFingerprintPolicy Error");
-    }
-}
-#endif
-
-#ifdef USB_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::OnUsbServiceStart()
-{
-    EDMLOGI("OnUsbServiceStart");
-    std::string disableUsbPolicy;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsbPolicy, EdmConstants::DEFAULT_USER_ID);
-    bool isUsbDisabled = false;
-    BoolSerializer::GetInstance()->Deserialize(policyData, isUsbDisabled);
-    if (isUsbDisabled) {
-        ErrCode disableUsbRet = UsbPolicyUtils::SetUsbDisabled(isUsbDisabled);
-        if (disableUsbRet != ERR_OK) {
-            EDMLOGW("SetUsbDisabled Error: %{public}d", disableUsbRet);
-        }
-        return;
-    }
-
-    std::string allowUsbDevicePolicy;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevicePolicy,
-        EdmConstants::DEFAULT_USER_ID);
-    std::vector<UsbDeviceId> usbDeviceIds;
-    ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds);
-    if (!usbDeviceIds.empty()) {
-        ErrCode allowedUsbRet = UsbPolicyUtils::AddAllowedUsbDevices(usbDeviceIds);
-        if (allowedUsbRet != ERR_OK) {
-            EDMLOGW("AddAllowedUsbDevices Error: %{public}d", disableUsbRet);
-        }
-        return;
-    }
-
-    std::string usbStoragePolicy;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
-
-    std::string disallowUsbDevicePolicy;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy,
-        EdmConstants::DEFAULT_USER_ID);
-    std::vector<USB::UsbDeviceType> disallowedDevices;
-    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(policyData, disallowedDevices);
-    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
-        USB::UsbDeviceType storageType;
-        storageType.baseClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
-        storageType.subClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
-        storageType.protocol = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
-        storageType.isDeviceType = false;
-        disallowedDevices.emplace_back(storageType);
-    }
-    if (!disallowedDevices.empty()) {
-        ErrCode disallowedUsbRet = UsbPolicyUtils::SetDisallowedUsbDevices(disallowedDevices);
-        if (disallowedUsbRet != ERR_OK) {
-            EDMLOGW("SetDisallowedUsbDevices Error: %{public}d", disableUsbRet);
-        }
-    }
-}
-#endif
-
-void EnterpriseDeviceMgrAbility::OnRenderSystemStart()
-{
-    EDMLOGI("OnRenderSystemStart");
-    InitAllPlugins();
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::WATERMARK_IMAGE);
-    auto plugin = pluginMgr_->GetPluginByFuncCode(funcCode);
-    if (plugin == nullptr) {
-        EDMLOGE("get watermarkPlugin fail");
-        return;
-    }
-    MessageParcel data;
-    data.WriteString(EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE);
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    plugin->OnHandlePolicy(funcCode, data, reply, policyData, EdmConstants::DEFAULT_USER_ID);
-}
-
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}
-
-void EnterpriseDeviceMgrAbility::OnWindowManagerServiceStart()
-{
-    auto serializer = ArrayStringSerializer::GetInstance();
-    std::vector<int32_t> userIds = { EdmConstants::DEFAULT_USER_ID };
-    policyMgr_->GetPolicyUserIds(userIds);
-    EDMLOGD("OnWindowManagerServiceStart userIds size %{public}zu", userIds.size());
-    std::unordered_map<int32_t, std::vector<std::string>> policyMap;
-    for (int32_t userId : userIds) {
-        std::string policyData;
-        policyMgr_->GetPolicy("", PolicyName::POLICY_SNAPSHOT_SKIP, policyData, userId);
-        std::vector<std::string> vecData;
-        serializer->Deserialize(policyData, vecData);
-        if (vecData.empty()) {
-            continue;
-        }
-        policyMap.insert(make_pair(userId, vecData));
-    }
-    if (!policyMap.empty()) {
-        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(WINDOW_MANAGER_SERVICE_ID);
-        if (remoteObject == nullptr) {
-            EDMLOGE("OnWindowManagerServiceStart wms obj get fial");
-            return;
-        }
-        auto mockSessionManagerServiceProxy = iface_cast<OHOS::Rosen::IMockSessionManagerInterface>(remoteObject);
-        if (mockSessionManagerServiceProxy == nullptr) {
-            EDMLOGE("OnWindowManagerServiceStart wms obj cast fial");
-            return;
-        }
-        EDMLOGI("OnWindowManagerServiceStart init snap shot skip policy when wms restart");
-        mockSessionManagerServiceProxy->SetSnapshotSkipByIdNamesMap(policyMap);
-    } else {
-        EDMLOGI("OnWindowManagerServiceStart no policy to update");
-    }
-}
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {

@@ -55,6 +55,8 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
+    void OnOtherServiceStart() override;
+
     /*
      * Sets the handle of the policy processing object.
      *
@@ -209,6 +211,14 @@ protected:
      */
     typedef void (CT::*BiAdminConsumer)(const std::string &adminName, DT &data, int32_t userId);
 
+    /*
+     * Represents a function that invoked after the admin is removed.
+     *
+     * @see OnAdminRemoveDone
+     * @see AdminRemoveDoneFunc
+     */
+    typedef std::function<void()> OtherServiceStart;
+
     virtual bool GetMergePolicyData(DT &policyData);
 
     void SetSerializer(std::shared_ptr<IPolicySerializer<DT>> serializer);
@@ -307,6 +317,13 @@ protected:
     void SetOnAdminRemoveDoneListener(BiAdminConsumer &&listener);
 
     /*
+     * Registering listening for AdminRemoveDone events.
+     *
+     * @param listener Listening member function pointer of CT Class
+     */
+    void SetOtherServiceStartListener(Runner &&listener);
+
+    /*
      * Mapping between HandlePolicy and member function types that support overloading.
      */
     struct HandlePolicyFunc {
@@ -393,6 +410,23 @@ protected:
 
     // Member function callback object of the AdminRemoveDone event.
     AdminRemoveDoneFunc adminRemoveDoneFunc_;
+
+    /*
+     * Mapping between AdminRemoveDone and member function types that support overloading.
+     */
+    struct OtherServiceStartFunc {
+        OtherServiceStart otherServiceStart_ = nullptr;
+        Runner runner_ = nullptr;
+
+        OtherServiceStartFunc() {}
+
+        OtherServiceStartFunc(OtherServiceStart otherServiceStart, Runner runner)
+            : otherServiceStart_(std::move(otherServiceStart)), runner_(runner) {}
+    };
+
+    // Member function callback object of the AdminRemoveDone event.
+    OtherServiceStartFunc otherServiceStartFunc_;
+
     // Pointer to the callback member function.
     std::shared_ptr<CT> instance_;
     // Data serializer for policy data

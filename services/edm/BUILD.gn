@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,9 +20,9 @@ config("edm_config") {
     "include",
     "include/connection",
     "include/database",
-    "include/persistent_plugin/watermark",
     "include/query_policy",
     "include/strategy",
+    "include/watermark",
     "../../framework/extension/include",
   ]
 }
@@ -59,7 +59,6 @@ ohos_shared_library("edmservice") {
     "cJSON:cjson",
     "c_utils:utils",
     "file_api:securitylabel",
-    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -68,7 +67,7 @@ ohos_shared_library("edmservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
-    "window_manager:sms",
+
   ]
 
   if (enterprise_device_management_support_all) {
@@ -79,7 +78,6 @@ ohos_shared_library("edmservice") {
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
       "./src/application_state_observer.cpp",
-      "./src/clipboard_utils.cpp",
       "./src/connection/enterprise_account_connection.cpp",
       "./src/connection/enterprise_admin_connection.cpp",
       "./src/connection/enterprise_admin_proxy.cpp",
@@ -128,7 +126,6 @@ ohos_shared_library("edmservice") {
   }
 
   if (useriam_edm_enable) {
-    external_deps += [ "user_auth_framework:userauth_client" ]
     sources += [
       "./src/query_policy/fingerprint_auth_query.cpp",
       "./src/query_policy/password_policy_query.cpp",
@@ -180,7 +177,6 @@ ohos_shared_library("edmservice") {
   if (pasteboard_edm_enable) {
     sources += [ "./src/query_policy/clipboard_policy_query.cpp" ]
     defines += [ "PASTEBOARD_EDM_ENABLE" ]
-    external_deps += [ "pasteboard:pasteboard_client" ]
   }
 
   if (os_account_edm_enable) {
@@ -190,17 +186,15 @@ ohos_shared_library("edmservice") {
     ]
 
     sources += [
-      "./src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
-      "./src/persistent_plugin/watermark/watermark_application_observer.cpp",
-      "./src/persistent_plugin/watermark/watermark_image_serializer.cpp",
       "./src/query_policy/disallow_add_local_account_query.cpp",
+      "./src/watermark/watermark_application_observer.cpp",
+      "./src/watermark/watermark_observer_manager.cpp",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable) {
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
-    external_deps += [ "netmanager_base:net_policy_manager_if" ]
   }
 
   if (common_event_service_edm_enable) {

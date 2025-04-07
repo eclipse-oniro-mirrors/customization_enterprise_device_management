@@ -239,6 +239,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
+      "./src/set_watermark_plugin_test.cpp",
     ]
   }
 
@@ -394,6 +395,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/add_os_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",
+      "../../../../services/edm_plugin/src/set_watermark_image_plugin.cpp",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }

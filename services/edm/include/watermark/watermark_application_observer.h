@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN_WATERMARK_APPLICATION_OBSERVER_H
-#define SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN_WATERMARK_APPLICATION_OBSERVER_H
+#ifndef SERVICES_EDM_INCLUDE_UTILS_WATERMARK_APPLICATION_OBSERVER_H
+#define SERVICES_EDM_INCLUDE_UTILS_WATERMARK_APPLICATION_OBSERVER_H
 
 #include "application_state_observer_stub.h"
-#include "set_watermark_image_plugin.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "watermark_image_type.h"
+#include "watermark_image_serializer.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class SetWatermarkImagePlugin;
 class WatermarkApplicationObserver : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    WatermarkApplicationObserver(SetWatermarkImagePlugin &listener) : listener_(listener) {}
-
     void OnProcessCreated(const AppExecFwk::ProcessData &processData) override;
     void OnProcessDied(const AppExecFwk::ProcessData &processData) override {};
-
-private:
-    SetWatermarkImagePlugin &listener_;
+    void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId,
+        int32_t pid, bool enabled);
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN_WATERMARK_APPLICATION_OBSERVER_H
+#endif // SERVICES_EDM_INCLUDE_UTILS_WATERMARK_APPLICATION_OBSERVER_H

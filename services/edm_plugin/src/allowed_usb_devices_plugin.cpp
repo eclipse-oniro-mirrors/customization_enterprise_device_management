@@ -27,6 +27,7 @@
 #include "usb_policy_utils.h"
 #include "usb_srv_client.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -42,6 +43,7 @@ void AllowUsbDevicesPlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&AllowUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&AllowUsbDevicesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnAdminRemoveListener(&AllowUsbDevicesPlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&AllowUsbDevicesPlugin::OnOtherServiceStart);
 }
 
 ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
@@ -185,6 +187,22 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
         }
     });
     return ERR_OK;
+}
+
+void AllowUsbDevicesPlugin::OnOtherServiceStart()
+{
+    EDMLOGI("DisableUsbPlugin::OnOtherServiceStart start");
+    std::string allowUsbDevicePolicy;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevicePolicy,
+        EdmConstants::DEFAULT_USER_ID);
+    std::vector<UsbDeviceId> usbDeviceIds;
+    ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(allowUsbDevicePolicy, usbDeviceIds);
+    if (!usbDeviceIds.empty()) {
+        ErrCode allowedUsbRet = UsbPolicyUtils::AddAllowedUsbDevices(usbDeviceIds);
+        if (allowedUsbRet != ERR_OK) {
+            EDMLOGW("AddAllowedUsbDevices Error: %{public}d", allowedUsbRet);
+        }
+    }
 }
 } // namespace EDM
 } // namespace OHOS
