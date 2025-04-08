@@ -48,8 +48,11 @@ public:
     ErrCode CheckAndUpdatePermission(std::shared_ptr<Admin> admin, Security::AccessToken::AccessTokenID tokenId,
         const std::string &permission, int32_t userId);
 
+    bool CheckElementNullPermission(uint32_t code, const std::string &permissionName);
+
     bool CheckIsDebug();
     bool CheckIsSystemAppOrNative();
+    bool CheckIsNativeTargetCallQuery(uint32_t code);
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
     virtual ~PermissionChecker() = default;
@@ -61,6 +64,7 @@ private:
     PermissionChecker() = default;
     static std::once_flag flag_;
     static std::shared_ptr<PermissionChecker> instance_;
+    static std::vector<uint32_t> supportAdminNullPolicyCode;
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM

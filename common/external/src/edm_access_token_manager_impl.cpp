@@ -52,6 +52,17 @@ bool EdmAccessTokenManagerImpl::IsSystemAppOrNative()
     return false;
 }
 
+bool EdmAccessTokenManagerImpl::IsNativeCall()
+{
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
+    EDMLOGI("EdmAccessTokenManagerImpl:: IsNativeCall not native process");
+    return false;
+}
+
 bool EdmAccessTokenManagerImpl::VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
     const std::string &permissionName)
 {

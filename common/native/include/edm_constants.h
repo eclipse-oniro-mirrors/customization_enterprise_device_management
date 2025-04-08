@@ -24,6 +24,8 @@ namespace EdmConstants {
     constexpr int32_t DECIMAL = 10;
     constexpr uint32_t APPID_MAX_SIZE = 200;
     constexpr int32_t DEFAULT_USER_ID = 100;
+    constexpr int32_t BLUETOOTH_SERVICE_UID = 1002;
+    constexpr int32_t USERIAM_SERVICE_UID = 1088;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
     constexpr int32_t STORAGE_USB_POLICY_READ_WRITE = 0;
@@ -67,6 +69,15 @@ namespace EdmConstants {
         constexpr int32_t SIM_SLOT_ID_0 = 0;
         constexpr int32_t SIM_SLOT_ID_1 = 1;
     } // namespace DeviceInfo
+
+    namespace PolicyCode {
+        constexpr uint32_t DISALLOW_SCREEN_SHOT = 11;
+        constexpr uint32_t DISALLOW_SCREEN_RECORD = 12;
+        constexpr uint32_t DISABLE_DISK_RECOVERY_KEY = 17;
+        constexpr uint32_t DISALLOW_NEAR_LINK = 18;
+        constexpr uint32_t DISABLE_DEVELOPER_MODE = 20;
+        constexpr uint32_t DISABLE_RESET_FACTORY = 21;
+    }
 
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";

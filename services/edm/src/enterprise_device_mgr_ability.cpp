@@ -1632,27 +1632,17 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
     AppExecFwk::ElementName elementName;
     // has admin
     if (data.ReadInt32() == 0) {
-        std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
-        if (!admin) {
-            EDMLOGW("GetDevicePolicy: ReadParcelable failed");
-            return EdmReturnErrCode::PARAM_ERROR;
+        ErrCode errCode = CheckGetPolicyParam(data, plugin, elementName, permissionTag, userId);
+        if (errCode != ERR_OK) {
+            return errCode;
         }
-#ifndef EDM_FUZZ_TEST
-        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin->GetBundleName(),
-            GetCurrentUserId());
-        if (deviceAdmin == nullptr) {
-            return EdmReturnErrCode::ADMIN_INACTIVE;
-        }
+    } else {
         std::string getPermission = plugin->GetPermission(FuncOperateType::GET,
-            GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
-        ErrCode ret = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::GET,
-            admin->GetBundleName(), plugin->GetPolicyName(), getPermission, userId);
-        if (FAILED(ret)) {
-            return ret;
+            IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
+        if (!PermissionChecker::GetInstance()->CheckElementNullPermission(code, getPermission)) {
+            EDMLOGE("GetDevicePolicy: permission check failed");
+            return EdmReturnErrCode::PERMISSION_DENIED;
         }
-#endif
-        elementName.SetBundleName(admin->GetBundleName());
-        elementName.SetAbilityName(admin->GetAbilityName());
     }
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
@@ -1664,6 +1654,33 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), info, true);
     return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyParam(MessageParcel &data, std::shared_ptr<IPlugin> &plugin,
+    AppExecFwk::ElementName &elementName, const std::string &permissionTag, int32_t userId)
+{
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        EDMLOGW("GetDevicePolicy: ReadParcelable failed");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+#ifndef EDM_FUZZ_TEST
+    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin->GetBundleName(),
+        GetCurrentUserId());
+    if (deviceAdmin == nullptr) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    std::string getPermission = plugin->GetPermission(FuncOperateType::GET,
+        GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
+    ErrCode ret = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::GET,
+        admin->GetBundleName(), plugin->GetPolicyName(), getPermission, userId);
+    if (FAILED(ret)) {
+        return ret;
+    }
+#endif
+    elementName.SetBundleName(admin->GetBundleName());
+    elementName.SetAbilityName(admin->GetAbilityName());
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
