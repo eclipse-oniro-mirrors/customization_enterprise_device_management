@@ -15,11 +15,13 @@
 
 #include "permission_checker.h"
 
-#include "edm_log.h"
 #include "access_token.h"
-#include "ipc_skeleton.h"
-#include "edm_constants.h"
 #include "admin_manager.h"
+#include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
+#include "edm_log.h"
+#include "func_code_utils.h"
+#include "ipc_skeleton.h"
 #include "permission_manager.h"
 
 namespace OHOS {
@@ -27,6 +29,38 @@ namespace EDM {
 
 std::shared_ptr<PermissionChecker> PermissionChecker::instance_;
 std::once_flag PermissionChecker::flag_;
+
+std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
+    EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+    EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT,
+    EdmInterfaceCode::DISABLE_BLUETOOTH,
+    EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES,
+    EdmInterfaceCode::SET_BROWSER_POLICIES,
+    EdmInterfaceCode::MANAGED_BROWSER_POLICY,
+    EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
+    EdmInterfaceCode::LOCATION_POLICY,
+    EdmInterfaceCode::FINGERPRINT_AUTH,
+    EdmInterfaceCode::DISABLE_MICROPHONE,
+    EdmInterfaceCode::DISABLED_PRINTER,
+    EdmInterfaceCode::DISABLED_HDC,
+    EdmInterfaceCode::DISABLE_USB,
+    EdmInterfaceCode::DISALLOWED_USB_DEVICES,
+    EdmInterfaceCode::USB_READ_ONLY,
+    EdmInterfaceCode::ALLOWED_USB_DEVICES,
+    EdmInterfaceCode::DISABLE_WIFI,
+    EdmInterfaceCode::DISABLE_MTP_CLIENT,
+    EdmInterfaceCode::DISABLE_MTP_SERVER,
+    EdmInterfaceCode::DISALLOWED_TETHERING,
+    EdmInterfaceCode::INACTIVE_USER_FREEZE,
+    EdmInterfaceCode::DISABLE_CAMERA,
+    EdmInterfaceCode::PASSWORD_POLICY,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_NEAR_LINK,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY
+};
 
 std::shared_ptr<PermissionChecker> PermissionChecker::GetInstance()
 {
@@ -89,7 +123,6 @@ ErrCode PermissionChecker::CheckCallingUid(const std::string &bundleName)
     return ERR_EDM_PERMISSION_ERROR;
 }
 
-
 ErrCode PermissionChecker::CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag)
 {
     bool isCheckSystem = (apiType == IPlugin::ApiType::SYSTEM)
@@ -100,7 +133,6 @@ ErrCode PermissionChecker::CheckSystemCalling(IPlugin::ApiType apiType, const st
     }
     return ERR_OK;
 }
-
 
 ErrCode PermissionChecker::GetAllPermissionsByAdmin(const std::string &bundleInfoName, AdminType adminType,
     int32_t userId, std::vector<std::string> &permissionList)
@@ -219,6 +251,40 @@ IPlugin::PermissionType PermissionChecker::AdminTypeToPermissionType(AdminType a
         return IPlugin::PermissionType::BYOD_DEVICE_ADMIN;
     }
     return IPlugin::PermissionType::SUPER_DEVICE_ADMIN;
+}
+
+bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std::string &permissionName)
+{
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
+    auto item = std::find(supportAdminNullPolicyCode_.begin(), supportAdminNullPolicyCode_.end(), code);
+    if (item == supportAdminNullPolicyCode_.end()) {
+        return false;
+    }
+    if (permissionName.empty()) {
+        return true;
+    }
+    if (CheckIsNativeTargetCallQuery(code)) {
+        return true;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!VerifyCallingPermission(tokenId, permissionName)) {
+        return false;
+    }
+    return true;
+}
+
+bool PermissionChecker::CheckIsNativeTargetCallQuery(uint32_t code)
+{
+    bool isNativeCall = GetExternalManagerFactory()->CreateAccessTokenManager()->IsNativeCall();
+    if (isNativeCall) {
+        int uid = IPCSkeleton::GetCallingUid();
+        if (code == EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES) {
+            return uid == EdmConstants::BLUETOOTH_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::PASSWORD_POLICY) {
+            return uid == EdmConstants::USERIAM_SERVICE_UID;
+        }
+    }
+    return false;
 }
 
 bool PermissionChecker::CheckIsDebug()
