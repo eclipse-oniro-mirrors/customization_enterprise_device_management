@@ -30,7 +30,7 @@ namespace EDM {
 std::shared_ptr<PermissionChecker> PermissionChecker::instance_;
 std::once_flag PermissionChecker::flag_;
 
-std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode = {
+std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER,
     EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT,
     EdmInterfaceCode::DISABLE_BLUETOOTH,
@@ -253,8 +253,8 @@ IPlugin::PermissionType PermissionChecker::AdminTypeToPermissionType(AdminType a
 bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std::string &permissionName)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
-    auto item = std::find(supportAdminNullPolicyCode.begin(), supportAdminNullPolicyCode.end(), code);
-    if (item == supportAdminNullPolicyCode.end()) {
+    auto item = std::find(supportAdminNullPolicyCode_.begin(), supportAdminNullPolicyCode_.end(), code);
+    if (item == supportAdminNullPolicyCode_.end()) {
         return false;
     }
     if (permissionName.empty()) {

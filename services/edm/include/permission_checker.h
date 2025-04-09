@@ -64,7 +64,7 @@ private:
     PermissionChecker() = default;
     static std::once_flag flag_;
     static std::shared_ptr<PermissionChecker> instance_;
-    static std::vector<uint32_t> supportAdminNullPolicyCode;
+    static std::vector<uint32_t> supportAdminNullPolicyCode_;
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
