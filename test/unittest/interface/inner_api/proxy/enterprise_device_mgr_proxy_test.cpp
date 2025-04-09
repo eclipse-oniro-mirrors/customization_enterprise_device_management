@@ -78,7 +78,7 @@ void EnterpriseDeviceMgrProxyTest::TearDownTestSuite()
  * @tc.desc: Test EnableAdmin func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminSuc, TestSize.Level0)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
@@ -1211,6 +1211,29 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestCheckAndGetAdminProvisionInfoIpcFail,
     std::string bundleName;
     ErrCode errVal = enterpriseDeviceMgrProxyTest->CheckAndGetAdminProvisionInfo(admin, bundleName);
     EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestIsEdmEnabledSuc
+ * @tc.desc: Test IsEdmEnabled with enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsEdmEnabledSuc, TestSize.Level0)
+{
+    bool errVal = enterpriseDeviceMgrProxyTest->IsEdmEnabled();
+    ASSERT_TRUE(errVal);
+}
+
+/**
+ * @tc.name: TestIsEdmEnabledWithEdmDisable
+ * @tc.desc: Test IsEdmEnabled without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsEdmEnabledWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool errVal = enterpriseDeviceMgrProxyTest->IsEdmEnabled();
+    ASSERT_FALSE(errVal);
 }
 } // namespace TEST
 } // namespace EDM
