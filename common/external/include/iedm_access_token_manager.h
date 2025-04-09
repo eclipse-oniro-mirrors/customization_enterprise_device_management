@@ -27,6 +27,7 @@ public:
     virtual ~IEdmAccessTokenManager() = default;
     virtual bool IsDebug() = 0;
     virtual bool IsNativeCall() = 0;
+    virtual bool IsSystemAppCall() = 0;
     virtual bool IsSystemAppOrNative() = 0;
     virtual bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
         const std::string &permissionName) = 0;

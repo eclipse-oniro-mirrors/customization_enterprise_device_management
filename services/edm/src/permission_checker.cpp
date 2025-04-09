@@ -263,6 +263,9 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     if (permissionName.empty()) {
         return true;
     }
+    if (CheckSpecialPolicyCallQuery(code)) {
+        return true;
+    }
     if (CheckIsNativeTargetCallQuery(code)) {
         return true;
     }
@@ -271,6 +274,14 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
         return false;
     }
     return true;
+}
+
+bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
+{
+    if (code == EdmInterfaceCode::PASSWORD_POLICY) {
+        return GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
+    }
+    return false;
 }
 
 bool PermissionChecker::CheckIsNativeTargetCallQuery(uint32_t code)

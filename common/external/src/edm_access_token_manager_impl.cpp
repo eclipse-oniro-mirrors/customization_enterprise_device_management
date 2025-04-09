@@ -63,6 +63,11 @@ bool EdmAccessTokenManagerImpl::IsNativeCall()
     return false;
 }
 
+bool EdmAccessTokenManagerImpl::IsSystemAppCall()
+{
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
+}
+
 bool EdmAccessTokenManagerImpl::VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
     const std::string &permissionName)
 {
