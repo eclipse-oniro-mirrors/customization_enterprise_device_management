@@ -173,7 +173,7 @@ HWTEST_F(AdminManagerTest, TestDeleteAdmin, TestSize.Level1)
  * @tc.desc: Test AdminManager::SetAdminValue function.
  * @tc.type: FUNC
  */
-HWTEST_F(AdminManagerTest, TestSetAdminValue, TestSize.Level1)
+HWTEST_F(AdminManagerTest, TestSetAdminValue, TestSize.Level0)
 {
     std::shared_ptr<Admin> admin;
     std::string bundleName = "com.edm.test.demo";
