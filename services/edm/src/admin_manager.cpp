@@ -208,6 +208,7 @@ ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageN
         for (auto &admin : admins) {
             if (admin->adminInfo_.packageName_ == packageName) {
                 admin->adminInfo_.packageName_ = newAdmin.adminInfo_.packageName_;
+                admin->adminInfo_.className_ = newAdmin.adminInfo_.className_;
             }
             if ((admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN ||
                 admin->GetAdminType() == AdminType::VIRTUAL_ADMIN) &&
