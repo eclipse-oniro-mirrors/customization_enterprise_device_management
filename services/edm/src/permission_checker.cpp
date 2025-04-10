@@ -258,6 +258,7 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
     auto item = std::find(supportAdminNullPolicyCode_.begin(), supportAdminNullPolicyCode_.end(), code);
     if (item == supportAdminNullPolicyCode_.end()) {
+        EDMLOGE("PermissionChecker not support element null query code is %{public}d", code);
         return false;
     }
     if (permissionName.empty()) {
@@ -266,11 +267,9 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     if (CheckSpecialPolicyCallQuery(code)) {
         return true;
     }
-    if (CheckIsNativeTargetCallQuery(code)) {
-        return true;
-    }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!VerifyCallingPermission(tokenId, permissionName)) {
+        EDMLOGE("PermissionChecker element null query no permission code is %{public}d", code);
         return false;
     }
     return true;
@@ -278,14 +277,10 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
 
 bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
 {
-    if (code == EdmInterfaceCode::PASSWORD_POLICY) {
-        return GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
+    bool isSystemAppCall = GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
+    if (isSystemAppCall) {
+        return true;
     }
-    return false;
-}
-
-bool PermissionChecker::CheckIsNativeTargetCallQuery(uint32_t code)
-{
     bool isNativeCall = GetExternalManagerFactory()->CreateAccessTokenManager()->IsNativeCall();
     if (isNativeCall) {
         int uid = IPCSkeleton::GetCallingUid();

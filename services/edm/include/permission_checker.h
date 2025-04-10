@@ -53,7 +53,6 @@ public:
     bool CheckIsDebug();
     bool CheckIsSystemAppOrNative();
     bool CheckSpecialPolicyCallQuery(uint32_t code);
-    bool CheckIsNativeTargetCallQuery(uint32_t code);
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
     virtual ~PermissionChecker() = default;
