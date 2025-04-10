@@ -124,8 +124,13 @@ std::shared_ptr<NativeRdb::ResultSet> EdmRdbDataManager::Query(const NativeRdb::
         return nullptr;
     }
     auto absSharedResultSet = rdbStore->Query(predicates, columns);
-    if (absSharedResultSet == nullptr || !absSharedResultSet->HasBlock()) {
-        EDMLOGE("EdmRdbDataManager query date failed.");
+    if (absSharedResultSet == nullptr) {
+        EDMLOGE("EdmRdbDataManager query nullptr.");
+        return nullptr;
+    }
+    if (!absSharedResultSet->HasBlock()) {
+        EDMLOGE("EdmRdbDataManager query has not Block.");
+        absSharedResultSet->Close();
         return nullptr;
     }
     return absSharedResultSet;
