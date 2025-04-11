@@ -33,6 +33,7 @@ const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string UPGRADE_VERSION = "version_1.0";
 constexpr int32_t UPGRADE_FAILED_CODE = -1;
 const std::string UPGRADE_FAILED_MESSAGE = "upgrade failed";
+const std::string AUTH_DATA = "auth data";
 class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgr> {
 public:
     EnterpriseDeviceMgrStubMock() = default;
@@ -111,6 +112,9 @@ public:
         MessageOption &option);
 
     int InvokeSendRequestGetUpgradeResult(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetUpdateAuthData(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     int InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
