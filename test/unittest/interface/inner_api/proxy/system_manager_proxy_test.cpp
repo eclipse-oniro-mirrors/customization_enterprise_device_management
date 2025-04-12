@@ -278,6 +278,44 @@ HWTEST_F(SystemManagerProxyTest, TestGetUpgradeResultSuc, TestSize.Level1)
     ASSERT_EQ(upgradeResult.errorCode, UPGRADE_FAILED_CODE);
     ASSERT_EQ(upgradeResult.errorMessage, UPGRADE_FAILED_MESSAGE);
 }
+
+
+/**
+ * @tc.name: TestGetUpdateAuthDataFail
+ * @tc.desc: Test GetUpdateAuthData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetUpdateAuthDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::string authData;
+    int32_t ret = systemmanagerProxy->GetUpdateAuthData(data, authData);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUpdateAuthDataSuc
+ * @tc.desc: Test GetUpdateAuthData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetUpdateAuthDataSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
+    std::string authData;
+    int32_t ret = systemmanagerProxy->GetUpdateAuthData(data, authData);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(authData, AUTH_DATA);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

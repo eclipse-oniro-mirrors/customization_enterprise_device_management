@@ -323,6 +323,16 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult(uint32_t code
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetUpdateAuthData code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteString(AUTH_DATA);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
