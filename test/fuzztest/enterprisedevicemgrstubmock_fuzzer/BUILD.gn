@@ -56,6 +56,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../../services/edm/src/permission_checker.cpp",
     "../../../services/edm/src/permission_manager.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
