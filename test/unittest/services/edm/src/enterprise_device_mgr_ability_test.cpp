@@ -42,6 +42,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 101;
+constexpr int32_t WITHOUT_ADMIN_SUCCESS_POLICY_CODE = 1024;
 constexpr int32_t ARRAY_MAP_TESTPLUGIN_POLICYCODE = 13;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
@@ -751,7 +752,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
@@ -3723,7 +3724,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
