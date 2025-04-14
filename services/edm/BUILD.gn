@@ -53,6 +53,7 @@ ohos_shared_library("edmservice") {
     "./src/device_policies_storage_rdb.cpp",
     "./src/enterprise_device_mgr_ability.cpp",
     "./src/enterprise_device_mgr_stub.cpp",
+    "./src/permission_checker.cpp",
     "./src/permission_manager.cpp",
     "./src/plugin_manager.cpp",
     "./src/policy_manager.cpp",

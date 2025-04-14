@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
-#define COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
+#ifndef SERVICES_EDM_INCLUDE_EDM_PERMISSION_CHECKER_H
+#define SERVICES_EDM_INCLUDE_EDM_PERMISSION_CHECKER_H
 
-#include "iedm_access_token_manager.h"
+#include <map>
+#include <string>
+#include <vector>
 
 namespace OHOS {
 namespace EDM {
-class EdmAccessTokenManagerImpl : public IEdmAccessTokenManager {
+class PermissionChecker {
 public:
-    ~EdmAccessTokenManagerImpl() override = default;
-    bool IsDebug() override;
-    bool IsNativeCall() override;
-    bool IsSystemAppCall() override;
-    bool IsSystemAppOrNative() override;
-    bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
-        const std::string &permissionName) override;
+    static std::vector<uint32_t> getSupportAdminNullPolicyCode();
+private:
+    PermissionChecker() = default;
+    static std::vector<uint32_t> supportAdminNullPolicyCode_;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
+#endif // SERVICES_EDM_INCLUDE_EDM_PERMISSION_CHECKER_H

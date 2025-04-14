@@ -41,8 +41,8 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
+#include "permission_checker.h"
 #include "permission_manager.h"
-
 #include "password_policy_serializer.h"
 #include "usb_device_id.h"
 #include "user_auth_client.h"
@@ -1137,7 +1137,14 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 #endif
         elementName.SetBundleName(admin->GetBundleName());
         elementName.SetAbilityName(admin->GetAbilityName());
+    } else {
+        std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
+        if (!CheckElementNullPermission(code, getPermission)) {
+            EDMLOGE("GetDevicePolicy: permission check failed");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
     }
+
     std::string policyName = plugin->GetPolicyName();
     std::string policyValue;
 
@@ -1541,6 +1548,47 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
         }
     }
     return ERR_OK;
+}
+
+bool EnterpriseDeviceMgrAbility::CheckElementNullPermission(uint32_t funcCode, const std::string &permissionName)
+{
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
+    auto supportAdminNullPolicyCode = PermissionChecker::getSupportAdminNullPolicyCode();
+    auto item = std::find(supportAdminNullPolicyCode.begin(), supportAdminNullPolicyCode.end(), code);
+    if (item == supportAdminNullPolicyCode.end()) {
+        EDMLOGE("EnterpriseDeviceMgrAbility not support element null query code is %{public}d", code);
+        return false;
+    }
+    if (permissionName.empty()) {
+        return true;
+    }
+    if (CheckSpecialPolicyCallQuery(code)) {
+        return true;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetAccessTokenMgr()->VerifyCallingPermission(tokenId, permissionName)) {
+        EDMLOGE("EnterpriseDeviceMgrAbility element null query no permission code is %{public}d", code);
+        return false;
+    }
+    return true;
+}
+
+bool EnterpriseDeviceMgrAbility::CheckSpecialPolicyCallQuery(uint32_t code)
+{
+    bool isSystemAppCall = GetAccessTokenMgr()->IsSystemAppCall();
+    if (isSystemAppCall) {
+        return true;
+    }
+    bool isNativeCall = GetAccessTokenMgr()->IsNativeCall();
+    if (isNativeCall) {
+        int uid = GetCallingUid();
+        if (code == EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES) {
+            return uid == EdmConstants::BLUETOOTH_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::PASSWORD_POLICY) {
+            return uid == EdmConstants::USERIAM_SERVICE_UID;
+        }
+    }
+    return false;
 }
 } // namespace EDM
 } // namespace OHOS
