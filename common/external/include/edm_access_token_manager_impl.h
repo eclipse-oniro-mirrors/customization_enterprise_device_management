@@ -24,6 +24,8 @@ class EdmAccessTokenManagerImpl : public IEdmAccessTokenManager {
 public:
     ~EdmAccessTokenManagerImpl() override = default;
     bool IsDebug() override;
+    bool IsNativeCall() override;
+    bool IsSystemAppCall() override;
     bool IsSystemAppOrNative() override;
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
         const std::string &permissionName) override;

@@ -90,6 +90,12 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
         }
         elementName.SetBundleName(admin->GetBundleName());
         elementName.SetAbilityName(admin->GetAbilityName());
+    } else {
+        if (!PermissionChecker::GetInstance()->CheckElementNullPermission(code,
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag))) {
+            EDMLOGE("IPolicyQuery: permission check failed");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
     }
 
     std::string policyName = this->GetPolicyName();
