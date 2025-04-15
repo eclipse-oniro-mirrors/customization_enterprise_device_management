@@ -24,6 +24,7 @@
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
 #include "usb_interface_type.h"
+#include "wifi_id.h"
 
 namespace OHOS {
 namespace EDM {
@@ -280,6 +281,26 @@ int EnterpriseDeviceMgrStubMock::InvokeDisallowedUsbDevicesSendRequestGetPolicy(
     reply.WriteInt32(usbDeviceTypes.size());
     std::for_each(usbDeviceTypes.begin(), usbDeviceTypes.end(), [&](const auto usbDeviceType) {
         usbDeviceType.Marshalling(reply);
+    });
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeWifiListSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<WifiId> wifiIds;
+    WifiId id1;
+    std::string testSsid = "wifi_name";
+    std::string testBssid = "68:77:24:77:A6:D6";
+    id1.SetSsid(testSsid);
+    id1.SetBssid(testBssid);
+    wifiIds.push_back(id1);
+    reply.WriteInt32(wifiIds.size());
+    std::for_each(wifiIds.begin(), wifiIds.end(), [&](const auto wifiId) {
+        wifiId.Marshalling(reply);
     });
     return 0;
 }

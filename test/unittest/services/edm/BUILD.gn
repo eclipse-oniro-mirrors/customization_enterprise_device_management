@@ -99,6 +99,8 @@ ohos_static_library("edmservice_static") {
 
   if (wifi_edm_enable) {
     sources += [
+      "../../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
+      "../../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
       "../../../../services/edm/src/query_policy/set_wifi_disabled_query.cpp",
     ]
   }

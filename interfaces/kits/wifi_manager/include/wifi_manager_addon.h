@@ -22,6 +22,7 @@
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
 #include "want.h"
+#include "wifi_id.h"
 #include "wifi_manager_proxy.h"
 
 #ifdef WIFI_EDM_ENABLE
@@ -117,6 +118,18 @@ private:
     static napi_value IsWifiDisabled(napi_env env, napi_callback_info info);
     static napi_value IsWifiActiveSync(napi_env env, napi_callback_info info);
     static napi_value SetWifiProfileSync(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedWifiList(napi_env env, napi_callback_info info, bool isAdd);
+    static bool ParseWifiInfoArray(napi_env env, std::vector<WifiId> &wifiIds, napi_value object, bool isAllowed);
+    static bool GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId &wifiId, bool isAllowed);
+    static napi_value WifiIdToJsObj(napi_env env, const WifiId &wifiId);
+    static napi_value AddDisallowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedWifiList(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveDisallowedWifiList(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value GetWifiList(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode);
 };
 } // namespace EDM
 } // namespace OHOS

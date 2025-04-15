@@ -62,6 +62,43 @@ int32_t WifiManagerProxy::SetWifiProfile(MessageParcel &data)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_WIFI_PROFILE);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t WifiManagerProxy::AddOrRemoveWifiList(MessageParcel &data, FuncOperateType operateType, EdmInterfaceCode code)
+{
+    EDMLOGD("WifiManagerProxy::AddOrRemoveWifiList");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, code);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t WifiManagerProxy::GetWifiList(MessageParcel &data, std::vector<WifiId> &result, EdmInterfaceCode policyCode)
+{
+    EDMLOGI("WifiManagerProxy::GetWifiList is %{public}d", policyCode);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(policyCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGD("WifiManagerProxy:GetWifiList fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    if (size > EdmConstants::WIFI_LIST_MAX_SIZE) {
+        EDMLOGE("WifiManagerProxy:GetWifiList size=[%{public}u] is too large", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("WifiManagerProxy:GetWifiList return size:%{public}u", size);
+    for (uint32_t i = 0; i < size; i++) {
+        WifiId wifiId;
+        if (!WifiId::Unmarshalling(reply, wifiId)) {
+            EDMLOGE("EnterpriseDeviceMgrProxy::GetEnterpriseInfo read parcel fail");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        result.emplace_back(wifiId);
+    }
+    return ERR_OK;
+}
 #endif
 
 int32_t WifiManagerProxy::SetWifiDisabled(MessageParcel &data)

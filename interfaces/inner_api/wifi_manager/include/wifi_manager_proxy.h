@@ -18,6 +18,9 @@
 
 #include "enterprise_device_mgr_proxy.h"
 #ifdef WIFI_EDM_ENABLE
+#include "edm_constants.h"
+#include "func_code.h"
+#include "wifi_id.h"
 #include "wifi_msg.h"
 #include "wifi_password.h"
 #endif
@@ -32,6 +35,8 @@ public:
     int32_t IsWifiActive(MessageParcel &data, bool &result);
 #ifdef WIFI_EDM_ENABLE
     int32_t SetWifiProfile(MessageParcel &data);
+    int32_t GetWifiList(MessageParcel &data, std::vector<WifiId> &result, EdmInterfaceCode policyCode);
+    int32_t AddOrRemoveWifiList(MessageParcel &data, FuncOperateType operateType, EdmInterfaceCode code);
 #endif
     int32_t SetWifiDisabled(MessageParcel &data);
     int32_t IsWifiDisabled(MessageParcel &data, bool &result);

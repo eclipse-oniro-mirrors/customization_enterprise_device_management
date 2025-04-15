@@ -61,6 +61,9 @@
 #endif
 
 #ifdef WIFI_EDM_ENABLE
+#include "allowed_wifi_list_query.h"
+#include "array_wifi_id_serializer.h"
+#include "disallowed_wifi_list_query.h"
 #include "set_wifi_disabled_query.h"
 #endif
 
@@ -274,10 +277,10 @@ ErrCode PluginPolicyReader::GetPolicyQuerySecond(std::shared_ptr<IPolicyQuery> &
             obj = std::make_shared<NTPServerQuery>();
             return ERR_OK;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQueryThird(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::PASSWORD_POLICY:
@@ -319,6 +322,27 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return ERR_OK;
         default:
             break;
+    }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::ALLOWED_WIFI_LIST:
+#ifdef WIFI_EDM_ENABLE
+            obj = std::make_shared<AllowedWifiListQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_WIFI_LIST:
+#ifdef WIFI_EDM_ENABLE
+            obj = std::make_shared<DisallowedWifiListQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
     }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }

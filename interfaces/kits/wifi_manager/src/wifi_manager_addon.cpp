@@ -16,6 +16,7 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "func_code.h"
 #include "message_parcel_utils.h"
 #include "securec.h"
 
@@ -159,6 +160,12 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isWifiDisabled", IsWifiDisabled),
         DECLARE_NAPI_FUNCTION("isWifiActiveSync", IsWifiActiveSync),
         DECLARE_NAPI_FUNCTION("setWifiProfileSync", SetWifiProfileSync),
+        DECLARE_NAPI_FUNCTION("addAllowedWifiList", AddAllowedWifiList),
+        DECLARE_NAPI_FUNCTION("removeAllowedWifiList", RemoveAllowedWifiList),
+        DECLARE_NAPI_FUNCTION("getAllowedWifiList", GetAllowedWifiList),
+        DECLARE_NAPI_FUNCTION("addDisallowedWifiList", AddDisallowedWifiList),
+        DECLARE_NAPI_FUNCTION("removeDisallowedWifiList", RemoveDisallowedWifiList),
+        DECLARE_NAPI_FUNCTION("getDisallowedWifiList", GetDisallowedWifiList),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
@@ -220,6 +227,259 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)
 {
     return SetWifiProfileHandler(env, info, NativeSetWifiProfile);
+}
+
+napi_value WifiManagerAddon::AddAllowedWifiList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::AddAllowedWifiList called");
+    return AddOrRemoveAllowedWifiList(env, info, true);
+}
+
+napi_value WifiManagerAddon::RemoveAllowedWifiList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::RemoveAllowedWifiList called");
+    return AddOrRemoveAllowedWifiList(env, info, false);
+}
+
+napi_value WifiManagerAddon::AddOrRemoveAllowedWifiList(napi_env env, napi_callback_info info, bool isAdd)
+{
+#ifdef WIFI_EDM_ENABLE
+    auto convertWifiList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<WifiId> wifiIds;
+        if (!ParseWifiInfoArray(env, wifiIds, argv, true)) {
+            EDMLOGE("parameter type parse error");
+            return false;
+        }
+        data.WriteUint32(wifiIds.size());
+        for (const auto &wifiId : wifiIds) {
+            if (!wifiId.Marshalling(data)) {
+                EDMLOGE("wifiManagerProxy AddOrRemoveAllowedWifiList: write parcel failed!");
+                return false;
+            }
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertWifiList2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.name = (isAdd ? "addAllowedWifiList" : "removeAllowedWifiList");
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = ERR_OK;
+    if (isAdd) {
+        ret = wifiManagerProxy->AddOrRemoveWifiList(adapterAddonData.data,
+            FuncOperateType::SET, EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    } else {
+        ret = wifiManagerProxy->AddOrRemoveWifiList(adapterAddonData.data,
+            FuncOperateType::REMOVE, EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+#else
+    EDMLOGW("WifiManagerAddon::AddOrRemoveAllowedWifiList Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+#endif
+    return nullptr;
+}
+
+bool WifiManagerAddon::ParseWifiInfoArray(napi_env env, std::vector<WifiId> &wifiIds, napi_value object, bool isAllowed)
+{
+    bool isArray = false;
+    napi_is_array(env, object, &isArray);
+    if (!isArray) {
+        return false;
+    }
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, object, &arrayLength);
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value value = nullptr;
+        napi_get_element(env, object, i, &value);
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, value, &valueType);
+        if (valueType != napi_object) {
+            wifiIds.clear();
+            return false;
+        }
+        WifiId wifiId;
+        if (!GetWifiIdFromNAPI(env, value, wifiId, isAllowed)) {
+            wifiIds.clear();
+            return false;
+        }
+        wifiIds.push_back(wifiId);
+    }
+    return true;
+}
+
+bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId &wifiId, bool isAllowed)
+{
+    std::string ssid;
+    if (!JsObjectToString(env, value, "ssid", true, ssid)) {
+        EDMLOGE("AddOrRemoveWifiList ssid parse error!");
+        return false;
+    }
+    if (ssid.empty() || ssid.size() > EdmConstants::WIFI_SSID_MAX_LENGTH) {
+        EDMLOGE("AddOrRemoveWifiList ssid is empty or too large!");
+        return false;
+    }
+    std::string bssid;
+    if (!JsObjectToString(env, value, "bssid", isAllowed, bssid)) {
+        EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
+        return false;
+    }
+    if (isAllowed && bssid.empty()) {
+        EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
+        return false;
+    }
+    if (!bssid.empty() && bssid.size() != EdmConstants::WIFI_BSSID_LENGTH) {
+        EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
+        return false;
+    }
+    wifiId.SetSsid(ssid);
+    wifiId.SetBssid(bssid);
+    EDMLOGD("GetWifiIdFromNAPI ssid: %{public}s, bssid: %{public}s", ssid.c_str(), bssid.c_str());
+    return true;
+}
+
+napi_value WifiManagerAddon::GetWifiList(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode)
+{
+#ifdef WIFI_EDM_ENABLE
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getDisallowedWifiList";
+    if (policyCode == EdmInterfaceCode::ALLOWED_WIFI_LIST) {
+        addonMethodSign.name = "getAllowedWifiList";
+    }
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get wifiManagerProxy");
+        return nullptr;
+    }
+    std::vector<WifiId> wifiIds;
+    int32_t ret = wifiManagerProxy->GetWifiList(adapterAddonData.data, wifiIds, policyCode);
+    EDMLOGI("WifiManagerAddon::GetWifiList wifiIds return size: %{public}zu", wifiIds.size());
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, wifiIds.size(), &jsList));
+    for (size_t i = 0; i < wifiIds.size(); i++) {
+        napi_value item = WifiIdToJsObj(env, wifiIds[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+#else
+    EDMLOGW("WifiManagerAddon::GetWifiList Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value WifiManagerAddon::GetAllowedWifiList(napi_env env, napi_callback_info info)
+{
+    return GetWifiList(env, info, EdmInterfaceCode::ALLOWED_WIFI_LIST);
+}
+
+napi_value WifiManagerAddon::AddDisallowedWifiList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::AddDisallowedWifiList called");
+    return AddOrRemoveDisallowedWifiList(env, info, true);
+}
+
+napi_value WifiManagerAddon::RemoveDisallowedWifiList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::RemoveDisallowedWifiList called");
+    return AddOrRemoveDisallowedWifiList(env, info, false);
+}
+
+napi_value WifiManagerAddon::AddOrRemoveDisallowedWifiList(napi_env env, napi_callback_info info, bool isAdd)
+{
+#ifdef WIFI_EDM_ENABLE
+    auto convertWifiList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<WifiId> wifiIds;
+        if (!ParseWifiInfoArray(env, wifiIds, argv, false)) {
+            EDMLOGE("parameter type parse error");
+            return false;
+        }
+        data.WriteUint32(wifiIds.size());
+        for (const auto &wifiId : wifiIds) {
+            if (!wifiId.Marshalling(data)) {
+                EDMLOGE("wifiManagerProxy AddOrRemoveDisallowedWifiList: write parcel failed!");
+                return false;
+            }
+        }
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertWifiList2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.name = (isAdd ? "addDisallowedWifiList" : "removeDisallowedWifiList");
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = ERR_OK;
+    if (isAdd) {
+        ret = wifiManagerProxy->AddOrRemoveWifiList(adapterAddonData.data,
+            FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    } else {
+        ret = wifiManagerProxy->AddOrRemoveWifiList(adapterAddonData.data,
+            FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+#else
+    EDMLOGW("WifiManagerAddon::AddOrRemoveDisallowedWifiList Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+#endif
+    return nullptr;
+}
+
+napi_value WifiManagerAddon::GetDisallowedWifiList(napi_env env, napi_callback_info info)
+{
+    return GetWifiList(env, info, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+}
+
+napi_value WifiManagerAddon::WifiIdToJsObj(napi_env env, const WifiId &wifiId)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+
+    napi_value ssid = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, wifiId.GetSsid().c_str(), NAPI_AUTO_LENGTH, &ssid));
+    NAPI_CALL(env, napi_set_named_property(env, value, "ssid", ssid));
+
+    napi_value bssid = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, wifiId.GetBssid().c_str(), NAPI_AUTO_LENGTH, &bssid));
+    NAPI_CALL(env, napi_set_named_property(env, value, "bssid", bssid));
+
+    return value;
 }
 
 #ifdef WIFI_EDM_ENABLE

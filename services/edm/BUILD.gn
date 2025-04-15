@@ -117,7 +117,11 @@ ohos_shared_library("edmservice") {
   }
 
   if (wifi_edm_enable) {
-    sources += [ "./src/query_policy/set_wifi_disabled_query.cpp" ]
+    sources += [
+      "./src/query_policy/allowed_wifi_list_query.cpp",
+      "./src/query_policy/disallowed_wifi_list_query.cpp",
+      "./src/query_policy/set_wifi_disabled_query.cpp",
+    ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
 

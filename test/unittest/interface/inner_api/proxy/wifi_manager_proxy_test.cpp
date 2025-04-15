@@ -21,6 +21,7 @@
 #include "enterprise_device_mgr_stub_mock.h"
 #include "message_parcel_utils.h"
 #include "utils.h"
+#include "wifi_id.h"
 #include "wifi_manager_proxy.h"
 
 using namespace testing::ext;
@@ -222,6 +223,281 @@ HWTEST_F(WifiManagerProxyTest, TestIsWifiDisabledFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_FALSE(isDisable);
 }
+
+/**
+ * @tc.name: TestAddAllowedWifiListSuc
+ * @tc.desc: Test AddAllowedWifiList success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddAllowedWifiListFail
+ * @tc.desc: Test AddAllowedWifiList without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedWifiListSuc
+ * @tc.desc: Test RemoveAllowedWifiList success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedWifiListFail
+ * @tc.desc: Test RemoveAllowedWifiList without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedWifiListSuc
+ * @tc.desc: Test GetAllowedWifiList func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestGetAllowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy));
+
+    std::vector<WifiId> wifiIds;
+    int32_t ret = wifiManagerProxy->GetWifiList(data, wifiIds, EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(wifiIds.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetAllowedWifiListFail
+ * @tc.desc: Test GetAllowedWifiList func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestGetAllowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    std::vector<WifiId> wifiIds;
+    int32_t ret = wifiManagerProxy->GetWifiList(data, wifiIds, EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(wifiIds.empty());
+}
+
+/**
+ * @tc.name: TestAddDisallowedWifiListSuc
+ * @tc.desc: Test AddDisallowedWifiList success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestAddDisallowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDisallowedWifiListFail
+ * @tc.desc: Test AddDisallowedWifiList without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestAddDisallowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedWifiListSuc
+ * @tc.desc: Test RemoveDisallowedWifiList success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestRemoveDisallowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedWifiListFail
+ * @tc.desc: Test RemoveDisallowedWifiList without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestRemoveDisallowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedWifiListSuc
+ * @tc.desc: Test GetDisallowedWifiList func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestGetDisallowedWifiListSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy));
+
+    std::vector<WifiId> wifiIds;
+int32_t ret = wifiManagerProxy->GetWifiList(data, wifiIds, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(wifiIds.size() == 1);
+}
+
+/**
+ * @tc.name: TestGetDisallowedWifiListFail
+ * @tc.desc: Test GetDisallowedWifiList func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestGetDisallowedWifiListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    std::vector<WifiId> wifiIds;
+    int32_t ret = wifiManagerProxy->GetWifiList(data, wifiIds, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(wifiIds.empty());
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
