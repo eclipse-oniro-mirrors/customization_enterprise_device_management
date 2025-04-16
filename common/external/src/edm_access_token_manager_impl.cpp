@@ -53,6 +53,22 @@ bool EdmAccessTokenManagerImpl::IsSystemAppOrNative()
     return false;
 }
 
+bool EdmAccessTokenManagerImpl::IsNativeCall()
+{
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
+    EDMLOGI("EdmAccessTokenManagerImpl:: IsNativeCall not native process");
+    return false;
+}
+
+bool EdmAccessTokenManagerImpl::IsSystemAppCall()
+{
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
+}
+
 bool EdmAccessTokenManagerImpl::VerifyCallingPermission(const std::string &permissionName)
 {
     EDMLOGD("EdmAccessTokenManagerImpl::VerifyCallingPermission permission %{public}s", permissionName.c_str());
