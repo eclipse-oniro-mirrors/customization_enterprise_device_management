@@ -96,7 +96,11 @@ private:
         const std::vector<int32_t> &nonDefaultUserIds);
     ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, AdminType adminType, int32_t userId,
         std::vector<std::string> &permissionList);
+    ErrCode CheckGetPolicyParam(MessageParcel &data, std::shared_ptr<IPlugin> &plugin,
+        AppExecFwk::ElementName &elementName, const std::string &permissionTag, int32_t userId);
     int32_t GetCurrentUserId();
+    bool CheckElementNullPermission(uint32_t funcCode, const std::string &permissionName);
+    bool CheckSpecialPolicyCallQuery(uint32_t code);
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode UpdateDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId, bool isDebug);
