@@ -1122,21 +1122,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     AppExecFwk::ElementName elementName;
     // has admin
     if (data.ReadInt32() == 0) {
-        std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
-        if (!admin) {
-            EDMLOGW("GetDevicePolicy: ReadParcelable failed");
-            return EdmReturnErrCode::PARAM_ERROR;
+        ErrCode errCode = CheckGetPolicyParam(data, plugin, elementName, permissionTag, userId);
+        if (errCode != ERR_OK) {
+            return errCode;
         }
-#ifndef EDM_FUZZ_TEST
-        std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
-        ErrCode ret = CheckHandlePolicyPermission(FuncOperateType::GET, admin->GetBundleName(), plugin->GetPolicyName(),
-            getPermission, userId);
-        if (FAILED(ret)) {
-            return ret;
-        }
-#endif
-        elementName.SetBundleName(admin->GetBundleName());
-        elementName.SetAbilityName(admin->GetAbilityName());
     } else {
         std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
         if (!CheckElementNullPermission(code, getPermission)) {
@@ -1155,6 +1144,27 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     CreateSecurityContent(elementName.GetBundleName(), elementName.GetAbilityName(), code, plugin->GetPolicyName(),
         getRet);
     return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckGetPolicyParam(MessageParcel &data, std::shared_ptr<IPlugin> &plugin,
+    AppExecFwk::ElementName &elementName, const std::string &permissionTag, int32_t userId)
+{
+    std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
+    if (!admin) {
+        EDMLOGW("GetDevicePolicy: ReadParcelable failed");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+#ifndef EDM_FUZZ_TEST
+    std::string getPermission = plugin->GetPermission(FuncOperateType::GET, permissionTag);
+    ErrCode ret = CheckHandlePolicyPermission(FuncOperateType::GET, admin->GetBundleName(), plugin->GetPolicyName(),
+        getPermission, userId);
+    if (FAILED(ret)) {
+        return ret;
+    }
+#endif
+    elementName.SetBundleName(admin->GetBundleName());
+    elementName.SetAbilityName(admin->GetAbilityName());
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag)
