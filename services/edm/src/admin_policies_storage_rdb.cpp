@@ -15,6 +15,7 @@
 
 #include "admin_policies_storage_rdb.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_rdb_filed_const.h"
 
@@ -270,6 +271,9 @@ void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, 
     if (!stringInfo.empty() && stringInfo != "null") {
         Json::Value jsonInfo;
         ConvertStrToJson(stringInfo, jsonInfo);
+        if (jsonInfo.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+            return;
+        }
         for (uint32_t i = 0; i < jsonInfo.size(); i++) {
             if (jsonInfo[i].isString()) {
                 info.emplace_back(jsonInfo[i].asString());
@@ -325,6 +329,9 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
     if (!managedEventsStr.empty() && managedEventsStr != "null") {
         Json::Value managedEventsJson;
         ConvertStrToJson(managedEventsStr, managedEventsJson);
+        if (managedEventsJson.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+            return;
+        }
         for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
             if (managedEventsJson[i].isUInt()) {
                 item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
