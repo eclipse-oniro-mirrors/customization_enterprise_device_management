@@ -28,6 +28,9 @@ namespace EdmConstants {
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
+    constexpr uint32_t WIFI_LIST_MAX_SIZE = 200;
+    constexpr uint32_t WIFI_BSSID_LENGTH = 17;
+    constexpr uint32_t WIFI_SSID_MAX_LENGTH = 32;
     constexpr int32_t STORAGE_USB_POLICY_READ_WRITE = 0;
     constexpr int32_t STORAGE_USB_POLICY_READ_ONLY = 1;
     constexpr int32_t STORAGE_USB_POLICY_DISABLED = 2;
@@ -225,6 +228,8 @@ namespace PolicyName {
     const char* const POLICY_SET_UPDATE_POLICY = "set_update_policy";
     const char* const POLICY_DISABLE_WIFI = "disable_wifi";
     const char* const POLICY_SET_WIFI_PROFILE = "set_wifi_profile";
+    const char* const POLICY_ALLOWED_WIFI_LIST = "allowed_wifi_list";
+    const char* const POLICY_DISALLOWED_WIFI_LIST = "disallowed_wifi_list";
     const char* const POLICY_SHUTDOWN_DEVICE = "shutdown_device";
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
     const char* const POLICY_UNINSTALL = "uninstall";

@@ -21,6 +21,7 @@
 
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_usb_devices_query.h"
+#include "allowed_wifi_list_query.h"
 #include "cJSON.h"
 #include "cjson_serializer.h"
 #include "clipboard_info.h"
@@ -41,6 +42,7 @@
 #include "disallowed_running_bundles_query.h"
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
+#include "disallowed_wifi_list_query.h"
 #include "edm_constants.h"
 #include "fingerprint_auth_query.h"
 #include "get_device_encryption_status_query.h"
@@ -159,6 +161,98 @@ HWTEST_F(PluginPolicyQueryTest, TestAllowedUsbDevicesQuery001, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
     ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_usb_devices");
+}
+
+/**
+ * @tc.name: TestAllowedWifiListQuery001
+ * @tc.desc: Test AllowedWifiListQuery::QueryPolicy
+ * @tc.type: FUNC
+ */
+    HWTEST_F(PluginPolicyQueryTest, TestAllowedWifiListQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedWifiListQuery>();
+    std::string policyData{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAllowedWifiListQuery002
+ * @tc.desc: Test AllowedWifiListQuery::QueryPolicy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedWifiListQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedWifiListQuery>();
+    std::string policyData = R"({"key": "value"})";
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestAllowedWifiListQuery003
+ * @tc.desc: Test Test AllowedWifiListQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedWifiListQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedWifiListQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+    == TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_wifi_list");
+}
+
+/**
+ * @tc.name: TestDisallowedWifiListQuery001
+ * @tc.desc: Test AllowedWifiListQuery::QueryPolicy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedWifiListQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedWifiListQuery>();
+    std::string policyData{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedWifiListQuery002
+ * @tc.desc: Test DisallowedWifiListQuery::QueryPolicy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedWifiListQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedWifiListQuery>();
+    std::string policyData = R"({"key": "value"})";
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestDisallowedWifiListQuery003
+ * @tc.desc: Test Test DisallowedWifiListQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedWifiListQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedWifiListQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+    == TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_wifi_list");
 }
 
 /**

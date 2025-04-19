@@ -139,10 +139,13 @@ ohos_shared_library("edmplugin") {
     if (wifi_edm_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       sources += [
+        "./src/allowed_wifi_list_plugin.cpp",
+        "./src/disallowed_wifi_list_plugin.cpp",
         "./src/is_wifi_active_plugin.cpp",
         "./src/set_wifi_disabled_plugin.cpp",
         "./src/set_wifi_profile_plugin.cpp",
         "./src/utils/wifi_device_config_serializer.cpp",
+        "./src/utils/wifi_policy_utils.cpp",
       ]
       defines += [ "WIFI_EDM_ENABLE" ]
     }

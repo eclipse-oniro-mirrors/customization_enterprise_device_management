@@ -136,10 +136,13 @@ ohos_unittest("EdmPluginTest") {
   if (wifi_edm_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
+      "./src/allowed_wifi_list_plugin_test.cpp",
+      "./src/disallowed_wifi_list_plugin_test.cpp",
       "./src/is_wifi_active_plugin_test.cpp",
       "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
+      "./src/utils/array_wifi_id_serializer_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
@@ -410,10 +413,13 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
       "../../../../common/native/src/plugin_utils/message_parcel_utils.cpp",
+      "../../../../services/edm_plugin/src/allowed_wifi_list_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_wifi_list_plugin.cpp",
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
