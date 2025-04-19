@@ -121,6 +121,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventPackageChanged(data);
         };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventBmsReady(data);
+        };
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -388,14 +392,20 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::Com
     }
 }
 
-void EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
+void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventBmsReady");
+    ConnectEnterpriseAbility();
+}
+
+bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
     uint32_t code, int32_t userId, bool isAdminEnabled)
 {
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
-    manager->ConnectAbility(connection);
+    return manager->ConnectAbility(connection);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
@@ -719,9 +729,14 @@ void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart()
 void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
 {
     EDMLOGI("OnAbilityManagerServiceStart");
+    ConnectEnterpriseAbility();
+}
+
+void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
+{
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-    if (superAdmin != nullptr) {
-        OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
+    if (superAdmin != nullptr && !hasConnect_) {
+        hasConnect_ = OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
             IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
     }
 }
