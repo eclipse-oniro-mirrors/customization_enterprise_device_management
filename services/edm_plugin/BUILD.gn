@@ -154,7 +154,6 @@ ohos_shared_library("edmplugin") {
       defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
       external_deps += [
         "netmanager_base:net_conn_manager_if",
-        "netmanager_base:net_native_manager_if",
         "netmanager_base:net_policy_manager_if",
         "netmanager_base:netsys_controller",
       ]
