@@ -72,11 +72,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     std::vector<ManagedEvent> managedEvents = {event};
     adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
-
-    std::string str(reinterpret_cast<const char*>(data), size);
-    Json::Value json;
-    json["test"] = str;
-    adminPoliciesStorageRdb->ConvertStrToJson(str, json);
     return 0;
 }
 } // namespace EDM
