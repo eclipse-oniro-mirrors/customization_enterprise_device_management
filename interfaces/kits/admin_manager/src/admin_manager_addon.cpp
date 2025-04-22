@@ -810,7 +810,8 @@ bool AdminManager::CheckByodParams(AppExecFwk::ElementName elementName, const st
     }
     size_t activateIdLen = parameters[ACTIVATEID].length();
     if (activateIdLen < MIN_ACTIVATEID_LEN || activateIdLen > MAX_ACTIVATEID_LEN) {
-        EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}zu", activateIdLen);
+        EDMLOGE("CheckByodParams:the length of activateId is not in [32, 256].The length is %{public}zu",
+            activateIdLen);
         return false;
     }
     if (parameters.find(CUSTOMIZEDINFO) != parameters.end() &&
