@@ -737,7 +737,7 @@ void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin != nullptr && !hasConnect_) {
         hasConnect_ = OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
-            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
     }
 }
 
