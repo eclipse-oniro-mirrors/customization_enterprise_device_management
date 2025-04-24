@@ -138,12 +138,14 @@ private:
     void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
+    void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
     void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
+    void ConnectEnterpriseAbility();
 #ifdef PASTEBOARD_EDM_ENABLE
     void OnPasteboardServiceStart();
 #endif
@@ -159,7 +161,7 @@ private:
 #endif
     void OnRenderSystemStart();
     void OnWindowManagerServiceStart();
-    void OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
+    bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
     void InitAllAdmins();
     void InitAllPlugins();
@@ -191,6 +193,7 @@ private:
     std::chrono::system_clock::time_point lastCallTime_;
     std::condition_variable waitSignal_;
     std::mutex waitMutex_;
+    bool hasConnect_ = false;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
