@@ -40,6 +40,7 @@ ohos_static_library("edmservice_static") {
   testonly = true
   sources = [
     "../../../../services/edm/src/admin.cpp",
+    "../../../../services/edm/src/admin_container.cpp",
     "../../../../services/edm/src/admin_manager.cpp",
     "../../../../services/edm/src/admin_policies_storage_rdb.cpp",
     "../../../../services/edm/src/application_state_observer.cpp",

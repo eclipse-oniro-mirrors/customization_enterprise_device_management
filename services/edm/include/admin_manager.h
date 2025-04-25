@@ -62,11 +62,12 @@ public:
     ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin);
     ~AdminManager();
     void Dump();
+    void ClearAdmins();
+    void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
 
 private:
     AdminManager();
 
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins_;
     static std::once_flag flag_;
     static std::shared_ptr<AdminManager> instance_;
 };

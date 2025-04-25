@@ -21,6 +21,35 @@
 
 namespace OHOS {
 namespace EDM {
+Admin::Admin(const Admin& other)
+{
+    adminInfo_.packageName_ = other.adminInfo_.packageName_;
+    adminInfo_.className_ = other.adminInfo_.className_;
+    adminInfo_.entInfo_ = other.adminInfo_.entInfo_;
+    adminInfo_.permission_ = other.adminInfo_.permission_;
+    adminInfo_.managedEvents_ = other.adminInfo_.managedEvents_;
+    adminInfo_.parentAdminName_ = other.adminInfo_.parentAdminName_;
+    adminInfo_.accessiblePolicies_ = other.adminInfo_.accessiblePolicies_;
+    adminInfo_.adminType_ = other.adminInfo_.adminType_;
+    adminInfo_.isDebug_ = other.adminInfo_.isDebug_;
+    adminInfo_.runningMode_ = other.adminInfo_.runningMode_;
+}
+
+Admin& Admin::operator=(const Admin& other)
+{
+    adminInfo_.packageName_ = other.adminInfo_.packageName_;
+    adminInfo_.className_ = other.adminInfo_.className_;
+    adminInfo_.entInfo_ = other.adminInfo_.entInfo_;
+    adminInfo_.permission_ = other.adminInfo_.permission_;
+    adminInfo_.managedEvents_ = other.adminInfo_.managedEvents_;
+    adminInfo_.parentAdminName_ = other.adminInfo_.parentAdminName_;
+    adminInfo_.accessiblePolicies_ = other.adminInfo_.accessiblePolicies_;
+    adminInfo_.adminType_ = other.adminInfo_.adminType_;
+    adminInfo_.isDebug_ = other.adminInfo_.isDebug_;
+    adminInfo_.runningMode_ = other.adminInfo_.runningMode_;
+    return *this;
+}
+
 Admin::Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
     const std::vector<std::string> &permissions, bool isDebug)
 {

@@ -45,6 +45,8 @@ struct AdminInfo {
 class Admin {
 public:
     Admin() = default;
+    Admin(const Admin& other);
+    Admin& operator=(const Admin& other);
     Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
         const std::vector<std::string> &permissions, bool isDebug);
     Admin(const std::string &bundleName, AdminType type, const std::vector<std::string> &permissions);

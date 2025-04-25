@@ -93,7 +93,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
-    edmMgr_->adminMgr_->admins_.clear();
+    edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->pluginMgr_->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
@@ -124,8 +124,7 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
 
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_FAILED;
     adminVec.push_back(std::make_shared<Admin>(testAdmin));
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -320,9 +319,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
     Admin testAdmin;
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->ClearAdmins();
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -353,9 +351,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyGetAdminByPkgName
     Admin testAdmin;
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->ClearAdmins();
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -384,9 +381,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->ClearAdmins();
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
@@ -634,8 +630,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 
@@ -3344,9 +3339,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckPermiss
     Admin testAdmin;
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->ClearAdmins();
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3379,9 +3373,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.clear();
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->ClearAdmins();
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
@@ -3634,8 +3627,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
     testAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME;
     testAdmin.adminInfo_.permission_ = {EDM_TEST_PERMISSION};
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
-    edmMgr_->adminMgr_->admins_.insert(
-        std::pair<int32_t, std::vector<std::shared_ptr<Admin>>>(DEFAULT_USER_ID, adminVec));
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
 

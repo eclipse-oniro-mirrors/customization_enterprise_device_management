@@ -39,7 +39,7 @@ void AdminManagerTest::SetUp()
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     adminMgr_ = AdminManager::GetInstance();
     adminMgr_->Init();
-    adminMgr_->admins_.clear();
+    adminMgr_->ClearAdmins();
 }
 
 void AdminManagerTest::TearDown()
@@ -53,7 +53,7 @@ void AdminManagerTest::TearDown()
     for (const auto &admin : userAdmin) {
         adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, TEST_USER_ID);
     }
-    adminMgr_->admins_.clear();
+    adminMgr_->ClearAdmins();
     PermissionManager::DestroyInstance();
 }
 
@@ -426,9 +426,11 @@ HWTEST_F(AdminManagerTest, TestSaveSubscribeEvents, TestSize.Level1)
     ASSERT_TRUE(admin != nullptr);
     std::vector<uint32_t> events = {0};
     adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(1);
     adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() > 1);
 }
 
@@ -451,13 +453,17 @@ HWTEST_F(AdminManagerTest, TestRemoveSubscribeEvents, TestSize.Level1)
 
     std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin != nullptr);
-    admin->adminInfo_.managedEvents_.push_back(ManagedEvent::BUNDLE_ADDED);
 
-    std::vector<uint32_t> events = {1};
+    std::vector<uint32_t> events = {0};
+    adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
+
+    events = {1};
     adminMgr_->RemoveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.size() == 1);
     events.push_back(0);
     adminMgr_->RemoveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
+    admin = adminMgr_->GetAdminByPkgName(abilityInfo.bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(admin->adminInfo_.managedEvents_.empty());
 }
 
