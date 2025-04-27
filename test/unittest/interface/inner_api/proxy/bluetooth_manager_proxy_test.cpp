@@ -393,7 +393,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesFail, TestS
 
 /**
  * @tc.name: TestTurnOnBluetoothSuc
- * @tc.desc: Test TestTurnOnBluetoothSuc func.
+ * @tc.desc: Test TurnOnBluetoothSuc func.
  * @tc.type: FUNC
  */
 HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothSuc, TestSize.Level1)
@@ -413,7 +413,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothSuc, TestSize.Level1)
 
 /**
 * @tc.name: TestTurnOnBluetoothFail
-* @tc.desc: Test TestTurnOnBluetoothFail func without enable edm service.
+* @tc.desc: Test TurnOnBluetoothFail func without enable edm service.
 * @tc.type: FUNC
 */
 HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothFail, TestSize.Level1)
@@ -431,7 +431,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothFail, TestSize.Level1)
 
 /**
  * @tc.name: TestTurnOffBluetoothSuc
- * @tc.desc: Test TestTurnOffBluetoothSuc func.
+ * @tc.desc: Test TurnOffBluetoothSuc func.
  * @tc.type: FUNC
  */
 HWTEST_F(BluetoothManagerProxyTest, TestTurnOffBluetoothSuc, TestSize.Level1)
@@ -451,7 +451,7 @@ HWTEST_F(BluetoothManagerProxyTest, TestTurnOffBluetoothSuc, TestSize.Level1)
 
 /**
 * @tc.name: TestTurnOffBluetoothFail
-* @tc.desc: Test TestTurnOffBluetoothFail func without enable edm service.
+* @tc.desc: Test TurnOffBluetoothFail func without enable edm service.
 * @tc.type: FUNC
 */
 HWTEST_F(BluetoothManagerProxyTest, TestTurnOffBluetoothFail, TestSize.Level1)
