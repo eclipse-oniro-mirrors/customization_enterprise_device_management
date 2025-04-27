@@ -40,6 +40,9 @@ private:
     static napi_value GetAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info, std::string function);
+    static napi_value TurnOnBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOffBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen);
 };
 } // namespace EDM
 } // namespace OHOS

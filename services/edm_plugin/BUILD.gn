@@ -242,6 +242,7 @@ ohos_shared_library("edmplugin") {
         "./src/allowed_bluetooth_devices_plugin.cpp",
         "./src/disable_bluetooth_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
+        "./src/switch_bluetooth_plugin.cpp",
       ]
     }
 

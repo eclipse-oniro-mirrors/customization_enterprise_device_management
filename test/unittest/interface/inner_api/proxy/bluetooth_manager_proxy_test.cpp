@@ -390,6 +390,83 @@ HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesFail, TestS
     int32_t ret = proxy_->AddOrRemoveAllowedBluetoothDevices(data, false);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestTurnOnBluetoothSuc
+ * @tc.desc: Test TestTurnOnBluetoothSuc func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->TurnOnOrOffBluetooth(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name:TestTurnOnBluetoothFail
+* @tc.desc: Test TestTurnOnBluetoothFail func without enable edm service.
+* @tc.type: FUNC
+*/
+HWTEST_F(BluetoothManagerProxyTest, TestTurnOnBluetoothFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+
+    int32_t ret = proxy_->TurnOnOrOffBluetooth(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTurnOffBluetoothSuc
+ * @tc.desc: Test TestTurnOffBluetoothSuc func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestTurnOffBluetoothSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->TurnOnOrOffBluetooth(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: * @tc.name: TestTurnOffBluetoothFail
+* @tc.desc: Test TestTurnOffBluetoothFail func without enable edm service.
+* @tc.type: FUNC
+*/
+HWTEST_F(BluetoothManagerProxyTest, TestTurnOffBluetoothFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+
+    int32_t ret = proxy_->TurnOnOrOffBluetooth(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
