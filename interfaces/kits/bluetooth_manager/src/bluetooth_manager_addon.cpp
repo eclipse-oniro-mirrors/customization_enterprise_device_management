@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,8 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addAllowedBluetoothDevices", AddAllowedBluetoothDevices),
         DECLARE_NAPI_FUNCTION("getAllowedBluetoothDevices", GetAllowedBluetoothDevices),
         DECLARE_NAPI_FUNCTION("removeAllowedBluetoothDevices", RemoveAllowedBluetoothDevices),
+        DECLARE_NAPI_FUNCTION("turnOnBluetooth", TurnOnBluetooth),
+        DECLARE_NAPI_FUNCTION("turnOffBluetooth", TurnOffBluetooth),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -178,6 +180,36 @@ napi_value BluetoothManagerAddon::AddOrRemoveBluetoothDevices(napi_env env, napi
     std::vector<std::string> deviceIds;
     int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
         AddOrRemoveAllowedBluetoothDevices(adapterAddonData.data, function == "AddAllowedBluetoothDevices");
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value BluetoothManagerAddon::TurnOnBluetooth(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_TurnOnBluetooth called");
+    return TurnOnOrOffBluetooth(env, info, true);
+}
+
+napi_value BluetoothManagerAddon::TurnOffBluetooth(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_TurnOffBluetooth called");
+    return TurnOnOrOffBluetooth(env, info, false);
+}
+
+napi_value BluetoothManagerAddon::TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "TurnOnOrOffBluetooth";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    adapterAddonData.data.WriteBool(isOpen);
+    int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->TurnOnOrOffBluetooth(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
