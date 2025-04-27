@@ -41,9 +41,9 @@ ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
 {
     int32_t ret = Bluetooth::BT_NO_ERROR;
     if (isOpen) {
-        ret = Bluetooth::BluetoothHost::GetDefafultHost().EnableBle();
+        ret = Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
     } else {
-        ret = Bluetooth::BluetoothHost::GetDefafultHost().DisableBt();
+        ret = Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
     }
     if (ret != Bluetooth::BT_NO_ERROR) {
         EDMLOGE("SwitchBluetoothPlugin:OnSetPolicy send request fail. %{public}d", int32_t(ret));

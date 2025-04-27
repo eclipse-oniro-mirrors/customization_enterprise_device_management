@@ -209,8 +209,7 @@ napi_value BluetoothManagerAddon::TurnOnOrOffBluetooth(napi_env env, napi_callba
         return nullptr;
     }
     adapterAddonData.data.WriteBool(isOpen);
-    int32_t retCode = 
-        BluetoothManagerProxy::GetBluetoothManagerProxy()->TurnOnOrOffBluetooth(adapterAddonData.data);
+    int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->TurnOnOrOffBluetooth(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
