@@ -248,7 +248,7 @@ ErrCode UserPolicyManager::ReplacePolicyByAdminName(int32_t userId, const std::s
         adminPolicies_[newAdminName] = policyMap;
     }
     for (auto &policyEntry : policyAdmins_) {
-        auto adminMap = policyEntry.second;
+        auto &adminMap = policyEntry.second;
         auto it = adminMap.find(adminName);
         if (it != adminMap.end()) {
             std::string policyValue = it->second;
