@@ -72,6 +72,10 @@
 #include "set_browser_policies_query.h"
 #endif
 
+#ifdef SMS_EDM_ENABLE
+#include "disallowed_sms_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
