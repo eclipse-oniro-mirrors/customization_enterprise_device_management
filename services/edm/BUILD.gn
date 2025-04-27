@@ -209,6 +209,11 @@ ohos_shared_library("edmservice") {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/query_policy/disallowed_sms_query.cpp" ]
+    defines += [ "SMS_EDM_ENABLE" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",

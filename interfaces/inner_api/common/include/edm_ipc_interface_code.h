@@ -110,6 +110,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_MTP_SERVER = 1067,
     DOMAIN_ACCOUNT_POLICY = 1068,
     DISABLE_MAINTENANCE_MODE = 1069,
+    DISALLOWED_SMS = 1072,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

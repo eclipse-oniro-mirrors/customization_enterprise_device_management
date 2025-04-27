@@ -654,7 +654,7 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
         PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
         PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
-        PolicyName::POLICY_POLICY_SCREEN_RECORD
+        PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_DISALLOWED_SMS
     };
 }
 
