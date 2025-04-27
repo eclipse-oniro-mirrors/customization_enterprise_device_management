@@ -58,7 +58,7 @@
 #include "set_wifi_disabled_query.h"
 #include "snapshot_skip_query.h"
 #include "usb_read_only_query.h"
-#include "disallowed_sms_query.h
+#include "disallowed_sms_query.h"
 
 using namespace testing::ext;
 using namespace OHOS;
