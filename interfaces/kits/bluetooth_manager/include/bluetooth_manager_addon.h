@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,6 +40,9 @@ private:
     static napi_value GetAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info, std::string function);
+    static napi_value TurnOnBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOffBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen);
 };
 } // namespace EDM
 } // namespace OHOS
