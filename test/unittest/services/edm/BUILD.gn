@@ -131,6 +131,7 @@ ohos_static_library("edmservice_static") {
     sources += [
       "../../../../services/edm/src/query_policy/allowed_bluetooth_devices_query.cpp",
       "../../../../services/edm/src/query_policy/disable_bluetooth_query.cpp",
+      "../../../../services/edm/src/query_policy/disallowed_bluetooth_devices_query.cpp",
     ]
   }
 

@@ -17,6 +17,7 @@
 
 #ifdef BLUETOOTH_EDM_ENABLE
 #include "allowed_bluetooth_devices_query.h"
+#include "disallowed_bluetooth_devices_query.h"
 #include "disable_bluetooth_query.h"
 #endif
 
@@ -329,6 +330,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES:
+#ifdef BLUETOOTH_EDM_ENABLE
+            obj = std::make_shared<DisallowedBluetoothDevicesQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::ALLOWED_WIFI_LIST:
 #ifdef WIFI_EDM_ENABLE
             obj = std::make_shared<AllowedWifiListQuery>();

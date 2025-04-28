@@ -147,6 +147,7 @@ ohos_shared_library("edmservice") {
   if (bluetooth_edm_enable) {
     sources += [
       "./src/query_policy/allowed_bluetooth_devices_query.cpp",
+      "./src/query_policy/disallowed_bluetooth_devices_query.cpp",
       "./src/query_policy/disable_bluetooth_query.cpp",
     ]
     defines += [ "BLUETOOTH_EDM_ENABLE" ]
