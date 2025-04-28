@@ -89,6 +89,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
+        const char* const LABEL_DISALLOWED_POLICY_SMS = "sms";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -181,6 +182,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
+    const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";

@@ -72,6 +72,10 @@
 #include "set_browser_policies_query.h"
 #endif
 
+#ifdef SMS_EDM_ENABLE
+#include "disallowed_sms_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -275,10 +279,10 @@ ErrCode PluginPolicyReader::GetPolicyQuerySecond(std::shared_ptr<IPolicyQuery> &
             obj = std::make_shared<NTPServerQuery>();
             return ERR_OK;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQueryThird(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::PASSWORD_POLICY:
@@ -324,7 +328,24 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         default:
             break;
     }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SMS:
+#ifdef SMS_EDM_ENABLE
+            obj = std::make_shared<DisallowedSMSQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }
+
 } // namespace EDM
 } // namespace OHOS
