@@ -90,6 +90,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
         const char* const LABEL_DISALLOWED_POLICY_SMS = "sms";
+        const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
     } // namespace Restrictions
 
     namespace SecurityManager {

@@ -210,8 +210,14 @@ ohos_shared_library("edmservice") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/query_policy/disallowed_sms_query.cpp" ]
-    defines += [ "SMS_EDM_ENABLE" ]
+    sources += [ 
+      "./src/query_policy/disallowed_sms_query.cpp",
+      "./src/query_policy/disallowed_mms_query.cpp",
+    ]
+    defines += [ 
+      "SMS_EDM_ENABLE",
+      "MMS_EDM_ENABLE"
+    ]
   }
 
   deps = [

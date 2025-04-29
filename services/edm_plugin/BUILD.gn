@@ -282,7 +282,10 @@ ohos_shared_library("edmplugin") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disallowed_sms_plugin.cpp" ]
+    sources += [ 
+      "./src/disallowed_sms_plugin.cpp",
+      "./src/disallowed_mms_plugin.cpp",
+    ]
   }
 
   deps = [
