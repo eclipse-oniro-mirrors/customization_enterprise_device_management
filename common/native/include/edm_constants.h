@@ -231,6 +231,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SECURITY_PATCH_TAG = "get_security_patch_tag";
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
+    const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
