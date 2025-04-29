@@ -33,7 +33,6 @@ public:
         std::string &errMsg);
     int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,
         UpgradeResult &upgradeResult);
-    int32_t GetUpdateAuthData(MessageParcel &data, std::string &authData);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;

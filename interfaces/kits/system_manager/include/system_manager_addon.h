@@ -51,7 +51,6 @@ private:
     static napi_value GetOTAUpdatePolicy(napi_env env, napi_callback_info info);
     static napi_value NotifyUpdatePackages(napi_env env, napi_callback_info info);
     static napi_value GetUpgradeResult(napi_env env, napi_callback_info info);
-    static napi_value GetUpdateAuthData(napi_env env, napi_callback_info info);
     static void CreatePolicyTypeObject(napi_env env, napi_value value);
     static void CreatePackageTypeObject(napi_env env, napi_value value);
     static void CreateUpgradeStatusObject(napi_env env, napi_value value);
@@ -64,7 +63,6 @@ private:
     static bool ParseDescription(napi_env env, napi_value object, PackageDescription &description);
     static void NativeNotifyUpdatePackages(napi_env env, void *data);
     static void NativeGetUpgradeResult(napi_env env, void *data);
-    static void NativeGetUpdateAuthData(napi_env env, void *data);
     static void NativeUpgradeResultComplete(napi_env env, napi_status status, void *data);
 };
 } // namespace EDM

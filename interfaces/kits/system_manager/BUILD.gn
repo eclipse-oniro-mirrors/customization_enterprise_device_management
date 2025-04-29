@@ -30,7 +30,6 @@ ohos_shared_library("systemmanager") {
 
   external_deps = [
     "ability_base:want",
-    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
