@@ -196,42 +196,5 @@ int32_t AccountManagerProxy::AddOsAccount(AppExecFwk::ElementName &admin, std::s
     return ret;
 }
 #endif
-
-int32_t AccountManagerProxy::SetDomainAccountPolicy(MessageParcel &data)
-{
-#if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
-    EDMLOGD("AccountManagerProxy::SetDomainAccountPolicy");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY);
-    return proxy->HandleDevicePolicy(funcCode, data);
-#else
-    EDMLOGW("AccountManagerProxy::SetDomainAccountPolicy Unsupported Capabilities.");
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-}
-
-int32_t AccountManagerProxy::GetDomainAccountPolicy(MessageParcel &data, DomainAccountPolicy &domainAccountPolicy)
-{
-#if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
-    EDMLOGD("AccountManagerProxy::GetDomainAccountPolicy");
-    MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGD("AccountManagerProxy::GetDomainAccountPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    if (!DomainAccountPolicy::Unmarshalling(reply, domainAccountPolicy)) {
-        EDMLOGD("AccountManagerProxy::GetDomainAccountPolicy Unmarshalling fail.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-#else
-    EDMLOGW("AccountManagerProxy::GetDomainAccountPolicy Unsupported Capabilities.");
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-}
 } // namespace EDM
 } // namespace OHOS

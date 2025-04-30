@@ -47,10 +47,6 @@
             OHOS::EDM::FingerprintPolicy::*;
             OHOS::EDM::LocationPolicy::*;
             OHOS::EDM::PasswordSerializer::*;
-            OHOS::EDM::DomainAccountPolicy::*;
-            "virtual thunk to OHOS::EDM::DomainAccountPolicy::~DomainAccountPolicy()";
-            VTT?for?OHOS::EDM::DomainAccountPolicy;
-            vtable?for?OHOS::EDM::DomainAccountPolicy;
         };
     local:
         *;

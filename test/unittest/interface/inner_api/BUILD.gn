@@ -26,7 +26,6 @@ ohos_unittest("EdmInnerApiUnitTest") {
 
   sources = [
     "../../common/mock/src/edm_sys_manager_mock.cpp",
-    "./common/domain_account_policy_test.cpp",
     "./common/ent_info_test.cpp",
   ]
 

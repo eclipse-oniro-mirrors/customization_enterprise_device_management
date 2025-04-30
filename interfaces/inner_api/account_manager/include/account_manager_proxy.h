@@ -20,7 +20,6 @@
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
 #endif
-#include "domain_account_policy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,8 +35,6 @@ public:
     int32_t DisallowAddOsAccountByUser(MessageParcel &data);
     int32_t IsAddOsAccountByUserDisallowed(AppExecFwk::ElementName *admin, int32_t userId, bool &result);
     int32_t IsAddOsAccountByUserDisallowed(MessageParcel &data, bool &result);
-    int32_t SetDomainAccountPolicy(MessageParcel &data);
-    int32_t GetDomainAccountPolicy(MessageParcel &data, DomainAccountPolicy &domainAccountPolicy);
 #ifdef OS_ACCOUNT_EDM_ENABLE
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
         OHOS::AccountSA::OsAccountInfo &accountInfo);
