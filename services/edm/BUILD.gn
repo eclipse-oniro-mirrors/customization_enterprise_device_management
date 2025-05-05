@@ -76,6 +76,7 @@ ohos_shared_library("edmservice") {
 
     sources += [
       "./src/admin.cpp",
+      "./src/admin_container.cpp",
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
       "./src/application_state_observer.cpp",

@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "admin_container.h"
 #include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -47,36 +48,18 @@ AdminManager::AdminManager()
 AdminManager::~AdminManager()
 {
     EDMLOGI("AdminManager::~AdminManager");
-    admins_.clear();
+    AdminContainer::GetInstance()->ClearAdmins();
 }
 
 bool AdminManager::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin)
 {
-    userAdmin.clear();
-    auto iter = admins_.find(userId);
-    if (iter == admins_.end()) {
-        EDMLOGW("GetAdminByUserId::get userId Admin failed. userId = %{public}d", userId);
-        return false;
-    }
-    userAdmin = iter->second;
-    return true;
+    return AdminContainer::GetInstance()->GetAdminCopyByUserId(userId, userAdmin);
 }
 
 void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins)
 {
-    for (const auto &adminItem : admins_) {
-        std::vector<std::shared_ptr<Admin>> subAdmin;
-        for (const auto &it : adminItem.second) {
-            std::vector<ManagedEvent> events = it->adminInfo_.managedEvents_;
-            if (std::find(events.begin(), events.end(), event) != events.end()) {
-                subAdmin.push_back(it);
-            }
-        }
-        if (!subAdmin.empty()) {
-            subscribeAdmins[adminItem.first] = subAdmin;
-        }
-    }
+    return AdminContainer::GetInstance()->GetAdminCopyBySubscribeEvent(event, subscribeAdmins);
 }
 
 ErrCode AdminManager::SetAdminValue(int32_t userId, const Admin &adminItem)
@@ -94,11 +77,7 @@ ErrCode AdminManager::SetAdminValue(int32_t userId, const Admin &adminItem)
         EDMLOGE("AdminManager::SetAdminValue insert failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::vector<std::shared_ptr<Admin>> admins;
-    GetAdminByUserId(userId, admins);
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(adminItem);
-    admins.emplace_back(admin);
-    admins_[userId] = admins;
+    AdminContainer::GetInstance()->SetAdminByUserId(userId, adminItem);
     return ERR_OK;
 }
 
@@ -127,8 +106,7 @@ std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packag
 
 ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId)
 {
-    auto iterMap = admins_.find(userId);
-    if (iterMap == admins_.end()) {
+    if (!AdminContainer::GetInstance()->HasAdmin(userId)) {
         EDMLOGW("DeleteAdmin::get userId Admin failed. userId = %{public}d", userId);
         return ERR_EDM_UNKNOWN_ADMIN;
     }
@@ -141,12 +119,7 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
         EDMLOGW("delete admin (%{public}s) failed!", packageName.c_str());
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
-    auto iter = std::remove_if(iterMap->second.begin(), iterMap->second.end(),
-        [&](std::shared_ptr<Admin> admin) { return admin->adminInfo_.packageName_ == packageName; });
-    iterMap->second.erase(iter, iterMap->second.end());
-    if (iterMap->second.empty()) {
-        admins_.erase(iterMap);
-    }
+    AdminContainer::GetInstance()->DeleteAdmin(packageName, userId);
     return ERR_OK;
 }
 
@@ -174,11 +147,8 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
         EDMLOGW("UpdateAdmin::update admin failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    getAdmin->adminInfo_.adminType_ = adminItem.adminInfo_.adminType_;
-    getAdmin->adminInfo_.entInfo_ = adminItem.adminInfo_.entInfo_;
-    getAdmin->adminInfo_.permission_ = adminItem.adminInfo_.permission_;
-    getAdmin->adminInfo_.accessiblePolicies_ = adminItem.adminInfo_.accessiblePolicies_;
-    getAdmin->adminInfo_.runningMode_ = adminItem.adminInfo_.runningMode_;
+    AdminContainer::GetInstance()->UpdateAdmin(userId, getAdmin->adminInfo_.packageName_,
+        ADMIN_TYPE | ENTI_NFO | PERMISSION | ACCESSIBLE_POLICIES | RUNNING_MODE, adminItem);
     return ERR_OK;
 }
 
@@ -204,20 +174,10 @@ ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageN
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    if (admins_.find(EdmConstants::DEFAULT_USER_ID) != admins_.end()) {
-        auto admins = admins_[EdmConstants::DEFAULT_USER_ID];
-        for (auto &admin : admins) {
-            if (admin->adminInfo_.packageName_ == packageName) {
-                admin->adminInfo_.packageName_ = newAdmin.adminInfo_.packageName_;
-                admin->adminInfo_.className_ = newAdmin.adminInfo_.className_;
-            }
-            if ((admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN ||
-                admin->GetAdminType() == AdminType::VIRTUAL_ADMIN) &&
-                admin->adminInfo_.parentAdminName_ == packageName) {
-                admin->adminInfo_.parentAdminName_ = newAdmin.adminInfo_.packageName_;
-            }
-        }
-    }
+    AdminContainer::GetInstance()->UpdateAdmin(EdmConstants::DEFAULT_USER_ID, packageName,
+        PACKAGE_NAME | CLASS_NAME, newAdmin);
+    AdminContainer::GetInstance()->UpdateParentAdminName(EdmConstants::DEFAULT_USER_ID, packageName,
+        newAdmin.adminInfo_.packageName_);
     return ERR_OK;
 }
 
@@ -266,7 +226,7 @@ bool AdminManager::IsSuperAdmin(const std::string &bundleName)
 
 bool AdminManager::IsAdminExist()
 {
-    return !admins_.empty();
+    return AdminContainer::GetInstance()->IsAdminExist();
 }
 
 bool AdminManager::IsSuperOrSubSuperAdmin(const std::string &bundleName)
@@ -395,7 +355,9 @@ ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInf
     for (auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName &&
             adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo)) {
-            item->adminInfo_.entInfo_ = entInfo;
+            Admin tempAdmin;
+            tempAdmin.adminInfo_.entInfo_ = entInfo;
+            AdminContainer::GetInstance()->UpdateAdmin(userId, packageName, ENTI_NFO, tempAdmin);
             return ERR_OK;
         }
     }
@@ -414,7 +376,6 @@ ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, c
         EDMLOGE("AdminManager::SaveSubscribeEvents get adminPoliciesStorageRdb failed.");
         return ERR_GET_STORAGE_RDB_FAILED;
     }
-    std::vector<ManagedEvent> oldManagedEvents = admin->adminInfo_.managedEvents_;
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
     for (const auto &event : events) {
         std::vector<ManagedEvent> managedEvents = admin->adminInfo_.managedEvents_;
@@ -426,9 +387,9 @@ ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, c
     if (admin->adminInfo_.managedEvents_.size() > eventsNumber &&
         !adminPoliciesStorageRdb->UpdateManagedEvents(userId, admin->adminInfo_.packageName_,
             admin->adminInfo_.managedEvents_)) {
-        admin->adminInfo_.managedEvents_ = oldManagedEvents;
         return ERR_EDM_UNKNOWN_ADMIN;
     }
+    AdminContainer::GetInstance()->UpdateAdmin(userId, admin->adminInfo_.packageName_, MANAGED_EVENTS, *admin);
     return ERR_OK;
 }
 
@@ -445,7 +406,6 @@ ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
         return ERR_GET_STORAGE_RDB_FAILED;
     }
 
-    std::vector<ManagedEvent> oldManagedEvents = admin->adminInfo_.managedEvents_;
     size_t eventsNumber = admin->adminInfo_.managedEvents_.size();
     auto iter = std::remove_if(admin->adminInfo_.managedEvents_.begin(), admin->adminInfo_.managedEvents_.end(),
         [&](ManagedEvent managedEvent) {
@@ -456,9 +416,9 @@ ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events,
     if (admin->adminInfo_.managedEvents_.size() < eventsNumber &&
         !adminPoliciesStorageRdb->UpdateManagedEvents(userId, admin->adminInfo_.packageName_,
             admin->adminInfo_.managedEvents_)) {
-        admin->adminInfo_.managedEvents_ = oldManagedEvents;
         return ERR_EDM_UNKNOWN_ADMIN;
     }
+    AdminContainer::GetInstance()->UpdateAdmin(userId, admin->adminInfo_.packageName_, MANAGED_EVENTS, *admin);
     return ERR_OK;
 }
 
@@ -506,11 +466,11 @@ bool AdminManager::HasPermissionToHandlePolicy(std::shared_ptr<Admin> admin, con
 
 std::shared_ptr<Admin> AdminManager::GetSuperAdmin()
 {
-    if (admins_.find(EdmConstants::DEFAULT_USER_ID) != admins_.end()) {
-        auto item = std::find_if(admins_[EdmConstants::DEFAULT_USER_ID].begin(),
-            admins_[EdmConstants::DEFAULT_USER_ID].end(),
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    if (AdminContainer::GetInstance()->GetAdminCopyByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin)) {
+        auto item = std::find_if(userAdmin.begin(), userAdmin.end(),
             [&](const std::shared_ptr<Admin>& admin) { return admin->GetAdminType() == AdminType::ENT; });
-        if (item != admins_[EdmConstants::DEFAULT_USER_ID].end()) {
+        if (item != userAdmin.end()) {
             return *item;
         }
     }
@@ -522,7 +482,7 @@ void AdminManager::Init()
 {
     auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     if (adminPoliciesStorageRdb != nullptr) {
-        admins_ = adminPoliciesStorageRdb->QueryAllAdmin();
+        AdminContainer::GetInstance()->InitAdmins(adminPoliciesStorageRdb->QueryAllAdmin());
     } else {
         EDMLOGE("AdminManager::Init failed.");
     }
@@ -530,17 +490,17 @@ void AdminManager::Init()
 
 void AdminManager::Dump()
 {
-    for (const auto &entry : admins_) {
-        EDMLOGI("AdminManager::Dump %{public}d.", entry.first);
-        for (const auto &admin : entry.second) {
-            EDMLOGI("AdminManager::Dump admin info adminType_ %{public}d.",
-                admin->adminInfo_.adminType_);
-            EDMLOGI("AdminManager::Dump admin info packageName_ %{public}s.",
-                admin->adminInfo_.packageName_.c_str());
-            EDMLOGI("AdminManager::Dump admin info parentAdminName_ %{public}s.",
-                admin->adminInfo_.parentAdminName_.c_str());
-        }
-    }
+    AdminContainer::GetInstance()->Dump();
+}
+
+void AdminManager::ClearAdmins()
+{
+    AdminContainer::GetInstance()->ClearAdmins();
+}
+
+void AdminManager::InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins)
+{
+    AdminContainer::GetInstance()->InsertAdmins(userId, admins);
 }
 } // namespace EDM
 } // namespace OHOS
