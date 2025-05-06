@@ -113,6 +113,9 @@ ErrCode ClipboardPolicyPlugin::UpdateHandle(std::map<int32_t, ClipboardInfo> &da
     auto it = data.begin();
     ClipboardInfo info = it->second;
     if (it->first == 0) {
+        if ((it->second).bundleName.empty() || (it->second).userId == -1) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
         auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
         int32_t tokenId = bundleMgr->GetTokenId((it->second).bundleName, (it->second).userId);
         if (tokenId == 0) {

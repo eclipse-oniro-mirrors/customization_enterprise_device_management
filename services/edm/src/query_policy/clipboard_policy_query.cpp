@@ -61,10 +61,10 @@ ErrCode ClipboardPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel
         int32_t tokenId = bundleMgr->GetTokenId(info.bundleName, info.userId);
         auto it = policyMap.find(tokenId);
         if (it != policyMap.end()) {
-            resultMap[tokenId] = policyMap[it->first];
+            resultMap[-1] = policyMap[it->first];
         } else {
             info.policy = ClipboardPolicy::DEFAULT;
-            resultMap[tokenId] = info;
+            resultMap[-1] = info;
         }
         ClipboardSerializer::GetInstance()->Serialize(resultMap, policy);
     }
