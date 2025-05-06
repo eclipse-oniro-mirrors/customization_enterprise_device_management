@@ -368,7 +368,7 @@ HWTEST_F(UsbManagerProxyTest, TestGetUsbStorageDeviceAccessPolicySuc, TestSize.L
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
 
-    int32_t policy = 0;
+    int32_t policy = -1;
     int32_t ret = proxy_->GetUsbStorageDeviceAccessPolicy(data, policy);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policy == 0);

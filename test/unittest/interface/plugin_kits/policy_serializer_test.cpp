@@ -51,6 +51,7 @@ HWTEST_F(PolicySerializerTest, BOOL, TestSize.Level1)
     ASSERT_EQ(boolValue, true);
     ASSERT_FALSE(serializer->Deserialize("truee", boolValue));
 
+    boolValue = true;
     MessageParcel messageParcel1;
     messageParcel1.WriteBool(false);
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, boolValue));

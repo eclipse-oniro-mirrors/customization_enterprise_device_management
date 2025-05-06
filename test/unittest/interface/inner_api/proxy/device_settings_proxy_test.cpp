@@ -108,7 +108,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetScreenOffTimeSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
-    int32_t info = 0;
+    int32_t info = -1;
     int32_t ret = deviceSettingsProxy->GetScreenOffTime(admin, info);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(info == 0);
