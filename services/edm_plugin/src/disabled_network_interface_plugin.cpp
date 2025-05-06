@@ -16,7 +16,7 @@
 #include "disabled_network_interface_plugin.h"
 
 #include "net_policy_client.h"
-#include "netsys_native_service_proxy.h"
+#include "netsys_controller.h"
 #include "system_ability_definition.h"
 
 #include "edm_constants.h"
@@ -70,11 +70,6 @@ ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, Mes
 {
     EDMLOGD("DisabledNetworkInterfacePlugin OnGetPolicy.");
     std::string networkInterface = data.ReadString();
-    auto ret = IsNetInterfaceExist(networkInterface);
-    if (FAILED(ret)) {
-        reply.WriteInt32(ret);
-        return ret;
-    }
     std::map<std::string, std::string> policyMap;
     if (!pluginInstance_->serializer_->Deserialize(policyData, policyMap)) {
         EDMLOGE("DisabledNetworkInterfacePlugin OnGetPolicy get policy failed.");
@@ -123,22 +118,7 @@ ErrCode DisabledNetworkInterfacePlugin::OnSetPolicy(std::map<std::string, std::s
 
 ErrCode DisabledNetworkInterfacePlugin::IsNetInterfaceExist(const std::string &netInterface)
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(COMM_NETSYS_NATIVE_SYS_ABILITY_ID);
-    if (remoteObject == nullptr) {
-        EDMLOGE("DisabledNetworkInterfacePlugin GetNetNativeProxy get remote object failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    auto netNativeProxy = iface_cast<NetsysNative::INetsysService>(remoteObject);
-    if (netNativeProxy == nullptr) {
-        EDMLOGE("DisabledNetworkInterfacePlugin OnGetPolicy get netNativeProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<std::string> ifaces;
-    auto ret = netNativeProxy->InterfaceGetList(ifaces);
-    if (FAILED(ret)) {
-        EDMLOGE("DisabledNetworkInterfacePlugin OnGetPolicy get interface list failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    std::vector<std::string> ifaces = NetManagerStandard::NetsysController::GetInstance().InterfaceGetList();
     if (ifaces.empty() || std::find(ifaces.begin(), ifaces.end(), netInterface) == ifaces.end()) {
         EDMLOGE("DisabledNetworkInterfacePlugin OnGetPolicy network interface does not exist");
         return EdmReturnErrCode::PARAM_ERROR;

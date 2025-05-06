@@ -147,7 +147,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
-    "netmanager_base:net_native_manager_if",
+    "netmanager_base:netsys_controller",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
