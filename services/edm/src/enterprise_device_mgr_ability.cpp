@@ -461,8 +461,9 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
             std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
             int32_t currentUserId = subAdmin.first;
-            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
-                currentUserId = GetCurrentUserId();
+            int32_t tmpUserId = GetCurrentUserId();
+            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER && tmpUserId >= 0) {
+                currentUserId = tmpUserId;
             }
             sptr<IEnterpriseConnection> connection =
                 manager->CreateBundleConnection(want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
