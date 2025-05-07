@@ -82,7 +82,7 @@ struct AdapterAddonData : public AsyncCallbackInfo {
 };
 
 napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
-    AdapterAddonData *addonData);
+    AdapterAddonData *addonData, bool isAsync = false);
 
 napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

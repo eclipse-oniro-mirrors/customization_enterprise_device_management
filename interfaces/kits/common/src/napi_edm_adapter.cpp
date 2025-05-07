@@ -247,7 +247,7 @@ static napi_value JsParamsToData(napi_env env, napi_value *argv, size_t argc,
 }
 
 napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
-    AdapterAddonData *addonData)
+    AdapterAddonData *addonData, bool isAsync)
 {
     napi_status status;
     size_t argc = ARGS_SIZE_FIVE;
@@ -257,7 +257,7 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
     size_t minSize = methodSign.argsType.size() - methodSign.defaultArgSize;
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= minSize, "parameter count error");
     EDMLOGI("AddonMethodAdapter JsObjectToData argc:%{public}zu.", argc);
-    if (argc > methodSign.argsType.size()) {
+    if (isAsync && argc > methodSign.argsType.size()) {
         bool isCallBack = MatchValueType(env, argv[methodSign.argsType.size()], napi_function);
         std::ostringstream errorMsg;
         /* If a callback exists, there must be no default parameter.
@@ -307,7 +307,7 @@ napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const Addon
         return nullptr;
     }
     std::unique_ptr<AdapterAddonData> adapterAddonDataPtr {adapterAddonData};
-    napi_value result = JsObjectToData(env, info, methodSign, adapterAddonData);
+    napi_value result = JsObjectToData(env, info, methodSign, adapterAddonData, true);
     if (result == nullptr) {
         EDMLOGE("AddonMethodAdapter JsObjectToData exec fail.");
         return nullptr;
