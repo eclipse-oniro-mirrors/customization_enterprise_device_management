@@ -70,6 +70,11 @@ ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, Mes
 {
     EDMLOGD("DisabledNetworkInterfacePlugin OnGetPolicy.");
     std::string networkInterface = data.ReadString();
+    auto ret = IsNetInterfaceExist(networkInterface);
+    if (FAILED(ret)) {
+        reply.WriteInt32(ret);
+        return ret;
+    }
     std::map<std::string, std::string> policyMap;
     if (!pluginInstance_->serializer_->Deserialize(policyData, policyMap)) {
         EDMLOGE("DisabledNetworkInterfacePlugin OnGetPolicy get policy failed.");
