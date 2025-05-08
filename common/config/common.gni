@@ -128,4 +128,9 @@ declare_args() {
       defined(global_parts_info.multimedia_camera_framework)) {
     camera_framework_edm_enable = true
   }
+  sms_mms_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.telephony_sms_mms)) {
+    sms_mms_edm_enable = true
+  }
 }
