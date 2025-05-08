@@ -33,14 +33,65 @@ const int32_t BASE_CLASS = 3;
 const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
-int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+
+
+int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {
-    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetEnterpriseInfo code :" << code;
-    EntInfo entInfo;
-    code_ = code;
-    reply.WriteInt32(ERR_OK);
-    entInfo.Marshalling(reply);
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetEnterpriseInfo";
+    entInfo.enterpriseName = "test";
+    entInfo.description = "this is test";
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseInfoFail(const AppExecFwk::ElementName &admin, EntInfo &entInfo)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetEnterpriseInfoFail";
+    entInfo.enterpriseName = "";
+    entInfo.description = "";
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeIsAdminEnabledFail(
+    const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsAdminEnabled";
+    isEnabled = false;
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminFail(const std::string &bundleName, bool &isSuper)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsSuperAdminFail";
+    isSuper = false;
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeGetSuperAdmin(std::string &bundleName, std::string &abilityName)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetSuperAdmin";
+    bundleName = RETURN_STRING;
+    abilityName = RETURN_STRING;
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeGetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetAdmins";
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    std::string bundleName = "com.edm.test.demo";
+    std::string abilityName = "test.ability";
+    want->SetParam("bundleName", bundleName);
+    want->SetParam("abilityName", abilityName);
+    want->SetParam("adminType", static_cast<int32_t>(AdminType::BYOD));
+    wants.push_back(want);
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeGetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetEnabledAdmin";
+    std::string enabledAdmin = "com.edm.test.demo";
+    enabledAdminList.push_back(enabledAdmin);
     return 0;
 }
 

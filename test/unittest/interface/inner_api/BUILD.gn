@@ -30,12 +30,16 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./common/ent_info_test.cpp",
   ]
 
-  configs = [ "../../../../common/config:coverage_flags" ]
+  configs = [
+    "../../../../common/config:coverage_flags",
+    "../../../../services/idl:enterprise_device_mgr_idl_gen_config",
+  ]
 
   deps = [
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../utils:edm_unittest_utils",
+    "../../../../services/idl:enterprise_device_mgr_idl_proxy",
   ]
 
   external_deps = [

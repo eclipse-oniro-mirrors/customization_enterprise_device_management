@@ -22,6 +22,7 @@
 #include "edm_ipc_interface_code.h"
 #include "element_name.h"
 #include "ent_info.h"
+#include "ienterprise_device_mgr_idl.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -30,38 +31,13 @@
 
 namespace OHOS {
 namespace EDM {
-class IEnterpriseDeviceMgr : public IRemoteBroker {
+class IEnterpriseDeviceMgr {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.edm.IEnterpriseDeviceMgr");
-    virtual ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) = 0;
-    virtual ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) = 0;
-    virtual ErrCode DisableSuperAdmin(const std::string &bundleName) = 0;
     virtual ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data,
         MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
         int32_t userId) = 0;
-    virtual ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) = 0;
-    virtual ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) = 0;
-    virtual ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) = 0;
-    virtual ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
-        const std::vector<uint32_t> &events) = 0;
-    virtual ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin,
-        const std::vector<uint32_t> &events) = 0;
-    virtual bool IsSuperAdmin(const std::string &bundleName) = 0;
-    virtual bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) = 0;
-    virtual ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) = 0;
-    virtual ErrCode GetSuperAdmin(MessageParcel &reply) = 0;
-    virtual ErrCode SetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        const std::vector<std::string> &policies) = 0;
-    virtual ErrCode GetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        std::vector<std::string> &policies) = 0;
-    virtual ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
-        std::vector<std::string> &bundleNames) = 0;
-    virtual ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) = 0;
-    virtual ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
-        bool keepPolicy) = 0;
-    virtual ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

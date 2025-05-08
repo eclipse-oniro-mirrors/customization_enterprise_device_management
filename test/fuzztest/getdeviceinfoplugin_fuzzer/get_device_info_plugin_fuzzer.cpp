@@ -47,7 +47,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
     admin.SetAbilityName(CommonFuzzer::GetString(data, pos, stringSize, size));
     MessageParcel parcel;
-    parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
+    parcel.WriteInterfaceToken(IEnterpriseDeviceMgrIdl::GetDescriptor());
     parcel.WriteInt32(WITHOUT_USERID);
     parcel.WriteString(WITHOUT_PERMISSION_TAG);
     parcel.WriteInt32(0);
