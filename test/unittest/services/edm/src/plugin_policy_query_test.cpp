@@ -27,6 +27,7 @@
 #include "clipboard_policy.h"
 #include "clipboard_policy_query.h"
 #include "clipboard_policy_serializer.h"
+#include "disable_backup_and_restore_query.h"
 #include "disable_bluetooth_query.h"
 #include "disable_camera_query.h"
 #include "disable_hdc_query.h"
@@ -1186,6 +1187,46 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedMMSQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_mms");
 }
 
+/**
+ * @tc.name: TestDisableBackupAndRestoreQuery001
+ * @tc.desc: Test DisableBackupAndRestoreQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableBackupAndRestoreQuery001, TestSize.Level1)
+{
+    std::string deviceType = system::GetParameter("const.product.devicetype", "");
+    if (deviceType == "2in1") {
+        return;
+    }
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableBackupAndRestoreQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableBackupAndRestoreQuery002
+ * @tc.desc: Test DisableBackupAndRestoreQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableBackupAndRestoreQuery002, TestSize.Level1)
+{
+    std::string deviceType = system::GetParameter("const.product.devicetype", "");
+    if (deviceType == "2in1") {
+        return;
+    }
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableBackupAndRestoreQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

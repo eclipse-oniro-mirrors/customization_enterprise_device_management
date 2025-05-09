@@ -76,6 +76,10 @@
 #include "disallowed_sms_query.h"
 #endif
 
+#ifdef BACKUP_AND_RESTORE_EDM_ENABLE
+#include "disable_backup_and_restore_query.h"
+#endif
+
 #ifdef MMS_EDM_ENABLE
 #include "disallowed_mms_query.h"
 #endif
@@ -348,6 +352,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOWED_MMS:
 #ifdef MMS_EDM_ENABLE
             obj = std::make_shared<DisallowedMMSQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE:
+#ifdef BACKUP_AND_RESTORE_EDM_ENABLE
+            obj = std::make_shared<DisableBackupAndRestoreQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

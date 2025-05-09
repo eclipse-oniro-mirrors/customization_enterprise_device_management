@@ -382,6 +382,10 @@ ohos_static_library("edmservice_fuzz_static") {
           [ "../../../services/edm/src/query_policy/disable_camera_query.cpp" ]
       defines += [ "CAMERA_FRAMEWORK_EDM_ENABLE" ]
     }
+
+    if (!enterprise_device_management_feature_pc_only) {
+      sources += [ "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp" ]
+    }
   }
 
   sanitize = {

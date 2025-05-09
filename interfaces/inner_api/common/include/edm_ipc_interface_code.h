@@ -113,6 +113,7 @@ enum EdmInterfaceCode : uint32_t {
     SWITCH_BLUETOOTH = 1072,
     DISALLOWED_SMS = 1073,
     DISALLOWED_MMS = 1074,
+    DISABLE_BACKUP_AND_RESTORE = 1075,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

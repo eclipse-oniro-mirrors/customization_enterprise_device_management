@@ -282,7 +282,8 @@ ohos_shared_library("edmplugin") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ 
+    sources += [
+      "./src/disable_backup_and_restore_plugin.cpp",
       "./src/disallowed_sms_plugin.cpp",
       "./src/disallowed_mms_plugin.cpp",
     ]
