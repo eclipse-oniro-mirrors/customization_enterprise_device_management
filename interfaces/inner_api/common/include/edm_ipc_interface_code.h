@@ -112,6 +112,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_MAINTENANCE_MODE = 1069,
     SWITCH_BLUETOOTH = 1072,
     DISALLOWED_SMS = 1073,
+    DISALLOWED_MMS = 1074,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

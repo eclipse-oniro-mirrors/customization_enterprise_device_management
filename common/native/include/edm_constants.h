@@ -90,6 +90,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
         const char* const LABEL_DISALLOWED_POLICY_SMS = "sms";
+        const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -230,6 +231,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SECURITY_PATCH_TAG = "get_security_patch_tag";
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
+    const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
