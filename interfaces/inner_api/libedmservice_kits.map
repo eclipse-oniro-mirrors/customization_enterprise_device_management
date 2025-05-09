@@ -51,6 +51,18 @@
             "virtual thunk to OHOS::EDM::DomainAccountPolicy::~DomainAccountPolicy()";
             VTT?for?OHOS::EDM::DomainAccountPolicy;
             vtable?for?OHOS::EDM::DomainAccountPolicy;
+            OHOS::EDM::EdmBundleInfo::*;
+            VTT?for?OHOS::EDM::EdmBundleInfo;
+            vtable?for?OHOS::EDM::EdmBundleInfo;
+            OHOS::EDM::EdmApplicationInfo::*;
+            VTT?for?OHOS::EDM::EdmApplicationInfo;
+            vtable?for?OHOS::EDM::EdmApplicationInfo;
+            OHOS::EDM::EdmResource::*;
+            VTT?for?OHOS::EDM::EdmResource;
+            vtable?for?OHOS::EDM::EdmResource;
+            OHOS::EDM::EdmSignatureInfo::*;
+            VTT?for?OHOS::EDM::EdmSignatureInfo;
+            vtable?for?OHOS::EDM::EdmSignatureInfo;
         };
     local:
         *;
