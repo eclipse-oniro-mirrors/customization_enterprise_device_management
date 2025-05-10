@@ -1229,17 +1229,17 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(AppExecFwk::ElementName &o
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (keepPolicy) {
         std::string newAdminName = newAdmin.GetBundleName();
-        return HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
+        HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
     } else {
         ErrCode res = DoDisableAdmin(adminName, DEFAULT_USER_ID, AdminType::ENT);
         if (res != ERR_OK) {
             EDMLOGE("ReplaceSuperAdmin: delete admin failed");
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
-    }
-    if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
-        EDMLOGE("EnableAdmin: SetAdminValue failed.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
+            EDMLOGE("EnableAdmin: SetAdminValue failed.");
+            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+        }
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
