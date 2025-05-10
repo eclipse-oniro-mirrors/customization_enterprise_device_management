@@ -99,6 +99,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
         const char* const LABEL_DISALLOWED_POLICY_SMS = "sms";
+        const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
     } // namespace Restrictions
 
@@ -236,6 +237,7 @@ namespace PolicyName {
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";

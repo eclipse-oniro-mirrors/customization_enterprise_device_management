@@ -60,6 +60,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
@@ -269,6 +270,10 @@ ohos_unittest("EdmServicesUnitTest") {
   defines = []
   if (common_event_service_edm_enable) {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
   }
 
   configs = [

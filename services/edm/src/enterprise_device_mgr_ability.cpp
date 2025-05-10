@@ -657,6 +657,7 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
         PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_DISALLOWED_SMS,
         PolicyName::POLICY_DISALLOWED_MMS, PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST,
+        PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE
     };
 }
 

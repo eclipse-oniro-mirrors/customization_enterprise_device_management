@@ -114,6 +114,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOWED_SMS = 1073,
     DISALLOWED_MMS = 1074,
     GET_BUNDLE_INFO_LIST = 1075,
+    DISABLE_BACKUP_AND_RESTORE = 1076,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
