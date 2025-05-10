@@ -16,6 +16,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
@@ -35,23 +36,27 @@ napi_value DeviceInfoAddon::Init(napi_env env, napi_value exports)
 napi_value DeviceInfoAddon::GetDeviceSerial(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDeviceSerial called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDeviceSerial");
     return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DEVICE_SERIAL);
 }
 
 napi_value DeviceInfoAddon::GetDisplayVersion(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisplayVersion called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisplayVersion");
     return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DISPLAY_VERSION);
 }
 
 napi_value DeviceInfoAddon::GetDeviceName(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDeviceName called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDeviceName");
     return GetDeviceInfo(env, info, EdmInterfaceCode::GET_DEVICE_NAME);
 }
 
 napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDeviceInfoSync");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDeviceInfoSync";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
@@ -75,6 +80,7 @@ napi_value DeviceInfoAddon::GetDeviceInfoSync(napi_env env, napi_callback_info i
 
 napi_value DeviceInfoAddon::GetDeviceInfo(napi_env env, napi_callback_info info, int code)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDeviceInfo");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDeviceInfo";
     addonMethodSign.policyCode = code;

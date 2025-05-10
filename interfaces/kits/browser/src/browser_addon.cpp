@@ -19,6 +19,7 @@
 #include "cJSON.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 #include "securec.h"
 
@@ -43,6 +44,7 @@ napi_value BrowserAddon::Init(napi_env env, napi_value exports)
 napi_value BrowserAddon::SetPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetPolicies called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicies");
     auto asyncCallbackInfo = new (std::nothrow) AsyncBrowserCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
@@ -82,6 +84,7 @@ void BrowserAddon::NativeSetPolicies(napi_env env, void *data)
 napi_value BrowserAddon::GetPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetPolicies called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPolicies");
     auto asyncCallbackInfo = new (std::nothrow) AsyncBrowserCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
@@ -120,6 +123,7 @@ void BrowserAddon::NativeGetPolicies(napi_env env, void *data)
 napi_value BrowserAddon::SetPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicy");
     std::string policyValue;
     auto asyncCallbackInfo = new (std::nothrow) AsyncBrowserCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
@@ -146,6 +150,7 @@ napi_value BrowserAddon::SetPolicy(napi_env env, napi_callback_info info)
 napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetPoliciesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPoliciesSync");
     auto asyncCallbackInfo = new (std::nothrow) AsyncBrowserCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
@@ -171,6 +176,7 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
 napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("BrowserAddon::SetManagedBrowserPolicy start");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setManagedBrowserPolicy");
     auto convertPolicyValue = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::string policyValue;
@@ -208,6 +214,7 @@ napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_inf
 napi_value BrowserAddon::GetManagedBrowserPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("BrowserAddon::GetManagedBrowserPolicy start");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getManagedBrowserPolicy");
     auto convertBundleNameWithType = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::string bundleName;
@@ -241,6 +248,7 @@ napi_value BrowserAddon::GetManagedBrowserPolicy(napi_env env, napi_callback_inf
 napi_value BrowserAddon::GetSelfManagedBrowserPolicyVersion(napi_env env, napi_callback_info info)
 {
     EDMLOGI("BrowserAddon::GetManagedBrowserPolicy start");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getSelfManagedBrowserPolicyVersion");
     int32_t version = -1;
     int32_t ret = BrowserProxy::GetBrowserProxy()->GetSelfManagedBrowserPolicyVersion(version);
     if (FAILED(ret)) {
@@ -259,6 +267,7 @@ napi_value BrowserAddon::GetSelfManagedBrowserPolicyVersion(napi_env env, napi_c
 napi_value BrowserAddon::GetSelfManagedBrowserPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("BrowserAddon::GetSelfManagedBrowserPolicy start");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getSelfManagedBrowserPolicy");
     int32_t size = -1;
     void* data = nullptr;
     int32_t ret = BrowserProxy::GetBrowserProxy()->GetSelfManagedBrowserPolicy(&data, size);

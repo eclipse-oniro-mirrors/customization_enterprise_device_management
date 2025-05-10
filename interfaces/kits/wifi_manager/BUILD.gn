@@ -20,7 +20,10 @@ ohos_shared_library("wifimanager") {
     "include",
   ]
 
-  sources = [ "./src/wifi_manager_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/wifi_manager_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -34,6 +37,7 @@ ohos_shared_library("wifimanager") {
     "ability_base:want",
     "bounds_checking_function:libsec_shared",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

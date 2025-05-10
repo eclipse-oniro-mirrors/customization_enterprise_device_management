@@ -20,8 +20,9 @@
 namespace OHOS {
 namespace EDM {
 using namespace OHOS::HiviewDFX;
-void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
+void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
 {
+    EDMLOGI("hisysevent ReportEdmEvent");
     int ret;
     if (reportType == ReportType::EDM_FUNC_FAILED) {
         ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_FAILED", HiSysEvent::EventType::FAULT,
@@ -34,6 +35,17 @@ void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std
     if (ret != 0) {
         EDMLOGE("hisysevent write failed! ret %{public}d, apiName %{public}s, errMsg %{public}s", ret,
             apiName.c_str(), msgInfo.c_str());
+    }
+}
+
+void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
+    const int32_t & adminType, const std::string &extraInfo)
+{
+    EDMLOGI("hisysevent ReportEdmEventManagerAdmin");
+    int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
+        "BUNDLENAME", bundleName, "ACTION", action, "ADMINTYPE", adminType, "EXTRAINFO", extraInfo);
+    if (ret != 0) {
+        EDMLOGE("hisysevent write manager admin failed! ret %{public}d", ret);
     }
 }
 } // namespace EDM
