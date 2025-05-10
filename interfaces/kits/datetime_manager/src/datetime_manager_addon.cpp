@@ -14,6 +14,7 @@
  */
 #include "datetime_manager_addon.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 
 #include "napi_edm_adapter.h"
 using namespace OHOS::EDM;
@@ -31,6 +32,7 @@ napi_value DatetimeManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value DatetimeManagerAddon::SetDateTime(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDateTime");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetDateTime";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT64};
@@ -57,6 +59,7 @@ void DatetimeManagerAddon::NativeSetDateTime(napi_env env, void *data)
 
 napi_value DatetimeManagerAddon::DisallowModifyDateTime(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disallowModifyDateTime");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "DisallowModifyDateTime";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -84,6 +87,7 @@ void DatetimeManagerAddon::NativeDisallowModifyDateTime(napi_env env, void *data
 
 napi_value DatetimeManagerAddon::IsModifyDateTimeDisallowed(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isModifyDateTimeDisallowed");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsModifyDateTimeDisallowed";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};

@@ -26,6 +26,11 @@ enum class AdminType {
     BYOD,
     UNKNOWN = 99,
 };
+enum class AdminAction {
+    ENABLE = 0,
+    DISABLE = 1,
+    REPLACE = 2
+};
 } // namespace EDM
 } // namespace OHOS
 

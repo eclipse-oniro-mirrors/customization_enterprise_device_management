@@ -41,7 +41,7 @@ const std::string CUSTOMIZEDINFO = "customizedInfo";
 napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_EnableAdmin called");
-    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "enableAdmin", "");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "enableAdmin");
     size_t argc = ARGS_SIZE_FIVE;
     napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -111,7 +111,7 @@ int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
 napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_ReplaceSuperAdmin called");
-    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "ReplaceSuperAdmin", "");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "replaceSuperAdmin");
     AppExecFwk::ElementName oldAdmin;
     AppExecFwk::ElementName newAdmin;
     bool keepPolicy = true;
@@ -212,7 +212,7 @@ bool AdminManager::CheckEnableAdminParamType(napi_env env, size_t argc, napi_val
 napi_value AdminManager::DisableAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisableAdmin called");
-    ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableAdmin", "");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableAdmin");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -272,6 +272,7 @@ void AdminManager::NativeDisableAdmin(napi_env env, void *data)
 napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisableSuperAdmin called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableSuperAdmin");
     auto convertBundleName2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::string bundleName;
@@ -305,6 +306,7 @@ void AdminManager::NativeDisableSuperAdmin(napi_env env, void *data)
 napi_value AdminManager::GetEnterpriseInfo(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetEnterpriseInfo called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getEnterpriseInfo");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -394,6 +396,7 @@ void AdminManager::NativeGetEnterpriseInfoComplete(napi_env env, napi_status sta
 napi_value AdminManager::SetEnterpriseInfo(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetEnterpriseInfo called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setEnterpriseInfo");
     auto convertEntInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         EntInfo entInfo;
@@ -427,6 +430,7 @@ void AdminManager::NativeSetEnterpriseInfo(napi_env env, void *data)
 napi_value AdminManager::SetAdminRunningMode(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetAdminRunningMode called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setAdminRunningMode");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetAdminRunningMode";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
@@ -446,6 +450,7 @@ napi_value AdminManager::SetAdminRunningMode(napi_env env, napi_callback_info in
 napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsSuperAdmin called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isSuperAdmin");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsSuperAdmin";
     addonMethodSign.argsType = {EdmAddonCommonType::STRING};
@@ -456,6 +461,7 @@ napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
 napi_value AdminManager::IsAdminEnabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("IsAdminEnabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isAdminEnabled");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -528,17 +534,20 @@ void AdminManager::NativeIsAdminEnabled(napi_env env, void *data)
 napi_value AdminManager::SubscribeManagedEvent(napi_env env, napi_callback_info info)
 {
     EDMLOGI("SubscribeManagedEvent called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "subscribeManagedEvent");
     return HandleManagedEvent(env, info, true);
 }
 
 napi_value AdminManager::UnsubscribeManagedEvent(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UnsubscribeManagedEvent called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "unsubscribeManagedEvent");
     return HandleManagedEvent(env, info, false);
 }
 
 napi_value AdminManager::HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "handleManagedEvent");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -647,6 +656,7 @@ bool AdminManager::ParseManagedEvent(napi_env env, std::vector<uint32_t> &manage
 napi_value AdminManager::AuthorizeAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AuthorizeAdmin called.");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "authorizeAdmin");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AuthorizeAdmin";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
@@ -668,6 +678,7 @@ void AdminManager::NativeAuthorizeAdmin(napi_env env, void *data)
 napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDelegatedPolicies called.");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDelegatedPolicies");
     auto convertPolicies2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::vector<std::string> policies;
@@ -700,12 +711,14 @@ napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info i
 napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDelegatedPolicies called.");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDelegatedPolicies");
     return GetDelegatedPolicies(env, info, EdmInterfaceCode::GET_DELEGATED_POLICIES);
 }
 
 napi_value AdminManager::GetDelegatedBundleNames(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDelegatedBundleNames called.");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDelegatedBundleNames");
     return GetDelegatedPolicies(env, info, EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES);
 }
 
@@ -735,6 +748,7 @@ napi_value AdminManager::GetDelegatedPolicies(napi_env env, napi_callback_info i
 
 napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAdmins");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAdmins";
     addonMethodSign.methodAttribute = MethodAttribute::OPERATE_ADMIN;
@@ -754,7 +768,7 @@ napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
 
 napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_StartAdminProvision called.");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "startAdminProvision");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -900,6 +914,7 @@ void AdminManager::CreateRunningModeObject(napi_env env, napi_value value)
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSuperAdmin called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getSuperAdmin");
     auto asyncCallbackInfo = new (std::nothrow) AsyncGetSuperAdminCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
@@ -1066,12 +1081,14 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
 napi_value AdminManager::SubscribeManagedEventSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("SubscribeManagedEvent called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "subscribeManagedEventSync");
     return HandleManagedEventSync(env, info, true);
 }
 
 napi_value AdminManager::UnsubscribeManagedEventSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UnsubscribeManagedEvent called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "unsubscribeManagedEventSync");
     return HandleManagedEventSync(env, info, false);
 }
 
