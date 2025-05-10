@@ -1187,6 +1187,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedMMSQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_mms");
 }
 
+#ifdef BACKUP_AND_RESTORE_EDM_ENABLE
 /**
  * @tc.name: TestDisableBackupAndRestoreQuery001
  * @tc.desc: Test DisableBackupAndRestoreQuery QueryPolicy function.
@@ -1194,10 +1195,6 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedMMSQuery002, TestSize.Level1)
  */
 HWTEST_F(PluginPolicyQueryTest, TestDisableBackupAndRestoreQuery001, TestSize.Level1)
 {
-    std::string deviceType = system::GetParameter("const.product.devicetype", "");
-    if (deviceType == "2in1") {
-        return;
-    }
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableBackupAndRestoreQuery>();
     std::string policyData{"false"};
     MessageParcel data;
@@ -1217,16 +1214,13 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBackupAndRestoreQuery001, TestSize.Le
  */
 HWTEST_F(PluginPolicyQueryTest, TestDisableBackupAndRestoreQuery002, TestSize.Level1)
 {
-    std::string deviceType = system::GetParameter("const.product.devicetype", "");
-    if (deviceType == "2in1") {
-        return;
-    }
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableBackupAndRestoreQuery>();
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE);
 }
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

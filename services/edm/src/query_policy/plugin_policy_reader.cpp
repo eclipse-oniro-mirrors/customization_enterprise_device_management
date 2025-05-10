@@ -99,6 +99,7 @@
 #include "get_display_version_query.h"
 #include "get_security_patch_tag_query.h"
 #include "inactive_user_freeze_query.h"
+#include "installed_bundle_info_list_query.h"
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
@@ -349,6 +350,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::GET_BUNDLE_INFO_LIST:
+            obj = std::make_shared<InstalledBundleInfoListQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_MMS:
 #ifdef MMS_EDM_ENABLE
             obj = std::make_shared<DisallowedMMSQuery>();

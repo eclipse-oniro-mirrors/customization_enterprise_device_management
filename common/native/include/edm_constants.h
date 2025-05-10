@@ -40,6 +40,10 @@ namespace EdmConstants {
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
 
+    constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
+    constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size
+    constexpr size_t MAX_IPC_RAWDATA_SIZE = 120 * 1024 * 1024; // max ipc size 120MB
+
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
@@ -47,6 +51,11 @@ namespace EdmConstants {
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
+
+    // app-distribution-type
+    constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
+
+    constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
@@ -160,6 +169,8 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    // api 20
+    const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -227,6 +238,7 @@ namespace PolicyName {
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
     const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
+    const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

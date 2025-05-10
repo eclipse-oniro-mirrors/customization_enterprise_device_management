@@ -69,6 +69,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/get_display_version_query.cpp",
     "../../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
     "../../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
+    "../../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../../services/edm/src/query_policy/ipolicy_query.cpp",
     "../../../../services/edm/src/query_policy/ntp_server_query.cpp",
     "../../../../services/edm/src/query_policy/password_policy_query.cpp",
@@ -254,6 +255,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/enterprise_conn_manager_test.cpp",
     "./src/enterprise_device_mgr_ability_test.cpp",
     "./src/enterprise_update_connection_test.cpp",
+    "./src/installed_bundle_info_list_query_test.cpp",
     "./src/iplugin_template_test.cpp",
     "./src/permission_checker_test.cpp",
     "./src/permission_manager_test.cpp",
@@ -268,6 +270,10 @@ ohos_unittest("EdmServicesUnitTest") {
   defines = []
   if (common_event_service_edm_enable) {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
   }
 
   configs = [
