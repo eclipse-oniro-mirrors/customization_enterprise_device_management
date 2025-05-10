@@ -17,6 +17,7 @@
 
 #include <fcntl.h>
 #include "domain_filter_rule.h"
+#include "edm_bundle_info.h"
 #include "firewall_rule.h"
 #include "http_proxy.h"
 #include "iptables_utils.h"
@@ -375,5 +376,29 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestCheckAndGetAdminProvisionInfo(
     reply.WriteString("com.edm.test.demo");
     return 0;
 }
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetInstalledBundleList(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetInstalledBundleList code :" << code;
+    code_ = code;
+    EdmBundleInfo edmBundleInfo;
+    edmBundleInfo.name = "com.edm.test.demo";
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    edmBundleInfos.emplace_back(edmBundleInfo);
+
+    MessageParcel tempParcel;
+    (void)tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY);
+    tempParcel.WriteInt32(edmBundleInfos.size());
+    for (auto &parcelable : edmBundleInfos) {
+        tempParcel.WriteParcelable(&parcelable);
+    }
+    reply.WriteInt32(ERR_OK);
+    size_t dataSize = tempParcel.GetDataSize();
+    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    reply.WriteRawData(reinterpret_cast<uint8_t *>(tempParcel.GetData()), dataSize);
+    return 0;
+}
+
 } // namespace EDM
 } // namespace OHOS

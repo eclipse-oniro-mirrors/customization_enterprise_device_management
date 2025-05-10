@@ -35,6 +35,21 @@ namespace EDM {
             return false;                                                \
         }                                                                \
     } while (0)
+
+#define CONTAINER_SECURITY_VERIFY(parcel, readContainerSize, val)                                         \
+    do {                                                                                                  \
+        if ((val) == nullptr) {                                                                           \
+            EDMLOGE("Failed to read container due to val is nullptr");                                    \
+            return false;                                                                                 \
+        }                                                                                                 \
+        size_t readAbleDataSize = (parcel).GetReadableBytes();                                            \
+        size_t readSize = static_cast<size_t>(readContainerSize);                                         \
+        if ((readSize > readAbleDataSize) || ((val)->max_size() < readSize)) {                            \
+            EDMLOGE("Failed to read container, readSize = %{public}zu, readAbleDataSize = %{public}zu",   \
+                readSize, readAbleDataSize);                                                              \
+            return false;                                                                                 \
+        }                                                                                                 \
+    } while (0)
 } // namespace EDM
 } // namespace OHOS
 #endif // COMMON_NATIVE_INCLUDE_PARCEL_MACRO_H
