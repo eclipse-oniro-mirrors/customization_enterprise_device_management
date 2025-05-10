@@ -55,7 +55,7 @@ HWTEST_F(CjsonSerializerTest, TestWritePolicy, TestSize.Level1)
     ASSERT_TRUE(jsonString == strPolicy);
 
     std::vector<cJSON*> jsons{jsonPolicy};
-    ASSERT_TRUE(serializer->MergePolicy(jsons, jsonPolicy2));
+    serializer->MergePolicy(jsons, jsonPolicy2);
 }
 } // namespace TEST
 } // namespace EDM

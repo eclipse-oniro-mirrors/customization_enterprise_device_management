@@ -215,8 +215,7 @@ HWTEST_F(ArrayUsbDeviceIdSerializerTest, TestMergePolicy, TestSize.Level1)
     data.push_back(id1);
     dataObj.push_back(data);
     std::vector<UsbDeviceId> result;
-    bool ret = serializer->MergePolicy(dataObj, result);
-    ASSERT_TRUE(ret);
+    serializer->MergePolicy(dataObj, result);
     ASSERT_TRUE(result.size() == 1);
 }
 

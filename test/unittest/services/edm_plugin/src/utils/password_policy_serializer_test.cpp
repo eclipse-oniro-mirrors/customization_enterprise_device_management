@@ -159,20 +159,6 @@ HWTEST_F(PasswordPolicySerializerTest, TestWritePolicySuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestMergePolicyFail
- * @tc.desc: Test PasswordSerializer::MergePolicy
- * @tc.type: FUNC
- */
-HWTEST_F(PasswordPolicySerializerTest, TestMergePolicyFail, TestSize.Level1)
-{
-    auto serializer = PasswordSerializer::GetInstance();
-    std::vector<PasswordPolicy> data;
-    PasswordPolicy policy;
-    bool ret = serializer->MergePolicy(data, policy);
-    ASSERT_TRUE(ret);
-}
-
-/**
  * @tc.name: TestMergePolicySuc
  * @tc.desc: Test PasswordSerializer::MergePolicy
  * @tc.type: FUNC
@@ -181,10 +167,15 @@ HWTEST_F(PasswordPolicySerializerTest, TestMergePolicySuc, TestSize.Level1)
 {
     auto serializer = PasswordSerializer::GetInstance();
     std::vector<PasswordPolicy> data;
-    PasswordPolicy policy;
-    data.push_back(policy);
-    bool ret = serializer->MergePolicy(data, policy);
-    ASSERT_TRUE(ret);
+    PasswordPolicy result;
+    PasswordPolicy policy1{TEST_VALUE_COMPLEXITYREG, TEST_VALUE_VALIDITY_PERIOD, ""};
+    PasswordPolicy policy2{"", 0, TEST_VALUE_ADDITIONAL_DESCRIPTION};
+    data.push_back(policy1);
+    data.push_back(policy2);
+    serializer->MergePolicy(data, result);
+    ASSERT_TRUE(result.complexityReg == TEST_VALUE_COMPLEXITYREG);
+    ASSERT_TRUE(result.validityPeriod == TEST_VALUE_VALIDITY_PERIOD);
+    ASSERT_TRUE(result.additionalDescription == TEST_VALUE_ADDITIONAL_DESCRIPTION);
 }
 
 } // namespace TEST
