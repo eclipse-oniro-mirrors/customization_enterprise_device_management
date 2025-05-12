@@ -35,6 +35,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_WIFI, EdmInterfaceCode::DISABLE_WIFI},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_CLIENT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_SERVER, EdmInterfaceCode::DISABLE_MTP_SERVER},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DESK, EdmInterfaceCode::DISABLE_REMOTE_DESK},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREENSHOT, EdmInterfaceCode::POLICY_CODE_END + 11},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD, EdmInterfaceCode::POLICY_CODE_END + 12},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY, EdmInterfaceCode::POLICY_CODE_END + 17},
