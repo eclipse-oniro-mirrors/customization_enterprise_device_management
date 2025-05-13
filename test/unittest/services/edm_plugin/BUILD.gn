@@ -142,6 +142,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
+      "./src/turnoff_wifi_plugin_test.cpp",
+      "./src/turnon_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
@@ -418,6 +420,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+      "../../../../services/edm_plugin/src/turnoff_wifi_plugin.cpp",
+      "../../../../services/edm_plugin/src/turnon_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
     ]

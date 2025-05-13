@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -166,6 +166,8 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedWifiList", AddDisallowedWifiList),
         DECLARE_NAPI_FUNCTION("removeDisallowedWifiList", RemoveDisallowedWifiList),
         DECLARE_NAPI_FUNCTION("getDisallowedWifiList", GetDisallowedWifiList),
+        DECLARE_NAPI_FUNCTION("turnOnWifi", TurnOnWifi),
+        DECLARE_NAPI_FUNCTION("turnOffWifi", TurnOffWifi),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
@@ -804,6 +806,42 @@ napi_value WifiManagerAddon::SetWifiProfileHandler(napi_env env,
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+napi_value WifiManagerAddon::TurnOnWifi(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "TurnOnWifi";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->TurnOnWifi(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value WifiManagerAddon::TurnOffWifi(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "TurnOffWifi";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = WifiManagerProxy::GetWifiManagerProxy()->TurnOffWifi(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
 }
 
 static napi_module g_wifiManagerModule = {

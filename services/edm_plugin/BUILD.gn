@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -144,6 +144,8 @@ ohos_shared_library("edmplugin") {
         "./src/is_wifi_active_plugin.cpp",
         "./src/set_wifi_disabled_plugin.cpp",
         "./src/set_wifi_profile_plugin.cpp",
+        "./src/turnoff_wifi_plugin.cpp",
+        "./src/turnon_wifi_plugin.cpp",
         "./src/utils/wifi_device_config_serializer.cpp",
         "./src/utils/wifi_policy_utils.cpp",
       ]
