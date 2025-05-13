@@ -31,12 +31,7 @@
 #include "policy_struct.h"
 #include "security_report.h"
 #include "system_ability.h"
-
-#ifdef PASTEBOARD_EDM_ENABLE
-#include "clipboard_policy_serializer.h"
-#include "clipboard_utils.h"
-#include "pasteboard_client.h"
-#endif
+#include "watermark_observer_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -145,21 +140,7 @@ private:
     void OnCommonEventServiceStart();
     void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
     bool CheckRunningMode(uint32_t runningMode);
-#ifdef PASTEBOARD_EDM_ENABLE
-    void OnPasteboardServiceStart();
-#endif
-#ifdef NET_MANAGER_BASE_EDM_ENABLE
-    void OnNetManagerBaseServiceStart();
-    void HandleDisallowedNetworkInterface(const std::map<std::string, std::string> policyMap);
-#endif
-#ifdef USERIAM_EDM_ENABLE
-    void OnUserAuthFrameworkStart();
-#endif
-#ifdef USB_EDM_ENABLE
-    void OnUsbServiceStart();
-#endif
-    void OnRenderSystemStart();
-    void OnWindowManagerServiceStart();
+    void CallOnOtherServiceStart(uint32_t interfaceCode);
     void OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
     void InitAllAdmins();
@@ -175,8 +156,6 @@ private:
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
     void UnloadPluginTask();
-    void SetPasswordPolicy();
-    void SetFingerprintPolicy();
     
     static std::shared_mutex adminLock_;
     static std::shared_mutex dataLock_;

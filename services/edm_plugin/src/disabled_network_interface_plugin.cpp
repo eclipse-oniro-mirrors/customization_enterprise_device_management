@@ -24,6 +24,7 @@
 #include "edm_sys_manager.h"
 #include "map_string_serializer.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -63,6 +64,7 @@ void DisabledNetworkInterfacePlugin::InitPlugin(
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisabledNetworkInterfacePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisabledNetworkInterfacePlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&DisabledNetworkInterfacePlugin::OnOtherServiceStart);
 }
 
 ErrCode DisabledNetworkInterfacePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -172,6 +174,28 @@ ErrCode DisabledNetworkInterfacePlugin::OnAdminRemove(const std::string &adminNa
         }
     }
     return ERR_OK;
+}
+
+void DisabledNetworkInterfacePlugin::OnOtherServiceStart()
+{
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    std::map<std::string, std::string> policyMap;
+    MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
+    std::vector<std::string> netList;
+    for (const auto& iter : policyMap) {
+        netList.emplace_back(iter.first);
+        EDMLOGD("HandleDisallowedNetworkInterface %{public}s", iter.first.c_str());
+    }
+    auto netPolicyClient = DelayedSingleton<NetManagerStandard::NetPolicyClient>::GetInstance();
+    if (netPolicyClient != nullptr) {
+        if (FAILED(netPolicyClient->SetNicTrafficAllowed(netList, false))) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface SetNicTrafficAllowed failed.");
+        }
+    } else {
+        EDMLOGE("EnterpriseDeviceMgrAbility::HandleDisallowedNetworkInterface get NetPolicyClient failed.");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

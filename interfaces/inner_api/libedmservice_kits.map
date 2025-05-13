@@ -42,12 +42,15 @@
             vtable?for?OHOS::EDM::FingerprintPolicySerializer;
             VTT?for?OHOS::EDM::PasswordSerializer;
             vtable?for?OHOS::EDM::PasswordSerializer;
+            VTT?for?OHOS::EDM::WatermarkImageSerializer;
+            vtable?for?OHOS::EDM::WatermarkImageSerializer;
             OHOS::EDM::FingerprintPolicySerializer::*;
             OHOS::EDM::UpdatePolicyUtils::*;
             OHOS::EDM::FingerprintPolicy::*;
             OHOS::EDM::LocationPolicy::*;
             OHOS::EDM::PasswordSerializer::*;
             OHOS::EDM::DomainAccountPolicy::*;
+            OHOS::EDM::WatermarkImageSerializer::*;
             "virtual thunk to OHOS::EDM::DomainAccountPolicy::~DomainAccountPolicy()";
             VTT?for?OHOS::EDM::DomainAccountPolicy;
             vtable?for?OHOS::EDM::DomainAccountPolicy;

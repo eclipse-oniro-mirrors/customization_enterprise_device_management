@@ -27,9 +27,9 @@ config("edm_config") {
     "../../../../services/edm/include",
     "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
-    "../../../../services/edm/include/persistent_plugin/watermark",
     "../../../../services/edm/include/query_policy",
     "../../../../services/edm/include/strategy",
+    "../../../../services/edm/include/watermark",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
     "../../../../framework/extension/include",
@@ -43,7 +43,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/admin_manager.cpp",
     "../../../../services/edm/src/admin_policies_storage_rdb.cpp",
     "../../../../services/edm/src/application_state_observer.cpp",
-    "../../../../services/edm/src/clipboard_utils.cpp",
     "../../../../services/edm/src/connection/enterprise_account_connection.cpp",
     "../../../../services/edm/src/connection/enterprise_admin_connection.cpp",
     "../../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
@@ -198,13 +197,12 @@ ohos_static_library("edmservice_static") {
     ]
 
     sources += [
-      "../../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
-      "../../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
-      "../../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
       "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
+      "../../../../services/edm/src/watermark/watermark_application_observer.cpp",
+      "../../../../services/edm/src/watermark/watermark_observer_manager.cpp",
     ]
   }
 
@@ -246,7 +244,6 @@ ohos_unittest("EdmServicesUnitTest") {
   sources = [
     "./src/admin_manager_test.cpp",
     "./src/admin_test.cpp",
-    "./src/clipboard_utils_test.cpp",
     "./src/device_policies_storage_rdb_test.cpp",
     "./src/enhance_execute_strategy_test.cpp",
     "./src/enterprise_account_connection_test.cpp",
