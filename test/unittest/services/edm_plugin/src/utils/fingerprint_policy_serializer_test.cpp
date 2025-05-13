@@ -135,12 +135,36 @@ HWTEST_F(FingerPrintPolicySerializerTest, TestMergePolicy, TestSize.Level1)
 {
     auto serializer = FingerprintPolicySerializer::GetInstance();
     FingerprintPolicy result;
+    FingerprintPolicy policy1;
+    FingerprintPolicy policy2;
+    policy1.globalDisallow = true;
     std::vector<FingerprintPolicy> data;
-    bool ret = serializer->MergePolicy(data, result);
-    ASSERT_TRUE(ret);
-    data.push_back(result);
-    ret = serializer->MergePolicy(data, result);
-    ASSERT_TRUE(ret);
+    data.push_back(policy1);
+    data.push_back(policy2);
+    serializer->MergePolicy(data, result);
+    ASSERT_TRUE(result.globalDisallow);
+}
+
+/**
+ * @tc.name: TestMergePolicyWithoutGlobalDisallow
+ * @tc.desc: Test FingerPrintPolicySerializer::MergePolicy without globalDisallow
+ * @tc.type: FUNC
+ */
+HWTEST_F(FingerPrintPolicySerializerTest, TestMergePolicyWithoutGlobalDisallow, TestSize.Level1)
+{
+    auto serializer = FingerprintPolicySerializer::GetInstance();
+    FingerprintPolicy result;
+    FingerprintPolicy policy1;
+    FingerprintPolicy policy2;
+    policy1.accountIds.push_back(101);
+    policy2.accountIds.push_back(102);
+    std::vector<FingerprintPolicy> data;
+    data.push_back(policy1);
+    data.push_back(policy2);
+    serializer->MergePolicy(data, result);
+    ASSERT_TRUE(result.accountIds.size() == 2);
+    ASSERT_TRUE(result.accountIds[0] == 101);
+    ASSERT_TRUE(result.accountIds[1] == 102);
 }
 } // namespace TEST
 } // namespace EDM
