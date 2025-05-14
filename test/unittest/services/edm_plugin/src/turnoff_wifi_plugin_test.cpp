@@ -42,8 +42,6 @@ void TurnOffWifiTest::TearDownTestSuite(void)
  */
 HWTEST_F(TurnOffWifiTest, TestTurnOffWifiSuccess, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<IPlugin> plugin = TurnOffWifiPlugin::GetPlugin();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNOFF_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
@@ -51,7 +49,6 @@ HWTEST_F(TurnOffWifiTest, TestTurnOffWifiSuccess, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST
 } // namespace EDM

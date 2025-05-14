@@ -42,8 +42,6 @@ void TurnOnWifiTest::TearDownTestSuite(void)
  */
 HWTEST_F(TurnOnWifiTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<IPlugin> plugin = TurnOnWifiPlugin::GetPlugin();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNON_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
@@ -52,7 +50,6 @@ HWTEST_F(TurnOnWifiTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
     data.WriteBool(true);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
   
 /**
@@ -62,8 +59,6 @@ HWTEST_F(TurnOnWifiTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
  */
 HWTEST_F(TurnOnWifiTest, TestTurnOnWifiSuccess, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<IPlugin> plugin = TurnOnWifiPlugin::GetPlugin();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNON_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
@@ -72,7 +67,6 @@ HWTEST_F(TurnOnWifiTest, TestTurnOnWifiSuccess, TestSize.Level1)
     data.WriteBool(false);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST
 } // namespace EDM
