@@ -26,6 +26,7 @@ namespace EdmConstants {
     constexpr int32_t DEFAULT_USER_ID = 100;
     constexpr int32_t BLUETOOTH_SERVICE_UID = 1002;
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
+    constexpr int32_t USB_SERVICE_UID = 1018;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
     constexpr uint32_t WIFI_LIST_MAX_SIZE = 200;
