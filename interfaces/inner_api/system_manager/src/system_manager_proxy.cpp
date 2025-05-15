@@ -118,7 +118,6 @@ int32_t SystemManagerProxy::GetUpgradeResult(const AppExecFwk::ElementName &admi
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteInt32(static_cast<int32_t>(GetUpdateInfo::UPDATE_RESULT));
     data.WriteString(version);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
@@ -128,22 +127,6 @@ int32_t SystemManagerProxy::GetUpgradeResult(const AppExecFwk::ElementName &admi
         return ret;
     }
     UpdatePolicyUtils::ReadUpgradeResult(reply, upgradeResult);
-    return ERR_OK;
-}
-
-int32_t SystemManagerProxy::GetUpdateAuthData(MessageParcel &data, std::string &authData)
-{
-    EDMLOGD("SystemManagerProxy::GetUpdateAuthData.");
-    MessageParcel reply;
-    data.WriteInt32(static_cast<int32_t>(GetUpdateInfo::UPDATE_AUTH_DATA));
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    reply.ReadString(authData);
     return ERR_OK;
 }
 } // namespace EDM

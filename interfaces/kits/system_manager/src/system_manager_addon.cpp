@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 #include "system_manager_addon.h"
-
-#include "securec.h"
-
-#include "edm_constants.h"
 #include "edm_log.h"
+
 #include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
@@ -43,7 +40,6 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getOtaUpdatePolicy", GetOTAUpdatePolicy),
         DECLARE_NAPI_FUNCTION("notifyUpdatePackages", NotifyUpdatePackages),
         DECLARE_NAPI_FUNCTION("getUpdateResult", GetUpgradeResult),
-        DECLARE_NAPI_FUNCTION("getUpdateAuthData", GetUpdateAuthData),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -288,16 +284,6 @@ napi_value SystemManagerAddon::GetUpgradeResult(napi_env env, napi_callback_info
     return asyncWorkReturn;
 }
 
-napi_value SystemManagerAddon::GetUpdateAuthData(napi_env env, napi_callback_info info)
-{
-    EDMLOGI("NAPI_GetUpdateAuthData called");
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "GetUpdateAuthData";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
-    addonMethodSign.methodAttribute = MethodAttribute::GET;
-    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetUpdateAuthData, NativeStringCallbackComplete);
-}
-
 void SystemManagerAddon::NativeGetUpgradeResult(napi_env env, void *data)
 {
     EDMLOGI("NAPI_NativeGetUpgradeResult called");
@@ -313,18 +299,6 @@ void SystemManagerAddon::NativeGetUpgradeResult(napi_env env, void *data)
     }
     asyncCallbackInfo->ret = proxy->GetUpgradeResult(asyncCallbackInfo->elementName, asyncCallbackInfo->version,
         asyncCallbackInfo->upgradeResult);
-}
-
-void SystemManagerAddon::NativeGetUpdateAuthData(napi_env env, void *data)
-{
-    EDMLOGI("NAPI_NativeGetUpdateAuthData called");
-    if (data == nullptr) {
-        EDMLOGE("data is nullptr");
-        return;
-    }
-    auto *asyncCallbakInfo = static_cast<AdapterAddonData *>(data);
-    asyncCallbakInfo->ret = SystemManagerProxy::GetSystemManagerProxy()->GetUpdateAuthData(asyncCallbakInfo->data,
-        asyncCallbakInfo->stringRet);
 }
 
 void SystemManagerAddon::NativeUpgradeResultComplete(napi_env env, napi_status status, void *data)
@@ -437,18 +411,6 @@ bool SystemManagerAddon::JsObjToUpgradePackageInfo(napi_env env, napi_value obje
         UpdatePolicyUtils::ClosePackagesFileHandle(packageInfo.packages);
         return false;
     }
-    std::tuple<int, bool> charArrayProp = {EdmConstants::AUTH_INFO_MAX_SIZE, false};
-    std::vector<char> ret;
-    if (!JsObjectToCharArray(env, object, "authInfo", charArrayProp, ret)) {
-        EDMLOGE("JsObjToUpgradePackageInfo authInfo trans failed!");
-        return false;
-    }
-    errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), ret.data(), ret.size());
-    memset_s(ret.data(), ret.size(), 0, ret.size());
-    if (err != EOK) {
-        return false;
-    }
-    packageInfo.authInfoSize = ret.size() - 1;
     return true;
 }
 

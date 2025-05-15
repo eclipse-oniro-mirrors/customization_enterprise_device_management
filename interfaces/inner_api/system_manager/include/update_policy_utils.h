@@ -21,8 +21,6 @@
 
 #include "message_parcel.h"
 
-#include "edm_constants.h"
-
 namespace OHOS {
 namespace EDM {
 enum class UpdatePolicyType {
@@ -44,11 +42,6 @@ enum class UpgradeStatus {
     UPGRADING = -2,
     UPGRADE_FAILURE = -1,
     UPGRADE_SUCCESS = 0
-};
-
-enum class GetUpdateInfo {
-    UPDATE_RESULT = 0,
-    UPDATE_AUTH_DATA = 1
 };
 
 struct UpdateTime {
@@ -83,8 +76,6 @@ struct UpgradePackageInfo {
     std::string version;
     std::vector<Package> packages;
     PackageDescription description;
-    char authInfo[EdmConstants::AUTH_INFO_MAX_SIZE] = {0};
-    uint32_t authInfoSize = 0;
 };
 
 struct UpgradeResult {
@@ -101,7 +92,7 @@ public:
     static void ProcessUpgradeStatus(int32_t status, UpgradeStatus &upgradeStatus);
     static void WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &updatePolicy);
     static void ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy);
-    static void WriteUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo);
+    static void WriteUpgradePackageInfo(MessageParcel &data, const UpgradePackageInfo &packageInfo);
     static void ReadUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo);
     static void WriteUpgradeResult(MessageParcel &data, const UpgradeResult &result);
     static void ReadUpgradeResult(MessageParcel &data, UpgradeResult &result);
