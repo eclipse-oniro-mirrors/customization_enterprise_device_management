@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
- #define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
- 
- #include "plugin_singleton.h"
-  
- namespace OHOS {
- namespace EDM {
- class SwitchWifiPlugin : public PluginSingleton<SwitchWifiPlugin, bool> {
- public:
-     void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlugin, bool>> ptr) override;
-     ErrCode OnTurnOnPolicy(bool &isForce);
-     ErrCode OnTurnOffPolicy();
-     ErrCode OnAdminRemove();
- };
- } // namespace EDM
- } // namespace OHOS
-   
- #endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
+
+#include "plugin_singleton.h"
+
+namespace OHOS {
+namespace EDM {
+class SwitchWifiPlugin : public PluginSingleton<SwitchWifiPlugin, bool> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlugin, bool>> ptr) override;
+    ErrCode OnTurnOnPolicy(bool &isForce);
+    ErrCode OnTurnOffPolicy();
+    ErrCode OnAdminRemove();
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
