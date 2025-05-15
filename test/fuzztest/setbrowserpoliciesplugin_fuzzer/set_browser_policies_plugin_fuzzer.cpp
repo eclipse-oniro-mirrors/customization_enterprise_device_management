@@ -34,7 +34,7 @@ constexpr int32_t WITHOUT_ADMIN = 1;
 void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
     const uint8_t* data, size_t size, AppExecFwk::ElementName admin)
 {
-    parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
+    parcel.WriteInterfaceToken(IEnterpriseDeviceMgrIdl::GetDescriptor());
     parcel.WriteInt32(WITHOUT_USERID);
     if (operateType) {
         parcel.WriteParcelable(&admin);

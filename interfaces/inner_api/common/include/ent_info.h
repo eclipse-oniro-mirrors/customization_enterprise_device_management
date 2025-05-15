@@ -21,16 +21,16 @@
 
 namespace OHOS {
 namespace EDM {
-struct EntInfo {
+struct EntInfo: public Parcelable {
     EntInfo(const std::string &enterpriseName, const std::string &description);
     EntInfo();
     ~EntInfo();
 
     std::string enterpriseName;
     std::string description;
-    bool ReadFromParcel(MessageParcel &parcel);
-    bool Marshalling(MessageParcel &parcel) const;
-    static bool Unmarshalling(MessageParcel &parcel, EntInfo &entInfo);
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static EntInfo *Unmarshalling(Parcel &parcel);
 };
 } // namespace EDM
 } // namespace OHOS

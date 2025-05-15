@@ -31,6 +31,7 @@ ohos_shared_library("edmservice") {
   sources = [ "./src/enterprise_device_mgr_stub.cpp" ]
   public_configs = [
     ":edm_config",
+    "../idl:enterprise_device_mgr_idl_gen_config",
     "../../common/config:coverage_flags",
   ]
 
@@ -219,6 +220,7 @@ ohos_shared_library("edmservice") {
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../idl:enterprise_device_mgr_idl_stub",
   ]
 
   shlib_type = "sa"

@@ -216,6 +216,7 @@ ohos_static_library("edmservice_static") {
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../../../services/idl:enterprise_device_mgr_idl_stub",
   ]
 
   sanitize = {

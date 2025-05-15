@@ -38,7 +38,10 @@ config("edmservice_kits_config") {
 }
 
 ohos_shared_library("edmservice_kits") {
-  public_configs = [ ":edmservice_kits_config" ]
+  public_configs = [
+    ":edmservice_kits_config",
+    "../../services/idl:enterprise_device_mgr_idl_gen_config",
+  ]
 
   sources = [
     "./account_manager/src/account_manager_proxy.cpp",
@@ -79,6 +82,7 @@ ohos_shared_library("edmservice_kits") {
   deps = [
     "../../common/native:edm_commom",
     "./plugin_kits:plugin_kits",
+    "../../services/idl:enterprise_device_mgr_idl_proxy",
   ]
 
   external_deps = [

@@ -86,7 +86,7 @@ struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
     std::string abilityName;
 };
 
-struct AsyncGetAdminsCallbackInfo : AdapterAddonData {
+struct AsyncGetAdminsCallbackInfo : AsyncCallbackInfo {
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
 };
 
