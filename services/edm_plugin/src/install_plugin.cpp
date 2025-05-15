@@ -108,13 +108,14 @@ bool InstallPlugin::DeleteFiles()
     std::vector<std::string> files;
     OHOS::GetDirFiles(HAP_DIRECTORY, files);
 
+    bool res = true;
     for (auto const &file : files) {
         if (!OHOS::RemoveFile(file)) {
-            EDMLOGE("can not remove file : %{public}s", file.c_str());
-            return false;
+            EDMLOGW("can not remove file : %{public}s", file.c_str());
+            res = false;
         }
     }
-    return true;
+    return res;
 }
 
 ErrCode InstallPlugin::OnSetPolicy(InstallParam &param, MessageParcel &reply)
