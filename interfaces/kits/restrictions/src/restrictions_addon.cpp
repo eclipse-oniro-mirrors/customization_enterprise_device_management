@@ -45,6 +45,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_CAMERA, EdmInterfaceCode::DISABLE_CAMERA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DEVELOPER_MODE, POLICY_CODE_END + 20},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_RESET_FACTORY, POLICY_CODE_END + 21},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN}
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -78,6 +79,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedListForAccount", AddDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
+        DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -606,6 +608,57 @@ napi_value RestrictionsAddon::AddOrRemoveDisallowedListForAccount(napi_env env, 
         return nullptr;
     }
     ErrCode ret = proxy->AddOrRemoveDisallowedListForAccount(elementName, feature, bundleNameArray, accountId, isAdd);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetUserRestriction called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter settingsItem error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
+        "parameter disallow error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD("SetUserRestriction: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string settingsItem;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
+        "parameter settingsItem parse error");
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    ErrCode ret = ERR_OK;
+    if (settingsItem == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
+        ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
+    } else {
+        auto labelCode = labelCodeMap.find(settingsItem);
+        if (labelCode == labelCodeMap.end()) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+            return nullptr;
+        }
+        std::uint32_t ipcCode = labelCode->second;
+        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
+            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
+        ret = proxy->SetUserRestriction(elementName, disallow, ipcCode, permissionTag);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

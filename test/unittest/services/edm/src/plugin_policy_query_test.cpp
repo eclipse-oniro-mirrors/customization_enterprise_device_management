@@ -44,6 +44,7 @@
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
 #include "disallowed_wifi_list_query.h"
+#include "disallow_modify_apn_query.h"
 #include "edm_constants.h"
 #include "fingerprint_auth_query.h"
 #include "get_device_encryption_status_query.h"
@@ -1212,6 +1213,38 @@ HWTEST_F(PluginPolicyQueryTest, TestSnapshotSkipQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPolicyName() == "snapshot_skip");
 }
 
+/**
+ * @tc.name: TestDisallowModifyAPNQuery001
+ * @tc.desc: Test DisallowModifyAPNQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyAPNQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowModifyAPNQuery002
+ * @tc.desc: Test DisallowModifyAPNQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyAPNQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_apn");
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

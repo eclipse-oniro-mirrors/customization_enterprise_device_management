@@ -75,6 +75,10 @@
 #include "set_browser_policies_query.h"
 #endif
 
+#ifdef APN_EDM_ENABLE
+#include "disallow_modify_apn_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -343,6 +347,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOWED_WIFI_LIST:
 #ifdef WIFI_EDM_ENABLE
             obj = std::make_shared<DisallowedWifiListQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_MODIFY_APN:
+#ifdef APN_EDM_ENABLE
+            obj = std::make_shared<DisallowModifyAPNQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
