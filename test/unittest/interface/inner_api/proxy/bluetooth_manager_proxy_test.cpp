@@ -200,7 +200,29 @@ HWTEST_F(BluetoothManagerProxyTest, TestAddAllowedBluetoothDevicesSuc, TestSize.
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     data.WriteStringVector(deviceIds);
-    int32_t ret = proxy_->AddOrRemoveAllowedBluetoothDevices(data, true);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDisallowedBluetoothDevicesSuc
+ * @tc.desc: Test AddDisallowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestAddDisallowedBluetoothDevicesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
+    data.WriteStringVector(deviceIds);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -218,7 +240,27 @@ HWTEST_F(BluetoothManagerProxyTest, TestAddAllowedBluetoothDevicesFail, TestSize
     MessageParcel data;
     data.WriteParcelable(&admin);
     data.WriteStringVector(deviceIds);
-    int32_t ret = proxy_->AddOrRemoveAllowedBluetoothDevices(data, true);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddDisallowedBluetoothDevicesFail
+ * @tc.desc: Test AddDisallowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestAddDisallowedBluetoothDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> deviceIds;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(deviceIds);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -289,7 +331,29 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesSuc001, TestSi
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
 
     std::vector<std::string> deviceIds;
-    int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetDisallowedBluetoothDevicesSuc
+ * @tc.desc: Test GetDisallowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetDisallowedBluetoothDevicesSuc001, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(deviceIds.size() == 1);
     ASSERT_EQ(deviceIds[0], RETURN_STRING);
@@ -308,7 +372,26 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesWithoutAdminSu
     std::vector<std::string> deviceIds;
     MessageParcel data;
     data.WriteParcelable(nullptr);
-    int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(deviceIds.size() == 1);
+    ASSERT_EQ(deviceIds[0], RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetDisallowedBluetoothDevicesWithoutAdminSuc
+ * @tc.desc: Test GetDisallowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetDisallowedBluetoothDevicesWithoutAdminSuc001, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    std::vector<std::string> deviceIds;
+    MessageParcel data;
+    data.WriteParcelable(nullptr);
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(deviceIds.size() == 1);
     ASSERT_EQ(deviceIds[0], RETURN_STRING);
@@ -328,7 +411,25 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail001, TestS
     data.WriteParcelable(&admin);
 
     std::vector<std::string> deviceIds;
-    int32_t ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedBluetoothDevicesFail
+ * @tc.desc: Test GetDisallowedBluetoothDevices without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetDisallowedBluetoothDevicesFail001, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    std::vector<std::string> deviceIds;
+    int32_t ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -347,7 +448,26 @@ HWTEST_F(BluetoothManagerProxyTest, TestGetAllowedBluetoothDevicesFail002, TestS
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(WITHOUT_ADMIN);
     std::vector<std::string> deviceIds;
-    ErrCode ret = proxy_->GetAllowedBluetoothDevices(data, deviceIds);
+    ErrCode ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDisallowedBluetoothDevicesFail
+ * @tc.desc: Test GetDisallowedBluetoothDevicesFail func if does not have Admin parameter without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestGetDisallowedBluetoothDevicesFail002, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    const std::u16string descriptor = u"ohos.edm.testdemo";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    std::vector<std::string> deviceIds;
+    ErrCode ret = proxy_->GetBluetoothDevices(data, deviceIds, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -368,7 +488,30 @@ HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesSuc, TestSi
     std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     data.WriteStringVector(deviceIds);
 
-    int32_t ret = proxy_->AddOrRemoveAllowedBluetoothDevices(data, false);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedBluetoothDevicesSuc
+ * @tc.desc: Test RemoveDisallowedBluetoothDevices func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestRemoveDisallowedBluetoothDevicesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<std::string> deviceIds = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
+    data.WriteStringVector(deviceIds);
+
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -387,7 +530,28 @@ HWTEST_F(BluetoothManagerProxyTest, TestRemoveAllowedBluetoothDevicesFail, TestS
     std::vector<std::string> deviceIds;
     data.WriteStringVector(deviceIds);
 
-    int32_t ret = proxy_->AddOrRemoveAllowedBluetoothDevices(data, false);
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedBluetoothDevicesFail
+ * @tc.desc: Test RemoveDisallowedBluetoothDevices without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BluetoothManagerProxyTest, TestRemoveDisallowedBluetoothDevicesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> deviceIds;
+    data.WriteStringVector(deviceIds);
+
+    int32_t ret = proxy_->AddOrRemoveBluetoothDevices(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

@@ -175,7 +175,7 @@ void CommonFuzzer::SetParcelContent(MessageParcel& parcel, const uint8_t* data, 
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.example.edmtest");
     admin.SetAbilityName("com.example.edmtest.EnterpriseAdminAbility");
-    parcel.WriteInterfaceToken(IEnterpriseDeviceMgr::GetDescriptor());
+    parcel.WriteInterfaceToken(IEnterpriseDeviceMgrIdl::GetDescriptor());
     parcel.WriteParcelable(&admin);
     parcel.WriteBuffer(data, size);
 }

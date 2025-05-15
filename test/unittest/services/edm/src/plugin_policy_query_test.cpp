@@ -39,6 +39,7 @@
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
 #include "disallow_modify_datetime_query.h"
+#include "disallowed_bluetooth_devices_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_running_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -132,6 +133,37 @@ HWTEST_F(PluginPolicyQueryTest, TestAllowedBluetoothDevicesQuery001, TestSize.Le
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
     ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_bluetooth_devices");
+}
+
+/**
+ * @tc.name: TestDisallowedBluetoothDevicesQuery
+ * @tc.desc: Test DisallowedBluetoothDevicesQuery::QueryPolicy func.
+ * @tc.type: FUNC
+ */
+    HWTEST_F(PluginPolicyQueryTest, TestDisallowedBluetoothDevicesQuery, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedBluetoothDevicesQuery>();
+    std::string policyValue{"GetBluetoothDevices"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedBluetoothDevicesQuery001
+ * @tc.desc: Test DisallowedBluetoothDevicesQuery GetPolicyName and GetPermission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedBluetoothDevicesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedBluetoothDevicesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+    == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_bluetooth_devices");
 }
 
 /**
