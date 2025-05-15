@@ -34,13 +34,37 @@ const std::string UPGRADE_VERSION = "version_1.0";
 constexpr int32_t UPGRADE_FAILED_CODE = -1;
 const std::string UPGRADE_FAILED_MESSAGE = "upgrade failed";
 const std::string AUTH_DATA = "auth data";
-class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgr> {
+class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgrIdl> {
 public:
     EnterpriseDeviceMgrStubMock() = default;
 
     virtual ~EnterpriseDeviceMgrStubMock() = default;
 
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
+    MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType, int32_t), (override));
+    MOCK_METHOD(int, DisableAdmin, (const AppExecFwk::ElementName &, int32_t), (override));
+    MOCK_METHOD(int, DisableSuperAdmin, (const std::string &), (override));
+    MOCK_METHOD(int, GetEnabledAdmin, (AdminType, (std::vector<std::string> &)), (override));
+    MOCK_METHOD(int, GetEnterpriseInfo, (const AppExecFwk::ElementName &, EntInfo &), (override));
+    MOCK_METHOD(int, SetEnterpriseInfo, (const AppExecFwk::ElementName &, const EntInfo &), (override));
+    MOCK_METHOD(int, IsSuperAdmin, (const std::string &, bool &), (override));
+    MOCK_METHOD(int, IsAdminEnabled, (const AppExecFwk::ElementName &, int32_t, bool &), (override));
+    MOCK_METHOD(int, SubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),
+        (override));
+    MOCK_METHOD(int, UnsubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),
+        (override));
+    MOCK_METHOD(int, AuthorizeAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
+    MOCK_METHOD(int, GetSuperAdmin, (std::string &, std::string &), (override));
+    MOCK_METHOD(int, SetDelegatedPolicies,
+        (const AppExecFwk::ElementName &, const std::string &, (const std::vector<std::string> &)), (override));
+    MOCK_METHOD(int, GetDelegatedPolicies,
+        (const AppExecFwk::ElementName &, const std::string &, (std::vector<std::string> &)), (override));
+    MOCK_METHOD(int, GetDelegatedBundleNames,
+        (const AppExecFwk::ElementName &, const std::string &, (std::vector<std::string> &)), (override));
+    MOCK_METHOD(int, ReplaceSuperAdmin, (const AppExecFwk::ElementName &, const AppExecFwk::ElementName &, bool),
+        (override));
+    MOCK_METHOD(int, GetAdmins, ((std::vector<std::shared_ptr<AAFwk::Want>> &)), (override));
+    MOCK_METHOD(int, SetAdminRunningMode, (const AppExecFwk::ElementName &, uint32_t), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
@@ -50,8 +74,13 @@ public:
         return 0;
     }
 
-    int InvokeSendRequestGetEnterpriseInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
-        MessageOption &option);
+    int InvokeGetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo);
+    int InvokeGetEnterpriseInfoFail(const AppExecFwk::ElementName &admin, EntInfo &entInfo);
+    int InvokeIsAdminEnabledFail(const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled);
+    int InvokeIsSuperAdminFail(const std::string &bundleName, bool &isSuper);
+    int InvokeGetSuperAdmin(std::string &bundleName, std::string &abilityName);
+    int InvokeGetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    int InvokeGetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
 
     int InvokeSendRequestEnableAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
@@ -146,97 +175,6 @@ public:
         code_ = code;
         return ERR_PROXY_SENDREQUEST_FAIL;
     }
-
-    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) override
-    {
-        return 0;
-    }
-
-    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override { return 0; }
-
-    ErrCode DisableSuperAdmin(const std::string &bundleName) override { return 0; }
-
-    ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) override
-    {
-        return 0;
-    }
-
-    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override
-    {
-        return 0;
-    }
-
-    ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) override
-    {
-        return 0;
-    }
-
-    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override
-    {
-        return 0;
-    }
-
-    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override { return 0; }
-
-    ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override { return 0; }
-
-    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override { return 0; }
-
-    ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override
-    {
-        return 0;
-    }
-
-    ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override
-    {
-        return 0;
-    }
-
-    bool IsSuperAdmin(const std::string &bundleName) override { return false; }
-
-    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override { return false; }
-
-    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode SetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        const std::vector<std::string> &policies) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode GetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        std::vector<std::string> &policies) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
-        std::vector<std::string> &bundleNames) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode GetSuperAdmin(MessageParcel &reply) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
-        bool isKeepPolicy) override
-    {
-        return ERR_OK;
-    }
-
-    ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode)
-    {
-        return ERR_OK;
-    }
-
     uint32_t code_ = 0;
 };
 } // namespace EDM

@@ -75,6 +75,7 @@ ohos_shared_library("edmplugin") {
     sources += [
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
+      "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_client_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
@@ -243,6 +244,7 @@ ohos_shared_library("edmplugin") {
       sources += [
         "./src/allowed_bluetooth_devices_plugin.cpp",
         "./src/disable_bluetooth_plugin.cpp",
+        "./src/disallowed_bluetooth_devices_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
       ]
     }

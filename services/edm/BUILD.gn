@@ -31,6 +31,7 @@ ohos_shared_library("edmservice") {
   sources = [ "./src/enterprise_device_mgr_stub.cpp" ]
   public_configs = [
     ":edm_config",
+    "../idl:enterprise_device_mgr_idl_gen_config",
     "../../common/config:coverage_flags",
   ]
 
@@ -96,6 +97,7 @@ ohos_shared_library("edmservice") {
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
       "./src/query_policy/allowed_install_bundles_query.cpp",
+      "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
@@ -148,6 +150,7 @@ ohos_shared_library("edmservice") {
   if (bluetooth_edm_enable) {
     sources += [
       "./src/query_policy/allowed_bluetooth_devices_query.cpp",
+      "./src/query_policy/disallowed_bluetooth_devices_query.cpp",
       "./src/query_policy/disable_bluetooth_query.cpp",
     ]
     defines += [ "BLUETOOTH_EDM_ENABLE" ]
@@ -218,6 +221,7 @@ ohos_shared_library("edmservice") {
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../idl:enterprise_device_mgr_idl_stub",
   ]
 
   shlib_type = "sa"

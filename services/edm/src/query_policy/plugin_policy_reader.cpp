@@ -17,6 +17,7 @@
 
 #ifdef BLUETOOTH_EDM_ENABLE
 #include "allowed_bluetooth_devices_query.h"
+#include "disallowed_bluetooth_devices_query.h"
 #include "disable_bluetooth_query.h"
 #endif
 
@@ -76,6 +77,7 @@
 #endif
 
 #include "allowed_install_bundles_query.h"
+#include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
 #include "disallow_modify_datetime_query.h"
@@ -320,6 +322,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_MTP_SERVER:
             obj = std::make_shared<DisableMtpServerQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISABLE_MAINTENANCE_MODE:
+            obj = std::make_shared<DisableMaintenanceModeQuery>();
+            return ERR_OK;
         default:
             break;
     }
@@ -329,6 +334,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES:
+#ifdef BLUETOOTH_EDM_ENABLE
+            obj = std::make_shared<DisallowedBluetoothDevicesQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::ALLOWED_WIFI_LIST:
 #ifdef WIFI_EDM_ENABLE
             obj = std::make_shared<AllowedWifiListQuery>();

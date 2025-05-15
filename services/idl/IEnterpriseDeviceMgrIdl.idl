@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+sequenceable Want..OHOS.AAFwk.Want;
+sequenceable ElementName..OHOS.AppExecFwk.ElementName;
+sequenceable EntInfo..OHOS.EDM.EntInfo;
+interface_token ohos.edm.IEnterpriseDeviceMgr;
+import AdminType;
+
+interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
+    [ipccode 1] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId);
+    [ipccode 2] void DisableAdmin([in] ElementName admin, [in] int userId);
+    [ipccode 4] void DisableSuperAdmin([in] String bundleName);
+    [ipccode 5] void GetEnabledAdmin([in] AdminType adminType, [out] String[] enabledAdminList);
+    [ipccode 6] void GetEnterpriseInfo([in] ElementName admin, [out] EntInfo entInfo);
+    [ipccode 7] void SetEnterpriseInfo([in] ElementName admin, [in] EntInfo entInfo);
+    [ipccode 8] void IsSuperAdmin([in] String bundleName, [out] boolean isSuper);
+    [ipccode 9] void IsAdminEnabled([in] ElementName admin, [in] int userId, [out] boolean isEnabled);
+    [ipccode 10] void SubscribeManagedEvent([in] ElementName admin, [in] unsigned int[] events);
+    [ipccode 11] void UnsubscribeManagedEvent([in] ElementName admin, [in] unsigned int[] events);
+    [ipccode 12] void AuthorizeAdmin([in] ElementName admin, [in] String bundleName);
+    [ipccode 13] void GetSuperAdmin([out] String bundleName, [out] String abilityName);
+    [ipccode 14] void SetDelegatedPolicies([in] ElementName parentAdmin, [in] String bundleName, [in] String[] policies);
+    [ipccode 15] void GetDelegatedPolicies([in] ElementName parentAdmin, [in] String bundleName, [out] String[] policies);
+    [ipccode 16] void GetDelegatedBundleNames([in] ElementName parentAdmin, [in] String policyName, [out] String[] bundleNames);
+    [ipccode 17] void ReplaceSuperAdmin([in] ElementName oldAdmin, [in] ElementName newAdmin, [in] boolean keepPolicy);
+    [ipccode 18] void GetAdmins([out] List<sharedptr<Want>> wants);
+    [ipccode 19] void SetAdminRunningMode([in] ElementName admin, [in] unsigned int runningMode);
+}

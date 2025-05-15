@@ -132,6 +132,7 @@ ohos_static_library("edmservice_static") {
     sources += [
       "../../../../services/edm/src/query_policy/allowed_bluetooth_devices_query.cpp",
       "../../../../services/edm/src/query_policy/disable_bluetooth_query.cpp",
+      "../../../../services/edm/src/query_policy/disallowed_bluetooth_devices_query.cpp",
     ]
   }
 
@@ -200,6 +201,7 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
       "../../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
       "../../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
+      "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
@@ -215,6 +217,7 @@ ohos_static_library("edmservice_static") {
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
     "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../../../services/idl:enterprise_device_mgr_idl_stub",
   ]
 
   sanitize = {

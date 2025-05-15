@@ -48,30 +48,35 @@ public:
     DISALLOW_COPY_AND_MOVE(EnterpriseDeviceMgrAbility);
     ~EnterpriseDeviceMgrAbility() override;
     static sptr<EnterpriseDeviceMgrAbility> GetInstance();
-
-    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId) override;
-    ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId) override;
+    ErrCode EnableAdmin(
+        const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType, int32_t userId) override;
+    ErrCode DisableAdmin(const AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(const std::string &bundleName) override;
+    ErrCode GetEnabledAdmin(AdminType adminType, std::vector<std::string> &enabledAdminList) override;
+    ErrCode GetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
+    ErrCode SetEnterpriseInfo(const AppExecFwk::ElementName &admin, const EntInfo &entInfo) override;
+    ErrCode IsSuperAdmin(const std::string &bundleName, bool &isSuper) override;
+    ErrCode IsAdminEnabled(const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled) override;
+    ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
+    ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
+    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override;
+    ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName) override;
+    ErrCode SetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin, const std::string &bundleName,
+        const std::vector<std::string> &policies) override;
+    ErrCode GetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin, const std::string &bundleName,
+        std::vector<std::string> &policies) override;
+    ErrCode GetDelegatedBundleNames(const AppExecFwk::ElementName &parentAdmin, const std::string &policyName,
+        std::vector<std::string> &bundleNames) override;
+    ErrCode ReplaceSuperAdmin(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
+        bool keepPolicy) override;
+    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
+    ErrCode SetAdminRunningMode(const AppExecFwk::ElementName &admin, uint32_t runningMode) override;
+
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
     ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId)
         override;
-    ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList) override;
-    ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, MessageParcel &reply) override;
-    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
-    ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
-    ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
-    ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override;
-    ErrCode SetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        const std::vector<std::string> &policies) override;
-    ErrCode GetDelegatedPolicies(const std::string &parentAdminName, const std::string &bundleName,
-        std::vector<std::string> &policies) override;
-    ErrCode GetDelegatedBundleNames(const std::string &parentAdminName, const std::string &policyName,
-        std::vector<std::string> &bundleNames) override;
-    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
-    bool IsSuperAdmin(const std::string &bundleName) override;
-    bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
@@ -80,13 +85,7 @@ public:
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
-    ErrCode GetSuperAdmin(MessageParcel &reply) override;
-
     virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
-    ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
-        bool keepPolicy) override;
-    ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode) override;
-
 protected:
     void OnStart() override;
     void OnStop() override;
@@ -116,20 +115,21 @@ private:
         AppExecFwk::ElementName &elementName, const std::string &permissionTag, int32_t userId);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
-    ErrCode VerifyEnableAdminCondition(AppExecFwk::ElementName &admin, AdminType type, int32_t userId, bool isDebug);
-    ErrCode VerifyEnableAdminConditionCheckExistAdmin(AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
+    ErrCode VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
         bool isDebug);
+    ErrCode VerifyEnableAdminConditionCheckExistAdmin(const AppExecFwk::ElementName &admin, AdminType type,
+        int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
     ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
     ErrCode CheckDelegatedPolicies(std::shared_ptr<Admin> admin, const std::vector<std::string> &policies);
-    ErrCode CheckReplaceAdmins(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin,
+    ErrCode CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
     ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const Admin &edmAdmin,
         std::shared_ptr<Admin> adminPtr);
     ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
-    void AfterEnableAdmin(AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
