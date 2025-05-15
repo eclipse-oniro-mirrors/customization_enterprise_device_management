@@ -40,7 +40,8 @@ void AllowedBluetoothDevicesPlugin::InitPlugin(
     ptr->SetOnHandlePolicyDoneListener(&AllowedBluetoothDevicesPlugin::OnChangedPolicyDone, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&AllowedBluetoothDevicesPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnHandlePolicyDoneListener(&AllowedBluetoothDevicesPlugin::OnChangedPolicyDone, FuncOperateType::REMOVE);
-    maxListSize_ = EdmConstants::BLUETOOTH_WHITELIST_MAX_SIZE;
+    ptr->SetOnAdminRemoveDoneListener(&AllowedBluetoothDevicesPlugin::OnAdminRemoveDone);
+    maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
 }
 
 ErrCode AllowedBluetoothDevicesPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
@@ -50,6 +51,13 @@ ErrCode AllowedBluetoothDevicesPlugin::SetOtherModulePolicy(const std::vector<st
     bool isDisabled = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
     if (isDisabled) {
         EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy failed, because bluetooth disabled.");
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string bluetoothDevicesPolicy;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_BLUETOOTH_DEVICES, bluetoothDevicesPolicy);
+    if (!bluetoothDevicesPolicy.empty()) {
+        EDMLOGE("bluetoothDevices policy conflict! Has another bluetoothDevicesPolicy");
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     return ERR_OK;
@@ -73,6 +81,11 @@ void AllowedBluetoothDevicesPlugin::NotifyBluetoothDevicesChanged()
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
         EDMLOGE("NotifyBluetoothDevicesChanged failed.");
     }
+}
+
+void AllowedBluetoothDevicesPlugin::OnAdminRemoveDone() {
+    EDMLOGI("AllowedBluetoothDevicesPlugin OnAdminRemoveDone NotifyBluetoothDevicesChanged.");
+    NotifyBluetoothDevicesChanged();
 }
 
 } // namespace EDM

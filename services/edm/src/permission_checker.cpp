@@ -35,6 +35,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT,
     EdmInterfaceCode::DISABLE_BLUETOOTH,
     EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES,
+    EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES,
     EdmInterfaceCode::SET_BROWSER_POLICIES,
     EdmInterfaceCode::MANAGED_BROWSER_POLICY,
     EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
@@ -284,7 +285,8 @@ bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
     bool isNativeCall = GetExternalManagerFactory()->CreateAccessTokenManager()->IsNativeCall();
     if (isNativeCall) {
         int uid = IPCSkeleton::GetCallingUid();
-        if (code == EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES) {
+        if (code == EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES ||
+            code == EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES) {
             return uid == EdmConstants::BLUETOOTH_SERVICE_UID;
         } else if (code == EdmInterfaceCode::PASSWORD_POLICY) {
             return uid == EdmConstants::USERIAM_SERVICE_UID;
