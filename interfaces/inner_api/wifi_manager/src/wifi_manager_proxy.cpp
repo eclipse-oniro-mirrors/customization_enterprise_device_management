@@ -116,14 +116,14 @@ int32_t WifiManagerProxy::IsWifiDisabled(MessageParcel &data, bool &result)
 int32_t WifiManagerProxy::TurnOnWifi(MessageParcel &data)
 {
     EDMLOGI("WifiManagerProxy::TurnOnWifi");
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNON_WIFI);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t WifiManagerProxy::TurnOffWifi(MessageParcel &data)
 {
     EDMLOGI("WifiManagerProxy::TurnOffWifi");
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNOFF_WIFI);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SWITCH_WIFI);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM

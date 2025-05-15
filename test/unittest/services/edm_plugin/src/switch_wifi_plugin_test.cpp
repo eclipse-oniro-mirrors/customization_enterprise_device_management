@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-#include "turnon_wifi_plugin_test.h"
+#include "switch_wifi_plugin_test.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
-  
+
 using namespace testing::ext;
-  
+
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void TurnOnWifiTest::SetUpTestSuite(void)
+void SwitchWifiPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
-  
-void TurnOnWifiTest::TearDownTestSuite(void)
+
+void SwitchWifiPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
@@ -37,13 +37,13 @@ void TurnOnWifiTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestForceTurnOnWifiSuccess
- * @tc.desc: Test TurnOnWifiPlugin::OnSetPolicy function sucess.
+ * @tc.desc: Test SwitchWifiPlugin::OnSetPolicy function sucess.
  * @tc.type: FUNC
  */
-HWTEST_F(TurnOnWifiTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
+HWTEST_F(SwitchWifiPluginTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnWifiPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNON_WIFI);
+    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
     MessageParcel reply;
@@ -54,17 +54,33 @@ HWTEST_F(TurnOnWifiTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
   
 /**
  * @tc.name: TestTurnOnWifiSuccess
- * @tc.desc: Test TurnOnWifiPlugin::OnSetPolicy function sucess.
+ * @tc.desc: Test SwitchWifiPlugin::OnSetPolicy function sucess.
  * @tc.type: FUNC
  */
-HWTEST_F(TurnOnWifiTest, TestTurnOnWifiSuccess, TestSize.Level1)
+HWTEST_F(SwitchWifiPluginTest, TestTurnOnWifiSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnWifiPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNON_WIFI);
+    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+   
+/**
+ * @tc.name: TestTurnOffWifiSuccess
+ * @tc.desc: Test SwitchWifiPlugin::OnSetPolicy function sucess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SwitchWifiPluginTest, TestTurnOffWifiSuccess, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SWITCH_WIFI);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }

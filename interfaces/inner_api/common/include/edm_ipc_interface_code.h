@@ -111,8 +111,7 @@ enum EdmInterfaceCode : uint32_t {
     DOMAIN_ACCOUNT_POLICY = 1068,
 	ALLOWED_WIFI_LIST = 1070,
     DISALLOWED_WIFI_LIST = 1071,
-    TURNON_WIFI = 1073,
-    TURNOFF_WIFI = 1074,
+    SWITCH_WIFI = 1077,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

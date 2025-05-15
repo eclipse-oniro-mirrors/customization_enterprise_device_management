@@ -13,19 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_TURNOFF_WIFI_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_TURNOFF_WIFI_PLUGIN_H
- 
-#include "plugin_singleton.h"
+ #ifndef EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
+ #define EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
+   
+ #include <gtest/gtest.h>
+ #include "iplugin_manager.h"
+ #include "switch_wifi_plugin.h"
+   
+ namespace OHOS {
+ namespace EDM {
+ namespace TEST {
+ class SwitchWifiPluginTest : public testing::Test {
+ protected:
+    static void SetUpTestSuite(void);
   
-namespace OHOS {
-namespace EDM {
-class TurnOffWifiPlugin : public PluginSingleton<TurnOffWifiPlugin, int32_t> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<TurnOffWifiPlugin, int32_t>> ptr) override;
-    ErrCode OnSetPolicy();
-};
-} // namespace EDM
-} // namespace OHOS
-  
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_TURNOFF_WIFI_PLUGIN_H
+     static void TearDownTestSuite(void);
+ };
+ } // namespace TEST
+ } // namespace EDM
+ } // namespace OHOS
+ #endif // EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
