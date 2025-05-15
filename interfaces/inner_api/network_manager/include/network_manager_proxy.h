@@ -52,6 +52,8 @@ public:
     int32_t AddDomainFilterRule(MessageParcel &data);
     int32_t RemoveDomainFilterRule(const AppExecFwk::ElementName &admin, const IPTABLES::DomainFilterRule &rule);
     int32_t GetDomainFilterRules(MessageParcel &data, std::vector<IPTABLES::DomainFilterRule> &rule);
+    int32_t TurnOnMobileData(MessageParcel &data);
+    int32_t TurnOffMobileData(MessageParcel &data);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,

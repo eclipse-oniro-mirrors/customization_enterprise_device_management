@@ -668,6 +668,116 @@ HWTEST_F(NetworkManagerProxyTest, TestGetDomainFilterRulesFail, TestSize.Level1)
     int32_t ret = networkManagerProxy->GetDomainFilterRules(data, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestForceTurnOnMobileDataSuc
+ * @tc.desc: Test TurnOnMobileData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestForceTurnOnMobileDataSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = networkManagerProxy->TurnOnMobileData(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestForceTurnOnMobileDataFail
+ * @tc.desc: Test TurnOnMobileData func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestForceTurnOnMobileDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    int32_t ret = networkManagerProxy->TurnOnMobileData(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTurnOnMobileDataSuc
+ * @tc.desc: Test TurnOnMobileData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestTurnOnMobileDataSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = networkManagerProxy->TurnOnMobileData(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOnMobileDataFail
+ * @tc.desc: Test TurnOnMobileData func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestTurnOnMobileDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    int32_t ret = networkManagerProxy->TurnOnMobileData(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTurnOffMobileDataSuc
+ * @tc.desc: Test TurnOffMobileData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestTurnOffMobileDataSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = networkManagerProxy->TurnOffMobileData(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOffMobileDataFail
+ * @tc.desc: Test TurnOffMobileData func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestTurnOffMobileDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    int32_t ret = networkManagerProxy->TurnOffMobileData(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
