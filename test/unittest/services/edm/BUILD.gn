@@ -61,6 +61,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
@@ -79,7 +80,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
     "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
-    "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
   ]
 
   public_configs = [
