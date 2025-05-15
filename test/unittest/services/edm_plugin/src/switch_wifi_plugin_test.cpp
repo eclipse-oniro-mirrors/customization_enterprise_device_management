@@ -14,6 +14,7 @@
  */
 
 #include "switch_wifi_plugin_test.h"
+#include "parameters.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
@@ -23,6 +24,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
 void SwitchWifiPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -51,7 +53,22 @@ HWTEST_F(SwitchWifiPluginTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
-  
+
+/**
+ * @tc.name: TestSwitchWifiPluginOnAdminRemove
+ * @tc.desc: Test SwitchWifiPlugin::OnAdminRemove function
+ * @tc.type: FUNC
+ */
+HWTEST_F(SwitchWifiPluginTest, TestSwitchWifiPluginOnAdminRemove, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    std::string currentPolicy = "true";
+    std::string mergePolicy = "false";
+    ErrCode ret = plugin->OnAdminRemove("test", currentPolicy, mergePolicy, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PARAM_FORCE_OPEN_WIFI, true));
+}
+
 /**
  * @tc.name: TestTurnOnWifiSuccess
  * @tc.desc: Test SwitchWifiPlugin::OnSetPolicy function sucess.

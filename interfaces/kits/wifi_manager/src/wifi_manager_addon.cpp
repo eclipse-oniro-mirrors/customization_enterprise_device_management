@@ -168,6 +168,7 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedWifiList", GetDisallowedWifiList),
         DECLARE_NAPI_FUNCTION("turnOnWifi", TurnOnWifi),
         DECLARE_NAPI_FUNCTION("turnOffWifi", TurnOffWifi),
+
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
         DECLARE_NAPI_PROPERTY("EapMethod", nEapMethod),
