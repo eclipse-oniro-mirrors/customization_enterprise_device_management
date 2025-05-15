@@ -79,7 +79,7 @@ ErrCode SwitchWifiPlugin::OnTurnOffPolicy()
 
 ErrCode SwitchWifiPlugin::OnAdminRemove()
 {   
-EDMLOGI("SwitchWifiPlugin OnAdminRemove")
+    EDMLOGI("SwitchWifiPlugin OnAdminRemove")
     system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
     return ERR_OK;
 }
