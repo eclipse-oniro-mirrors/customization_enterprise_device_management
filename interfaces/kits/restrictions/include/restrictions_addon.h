@@ -61,6 +61,7 @@ private:
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
+    static std::unordered_map<std::string, uint32_t> itemCodeMap;
     static std::vector<uint32_t> multiPermCodes;
     static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
 };

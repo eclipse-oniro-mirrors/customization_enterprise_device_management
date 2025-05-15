@@ -199,10 +199,10 @@ bool RestrictionsProxy::GetDisallowedListInterfaceCode(std::string feature, std:
     return false;
 }
 
-int32_t RestrictionsProxy::SetUserRestriction(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
-    std::string permissionTag)
+int32_t RestrictionsProxy::SetUserRestriction(const AppExecFwk::ElementName &admin, bool disallow, int policyCode)
 {
-    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, policyCode, permissionTag);
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, policyCode,
+        WITHOUT_PERMISSION_TAG);
 }
 } // namespace EDM
 } // namespace OHOS

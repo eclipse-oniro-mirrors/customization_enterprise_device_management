@@ -45,6 +45,9 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_CAMERA, EdmInterfaceCode::DISABLE_CAMERA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DEVELOPER_MODE, POLICY_CODE_END + 20},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_RESET_FACTORY, POLICY_CODE_END + 21},
+};
+
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN}
 };
 
@@ -646,19 +649,13 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
         return nullptr;
     }
     ErrCode ret = ERR_OK;
-    if (settingsItem == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
-        ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
-    } else {
-        auto labelCode = labelCodeMap.find(settingsItem);
-        if (labelCode == labelCodeMap.end()) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-            return nullptr;
-        }
-        std::uint32_t ipcCode = labelCode->second;
-        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
-        ret = proxy->SetUserRestriction(elementName, disallow, ipcCode, permissionTag);
+    auto itemCode = itemCodeMap.find(settingsItem);
+    if (itemCode == itemCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
     }
+    std::uint32_t ipcCode = itemCode->second;
+    ret = proxy->SetUserRestriction(elementName, disallow, ipcCode);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
