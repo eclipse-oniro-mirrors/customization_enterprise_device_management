@@ -117,6 +117,35 @@ class UpdatePolicyUtilsTest : public testing::Test {};
     ASSERT_TRUE(packageInfo2.description.notify.installTips == TEST_INSTALL_TIPS);
     ASSERT_TRUE(packageInfo2.description.notify.installTipsDetail == TEST_INSTALL_TIPS_DEATIL);
 }
+
+/*
+ *@tc.name: TestReadUpdatePolicySuc
+ *@tc.desc: Test ReadUpdatePolicy success func.
+ *@tc.type: FUNC
+ */
+HWTEST_F(UpdatePolicyUtilsTest, TestReadUpdatePolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    UpdatePolicy policy;
+    policy.type = UpdatePolicyType::DEFAULT;
+    policy.version = TEST_VERSION;
+    policy.installTime.latestUpdateTime = 0;
+    policy.installTime.delayUpdateTime = 0;
+    policy.installTime.installWindowStart = 0;
+    policy.installTime.installWindowEnd = 0;
+    policy.disableSystemOtaUpdate = true;
+    UpdatePolicyUtils::WriteUpdatePolicy(data, policy);
+
+    UpdatePolicy policy2;
+    UpdatePolicyUtils::ReadUpdatePolicy(data, policy2);
+    ASSERT_TRUE(policy2.type == UpdatePolicyType::DEFAULT);
+    ASSERT_TRUE(policy2.version == TEST_VERSION);
+    ASSERT_TRUE(policy2.installTime.latestUpdateTime == 0);
+    ASSERT_TRUE(policy2.installTime.delayUpdateTime == 0);
+    ASSERT_TRUE(policy2.installTime.installWindowStart == 0);
+    ASSERT_TRUE(policy2.installTime.installWindowEnd == 0);
+    ASSERT_TRUE(policy2.disableSystemOtaUpdate);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
