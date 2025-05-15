@@ -22,6 +22,7 @@
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "bluetooth_manager_proxy.h"
+#include "func_code.h"
 #include "want.h"
 
 namespace OHOS {
@@ -39,7 +40,12 @@ private:
     static napi_value AddAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value GetAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info);
-    static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info, std::string function);
+    static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info,
+        FuncOperateType operateType, EdmInterfaceCode code);
+    static napi_value AddDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value GetBluetoothDevices(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode);
 };
 } // namespace EDM
 } // namespace OHOS
