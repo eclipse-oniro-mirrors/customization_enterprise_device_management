@@ -20,7 +20,10 @@ ohos_shared_library("networkmanager") {
     "include",
   ]
 
-  sources = [ "./src/network_manager_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/network_manager_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -34,6 +37,7 @@ ohos_shared_library("networkmanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

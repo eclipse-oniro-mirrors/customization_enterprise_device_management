@@ -24,7 +24,12 @@ enum class ReportType {
     EDM_FUNC_FAILED = 0,
     EDM_FUNC_EVENT,
 };
-void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo);
+class HiSysEventAdapter {
+public:
+    static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
+    static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
+        const int32_t &adminType, const std::string &extraInfo = "");
+};
 } // namespace EDM
 } // namespace OHOS
 #endif // COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H

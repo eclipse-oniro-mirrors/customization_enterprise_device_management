@@ -16,7 +16,7 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
-#include "func_code.h"
+#include "hisysevent_adapter.h"
 #include "message_parcel_utils.h"
 #include "securec.h"
 
@@ -178,11 +178,13 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiActive");
     return IsWifiActiveHandler(env, info, NativeIsWifiActive);
 }
 
 napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setWifiDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -202,6 +204,7 @@ napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info in
 
 napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "isWifiDisabled";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
@@ -226,6 +229,7 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
 
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiProfile");
     return SetWifiProfileHandler(env, info, NativeSetWifiProfile);
 }
 
@@ -719,6 +723,7 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
 
 napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiActiveSync");
     return IsWifiActiveHandler(env, info, nullptr);
 }
 
@@ -756,6 +761,7 @@ napi_value WifiManagerAddon::IsWifiActiveHandler(napi_env env,
 
 napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiProfileSync");
     return SetWifiProfileHandler(env, info, nullptr);
 }
 

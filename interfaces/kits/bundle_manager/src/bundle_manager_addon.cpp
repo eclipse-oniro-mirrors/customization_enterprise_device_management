@@ -19,6 +19,7 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "os_account_manager.h"
 #include "policy_type.h"
 
@@ -67,18 +68,21 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
 napi_value BundleManagerAddon::GetAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedInstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllowedInstallBundles");
     return GetAllowedOrDisallowedInstallBundles(env, info, "GetAllowedInstallBundles", NativeGetBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::GetDisallowedInstallBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedInstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedInstallBundles");
     return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedInstallBundles", NativeGetBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::GetDisallowedUninstallBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedUninstallBundles");
     return GetAllowedOrDisallowedInstallBundles(env, info, "GetDisallowedUninstallBundles",
         NativeGetBundlesByPolicyType);
 }
@@ -86,6 +90,7 @@ napi_value BundleManagerAddon::GetDisallowedUninstallBundles(napi_env env, napi_
 napi_value BundleManagerAddon::Uninstall(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_Uninstall called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "uninstall");
     size_t argc = ARGS_SIZE_FIVE;
     napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -130,6 +135,7 @@ void BundleManagerAddon::NativeUninstall(napi_env env, void *data)
 
 napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "install");
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_Install called");
     size_t argc = ARGS_SIZE_FOUR;
@@ -431,31 +437,37 @@ void BundleManagerAddon::NativeGetBundlesByPolicyType(napi_env env, void *data)
 
 napi_value BundleManagerAddon::AddAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAllowedInstallBundles");
     return AddOrRemoveInstallBundles(env, info, "AddAllowedInstallBundles", NativeAddBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::AddDisallowedInstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedInstallBundles");
     return AddOrRemoveInstallBundles(env, info, "AddDisallowedInstallBundles", NativeAddBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::AddDisallowedUninstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedUninstallBundles");
     return AddOrRemoveInstallBundles(env, info, "AddDisallowedUninstallBundles", NativeAddBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::RemoveAllowedInstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAllowedInstallBundles");
     return AddOrRemoveInstallBundles(env, info, "RemoveAllowedInstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedInstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedInstallBundles");
     return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedInstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedUninstallBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedUninstallBundles");
     return AddOrRemoveInstallBundles(env, info, "RemoveDisallowedUninstallBundles", NativeRemoveBundlesByPolicyType);
 }
 
@@ -577,36 +589,42 @@ void BundleManagerAddon::NativeAddBundlesByPolicyType(napi_env env, void *data)
 napi_value BundleManagerAddon::AddAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddAllowedInstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAllowedInstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "AddAllowedInstallBundles", true);
 }
 
 napi_value BundleManagerAddon::AddDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddDisallowedInstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedInstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedInstallBundles", true);
 }
 
 napi_value BundleManagerAddon::AddDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddDisallowedUninstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedUninstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "AddDisallowedUninstallBundles", true);
 }
 
 napi_value BundleManagerAddon::RemoveAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveAllowedInstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAllowedInstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "RemoveAllowedInstallBundles", false);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveDisallowedInstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedInstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedInstallBundles", false);
 }
 
 napi_value BundleManagerAddon::RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveDisallowedUninstallBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedUninstallBundlesSync");
     return AddOrRemoveInstallBundlesSync(env, info, "RemoveDisallowedUninstallBundles", false);
 }
 
@@ -678,18 +696,21 @@ void BundleManagerAddon::InitPolicyType(const std::string &workName, int32_t &po
 napi_value BundleManagerAddon::GetAllowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedInstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllowedInstallBundlesSync");
     return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetAllowedInstallBundles");
 }
 
 napi_value BundleManagerAddon::GetDisallowedInstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedInstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedInstallBundlesSync");
     return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetDisallowedInstallBundles");
 }
 
 napi_value BundleManagerAddon::GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedUninstallBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedUninstallBundlesSync");
     return GetAllowedOrDisallowedInstallBundlesSync(env, info, "GetDisallowedUninstallBundles");
 }
 
