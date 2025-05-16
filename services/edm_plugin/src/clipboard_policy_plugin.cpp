@@ -19,6 +19,7 @@
 #include "edm_bundle_manager_impl.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "pasteboard_client.h"
 
 namespace OHOS {
@@ -36,6 +37,7 @@ void ClipboardPolicyPlugin::InitPlugin(
     ptr->SetSerializer(ClipboardSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ClipboardPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&ClipboardPolicyPlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&ClipboardPolicyPlugin::OnOtherServiceStart);
 }
 
 ErrCode ClipboardPolicyPlugin::OnSetPolicy(std::map<int32_t, ClipboardInfo> &data,
@@ -192,6 +194,17 @@ ErrCode ClipboardPolicyPlugin::HandlePasteboardPolicy(std::map<int32_t, Clipboar
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void ClipboardPolicyPlugin::OnOtherServiceStart()
+{
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_CLIPBOARD_POLICY,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    auto clipboardSerializer_ = ClipboardSerializer::GetInstance();
+    std::map<int32_t, ClipboardInfo> policyMap;
+    clipboardSerializer_->Deserialize(policyData, policyMap);
+    HandlePasteboardPolicy(policyMap);
 }
 } // namespace EDM
 } // namespace OHOS

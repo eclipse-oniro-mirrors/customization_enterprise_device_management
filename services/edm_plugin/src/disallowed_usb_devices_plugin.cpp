@@ -38,6 +38,7 @@ void DisallowedUsbDevicesPlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedUsbDevicesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOnAdminRemoveListener(&DisallowedUsbDevicesPlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&DisallowedUsbDevicesPlugin::OnOtherServiceStart);
 }
 
 ErrCode DisallowedUsbDevicesPlugin::OnSetPolicy(std::vector<USB::UsbDeviceType> &data,
@@ -181,6 +182,34 @@ ErrCode DisallowedUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, 
         return UsbPolicyUtils::SetUsbDisabled(false);
     }
     return UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
+}
+
+void DisallowedUsbDevicesPlugin::OnOtherServiceStart()
+{
+    std::string disallowUsbDevicePolicy;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy,
+        EdmConstants::DEFAULT_USER_ID);
+    std::vector<USB::UsbDeviceType> disallowedDevices;
+    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(disallowUsbDevicePolicy, disallowedDevices);
+#ifdef USB_STORAGE_SERVICE_EDM_ENABLE
+    std::string usbStoragePolicy;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY,
+        usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        USB::UsbDeviceType storageType;
+        storageType.baseClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.subClass = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.protocol = USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        storageType.isDeviceType = false;
+        disallowedDevices.emplace_back(storageType);
+    }
+#endif
+    if (!disallowedDevices.empty()) {
+        ErrCode disallowedUsbRet = UsbPolicyUtils::SetDisallowedUsbDevices(disallowedDevices);
+        if (disallowedUsbRet != ERR_OK) {
+            EDMLOGW("SetDisallowedUsbDevices Error: %{public}d", disallowedUsbRet);
+        }
+    }
 }
 } // namespace EDM
 } // namespace OHOS
