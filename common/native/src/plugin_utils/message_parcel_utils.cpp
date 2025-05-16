@@ -260,5 +260,20 @@ void MessageParcelUtils::ReadOperateDeviceParam(MessageParcel &data, OperateDevi
     param.addition = data.ReadString();
     param.userId = data.ReadInt32();
 }
+
+void MessageParcelUtils::WriteClearUpApplicationDataParam(const ClearUpApplicationDataParam &param, MessageParcel &data)
+{
+    data.WriteString(param.bundleName);
+    data.WriteInt32(param.appIndex);
+    data.WriteInt32(param.userId);
+}
+
+void MessageParcelUtils::ReadClearUpApplicationDataParam(MessageParcel &data, ClearUpApplicationDataParam &param)
+{
+    param.bundleName = data.ReadString();
+    param.appIndex = data.ReadInt32();
+    param.userId = data.ReadInt32();
+}
+
 } // namespace EDM
 } // namespace OHOS

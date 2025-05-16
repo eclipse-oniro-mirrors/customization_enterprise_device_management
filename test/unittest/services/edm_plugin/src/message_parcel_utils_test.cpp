@@ -254,6 +254,26 @@ HWTEST_F(MessageParcelUtilsTest, TestReadOperateDeviceParam, TestSize.Level1)
     ASSERT_TRUE(param2.addition == "");
     ASSERT_TRUE(param2.userId == -1);
 }
+
+/**
+ * @tc.name: TestReadClearUpApplicationDataParam
+ * @tc.desc: Test MessageParcelUtils::ReadClearUpApplicationDataParam
+ * @tc.type: FUNC
+ */
+HWTEST_F(MessageParcelUtilsTest, TestReadClearUpApplicationDataParam, TestSize.Level1)
+{
+    MessageParcel data;
+    ClearUpApplicationDataParam param;
+    param.bundleName = "com.test.bundleName";
+    param.appIndex = 1;
+    param.userId = -1;
+    MessageParcelUtils::WriteClearUpApplicationDataParam(param, data);
+    ClearUpApplicationDataParam param2;
+    MessageParcelUtils::ReadClearUpApplicationDataParam(data, param2);
+    ASSERT_TRUE(param2.bundleName == "com.test.bundleName");
+    ASSERT_TRUE(param2.appIndex == 1);
+    ASSERT_TRUE(param2.userId == -1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

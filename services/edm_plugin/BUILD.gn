@@ -36,6 +36,7 @@ ohos_shared_library("edmplugin") {
     "./src/utils/uninstall_param_serializer.cpp",
     "./src/utils/update_policy_serializer.cpp",
     "./src/utils/upgrade_package_info_serializer.cpp",
+    "./src/utils/clear_up_application_data_param_serializer.cpp",
   ]
   public_configs = [
     ":edm_plugin_config",
@@ -97,6 +98,7 @@ ohos_shared_library("edmplugin") {
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/battery_utils.cpp",
+      "./src/clear_up_application_data_plugin.cpp",
     ]
     if (time_service_edm_enable) {
       external_deps += [ "time_service:time_client" ]

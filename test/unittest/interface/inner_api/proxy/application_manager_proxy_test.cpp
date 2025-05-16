@@ -356,6 +356,38 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsSuc, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(keepAliveApps.size() == 1);
 }
+
+/**
+ * @tc.name: TestClearUpApplicationDataFail
+ * @tc.desc: Test ClearUpApplicationData without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    ClearUpApplicationDataParam param { ADMIN_PACKAGENAME, 0, 0 };
+    int32_t ret = applicationManagerProxy_->ClearUpApplicationData(admin, param);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestClearUpApplicationDataSuc
+ * @tc.desc: Test ClearUpApplicationData success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ClearUpApplicationDataParam param { ADMIN_PACKAGENAME, 0, 0 };
+    int32_t ret = applicationManagerProxy_->ClearUpApplicationData(admin, param);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

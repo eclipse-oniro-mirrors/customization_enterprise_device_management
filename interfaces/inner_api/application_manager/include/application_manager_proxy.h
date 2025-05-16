@@ -15,6 +15,8 @@
 
 #ifndef INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_APPLICATION_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_APPLICATION_MANAGER_PROXY_H
+
+#include "clear_up_application_data_param.h"
 #include "enterprise_device_mgr_proxy.h"
 
 namespace OHOS {
@@ -36,6 +38,7 @@ public:
         int32_t userId);
     int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,
         int32_t userId);
+    int32_t ClearUpApplicationData(const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
