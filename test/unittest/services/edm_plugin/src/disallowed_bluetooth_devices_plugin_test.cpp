@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,7 @@
 
 #define private public
 #define protected public
-#include "allowed_bluetooth_devices_plugin.h"
+#include "disallowed_bluetooth_devices_plugin.h"
 #undef protected
 #undef private
 
@@ -33,20 +33,19 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class AllowedBluetoothDevicesPluginTest : public testing::Test {
+class DisallowedBluetoothDevicesPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void AllowedBluetoothDevicesPluginTest::SetUpTestSuite(void)
+void DisallowedBluetoothDevicesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
-
-void AllowedBluetoothDevicesPluginTest::TearDownTestSuite(void)
+void DisallowedBluetoothDevicesPluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -55,14 +54,14 @@ void AllowedBluetoothDevicesPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestSetBluetoothDevicesEmpty
- * @tc.desc: Test set bluetooth devices function.
+ * @tc.name: TestSetDisallowedBluetoothDevicesEmpty
+ * @tc.desc: Test set disallowed bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesEmpty, TestSize.Level1)
+HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestSetDisallowedBluetoothDevicesEmpty, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothDevicesPlugin plugin;
+    DisallowedBluetoothDevicesPlugin plugin;
     plugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
@@ -72,14 +71,14 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesEmpty, TestSi
 }
 
 /**
- * @tc.name: TestSetBluetoothDevicesWithDataAndCurrentData
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnSetPolicy function.
+ * @tc.name: TestSetDisallowedBluetoothDevicesWithDataAndCurrentData
+ * @tc.desc: Test DisallowedBluetoothDevicesPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
+HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestSetDisallowedBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothDevicesPlugin plugin;
+    DisallowedBluetoothDevicesPlugin plugin;
     plugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
@@ -90,14 +89,14 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesWithDataAndCu
 }
 
 /**
- * @tc.name: TestSetBluetoothDevicesFail
- * @tc.desc: Test set bluetooth devices function.
+ * @tc.name: TestSetDisallowedBluetoothDevicesFail
+ * @tc.desc: Test set disallowed bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSize.Level1)
+    HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestSetDisallowedBluetoothDevicesFail, TestSize.Level1)
 {
     Utils::SetBluetoothDisable();
-    AllowedBluetoothDevicesPlugin devicesPlugin;
+    DisallowedBluetoothDevicesPlugin devicesPlugin;
     devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData{ "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
@@ -107,20 +106,20 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesFail, TestSiz
 }
 
 /**
- * @tc.name: TestSetBluetoothDevicesFail
- * @tc.desc: Test set bluetooth devices function.
+ * @tc.name: TestSetDisallowedBluetoothDevicesFail
+ * @tc.desc: Test set disallowed bluetooth devices function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, TestSize.Level1)
+HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestSetDisallowedBluetoothDevicesCountFail, TestSize.Level1)
 {
     Utils::SetBluetoothEnable();
-    AllowedBluetoothDevicesPlugin devicesPlugin;
+    DisallowedBluetoothDevicesPlugin devicesPlugin;
     devicesPlugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData(EdmConstants::BLUETOOTH_LIST_MAX_SIZE + 1);
     for (int i = 0; i < EdmConstants::BLUETOOTH_LIST_MAX_SIZE + 1; ++i) {
-        std::stringstream ss;
-        ss << i;
-        policyData[i] = ss.str();
+    std::stringstream ss;
+    ss << i;
+    policyData[i] = ss.str();
     }
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -129,13 +128,13 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestSetBluetoothDevicesCountFail, Te
 }
 
 /**
- * @tc.name: TestRemoveBluetoothDevicesEmpty
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
+ * @tc.name: TestRemoveDisallowedBluetoothDevicesEmpty
+ * @tc.desc: Test DisallowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, TestSize.Level1)
+HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestRemoveDisallowedBluetoothDevicesEmpty, TestSize.Level1)
 {
-    AllowedBluetoothDevicesPlugin plugin;
+    DisallowedBluetoothDevicesPlugin plugin;
     plugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData;
     std::vector<std::string> currentData;
@@ -145,13 +144,14 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesEmpty, Tes
 }
 
 /**
- * @tc.name: TestRemoveBluetoothDevicesWithDataAndCurrentData
- * @tc.desc: Test AllowedBluetoothDevicesPluginTest::OnRemovePolicy function.
+ * @tc.name: TestRemoveDisallowedBluetoothDevicesWithDataAndCurrentData
+ * @tc.desc: Test DisallowedBluetoothDevicesPluginTest::OnRemovePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataAndCurrentData, TestSize.Level1)
+HWTEST_F(DisallowedBluetoothDevicesPluginTest, TestRemoveDisallowedBluetoothDevicesWithDataAndCurrentData,
+    TestSize.Level1)
 {
-    AllowedBluetoothDevicesPlugin plugin;
+    DisallowedBluetoothDevicesPlugin plugin;
     plugin.maxListSize_ = EdmConstants::BLUETOOTH_LIST_MAX_SIZE;
     std::vector<std::string> policyData = { "00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF" };
     std::vector<std::string> currentData;
@@ -160,6 +160,6 @@ HWTEST_F(AllowedBluetoothDevicesPluginTest, TestRemoveBluetoothDevicesWithDataAn
     plugin.OnChangedPolicyDone(false);
     ASSERT_TRUE(ret == ERR_OK);
 }
-} // namespace TEST
-} // namespace EDM
-} // namespace OHOS
+}
+}
+}

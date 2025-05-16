@@ -26,6 +26,7 @@ namespace EdmConstants {
     constexpr int32_t DEFAULT_USER_ID = 100;
     constexpr int32_t BLUETOOTH_SERVICE_UID = 1002;
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
+    constexpr int32_t USB_SERVICE_UID = 1018;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
     constexpr uint32_t WIFI_LIST_MAX_SIZE = 200;
@@ -39,7 +40,7 @@ namespace EdmConstants {
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
-    constexpr uint32_t BLUETOOTH_WHITELIST_MAX_SIZE = 1000;
+    constexpr uint32_t BLUETOOTH_LIST_MAX_SIZE = 1000;
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
@@ -176,6 +177,7 @@ namespace PolicyName {
     // open-source
     const char* const POLICY_ADD_OS_ACCOUNT = "add_os_account";
     const char* const POLICY_ALLOWED_BLUETOOTH_DEVICES = "allowed_bluetooth_devices";
+    const char* const POLICY_DISALLOWED_BLUETOOTH_DEVICES = "disallowed_bluetooth_devices";
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
     const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";

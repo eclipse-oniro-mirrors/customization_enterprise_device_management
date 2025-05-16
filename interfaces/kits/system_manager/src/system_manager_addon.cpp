@@ -392,6 +392,10 @@ bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, Up
         errorMsg = "the property 'delayUpdateTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
+    if (!JsObjectToBool(env, object, "disableSystemOtaUpdate", false, updatePolicy.disableSystemOtaUpdate)) {
+        errorMsg = "the property 'disableSystemOtaUpdate' in type 'OtaUpdatePolicy' is check failed";
+        return false;
+    }
     return true;
 }
 
@@ -423,6 +427,10 @@ napi_value SystemManagerAddon::ConvertUpdatePolicyToJs(napi_env env, const Updat
     napi_value installEndTime = nullptr;
     NAPI_CALL(env, napi_create_int64(env, updatePolicy.installTime.installWindowEnd, &installEndTime));
     NAPI_CALL(env, napi_set_named_property(env, otaUpdatePolicy, "installEndTime", installEndTime));
+
+    napi_value disableSystemOtaUpdate = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, updatePolicy.disableSystemOtaUpdate, &disableSystemOtaUpdate));
+    NAPI_CALL(env, napi_set_named_property(env, otaUpdatePolicy, "disableSystemOtaUpdate", disableSystemOtaUpdate));
     return otaUpdatePolicy;
 }
 

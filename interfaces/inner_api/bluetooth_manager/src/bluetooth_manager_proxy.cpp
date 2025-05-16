@@ -17,7 +17,6 @@
 
 #include "edm_log.h"
 #include "enterprise_device_mgr_proxy.h"
-#include "func_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -94,14 +93,31 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(const AppExecFwk::Elem
     return ERR_OK;
 }
 
-int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(MessageParcel &data, std::vector<std::string> &deviceIds)
+int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(std::vector<std::string> &deviceIds)
 {
     EDMLOGD("BluetoothManagerProxy::GetAllowedBluetoothDevices");
-    if (EnterpriseDeviceMgrProxy::GetInstance()->CheckDataInEdmDisabled(data)) {
+    return GetBluetoothDevices(deviceIds, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+}
+
+int32_t BluetoothManagerProxy::GetDisallowedBluetoothDevices(std::vector<std::string> &deviceIds)
+{
+    EDMLOGD("BluetoothManagerProxy::GetDisallowedBluetoothDevices");
+    return GetBluetoothDevices(deviceIds, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
+}
+
+int32_t BluetoothManagerProxy::GetBluetoothDevices(std::vector<std::string> &deviceIds, EdmInterfaceCode policyCode)
+{
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
         return ERR_OK;
     }
-    MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, data, reply);
+    data.WriteInt32(WITHOUT_ADMIN);
+    proxy->GetPolicy(policyCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -112,11 +128,30 @@ int32_t BluetoothManagerProxy::GetAllowedBluetoothDevices(MessageParcel &data, s
     return ERR_OK;
 }
 
-int32_t BluetoothManagerProxy::AddOrRemoveAllowedBluetoothDevices(MessageParcel &data, bool isAdd)
+int32_t BluetoothManagerProxy::GetBluetoothDevices(MessageParcel &data, std::vector<std::string> &deviceIds,
+    EdmInterfaceCode policyCode)
 {
-    EDMLOGD("BluetoothManagerProxy::AddOrRemoveAllowedBluetoothDevices");
-    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
+    EDMLOGD("BluetoothManagerProxy::GetBluetoothDevices");
+    if (EnterpriseDeviceMgrProxy::GetInstance()->CheckDataInEdmDisabled(data)) {
+        return ERR_OK;
+    }
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(policyCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&deviceIds);
+    return ERR_OK;
+}
+
+int32_t BluetoothManagerProxy::AddOrRemoveBluetoothDevices(MessageParcel &data, FuncOperateType operateType,
+    EdmInterfaceCode policyCode)
+{
+    EDMLOGD("BluetoothManagerProxy::AddOrRemoveBluetoothDevices");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, policyCode);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
