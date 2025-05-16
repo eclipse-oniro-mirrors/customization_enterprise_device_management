@@ -68,7 +68,6 @@ ohos_shared_library("edmservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
-
   ]
 
   if (enterprise_device_management_support_all) {
