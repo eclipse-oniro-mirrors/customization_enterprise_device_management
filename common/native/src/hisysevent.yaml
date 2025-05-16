@@ -25,3 +25,7 @@ EDM_FUNC_FAILED:
 EDM_FUNC_EVENT:
   __BASE: {type: STATISTIC, level: MINOR, tag: EdmEvent, desc: get edm func}
   APINAME: {type: STRING, desc: api name}
+  BUNDLENAME: {type: STRING, desc: bundle name}
+  ACTION: {type: INT32, desc: action}
+  ADMINTYPE: {type: INT32, desc: admin type}
+  EXTRAINFO: {type: STRING, desc: extra info}

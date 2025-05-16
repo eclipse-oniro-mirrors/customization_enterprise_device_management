@@ -13,21 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
-#define SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
-
-#include <map>
-
-#include "clipboard_info.h"
-#include "clipboard_policy.h"
-#include "edm_errors.h"
-
-namespace OHOS {
-namespace EDM {
-class ClipboardUtils {
-public:
-    static ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data);
-};
-} // namespace EDM
-} // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
+ #ifndef EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
+ #define EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
+   
+ #include <gtest/gtest.h>
+ #include "iplugin_manager.h"
+ #include "switch_wifi_plugin.h"
+   
+ namespace OHOS {
+ namespace EDM {
+ namespace TEST {
+ class SwitchWifiPluginTest : public testing::Test {
+ protected:
+    static void SetUpTestSuite(void);
+  
+     static void TearDownTestSuite(void);
+ };
+ } // namespace TEST
+ } // namespace EDM
+ } // namespace OHOS
+ #endif // EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H

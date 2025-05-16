@@ -47,7 +47,7 @@ public:
     void Init();
     ErrCode SetAdminValue(int32_t userId, const Admin &adminItem);
     ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
-    ErrCode SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
+    ErrCode SetEntInfo(const std::string &packageName, const EntInfo &entInfo, int32_t userId);
     ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode GetPoliciesByVirtualAdmin(const std::string &bundleName, const std::string &parentName,

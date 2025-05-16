@@ -25,10 +25,11 @@
 #include "iexternal_manager_factory.h"
 #include "iremote_stub.h"
 #include "permission_checker.h"
+#include "enterprise_device_mgr_idl_stub.h"
 
 namespace OHOS {
 namespace EDM {
-class EnterpriseDeviceMgrStub : public IRemoteStub<IEnterpriseDeviceMgr> {
+class EnterpriseDeviceMgrStub : public EnterpriseDeviceMgrIdlStub, public IEnterpriseDeviceMgr {
 public:
     EnterpriseDeviceMgrStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
@@ -39,31 +40,12 @@ protected:
 private:
     std::vector<uint32_t> systemCodeList;
     void InitSystemCodeList();
-    ErrCode EnableAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode DisableAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode DisableSuperAdminInner(MessageParcel &data, MessageParcel &reply);
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t
         userId);
-    ErrCode GetEnabledAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode SetEnterpriseInfoInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode IsSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode IsAdminEnabledInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode UnsubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode SubscribeManagedEventInner(MessageParcel &data, MessageParcel &reply, bool subscribe);
-    ErrCode AuthorizeAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode SetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetDelegatedPoliciesInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetDelegatedBundleNamesInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode GetAdminsInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode ReplaceSuperAdminInner(MessageParcel &data, MessageParcel &reply);
-    ErrCode SetAdminRunningModeInner(MessageParcel &data, MessageParcel &reply);
     #ifdef EDM_SUPPORT_ALL_ENABLE
-    ErrCode CallFuncByCode(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    ErrCode OnRemoteRequestIdl(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     #endif
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H
-#define COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H
+#include "iwatermark_observer_manager.h"
 
 namespace OHOS {
 namespace EDM {
-enum class AdminType {
-    NORMAL = 0,
-    ENT,
-    SUB_SUPER_ADMIN,
-    VIRTUAL_ADMIN,
-    BYOD,
-    UNKNOWN = 99,
-};
-} // namespace EDM
-} // namespace OHOS
-
-#endif // COMMON_NATIVE_INCLUDE_ADMIN_TYPE_H
+    IWatermarkObserverManager* IWatermarkObserverManager::observerInstance_ = nullptr;
+    std::once_flag IWatermarkObserverManager::observerFlag_;
+}
+}

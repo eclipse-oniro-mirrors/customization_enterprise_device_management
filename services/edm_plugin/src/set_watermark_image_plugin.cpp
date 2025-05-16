@@ -26,11 +26,11 @@
 #include "func_code_utils.h"
 #include "ipolicy_manager.h"
 #include "iservice_registry.h"
-#include "plugin_manager.h"
+#include "iplugin_manager.h"
+#include "iwatermark_observer_manager.h"
 #include "security_label.h"
 #include "system_ability_definition.h"
 #include "transaction/rs_interfaces.h"
-#include "watermark_application_observer.h"
 #include "watermark_image_serializer.h"
 #include "window_manager.h"
 #include "wm_common.h"
@@ -38,7 +38,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
-    PluginManager::GetInstance()->AddPersistentPlugin(std::make_shared<SetWatermarkImagePlugin>());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetWatermarkImagePlugin>());
 const std::string WATERMARK_IMAGE_DIR_PATH = "/data/service/el1/public/edm/watermark/";
 const std::string FILE_PREFIX = "edm_";
 const std::string DATA_LEVEL_S4 = "s4";
@@ -106,9 +106,6 @@ ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data,
             return EdmReturnErrCode::PARAM_ERROR;
         }
         return SetSingleWatermarkImage(param, currentData, mergeData);
-    } else if (type == EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE) {
-        SetAllWatermarkImage();
-        return ERR_OK;
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -174,30 +171,6 @@ void SetWatermarkImagePlugin::SetAllWatermarkImage()
     }
     if (!SubscribeAppState()) {
         EDMLOGE("SetWatermarkImagePlugin SubscribeAppState error");
-    }
-}
-
-void SetWatermarkImagePlugin::SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId,
-    int32_t pid, bool enabled)
-{
-    if (bundleName.empty() || accountId <= 0 || pid <= 0) {
-        return;
-    }
-
-    std::string policyData;
-    auto policyManager = IPolicyManager::GetInstance();
-    policyManager->GetPolicy("", PolicyName::POLICY_WATERMARK_IMAGE_POLICY, policyData, DEFAULT_USER_ID);
-
-    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
-    auto serializer = WatermarkImageSerializer::GetInstance();
-    serializer->Deserialize(policyData, currentData);
-    auto iter = currentData.find(std::pair<std::string, int32_t>{bundleName, accountId});
-    if (iter == currentData.end() || iter->second.fileName.empty()) {
-        return;
-    }
-    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, iter->second.fileName, enabled);
-    if (ret != Rosen::WMError::WM_OK) {
-        EDMLOGE("SetAllWatermarkImage SetProcessWatermarkOnAppStart error");
     }
 }
 
@@ -374,44 +347,12 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::CreatePixelMapFromUint
 
 bool SetWatermarkImagePlugin::SubscribeAppState()
 {
-    if (applicationObserver_) {
-        EDMLOGI("WatermarkApplicationObserver has subscribed");
-        return true;
-    }
-    applicationObserver_ = new (std::nothrow) WatermarkApplicationObserver(*this);
-    auto appManager = GetAppManager();
-    if (!applicationObserver_ || !appManager) {
-        EDMLOGE("WatermarkApplicationObserver or appmanager null");
-        return false;
-    }
-    EDMLOGI("SetWatermarkImagePlugin SubscribeAppState 5");
-    if (appManager->RegisterApplicationStateObserver(applicationObserver_)) {
-        EDMLOGE("register WatermarkApplicationObserver fail!");
-        applicationObserver_.clear();
-        applicationObserver_ = nullptr;
-        return false;
-    }
-    return true;
+    return IWatermarkObserverManager::GetInstance()->SubscribeAppStateObserver();
 }
 
 bool SetWatermarkImagePlugin::UnsubscribeAppState()
 {
-    if (!applicationObserver_) {
-        EDMLOGD("WatermarkApplicationObserver has unsubscribed");
-        return true;
-    }
-    auto appManager = GetAppManager();
-    if (!appManager) {
-        EDMLOGE("appManger null");
-        return false;
-    }
-    if (appManager->UnregisterApplicationStateObserver(applicationObserver_)) {
-        EDMLOGE("UnregisterApplicationStateObserver fail!");
-        return false;
-    }
-    applicationObserver_.clear();
-    applicationObserver_ = nullptr;
-    return true;
+    return IWatermarkObserverManager::GetInstance()->UnSubscribeAppStateObserver();
 }
 
 sptr<AppExecFwk::IAppMgr> SetWatermarkImagePlugin::GetAppManager()
@@ -482,6 +423,11 @@ ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adm
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void SetWatermarkImagePlugin::OnOtherServiceStart()
+{
+    SetAllWatermarkImage();
 }
 } // namespace EDM
 } // namespace OHOS

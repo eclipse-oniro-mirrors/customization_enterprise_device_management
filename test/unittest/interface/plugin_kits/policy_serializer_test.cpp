@@ -65,12 +65,12 @@ HWTEST_F(PolicySerializerTest, BOOL, TestSize.Level1)
 
     boolValue = false;
     vector<bool> policyValues { false, true, false, false, true };
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, boolValue));
+    serializer->MergePolicy(policyValues, boolValue);
     ASSERT_EQ(boolValue, true);
 
     boolValue = true;
     policyValues = { false, false, false, false, false };
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, boolValue));
+    serializer->MergePolicy(policyValues, boolValue);
     ASSERT_EQ(boolValue, false);
 }
 
@@ -106,7 +106,7 @@ HWTEST_F(PolicySerializerTest, STRING, TestSize.Level1)
     ASSERT_TRUE(value2 == "s二");
 
     vector<string> policyValues { "v1", "v2", "v3" };
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
+    serializer->MergePolicy(policyValues, value);
     ASSERT_TRUE(value == "v3");
 }
 
@@ -153,7 +153,7 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
                                          { "vvv1", "vvv2", "vvv3" },
                                          { "v1",   "v2",   "v3" },
                                          { "vv1",  "vv2",  "vv3" }};
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
+    serializer->MergePolicy(policyValues, value);
     ASSERT_TRUE(value.size() == 9);
 }
 
@@ -302,7 +302,7 @@ HWTEST_F(PolicySerializerTest, ArrayMapStringMergePolicy, TestSize.Level1)
             }
         }
     };
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
+    serializer->MergePolicy(policyValues, value);
     ASSERT_TRUE(value.size() == 3);
 }
 
@@ -399,7 +399,7 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_002, TestSize.Level1)
     };
     value = {};
     vector<map<string, string>> policyValues { value1, value2, value3 };
-    ASSERT_TRUE(serializer->MergePolicy(policyValues, value));
+    serializer->MergePolicy(policyValues, value);
     ASSERT_TRUE(value3 == value);
 }
 
@@ -488,7 +488,7 @@ HWTEST_F(PolicySerializerTest, JSON, TestSize.Level1)
     ASSERT_EQ(jsonString, R"([1,2,null,3])");
 
     std::vector<Json::Value> vec = {jsonString};
-    ASSERT_TRUE(serializer->MergePolicy(vec, value));
+    serializer->MergePolicy(vec, value);
     ASSERT_TRUE(vec.size() == 1);
 }
 

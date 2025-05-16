@@ -19,7 +19,10 @@ ohos_shared_library("restrictions") {
     "include",
   ]
 
-  sources = [ "./src/restrictions_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/restrictions_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -32,6 +35,7 @@ ohos_shared_library("restrictions") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

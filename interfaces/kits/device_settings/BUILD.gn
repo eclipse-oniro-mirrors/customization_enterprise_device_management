@@ -19,7 +19,10 @@ ohos_shared_library("devicesettings") {
     "../common/include",
   ]
 
-  sources = [ "./src/device_settings_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/device_settings_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -33,6 +36,7 @@ ohos_shared_library("devicesettings") {
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

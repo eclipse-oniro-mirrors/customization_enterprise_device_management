@@ -58,13 +58,15 @@ HWTEST_F(EntInfoTest, TestMarshalling, TestSize.Level1)
     bool ret = entInfoTest->Marshalling(parcel);
     EXPECT_TRUE(ret);
 
-    EntInfo entinfo;
-    EXPECT_TRUE(EntInfo::Unmarshalling(parcel, entinfo));
+    EntInfo *entInfo = EntInfo::Unmarshalling(parcel);
+    EXPECT_TRUE(entInfo != nullptr);
 
-    EXPECT_STREQ(entinfo.enterpriseName.c_str(), NAME.c_str());
-    EXPECT_STREQ(entinfo.description.c_str(), DESCRIPTION.c_str());
-    EXPECT_STREQ((entInfoTest->enterpriseName).c_str(), entinfo.enterpriseName.c_str());
-    EXPECT_STREQ((entInfoTest->description).c_str(), entinfo.description.c_str());
+    EXPECT_STREQ(entInfo->enterpriseName.c_str(), NAME.c_str());
+    EXPECT_STREQ(entInfo->description.c_str(), DESCRIPTION.c_str());
+    EXPECT_STREQ((entInfoTest->enterpriseName).c_str(), entInfo->enterpriseName.c_str());
+    EXPECT_STREQ((entInfoTest->description).c_str(), entInfo->description.c_str());
+
+    delete entInfo;
 }
 } // namespace TEST
 } // namespace EDM

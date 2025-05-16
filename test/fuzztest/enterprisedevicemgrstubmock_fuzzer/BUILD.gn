@@ -28,9 +28,9 @@ config("edm_config") {
     "../../../services/edm/include",
     "../../../services/edm/include/connection",
     "../../../services/edm/include/database",
-    "../../../services/edm/include/persistent_plugin/watermark",
     "../../../services/edm/include/query_policy",
     "../../../services/edm/include/strategy",
+    "../../../services/edm/include/watermark",
     "../../../services/edm_plugin/include/utils",
     "../../../framework/extension/include",
     "../../../services/edm_plugin/include",
@@ -62,12 +62,10 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../services/edm/src/permission_checker.cpp",
     "../../../services/edm/src/permission_manager.cpp",
-    "../../../services/edm/src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
-    "../../../services/edm/src/persistent_plugin/watermark/watermark_application_observer.cpp",
-    "../../../services/edm/src/persistent_plugin/watermark/watermark_image_serializer.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
     "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
     "../../../services/edm/src/query_policy/disable_remote_desk_query.cpp",
@@ -161,6 +159,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
     "../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../../services/idl:enterprise_device_mgr_idl_stub",
   ]
 
   if (enterprise_device_management_support_all) {
@@ -168,6 +167,7 @@ ohos_static_library("edmservice_fuzz_static") {
     sources += [
       "../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
+      "../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
       "../../../services/edm_plugin/src/disable_remote_desk_plugin.cpp",
@@ -195,6 +195,8 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
       sources += [
         "../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
+        "../../../services/edm/src/watermark/watermark_application_observer.cpp",
+        "../../../services/edm/src/watermark/watermark_observer_manager.cpp",
         "../../../services/edm_plugin/src/add_os_account_plugin.cpp",
         "../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
         "../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",

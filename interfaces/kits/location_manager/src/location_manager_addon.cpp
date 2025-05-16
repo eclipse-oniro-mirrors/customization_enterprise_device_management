@@ -16,6 +16,7 @@
 #include "location_manager_addon.h"
 
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
@@ -38,6 +39,7 @@ napi_value LocationManagerAddon::Init(napi_env env, napi_value exports)
 napi_value LocationManagerAddon::SetLocationPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetLocationPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setLocationPolicy");
     auto convertLocationPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         int32_t policyInt;
@@ -75,6 +77,7 @@ napi_value LocationManagerAddon::SetLocationPolicy(napi_env env, napi_callback_i
 napi_value LocationManagerAddon::GetLocationPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetLocationPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getLocationPolicy");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;

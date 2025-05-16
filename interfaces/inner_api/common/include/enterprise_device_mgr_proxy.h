@@ -43,25 +43,25 @@ public:
     ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
     ErrCode DisableSuperAdmin(const std::string &bundleName);
-    ErrCode DisableSuperAdmin(MessageParcel &data);
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
     ErrCode GetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
-    ErrCode SetEnterpriseInfo(MessageParcel &data);
+    ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
         bool subscribe);
-    ErrCode HandleManagedEvent(MessageParcel &data, bool subscribe);
-    ErrCode IsSuperAdmin(MessageParcel &data, bool &result);
+    ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
-    ErrCode AuthorizeAdmin(MessageParcel &data);
+    ErrCode AuthorizeAdmin(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
-    ErrCode SetDelegatedPolicies(MessageParcel &data);
-    ErrCode GetDelegatedPolicies(MessageParcel &data, uint32_t code, std::vector<std::string> &result);
-    ErrCode GetAdmins(MessageParcel &data, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    ErrCode SetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleName,
+        std::vector<std::string> &policies);
+    ErrCode GetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleOrPolicyName, uint32_t code,
+        std::vector<std::string> &result);
+    ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants);
     ErrCode CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin, bool keepPolicy);
-    ErrCode SetAdminRunningMode(MessageParcel &data);
+    ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

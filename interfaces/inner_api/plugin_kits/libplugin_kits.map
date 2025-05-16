@@ -19,6 +19,7 @@
             OHOS::EDM::IPlugin::*;
             OHOS::EDM::IPluginManager::*;
             OHOS::EDM::IPolicyManager::*;
+            OHOS::EDM::IWatermarkObserverManager::*;
             OHOS::EDM::Array*Serializer::*;
             OHOS::EDM::Basic*Plugin::*;
             non-virtual?thunk?to?OHOS::EDM::Array*Serializer::*;
@@ -26,6 +27,7 @@
             vtable?for?OHOS::EDM::IPlugin;
             vtable?for?OHOS::EDM::IPluginManager;
             vtable?for?OHOS::EDM::IPolicyManager;
+            vtable?for?OHOS::EDM::IWatermarkObserverManager;
             vtable?for?OHOS::EDM::Basic*Plugin;
         };
     local:

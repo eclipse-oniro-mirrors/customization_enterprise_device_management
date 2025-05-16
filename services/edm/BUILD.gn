@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,9 +20,9 @@ config("edm_config") {
     "include",
     "include/connection",
     "include/database",
-    "include/persistent_plugin/watermark",
     "include/query_policy",
     "include/strategy",
+    "include/watermark",
     "../../framework/extension/include",
   ]
 }
@@ -31,6 +31,7 @@ ohos_shared_library("edmservice") {
   sources = [ "./src/enterprise_device_mgr_stub.cpp" ]
   public_configs = [
     ":edm_config",
+    "../idl:enterprise_device_mgr_idl_gen_config",
     "../../common/config:coverage_flags",
   ]
 
@@ -59,7 +60,6 @@ ohos_shared_library("edmservice") {
     "cJSON:cjson",
     "c_utils:utils",
     "file_api:securitylabel",
-    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -68,7 +68,7 @@ ohos_shared_library("edmservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
-    "window_manager:sms",
+
   ]
 
   if (enterprise_device_management_support_all) {
@@ -80,7 +80,6 @@ ohos_shared_library("edmservice") {
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
       "./src/application_state_observer.cpp",
-      "./src/clipboard_utils.cpp",
       "./src/connection/enterprise_account_connection.cpp",
       "./src/connection/enterprise_admin_connection.cpp",
       "./src/connection/enterprise_admin_proxy.cpp",
@@ -96,6 +95,7 @@ ohos_shared_library("edmservice") {
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
       "./src/query_policy/allowed_install_bundles_query.cpp",
+      "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",
       "./src/query_policy/disable_remote_desk_query.cpp",
@@ -134,7 +134,6 @@ ohos_shared_library("edmservice") {
   }
 
   if (useriam_edm_enable) {
-    external_deps += [ "user_auth_framework:userauth_client" ]
     sources += [
       "./src/query_policy/fingerprint_auth_query.cpp",
       "./src/query_policy/password_policy_query.cpp",
@@ -150,6 +149,7 @@ ohos_shared_library("edmservice") {
   if (bluetooth_edm_enable) {
     sources += [
       "./src/query_policy/allowed_bluetooth_devices_query.cpp",
+      "./src/query_policy/disallowed_bluetooth_devices_query.cpp",
       "./src/query_policy/disable_bluetooth_query.cpp",
     ]
     defines += [ "BLUETOOTH_EDM_ENABLE" ]
@@ -186,7 +186,6 @@ ohos_shared_library("edmservice") {
   if (pasteboard_edm_enable) {
     sources += [ "./src/query_policy/clipboard_policy_query.cpp" ]
     defines += [ "PASTEBOARD_EDM_ENABLE" ]
-    external_deps += [ "pasteboard:pasteboard_client" ]
   }
 
   if (os_account_edm_enable) {
@@ -196,17 +195,15 @@ ohos_shared_library("edmservice") {
     ]
 
     sources += [
-      "./src/persistent_plugin/watermark/set_watermark_image_plugin.cpp",
-      "./src/persistent_plugin/watermark/watermark_application_observer.cpp",
-      "./src/persistent_plugin/watermark/watermark_image_serializer.cpp",
       "./src/query_policy/disallow_add_local_account_query.cpp",
+      "./src/watermark/watermark_application_observer.cpp",
+      "./src/watermark/watermark_observer_manager.cpp",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable) {
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
-    external_deps += [ "netmanager_base:net_policy_manager_if" ]
   }
 
   if (common_event_service_edm_enable) {
@@ -220,6 +217,7 @@ ohos_shared_library("edmservice") {
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../idl:enterprise_device_mgr_idl_stub",
   ]
 
   shlib_type = "sa"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -111,6 +111,20 @@ int32_t WifiManagerProxy::IsWifiDisabled(MessageParcel &data, bool &result)
 {
     EDMLOGD("WifiManagerProxy::IsWifiDisabled");
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, EdmInterfaceCode::DISABLE_WIFI, result);
+}
+
+int32_t WifiManagerProxy::TurnOnWifi(MessageParcel &data)
+{
+    EDMLOGI("WifiManagerProxy::TurnOnWifi");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t WifiManagerProxy::TurnOffWifi(MessageParcel &data)
+{
+    EDMLOGI("WifiManagerProxy::TurnOffWifi");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SWITCH_WIFI);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS

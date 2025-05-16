@@ -15,6 +15,7 @@
 #include "usb_manager_addon.h"
 
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "usb_manager_proxy.h"
 
 #include "napi_edm_adapter.h"
@@ -78,6 +79,7 @@ void UsbManagerAddon::CreateDescriptorEnum(napi_env env, napi_value value)
 
 napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setUsbPolicy");
     auto convertpolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> bool {
         bool usbPolicy = MatchValueType(env, argv, napi_number);
@@ -126,6 +128,7 @@ void UsbManagerAddon::NativeSetUsbPolicy(napi_env env, void *data)
 
 napi_value UsbManagerAddon::DisableUsb(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableUsb");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "disableUsb";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -151,6 +154,7 @@ napi_value UsbManagerAddon::DisableUsb(napi_env env, napi_callback_info info)
 
 napi_value UsbManagerAddon::IsUsbDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isUsbDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "isUsbDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
@@ -177,12 +181,14 @@ napi_value UsbManagerAddon::IsUsbDisabled(napi_env env, napi_callback_info info)
 napi_value UsbManagerAddon::AddAllowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::AddAllowedUsbDevices called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAllowedUsbDevices");
     return AddOrRemoveAllowedUsbDevices(env, info, true);
 }
 
 napi_value UsbManagerAddon::RemoveAllowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::RemoveAllowedUsbDevices called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAllowedUsbDevices");
     return AddOrRemoveAllowedUsbDevices(env, info, false);
 }
 
@@ -279,6 +285,7 @@ bool UsbManagerAddon::GetUsbDeviceIdFromNAPI(napi_env env, napi_value value, Usb
 
 napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllowedUsbDevices");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getAllowedUsbDevices";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -328,6 +335,7 @@ napi_value UsbManagerAddon::UsbDeviceIdToJsObj(napi_env env, const UsbDeviceId &
 
 napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setUsbStorageDeviceAccessPolicy");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setUsbStorageDeviceAccessPolicy";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
@@ -352,6 +360,7 @@ napi_value UsbManagerAddon::SetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 
 napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getUsbStorageDeviceAccessPolicy");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getUsbStorageDeviceAccessPolicy";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -382,12 +391,14 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 napi_value UsbManagerAddon::AddDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::AddDisallowedUsbDevices called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedUsbDevices");
     return AddOrRemoveDisallowedUsbDevices(env, info, true);
 }
 
 napi_value UsbManagerAddon::RemoveDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::RemoveDisallowedUsbDevices called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedUsbDevices");
     return AddOrRemoveDisallowedUsbDevices(env, info, false);
 }
 
@@ -440,6 +451,7 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
 napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedUsbDevices");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getDisallowedUsbDevices";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};

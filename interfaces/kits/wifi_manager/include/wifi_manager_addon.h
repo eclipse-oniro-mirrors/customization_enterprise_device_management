@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -130,6 +130,8 @@ private:
     static napi_value RemoveDisallowedWifiList(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveDisallowedWifiList(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value GetWifiList(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode);
+    static napi_value TurnOnWifi(napi_env env, napi_callback_info info);
+    static napi_value TurnOffWifi(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

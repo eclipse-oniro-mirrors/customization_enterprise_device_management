@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -42,6 +42,7 @@ ohos_unittest("EdmPluginTest") {
     "../../common/mock/src/edm_data_ability_utils_mock.cpp",
     "./src/bundle_install_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
+    "./src/disable_maintenance_mode_plugin_test.cpp",
     "./src/disable_mtp_client_plugin_test.cpp",
     "./src/disable_mtp_server_plugin_test.cpp",
     "./src/disable_remote_desk_plugin_test.cpp",
@@ -144,6 +145,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
+      "./src/switch_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
@@ -209,6 +211,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_bluetooth_devices_plugin_test.cpp",
       "./src/disable_bluetooth_plugin_test.cpp",
+      "./src/disallowed_bluetooth_devices_plugin_test.cpp",
       "./src/get_bluetooth_info_plugin_test.cpp",
     ]
   }
@@ -241,6 +244,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
+      "./src/set_watermark_plugin_test.cpp",
     ]
   }
 
@@ -317,6 +321,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
@@ -396,6 +401,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/add_os_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_add_local_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_add_os_account_by_user_plugin.cpp",
+      "../../../../services/edm_plugin/src/set_watermark_image_plugin.cpp",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
@@ -422,6 +428,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+      "../../../../services/edm_plugin/src/switch_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
     ]
@@ -513,6 +520,7 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",
     ]
   }

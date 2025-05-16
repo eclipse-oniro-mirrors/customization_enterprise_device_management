@@ -339,7 +339,7 @@ ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInf
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 
-ErrCode AdminManager::SetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId)
+ErrCode AdminManager::SetEntInfo(const std::string &packageName, const EntInfo &entInfo, int32_t userId)
 {
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(userId, userAdmin);

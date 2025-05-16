@@ -27,7 +27,7 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedBluetoothDevicesPlugin,
         std::vector<std::string>>> ptr) override;
     void OnChangedPolicyDone(bool isGlobalChanged);
-
+    void OnAdminRemoveDone();
 private:
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
         std::vector<std::string> &failedData) override;

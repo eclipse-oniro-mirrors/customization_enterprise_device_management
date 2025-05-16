@@ -39,6 +39,8 @@ public:
         return ERR_OK;
     }
 
+    virtual void GetPolicyUserIds(std::vector<int32_t> &userIds) {}
+
     static IPolicyManager* policyManagerInstance_;
 };
 
