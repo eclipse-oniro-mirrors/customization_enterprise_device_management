@@ -68,7 +68,6 @@ ohos_shared_library("edmservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
-
   ]
 
   if (enterprise_device_management_support_all) {
@@ -147,8 +146,8 @@ ohos_shared_library("edmservice") {
   if (bluetooth_edm_enable) {
     sources += [
       "./src/query_policy/allowed_bluetooth_devices_query.cpp",
-      "./src/query_policy/disallowed_bluetooth_devices_query.cpp",
       "./src/query_policy/disable_bluetooth_query.cpp",
+      "./src/query_policy/disallowed_bluetooth_devices_query.cpp",
     ]
     defines += [ "BLUETOOTH_EDM_ENABLE" ]
   }
@@ -208,6 +207,12 @@ ohos_shared_library("edmservice") {
     external_deps += [ "common_event_service:cesfwk_innerkits" ]
     sources += [ "./src/query_policy/set_browser_policies_query.cpp" ]
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only &&
+      cellular_data_edm_enable) {
+    sources += [ "./src/query_policy/disallow_modify_apn_query.cpp" ]
+    defines += [ "APN_EDM_ENABLE" ]
   }
 
   deps = [

@@ -288,6 +288,10 @@ ohos_shared_library("edmplugin") {
     sources += [ "./src/disable_camera_plugin.cpp" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/disallow_modify_apn_plugin.cpp" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",
