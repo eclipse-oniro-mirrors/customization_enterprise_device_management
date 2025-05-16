@@ -104,7 +104,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
-        const char* const LABEL_DISALLOWED_POLICY_APN = "apn";
+        const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
     } // namespace Restrictions
 
     namespace SecurityManager {
