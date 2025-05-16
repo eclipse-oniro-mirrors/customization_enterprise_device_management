@@ -29,6 +29,10 @@ public:
 
     ErrCode OnAdminRemove(const std::string &adminName, PasswordPolicy &data, PasswordPolicy &mergeData,
         int32_t userId);
+
+    void OnOtherServiceStart();
+
+    void SetGlobalConfigParam(const PasswordPolicy &policy);
 };
 } // namespace EDM
 } // namespace OHOS

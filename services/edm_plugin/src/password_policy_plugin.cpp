@@ -17,6 +17,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
@@ -33,6 +34,7 @@ void PasswordPolicyPlugin::InitPlugin(
     ptr->SetSerializer(PasswordSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&PasswordPolicyPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&PasswordPolicyPlugin::OnAdminRemove);
+    ptr->SetOtherServiceStartListener(&PasswordPolicyPlugin::OnOtherServiceStart);
 }
 
 ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy &currentData,
@@ -43,14 +45,7 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
         EDMLOGE("LocationPolicyPlugin set location failed. Other admin has already set policies.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    UserIam::UserAuth::GlobalConfigParam param;
-    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
-    param.value.pinExpiredPeriod = policy.validityPeriod;
-    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
-    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
-    if (ret != ERR_OK) {
-        EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
-    }
+    SetGlobalConfigParam(policy);
     currentData = policy;
     mergeData = policy;
     return ERR_OK;
@@ -69,6 +64,29 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void PasswordPolicyPlugin::OnOtherServiceStart()
+{
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_PASSWORD_POLICY,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    auto serializer_ = PasswordSerializer::GetInstance();
+    PasswordPolicy policy;
+    serializer_->Deserialize(policyData, policy);
+    SetGlobalConfigParam(policy);
+}
+
+void PasswordPolicyPlugin::SetGlobalConfigParam(const PasswordPolicy &policy)
+{
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.type = UserIam::UserAuth::GlobalConfigType::PIN_EXPIRED_PERIOD;
+    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
+    param.value.pinExpiredPeriod = policy.validityPeriod;
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != 0) {
+        EDMLOGW("SetGlobalConfigParam SetPasswordPolicy Error");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

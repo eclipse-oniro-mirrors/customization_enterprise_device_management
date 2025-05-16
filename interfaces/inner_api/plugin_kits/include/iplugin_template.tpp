@@ -372,6 +372,34 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveDoneListener(BiAdminConsumer &&lis
 }
 
 template <class CT, class DT>
+void IPluginTemplate<CT, DT>::OnOtherServiceStart()
+{
+    if (instance_ == nullptr) {
+        return;
+    }
+    if (otherServiceStartFunc_.otherServiceStart_ == nullptr) {
+        return;
+    }
+    (otherServiceStartFunc_.otherServiceStart_)();
+}
+
+template <class CT, class DT>
+void IPluginTemplate<CT, DT>::SetOtherServiceStartListener(Runner &&listener)
+{
+    if (instance_ == nullptr) {
+        return;
+    }
+    auto otherServiceStart = [this]() -> void {
+        if (otherServiceStartFunc_.runner_ == nullptr) {
+            return;
+        }
+        (instance_.get()->*(otherServiceStartFunc_.runner_))();
+        return;
+    };
+    otherServiceStartFunc_ = OtherServiceStartFunc(otherServiceStart, listener);
+}
+
+template <class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::WritePolicyToParcel(const std::string &policyData, MessageParcel &reply)
 {
     DT currentData;

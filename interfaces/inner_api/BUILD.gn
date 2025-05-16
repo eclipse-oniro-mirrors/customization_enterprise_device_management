@@ -101,6 +101,7 @@ ohos_shared_library("edmservice_kits") {
   if (os_account_edm_enable) {
     external_deps += [ "os_account:os_account_innerkits" ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+    sources += [ "./security_manager/src/watermark_image_serializer.cpp" ]
   }
 
   if (useriam_edm_enable) {
