@@ -47,7 +47,7 @@ public:
     ErrCode GetAllPolicyByAdmin(const std::string &adminName, PolicyItemsMap &allAdminPolicy,
         int32_t userId = EdmConstants::DEFAULT_USER_ID);
 
-    void GetPolicyUserIds(std::vector<int32_t> &userIds);
+    void GetPolicyUserIds(std::vector<int32_t> &userIds) override;
 
     ErrCode ReplaceAllPolicy(int32_t userId, const std::string &adminName, const std::string &newAdminName);
 

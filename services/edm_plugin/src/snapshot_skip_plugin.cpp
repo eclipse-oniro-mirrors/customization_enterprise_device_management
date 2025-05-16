@@ -21,6 +21,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -35,6 +36,7 @@ void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkip
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOtherServiceStartListener(&SnapshotSkipPlugin::OnOtherServiceStart);
 }
 
 ErrCode SnapshotSkipPlugin::OnSetPolicy(std::vector<std::string> &data,
@@ -115,6 +117,41 @@ ErrCode SnapshotSkipPlugin::OnAdminRemove(const std::string &adminName, std::vec
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void SnapshotSkipPlugin::OnOtherServiceStart()
+{
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<int32_t> userIds = { EdmConstants::DEFAULT_USER_ID };
+    IPolicyManager::GetInstance()->GetPolicyUserIds(userIds);
+    EDMLOGD("OnWindowManagerServiceStart userIds size %{public}zu", userIds.size());
+    std::unordered_map<int32_t, std::vector<std::string>> policyMap;
+    for (int32_t userId : userIds) {
+        std::string policyData;
+        IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_SNAPSHOT_SKIP, policyData, userId);
+        std::vector<std::string> vecData;
+        serializer->Deserialize(policyData, vecData);
+        if (vecData.empty()) {
+            continue;
+        }
+        policyMap.insert(make_pair(userId, vecData));
+    }
+    if (!policyMap.empty()) {
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(WINDOW_MANAGER_SERVICE_ID);
+        if (remoteObject == nullptr) {
+            EDMLOGE("OnWindowManagerServiceStart wms obj get fial");
+            return;
+        }
+        auto mockSessionManagerServiceProxy = iface_cast<OHOS::Rosen::IMockSessionManagerInterface>(remoteObject);
+        if (mockSessionManagerServiceProxy == nullptr) {
+            EDMLOGE("OnWindowManagerServiceStart wms obj cast fial");
+            return;
+        }
+        EDMLOGI("OnWindowManagerServiceStart init snap shot skip policy when wms restart");
+        mockSessionManagerServiceProxy->SetSnapshotSkipByIdNamesMap(policyMap);
+    } else {
+        EDMLOGI("OnWindowManagerServiceStart no policy to update");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

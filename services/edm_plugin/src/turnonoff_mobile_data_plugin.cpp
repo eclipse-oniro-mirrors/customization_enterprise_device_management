@@ -33,7 +33,7 @@ void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnO
 {
     EDMLOGI("TurnOnMobileDataPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::TURNONOFF_MOBILE_DATA, "turnon_mobile_data",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
@@ -42,15 +42,14 @@ void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnO
  
 ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
 {
-    EDMLOGI("TurnOnMobileDataPlugin OnSetPolicy isForce %{public}d", isForce);
+    EDMLOGI("TurnOnOffMobileDataPlugin OnSetPolicy isForce %{public}d", isForce);
     int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
-        EDMLOGE("TurnOnMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, isForce ? "force_open" : "none"))
-    {
-        EDMLOGE("TurnOnMobileDataPlugin:OnSetPolicy SetParameter fail");
+    if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, isForce ? "force_open" : "none")) {
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -60,12 +59,12 @@ ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnRemovePolicy");
     if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
-        EDMLOGE("TurnOffMobileDataPlugin:OnSetPolicy SetParameter fail. ");
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(false);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
-        EDMLOGE("TurnOnMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     
@@ -76,10 +75,8 @@ ErrCode TurnOnOffMobileDataPlugin::OnAdminRemove(const std::string &adminName, b
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
         adminName.c_str(), data, userId);
-    if (!mergeData) {
-        if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
+    if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnAdminRemove SetParameter fail");
     }
     
     return ERR_OK;

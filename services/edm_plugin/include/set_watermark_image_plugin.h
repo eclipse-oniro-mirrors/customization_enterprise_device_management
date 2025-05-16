@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN__SET_WATERMARK_IMAGE_PLUGIN_H
-#define SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN__SET_WATERMARK_IMAGE_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_WATERMARK_IMAGE_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_WATERMARK_IMAGE_PLUGIN_H
 
 #include "app_mgr_interface.h"
 #include "iplugin.h"
@@ -47,6 +47,8 @@ public:
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
+    void OnOtherServiceStart() override;
+
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
 
@@ -70,9 +72,8 @@ private:
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     sptr<AppExecFwk::IAppMgr> GetAppManager();
-    sptr<AppExecFwk::IApplicationStateObserver> applicationObserver_;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_PERSISTENT_PLUGIN__SET_WATERMARK_IMAGE_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_WATERMARK_IMAGE_PLUGIN_H

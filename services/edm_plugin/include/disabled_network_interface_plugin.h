@@ -34,6 +34,8 @@ public:
     ErrCode OnAdminRemove(const std::string &adminName, std::map<std::string, std::string> &data,
         std::map<std::string, std::string> &mergeData, int32_t userId);
 
+    void OnOtherServiceStart();
+
 private:
     ErrCode IsNetInterfaceExist(const std::string &netInterface);
     bool SetInterfaceDisabled(const std::string &ifaceName, bool status);
