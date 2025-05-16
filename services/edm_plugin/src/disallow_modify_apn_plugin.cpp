@@ -29,7 +29,7 @@ void DisallowModifyAPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disallo
     EDMLOGI("DisallowModifyAPNPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+        EdmPermission::PERMISSION_SET_USER_RESTRICTION);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_APN, PolicyName::POLICY_DISALLOW_MODIFY_APN, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());

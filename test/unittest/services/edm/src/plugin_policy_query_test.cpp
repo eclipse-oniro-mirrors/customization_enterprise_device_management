@@ -100,6 +100,7 @@ const std::string TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY =
     "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY";
 const std::string TEST_PERMISSION_ENTERPRISE_GET_DEVICE_INFO = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
 const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM = "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
+const std::string TEST_PERMISSION_SET_USER_RESTRICTION = "ohos.permission.SET_USER_RESTRICTION";
 void PluginPolicyQueryTest::SetUp() {}
 
 void PluginPolicyQueryTest::TearDown() {}
@@ -1274,7 +1275,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery002, TestSize.Level1)
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyAPNQuery>();
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
-        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+        == TEST_PERMISSION_SET_USER_RESTRICTION);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_apn");
 }
 } // namespace TEST

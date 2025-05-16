@@ -173,6 +173,8 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    // api 20
+    const char* const PERMISSION_SET_USER_RESTRICTION = "ohos.permission.SET_USER_RESTRICTION";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

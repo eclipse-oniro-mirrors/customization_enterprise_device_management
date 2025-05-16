@@ -29,7 +29,7 @@ std::string DisallowModifyAPNQuery::GetPolicyName()
 std::string DisallowModifyAPNQuery::GetPermission(IPlugin::PermissionType permissionType,
     const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    return EdmPermission::PERMISSION_SET_USER_RESTRICTION;
 }
 
 ErrCode DisallowModifyAPNQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
