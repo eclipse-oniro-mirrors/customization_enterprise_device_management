@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include "disable_remote_desk_plugin.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_ipc_interface_code.h"
+#include "parameters.h"
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
 #include "utils.h"
