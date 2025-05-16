@@ -48,24 +48,6 @@ void SetWatermarkImagePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestSetAllWatermarkImage
- * @tc.desc: Test SetWatermarkImagePlugin::SetAllWatermarkImage function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetWatermarkImagePluginTest, TestSetAllWatermarkImage, TestSize.Level1)
-{
-    SetWatermarkImagePlugin plugin;
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::WATERMARK_IMAGE);
-    MessageParcel data;
-    data.WriteString(EdmConstants::SecurityManager::SET_ALL_WATERMARK_TYPE);
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestSetSingleWatermarkImageEmpty
  * @tc.desc: Test SetWatermarkImagePlugin::SetSingleWatermarkImage function when param is null.
  * @tc.type: FUNC

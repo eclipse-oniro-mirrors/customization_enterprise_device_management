@@ -13,21 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
-#define SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
-
-#include <map>
-
-#include "clipboard_info.h"
-#include "clipboard_policy.h"
-#include "edm_errors.h"
+#include "iwatermark_observer_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class ClipboardUtils {
-public:
-    static ErrCode HandlePasteboardPolicy(std::map<int32_t, ClipboardInfo> &data);
-};
-} // namespace EDM
-} // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_CLIPBOARD_UTIL_H
+    IWatermarkObserverManager* IWatermarkObserverManager::observerInstance_ = nullptr;
+    std::once_flag IWatermarkObserverManager::observerFlag_;
+}
+}

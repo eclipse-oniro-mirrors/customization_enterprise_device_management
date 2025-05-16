@@ -34,7 +34,6 @@ public:
     std::shared_ptr<IPlugin> GetPluginByFuncCode(std::uint32_t funcCode);
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
     bool AddPlugin(std::shared_ptr<IPlugin> plugin) override;
-    bool AddPersistentPlugin(std::shared_ptr<IPlugin> plugin) override;
     bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
         ExecuteStrategy strategy) override;
     virtual ~PluginManager();
@@ -46,8 +45,6 @@ public:
 private:
     std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
     std::map<std::string, std::shared_ptr<IPlugin>> pluginsName_;
-    std::map<std::uint32_t, std::shared_ptr<IPlugin>> persistentPluginsCode_;
-    std::map<std::string, std::shared_ptr<IPlugin>> persistentPluginsName_;
     std::map<std::uint32_t, std::uint32_t> extensionPluginMap_;
     std::map<std::uint32_t, ExecuteStrategy> executeStrategyMap_;
     std::vector<void *> pluginHandles_;
@@ -55,7 +52,7 @@ private:
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     void LoadPlugin(const std::string &pluginPath);
-    bool AddPluginInner(std::shared_ptr<IPlugin> plugin, bool isPersistent);
+    bool AddPluginInner(std::shared_ptr<IPlugin> plugin);
     void DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,
         std::map<std::string, std::shared_ptr<IPlugin>> pluginsName);
     void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);

@@ -29,6 +29,7 @@ private:
     ErrCode SetOtherModulePolicy(bool data) override;
     ErrCode RemoveOtherModulePolicy() override;
     bool HasConflictPolicy();
+    void OnOtherServiceStart();
 };
 } // namespace EDM
 } // namespace OHOS
