@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -143,6 +143,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
+      "./src/switch_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
@@ -423,6 +424,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+      "../../../../services/edm_plugin/src/switch_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
     ]
