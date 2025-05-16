@@ -32,7 +32,7 @@ void SwitchWifiPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlug
 {
     EDMLOGI("SwitchWifiPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SWITCH_WIFI, "switch_wifi",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SwitchWifiPlugin::OnTurnOnPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&SwitchWifiPlugin::OnTurnOffPolicy, FuncOperateType::REMOVE);
