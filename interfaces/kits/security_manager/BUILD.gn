@@ -19,7 +19,10 @@ ohos_shared_library("securitymanager") {
     "../common/include",
   ]
 
-  sources = [ "./src/security_manager_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/security_manager_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -33,6 +36,7 @@ ohos_shared_library("securitymanager") {
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "image_framework:image",
     "image_framework:image_native",
     "ipc:ipc_single",
