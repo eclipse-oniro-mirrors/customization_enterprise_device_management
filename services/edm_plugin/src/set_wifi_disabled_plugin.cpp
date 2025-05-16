@@ -25,6 +25,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
+const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
 
 void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr)
 {
@@ -52,6 +53,7 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
 ErrCode SetWifiDisabledPlugin::SetOtherModulePolicy(bool isDisable)
 {
     if (isDisable) {
+        system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
         auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
         if (wifiDevice == nullptr || FAILED(wifiDevice->DisableWifi())) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
