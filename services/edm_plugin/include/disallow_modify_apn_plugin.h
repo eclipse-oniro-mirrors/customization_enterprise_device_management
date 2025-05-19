@@ -13,24 +13,19 @@
  * limitations under the License.
  */
 
- #ifndef EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
- #define EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
-   
- #include <gtest/gtest.h>
- #include "iplugin_manager.h"
- #include "turnonoff_mobile_data_plugin.h"
-   
- namespace OHOS {
- namespace EDM {
- namespace TEST {
- class TurnOnOffMobileDataTest : public testing::Test {
- protected:
-     static void SetUpTestSuite(void);
-  
-     static void TearDownTestSuite(void);
-     static bool HasSimCard();
- };
- } // namespace TEST
- } // namespace EDM
- } // namespace OHOS
- #endif // EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_APN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_APN_H
+
+#include "basic_bool_plugin.h"
+#include "plugin_singleton.h"
+
+namespace OHOS {
+namespace EDM {
+class DisallowModifyAPNPlugin : public PluginSingleton<DisallowModifyAPNPlugin, bool>, public BasicBoolPlugin {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowModifyAPNPlugin, bool>> ptr) override;
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_APN_H

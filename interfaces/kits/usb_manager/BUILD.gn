@@ -20,7 +20,10 @@ ohos_shared_library("usbmanager") {
     "include",
   ]
 
-  sources = [ "./src/usb_manager_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/usb_manager_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -35,6 +38,7 @@ ohos_shared_library("usbmanager") {
     "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

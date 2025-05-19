@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -45,6 +45,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_maintenance_mode_plugin_test.cpp",
     "./src/disable_mtp_client_plugin_test.cpp",
     "./src/disable_mtp_server_plugin_test.cpp",
+    "./src/disallow_modify_apn_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
@@ -143,6 +144,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/message_parcel_utils_test.cpp",
       "./src/set_wifi_disabled_plugin_test.cpp",
       "./src/set_wifi_profile_plugin_test.cpp",
+      "./src/switch_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
@@ -246,7 +248,10 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
-    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
     sources += [ 
       "./src/turnonoff_mobile_data_plugin_test.cpp",
     ]
@@ -328,10 +333,11 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
-    "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_tethering_plugin.cpp",
@@ -433,6 +439,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
+      "../../../../services/edm_plugin/src/switch_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
     ]
@@ -561,7 +568,10 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
-    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
     sources += [ 
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
     ]

@@ -65,6 +65,7 @@
         "cJSON",
         "c_utils",
         "camera_framework",
+        "cellular_data",
         "certificate_manager",
         "common_event_service",
         "core_service",
@@ -98,8 +99,7 @@
         "usb_manager",
         "user_auth_framework",
         "wifi",
-        "window_manager",
-        "cellular_data"
+        "window_manager"
       ]
     },
     "build": {

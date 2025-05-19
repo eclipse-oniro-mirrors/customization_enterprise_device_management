@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -496,6 +496,115 @@ HWTEST_F(WifiManagerProxyTest, TestGetDisallowedWifiListFail, TestSize.Level1)
     int32_t ret = wifiManagerProxy->GetWifiList(data, wifiIds, EdmInterfaceCode::DISALLOWED_WIFI_LIST);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(wifiIds.empty());
+}
+
+/**
+ * @tc.name: TestForceTurnOnWifiSuc
+ * @tc.desc: Test TurnOnWifi func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestForceTurnOnWifiSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy));
+
+    int32_t ret = wifiManagerProxy->TurnOnWifi(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestForceTurnOnWifiFail
+ * @tc.desc: Test TurnOnWifi func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestForceTurnOnWifiFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    int32_t ret = wifiManagerProxy->TurnOnWifi(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTurnOnWifiSuc
+ * @tc.desc: Test TurnOnWifi func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestTurnOnWifiSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy));
+
+    int32_t ret = wifiManagerProxy->TurnOnWifi(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOnWifiFail
+ * @tc.desc: Test TurnOnWifi func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestTurnOnWifiFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    int32_t ret = wifiManagerProxy->TurnOnWifi(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestTurnOffWifiSuc
+ * @tc.desc: Test TurnOffWifi func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestTurnOffWifiSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy));
+
+    int32_t ret = wifiManagerProxy->TurnOffWifi(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOffWifiFail
+ * @tc.desc: Test TurnOffWifi func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestTurnOffWifiFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    int32_t ret = wifiManagerProxy->TurnOffWifi(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 } // namespace TEST

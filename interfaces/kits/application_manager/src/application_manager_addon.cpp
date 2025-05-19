@@ -16,6 +16,7 @@
 #include "application_manager_addon.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
@@ -46,12 +47,14 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddKeepAliveApps called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addKeepAliveApps");
     return AddOrRemoveKeepAliveApps(env, info, "AddKeepAliveApps");
 }
 
 napi_value ApplicationManagerAddon::RemoveKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveKeepAliveApps called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeKeepAliveApps");
     return AddOrRemoveKeepAliveApps(env, info, "RemoveKeepAliveApps");
 }
 
@@ -103,6 +106,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetKeepAliveApps called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getKeepAliveApps");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -137,11 +141,13 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAutoStartApps");
     return AddOrRemoveAutoStartApps(env, info, "AddAutoStartApps");
 }
 
 napi_value ApplicationManagerAddon::RemoveAutoStartApps(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAutoStartApps");
     return AddOrRemoveAutoStartApps(env, info, "RemoveAutoStartApps");
 }
 
@@ -186,6 +192,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAutoStartApps called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAutoStartApps");
     std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAutoStartApps";
@@ -225,6 +232,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedRunningBundles called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedRunningBundles");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -288,11 +296,13 @@ void ApplicationManagerAddon::NativeGetDisallowedRunningBundles(napi_env env, vo
 
 napi_value ApplicationManagerAddon::AddDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedRunningBundles");
     return AddOrRemovellowedRunningBundles(env, info, "AddDisallowedRunningBundles", NativeAddDisallowedRunningBundles);
 }
 
 napi_value ApplicationManagerAddon::RemoveDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedRunningBundles");
     return AddOrRemovellowedRunningBundles(env, info, "RemoveDisallowedRunningBundles",
         NativeRemoveDisallowedRunningBundles);
 }
@@ -419,11 +429,13 @@ void ApplicationManagerAddon::NativeRemoveDisallowedRunningBundles(napi_env env,
 
 napi_value ApplicationManagerAddon::AddDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedRunningBundlesSync");
     return AddOrRemoveDisallowedRunningBundlesSync(env, info, true);
 }
 
 napi_value ApplicationManagerAddon::RemoveDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedRunningBundlesSync");
     return AddOrRemoveDisallowedRunningBundlesSync(env, info, false);
 }
 
@@ -482,6 +494,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveDisallowedRunningBundlesSync(napi
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedRunningBundlesSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedRunningBundlesSync");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;

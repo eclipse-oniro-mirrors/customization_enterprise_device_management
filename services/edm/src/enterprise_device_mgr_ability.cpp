@@ -35,6 +35,7 @@
 #include "system_ability_definition.h"
 
 #include "array_string_serializer.h"
+#include "admin_action.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -45,6 +46,7 @@
 #include "enterprise_bundle_connection.h"
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
+#include "hisysevent_adapter.h"
 #include "plugin_policy_reader.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
@@ -1028,6 +1030,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
+    EDMLOGD("ReportEdmEventManagerAdmin HandleKeepPolicy");
+    HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdminName.c_str(),
+        static_cast<int32_t>(AdminAction::REPLACE),
+        static_cast<int32_t>(AdminType::ENT), adminName.c_str());
     return ERR_OK;
 }
 
@@ -1078,6 +1084,11 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
     OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
         DEFAULT_USER_ID, true);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
+
+    EDMLOGD("ReportEdmEventManagerAdmin ReplaceSuperAdmin");
+    HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdmin.GetBundleName().c_str(),
+        static_cast<int32_t>(AdminAction::REPLACE),
+        static_cast<int32_t>(AdminType::ENT), oldAdmin.GetBundleName().c_str());
     return ERR_OK;
 }
 
@@ -1128,6 +1139,10 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     AfterEnableAdmin(admin, type, userId);
+
+    EDMLOGD("ReportEdmEventManagerAdmin EnableAdmin");
+    HiSysEventAdapter::ReportEdmEventManagerAdmin(admin.GetBundleName().c_str(),
+        static_cast<int32_t>(AdminAction::ENABLE), static_cast<int32_t>(type));
     return ERR_OK;
 }
 
@@ -1335,6 +1350,10 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
         DelDisallowUninstallApp(bundleName);
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
+
+    EDMLOGD("ReportEdmEventManagerAdmin DisableAdmin");
+    HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName.c_str(),
+        static_cast<int32_t>(AdminAction::DISABLE), static_cast<int32_t>(adminType));
     return ERR_OK;
 }
 
@@ -1785,7 +1804,14 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     abilityInfo.bundleName = bundleName;
     Admin subAdmin(abilityInfo, AdminType::SUB_SUPER_ADMIN, entInfo, permissionList, adminItem->adminInfo_.isDebug_);
     subAdmin.SetParentAdminName(admin.GetBundleName());
-    return AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, subAdmin);
+    ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, subAdmin);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    EDMLOGD("ReportEdmEventManagerAdmin AuthorizeAdmin");
+    HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
+        static_cast<int32_t>(AdminType::SUB_SUPER_ADMIN), admin.GetBundleName().c_str());
+    return ret;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(std::string &bundleName, std::string &abilityName)
@@ -1823,7 +1849,12 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
     }
     if (policies.empty()) {
         EDMLOGW("SetDelegatedPolicies remove delegated policies.");
-        return RemoveSubSuperAdminAndAdminPolicy(bundleName);
+        ret = RemoveSubSuperAdminAndAdminPolicy(bundleName);
+        if (ret == ERR_OK) {
+            HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::DISABLE),
+                static_cast<int32_t>(AdminType::VIRTUAL_ADMIN), parentAdminName);
+        }
+        return ret;
     }
     ret = CheckDelegatedPolicies(adminItem, policies);
     if (FAILED(ret)) {
@@ -1844,7 +1875,12 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
     Admin virtualAdmin(abilityInfo, AdminType::VIRTUAL_ADMIN, entInfo, {}, adminItem->adminInfo_.isDebug_);
     virtualAdmin.SetParentAdminName(parentAdminName);
     virtualAdmin.SetAccessiblePolicies(policies);
-    return AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, virtualAdmin);
+    ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, virtualAdmin);
+    if (ret == ERR_OK) {
+        HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
+            static_cast<int32_t>(AdminType::VIRTUAL_ADMIN), parentAdminName);
+    }
+    return ret;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin,

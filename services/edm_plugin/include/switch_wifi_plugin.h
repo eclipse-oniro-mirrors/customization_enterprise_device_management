@@ -13,24 +13,21 @@
  * limitations under the License.
  */
 
- #ifndef EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
- #define EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
-   
- #include <gtest/gtest.h>
- #include "iplugin_manager.h"
- #include "turnonoff_mobile_data_plugin.h"
-   
- namespace OHOS {
- namespace EDM {
- namespace TEST {
- class TurnOnOffMobileDataTest : public testing::Test {
- protected:
-     static void SetUpTestSuite(void);
-  
-     static void TearDownTestSuite(void);
-     static bool HasSimCard();
- };
- } // namespace TEST
- } // namespace EDM
- } // namespace OHOS
- #endif // EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
+
+#include "plugin_singleton.h"
+
+namespace OHOS {
+namespace EDM {
+class SwitchWifiPlugin : public PluginSingleton<SwitchWifiPlugin, bool> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlugin, bool>> ptr) override;
+    ErrCode OnTurnOnPolicy(bool &isForce);
+    ErrCode OnTurnOffPolicy();
+    ErrCode OnAdminRemove();
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H

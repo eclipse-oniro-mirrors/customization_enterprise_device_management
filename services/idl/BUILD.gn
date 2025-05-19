@@ -36,18 +36,16 @@ config("enterprise_device_mgr_idl_gen_config") {
 ohos_source_set("enterprise_device_mgr_idl_proxy") {
   idl_output_values = get_target_outputs(":enterprise_device_mgr_idl")
   sources = []
-  sources += filter_include(idl_output_values, ["*_proxy.cpp"])
-  public_configs = [":enterprise_device_mgr_idl_gen_config"]
-  deps = [
-    ":enterprise_device_mgr_idl",
-  ]
+  sources += filter_include(idl_output_values, [ "*_proxy.cpp" ])
+  public_configs = [ ":enterprise_device_mgr_idl_gen_config" ]
+  deps = [ ":enterprise_device_mgr_idl" ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "ability_base:want",
   ]
 
   sanitize = {
@@ -66,17 +64,15 @@ ohos_source_set("enterprise_device_mgr_idl_proxy") {
 ohos_source_set("enterprise_device_mgr_idl_stub") {
   idl_output_values = get_target_outputs(":enterprise_device_mgr_idl")
   sources = []
-  sources += filter_include(idl_output_values, ["*_stub.cpp"])
-  public_configs = [":enterprise_device_mgr_idl_gen_config"]
-  deps = [
-    ":enterprise_device_mgr_idl",
-  ]
+  sources += filter_include(idl_output_values, [ "*_stub.cpp" ])
+  public_configs = [ ":enterprise_device_mgr_idl_gen_config" ]
+  deps = [ ":enterprise_device_mgr_idl" ]
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "ability_base:want",
   ]
 
   sanitize = {

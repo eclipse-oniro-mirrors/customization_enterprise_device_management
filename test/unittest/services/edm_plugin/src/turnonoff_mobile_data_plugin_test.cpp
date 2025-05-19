@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 
+ #include "core_service_client.h"
  #include "turnonoff_mobile_data_plugin_test.h"
  #include "edm_ipc_interface_code.h"
  #include "parameters.h"
  #include "plugin_singleton.h"
  #include "utils.h"
+ #include "telephony_types.h"
    
  using namespace testing::ext;
    
  namespace OHOS {
  namespace EDM {
  namespace TEST {
- const std::string BOOT_OEM_MODE = "const.boot.oemmode";
- const std::string DEVELOP_PARAM = "rd";
- const std::string USER_MODE = "user";
  void TurnOnOffMobileDataTest::SetUpTestSuite(void)
  {
      Utils::SetEdmInitialEnv();
@@ -39,6 +38,24 @@
      std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
  }
  
+ bool TurnOnOffMobileDataTest::HasSimCard()
+ {
+     bool hasSimCard = false;
+     if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
+        return hasSimCard;
+     }
+     int32_t slotCount = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
+
+     for (int32_t i = 0; i<slotCount; i++) {
+         int32_t id = Telephony::CoreServiceClient::GetInstance().GetSimId(i);
+         if (id > 0) {
+            hasSimCard = true;
+            break;
+         }
+     }
+     return hasSimCard;
+ }
+
  /**
   * @tc.name: TestForceTurnOnMobileDataSuccess
   * @tc.desc: Test TurnOnMobileDataPlugin::OnSetPolicy function sucess.
@@ -53,8 +70,7 @@
      MessageParcel reply;
      data.WriteBool(true);
      ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
-     if (developDeviceParam == DEVELOP_PARAM) {
+     if (TurnOnOffMobileDataTest::HasSimCard()) {
         ASSERT_TRUE(ret == ERR_OK);
      } else {
         ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -75,8 +91,7 @@
      MessageParcel reply;
      data.WriteBool(false);
      ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
-     if (developDeviceParam == DEVELOP_PARAM) {
+     if (TurnOnOffMobileDataTest::HasSimCard()) {
         ASSERT_TRUE(ret == ERR_OK);
      } else {
         ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
@@ -96,8 +111,7 @@
      MessageParcel data;
      MessageParcel reply;
      ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
-     if (developDeviceParam == DEVELOP_PARAM) {
+     if (TurnOnOffMobileDataTest::HasSimCard()) {
         ASSERT_TRUE(ret == ERR_OK);
      } else {
         ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);

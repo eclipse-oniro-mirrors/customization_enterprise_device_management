@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
- #ifndef EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
- #define EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+ #ifndef EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
+ #define EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H
    
  #include <gtest/gtest.h>
  #include "iplugin_manager.h"
- #include "turnonoff_mobile_data_plugin.h"
+ #include "switch_wifi_plugin.h"
    
  namespace OHOS {
  namespace EDM {
  namespace TEST {
- class TurnOnOffMobileDataTest : public testing::Test {
+ class SwitchWifiPluginTest : public testing::Test {
  protected:
-     static void SetUpTestSuite(void);
+    static void SetUpTestSuite(void);
   
      static void TearDownTestSuite(void);
-     static bool HasSimCard();
  };
  } // namespace TEST
  } // namespace EDM
  } // namespace OHOS
- #endif // EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+ #endif // EDM_UNIT_TEST_SWITCH_WIIFI_PLUGIIN_TEST_H

@@ -21,6 +21,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -45,6 +46,10 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_CAMERA, EdmInterfaceCode::DISABLE_CAMERA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DEVELOPER_MODE, POLICY_CODE_END + 20},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_RESET_FACTORY, POLICY_CODE_END + 21},
+};
+
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN}
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -78,6 +83,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedListForAccount", AddDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
+        DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -85,11 +91,13 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 
 napi_value RestrictionsAddon::SetPrinterDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPrinterDisabled");
     return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::SetHdcDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setHdcDisabled");
     return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
@@ -107,6 +115,7 @@ void RestrictionsAddon::SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign
 napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicyDisabled");
     AddonMethodSign addonMethodSign;
     SetPolicyDisabledCommon(addonMethodSign, policyCode);
     return AddonMethodAdapter(env, info, addonMethodSign, NativeSetPolicyDisabled, NativeVoidCallbackComplete);
@@ -126,11 +135,13 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isPrinterDisabled");
     return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::IsHdcDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isHdcDisabled");
     return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
@@ -201,17 +212,20 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
 
 napi_value RestrictionsAddon::DisableMicrophone(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableMicrophone");
     return SetPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
 napi_value RestrictionsAddon::IsMicrophoneDisabled(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isMicrophoneDisabled");
     return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
 napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("SetFingerprintAuthDisabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setFingerprintAuthDisabled");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -245,6 +259,7 @@ napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_call
 napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsFingerprintAuthDisabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isFingerprintAuthDisabled");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -283,6 +298,7 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
 napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabledSync called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicyDisabledSync");
     AddonMethodSign addonMethodSign;
     SetPolicyDisabledCommon(addonMethodSign, policyCode);
 
@@ -300,6 +316,7 @@ napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_
 napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_IsPolicyDisabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isPolicyDisabledSync");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -334,6 +351,7 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
 napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDisallowedPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDisallowedPolicy");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -382,7 +400,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
 
 napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetDisallowedPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedPolicy");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -437,6 +455,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
 napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDisallowedPolicyForAccount called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDisallowedPolicyForAccount");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -485,6 +504,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
 napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedPolicyForAccount called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedPolicyForAccount");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -531,17 +551,20 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
 
 napi_value RestrictionsAddon::AddDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedListForAccount");
     return AddOrRemoveDisallowedListForAccount(env, info, true);
 }
 
 napi_value RestrictionsAddon::RemoveDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedListForAccount");
     return AddOrRemoveDisallowedListForAccount(env, info, false);
 }
 
 napi_value RestrictionsAddon::GetDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedListForAccount called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedListForAccount");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -606,6 +629,51 @@ napi_value RestrictionsAddon::AddOrRemoveDisallowedListForAccount(napi_env env, 
         return nullptr;
     }
     ErrCode ret = proxy->AddOrRemoveDisallowedListForAccount(elementName, feature, bundleNameArray, accountId, isAdd);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetUserRestriction called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter settingsItem error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
+        "parameter disallow error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD("SetUserRestriction: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string settingsItem;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
+        "parameter settingsItem parse error");
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    ErrCode ret = ERR_OK;
+    auto itemCode = itemCodeMap.find(settingsItem);
+    if (itemCode == itemCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = itemCode->second;
+    ret = proxy->SetUserRestriction(elementName, disallow, ipcCode);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
