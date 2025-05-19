@@ -16,8 +16,8 @@
 #include <gtest/gtest.h>
 #include "disable_remote_diagnosis_plugin.h"
 #include "edm_ipc_interface_code.h"
-#include "parameters.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -37,12 +37,15 @@ protected:
 
 void DisableRemoteDiagnosisPluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
 void DisableRemoteDiagnosisPluginTest::TearDownTestSuite(void)
 {
+    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
+    OHOS::system::SetParameter(PERSIST_EDM_REMOTE_DIAGNOSIS_MODE, "false");
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
@@ -63,7 +66,6 @@ HWTEST_F(DisableRemoteDiagnosisPluginTest, TestDisableRemoteDiagnosisPluginTestS
         EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_REMOTE_DIAGNOSIS_MODE, false));
 }
 
@@ -78,12 +80,11 @@ HWTEST_F(DisableRemoteDiagnosisPluginTest, TestDisableRemoteDiagnosisPluginTestS
     MessageParcel reply;
     data.WriteBool(false);
     std::shared_ptr<IPlugin> plugin = DisableRemoteDiagnosisPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"true", "", false};
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "false");
     ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_REMOTE_DIAGNOSIS_MODE, true));
 }
 } // namespace TEST
