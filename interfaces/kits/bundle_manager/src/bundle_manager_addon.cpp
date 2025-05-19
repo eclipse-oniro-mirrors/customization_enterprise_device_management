@@ -25,6 +25,51 @@
 
 using namespace OHOS::EDM;
 
+constexpr const char* VENDOR = "vendor";
+constexpr const char* VERSION_CODE = "versionCode";
+constexpr const char* VERSION_NAME = "versionName";
+constexpr const char* MIN_COMPATIBLE_VERSION_CODE = "minCompatibleVersionCode";
+constexpr const char* TARGET_VERSION = "targetVersion";
+constexpr const char* APP_INFO = "appInfo";
+constexpr const char* SIGNATURE_INFO = "signatureInfo";
+constexpr const char* INSTALL_TIME = "installTime";
+constexpr const char* FIRST_INSTALL_TIME = "firstInstallTime";
+constexpr const char* UPDATE_TIME = "updateTime";
+constexpr const char* APP_ID = "appId";
+constexpr const char* FINGERPRINT = "fingerprint";
+constexpr const char* APP_IDENTIFIER = "appIdentifier";
+constexpr const char* CERTIFICATE = "certificate";
+constexpr const char* PROCESS = "process";
+constexpr const char* CODE_PATH = "codePath";
+constexpr const char* REMOVABLE = "removable";
+constexpr const char* ACCESS_TOKEN_ID = "accessTokenId";
+constexpr const char* UID = "uid";
+constexpr const char* ICON_RESOURCE = "iconResource";
+constexpr const char* LABEL_RESOURCE = "labelResource";
+constexpr const char* DESCRIPTION_RESOURCE = "descriptionResource";
+constexpr const char* APP_DISTRIBUTION_TYPE = "appDistributionType";
+constexpr const char* APP_PROVISION_TYPE = "appProvisionType";
+constexpr const char* SYSTEM_APP = "systemApp";
+constexpr const char* DATA_UNCLEARABLE = "dataUnclearable";
+constexpr const char* NATIVE_LIBRARY_PATH = "nativeLibraryPath";
+constexpr const char* INSTALL_SOURCE = "installSource";
+constexpr const char* RELEASE_TYPE = "releaseType";
+constexpr const char* ID = "id";
+constexpr const char* BUNDLE_NAME = "bundleName";
+constexpr const char* MODULE_NAME = "moduleName";
+constexpr const char* FLAGS = "flags";
+constexpr const char* NAME = "name";
+constexpr const char* ENABLED = "enabled";
+constexpr const char* LABEL = "label";
+constexpr const char* LABEL_ID = "labelId";
+constexpr const char* DESCRIPTION = "description";
+constexpr const char* DESCRIPTION_ID = "descriptionId";
+constexpr const char* ICON = "icon";
+constexpr const char* ICON_ID = "iconId";
+constexpr const char* DEBUG = "debug";
+constexpr const char* APP_INDEX = "appIndex";
+const std::string CONTEXT_DATA_STORAGE_BUNDLE("/data/storage/el1/bundle/");
+
 static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
     {"AddAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},
     {"AddDisallowedInstallBundles", static_cast<int32_t>(PolicyType::DISALLOW_INSTALL)},
@@ -60,6 +105,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedUninstallBundlesSync", AddDisallowedUninstallBundlesSync),
         DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundlesSync", RemoveDisallowedUninstallBundlesSync),
         DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundlesSync", GetDisallowedUninstallBundlesSync),
+        DECLARE_NAPI_FUNCTION("getInstalledBundleList", GetInstalledBundleList),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -760,6 +806,309 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
     NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIds, result);
     return result;
+}
+
+napi_value BundleManagerAddon::GetInstalledBundleList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetInstalledBundleList called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncBundleInfoCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncBundleInfoCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetInstalledBundleList",
+        NativeGetInstalledBundleList, NativeGetInstalledBundleListComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void BundleManagerAddon::NativeGetInstalledBundleList(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetBundlesByPolicyType called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncBundleInfoCallbackInfo *asyncCallbackInfo = static_cast<AsyncBundleInfoCallbackInfo *>(data);
+    auto proxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->GetInstalledBundleInfoList(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->userId, asyncCallbackInfo->bundleInfos);
+}
+
+void BundleManagerAddon::NativeGetInstalledBundleListComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    EDMLOGI("NativeGetInstalledBundleListComplete start");
+    auto *asyncCallbackInfo = static_cast<AsyncBundleInfoCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGE("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value nBundleInfos;
+            NAPI_CALL_RETURN_VOID(env, napi_create_array(env, &nBundleInfos));
+            ConvertVectorBundleToJs(env, asyncCallbackInfo->bundleInfos, nBundleInfos);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, nBundleInfos);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+void BundleManagerAddon::ConvertVectorBundleToJs(napi_env env, const std::vector<EdmBundleInfo> &bundleInfos,
+    napi_value &result)
+{
+    if (bundleInfos.size() == 0) {
+        EDMLOGI("bundleInfos is null");
+        return;
+    }
+    size_t index = 0;
+    for (const auto &item : bundleInfos) {
+        napi_value objBundleInfo;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &objBundleInfo));
+        ConvertBundleInfo(env, item, objBundleInfo);
+        NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, objBundleInfo));
+        index++;
+    }
+}
+
+void BundleManagerAddon::ConvertBundleInfo(napi_env env, const EdmBundleInfo &bundleInfo, napi_value objBundleInfo)
+{
+    napi_value nName;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, bundleInfo.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, NAME, nName));
+
+    napi_value nVendor;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, bundleInfo.vendor.c_str(), NAPI_AUTO_LENGTH, &nVendor));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, VENDOR, nVendor));
+
+    napi_value nVersionCode;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, bundleInfo.versionCode, &nVersionCode));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, VERSION_CODE, nVersionCode));
+
+    napi_value nVersionName;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, bundleInfo.versionName.c_str(), NAPI_AUTO_LENGTH, &nVersionName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, VERSION_NAME, nVersionName));
+
+    napi_value nMinCompatibleVersionCode;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_int32(env, bundleInfo.minCompatibleVersionCode, &nMinCompatibleVersionCode));
+    NAPI_CALL_RETURN_VOID(
+        env, napi_set_named_property(env, objBundleInfo, MIN_COMPATIBLE_VERSION_CODE, nMinCompatibleVersionCode));
+
+    napi_value nTargetVersion;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, bundleInfo.targetVersion, &nTargetVersion));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, TARGET_VERSION, nTargetVersion));
+
+    napi_value nAppInfo;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nAppInfo));
+    ConvertApplicationInfo(env, nAppInfo, bundleInfo.applicationInfo);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, APP_INFO, nAppInfo));
+
+    napi_value nSignatureInfo;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nSignatureInfo));
+    ConvertSignatureInfo(env, bundleInfo.signatureInfo, nSignatureInfo);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, SIGNATURE_INFO, nSignatureInfo));
+
+    napi_value nInstallTime;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, bundleInfo.installTime, &nInstallTime));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, INSTALL_TIME, nInstallTime));
+
+    napi_value nFirstInstallTime;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, bundleInfo.firstInstallTime, &nFirstInstallTime));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, FIRST_INSTALL_TIME, nFirstInstallTime));
+
+    napi_value nUpdateTime;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, bundleInfo.updateTime, &nUpdateTime));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, UPDATE_TIME, nUpdateTime));
+
+    napi_value nAppIndex;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, bundleInfo.appIndex, &nAppIndex));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objBundleInfo, APP_INDEX, nAppIndex));
+}
+
+void BundleManagerAddon::ConvertSignatureInfo(napi_env env, const EdmSignatureInfo &signatureInfo, napi_value value)
+{
+    napi_value nAppId;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, signatureInfo.appId.c_str(), NAPI_AUTO_LENGTH, &nAppId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, APP_ID, nAppId));
+
+    napi_value nFingerprint;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, signatureInfo.fingerprint.c_str(), NAPI_AUTO_LENGTH, &nFingerprint));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, FINGERPRINT, nFingerprint));
+
+    napi_value nAppIdentifier;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, signatureInfo.appIdentifier.c_str(), NAPI_AUTO_LENGTH, &nAppIdentifier));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, APP_IDENTIFIER, nAppIdentifier));
+
+    napi_value nCertificate;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, signatureInfo.certificate.c_str(), NAPI_AUTO_LENGTH, &nCertificate));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, CERTIFICATE, nCertificate));
+}
+
+void BundleManagerAddon::ConvertApplicationInfo(napi_env env, napi_value objAppInfo, const EdmApplicationInfo &appInfo)
+{
+    napi_value nName;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, NAME, nName));
+    EDMLOGD("ConvertApplicationInfo name=%{public}s", appInfo.name.c_str());
+
+    napi_value nDescription;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, appInfo.description.c_str(), NAPI_AUTO_LENGTH, &nDescription));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DESCRIPTION, nDescription));
+
+    napi_value nDescriptionId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, appInfo.descriptionId, &nDescriptionId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DESCRIPTION_ID, nDescriptionId));
+
+    napi_value nEnabled;
+    NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, appInfo.enabled, &nEnabled));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ENABLED, nEnabled));
+
+    napi_value nLabel;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.label.c_str(), NAPI_AUTO_LENGTH, &nLabel));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, LABEL, nLabel));
+
+    napi_value nLabelId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, appInfo.labelId, &nLabelId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, LABEL_ID, nLabelId));
+
+    napi_value nIcon;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.icon.c_str(), NAPI_AUTO_LENGTH, &nIcon));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ICON, nIcon));
+
+    napi_value nIconId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, appInfo.iconId, &nIconId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ICON_ID, nIconId));
+
+    napi_value nProcess;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.process.c_str(), NAPI_AUTO_LENGTH, &nProcess));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, PROCESS, nProcess));
+
+    napi_value nCodePath;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, appInfo.codePath.c_str(), NAPI_AUTO_LENGTH, &nCodePath));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, CODE_PATH, nCodePath));
+
+    napi_value nRemovable;
+    NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, appInfo.removable, &nRemovable));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, REMOVABLE, nRemovable));
+
+    napi_value nAccessTokenId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, appInfo.accessTokenId, &nAccessTokenId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ACCESS_TOKEN_ID, nAccessTokenId));
+
+    napi_value nUid;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.uid, &nUid));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, UID, nUid));
+
+    napi_value nIconResource;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nIconResource));
+    ConvertResource(env, appInfo.iconResource, nIconResource);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ICON_RESOURCE, nIconResource));
+
+    napi_value nLabelResource;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nLabelResource));
+    ConvertResource(env, appInfo.labelResource, nLabelResource);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, LABEL_RESOURCE, nLabelResource));
+
+    napi_value nDescriptionResource;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nDescriptionResource));
+    ConvertResource(env, appInfo.descriptionResource, nDescriptionResource);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DESCRIPTION_RESOURCE, nDescriptionResource));
+
+    napi_value nAppDistributionType;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.appDistributionType.c_str(), NAPI_AUTO_LENGTH,
+        &nAppDistributionType));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, APP_DISTRIBUTION_TYPE, nAppDistributionType));
+
+    napi_value nAppProvisionType;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.appProvisionType.c_str(), NAPI_AUTO_LENGTH,
+        &nAppProvisionType));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, APP_PROVISION_TYPE, nAppProvisionType));
+
+    napi_value nIsSystemApp;
+    NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, appInfo.isSystemApp, &nIsSystemApp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, SYSTEM_APP, nIsSystemApp));
+
+    napi_value ndataUnclearable;
+    NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, !appInfo.userDataClearable, &ndataUnclearable));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DATA_UNCLEARABLE, ndataUnclearable));
+
+    std::string externalNativeLibraryPath = "";
+    if (!appInfo.nativeLibraryPath.empty()) {
+        externalNativeLibraryPath = CONTEXT_DATA_STORAGE_BUNDLE + appInfo.nativeLibraryPath;
+    }
+    napi_value nativeLibraryPath;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, externalNativeLibraryPath.c_str(), NAPI_AUTO_LENGTH,
+        &nativeLibraryPath));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, NATIVE_LIBRARY_PATH, nativeLibraryPath));
+
+    napi_value nAppIndex;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.appIndex, &nAppIndex));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, APP_INDEX, nAppIndex));
+
+    napi_value nInstallSource;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.installSource.c_str(), NAPI_AUTO_LENGTH,
+        &nInstallSource));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, INSTALL_SOURCE, nInstallSource));
+
+    napi_value nReleaseType;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.apiReleaseType.c_str(), NAPI_AUTO_LENGTH,
+        &nReleaseType));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, RELEASE_TYPE, nReleaseType));
+
+    napi_value nDebug;
+    NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, appInfo.debug, &nDebug));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DEBUG, nDebug));
+    
+    napi_value nFlags;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.flags, &nFlags));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, FLAGS, nFlags));
+}
+
+void BundleManagerAddon::ConvertResource(napi_env env, const EdmResource &resource, napi_value objResource)
+{
+    napi_value nBundleName;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, resource.bundleName.c_str(), NAPI_AUTO_LENGTH, &nBundleName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objResource, BUNDLE_NAME, nBundleName));
+
+    napi_value nModuleName;
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, resource.moduleName.c_str(), NAPI_AUTO_LENGTH, &nModuleName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objResource, MODULE_NAME, nModuleName));
+
+    napi_value nId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, resource.id, &nId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objResource, ID, nId));
 }
 
 static napi_module g_bundleManagerModule = {

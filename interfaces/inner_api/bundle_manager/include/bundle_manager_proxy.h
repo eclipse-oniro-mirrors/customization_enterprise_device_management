@@ -18,6 +18,8 @@
 #include "enterprise_device_mgr_proxy.h"
 #include "install_param.h"
 
+#include "edm_bundle_info.h"
+
 namespace OHOS {
 namespace EDM {
 class BundleManagerProxy {
@@ -35,6 +37,8 @@ public:
         std::string &retMessage);
     int32_t Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,
         AppExecFwk::InstallParam &installParam, std::string &retMessage);
+    int32_t GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
+        std::vector<EdmBundleInfo> &bundleInfos);
 
 private:
     void AddPolicyTypeMap();
@@ -47,6 +51,11 @@ private:
         std::vector<std::string> &servicePaths, std::string &errMessage);
     ErrCode checkHapFilePath(const std::string &hapFilePath, std::string &fileName, std::string &realPath,
         std::string &errMessage);
+
+    ErrCode InnerGetVectorFromParcelIntelligent(MessageParcel &reply, std::vector<EdmBundleInfo> &parcelableInfos);
+    ErrCode GetParcelInfoFromAshMem(MessageParcel &reply, void *&data);
+    bool GetData(void *&buffer, size_t size, const void *data);
+    bool ContainerSecurityVerify(MessageParcel &parcel, int32_t infoSize, std::vector<EdmBundleInfo> &parcelables);
 };
 } // namespace EDM
 } // namespace OHOS
