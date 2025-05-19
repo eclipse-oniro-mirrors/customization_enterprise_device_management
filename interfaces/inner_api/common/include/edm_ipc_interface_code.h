@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -112,6 +112,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_MAINTENANCE_MODE = 1069,
 	ALLOWED_WIFI_LIST = 1070,
     DISALLOWED_WIFI_LIST = 1071,
+    GET_BUNDLE_INFO_LIST = 1075,
     SWITCH_WIFI = 1077,
     DISALLOWED_BLUETOOTH_DEVICES = 1079,
     DISALLOW_MODIFY_APN = 1080,

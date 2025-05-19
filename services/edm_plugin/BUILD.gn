@@ -87,6 +87,7 @@ ohos_shared_library("edmplugin") {
       "./src/get_device_info_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
+      "./src/installed_bundle_info_list_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/ntp_server_plugin.cpp",
       "./src/operate_device_plugin.cpp",
