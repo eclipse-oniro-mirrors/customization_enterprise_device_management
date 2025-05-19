@@ -106,6 +106,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DESK = "remoteDesk";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS = "remoteDiagnosis";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
+        const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -174,6 +175,8 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    // api 20
+    const char* const PERMISSION_SET_USER_RESTRICTION = "ohos.permission.SET_USER_RESTRICTION";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -244,6 +247,7 @@ namespace PolicyName {
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
