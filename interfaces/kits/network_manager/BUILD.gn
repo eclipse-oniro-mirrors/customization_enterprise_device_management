@@ -56,6 +56,10 @@ ohos_shared_library("networkmanager") {
     external_deps += [ "os_account:os_account_innerkits" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
+  }
+  
   relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true

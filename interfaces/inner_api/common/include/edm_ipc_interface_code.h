@@ -115,6 +115,7 @@ enum EdmInterfaceCode : uint32_t {
     SWITCH_WIFI = 1077,
     DISALLOWED_BLUETOOTH_DEVICES = 1079,
     DISALLOW_MODIFY_APN = 1080,
+    TURNONOFF_MOBILE_DATA = 1081,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

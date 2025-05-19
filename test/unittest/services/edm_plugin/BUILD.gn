@@ -247,6 +247,19 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
+    sources += [ 
+      "./src/turnonoff_mobile_data_plugin_test.cpp",
+    ]
+    defines += [ 
+      "CELLULAR_DATA_EDM_ENABLE",
+    ]
+  }
+  
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -552,6 +565,19 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "camera_framework:camera_framework" ]
     sources +=
         [ "../../../../services/edm_plugin/src/disable_camera_plugin.cpp" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
+    sources += [ 
+      "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
+    ]
+    defines += [ 
+      "CELLULAR_DATA_EDM_ENABLE",
+    ]
   }
 
   sanitize = {

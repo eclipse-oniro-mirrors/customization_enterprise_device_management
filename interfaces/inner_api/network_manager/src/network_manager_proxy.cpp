@@ -364,6 +364,21 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(MessageParcel &data,
     EDMLOGD("EnterpriseDeviceMgrProxy:GetDomainFilterRules success. %{public}d", size);
     return ERR_OK;
 }
+
+int32_t NetworkManagerProxy::TurnOnMobileData(MessageParcel &data)
+{
+    EDMLOGD("NetworkManagerProxy::TurnOnMobileData");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::TurnOffMobileData(MessageParcel &data)
+{
+    EDMLOGD("NetworkManagerProxy::TurnOffMobileData");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(MessageParcel &data)
 {
