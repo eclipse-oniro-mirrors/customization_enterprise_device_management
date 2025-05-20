@@ -19,6 +19,7 @@
 #include "datetime_manager_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
@@ -82,6 +83,7 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetPowerPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPowerPolicy");
     auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         PowerScene powerScene;
@@ -126,6 +128,7 @@ napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info 
 napi_value DeviceSettingsAddon::GetPowerPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetPowerPolicy called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPowerPolicy");
     auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         PowerScene powerScene;
@@ -201,6 +204,7 @@ napi_value DeviceSettingsAddon::ConvertPolicyPolicyToJs(napi_env env, PowerPolic
 napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetScreenOffTime called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setScreenOffTime");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetScreenOffTime";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
@@ -222,6 +226,7 @@ napi_value DeviceSettingsAddon::SetScreenOffTime(napi_env env, napi_callback_inf
 napi_value DeviceSettingsAddon::GetScreenOffTime(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetScreenOffTime called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getScreenOffTime");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetScreenOffTime";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -245,6 +250,7 @@ void DeviceSettingsAddon::NativeGetScreenOffTime(napi_env env, void *data)
 napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_InstallUserCertificate called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "installUserCertificate");
     auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         CertBlob certBlob;
@@ -279,6 +285,7 @@ void DeviceSettingsAddon::NativeInstallUserCertificate(napi_env env, void *data)
 napi_value DeviceSettingsAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_UninstallUserCertificate called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "uninstallUserCertificate");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "InstallUserCertificate";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
@@ -316,6 +323,7 @@ bool DeviceSettingsAddon::ParseCertBlob(napi_env env, napi_value object, CertBlo
 napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetValue called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setValue");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = { nullptr };
     napi_value thisArg = nullptr;
@@ -363,6 +371,7 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
 napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetValue called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getValue");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;

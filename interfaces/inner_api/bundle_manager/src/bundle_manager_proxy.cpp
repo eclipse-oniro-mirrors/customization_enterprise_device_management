@@ -35,6 +35,29 @@ const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string SEPARATOR = "/";
 
+bool BundleManagerProxy::GetData(void *&buffer, size_t size, const void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("GetData failed due to null data");
+        return false;
+    }
+    if (size == 0 || size > EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM) {
+        EDMLOGE("GetData failed due to zero size");
+        return false;
+    }
+    buffer = malloc(size);
+    if (buffer == nullptr) {
+        EDMLOGE("GetData failed due to malloc buffer failed");
+        return false;
+    }
+    if (memcpy_s(buffer, size, data, size) != EOK) {
+        free(buffer);
+        EDMLOGE("GetData failed due to memcpy_s failed");
+        return false;
+    }
+    return true;
+}
+
 BundleManagerProxy::BundleManagerProxy()
 {
     AddPolicyTypeMap();
@@ -299,6 +322,122 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
     return ERR_OK;
+}
+
+int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
+    std::vector<EdmBundleInfo> &bundleInfos)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_BUNDLE_INFO_LIST, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("BundleManagerProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    return InnerGetVectorFromParcelIntelligent(reply, bundleInfos);
+}
+
+ErrCode BundleManagerProxy::InnerGetVectorFromParcelIntelligent(MessageParcel &reply,
+    std::vector<EdmBundleInfo> &parcelableInfos)
+{
+    size_t dataSize = static_cast<size_t>(reply.ReadInt32());
+    if (dataSize == 0) {
+        EDMLOGI("Parcel no data");
+        return ERR_OK;
+    }
+
+    void *buffer = nullptr;
+    if (dataSize > EdmConstants::MAX_IPC_RAWDATA_SIZE) {
+        EDMLOGI("dataSize is too large, use ashmem");
+        if (GetParcelInfoFromAshMem(reply, buffer) != ERR_OK) {
+            EDMLOGE("read data from ashmem fail, length %{public}zu", dataSize);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    } else {
+        if (!GetData(buffer, dataSize, reply.ReadRawData(dataSize))) {
+            EDMLOGE("Fail read raw data length %{public}zu", dataSize);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+
+    MessageParcel tempParcel;
+    if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
+        EDMLOGE("Fail to ParseFrom");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    int32_t infoSize = tempParcel.ReadInt32();
+    if (!ContainerSecurityVerify(tempParcel, infoSize, parcelableInfos)) {
+        EDMLOGE("security verify failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (int32_t i = 0; i < infoSize; i++) {
+        std::unique_ptr<EdmBundleInfo> info(tempParcel.ReadParcelable<EdmBundleInfo>());
+        if (info == nullptr) {
+            EDMLOGE("Read Parcelable infos failed");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        parcelableInfos.emplace_back(*info);
+    }
+
+    return ERR_OK;
+}
+
+ErrCode BundleManagerProxy::GetParcelInfoFromAshMem(MessageParcel &reply, void *&data)
+{
+    sptr<Ashmem> ashMem = reply.ReadAshmem();
+    if (ashMem == nullptr) {
+        EDMLOGE("Ashmem is nullptr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    if (!ashMem->MapReadOnlyAshmem()) {
+        EDMLOGE("MapReadOnlyAshmem failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ashMemSize = ashMem->GetAshmemSize();
+    int32_t offset = 0;
+    const void* ashDataPtr = ashMem->ReadFromAshmem(ashMemSize, offset);
+    if (ashDataPtr == nullptr) {
+        EDMLOGE("ashDataPtr is nullptr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if ((ashMemSize == 0) || ashMemSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
+        EDMLOGE("failed due to wrong size");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    data = malloc(ashMemSize);
+    if (data == nullptr) {
+        EDMLOGE("failed due to malloc data failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (memcpy_s(data, ashMemSize, ashDataPtr, ashMemSize) != EOK) {
+        free(data);
+        EDMLOGE("failed due to memcpy_s failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+bool BundleManagerProxy::ContainerSecurityVerify(MessageParcel &parcel, int32_t infoSize,
+    std::vector<EdmBundleInfo> &parcelables)
+{
+    size_t readAbleDataSize = parcel.GetReadableBytes();
+    size_t readSize = static_cast<size_t>(infoSize);
+    if ((readSize > readAbleDataSize) || (parcelables.max_size() < readSize)) {
+        EDMLOGE("Failed to read container, readSize = %{public}zu, readAbleDataSize = %{public}zu",
+            readSize, readAbleDataSize);
+        return false;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

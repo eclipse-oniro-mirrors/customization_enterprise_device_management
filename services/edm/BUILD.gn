@@ -105,6 +105,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/get_display_version_query.cpp",
       "./src/query_policy/get_security_patch_tag_query.cpp",
       "./src/query_policy/inactive_user_freeze_query.cpp",
+      "./src/query_policy/installed_bundle_info_list_query.cpp",
       "./src/query_policy/ipolicy_query.cpp",
       "./src/query_policy/ntp_server_query.cpp",
       "./src/query_policy/plugin_policy_reader.cpp",

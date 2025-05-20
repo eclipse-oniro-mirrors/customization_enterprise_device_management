@@ -20,7 +20,10 @@ ohos_shared_library("networkmanager") {
     "include",
   ]
 
-  sources = [ "./src/network_manager_addon.cpp" ]
+  sources = [
+    "../../../common/native/src/hisysevent_adapter.cpp",
+    "./src/network_manager_addon.cpp"
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -34,6 +37,7 @@ ohos_shared_library("networkmanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
@@ -52,6 +56,10 @@ ohos_shared_library("networkmanager") {
     external_deps += [ "os_account:os_account_innerkits" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
+  }
+  
   relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true

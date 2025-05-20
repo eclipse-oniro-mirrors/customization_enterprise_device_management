@@ -24,6 +24,7 @@
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "want.h"
+#include "edm_bundle_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -39,6 +40,12 @@ struct AsyncUninstallCallbackInfo : AsyncCallbackInfo {
     std::string bundleName;
     int32_t userId = 0;
     bool isKeepData = false;
+};
+
+struct AsyncBundleInfoCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    int32_t userId = 0;
+    std::vector<EdmBundleInfo> bundleInfos;
 };
 
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
@@ -76,6 +83,7 @@ public:
     static napi_value AddDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
+    static napi_value GetInstalledBundleList(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
@@ -90,6 +98,8 @@ private:
     static void NativeUninstall(napi_env env, void *data);
     static void NativeUninstallCallbackComplete(napi_env env, napi_status status, void *data);
     static void NativeInstall(napi_env env, void *data);
+    static void NativeGetInstalledBundleList(napi_env env, void *data);
+    static void NativeGetInstalledBundleListComplete(napi_env env, napi_status status, void *data);
     static bool CheckAddInstallBundlesParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
         bool &hasUserId);
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
@@ -99,6 +109,12 @@ private:
         AsyncInstallCallbackInfo *asyncCallbackInfo);
     static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
     static bool ParseParameters(napi_env env, napi_value object, std::map<std::string, std::string> &parameters);
+    static void ConvertVectorBundleToJs(napi_env env, const std::vector<EdmBundleInfo> &bundleVector,
+        napi_value &result);
+    static void ConvertResource(napi_env env, const EdmResource &resource, napi_value objResource);
+    static void ConvertApplicationInfo(napi_env env, napi_value objAppInfo, const EdmApplicationInfo &appInfo);
+    static void ConvertSignatureInfo(napi_env env, const EdmSignatureInfo &signatureInfo, napi_value value);
+    static void ConvertBundleInfo(napi_env env, const EdmBundleInfo &bundleInfo, napi_value objBundleInfo);
 #endif
     static napi_value AddOrRemoveInstallBundlesSync(napi_env env, napi_callback_info info, const std::string &workName,
         bool isAdd);
