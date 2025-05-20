@@ -55,6 +55,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::INACTIVE_USER_FREEZE,
     EdmInterfaceCode::DISABLE_CAMERA,
     EdmInterfaceCode::PASSWORD_POLICY,
+    EdmInterfaceCode::DISABLE_REMOTE_DESK,
+    EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,
