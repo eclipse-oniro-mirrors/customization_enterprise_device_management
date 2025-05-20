@@ -88,6 +88,7 @@ ohos_shared_library("edmservice_kits") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
