@@ -109,6 +109,8 @@ private:
     static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
     static void SetGlobalHttpProxyCommonForAccount(AddonMethodSign &addonMethodSign);
+    static napi_value TurnOnMobileData(napi_env env, napi_callback_info info);
+    static napi_value TurnOffMobileData(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

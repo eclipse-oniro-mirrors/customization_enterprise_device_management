@@ -424,6 +424,40 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerSuc, TestSize.Level1)
     ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: GetInstalledBundleInfoListFailed
+ * @tc.desc: Test GetInstalledBundleInfoList reply error
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetInstalledBundleInfoListFailed, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<EdmBundleInfo> bundleInfos;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, bundleInfos);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(bundleInfos.size() == 0);
+}
+
+/**
+ * @tc.name: GetInstalledBundleInfoListSuccess
+ * @tc.desc: Test GetInstalledBundleInfoList reply OK
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetInstalledBundleInfoListSuccess, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<EdmBundleInfo> bundleInfos;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetInstalledBundleList));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, bundleInfos);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundleInfos.size() == 1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

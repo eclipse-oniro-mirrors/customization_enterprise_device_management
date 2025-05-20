@@ -137,6 +137,8 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getGlobalProxySync", GetGlobalHttpProxySync),
         DECLARE_NAPI_FUNCTION("setGlobalProxyForAccount", SetGlobalHttpProxyForAccountSync),
         DECLARE_NAPI_FUNCTION("getGlobalProxyForAccount", GetGlobalHttpProxyForAccountSync),
+        DECLARE_NAPI_FUNCTION("turnOnMobileData", TurnOnMobileData),
+        DECLARE_NAPI_FUNCTION("turnOffMobileData", TurnOnMobileData),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1326,6 +1328,56 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyForAccountSync(napi_env env, n
     return GetGlobalHttpProxyCommon(env, argv, argc, hasAdmin, elementName, accountId);
 #else
     EDMLOGW("NetworkManagerAddon::GetGlobalHttpProxyForAccountSync Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value NetworkManagerAddon::TurnOnMobileData(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_TurnOnMobileData called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "TurnOnMobileData";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->TurnOnMobileData(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::TurnOnMobileData Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value NetworkManagerAddon::TurnOffMobileData(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_TurnOffMobileData called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "TurnOffMobileData";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->TurnOffMobileData(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::TurnOffMobileData Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif

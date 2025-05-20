@@ -249,6 +249,19 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
+    sources += [ 
+      "./src/turnonoff_mobile_data_plugin_test.cpp",
+    ]
+    defines += [ 
+      "CELLULAR_DATA_EDM_ENABLE",
+    ]
+  }
+  
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -336,6 +349,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/get_device_info_plugin.cpp",
     "../../../../services/edm_plugin/src/inactive_user_freeze_plugin.cpp",
     "../../../../services/edm_plugin/src/install_plugin.cpp",
+    "../../../../services/edm_plugin/src/installed_bundle_info_list_plugin.cpp",
     "../../../../services/edm_plugin/src/managed_browser_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/ntp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
@@ -556,6 +570,19 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "camera_framework:camera_framework" ]
     sources +=
         [ "../../../../services/edm_plugin/src/disable_camera_plugin.cpp" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    external_deps += [
+      "cellular_data:tel_cellular_data_api",
+      "core_service:tel_core_service_api"
+    ]
+    sources += [ 
+      "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
+    ]
+    defines += [ 
+      "CELLULAR_DATA_EDM_ENABLE",
+    ]
   }
 
   sanitize = {

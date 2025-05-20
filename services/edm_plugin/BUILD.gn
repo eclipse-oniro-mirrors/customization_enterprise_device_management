@@ -89,6 +89,7 @@ ohos_shared_library("edmplugin") {
       "./src/get_device_info_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
+      "./src/installed_bundle_info_list_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/ntp_server_plugin.cpp",
       "./src/operate_device_plugin.cpp",
@@ -281,6 +282,16 @@ ohos_shared_library("edmplugin") {
     ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    sources += [ 
+      "./src/turnonoff_mobile_data_plugin.cpp",
+    ]
+    defines += [ 
+      "CELLULAR_DATA_EDM_ENABLE",
+    ]
+  }
+  
   if (enterprise_device_management_feature_charging_type_setting) {
     defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
   }
