@@ -28,16 +28,12 @@ config("edm_plugin_config") {
   ]
 }
 
-ohos_shared_library("edmplugin") {
+ohos_shared_library("device_core_plugin") {
   sources = [
-    "./src/utils/clear_up_application_data_param_serializer.cpp",
     "./src/utils/installer_callback.cpp",
-    "./src/utils/managed_browser_policy_serializer.cpp",
-    "./src/utils/operate_device_param_serializer.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
-    "./src/utils/update_policy_serializer.cpp",
-    "./src/utils/upgrade_package_info_serializer.cpp",
   ]
+
   public_configs = [
     ":edm_plugin_config",
     "../../common/config:coverage_flags",
@@ -60,7 +56,6 @@ ohos_shared_library("edmplugin") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
-    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "file_api:securitylabel",
@@ -68,7 +63,6 @@ ohos_shared_library("edmplugin") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "telephony_data:tel_telephony_data",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
     "window_manager:sms",
@@ -79,38 +73,27 @@ ohos_shared_library("edmplugin") {
     sources += [
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
-      "./src/clear_up_application_data_plugin.cpp",
+      "./src/disable_hdc_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
-      "./src/disable_mtp_client_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
+      "./src/disable_printer_plugin.cpp",
       "./src/disable_remote_desk_plugin.cpp",
       "./src/disable_remote_diagnosis_plugin.cpp",
-      "./src/disable_user_mtp_client_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
-      "./src/disallowed_tethering_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
-      "./src/get_adminprovision_info_plugin.cpp",
-      "./src/get_device_info_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/installed_bundle_info_list_plugin.cpp",
       "./src/kiosk_feature_plugin.cpp",
-      "./src/notify_update_packages_plugin.cpp",
       "./src/ntp_server_plugin.cpp",
-      "./src/operate_device_plugin.cpp",
       "./src/power_policy_plugin.cpp",
       "./src/screen_off_time_plugin.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
-      "./src/set_update_policy_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/battery_utils.cpp",
     ]
-    if (time_service_edm_enable) {
-      external_deps += [ "time_service:time_client" ]
-      sources += [ "./src/set_datetime_plugin.cpp" ]
-    }
 
     if (os_account_edm_enable) {
       external_deps += [
@@ -121,6 +104,8 @@ ohos_shared_library("edmplugin") {
       ]
       sources += [
         "./src/add_os_account_plugin.cpp",
+        "./src/disable_mtp_client_plugin.cpp",
+        "./src/disable_user_mtp_client_plugin.cpp",
         "./src/disallow_add_local_account_plugin.cpp",
         "./src/disallow_add_os_account_by_user_plugin.cpp",
         "./src/set_watermark_image_plugin.cpp",
@@ -133,16 +118,25 @@ ohos_shared_library("edmplugin") {
       sources += [ "./src/set_domain_account_policy_plugin.cpp" ]
     }
 
-    if (enterprise_device_management_feature_pc_only) {
+    if (audio_framework_edm_enable) {
+      external_deps += [ "audio_framework:audio_client" ]
+      sources += [ "./src/disable_microphone_plugin.cpp" ]
+    }
+
+    if (bluetooth_edm_enable) {
+      external_deps += [ "bluetooth:btframework" ]
       sources += [
-        "./src/disable_samba_client_plugin.cpp",
-        "./src/disable_samba_server_plugin.cpp",
+        "./src/allowed_bluetooth_devices_plugin.cpp",
+        "./src/disable_bluetooth_plugin.cpp",
+        "./src/disallowed_bluetooth_devices_plugin.cpp",
+        "./src/get_bluetooth_info_plugin.cpp",
+        "./src/switch_bluetooth_plugin.cpp",
       ]
     }
 
-    if (screenlock_mgr_edm_enable) {
-      external_deps += [ "screenlock_mgr:screenlock_client" ]
-      sources += [ "./src/lock_screen_plugin.cpp" ]
+    if (camera_framework_edm_enable) {
+      external_deps += [ "camera_framework:camera_framework" ]
+      sources += [ "./src/disable_camera_plugin.cpp" ]
     }
 
     if (power_manager_edm_enable) {
@@ -153,15 +147,85 @@ ohos_shared_library("edmplugin") {
       ]
     }
 
-    if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
+    if (power_manager_edm_enable &&
+        !enterprise_device_management_feature_pc_only) {
       sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
     }
 
-    if (update_service_edm_enable) {
-      external_deps += [ "update_service:updateservicekits" ]
-      sources += [ "./src/reset_factory_plugin.cpp" ]
+    if (screenlock_mgr_edm_enable) {
+      external_deps += [ "screenlock_mgr:screenlock_client" ]
+      sources += [ "./src/lock_screen_plugin.cpp" ]
     }
 
+    if (!enterprise_device_management_feature_pc_only) {
+      sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
+    }
+
+    if (enterprise_device_management_feature_charging_type_setting) {
+      defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
+    }
+  }
+
+  deps = [
+    "../../common/external:edm_external_adapters",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
+  ]
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  relative_install_dir = "edm_plugin"
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_shared_library("communication_plugin") {
+  sources = []
+
+  public_configs = [
+    ":edm_plugin_config",
+    "../../common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
+  }
+
+  if (target_cpu == "x86_64") {
+    defines += [ "_X86_64_" ]
+    print("defines _X86_64_")
+  }
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "file_api:securitylabel",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "window_manager:libwm",
+    "window_manager:sms",
+  ]
+
+  if (enterprise_device_management_support_all) {
+    sources += [ "./src/disallowed_tethering_plugin.cpp" ]
+    defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     if (wifi_edm_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       sources += [
@@ -175,6 +239,24 @@ ohos_shared_library("edmplugin") {
         "./src/utils/wifi_policy_utils.cpp",
       ]
       defines += [ "WIFI_EDM_ENABLE" ]
+    }
+
+    if (!enterprise_device_management_feature_pc_only &&
+        cellular_data_edm_enable && telephony_core_edm_enable) {
+      external_deps += [
+        "cellular_data:tel_cellular_data_api",
+        "core_service:tel_core_service_api",
+        "data_share:datashare_consumer",
+      ]
+      sources += [
+        "./src/disallow_mobile_data_plugin.cpp",
+        "./src/disallow_modify_apn_plugin.cpp",
+        "./src/disallowed_sim_plugin.cpp",
+        "./src/set_apn_plugin.cpp",
+        "./src/turnonoff_mobile_data_plugin.cpp",
+        "./src/utils/apn_utils.cpp",
+      ]
+      defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
     }
 
     if (netmanager_base_edm_enable) {
@@ -215,20 +297,6 @@ ohos_shared_library("edmplugin") {
       ]
     }
 
-    if (ability_runtime_edm_enable) {
-      external_deps += [ "ability_runtime:ability_manager" ]
-      sources += [
-        "./src/disallowed_running_bundles_plugin.cpp",
-        "./src/manage_auto_start_apps_plugin.cpp",
-        "./src/manage_keep_alive_apps_plugin.cpp",
-      ]
-    }
-
-    if (certificate_manager_edm_enable) {
-      external_deps += [ "certificate_manager:cert_manager_sdk" ]
-      sources += [ "./src/user_cert_plugin.cpp" ]
-    }
-
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
       external_deps += [ "usb_manager:usbsrv_client" ]
       sources += [
@@ -247,32 +315,130 @@ ohos_shared_library("edmplugin") {
       defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
-    if (audio_framework_edm_enable) {
-      external_deps += [ "audio_framework:audio_client" ]
-      sources += [
-        "./src/disable_hdc_plugin.cpp",
-        "./src/disable_microphone_plugin.cpp",
-        "./src/disable_printer_plugin.cpp",
-      ]
-    }
-
     if (common_event_service_edm_enable) {
       external_deps += [ "common_event_service:cesfwk_innerkits" ]
       sources += [
         "./src/managed_browser_policy_plugin.cpp",
         "./src/set_browser_policies_plugin.cpp",
+        "./src/utils/managed_browser_policy_serializer.cpp",
       ]
       defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
     }
 
-    if (bluetooth_edm_enable) {
-      external_deps += [ "bluetooth:btframework" ]
+    if (enterprise_device_management_feature_pc_only) {
       sources += [
-        "./src/allowed_bluetooth_devices_plugin.cpp",
-        "./src/disable_bluetooth_plugin.cpp",
-        "./src/disallowed_bluetooth_devices_plugin.cpp",
-        "./src/get_bluetooth_info_plugin.cpp",
-        "./src/switch_bluetooth_plugin.cpp",
+        "./src/disable_samba_client_plugin.cpp",
+        "./src/disable_samba_server_plugin.cpp",
+      ]
+    }
+
+    if (!enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/disallowed_mms_plugin.cpp",
+        "./src/disallowed_sms_plugin.cpp",
+      ]
+    }
+
+    if (nfc_edm_enable) {
+      sources += [ "./src/disallowed_nfc_plugin.cpp" ]
+    }
+  }
+
+  deps = [
+    "../../common/external:edm_external_adapters",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
+  ]
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  relative_install_dir = "edm_plugin"
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_shared_library("sys_service_plugin") {
+  sources = []
+  public_configs = [
+    ":edm_plugin_config",
+    "../../common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
+  }
+
+  if (target_cpu == "x86_64") {
+    defines += [ "_X86_64_" ]
+    print("defines _X86_64_")
+  }
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "file_api:securitylabel",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "telephony_data:tel_telephony_data",
+    "window_manager:libwm",
+    "window_manager:sms",
+  ]
+
+  if (enterprise_device_management_support_all) {
+    sources += [
+      "./src/clear_up_application_data_plugin.cpp",
+      "./src/utils/clear_up_application_data_param_serializer.cpp",
+    ]
+    defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
+    if (update_service_edm_enable) {
+      external_deps += [ "update_service:updateservicekits" ]
+      sources += [ "./src/reset_factory_plugin.cpp" ]
+    }
+
+    if (ability_runtime_edm_enable) {
+      external_deps += [ "ability_runtime:ability_manager" ]
+      sources += [
+        "./src/disallowed_running_bundles_plugin.cpp",
+        "./src/manage_auto_start_apps_plugin.cpp",
+        "./src/manage_keep_alive_apps_plugin.cpp",
+      ]
+    }
+
+    if (certificate_manager_edm_enable) {
+      external_deps += [ "certificate_manager:cert_manager_sdk" ]
+      sources += [ "./src/user_cert_plugin.cpp" ]
+    }
+
+    if (pasteboard_edm_enable) {
+      external_deps += [ "pasteboard:pasteboard_client" ]
+      defines += [ "PASTEBOARD_EDM_ENABLE" ]
+      sources += [ "./src/clipboard_policy_plugin.cpp" ]
+    }
+
+    if (useriam_edm_enable) {
+      external_deps += [ "user_auth_framework:userauth_client" ]
+      defines += [ "USERIAM_EDM_ENABLE" ]
+      sources += [
+        "./src/fingerprint_auth_plugin.cpp",
+        "./src/password_policy_plugin.cpp",
       ]
     }
 
@@ -281,66 +447,94 @@ ohos_shared_library("edmplugin") {
       sources += [ "./src/location_policy_plugin.cpp" ]
     }
 
-    if (telephony_core_edm_enable) {
-      external_deps += [ "core_service:tel_core_service_api" ]
-      defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
+    if (time_service_edm_enable) {
+      external_deps += [ "time_service:time_client" ]
+      sources += [ "./src/set_datetime_plugin.cpp" ]
     }
   }
+  deps = [
+    "../../common/external:edm_external_adapters",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
+  ]
 
-  if (pasteboard_edm_enable) {
-    external_deps += [ "pasteboard:pasteboard_client" ]
-    defines += [ "PASTEBOARD_EDM_ENABLE" ]
-    sources += [ "./src/clipboard_policy_plugin.cpp" ]
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  relative_install_dir = "edm_plugin"
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_shared_library("need_extra_plugin") {
+  sources = [
+    "./src/utils/operate_device_param_serializer.cpp",
+    "./src/utils/uninstall_param_serializer.cpp",
+    "./src/utils/update_policy_serializer.cpp",
+    "./src/utils/upgrade_package_info_serializer.cpp",
+  ]
+  public_configs = [
+    ":edm_plugin_config",
+    "../../common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
   }
 
-  if (useriam_edm_enable) {
-    external_deps += [ "user_auth_framework:userauth_client" ]
-    defines += [ "USERIAM_EDM_ENABLE" ]
+  if (target_cpu == "x86_64") {
+    defines += [ "_X86_64_" ]
+    print("defines _X86_64_")
+  }
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "window_manager:libwm",
+    "window_manager:sms",
+  ]
+
+  if (enterprise_device_management_support_all) {
+    defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
-      "./src/fingerprint_auth_plugin.cpp",
-      "./src/password_policy_plugin.cpp",
+      "./src/get_adminprovision_info_plugin.cpp",
+      "./src/get_device_info_plugin.cpp",
+      "./src/notify_update_packages_plugin.cpp",
+      "./src/set_update_policy_plugin.cpp",
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only && 
-      cellular_data_edm_enable) {
-    external_deps += [ "cellular_data:tel_cellular_data_api" ]
-    sources += [
-      "./src/disallow_mobile_data_plugin.cpp",
-      "./src/disallow_modify_apn_plugin.cpp",
-      "./src/disallowed_sim_plugin.cpp",
-      "./src/set_apn_plugin.cpp",
-      "./src/turnonoff_mobile_data_plugin.cpp",
-      "./src/utils/apn_utils.cpp",
+  if (power_manager_edm_enable && screenlock_mgr_edm_enable &&
+      update_service_edm_enable) {
+    external_deps += [
+      "power_manager:powermgr_client",
+      "screenlock_mgr:screenlock_client",
+      "update_service:updateservicekits",
     ]
-    defines += [
-      "CELLULAR_DATA_EDM_ENABLE",
-      "TELEPHONY_EDM_ENABLE",
-    ]
+    sources += [ "./src/operate_device_plugin.cpp" ]
   }
 
-  if (enterprise_device_management_feature_charging_type_setting) {
-    defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
-  }
-
-  if (camera_framework_edm_enable) {
-    external_deps += [ "camera_framework:camera_framework" ]
-    sources += [ "./src/disable_camera_plugin.cpp" ]
-  }
-
-  if (!enterprise_device_management_feature_pc_only) {
-    sources += [
-      "./src/disallowed_mms_plugin.cpp",
-      "./src/disallowed_sms_plugin.cpp",
-    ]
-  }
-
-  if (nfc_edm_enable) {
-    sources += [ "./src/disallowed_nfc_plugin.cpp" ]
-  }
-
-  if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
+  if (telephony_core_edm_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
   }
 
   deps = [

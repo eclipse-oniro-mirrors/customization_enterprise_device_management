@@ -17,6 +17,7 @@
 #define SERVICES_EDM_INCLUDE_EDM_PERMISSION_MANAGER_H
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -30,13 +31,15 @@ namespace EDM {
 class PermissionManager : public DelayedSingleton<PermissionManager> {
 DECLARE_DELAYED_SINGLETON(PermissionManager)
 public:
-    ErrCode AddPermission(const std::string &permission, IPlugin::PermissionType permissionType);
+    ErrCode AddPermission(const std::string &permission, IPlugin::PermissionType permissionType, std::uint32_t code);
+    void RemovePermission(const std::string &permission, IPlugin::PermissionType permissionType, std::uint32_t code);
     void GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,
         std::vector<std::string> &reqPermission);
 
 private:
     AdminType PermissionTypeToAdminType(IPlugin::PermissionType permissionType);
     std::map<std::string, AdminType> permissions_;
+    std::map<std::string, std::set<std::uint32_t>> permissionToCodes_;
 };
 } // namespace EDM
 } // namespace OHOS
