@@ -174,7 +174,7 @@ namespace EdmPermission {
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
     // api 20
-    const char* const PERMISSION_SET_USER_RESTRICTION = "ohos.permission.SET_USER_RESTRICTION";
+    const char* const PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
