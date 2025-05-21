@@ -97,6 +97,8 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",
+      "./src/query_policy/disable_remote_desk_query.cpp",
+      "./src/query_policy/disable_remote_diagnosis_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
       "./src/query_policy/disallowed_tethering_query.cpp",
