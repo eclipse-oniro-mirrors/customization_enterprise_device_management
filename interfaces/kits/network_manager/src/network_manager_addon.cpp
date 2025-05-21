@@ -138,7 +138,7 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setGlobalProxyForAccount", SetGlobalHttpProxyForAccountSync),
         DECLARE_NAPI_FUNCTION("getGlobalProxyForAccount", GetGlobalHttpProxyForAccountSync),
         DECLARE_NAPI_FUNCTION("turnOnMobileData", TurnOnMobileData),
-        DECLARE_NAPI_FUNCTION("turnOffMobileData", TurnOnMobileData),
+        DECLARE_NAPI_FUNCTION("turnOffMobileData", TurnOffMobileData),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
