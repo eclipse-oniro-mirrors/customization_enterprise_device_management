@@ -1,6 +1,6 @@
 {
   "name": "@ohos/enterprise_device_management",
-  "version": 3.2,
+  "version": "3.2",
   "description": "EDM（Enterprise Device Management）提供系统级别的管理功能API，支持企业MDM应用对设备的管控",
   "homePage": "https://gitee.com/openharmony",
   "license": "Apache-2.0",

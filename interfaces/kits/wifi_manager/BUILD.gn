@@ -36,6 +36,7 @@ ohos_shared_library("wifimanager") {
   external_deps = [
     "ability_base:want",
     "bounds_checking_function:libsec_shared",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
