@@ -95,7 +95,6 @@ ohos_shared_library("edmservice_kits") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 

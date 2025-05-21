@@ -44,7 +44,6 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "googletest:gmock_main",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
   ]
 
   sanitize = {

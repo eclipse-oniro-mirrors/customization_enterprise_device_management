@@ -30,9 +30,9 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 const std::string KEY_POWER_AC_SUSPEND = "settings.power.ac.suspend_sources";
 const std::string KEY_POWER_DC_SUSPEND = "settings.power.dc.suspend_sources";
-const std::string KEY_ACTION = "action";
-const std::string KEY_DELAY_TIME = "delayMs";
 const std::string KEY_TIME_OUT = "timeout";
+const char* const KEY_ACTION = "action";
+const char* const KEY_DELAY_TIME = "delayMs";
 
 PowerPolicyPlugin::PowerPolicyPlugin()
 {
@@ -118,73 +118,95 @@ bool PowerPolicyPlugin::DealPowerSuspendPolicy(const std::string &policyKey, Pow
     }
 #endif
 
-    Json::Reader reader;
-    Json::Value root;
-    if (!reader.parse(powerSuspend.data(), powerSuspend.data() + powerSuspend.size(), root)) {
+    cJSON *root = cJSON_Parse(powerSuspend.c_str());
+    if (root == nullptr) {
         EDMLOGE("PowerPolicyPlugin:DealPowerSuspendPolicy parse error");
         return false;
     }
-    if (!root.isMember(policyKey)) {
+
+    cJSON *policyItem = cJSON_GetObjectItem(root, policyKey.c_str());
+    if (policyItem == nullptr) {
         EDMLOGE("PowerPolicyPlugin:DealPowerSuspendPolicy %{public}s is not root member", policyKey.c_str());
+        cJSON_Delete(root);
         return false;
     }
-    Json::Value::Members members = root.getMemberNames();
-    for (auto iter = members.begin(); iter != members.end(); iter++) {
-        std::string key = *iter;
-        if (key != policyKey) {
-            continue;
-        }
-        if (isSetPolicy) {
-            return UpdateSuspendSettingsData(root, key, powerPolicy);
-        }
-        return SetPowerPolicyObject(root, key, powerPolicy);
+
+    bool result = false;
+    if (isSetPolicy) {
+        result = UpdateSuspendSettingsData(root, policyKey, powerPolicy);
+    } else {
+        result = SetPowerPolicyObject(root, policyKey, powerPolicy);
     }
-    return false;
+
+    cJSON_Delete(root);
+    return result;
 }
 
-bool PowerPolicyPlugin::UpdateSuspendSettingsData(Json::Value &root, const std::string &key,
-    const PowerPolicy &powerPolicy)
+bool PowerPolicyPlugin::UpdateSuspendSettingsData(cJSON* root, const std::string& key,
+    const PowerPolicy& powerPolicy)
 {
-    Json::Value valueObj = root[key];
-    if (!valueObj.isObject()) {
+    cJSON* valueObj = cJSON_GetObjectItem(root, key.c_str());
+    if (valueObj == nullptr || !cJSON_IsObject(valueObj)) {
         return false;
     }
-    valueObj[KEY_ACTION] = static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction());
-    valueObj[KEY_DELAY_TIME] = powerPolicy.GetDelayTime();
-    root[key] = valueObj;
-    std::string jsonStr = root.toStyledString();
-    EDMLOGD("PowerPolicyPlugin:OnSetPolicy jsonStr = %{public}s", jsonStr.c_str());
+
+    cJSON* actionItem = cJSON_GetObjectItem(valueObj, KEY_ACTION);
+    if (actionItem != nullptr) {
+        cJSON_SetNumberValue(actionItem, static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
+    } else {
+        cJSON_AddNumberToObject(valueObj, KEY_ACTION, static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()));
+    }
+
+    cJSON* delayItem = cJSON_GetObjectItem(valueObj, KEY_DELAY_TIME);
+    if (delayItem != nullptr) {
+        cJSON_SetNumberValue(delayItem, powerPolicy.GetDelayTime());
+    } else {
+        cJSON_AddNumberToObject(valueObj, KEY_DELAY_TIME, powerPolicy.GetDelayTime());
+    }
+
+    char* jsonStr = cJSON_PrintUnformatted(root);
+    if (jsonStr == nullptr) {
+        return false;
+    }
+    EDMLOGD("PowerPolicyPlugin:OnSetPolicy jsonStr = %{public}s", jsonStr);
 
 #ifdef FEATURE_CHARGING_TYPE_SETTING
     if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(
         BatteryUtils::GetSubUserTableUri(), KEY_POWER_AC_SUSPEND, jsonStr))) {
+        cJSON_free(jsonStr);
         return false;
     }
     if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(
         BatteryUtils::GetSubUserTableUri(), KEY_POWER_DC_SUSPEND, jsonStr))) {
+        cJSON_free(jsonStr);
         return false;
     }
 #else
     if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(KEY_POWER_SUSPEND, jsonStr))) {
+        cJSON_free(jsonStr);
         return false;
     }
 #endif
+
+    cJSON_free(jsonStr);
     return true;
 }
 
-bool PowerPolicyPlugin::SetPowerPolicyObject(Json::Value &root, std::string &key, PowerPolicy &powerPolicy)
+bool PowerPolicyPlugin::SetPowerPolicyObject(cJSON* root, const std::string& key, PowerPolicy& powerPolicy)
 {
-    Json::Value valueObj = root[key];
-    if (!valueObj.isObject()) {
+    cJSON* valueObj = cJSON_GetObjectItem(root, key.c_str());
+    if (valueObj == nullptr || !cJSON_IsObject(valueObj)) {
         return false;
     }
-    Json::Value actionValue = valueObj[KEY_ACTION];
-    Json::Value delayValue = valueObj[KEY_DELAY_TIME];
-    if (actionValue.isUInt() && delayValue.isUInt()) {
-        if (!powerPolicy.SetPowerPolicyAction(actionValue.asUInt())) {
+
+    cJSON* actionValue = cJSON_GetObjectItem(valueObj, KEY_ACTION);
+    cJSON* delayValue = cJSON_GetObjectItem(valueObj, KEY_DELAY_TIME);
+
+    if (actionValue && cJSON_IsNumber(actionValue) && delayValue && cJSON_IsNumber(delayValue)) {
+        if (!powerPolicy.SetPowerPolicyAction(actionValue->valueint)) {
             return false;
         }
-        powerPolicy.SetDelayTime(delayValue.asUInt());
+        powerPolicy.SetDelayTime(delayValue->valueint);
         return true;
     }
     return false;

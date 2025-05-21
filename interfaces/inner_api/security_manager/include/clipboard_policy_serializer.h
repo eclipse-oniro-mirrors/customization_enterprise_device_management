@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_CLIPBOARD_POLICY_SERIALIZER_H
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_CLIPBOARD_POLICY_SERIALIZER_H
 
+#include <map>
 #include "clipboard_info.h"
 #include "clipboard_policy.h"
 #include "ipolicy_serializer.h"

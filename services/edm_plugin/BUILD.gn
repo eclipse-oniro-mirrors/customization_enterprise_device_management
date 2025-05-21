@@ -66,7 +66,6 @@ ohos_shared_library("edmplugin") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
     "telephony_data:tel_telephony_data",
     "window_manager:libwm",

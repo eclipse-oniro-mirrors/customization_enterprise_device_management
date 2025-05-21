@@ -316,12 +316,12 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "access_token:libnativetoken",
     "access_token:libnativetoken_shared",
     "access_token:libtoken_setproc",
+    "cJSON:cjson",
     "c_utils:utils",
     "googletest:gmock_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
   ]
 
   sanitize = {
@@ -414,7 +414,6 @@ ohos_static_library("edm_all_plugin_static") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",

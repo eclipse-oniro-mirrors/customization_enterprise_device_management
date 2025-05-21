@@ -18,8 +18,8 @@
 
 #include <message_parcel.h>
 
+#include "cJSON.h"
 #include "iplugin.h"
-#include "json/json.h"
 #include "power_policy.h"
 
 namespace OHOS {
@@ -45,9 +45,9 @@ public:
 
 private:
     ErrCode SetPowerPolicy(MessageParcel &data);
-    bool SetPowerPolicyObject(Json::Value &root, std::string &key, PowerPolicy &powerPolicy);
+    bool SetPowerPolicyObject(cJSON* root, const std::string &key, PowerPolicy &powerPolicy);
     bool GetPowerSceneKey(const uint32_t &powerScene, std::string &sceneKey);
-    bool UpdateSuspendSettingsData(Json::Value &root, const std::string &key, const PowerPolicy &powerPolicy);
+    bool UpdateSuspendSettingsData(cJSON* root, const std::string &key, const PowerPolicy &powerPolicy);
     bool DealPowerSuspendPolicy(const std::string &policyKey, PowerPolicy &powerPolicy, bool isSetPolicy);
 };
 } // namespace EDM

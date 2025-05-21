@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_MAP_STRING_SERIALIZER_H
 #define SERVICES_EDM_INCLUDE_UTILS_MAP_STRING_SERIALIZER_H
 
+#include <map>
 #include "ipolicy_serializer.h"
 #include "singleton.h"
 

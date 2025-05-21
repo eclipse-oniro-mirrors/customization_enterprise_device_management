@@ -43,7 +43,7 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int32_t WITHOUT_ADMIN_SUCCESS_POLICY_CODE = 1024;
-constexpr int32_t ARRAY_MAP_TESTPLUGIN_POLICYCODE = 13;
+constexpr int32_t MAP_TESTPLUGIN_POLICYCODE = 12;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
@@ -71,7 +71,7 @@ const std::string TEST_POLICY_VALUE = "test_policy_value";
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
-    plugin_ = PLUGIN::ArrayMapTestPlugin::GetPlugin();
+    plugin_ = PLUGIN::MapTestPlugin::GetPlugin();
     appMgrMock_ = std::make_shared<EdmAppManagerImplMock>();
     bundleMgrMock_ = std::make_shared<EdmBundleManagerImplMock>();
     osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
@@ -231,7 +231,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
@@ -254,7 +254,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithoutAdmin, Tes
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
@@ -279,7 +279,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -330,7 +330,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -359,7 +359,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyGetAdminByPkgName
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_1);
     MessageParcel data;
@@ -397,7 +397,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -423,7 +423,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -604,7 +604,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithAdminInactive, T
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -640,7 +640,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -671,7 +671,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -699,7 +699,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithGetAdminByPkgNam
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_1);
     MessageParcel data;
@@ -727,7 +727,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicySuc, TestSize.Level1
         Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -814,7 +814,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
@@ -2755,7 +2755,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithUserNotE
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2779,7 +2779,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithoutAdmin
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2805,7 +2805,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckCalling
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2858,7 +2858,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckPermiss
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2896,7 +2896,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2923,7 +2923,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc, TestSiz
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -3109,7 +3109,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithAdminInacti
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
@@ -3145,7 +3145,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3176,7 +3176,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckEdmPer
         Return(ERR_OK)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3204,7 +3204,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerSuc, TestSize.L
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3291,7 +3291,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
