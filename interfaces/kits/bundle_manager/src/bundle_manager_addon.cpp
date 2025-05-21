@@ -57,7 +57,6 @@ constexpr const char* RELEASE_TYPE = "releaseType";
 constexpr const char* ID = "id";
 constexpr const char* BUNDLE_NAME = "bundleName";
 constexpr const char* MODULE_NAME = "moduleName";
-constexpr const char* FLAGS = "flags";
 constexpr const char* NAME = "name";
 constexpr const char* ENABLED = "enabled";
 constexpr const char* LABEL = "label";
@@ -1088,10 +1087,6 @@ void BundleManagerAddon::ConvertApplicationInfo(napi_env env, napi_value objAppI
     napi_value nDebug;
     NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, appInfo.debug, &nDebug));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, DEBUG, nDebug));
-    
-    napi_value nFlags;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.flags, &nFlags));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, FLAGS, nFlags));
 }
 
 void BundleManagerAddon::ConvertResource(napi_env env, const EdmResource &resource, napi_value objResource)
