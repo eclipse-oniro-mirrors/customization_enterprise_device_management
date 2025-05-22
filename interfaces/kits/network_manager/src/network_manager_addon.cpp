@@ -139,6 +139,11 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getGlobalProxyForAccount", GetGlobalHttpProxyForAccountSync),
         DECLARE_NAPI_FUNCTION("turnOnMobileData", TurnOnMobileData),
         DECLARE_NAPI_FUNCTION("turnOffMobileData", TurnOffMobileData),
+        DECLARE_NAPI_FUNCTION("addApn", AddApn),
+        DECLARE_NAPI_FUNCTION("deleteApn", DeleteApn),
+        DECLARE_NAPI_FUNCTION("updateApn", UpdateApn),
+        DECLARE_NAPI_FUNCTION("setPreferApn", SetPreferApn),
+        DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1381,6 +1386,302 @@ napi_value NetworkManagerAddon::TurnOffMobileData(napi_env env, napi_callback_in
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::string> &parameters, ApnInfo &info)
+{
+    std::string apnName = "";
+    std::string apn = "";
+    std::string mcc = "";
+    std::string mnc = "";
+    std::string user = "";
+    std::string type = "";
+    std::string proxy = "";
+    std::string mmsproxy = "";
+    try
+    {
+        apnName = parameters.at("apnName");
+        apn = parameters.at("apn");
+        mcc = parameters.at("mcc");
+        mnc = parameters.at("mnc");
+        user = parameters.at("user");
+        type = parameters.at("type");
+        proxy = parameters.at("proxy");
+        mmsproxy = parameters.at("mmsproxy");
+    }
+    catch(const std::out_of_range& e)
+    {
+        EDMLOGE("CheckParameters::Key not fonud.");
+        return false;
+    }
+    
+    if (apnName.empty() || apn.empty() || mcc.empty() || mnc.empty()) {
+        EDMLOGE("CheckParameters::Required is null.");
+        return false;
+    }
+    info = {apnName, apn, mcc, mnc, user, type, proxy, mmsproxy};
+    return true;
+}
+
+napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddApn called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasApnInfo = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasApnInfo, "The second parameter must be ApnInfo.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::map<std::string, std::string> apnInfoMap;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
+        "apnInfo name param error");
+    
+    ApnInfo apnInfo = {"", "", "", "", "", "", "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap, apnInfo), "Required fields is null");
+    
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfo);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::AddApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_DeleteApn called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "DeleteApn";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->DeleteApn(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::DeleteApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+    
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_UpdateApn called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasApnInfo = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasApnInfo, "The second parameter must be ApnInfo.");
+    bool hasApnId = MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasApnId, "The thrid parameter must be ApnId.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::map<std::string, std::string> apnInfoMap;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
+        "apnInfo param error");
+    
+    ApnInfo apnInfo = {"", "", "", "", "", "", "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap, apnInfo), "Required fields is null");
+
+    std::string apnId;
+    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, argv[ARR_INDEX_TWO], apnId), "apnId param error");
+    
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfo, apnId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::UpdateApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetPreferApn called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasApnId = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasApnId, "The second parameter must be ApnId.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+
+    std::string apnId;
+    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, argv[ARR_INDEX_ONE], apnId), "apnId param error");
+
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetPreferApn(elementName, apnId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::SetPreferApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+
+    return nullptr;
+}
+
+napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const ApnInfo &apnInfo)
+{
+    napi_value info = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &info));
+    napi_value apnName = nullptr;
+    std::string str = std::get<APNINFO_APNNAME_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &apnName));
+    napi_value apn = nullptr;
+    str = std::get<APNINFO_APN_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &apn));
+    napi_value mcc = nullptr;
+    str = std::get<APNINFO_MCC_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mcc));
+    napi_value mnc = nullptr;
+    str = std::get<APNINFO_MNC_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mnc));
+    napi_value user = nullptr;
+    str = std::get<APNINFO_USER_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &user));
+    napi_value type = nullptr;
+    str = std::get<APNINFO_TYPE_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &type));
+    napi_value proxy = nullptr;
+    str = std::get<APNINFO_PROXY_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &proxy));
+    napi_value mmsproxy = nullptr;
+    str = std::get<APNINFO_MMSPROXY_IND>(apnInfo);
+    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mmsproxy));
+    
+    NAPI_CALL(env, napi_set_named_property(env, info, "apnName", apnName));
+    NAPI_CALL(env, napi_set_named_property(env, info, "apn", apn));
+    NAPI_CALL(env, napi_set_named_property(env, info, "mcc", mcc));
+    NAPI_CALL(env, napi_set_named_property(env, info, "mnc", mnc));
+    NAPI_CALL(env, napi_set_named_property(env, info, "user", user));
+    NAPI_CALL(env, napi_set_named_property(env, info, "type", type));
+    NAPI_CALL(env, napi_set_named_property(env, info, "proxy", proxy));
+    NAPI_CALL(env, napi_set_named_property(env, info, "mmsproxy", mmsproxy));
+
+    return info;
+}
+
+napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param)
+{
+    std::string apnId;
+    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, param, apnId), "apnId param error");
+    ApnInfo info = {"", "", "", "", "", "", "", ""};
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, info);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+
+    return ConvertApnInfoToJS(env, info);
+}
+
+napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param)
+{
+    std::map<std::string, std::string> apnInfo;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfo, param),
+        "apnInfo param error");
+    
+    ApnInfo info = {"", "", "", "", "", "", "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfo, info), "Required fields is null");
+    std::vector<std::string> apnIds;
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApnIds(admin, info, apnIds);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, apnIds.size(), &jsList));
+    for (size_t i = 0; i < apnIds.size(); i++) {
+        napi_value id = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, apnIds[i].c_str(), apnIds[i].length(), &id));
+        NAPI_CALL(env, napi_set_element(env, jsList, i, id));
+    }
+    return jsList;
+}
+
+napi_value NetworkManagerAddon::QueryApn(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_QueryApn called");
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasApnId = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    bool hasApnInfo = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, (hasApnId || hasApnInfo), "The second parameter must be ApnId.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+
+    if (hasApnId) {
+        return QueryApnInfoById(env, elementName, argv[ARR_INDEX_ONE]);
+    } else if (hasApnInfo) {
+        return QueryApnIds(env, elementName, argv[ARR_INDEX_ONE]);
+    }
+    
+#else
+    EDMLOGW("NetworkManagerAddon::SetPreferApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+
+    return nullptr;
 }
 
 static napi_module g_networkManagerModule = {

@@ -23,6 +23,7 @@
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
 #include "iptables_utils.h"
+#include "apn_info_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -54,6 +55,12 @@ public:
     int32_t GetDomainFilterRules(MessageParcel &data, std::vector<IPTABLES::DomainFilterRule> &rule);
     int32_t TurnOnMobileData(MessageParcel &data);
     int32_t TurnOffMobileData(MessageParcel &data);
+    int32_t AddApn(const AppExecFwk::ElementName &admin, const ApnInfo &info);
+    int32_t DeleteApn(MessageParcel &data);
+    int32_t UpdateApn(const AppExecFwk::ElementName &admin, const ApnInfo &info, const std::string &apnId);
+    int32_t SetPreferApn(const AppExecFwk::ElementName &admin, const std::string &apnId);
+    int32_t QueryApn(const AppExecFwk::ElementName &admin, const std::string &apnId, ApnInfo &info);
+    int32_t QueryApnIds(const AppExecFwk::ElementName &admin, const ApnInfo &info, std::vector<std::string> &apnIds);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,

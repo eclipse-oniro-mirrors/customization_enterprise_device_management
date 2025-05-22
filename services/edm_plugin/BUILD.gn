@@ -69,6 +69,7 @@ ohos_shared_library("edmplugin") {
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",
+    "telephony_data:tel_telephony_data"
   ]
 
   if (enterprise_device_management_support_all) {
@@ -303,7 +304,11 @@ ohos_shared_library("edmplugin") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disallow_modify_apn_plugin.cpp" ]
+    sources += [
+      "./src/disallow_modify_apn_plugin.cpp",
+      "./src/utils/apn_utils.cpp",
+      "./src/set_apn_plugin.cpp"
+    ]
   }
 
   deps = [

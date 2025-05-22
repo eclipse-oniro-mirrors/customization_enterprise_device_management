@@ -259,6 +259,7 @@ namespace PolicyName {
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
+    const char* const POLICY_SET_APN_INFO = "set_apn_info";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
