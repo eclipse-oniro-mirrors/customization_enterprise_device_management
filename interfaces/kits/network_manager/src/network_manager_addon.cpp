@@ -1390,35 +1390,21 @@ napi_value NetworkManagerAddon::TurnOffMobileData(napi_env env, napi_callback_in
 
 bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::string> &parameters, ApnInfo &info)
 {
-    std::string apnName = "";
-    std::string apn = "";
-    std::string mcc = "";
-    std::string mnc = "";
-    std::string user = "";
-    std::string type = "";
-    std::string proxy = "";
-    std::string mmsproxy = "";
-    try
-    {
-        apnName = parameters.at("apnName");
-        apn = parameters.at("apn");
-        mcc = parameters.at("mcc");
-        mnc = parameters.at("mnc");
-        user = parameters.at("user");
-        type = parameters.at("type");
-        proxy = parameters.at("proxy");
-        mmsproxy = parameters.at("mmsproxy");
+    for (auto & ele : { "apnName", "apn", "mcc", "mnc" }) {
+        if (parameters.find(ele) == parameters.end()) {
+            EDMLOGE("CheckParameters::Required is null.");
+            return false;
+        }
     }
-    catch(const std::out_of_range& e)
-    {
-        EDMLOGE("CheckParameters::Key not fonud.");
-        return false;
-    }
-    
-    if (apnName.empty() || apn.empty() || mcc.empty() || mnc.empty()) {
-        EDMLOGE("CheckParameters::Required is null.");
-        return false;
-    }
+    std::map<std::string, std::string> records = parameters;
+    std::string apnName = records["apnName"];
+    std::string apn = records["apn"];
+    std::string mcc = records["mcc"];
+    std::string mnc = records["mnc"];
+    std::string user = records["user"];
+    std::string type = records["type"];
+    std::string proxy = records["proxy"];
+    std::string mmsproxy = records["mmsproxy"];
     info = {apnName, apn, mcc, mnc, user, type, proxy, mmsproxy};
     return true;
 }

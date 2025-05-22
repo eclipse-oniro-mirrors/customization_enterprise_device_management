@@ -94,13 +94,13 @@
         "screenlock_mgr",
         "security_guard",
         "storage_service",
+        "telephony_data",
         "time_service",
         "update_service",
         "usb_manager",
         "user_auth_framework",
         "wifi",
-        "window_manager",
-        "telephony_data"
+        "window_manager"
       ]
     },
     "build": {

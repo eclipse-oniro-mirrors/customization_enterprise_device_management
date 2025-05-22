@@ -287,7 +287,10 @@ ohos_shared_library("edmplugin") {
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [ 
+      "./src/disallow_modify_apn_plugin.cpp",
+      "./src/set_apn_plugin.cpp",
       "./src/turnonoff_mobile_data_plugin.cpp",
+      "./src/utils/apn_utils.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -301,14 +304,6 @@ ohos_shared_library("edmplugin") {
   if (camera_framework_edm_enable) {
     external_deps += [ "camera_framework:camera_framework" ]
     sources += [ "./src/disable_camera_plugin.cpp" ]
-  }
-
-  if (!enterprise_device_management_feature_pc_only) {
-    sources += [
-      "./src/disallow_modify_apn_plugin.cpp",
-      "./src/utils/apn_utils.cpp",
-      "./src/set_apn_plugin.cpp"
-    ]
   }
 
   deps = [

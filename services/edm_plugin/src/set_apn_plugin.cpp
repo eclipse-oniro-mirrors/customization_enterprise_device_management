@@ -37,7 +37,7 @@ SetApnPlugin::SetApnPlugin()
     policyCode_ = EdmInterfaceCode::SET_APN_INFO;
     policyName_ = PolicyName::POLICY_SET_APN_INFO;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APN);
     permissionConfig_.apiType = IPlugin::ApiType::SYSTEM;
     needSave_ = false;
 }
