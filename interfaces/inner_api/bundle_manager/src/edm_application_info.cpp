@@ -63,7 +63,6 @@ bool EdmApplicationInfo::ReadFromParcel(Parcel &parcel)
     labelId = parcel.ReadUint32();
     descriptionId = parcel.ReadUint32();
 
-    flags = parcel.ReadInt32();
     uid = parcel.ReadInt32();
     appIndex = parcel.ReadInt32();
 
@@ -115,7 +114,6 @@ bool EdmApplicationInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, labelId);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, descriptionId);
 
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, flags);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, uid);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, appIndex);
 

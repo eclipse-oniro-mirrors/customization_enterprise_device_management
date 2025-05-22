@@ -112,6 +112,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
+        const char* const LABEL_DISALLOWED_POLICY_REMOTE_DESK = "remoteDesk";
+        const char* const LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS = "remoteDiagnosis";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
     } // namespace Restrictions
@@ -183,7 +185,7 @@ namespace EdmPermission {
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
     // api 20
-    const char* const PERMISSION_SET_USER_RESTRICTION = "ohos.permission.SET_USER_RESTRICTION";
+    const char* const PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
 } // namespace EdmPermission
 namespace PolicyName {
@@ -201,6 +203,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
+    const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
     const char* const POLICY_DISABLE_USB = "disable_usb";
     const char* const POLICY_DISABLED_NETWORK_INTERFACE = "disabled_network_interface";

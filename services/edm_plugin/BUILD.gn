@@ -80,6 +80,8 @@ ohos_shared_library("edmplugin") {
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_client_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
+      "./src/disable_remote_desk_plugin.cpp",
+      "./src/disable_remote_diagnosis_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_tethering_plugin.cpp",
