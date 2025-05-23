@@ -90,6 +90,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
   ]
 
   public_configs = [
@@ -170,6 +171,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/power_policy_plugin.cpp",
       "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
+      "../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
     ]
 
     if (os_account_edm_enable) {

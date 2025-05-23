@@ -13,29 +13,18 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_apn_query.h"
+#ifndef COMMON_NATIVE_INCLUDE_CLEAR_UP_APPLICATION_DATA_PARAM_H
+#define COMMON_NATIVE_INCLUDE_CLEAR_UP_APPLICATION_DATA_PARAM_H
 
-#include "array_string_serializer.h"
-#include "edm_log.h"
-
+#include <string>
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyAPNQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_MODIFY_APN;
-}
-
-std::string DisallowModifyAPNQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
-}
-
-ErrCode DisallowModifyAPNQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+struct ClearUpApplicationDataParam {
+    std::string bundleName;
+    int32_t appIndex;
+    int32_t userId;
+};
 } // namespace EDM
 } // namespace OHOS
+#endif // COMMON_NATIVE_INCLUDE_CLEAR_UP_APPLICATION_DATA_PARAM_H

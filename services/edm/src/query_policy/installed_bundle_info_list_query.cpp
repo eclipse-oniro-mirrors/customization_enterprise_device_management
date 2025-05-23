@@ -126,7 +126,6 @@ bool InstalledBundleInfoListQuery::ConvertApplicationInfo(OHOS::AppExecFwk::Appl
     edmApplicationInfo.iconId = applicationInfo.iconId;
     edmApplicationInfo.labelId = applicationInfo.labelId;
     edmApplicationInfo.descriptionId = applicationInfo.descriptionId;
-    edmApplicationInfo.flags = applicationInfo.flags;
     edmApplicationInfo.uid = applicationInfo.uid;
     edmApplicationInfo.appIndex = applicationInfo.appIndex;
     edmApplicationInfo.name = applicationInfo.name;

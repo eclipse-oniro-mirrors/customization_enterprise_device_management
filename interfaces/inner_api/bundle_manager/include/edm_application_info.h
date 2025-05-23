@@ -50,7 +50,6 @@ struct EdmApplicationInfo : public Parcelable {
     uint32_t labelId = 0;
     uint32_t descriptionId = 0;
 
-    int32_t flags = 0;
     int32_t uid = -1;
     int32_t appIndex = 0;
 

@@ -13,29 +13,22 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_apn_query.h"
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_CLEAR_UP_APPLICATION_DATA_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_CLEAR_UP_APPLICATION_DATA_PLUGIN_H
 
-#include "array_string_serializer.h"
-#include "edm_log.h"
-
+#include "clear_up_application_data_param.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyAPNQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_MODIFY_APN;
-}
+class ClearUpApplicationDataPlugin : public PluginSingleton<ClearUpApplicationDataPlugin, ClearUpApplicationDataParam> {
+public:
+    void InitPlugin(
+        std::shared_ptr<IPluginTemplate<ClearUpApplicationDataPlugin, ClearUpApplicationDataParam>> ptr) override;
 
-std::string DisallowModifyAPNQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
-}
-
-ErrCode DisallowModifyAPNQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+    ErrCode OnSetPolicy(ClearUpApplicationDataParam &param);
+};
 } // namespace EDM
 } // namespace OHOS
+
+#endif /* SERVICES_EDM_PLUGIN_INCLUDE_CLEAR_UP_APPLICATION_DATA_PLUGIN_H */

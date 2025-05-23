@@ -59,6 +59,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/uninstall_plugin_test.cpp",
     "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
+    "./src/clear_up_application_data_plugin_test.cpp",
   ]
 
   configs = [
@@ -364,6 +365,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
+    "../../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
+    "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]

@@ -13,29 +13,21 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_apn_query.h"
+#ifndef EDM_UNIT_TEST_CLEAR_UP_APPLICATION_DATA_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_CLEAR_UP_APPLICATION_DATA_PLUGIN_TEST_H
 
-#include "array_string_serializer.h"
-#include "edm_log.h"
-
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyAPNQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_MODIFY_APN;
-}
+namespace TEST {
+class ClearUpApplicationDataPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
 
-std::string DisallowModifyAPNQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
-}
-
-ErrCode DisallowModifyAPNQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+    static void TearDownTestSuite(void);
+};
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
+#endif // EDM_UNIT_TEST_CLEAR_UP_APPLICATION_DATA_PLUGIN_TEST_H
