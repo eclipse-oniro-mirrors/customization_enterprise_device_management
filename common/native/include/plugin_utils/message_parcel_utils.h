@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "clear_up_application_data_param.h"
 #include "install_param.h"
 #include "message_parcel.h"
 #include "operate_device_param.h"
@@ -46,6 +47,8 @@ public:
 #endif
     static void WriteOperateDeviceParam(const OperateDeviceParam &param, MessageParcel &data);
     static void ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param);
+    static void WriteClearUpApplicationDataParam(const ClearUpApplicationDataParam &param, MessageParcel &data);
+    static void ReadClearUpApplicationDataParam(MessageParcel &data, ClearUpApplicationDataParam &param);
 };
 } // namespace EDM
 } // namespace OHOS

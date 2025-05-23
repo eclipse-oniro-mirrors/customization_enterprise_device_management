@@ -14,6 +14,8 @@
  */
 
 #include "application_manager_addon.h"
+
+#include "clear_up_application_data_param.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
@@ -39,6 +41,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addKeepAliveApps", AddKeepAliveApps),
         DECLARE_NAPI_FUNCTION("removeKeepAliveApps", RemoveKeepAliveApps),
         DECLARE_NAPI_FUNCTION("getKeepAliveApps", GetKeepAliveApps),
+        DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -535,6 +538,48 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
     NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIds, result);
     return result;
+}
+
+napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ClearUpApplicationData called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "Parameter admin error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "Parameter bundleName error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "Parameter appIndex error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number), "TParameter accountId error.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error");
+
+    ClearUpApplicationDataParam param;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]), "Parameter bundleName parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseInt(env, param.appIndex, argv[ARR_INDEX_TWO]), "Parameter appIndex parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseInt(env, param.userId, argv[ARR_INDEX_THREE]), "Parameter accountId parse error");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
+            "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->ClearUpApplicationData(elementName, param);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+
+    return nullptr;
 }
 
 static napi_module g_applicationManagerModule = {
