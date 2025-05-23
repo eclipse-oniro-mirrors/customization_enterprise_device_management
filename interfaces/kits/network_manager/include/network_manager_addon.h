@@ -111,7 +111,7 @@ private:
     static void SetGlobalHttpProxyCommonForAccount(AddonMethodSign &addonMethodSign);
     static napi_value TurnOnMobileData(napi_env env, napi_callback_info info);
     static napi_value TurnOffMobileData(napi_env env, napi_callback_info info);
-    static bool CheckParameters(const std::map<std::string, std::string> &parameters, ApnInfo &info);
+    static bool CheckParameters(const std::map<std::string, std::string> &parameters);
     static napi_value AddApn(napi_env env, napi_callback_info info);
     static napi_value DeleteApn(napi_env env, napi_callback_info info);
     static napi_value UpdateApn(napi_env env, napi_callback_info info);
@@ -119,7 +119,7 @@ private:
     static napi_value QueryApn(napi_env env, napi_callback_info info);
     static napi_value QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param);
     static napi_value QueryApnIds(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param);
-    static napi_value ConvertApnInfoToJS(napi_env env, const ApnInfo &apnInfo);
+    static napi_value ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo);
 };
 } // namespace EDM
 } // namespace OHOS

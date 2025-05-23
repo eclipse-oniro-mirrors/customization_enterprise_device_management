@@ -35,7 +35,6 @@ ohos_shared_library("edm_commom") {
     "./src/security_report.cpp",
     "./src/usb_device_id.cpp",
     "./src/wifi_id.cpp",
-    "./src/plugin_utils/apn_info_utils.cpp",
   ]
 
   configs = [

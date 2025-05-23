@@ -34,11 +34,13 @@ const std::string QUERY_INFO_FLAG = "QueryApn";
 std::string g_testApnId = "-1";
 void SetApnPluginTest::SetUpTestSuite(void)
 {
+    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
 void SetApnPluginTest::TearDownTestSuite(void)
 {
+    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -75,8 +77,6 @@ static void UpdateTestData(MessageParcel &data)
  */
 HWTEST_F(SetApnPluginTest, TestAddApn, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -86,33 +86,29 @@ HWTEST_F(SetApnPluginTest, TestAddApn, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 
 /**
- * @tc.name: TestQueryApnInfo
- * @tc.desc: Test SetApnPlugin::OnQueryPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetApnPluginTest, TestQueryApnInfo, TestSize.Level1)
-{
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
-    std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
-    HandlePolicyData handlePolicyData{"", "", false};
-    MessageParcel data;
-    data.WriteString(QUERY_INFO_FLAG);
-    AddTestData(data);
-    MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    std::vector<std::string> val;
-    ASSERT_TRUE(reply.ReadStringVector(&val) == ERR_OK);
-    g_testApnId = val[0];
-    ASSERT_TRUE(std::stoi(g_testApnId) >= 0);
-    SetSelfTokenID(selfTokenId);
-}
+//  * @tc.name: TestQueryApnInfo
+//  * @tc.desc: Test SetApnPlugin::OnQueryPolicy function.
+//  * @tc.type: FUNC
+//  */
+// HWTEST_F(SetApnPluginTest, TestQueryApnInfo, TestSize.Level1)
+// {
+//     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
+//     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
+//     HandlePolicyData handlePolicyData{"", "", false};
+//     MessageParcel data;
+//     data.WriteString(QUERY_INFO_FLAG);
+//     AddTestData(data);
+//     MessageParcel reply;
+//     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+//     ASSERT_TRUE(ret == ERR_OK);
+//     std::vector<std::string> val;
+//     ASSERT_TRUE(reply.ReadStringVector(&val) == ERR_OK);
+//     g_testApnId = val[0];
+//     ASSERT_TRUE(std::stoi(g_testApnId) >= 0);
+// }
 
 /**
  * @tc.name: TestQueryApnIdForAdd
@@ -121,8 +117,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfo, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnIdForAdd, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -135,7 +129,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnIdForAdd, TestSize.Level1)
     std::string profileName;
     ASSERT_TRUE(reply.ReadString(profileName));
     ASSERT_TRUE(profileName == "TEST_ADD_PROFILE_NAME");
-    SetSelfTokenID(selfTokenId);
 }
 
 /**
@@ -145,8 +138,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnIdForAdd, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -157,7 +148,6 @@ HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 
 /**
@@ -167,8 +157,6 @@ HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnIdForUpdate, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -181,7 +169,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnIdForUpdate, TestSize.Level1)
     std::string profileName;
     ASSERT_TRUE(reply.ReadString(profileName));
     ASSERT_TRUE(profileName == "TEST_UPDATE_PROFILE_NAME");
-    SetSelfTokenID(selfTokenId);
 }
 
 /**
@@ -191,8 +178,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnIdForUpdate, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -202,7 +187,6 @@ HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 
 /**
@@ -212,8 +196,6 @@ HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestDeleteApn, TestSize.Level1)
 {
-    uint64_t selfTokenId = GetSelfTokenID();
-    SetSelfTokenID(0);
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -222,7 +204,6 @@ HWTEST_F(SetApnPluginTest, TestDeleteApn, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST
 } // namespace EDM

@@ -823,7 +823,7 @@ HWTEST_F(NetworkManagerProxyTest, TestUpdateApnSuc, TestSize.Level1)
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ApnInfo info;
-    int32_t ret = networkManagerProxy->UpdateApn(admin, info, 0);
+    int32_t ret = networkManagerProxy->UpdateApn(admin, info, "0");
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -838,7 +838,7 @@ HWTEST_F(NetworkManagerProxyTest, TestUpdateApnFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     ApnInfo info;
-    int32_t ret = networkManagerProxy->UpdateApn(admin, info, 0);
+    int32_t ret = networkManagerProxy->UpdateApn(admin, info, "0");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -890,7 +890,7 @@ HWTEST_F(NetworkManagerProxyTest, TestSetPreferApnSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = networkManagerProxy->SetPreferApn(admin, 0);
+    int32_t ret = networkManagerProxy->SetPreferApn(admin, "0");
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -904,7 +904,7 @@ HWTEST_F(NetworkManagerProxyTest, TestSetPreferApnFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = networkManagerProxy->SetPreferApn(admin, 0);
+    int32_t ret = networkManagerProxy->SetPreferApn(admin, "0");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -921,7 +921,7 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnSuc, TestSize.Level1)
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ApnInfo info;
-    int32_t ret = networkManagerProxy->QueryApn(admin, 0, info);
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", info);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -936,7 +936,7 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     ApnInfo info;
-    int32_t ret = networkManagerProxy->QueryApn(admin, 0, info);
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

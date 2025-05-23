@@ -21,42 +21,47 @@
 #include "edm_sys_manager.h"
 #include "system_ability_definition.h"
 #include "pdp_profile_data.h"
+#include "core_manager_inner.h"
 
 namespace OHOS {
 namespace EDM {
 namespace {
 constexpr const char *PDP_PROFILE_BASE_URI = "datashare:///com.ohos.pdpprofileability";
 constexpr const char *PDP_PROFILE_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile";
+constexpr int32_t SIM_SLOT_ZERO_ID = 0;
+constexpr int32_t SIM_SLOT_ONE_ID = 1;
 }
 
 std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateDataAbilityHelper()
 {
     EDMLOGI("Create data ability helper");
-    sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(TELEPHONY_SMS_MMS_SYS_ABILITY_ID);
+    sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     return DataShare::DataShareHelper::Creator(remoteObject, PDP_PROFILE_BASE_URI);
 }
 
-int ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
+int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 {
+    EDMLOGI("ApnUtils::ApnInsert start");
     auto helper = CreateDataAbilityHelper();
-    DataShare::DataShareValuesBucket value;
-    value.Put(Telephony::PdpProfileData::PROFILE_NAME,
-        apnInfo.at(std::string(Telephony::PdpProfileData::PROFILE_NAME)));
-    value.Put(Telephony::PdpProfileData::APN, apnInfo.at(std::string(Telephony::PdpProfileData::APN)));
-    value.Put(Telephony::PdpProfileData::MCC, apnInfo.at(std::string(Telephony::PdpProfileData::MCC)));
-    value.Put(Telephony::PdpProfileData::MNC, apnInfo.at(std::string(Telephony::PdpProfileData::MNC)));
-    value.Put(Telephony::PdpProfileData::AUTH_USER, apnInfo.at(std::string(Telephony::PdpProfileData::AUTH_USER)));
-    value.Put(Telephony::PdpProfileData::APN_TYPES, apnInfo.at(std::string(Telephony::PdpProfileData::APN_TYPES)));
-    value.Put(Telephony::PdpProfileData::PROXY_IP_ADDRESS,
-        apnInfo.at(std::string(Telephony::PdpProfileData::PROXY_IP_ADDRESS)));
-    value.Put(Telephony::PdpProfileData::MMS_IP_ADDRESS,
-        apnInfo.at(std::string(Telephony::PdpProfileData::MMS_IP_ADDRESS)));
+    DataShare::DataShareValuesBucket values;
+    std::map<std::string, std::string> apnInfoTmp = apnInfo;
+    if (apnInfo.find("opkey") == apnInfo.end() || apnInfo.at("opkey") == "") {
+        std::string opkey = system::GetParameter("telephony.sim.opkey", "");
+        if (opkey.empty()) {
+            return -1;
+        }
+        apnInfoTmp["opkey"] = opkey;
+    }
+    for (auto & [key, value] : apnInfoTmp) {
+        values.Put(key, value);
+    }
     Uri uri(PDP_PROFILE_URI);
-    return helper->Insert(uri, value);
+    return helper->Insert(uri, values);
 }
 
-int ApnUtils::ApnDelete(const std::string &apnId)
+int32_t ApnUtils::ApnDelete(const std::string &apnId)
 {
+    EDMLOGI("ApnUtils::ApnDelete start");
     auto helper = CreateDataAbilityHelper();
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
@@ -64,91 +69,108 @@ int ApnUtils::ApnDelete(const std::string &apnId)
     return helper->Delete(uri, predicates);
 }
 
-int ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
+int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
 {
+    EDMLOGI("ApnUtils::ApnUpdate start");
     auto helper = CreateDataAbilityHelper();
-    DataShare::DataShareValuesBucket value;
-    value.Put(Telephony::PdpProfileData::PROFILE_NAME,
-        apnInfo.at(std::string(Telephony::PdpProfileData::PROFILE_NAME)));
-    value.Put(Telephony::PdpProfileData::APN, apnInfo.at(std::string(Telephony::PdpProfileData::APN)));
-    value.Put(Telephony::PdpProfileData::MCC, apnInfo.at(std::string(Telephony::PdpProfileData::MCC)));
-    value.Put(Telephony::PdpProfileData::MNC, apnInfo.at(std::string(Telephony::PdpProfileData::MNC)));
-    value.Put(Telephony::PdpProfileData::AUTH_USER, apnInfo.at(std::string(Telephony::PdpProfileData::AUTH_USER)));
-    value.Put(Telephony::PdpProfileData::APN_TYPES, apnInfo.at(std::string(Telephony::PdpProfileData::APN_TYPES)));
-    value.Put(Telephony::PdpProfileData::PROXY_IP_ADDRESS,
-        apnInfo.at(std::string(Telephony::PdpProfileData::PROXY_IP_ADDRESS)));
-    value.Put(Telephony::PdpProfileData::MMS_IP_ADDRESS,
-        apnInfo.at(std::string(Telephony::PdpProfileData::MMS_IP_ADDRESS)));
+    DataShare::DataShareValuesBucket values;
+    for (auto & [key, value] : apnInfo) {
+        values.Put(key, value);
+    }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri(PDP_PROFILE_URI);
-    return helper->Update(uri, predicates, value);
+    return helper->Update(uri, predicates, values);
 }
 
 std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::string> &apnInfo)
 {
+    EDMLOGI("ApnUtils::ApnQueryId start");
+    auto helper = CreateDataAbilityHelper();
     std::vector<std::string> result;
-    auto apnInfoEx = std::make_shared<Telephony::ApnInfo>();
-    apnInfoEx->apnName = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::PROFILE_NAME)));
-    apnInfoEx->apn = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::APN)));
-    apnInfoEx->mcc = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::MCC)));
-    apnInfoEx->mnc = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::MNC)));
-    apnInfoEx->user = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::AUTH_USER)));
-    apnInfoEx->type = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::APN_TYPES)));
-    apnInfoEx->proxy = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::PROXY_IP_ADDRESS)));
-    apnInfoEx->mmsproxy = Str8ToStr16(apnInfo.at(std::string(Telephony::PdpProfileData::MMS_IP_ADDRESS)));
-    std::vector<uint32_t> apnIdList;
-    Telephony::CellularDataClient::GetInstance().QueryApnIds(*apnInfoEx, apnIdList);
-    std::transform(apnIdList.begin(), apnIdList.end(), std::back_inserter(result),
-        [](uint32_t s) {
-            return std::to_string(s);
-        });
+    ApnQueryVector(helper, SIM_SLOT_ZERO_ID, apnInfo, result);
+    ApnQueryVector(helper, SIM_SLOT_ONE_ID, apnInfo, result);
     return result;
+}
+
+void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
+    const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result)
+{
+    std::vector<std::string> columns;
+    DataShare::DataSharePredicates predicates;
+    for (auto & [key, value] : apnInfo) {
+        predicates.EqualTo(key, value);
+    }
+    int32_t simId = Telephony::CoreManagerInner::GetInstance().GetSimId(slotId);
+    Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
+    std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
+    if (queryResult == nullptr) {
+        EDMLOGE("QueryApnId error");
+        return;
+    }
+    int32_t rowCnt = 0;
+    queryResult->GetRowCount(rowCnt);
+    for (int32_t rowIdx = 0; rowIdx < rowCnt; ++rowIdx) {
+        queryResult->GoToRow(rowIdx);
+        int32_t apnIdIdx = -1;
+        queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_ID, apnIdIdx);
+        int32_t apnId = -1;
+        queryResult->GetInt(apnIdIdx, apnId);
+        result.push_back(std::to_string(apnId));
+    }
 }
 
 std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 {
+    EDMLOGI("ApnUtils::ApnQueryInfo start");
     auto helper = CreateDataAbilityHelper();
-    std::vector<std::string> columns;
-    DataShare::DataSharePredicates predicates;
-    predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
-    Uri uri(PDP_PROFILE_URI);
-    std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
-    if (queryResult == nullptr) {
-        EDMLOGE("QueryAllApnInfo error");
+
+    std::shared_ptr<DataShare::DataShareResultSet> queryResult = nullptr;
+    if ((queryResult = ApnQueryResultSet(helper, SIM_SLOT_ZERO_ID, apnId)) ||
+        (queryResult = ApnQueryResultSet(helper, SIM_SLOT_ONE_ID, apnId))) {
         return {};
     }
 
-    int rowCnt = 0;
-    queryResult->GetRowCount(rowCnt);
-    EDMLOGI("ApnQuery rowCnt: %{public}d", rowCnt);
-    if (!rowCnt) {
-        return {};
-    }
     std::map<std::string, std::string> result;
-    int index = 0;
     queryResult->GoToRow(0);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_NAME, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::PROFILE_NAME]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::APN, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::APN]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::MCC, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::MCC]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::MNC, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::MNC]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::AUTH_USER, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::AUTH_USER]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::APN_TYPES, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::APN_TYPES]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::PROXY_IP_ADDRESS, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::PROXY_IP_ADDRESS]);
-    queryResult->GetColumnIndex(Telephony::PdpProfileData::MMS_IP_ADDRESS, index);
-    queryResult->GetString(index, result[Telephony::PdpProfileData::MMS_IP_ADDRESS]);
+    int32_t columnCnt = -1;
+    queryResult->GetColumnCount(columnCnt);
+    for (int32_t idx = 0; idx < columnCnt; ++idx) {
+        std::string columnName;
+        queryResult->GetColumnName(idx, columnName);
+        queryResult->GetString(idx, result[columnName]);
+    }
     return result;
 }
 
-int ApnUtils::ApnSetPrefer(const std::string &apnId)
+std::shared_ptr<DataShare::DataShareResultSet> ApnUtils::ApnQueryResultSet(
+    std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId, const std::string &apnId)
 {
+    std::vector<std::string> columns;
+    DataShare::DataSharePredicates predicates;
+    predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
+
+    int32_t simId = Telephony::CoreManagerInner::GetInstance().GetSimId(slotId);
+    Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
+
+    std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
+    if (queryResult == nullptr) {
+        EDMLOGE("QueryApnInfo error");
+        return nullptr;
+    }
+
+    int32_t rowCnt = 0;
+    queryResult->GetRowCount(rowCnt);
+    EDMLOGI("ApnQuery rowCnt: %{public}d", rowCnt);
+    if (!rowCnt) {
+        return nullptr;
+    }
+    return queryResult;
+}
+
+int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
+{
+    EDMLOGI("ApnUtils::ApnSetPrefer start");
     return Telephony::CellularDataClient::GetInstance().SetPreferApn(std::stoi(apnId));
 }
 } // namespace EDM

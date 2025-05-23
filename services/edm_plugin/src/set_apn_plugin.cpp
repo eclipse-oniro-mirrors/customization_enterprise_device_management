@@ -45,6 +45,7 @@ SetApnPlugin::SetApnPlugin()
 ErrCode SetApnPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
     HandlePolicyData &policyData, int32_t userId)
 {
+    EDMLOGI("SetApnPlugin::OnHandlePolicy start");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     if (type == FuncOperateType::SET) {
@@ -67,12 +68,14 @@ ErrCode SetApnPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data
 
 ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
 {
+    EDMLOGI("SetApnPlugin::HandleAdd start");
     std::map<std::string, std::string> apnInfo = ParserApnMap(data);
     return ApnUtils::ApnInsert(apnInfo) >= 0 ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
 {
+    EDMLOGI("SetApnPlugin::HandleUpdate start");
     std::string apnId;
     if (data.ReadString(apnId)) {
         std::map<std::string, std::string> apnInfo = ParserApnMap(data);
@@ -84,6 +87,7 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
 
 ErrCode SetApnPlugin::HandleSetPrefer(MessageParcel &data)
 {
+    EDMLOGI("SetApnPlugin::HandleSetPrefer start");
     std::string apnId;
     if (data.ReadString(apnId)) {
         return ApnUtils::ApnSetPrefer(apnId);
@@ -94,6 +98,7 @@ ErrCode SetApnPlugin::HandleSetPrefer(MessageParcel &data)
 
 ErrCode SetApnPlugin::HandleRemove(MessageParcel &data)
 {
+    EDMLOGI("SetApnPlugin::HandleRemove start");
     std::string apnId;
     if (data.ReadString(apnId)) {
         return ApnUtils::ApnDelete(apnId) >= 0 ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -104,32 +109,42 @@ ErrCode SetApnPlugin::HandleRemove(MessageParcel &data)
 
 std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &data)
 {
+    EDMLOGI("SetApnPlugin::ParserApnMap start");
     std::map<std::string, std::string> result;
-    data.ReadString(result[Telephony::PdpProfileData::PROFILE_NAME]);
-    data.ReadString(result[Telephony::PdpProfileData::APN]);
-    data.ReadString(result[Telephony::PdpProfileData::MCC]);
-    data.ReadString(result[Telephony::PdpProfileData::MNC]);
-    data.ReadString(result[Telephony::PdpProfileData::AUTH_USER]);
-    data.ReadString(result[Telephony::PdpProfileData::APN_TYPES]);
-    data.ReadString(result[Telephony::PdpProfileData::PROXY_IP_ADDRESS]);
-    data.ReadString(result[Telephony::PdpProfileData::MMS_IP_ADDRESS]);
+    int32_t mapSize = -1;
+    if (!data.ReadInt32(mapSize)) {
+        EDMLOGI("SetApnPlugin::HandleRemove start");
+        return {};
+    }
+    std::vector<std::string> keys(mapSize);
+    for (int32_t idx = 0; idx < mapSize; ++idx) {
+        keys[idx] = data.ReadString();
+    }
+    std::vector<std::string> values(mapSize);
+    for (int32_t idx = 0; idx < mapSize; ++idx) {
+        values[idx] = data.ReadString();
+    }
+    for (int32_t idx = 0; idx < mapSize; ++idx) {
+        result[keys[idx]] = values[idx];
+    }
     return result;
 }
 
 void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, MessageParcel &reply)
 {
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::PROFILE_NAME]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::APN]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::MCC]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::MNC]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::AUTH_USER]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::APN_TYPES]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::PROXY_IP_ADDRESS]);
-    reply.WriteString(apnInfo[Telephony::PdpProfileData::MMS_IP_ADDRESS]);
+    EDMLOGI("SetApnPlugin::GenerateApnMap start");
+    reply.WriteInt32(static_cast<int32_t>(apnInfo.size()));
+    for (auto & [key, value] : apnInfo) {
+        reply.WriteString(key);
+    }
+    for (auto & [key, value] : apnInfo) {
+        reply.WriteString(value);
+    }
 }
 
 ErrCode SetApnPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
+    EDMLOGI("SetApnPlugin::OnGetPolicy start");
     const std::string flag = data.ReadString();
     if (flag == QUERY_ID_FLAG) {
         return QueryId(data, reply);
@@ -141,8 +156,9 @@ ErrCode SetApnPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, 
     return ERR_OK;
 }
 
-ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
+ErrCode SetApnPlugin::QueryInfo(MessageParcel &data, MessageParcel &reply)
 {
+    EDMLOGI("SetApnPlugin::QueryInfo start");
     std::string apnId;
     if (data.ReadString(apnId)) {
         std::map<std::string, std::string> apnInfo = ApnUtils::ApnQuery(apnId);
@@ -153,8 +169,9 @@ ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
     }
 }
 
-ErrCode SetApnPlugin::QueryInfo(MessageParcel &data, MessageParcel &reply)
+ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
 {
+    EDMLOGI("SetApnPlugin::QueryId start");
     std::map<std::string, std::string> apnInfo = ParserApnMap(data);
     std::vector<std::string> result = ApnUtils::ApnQuery(apnInfo);
     reply.WriteInt32(static_cast<int32_t>(result.size()));

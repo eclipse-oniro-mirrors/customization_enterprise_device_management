@@ -1388,24 +1388,14 @@ napi_value NetworkManagerAddon::TurnOffMobileData(napi_env env, napi_callback_in
 #endif
 }
 
-bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::string> &parameters, ApnInfo &info)
+bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::string> &parameters)
 {
     for (auto & ele : { "apnName", "apn", "mcc", "mnc" }) {
-        if (parameters.find(ele) == parameters.end()) {
+        if (parameters.find(ele) == parameters.end() || parameters.at(ele) == "") {
             EDMLOGE("CheckParameters::Required is null.");
             return false;
         }
     }
-    std::map<std::string, std::string> records = parameters;
-    std::string apnName = records["apnName"];
-    std::string apn = records["apn"];
-    std::string mcc = records["mcc"];
-    std::string mnc = records["mnc"];
-    std::string user = records["user"];
-    std::string type = records["type"];
-    std::string proxy = records["proxy"];
-    std::string mmsproxy = records["mmsproxy"];
-    info = {apnName, apn, mcc, mnc, user, type, proxy, mmsproxy};
     return true;
 }
 
@@ -1431,10 +1421,9 @@ napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
         "apnInfo name param error");
     
-    ApnInfo apnInfo = {"", "", "", "", "", "", "", ""};
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap, apnInfo), "Required fields is null");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap), "Required fields is null");
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfo);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfoMap);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1499,13 +1488,12 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
         "apnInfo param error");
     
-    ApnInfo apnInfo = {"", "", "", "", "", "", "", ""};
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap, apnInfo), "Required fields is null");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap), "Required fields is null");
 
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, argv[ARR_INDEX_TWO], apnId), "apnId param error");
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfo, apnId);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMap, apnId);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1555,43 +1543,18 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
     return nullptr;
 }
 
-napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const ApnInfo &apnInfo)
+napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo)
 {
     napi_value info = nullptr;
     NAPI_CALL(env, napi_create_object(env, &info));
-    napi_value apnName = nullptr;
-    std::string str = std::get<APNINFO_APNNAME_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &apnName));
-    napi_value apn = nullptr;
-    str = std::get<APNINFO_APN_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &apn));
-    napi_value mcc = nullptr;
-    str = std::get<APNINFO_MCC_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mcc));
-    napi_value mnc = nullptr;
-    str = std::get<APNINFO_MNC_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mnc));
-    napi_value user = nullptr;
-    str = std::get<APNINFO_USER_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &user));
-    napi_value type = nullptr;
-    str = std::get<APNINFO_TYPE_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &type));
-    napi_value proxy = nullptr;
-    str = std::get<APNINFO_PROXY_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &proxy));
-    napi_value mmsproxy = nullptr;
-    str = std::get<APNINFO_MMSPROXY_IND>(apnInfo);
-    NAPI_CALL(env, napi_create_string_utf8(env, str.c_str(), str.length(), &mmsproxy));
-    
-    NAPI_CALL(env, napi_set_named_property(env, info, "apnName", apnName));
-    NAPI_CALL(env, napi_set_named_property(env, info, "apn", apn));
-    NAPI_CALL(env, napi_set_named_property(env, info, "mcc", mcc));
-    NAPI_CALL(env, napi_set_named_property(env, info, "mnc", mnc));
-    NAPI_CALL(env, napi_set_named_property(env, info, "user", user));
-    NAPI_CALL(env, napi_set_named_property(env, info, "type", type));
-    NAPI_CALL(env, napi_set_named_property(env, info, "proxy", proxy));
-    NAPI_CALL(env, napi_set_named_property(env, info, "mmsproxy", mmsproxy));
+
+    for (const auto& iter : apnInfo) {
+        napi_value napiValue = nullptr;
+        std::string key = iter.first;
+        std::string value = iter.second;
+        NAPI_CALL(env, napi_create_string_utf8(env, value.c_str(), value.length(), &napiValue));
+        NAPI_CALL(env, napi_set_named_property(env, info, key.c_str(), napiValue));
+    }
 
     return info;
 }
@@ -1600,14 +1563,14 @@ napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppEx
 {
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, param, apnId), "apnId param error");
-    ApnInfo info = {"", "", "", "", "", "", "", ""};
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, info);
+    std::map<std::string, std::string> apnInfo;
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, apnInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
 
-    return ConvertApnInfoToJS(env, info);
+    return ConvertApnInfoToJS(env, apnInfo);
 }
 
 napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param)
@@ -1616,10 +1579,8 @@ napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfo, param),
         "apnInfo param error");
     
-    ApnInfo info = {"", "", "", "", "", "", "", ""};
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfo, info), "Required fields is null");
     std::vector<std::string> apnIds;
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApnIds(admin, info, apnIds);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApnIds(admin, apnInfo, apnIds);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

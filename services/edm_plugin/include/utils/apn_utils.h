@@ -25,14 +25,18 @@ namespace OHOS {
 namespace EDM {
 class ApnUtils {
 public:
-    static int ApnInsert(const std::map<std::string, std::string> &apnInfo);
-    static int ApnDelete(const std::string &apnId);
-    static int ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId);
+    static int32_t ApnInsert(const std::map<std::string, std::string> &apnInfo);
+    static int32_t ApnDelete(const std::string &apnId);
+    static int32_t ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId);
     static std::vector<std::string> ApnQuery(const std::map<std::string, std::string> &apnInfo);
     static std::map<std::string, std::string> ApnQuery(const std::string &apnId);
-    static int ApnSetPrefer(const std::string &apnId);
+    static int32_t ApnSetPrefer(const std::string &apnId);
 private:
     static std::shared_ptr<DataShare::DataShareHelper> CreateDataAbilityHelper();
+    static std::shared_ptr<DataShare::DataShareResultSet> ApnQueryResultSet(
+        std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId, const std::string &apnId);
+    static void ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
+        const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result);
 };
 } // namespace EDM
 } // namespace OHOS
