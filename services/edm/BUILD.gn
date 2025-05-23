@@ -212,6 +212,22 @@ ohos_shared_library("edmservice") {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
+    sources += [ 
+      "./src/query_policy/disallowed_sms_query.cpp",
+      "./src/query_policy/disallowed_mms_query.cpp",
+    ]
+    defines += [ 
+      "SMS_EDM_ENABLE",
+      "MMS_EDM_ENABLE"
+    ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/query_policy/disable_backup_and_restore_query.cpp" ]
+    defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
+  }
+
   if (!enterprise_device_management_feature_pc_only &&
       cellular_data_edm_enable) {
     sources += [ "./src/query_policy/disallow_modify_apn_query.cpp" ]

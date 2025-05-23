@@ -305,6 +305,17 @@ ohos_shared_library("edmplugin") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
+    sources += [ 
+      "./src/disallowed_sms_plugin.cpp",
+      "./src/disallowed_mms_plugin.cpp",
+    ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disallow_modify_apn_plugin.cpp" ]
   }
 
