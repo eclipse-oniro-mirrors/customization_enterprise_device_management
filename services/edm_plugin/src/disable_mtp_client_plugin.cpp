@@ -18,7 +18,10 @@
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_log.h"
 #include "iplugin_manager.h"
+#include "os_account_manager.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
@@ -33,6 +36,41 @@ void DisableMtpClientPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableM
     ptr->SetOnHandlePolicyListener(&DisableMtpClientPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableMtpClientPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.mtp_client_disable";
+}
+
+ErrCode DisableMtpClientPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+{
+    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, mergeData: %{public}d, "
+            "userId: %{public}d", data, currentData, mergeData, userId);
+    std::vector<int> activatedOsAccountIds;
+    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activatedOsAccountIds);
+    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryActiveOsAccountIds ret: %{public}d", ret);
+    if (FAILED(ret)) {
+        EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryActiveOsAccountIds failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (size_t i = 0; i < activatedOsAccountIds.size(); i++) {
+        auto policyManager = IPolicyManager::GetInstance();
+        std::string disableUserMtpClientPolicy;
+        policyManager->GetPolicy("", PolicyName::POLICY_DISABLED_USER_MTP_CLIENT, disableUserMtpClientPolicy,
+            activatedOsAccountIds[i]);
+        if (disableUserMtpClientPolicy == "true" && data == true) { // 如果用户级存在只读策略时，设备级想设置为禁用策略，则返回策略冲突
+            EDMLOGE("DisableMtpClientPlugin configuration conflict");
+            return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+        }
+    }
+
+    if (mergeData) {
+        currentData = data;
+        return ERR_OK;
+    }
+    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
+        EDMLOGE("DisableMtpClientPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    currentData = data;
+    mergeData = data;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

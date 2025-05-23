@@ -13,20 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USER_MTP_CLIENT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USER_MTP_CLIENT_PLUGIN_H
 
-#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMtpClientPlugin : public PluginSingleton<DisableMtpClientPlugin, bool>, public BasicBoolPlugin {
+class DisableUserMtpClientPlugin : public PluginSingleton<DisableUserMtpClientPlugin, bool> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpClientPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableUserMtpClientPlugin, bool>> ptr) override;
+    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+
+private:
+     ErrCode SetMtpClientPolicy(bool policy, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USER_MTP_CLIENT_PLUGIN_H
