@@ -790,8 +790,8 @@ HWTEST_F(NetworkManagerProxyTest, TestAddApnSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->AddApn(admin, info);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->AddApn(admin, apnInfoMap);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -805,8 +805,8 @@ HWTEST_F(NetworkManagerProxyTest, TestAddApnFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->AddApn(admin, info);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->AddApn(admin, apnInfoMap);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -822,8 +822,8 @@ HWTEST_F(NetworkManagerProxyTest, TestUpdateApnSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->UpdateApn(admin, info, "0");
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->UpdateApn(admin, apnInfoMap, "0");
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -837,8 +837,8 @@ HWTEST_F(NetworkManagerProxyTest, TestUpdateApnFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->UpdateApn(admin, info, "0");
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->UpdateApn(admin, apnInfoMap, "0");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -920,8 +920,8 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->QueryApn(admin, "0", info);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", apnInfoMap);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -935,8 +935,8 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    ApnInfo info;
-    int32_t ret = networkManagerProxy->QueryApn(admin, "0", info);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", apnInfoMap);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -952,9 +952,9 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ApnInfo info;
+    std::map<std::string, std::string> apnInfoMap;
     std::vector<std::string> apnIds;
-    int32_t ret = networkManagerProxy->QueryApnIds(admin, info, apnIds);
+    int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -968,9 +968,9 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    ApnInfo info;
+    std::map<std::string, std::string> apnInfoMap;
     std::vector<std::string> apnIds;
-    int32_t ret = networkManagerProxy->QueryApnIds(admin, info, apnIds);
+    int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

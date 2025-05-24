@@ -138,6 +138,15 @@ namespace EdmConstants {
         const char* const SHUT_DOWN = "shutDown";
         const char* const LOCK_SCREEN = "lockScreen";
     } // namespace DeviceControl
+
+    namespace SetApn {
+        constexpr uint32_t MAX_MAP_SIZE = 50;
+        const std::string ADD_FLAG = "AddApn";
+        const std::string UPDATE_FLAG = "UpdateApn";
+        const std::string SET_PREFER_FLAG = "SetPreferApn";
+        const std::string QUERY_ID_FLAG = "QueryApnIds";
+        const std::string QUERY_INFO_FLAG = "QueryApn";
+    }
 } // namespace EdmConstants
 
 namespace EdmPermission {

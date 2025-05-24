@@ -18,10 +18,10 @@
 #include <algorithm>
 #include "edm_errors.h"
 #include "edm_log.h"
+#include "pdp_profile_data.h"
+#include "core_service_client.h"
 #include "edm_sys_manager.h"
 #include "system_ability_definition.h"
-#include "pdp_profile_data.h"
-#include "core_manager_inner.h"
 
 namespace OHOS {
 namespace EDM {
@@ -44,19 +44,11 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     EDMLOGI("ApnUtils::ApnInsert start");
     auto helper = CreateDataAbilityHelper();
     DataShare::DataShareValuesBucket values;
-    std::map<std::string, std::string> apnInfoTmp = apnInfo;
-    if (apnInfo.find("opkey") == apnInfo.end() || apnInfo.at("opkey") == "") {
-        std::string opkey = system::GetParameter("telephony.sim.opkey", "");
-        if (opkey.empty()) {
-            return -1;
-        }
-        apnInfoTmp["opkey"] = opkey;
-    }
-    for (auto & [key, value] : apnInfoTmp) {
+    for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
     Uri uri(PDP_PROFILE_URI);
-    return helper->Insert(uri, values);
+    return helper->Insert(uri, values) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 int32_t ApnUtils::ApnDelete(const std::string &apnId)
@@ -66,7 +58,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri(PDP_PROFILE_URI);
-    return helper->Delete(uri, predicates);
+    return helper->Delete(uri, predicates) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
@@ -74,13 +66,13 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     EDMLOGI("ApnUtils::ApnUpdate start");
     auto helper = CreateDataAbilityHelper();
     DataShare::DataShareValuesBucket values;
-    for (auto & [key, value] : apnInfo) {
+    for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri(PDP_PROFILE_URI);
-    return helper->Update(uri, predicates, values);
+    return helper->Update(uri, predicates, values) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::string> &apnInfo)
@@ -98,10 +90,13 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
 {
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
-    for (auto & [key, value] : apnInfo) {
+    for (const auto & [key, value] : apnInfo) {
         predicates.EqualTo(key, value);
     }
-    int32_t simId = Telephony::CoreManagerInner::GetInstance().GetSimId(slotId);
+    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
+    if (simId < 0) {
+        return;
+    }
     Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
@@ -111,13 +106,18 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
     int32_t rowCnt = 0;
     queryResult->GetRowCount(rowCnt);
     for (int32_t rowIdx = 0; rowIdx < rowCnt; ++rowIdx) {
-        queryResult->GoToRow(rowIdx);
+        if (queryResult->GoToRow(rowIdx)){
+            EDMLOGE("ApnQueryVector GoToRow error");
+            queryResult->Close();
+            return;
+        }
         int32_t apnIdIdx = -1;
         queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_ID, apnIdIdx);
         int32_t apnId = -1;
         queryResult->GetInt(apnIdIdx, apnId);
         result.push_back(std::to_string(apnId));
     }
+    queryResult->Close();
 }
 
 std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
@@ -125,53 +125,67 @@ std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
     EDMLOGI("ApnUtils::ApnQueryInfo start");
     auto helper = CreateDataAbilityHelper();
 
-    std::shared_ptr<DataShare::DataShareResultSet> queryResult = nullptr;
-    if ((queryResult = ApnQueryResultSet(helper, SIM_SLOT_ZERO_ID, apnId)) ||
-        (queryResult = ApnQueryResultSet(helper, SIM_SLOT_ONE_ID, apnId))) {
-        return {};
-    }
+    std::map<std::string, std::string> results;
+    int32_t queryResult = ApnQueryResultSet(helper, SIM_SLOT_ZERO_ID, apnId, results);
 
-    std::map<std::string, std::string> result;
-    queryResult->GoToRow(0);
-    int32_t columnCnt = -1;
-    queryResult->GetColumnCount(columnCnt);
-    for (int32_t idx = 0; idx < columnCnt; ++idx) {
-        std::string columnName;
-        queryResult->GetColumnName(idx, columnName);
-        queryResult->GetString(idx, result[columnName]);
+    if (queryResult < 0) {
+        EDMLOGE("QueryApnInfo error");
     }
-    return result;
+    if (results.size() == 0) {
+        queryResult = ApnQueryResultSet(helper, SIM_SLOT_ONE_ID, apnId, results);
+        if (queryResult < 0) {
+            EDMLOGE("QueryApnInfo error");
+            return {};
+        }
+    }
+    return results;
 }
 
-std::shared_ptr<DataShare::DataShareResultSet> ApnUtils::ApnQueryResultSet(
-    std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId, const std::string &apnId)
+int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
+    const std::string &apnId, std::map<std::string, std::string> &results)
 {
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
 
-    int32_t simId = Telephony::CoreManagerInner::GetInstance().GetSimId(slotId);
+    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
     Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
 
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
-        EDMLOGE("QueryApnInfo error");
-        return nullptr;
+        EDMLOGE("QueryApnResultSet error");
+        return -1;
     }
-
+    
     int32_t rowCnt = 0;
     queryResult->GetRowCount(rowCnt);
     EDMLOGI("ApnQuery rowCnt: %{public}d", rowCnt);
-    if (!rowCnt) {
-        return nullptr;
+    if (rowCnt <= 0) {
+        queryResult->Close();
+        return ERR_OK;
     }
-    return queryResult;
+
+    if (queryResult->GoToRow(0) != DataShare::E_OK) {
+        EDMLOGE("ApnQuery GoToRow error");
+        queryResult->Close();
+        return -1;
+    }
+    int32_t columnCnt = -1;
+    queryResult->GetColumnCount(columnCnt);
+    for (int32_t idx = 0; idx < columnCnt; ++idx) {
+        std::string columnName;
+        queryResult->GetColumnName(idx, columnName);
+        queryResult->GetString(idx, results[columnName]);
+    }
+    queryResult->Close();
+    return ERR_OK;
 }
 
 int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnSetPrefer start");
-    return Telephony::CellularDataClient::GetInstance().SetPreferApn(std::stoi(apnId));
+    return Telephony::CellularDataClient::GetInstance().SetPreferApn(std::stoi(apnId)) == DataShare::E_OK ? ERR_OK :
+        EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM
 } // namespace OHOS

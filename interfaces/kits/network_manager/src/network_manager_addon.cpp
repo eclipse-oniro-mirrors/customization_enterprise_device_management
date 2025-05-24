@@ -30,6 +30,15 @@ const char *const PORT_PROP_NAME = "port";
 const char *const PROXY_USER_NAME = "username";
 const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
+const std::set<std::string> ALL_APN_INFO_KEYS = {
+    "profile_name", "mcc", "mnc",
+    "mccmnc", "apn", "auth_type",
+    "auth_user", "auth_pwd", "apn_types",
+    "is_roaming_apn", "apn_protocol", "apn_roam_protocol",
+    "home_url", "mms_ip_address", "proxy_ip_address",
+    "bearing_system_type", "mvno_type", "mvno_match_data",
+    "edited", "server", "opkey"
+};
 #endif
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
@@ -1396,7 +1405,9 @@ bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::strin
             return false;
         }
     }
-    return true;
+    bool allValid = std::all_of(parameters.begin(), parameters.end(), [](auto &i) {
+        return ALL_APN_INFO_KEYS.find(i.first) != ALL_APN_INFO_KEYS.end();});
+    return allValid;
 }
 
 napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
@@ -1433,8 +1444,6 @@ napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
@@ -1460,8 +1469,6 @@ napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-    
-    return nullptr;
 }
 
 napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
@@ -1491,7 +1498,7 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap), "Required fields is null");
 
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, argv[ARR_INDEX_TWO], apnId), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]), "apnId param error");
     
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMap, apnId);
     if (FAILED(ret)) {
@@ -1503,8 +1510,6 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info info)
@@ -1527,7 +1532,7 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
         "element name param error");
 
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, argv[ARR_INDEX_ONE], apnId), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_ONE]), "apnId param error");
 
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetPreferApn(elementName, apnId);
     if (FAILED(ret)) {
@@ -1539,8 +1544,6 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo)
@@ -1562,7 +1565,7 @@ napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<
 napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param)
 {
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, GetStringFromNAPI(env, param, apnId), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param), "apnId param error");
     std::map<std::string, std::string> apnInfo;
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, apnInfo);
     if (FAILED(ret)) {
@@ -1621,14 +1624,12 @@ napi_value NetworkManagerAddon::QueryApn(napi_env env, napi_callback_info info)
     } else if (hasApnInfo) {
         return QueryApnIds(env, elementName, argv[ARR_INDEX_ONE]);
     }
-    
+    return nullptr;
 #else
     EDMLOGW("NetworkManagerAddon::SetPreferApn Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 static napi_module g_networkManagerModule = {

@@ -33,8 +33,8 @@ public:
     static int32_t ApnSetPrefer(const std::string &apnId);
 private:
     static std::shared_ptr<DataShare::DataShareHelper> CreateDataAbilityHelper();
-    static std::shared_ptr<DataShare::DataShareResultSet> ApnQueryResultSet(
-        std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId, const std::string &apnId);
+    static int32_t ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
+        const std::string &apnId, std::map<std::string, std::string> &results);
     static void ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
         const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result);
 };
