@@ -65,7 +65,8 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
-};
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
+}; 
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 {
@@ -496,7 +497,12 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     }
     std::uint32_t ipcCode = labelCode->second;
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
-    ErrCode ret = proxy->SetDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
+    ErrCode ret;
+    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+        ret = proxy->SetFingerprintAuthDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
+    } else {
+        ret = proxy->SetDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -541,7 +547,12 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     std::uint32_t ipcCode = labelCode->second;
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
     bool disallow = false;
-    ErrCode ret = proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
+    ErrCode ret;
+    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+        ret = proxy->GetFingerprintAuthDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
+    } else {
+        ret = proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
