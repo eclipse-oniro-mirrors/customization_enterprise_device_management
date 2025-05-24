@@ -66,12 +66,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
 
     std::string packageName(reinterpret_cast<const char*>(data), size);
-    adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
+    std::string currentParentName = fuzzString;
+    std::string targetParentName = fuzzString;
+    std::string stringInfo = fuzzString;
+    std::vector<std::string> info = { fuzzString };
 
+    adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
     adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
 
     std::vector<ManagedEvent> managedEvents = {event};
     adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
+
+    adminPoliciesStorageRdb->ReplaceAdmin(packageName, userId, admin);
+    adminPoliciesStorageRdb->UpdateParentName(packageName, currentParentName, targetParentName);
+    adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, info);
+
+    std::shared_ptr<NativeRdb::ResultSet> resultSet;
+    std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
+    adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
+    std::string str = fuzzString;
+    Json::Value root;
+    root[fuzzString] = fuzzString;
+    adminPoliciesStorageRdb->ConvertStrToJson(str, root);
+    adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }
 } // namespace EDM

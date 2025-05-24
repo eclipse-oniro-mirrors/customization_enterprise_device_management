@@ -22,6 +22,9 @@
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
 #include "power_policy.h"
+#define private public
+#include "power_policy_plugin.h"
+#undef private
 #include "message_parcel.h"
 #include "utils.h"
 
@@ -41,7 +44,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 8;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::USB_READ_ONLY;
@@ -68,6 +71,19 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+
+    PowerPolicyPlugin plugin;
+    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    MessageParcel parcel;
+    parcel.WriteInt32(CommonFuzzer::GetU32Data(data));
+    MessageParcel reply;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin.OnGetPolicy(policyData, parcel, reply, userId);
+
+    std::string policyKey = CommonFuzzer::GetString(data, pos, stringSize, size);
+    PowerPolicy powerPolicy;
+    bool isSetPolicy = CommonFuzzer::GetU32Data(data) % 2;
+    plugin.DealPowerSuspendPolicy(policyKey, powerPolicy, isSetPolicy);
     return 0;
 }
 } // namespace EDM

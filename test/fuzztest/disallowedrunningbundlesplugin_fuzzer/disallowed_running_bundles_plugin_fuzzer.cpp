@@ -18,6 +18,9 @@
 #include <system_ability_definition.h>
 
 #include "common_fuzzer.h"
+#define private public
+#include "disallowed_running_bundles_plugin.h"
+#undef private
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
@@ -41,7 +44,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 9;
+    int32_t stringSize = size / 12;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES;
@@ -66,6 +69,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+
+    DisallowedRunningBundlesPlugin plugin;
+    std::vector<std::string> bundles = { CommonFuzzer::GetString(data, pos, stringSize, size) };
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    std::vector<std::string> failedData = { CommonFuzzer::GetString(data, pos, stringSize, size) };
+    plugin.RemoveOtherModulePolicy(bundles, userId, failedData);
     return 0;
 }
 } // namespace EDM

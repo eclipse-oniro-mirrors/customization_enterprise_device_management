@@ -23,12 +23,13 @@
 #include "get_data_template.h"
 #include "ienterprise_device_mgr.h"
 #include "message_parcel.h"
+#include "plugin_manager.h"
 #include "usb_device_id.h"
 #include "utils.h"
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 16;
+constexpr size_t MIN_SIZE = 20;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t USB_DEVICE_ID_SIZE = 1;
 
@@ -42,7 +43,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 10;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::ALLOWED_USB_DEVICES;
@@ -68,6 +69,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName("allowed_usb_devices");
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergeData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin->OnAdminRemove(adminName, policyData, mergeData, userId);
     return 0;
 }
 } // namespace EDM

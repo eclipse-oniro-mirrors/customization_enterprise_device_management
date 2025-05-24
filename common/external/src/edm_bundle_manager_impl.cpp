@@ -120,6 +120,10 @@ ErrCode EdmBundleManagerImpl::AddAppInstallControlRule(std::vector<std::string> 
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto appControlProxy = proxy->GetAppControlProxy();
+    if (appControlProxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     ErrCode res = appControlProxy->AddAppInstallControlRule(data, controlRuleType, userId);
     if (res != ERR_OK) {
         EDMLOGE("EdmBundleManagerImpl AddAppInstallControlRule Faild %{public}d:", res);
@@ -138,6 +142,10 @@ ErrCode EdmBundleManagerImpl::DeleteAppInstallControlRule(AppExecFwk::AppInstall
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto appControlProxy = proxy->GetAppControlProxy();
+    if (appControlProxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetAppControlProxy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     ErrCode res = appControlProxy->DeleteAppInstallControlRule(controlRuleType, data, userId);
     if (res != ERR_OK) {
         EDMLOGE("EdmBundleManagerImpl DeleteAppInstallControlRule Faild %{public}d:", res);

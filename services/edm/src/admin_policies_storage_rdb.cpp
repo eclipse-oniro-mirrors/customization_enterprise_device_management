@@ -290,7 +290,7 @@ void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, 
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
     std::shared_ptr<Admin> item)
 {
-    if (item == nullptr) {
+    if (resultSet == nullptr || item == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::SetAdminItems failed.");
         return;
     }
