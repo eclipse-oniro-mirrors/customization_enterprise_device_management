@@ -48,7 +48,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
         values.Put(key, value);
     }
     Uri uri(PDP_PROFILE_URI);
-    return helper->Insert(uri, values) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 int32_t ApnUtils::ApnDelete(const std::string &apnId)
@@ -115,7 +115,12 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
         queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_ID, apnIdIdx);
         int32_t apnId = -1;
         queryResult->GetInt(apnIdIdx, apnId);
-        result.push_back(std::to_string(apnId));
+        bool needInsert = !std::any_of(result.begin(), result.end(), [](const auto &ele) {
+            return ele == std::to_string(apnId);
+        });
+        if (needInsert) {
+            result.push_back(std::to_string(apnId));
+        }
     }
     queryResult->Close();
 }
@@ -175,7 +180,15 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
     for (int32_t idx = 0; idx < columnCnt; ++idx) {
         std::string columnName;
         queryResult->GetColumnName(idx, columnName);
-        queryResult->GetString(idx, results[columnName]);
+        DataShare::DataType dataType;
+        queryResult->GetDataType(idx, dataType);
+        if (dataType == DataShare::DataType::TYPE_INTEGER) {
+            int32_t value;
+            queryResult->GetInt(idx, value);
+            results[columnName] = std::to_string(value);
+        } else if (dataType == DataShare::DataType::TYPE_STRING) {
+            queryResult->GetString(idx, results[columnName]);
+        }  
     }
     queryResult->Close();
     return ERR_OK;

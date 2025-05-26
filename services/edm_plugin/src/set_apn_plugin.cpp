@@ -67,13 +67,13 @@ ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
     if (apnInfo.size() == 0) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    std::string opkey0 = system::GetParameter("telephony.sim.opkey0", "");
     std::string opkey1 = system::GetParameter("telephony.sim.opkey1", "");
-    std::string opkey2 = system::GetParameter("telephony.sim.opkey2", "");
     std::string mccmnc = apnInfo["mcc"] + apnInfo["mnc"];
-    if (mccmnc == opkey1) {
+    if (mccmnc == opkey0) {
+        apnInfo["opkey"] = opkey0;
+    } else if (mccmnc == opkey1) {
         apnInfo["opkey"] = opkey1;
-    } else if (mccmnc == opkey2) {
-        apnInfo["opkey"] = opkey2;
     } else {
         EDMLOGE("mcc or mnc is invalid");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;;

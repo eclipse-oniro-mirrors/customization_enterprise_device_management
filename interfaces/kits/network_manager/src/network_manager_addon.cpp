@@ -1425,7 +1425,7 @@ void KeyToField(std::map<std::string, std::string> &parameters)
     for (const auto &[key, value] : KEY_TO_FIELD) {
         auto it = parameters.find(key);
         if (it != parameters.end()) {
-            parameters[value] = it->first;
+            parameters[value] = it->second;
             parameters.erase(it);
         }
     }
@@ -1435,7 +1435,7 @@ void KeyToField(std::map<std::string, std::string> &parameters)
 void FieldToKey(std::map<std::string, std::string> &parameters)
 {
     for (const auto &[key, value] : KEY_TO_FIELD) {
-        auto it = parameters.find(key);
+        auto it = parameters.find(value);
         if (it != parameters.end()) {
             parameters[key] = it->second;
             parameters.erase(it);
