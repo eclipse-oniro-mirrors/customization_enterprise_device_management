@@ -53,6 +53,16 @@ void UpdatePolicyUtils::ProcessUpgradeStatus(int32_t status, UpgradeStatus &upgr
     }
 }
 
+void UpdatePolicyUtils::ProcessOtaPolicyType(int32_t type, OtaPolicyType &otaPolicyType)
+{
+    if (type >= static_cast<int32_t>(OtaPolicyType::DEFAULT) &&
+        type <= static_cast<int32_t>(OtaPolicyType::DISABLE_OTA)) {
+        otaPolicyType = static_cast<OtaPolicyType>(type);
+    } else {
+        otaPolicyType = OtaPolicyType::DEFAULT;
+    }
+}
+
 void UpdatePolicyUtils::WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &updatePolicy)
 {
     data.WriteInt32(static_cast<int32_t>(updatePolicy.type));
@@ -61,7 +71,7 @@ void UpdatePolicyUtils::WriteUpdatePolicy(MessageParcel &data, const UpdatePolic
     data.WriteInt64(updatePolicy.installTime.delayUpdateTime);
     data.WriteInt64(updatePolicy.installTime.installWindowStart);
     data.WriteInt64(updatePolicy.installTime.installWindowEnd);
-    data.WriteBool(updatePolicy.disableSystemOtaUpdate);
+    data.WriteInt32(static_cast<int32_t>(updatePolicy.otaPolicyType));
 }
 
 void UpdatePolicyUtils::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy)
@@ -72,7 +82,7 @@ void UpdatePolicyUtils::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &upda
     data.ReadInt64(updatePolicy.installTime.delayUpdateTime);
     data.ReadInt64(updatePolicy.installTime.installWindowStart);
     data.ReadInt64(updatePolicy.installTime.installWindowEnd);
-    data.ReadBool(updatePolicy.disableSystemOtaUpdate);
+    UpdatePolicyUtils::ProcessOtaPolicyType(data.ReadInt32(), updatePolicy.otaPolicyType);
 }
 
 void UpdatePolicyUtils::WriteUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo)

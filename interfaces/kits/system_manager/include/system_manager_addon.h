@@ -66,6 +66,8 @@ private:
     static void NativeGetUpgradeResult(napi_env env, void *data);
     static void NativeGetUpdateAuthData(napi_env env, void *data);
     static void NativeUpgradeResultComplete(napi_env env, napi_status status, void *data);
+    static bool JsDisableSystemOtaUpdateToUpdatePolicy(napi_env env, napi_value object, const char *filedStr,
+        OtaPolicyType &otaPolicyType);
 };
 } // namespace EDM
 } // namespace OHOS
