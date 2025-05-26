@@ -115,6 +115,9 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DESK = "remoteDesk";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS = "remoteDiagnosis";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
+        const char* const LABEL_DISALLOWED_POLICY_SMS = "sms";
+        const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
+        const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
     } // namespace Restrictions
 
@@ -215,6 +218,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
+    const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
@@ -258,6 +262,8 @@ namespace PolicyName {
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
+    const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
     const char* const POLICY_CLEAR_UP_APPLICATION_DATA = "clear_up_application_data";
