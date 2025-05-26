@@ -48,7 +48,6 @@ AdminManager::AdminManager()
 AdminManager::~AdminManager()
 {
     EDMLOGI("AdminManager::~AdminManager");
-    AdminContainer::GetInstance()->ClearAdmins();
 }
 
 bool AdminManager::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin)

@@ -105,6 +105,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->RemoveAdminItem(adminName, policyName, policyValue, userId);
     std::string bundleName(reinterpret_cast<const char*>(data), size);
     TEST::Utils::ResetTokenTypeAndUid();
+    enterpriseDeviceMgrAbility->pluginMgr_->DumpPlugin();
     return 0;
 }
 } // namespace EDM

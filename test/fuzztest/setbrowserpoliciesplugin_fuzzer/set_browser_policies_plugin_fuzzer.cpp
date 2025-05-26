@@ -17,12 +17,17 @@
 
 #include <system_ability_definition.h>
 
+#include "cJSON.h"
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
+#include "handle_policy_data.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
 #include "message_parcel.h"
 #include "utils.h"
+#define private public
+#include "set_browser_policies_plugin.h"
+#undef private
 
 namespace OHOS {
 namespace EDM {
@@ -97,6 +102,39 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+
+    SetBrowserPoliciesPlugin plugin;
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    cJSON* currentPolicies = cJSON_Parse(fuzzString.c_str());
+    cJSON* mergePolicies = cJSON_Parse(fuzzString.c_str());
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = fuzzString;
+    handlePolicyData.mergePolicyData = fuzzString;
+    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % 2;
+    plugin.UpdateCurrentAndMergePolicy(currentPolicies, mergePolicies, handlePolicyData);
+    std::string appId = fuzzString;
+    std::string policyValue = fuzzString;
+    plugin.SetRootPolicy(currentPolicies, mergePolicies, appId, policyValue);
+    std::string policyName = fuzzString;
+    plugin.SetPolicy(currentPolicies, mergePolicies, appId, policyName, policyValue);
+    plugin.SetPolicyValue(currentPolicies, policyName, policyValue);
+    std::uint32_t funcCode = CommonFuzzer::GetU32Data(data);
+    std::string adminName = fuzzString;
+    bool isGlobalChanged = CommonFuzzer::GetU32Data(data) % 2;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin.OnHandlePolicyDone(funcCode, adminName, isGlobalChanged, userId);
+    plugin.NotifyBrowserPolicyChanged();
+    std::unordered_map<std::string, std::string> adminValues = { {fuzzString, fuzzString} };
+    std::string policyData = fuzzString;
+    plugin.MergeBrowserPolicy(adminValues, policyData);
+    std::string policy = "{}";
+    cJSON* root = cJSON_Parse(policy.c_str());
+    std::string policyString = fuzzString;
+    plugin.AddBrowserPoliciesToRoot(root, policyString);
+    std::string str = "{\"policy\":{}, \"adminPolicy\": {\"policy1\": \"value1\", \"policy2\": {\"aaa\": true}}}";
+    cJSON* adminPolicy = cJSON_Parse(str.c_str());
+    plugin.AddBrowserPolicyToRoot(root, adminPolicy);
+
     return 0;
 }
 } // namespace EDM

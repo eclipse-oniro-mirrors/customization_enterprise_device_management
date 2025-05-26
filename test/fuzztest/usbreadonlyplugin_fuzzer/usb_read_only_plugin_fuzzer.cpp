@@ -22,6 +22,9 @@
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
 #include "message_parcel.h"
+#define private public
+#include "usb_read_only_plugin.h"
+#undef private
 #include "utils.h"
 
 namespace OHOS {
@@ -62,6 +65,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+    UsbReadOnlyPlugin plugin;
+    std::vector<USB::UsbDeviceType> usbDeviceTypes;
+    USB::UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = CommonFuzzer::GetU32Data(data);
+    usbDeviceType.subClass = CommonFuzzer::GetU32Data(data);
+    usbDeviceType.protocol = CommonFuzzer::GetU32Data(data);
+    usbDeviceType.isDeviceType = CommonFuzzer::GetU32Data(data) % 2;
+    usbDeviceTypes.emplace_back(usbDeviceType);
+    plugin.DealDisablePolicy(usbDeviceTypes);
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    std::string adminName = fuzzString;
+    std::string policyData = fuzzString;
+    std::string mergeData = fuzzString;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
     return 0;
 }
 } // namespace EDM
