@@ -47,6 +47,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_mtp_server_plugin_test.cpp",
     "./src/disable_remote_desk_plugin_test.cpp",
     "./src/disable_remote_diagnosis_plugin_test.cpp",
+    "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_modify_apn_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
@@ -218,6 +219,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_bluetooth_plugin_test.cpp",
       "./src/disallowed_bluetooth_devices_plugin_test.cpp",
       "./src/get_bluetooth_info_plugin_test.cpp",
+      "./src/switch_bluetooth_plugin_test.cpp",
     ]
   }
 
@@ -351,6 +353,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_desk_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -552,6 +555,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",
+      "../../../../services/edm_plugin/src/switch_bluetooth_plugin.cpp",
     ]
   }
 

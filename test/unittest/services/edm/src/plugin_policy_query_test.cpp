@@ -39,6 +39,7 @@
 #include "disable_mtp_server_query.h"
 #include "disable_remote_desk_query.h"
 #include "disable_remote_diagnosis_query.h"
+#include "disable_user_mtp_client_query.h"
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
 #include "disallow_modify_datetime_query.h"
@@ -516,6 +517,40 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMtpServerQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_mtp_server");
+}
+
+/**
+ * @tc.name: DisableUserMtpClientQuery001
+ * @tc.desc: Test DisableUserMtpPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableUserMtpClientQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableUserMtpClientQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisableUserMtpClientQuery002
+ * @tc.desc: Test DisableUserMtpClientQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableUserMtpClientQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableUserMtpClientQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_user_mtp_client");
 }
 
 /**

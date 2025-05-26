@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+#ifndef EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
+#define EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
 
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#include <gtest/gtest.h>
+#include "iplugin_manager.h"
+#include "switch_bluetooth_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMtpClientPlugin : public PluginSingleton<DisableMtpClientPlugin, bool>, public BasicBoolPlugin {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpClientPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
+namespace TEST {
+class SwitchBluetoothTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+ #endif // EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H

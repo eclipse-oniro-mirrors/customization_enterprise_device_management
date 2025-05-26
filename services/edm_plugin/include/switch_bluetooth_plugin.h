@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
 
-#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMtpClientPlugin : public PluginSingleton<DisableMtpClientPlugin, bool>, public BasicBoolPlugin {
+class SwitchBluetoothPlugin : public PluginSingleton<SwitchBluetoothPlugin, bool> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpClientPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBluetoothPlugin, bool>> ptr) override;
+    ErrCode OnSetPolicy(bool &isOpen);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
+  

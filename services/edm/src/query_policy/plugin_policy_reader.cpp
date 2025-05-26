@@ -98,6 +98,7 @@
 #include "disable_mtp_server_query.h"
 #include "disable_remote_desk_query.h"
 #include "disable_remote_diagnosis_query.h"
+#include "disable_user_mtp_client_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -353,6 +354,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
             return ERR_OK;
         case EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS:
             obj = std::make_shared<DisableRemoteDiagnosisQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISABLE_USER_MTP_CLIENT:
+            obj = std::make_shared<DisableUserMtpClientQuery>();
             return ERR_OK;
         case EdmInterfaceCode::DISABLE_MAINTENANCE_MODE:
             obj = std::make_shared<DisableMaintenanceModeQuery>();

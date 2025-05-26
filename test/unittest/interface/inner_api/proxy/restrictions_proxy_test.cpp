@@ -292,6 +292,38 @@ HWTEST_F(RestrictionsProxyTest, TestIsFingerprintAuthDisabledNullptr, TestSize.L
 }
 
 /**
+ * @tc.name: TestSetFingerprintAuthDisallowedPolicyForAccountSuc
+ * @tc.desc: Test SetFingerprintAuthDisallowedPolicyForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetFingerprintAuthDisallowedPolicyForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetFingerprintAuthDisallowedPolicyForAccount(admin,
+        EdmInterfaceCode::FINGERPRINT_AUTH, false, WITHOUT_PERMISSION_TAG, 100);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetFingerprintAuthDisallowedPolicyForAccountFail
+ * @tc.desc: Test SetFingerprintAuthDisallowedPolicyForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetFingerprintAuthDisallowedPolicyForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->SetFingerprintAuthDisallowedPolicyForAccount(admin,
+        EdmInterfaceCode::FINGERPRINT_AUTH, false, WITHOUT_PERMISSION_TAG, 100);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestSetDisallowedPolicyForAccountSuc
  * @tc.desc: Test SetDisallowedPolicyForAccount success func.
  * @tc.type: FUNC
@@ -304,7 +336,7 @@ HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountSuc, TestSize.L
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = proxy_->SetDisallowedPolicyForAccount(admin,
-        EdmInterfaceCode::FINGERPRINT_AUTH, false, WITHOUT_PERMISSION_TAG, 100);
+        EdmInterfaceCode::DISABLE_USER_MTP_CLIENT, false, WITHOUT_PERMISSION_TAG, 100);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -319,7 +351,42 @@ HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountFail, TestSize.
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t ret = proxy_->SetDisallowedPolicyForAccount(admin,
-        EdmInterfaceCode::FINGERPRINT_AUTH, false, WITHOUT_PERMISSION_TAG, 100);
+        EdmInterfaceCode::DISABLE_USER_MTP_CLIENT, false, WITHOUT_PERMISSION_TAG, 100);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetFingerprintAuthDisallowedPolicyForAccountSuc
+ * @tc.desc: Test GetFingerprintAuthDisallowedPolicyForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetFingerprintAuthDisallowedPolicyForAccountSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = true;
+    int32_t ret = proxy_->GetFingerprintAuthDisallowedPolicyForAccount(admin,
+        EdmInterfaceCode::FINGERPRINT_AUTH, result, WITHOUT_PERMISSION_TAG, 100);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestGetFingerprintAuthDisallowedPolicyForAccountFail
+ * @tc.desc: Test GetFingerprintAuthDisallowedPolicyForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetFingerprintAuthDisallowedPolicyForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool result = false;
+    int32_t ret = proxy_->GetFingerprintAuthDisallowedPolicyForAccount(admin,
+        EdmInterfaceCode::FINGERPRINT_AUTH, result, WITHOUT_PERMISSION_TAG, 100);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -337,7 +404,7 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountSuc, TestSize.L
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool result = true;
     int32_t ret = proxy_->GetDisallowedPolicyForAccount(admin,
-        EdmInterfaceCode::FINGERPRINT_AUTH, result, WITHOUT_PERMISSION_TAG, 100);
+        EdmInterfaceCode::DISABLE_USER_MTP_CLIENT, result, WITHOUT_PERMISSION_TAG, 100);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(result);
 }
@@ -354,7 +421,7 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountFail, TestSize.
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool result = false;
     int32_t ret = proxy_->GetDisallowedPolicyForAccount(admin,
-        EdmInterfaceCode::FINGERPRINT_AUTH, result, WITHOUT_PERMISSION_TAG, 100);
+        EdmInterfaceCode::DISABLE_USER_MTP_CLIENT, result, WITHOUT_PERMISSION_TAG, 100);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
