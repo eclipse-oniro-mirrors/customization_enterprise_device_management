@@ -56,6 +56,7 @@ private:
     static napi_value SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
     static napi_value IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode);
     static napi_value SetUserRestriction(napi_env env, napi_callback_info info);
+    static napi_value GetUserRestricted(napi_env env, napi_callback_info info);
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
@@ -64,6 +65,7 @@ private:
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::unordered_map<std::string, uint32_t> itemCodeMap;
+    static std::unordered_map<std::string, uint32_t> itemQueryCodeMap;
     static std::vector<uint32_t> multiPermCodes;
     static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
 };
