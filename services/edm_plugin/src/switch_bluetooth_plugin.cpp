@@ -41,7 +41,7 @@ void SwitchBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBlu
 
 ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
 {
-    if (system::GetBoolParameter(MDM_BLUETOOTH_PROP, true)) {
+    if (system::GetBoolParameter(MDM_BLUETOOTH_PROP, false)) {
         EDMLOGE("SwitchBluetoothPlugin OnSetPolicy failed, because bluetooth disabled.");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
     }
