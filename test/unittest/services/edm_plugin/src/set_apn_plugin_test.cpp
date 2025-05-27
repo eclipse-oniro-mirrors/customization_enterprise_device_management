@@ -48,6 +48,16 @@ void SetApnPluginTest::TearDownTestSuite(void)
 
 static void AddTestData(MessageParcel &data)
 {
+    data.WriteInt32(8);
+    data.WriteString("profile_name");
+    data.WriteString("apn");
+    data.WriteString("mcc");
+    data.WriteString("mnc");
+    data.WriteString("auto_user");
+    data.WriteString("apn_types");
+    data.WriteString("proxy_ip_address");
+    data.WriteString("mms_ip_address");
+
     data.WriteString("TEST_ADD_PROFILE_NAME");
     data.WriteString("TEST_ADD_APN");
     data.WriteString("TEST_ADD_MCC");
@@ -60,6 +70,16 @@ static void AddTestData(MessageParcel &data)
 
 static void UpdateTestData(MessageParcel &data)
 {
+    data.WriteInt32(8);
+    data.WriteString("profile_name");
+    data.WriteString("apn");
+    data.WriteString("mcc");
+    data.WriteString("mnc");
+    data.WriteString("auto_user");
+    data.WriteString("apn_types");
+    data.WriteString("proxy_ip_address");
+    data.WriteString("mms_ip_address");
+
     data.WriteString("TEST_UPDATE_PROFILE_NAME");
     data.WriteString("TEST_UPDATE_APN");
     data.WriteString("TEST_UPDATE_MCC");
@@ -107,7 +127,10 @@ HWTEST_F(SetApnPluginTest, TestQueryApnId, TestSize.Level1)
     std::vector<std::string> val;
     ASSERT_TRUE(reply.ReadStringVector(&val) == ERR_OK);
     g_testApnId = val[0];
-    ASSERT_TRUE(std::stoi(g_testApnId) >= 0);
+    char *pValue = nullptr;
+    int32_t apnIdInt = static_cast<int32_t>(std::strtol(g_testApnId.c_str(), &pValue, 10));
+    ASSERT_TRUE(g_testApnId.c_str() != pValue);
+    ASSERT_TRUE(apnIdInt >= 0);
 }
 
 /**

@@ -115,7 +115,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
         queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_ID, apnIdIdx);
         int32_t apnId = -1;
         queryResult->GetInt(apnIdIdx, apnId);
-        bool needInsert = !std::any_of(result.begin(), result.end(), [](const auto &ele) {
+        bool needInsert = !std::any_of(result.begin(), result.end(), [apnId](const auto &ele) {
             return ele == std::to_string(apnId);
         });
         if (needInsert) {

@@ -1620,13 +1620,6 @@ napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<
 {
     std::map<std::string, std::string> apnInfoEx;
     FieldToKey(apnInfo, apnInfoEx);
-    // for (auto it = apnInfoEx.begin(); it != apnInfoEx.end(); ) {
-    //     if (ALL_APN_INFO_KEYS.find(it->first) == ALL_APN_INFO_KEYS.end()) {
-    //         it = apnInfoEx.erase(it);
-    //     } else {
-    //         ++it;
-    //     }
-    // }
     napi_value info = nullptr;
     NAPI_CALL(env, napi_create_object(env, &info));
 
@@ -1671,7 +1664,7 @@ napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk
     }
 
     napi_value jsList = nullptr;
-    ConvertStringVectorToJS(env, apnIds, jsList)
+    ConvertStringVectorToJS(env, apnIds, jsList);
     return jsList;
 }
 
