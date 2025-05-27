@@ -34,7 +34,7 @@ const std::set<std::string> REQUIRED_APN_INFO_KEYS = { "appName", "mcc", "mnc", 
 const std::set<std::string> ALL_APN_INFO_KEYS = {
     "appName", "mcc", "mnc",
     "apn", "type", "user",
-    "proxy", "mmsproxy", "apnTypes",
+    "proxy", "mmsproxy", "authType",
     "edit"
 };
 const std::map<std::string, std::string> KEY_TO_FIELD = {
@@ -44,6 +44,7 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "proxy", "proxy_ip_address" },
     { "mmsproxy", "mms_ip_address" },
     { "authType", "auth_type" },
+    { "edit", "edited" }
 };
 #endif
 
@@ -1405,7 +1406,7 @@ napi_value NetworkManagerAddon::TurnOffMobileData(napi_env env, napi_callback_in
 
 bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::string> &parameters)
 {
-    for (auto & ele : REQUIRED_APN_INFO_KEYS) {
+    for (auto &ele : REQUIRED_APN_INFO_KEYS) {
         if (parameters.find(ele) == parameters.end() || parameters.at(ele) == "") {
             EDMLOGE("CheckParameters::Required is null.");
             return false;
@@ -1420,25 +1421,23 @@ bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::strin
     return allValid;
 }
 
-void KeyToField(std::map<std::string, std::string> &parameters)
+void KeyToField(const std::map<std::string, std::string> &parameters, std::map<std::string, std::string> &results)
 {
     for (const auto &[key, value] : KEY_TO_FIELD) {
         auto it = parameters.find(key);
         if (it != parameters.end()) {
-            parameters[value] = it->second;
-            parameters.erase(it);
+            results[value] = it->second;
         }
     }
     
 }
 
-void FieldToKey(std::map<std::string, std::string> &parameters)
+void FieldToKey(const std::map<std::string, std::string> &parameters, std::map<std::string, std::string> &results)
 {
     for (const auto &[key, value] : KEY_TO_FIELD) {
         auto it = parameters.find(value);
         if (it != parameters.end()) {
-            parameters[key] = it->second;
-            parameters.erase(it);
+            results[key] = it->second;
         }
     }
 }
@@ -1464,7 +1463,7 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters, s
         }
     }
 
-    if (parameters.find("type") == parameters.end()) {
+    if (parameters.find("apn_types") == parameters.end()) {
         results["apn_types"] = "default";
     }
     if (results.find("auth_type") == results.end() ||
@@ -1472,7 +1471,7 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters, s
         results.at("auth_type") != "2" && results.at("auth_type") != "3")) {
         results["auth_type"] = "-1";
     }
-    if (parameters.find("edit") == parameters.end() || parameters.at("edit") != "0") {
+    if (parameters.find("edited") == parameters.end() || parameters.at("edited") != "0") {
         results["edited"] = "1";
     }
 }
@@ -1500,12 +1499,13 @@ napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
         "apnInfo name param error");
     
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckParameters(apnInfoMap), "Required fields is null");
-    KeyToField(apnInfoMap);
-
     std::map<std::string, std::string> apnInfoMapEx;
-    ParametersTransform(apnInfoMap, apnInfoMapEx);
+    KeyToField(apnInfoMap, apnInfoMapEx);
+
+    std::map<std::string, std::string> apnInfoMapTf;
+    ParametersTransform(apnInfoMapEx, apnInfoMapTf);
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfoMapEx);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfoMapTf);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1565,7 +1565,8 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     std::map<std::string, std::string> apnInfoMap;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
         "apnInfo param error");
-    KeyToField(apnInfoMap);
+    std::map<std::string, std::string> apnInfoMapEx;
+    KeyToField(apnInfoMap, apnInfoMapEx);
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]), "apnId param error");
     
@@ -1617,15 +1618,15 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
 
 napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo)
 {
-    std::map<std::string, std::string> apnInfoEx = apnInfo;
-    FieldToKey(apnInfoEx);
-    for (auto it = apnInfoEx.begin(); it != apnInfoEx.end(); ) {
-        if (ALL_APN_INFO_KEYS.find(it->first) == ALL_APN_INFO_KEYS.end()) {
-            it = apnInfoEx.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    std::map<std::string, std::string> apnInfoEx;
+    FieldToKey(apnInfo, apnInfoEx);
+    // for (auto it = apnInfoEx.begin(); it != apnInfoEx.end(); ) {
+    //     if (ALL_APN_INFO_KEYS.find(it->first) == ALL_APN_INFO_KEYS.end()) {
+    //         it = apnInfoEx.erase(it);
+    //     } else {
+    //         ++it;
+    //     }
+    // }
     napi_value info = nullptr;
     NAPI_CALL(env, napi_create_object(env, &info));
 
@@ -1659,22 +1660,18 @@ napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk
     std::map<std::string, std::string> apnInfo;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfo, param),
         "apnInfo param error");
-    KeyToField(apnInfo);
+    std::map<std::string, std::string> apnInfoEx;
+    KeyToField(apnInfo, apnInfoEx);
 
     std::vector<std::string> apnIds;
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApnIds(admin, apnInfo, apnIds);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApnIds(admin, apnInfoEx, apnIds);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
 
     napi_value jsList = nullptr;
-    NAPI_CALL(env, napi_create_array_with_length(env, apnIds.size(), &jsList));
-    for (size_t i = 0; i < apnIds.size(); i++) {
-        napi_value id = nullptr;
-        NAPI_CALL(env, napi_create_string_utf8(env, apnIds[i].c_str(), apnIds[i].length(), &id));
-        NAPI_CALL(env, napi_set_element(env, jsList, i, id));
-    }
+    ConvertStringVectorToJS(env, apnIds, jsList)
     return jsList;
 }
 

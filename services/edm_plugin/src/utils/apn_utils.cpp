@@ -197,7 +197,13 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
 int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnSetPrefer start");
-    return Telephony::CellularDataClient::GetInstance().SetPreferApn(std::stoi(apnId)) == DataShare::E_OK ? ERR_OK :
+    char* pResult = nullptr;
+    const int32_t apnIdInt = static_cast<int32_t>(std::strtol(apnId.c_str(), &pResult, 10));
+    if (apnId.c_str() == pResult) {
+        EDMLOGE("ApnUtils::ApnSetPrefer failed to convert type");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return Telephony::CellularDataClient::GetInstance().SetPreferApn(apnIdInt) == DataShare::E_OK ? ERR_OK :
         EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

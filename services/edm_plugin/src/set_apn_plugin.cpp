@@ -25,6 +25,12 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetApnPlugin>());
+const std::set<std::string> ALL_APN_INFO_FIELD = {
+    "profile_name", "mcc", "mnc",
+    "apn", "apn_types", "auth_user",
+    "proxy_ip_address", "mms_ip_address", "auth_type",
+    "edited"
+};
 
 SetApnPlugin::SetApnPlugin()
 {
@@ -150,10 +156,14 @@ void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, M
     }
     reply.WriteInt32(static_cast<int32_t>(apnInfo.size()));
     for (const auto & [key, value] : apnInfo) {
-        reply.WriteString(key);
+        if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
+            reply.WriteString(key);
+        }
     }
     for (const auto & [key, value] : apnInfo) {
-        reply.WriteString(value);
+        if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
+            reply.WriteString(value);
+        }
     }
 }
 

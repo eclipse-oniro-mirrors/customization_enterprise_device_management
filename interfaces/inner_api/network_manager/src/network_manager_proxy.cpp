@@ -386,7 +386,7 @@ int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin, const 
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString("AddApn");
+    data.WriteString(ADD_FLAG);
     if (apnInfoMap.size() > EdmConstants::SetApn::MAX_MAP_SIZE) {
         return ERR_INVALID_VALUE;
     }
@@ -417,7 +417,7 @@ int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString("UpdateApn");
+    data.WriteString(UPDATE_FLAG);
     data.WriteString(apnId);
     data.WriteInt32(apnInfoMap.size());
     for(const auto& iter : apnInfoMap) {
@@ -438,7 +438,7 @@ int32_t NetworkManagerProxy::SetPreferApn(const AppExecFwk::ElementName &admin, 
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString("SetPreferApn");
+    data.WriteString(SET_PREFER_FLAG);
     data.WriteString(apnId);
     
     std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
@@ -456,7 +456,7 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteString("QueryApn");
+    data.WriteString(QUERY_INFO_FLAG);
     data.WriteString(apnId);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
 
@@ -489,7 +489,7 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteString("QueryApnIds");
+    data.WriteString(QUERY_ID_FLAG);
     data.WriteInt32(apnInfoMap.size());
     for(const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
