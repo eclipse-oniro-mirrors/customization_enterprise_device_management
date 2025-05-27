@@ -53,14 +53,11 @@ void DisallowedSimPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim0Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInt32(0);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    DisallowedSimPlugin plugin;
+    int32_t  policies = 0;
+    int32_t currentData = 0;
+    int32_t mergeData = 0;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -71,14 +68,11 @@ HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim0Success, TestSize.Level1)
  */
 HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim1Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInt32(1);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    DisallowedSimPlugin plugin;
+    int32_t  policies = 1;
+    int32_t currentData = 0;
+    int32_t mergeData = 0;
+    ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -89,14 +83,11 @@ HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim1Success, TestSize.Level1)
  */
 HWTEST_F(DisallowedSimPluginTest, TestEnableSim0Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInt32(0);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    DisallowedSimPlugin plugin;
+    int32_t  policies = 0;
+    int32_t currentData = 0;
+    int32_t mergeData = 0;
+    ErrCode ret = plugin.OnRemovePolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -107,14 +98,11 @@ HWTEST_F(DisallowedSimPluginTest, TestEnableSim0Success, TestSize.Level1)
  */
 HWTEST_F(DisallowedSimPluginTest, TestEnableSim1Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInt32(1);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    DisallowedSimPlugin plugin;
+    int32_t  policies = 1;
+    int32_t currentData = 0;
+    int32_t mergeData = 0;
+    ErrCode ret = plugin.OnRemovePolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -125,15 +113,15 @@ HWTEST_F(DisallowedSimPluginTest, TestEnableSim1Success, TestSize.Level1)
  */
 HWTEST_F(DisallowedSimPluginTest, TestIsDisallowedSim0Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
-    MessageParcel reply;
     data.WriteInt32(0);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    MessageParcel reply;
+    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
+    std::string policyData{""};
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_FALSE(reply.ReadBool());
 }
 
 /**
@@ -143,15 +131,15 @@ HWTEST_F(DisallowedSimPluginTest, TestIsDisallowedSim0Success, TestSize.Level1)
  */
 HWTEST_F(DisallowedSimPluginTest, TestIsDisallowedSim1Success, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::DISALLOWED_SIM);
-    HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
-    MessageParcel reply;
     data.WriteInt32(1);
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-
+    MessageParcel reply;
+    std::shared_ptr<IPlugin> plugin = DisallowedSimPlugin::GetPlugin();
+    std::string policyData{""};
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_FALSE(reply.ReadBool());
 }
 
 } // namespace TEST

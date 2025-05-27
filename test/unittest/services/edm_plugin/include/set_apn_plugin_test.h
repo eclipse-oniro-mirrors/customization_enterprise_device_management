@@ -13,25 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_SIM_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_SIM_QUERY_H
+#ifndef EDM_UNIT_TEST_SET_APN_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_SET_APN_PLUGIN_TEST_H
 
-#include "ipolicy_query.h"
+#include <gtest/gtest.h>
+#include "iplugin_manager.h"
+#include "set_apn_plugin.h"
 
 namespace OHOS {
 namespace EDM {
+namespace TEST {
+class SetApnPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
 
-class DisallowSimQuery : public IPolicyQuery {
-public:
-    ~DisallowSimQuery() override = default;
-
-    std::string GetPolicyName() override;
-
-    std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
-
-    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_SIM_QUERY_H
+#endif // EDM_UNIT_TEST_SET_APN_PLUGIN_TEST_H

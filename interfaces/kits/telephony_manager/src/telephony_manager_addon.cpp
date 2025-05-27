@@ -22,7 +22,6 @@
 
 using namespace OHOS::EDM;
 
-
 napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor property[] = {
@@ -58,8 +57,6 @@ napi_value TelephonyManagerAddon::SetSimDisabled(napi_env env, napi_callback_inf
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 napi_value TelephonyManagerAddon::SetSimEnabled(napi_env env, napi_callback_info info)
@@ -85,8 +82,6 @@ napi_value TelephonyManagerAddon::SetSimEnabled(napi_env env, napi_callback_info
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 napi_value TelephonyManagerAddon::IsSimDisabled(napi_env env, napi_callback_info info)
@@ -116,8 +111,6 @@ napi_value TelephonyManagerAddon::IsSimDisabled(napi_env env, napi_callback_info
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
-
-    return nullptr;
 }
 
 static napi_module g_telephonyManagerModule = {

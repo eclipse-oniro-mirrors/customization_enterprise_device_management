@@ -94,6 +94,7 @@
         "screenlock_mgr",
         "security_guard",
         "storage_service",
+        "telephony_data",
         "time_service",
         "update_service",
         "usb_manager",

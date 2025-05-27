@@ -13,29 +13,23 @@
  * limitations under the License.
  */
 
-#include "disallow_sim_query.h"
+#ifndef SERVICES_EDM_INCLUDE_UTILS_BIT_SERIALIZER_H
+#define SERVICES_EDM_INCLUDE_UTILS_BIT_SERIALIZER_H
 
-#include "array_string_serializer.h"
-#include "edm_log.h"
-
+#include "int_serializer.h"
+#include "ipolicy_serializer.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowSimQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_SIM;
-}
-
-std::string DisallowSimQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY;
-}
-
-ErrCode DisallowSimQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+/*
+ * Policy data serializer of type intBIT.
+ */
+class BitSerializer : public IntSerializer {
+public:
+    bool MergePolicy(std::vector<int32_t> &data, int32_t &result) override;
+};
 } // namespace EDM
 } // namespace OHOS
+
+#endif // SERVICES_EDM_INCLUDE_UTILS_BIT_SERIALIZER_H

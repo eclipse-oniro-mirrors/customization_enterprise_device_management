@@ -15,7 +15,8 @@
 
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_SIM_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_SIM_PLUGIN_H
-  
+
+#include "bit_serializer.h"
 #include "plugin_singleton.h"
    
 namespace OHOS {
@@ -23,8 +24,8 @@ namespace EDM {
 class DisallowedSimPlugin : public PluginSingleton<DisallowedSimPlugin, int32_t> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedSimPlugin, int32_t>> ptr) override;
-    ErrCode OnSetPolicy(int32_t &slotId);
-    ErrCode OnRemovePolicy(int32_t &slotId);
+    ErrCode OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId);
+    ErrCode OnRemovePolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnAdminRemove(const std::string &adminName, int32_t &data, int32_t &mergeData, int32_t userId);
 };

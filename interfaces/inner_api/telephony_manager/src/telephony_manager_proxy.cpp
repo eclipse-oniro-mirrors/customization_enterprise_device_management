@@ -56,7 +56,16 @@ int32_t TelephonyManagerProxy::SetSimEnabled(MessageParcel &data)
 int32_t TelephonyManagerProxy::IsSimDisabled(MessageParcel &data, bool &result)
 {
     EDMLOGD("TelephonyManagerProxy::IsSimDisabled");
-    return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, EdmInterfaceCode::DISALLOWED_SIM, result);
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISALLOWED_SIM, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        EDMLOGE("IsSimDisabled:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
 }
 
 } // namespace EDM

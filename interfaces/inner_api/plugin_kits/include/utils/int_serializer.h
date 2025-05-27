@@ -34,7 +34,7 @@ public:
 
     bool WritePolicy(MessageParcel &reply, int32_t &result) override;
 
-    bool MergePolicy(std::vector<int32_t> &data, int32_t &result) override;
+    virtual bool MergePolicy(std::vector<int32_t> &data, int32_t &result) override;
 };
 } // namespace EDM
 } // namespace OHOS

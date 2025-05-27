@@ -778,6 +778,201 @@ HWTEST_F(NetworkManagerProxyTest, TestTurnOffMobileDataFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestAddApnSuc
+ * @tc.desc: Test AddApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddApnSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->AddApn(admin, apnInfoMap);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddApnFail
+ * @tc.desc: Test AddApn func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestAddApnFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->AddApn(admin, apnInfoMap);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestUpdateApnSuc
+ * @tc.desc: Test UpdateApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestUpdateApnSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->UpdateApn(admin, apnInfoMap, "0");
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUpdateApnFail
+ * @tc.desc: Test UpdateApn func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestUpdateApnFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->UpdateApn(admin, apnInfoMap, "0");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestDeleteApnSuc
+ * @tc.desc: Test DeleteApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestDeleteApnSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("0");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = networkManagerProxy->DeleteApn(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDeleteApnFail
+ * @tc.desc: Test DeleteApn func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestDeleteApnFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteString("0");
+    int32_t ret = networkManagerProxy->DeleteApn(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetPreferApnSuc
+ * @tc.desc: Test SetPreferApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetPreferApnSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = networkManagerProxy->SetPreferApn(admin, "0");
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetPreferApnFail
+ * @tc.desc: Test SetPreferApn func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetPreferApnFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = networkManagerProxy->SetPreferApn(admin, "0");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestQueryApnSuc
+ * @tc.desc: Test QueryApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", apnInfoMap);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestQueryApnFail
+ * @tc.desc: Test QueryApn func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", apnInfoMap);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestQueryApnIdsSuc
+ * @tc.desc: Test QueryApnIds func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::map<std::string, std::string> apnInfoMap;
+    std::vector<std::string> apnIds;
+    int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestQueryApnIdsFail
+ * @tc.desc: Test QueryApnIds func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::map<std::string, std::string> apnInfoMap;
+    std::vector<std::string> apnIds;
+    int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
