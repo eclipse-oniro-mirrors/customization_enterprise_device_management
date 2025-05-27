@@ -154,13 +154,19 @@ void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, M
         EDMLOGE("GenerateApnMap size error");
         return;
     }
-    reply.WriteInt32(static_cast<int32_t>(apnInfo.size()));
-    for (const auto & [key, value] : apnInfo) {
+    int32_t size = 0;
+    for (const auto &[key, value] : apnInfo) {
+        if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
+            size++;
+        }
+    }
+    reply.WriteInt32(size);
+    for (const auto &[key, value] : apnInfo) {
         if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
             reply.WriteString(key);
         }
     }
-    for (const auto & [key, value] : apnInfo) {
+    for (const auto &[key, value] : apnInfo) {
         if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
             reply.WriteString(value);
         }

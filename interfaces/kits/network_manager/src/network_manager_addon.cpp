@@ -47,7 +47,10 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "proxy", "proxy_ip_address" },
     { "mmsproxy", "mms_ip_address" },
     { "authType", "auth_type" },
-    { "edit", "edited" }
+    { "edit", "edited" },
+    { "mcc", "mcc" },
+    { "mnc", "mnc" },
+    { "apn", "apn" }
 };
 #endif
 
@@ -1433,7 +1436,6 @@ void KeyToField(const std::map<std::string, std::string> &parameters, std::map<s
             results[value] = it->second;
         }
     }
-    
 }
 
 void FieldToKey(const std::map<std::string, std::string> &parameters, std::map<std::string, std::string> &results)
@@ -1575,7 +1577,7 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]), "apnId param error");
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMap, apnId);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMapEx, apnId);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1670,6 +1672,7 @@ napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk
     }
 
     napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, apnIds.size(), &jsList));
     ConvertStringVectorToJS(env, apnIds, jsList);
     return jsList;
 }
