@@ -51,6 +51,12 @@ enum class GetUpdateInfo {
     UPDATE_AUTH_DATA = 1
 };
 
+enum class OtaPolicyType {
+    DEFAULT = -1, // 默认值，不处理
+    ENABLE_OTA = 0, // 允许OTA
+    DISABLE_OTA = 1 // 不允许OTA
+};
+
 struct UpdateTime {
     int64_t latestUpdateTime = 0;
     int64_t delayUpdateTime = 0;
@@ -62,7 +68,7 @@ struct UpdatePolicy {
     UpdatePolicyType type = UpdatePolicyType::DEFAULT;
     std::string version;
     UpdateTime installTime;
-    bool disableSystemOtaUpdate = false;
+    OtaPolicyType otaPolicyType = OtaPolicyType::DEFAULT;
 };
 
 struct Package {
@@ -100,6 +106,7 @@ public:
     static bool ProcessUpdatePolicyType(int32_t type, UpdatePolicyType &updatePolicyType);
     static void ProcessPackageType(int32_t type, PackageType &packageType);
     static void ProcessUpgradeStatus(int32_t status, UpgradeStatus &upgradeStatus);
+    static void ProcessOtaPolicyType(int32_t type, OtaPolicyType &otaPolicyType);
     static void WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &updatePolicy);
     static void ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &updatePolicy);
     static void WriteUpgradePackageInfo(MessageParcel &data, UpgradePackageInfo &packageInfo);
