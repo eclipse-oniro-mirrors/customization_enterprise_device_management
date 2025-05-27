@@ -30,15 +30,18 @@ const char *const PORT_PROP_NAME = "port";
 const char *const PROXY_USER_NAME = "username";
 const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
-const std::set<std::string> REQUIRED_APN_INFO_KEYS = { "appName", "mcc", "mnc", "apn" };
+#endif
+
+#if defined(CELLULAR_DATA_EDM_ENABLE)
+const std::set<std::string> REQUIRED_APN_INFO_KEYS = { "apnName", "mcc", "mnc", "apn" };
 const std::set<std::string> ALL_APN_INFO_KEYS = {
-    "appName", "mcc", "mnc",
+    "apnName", "mcc", "mnc",
     "apn", "type", "user",
     "proxy", "mmsproxy", "authType",
     "edit"
 };
 const std::map<std::string, std::string> KEY_TO_FIELD = {
-    { "appName", "profile_name" },
+    { "apnName", "profile_name" },
     { "type", "apn_types" },
     { "user", "auth_user" },
     { "proxy", "proxy_ip_address" },

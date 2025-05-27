@@ -458,7 +458,11 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
     data.WriteParcelable(&admin);
     data.WriteString(EdmConstants::SetApn::QUERY_INFO_FLAG);
     data.WriteString(apnId);
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:QueryApn error: %{public}d", ret);
+        return ret;
+    }
 
     int32_t size = reply.ReadInt32();
     std::vector<std::string> keys;
@@ -497,7 +501,11 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     for(const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
     }
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:QueryApnIds error: %{public}d", ret);
+        return ret;
+    }
     
     int32_t size = reply.ReadInt32();
     for (int32_t i = 0; i < size; i++) {
