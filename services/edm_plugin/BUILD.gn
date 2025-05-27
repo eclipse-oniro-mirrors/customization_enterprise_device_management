@@ -258,6 +258,7 @@ ohos_shared_library("edmplugin") {
         "./src/disable_bluetooth_plugin.cpp",
         "./src/disallowed_bluetooth_devices_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
+        "./src/switch_bluetooth_plugin.cpp",
       ]
     }
 
@@ -307,6 +308,21 @@ ohos_shared_library("edmplugin") {
   if (camera_framework_edm_enable) {
     external_deps += [ "camera_framework:camera_framework" ]
     sources += [ "./src/disable_camera_plugin.cpp" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ 
+      "./src/disallowed_sms_plugin.cpp",
+      "./src/disallowed_mms_plugin.cpp",
+    ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/disallow_modify_apn_plugin.cpp" ]
   }
 
   deps = [

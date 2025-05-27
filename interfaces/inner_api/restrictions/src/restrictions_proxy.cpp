@@ -114,8 +114,8 @@ int32_t RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount(const Ap
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow,
-    uint32_t policyCode, std::string permissionTag, int32_t accountId)
+int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
+    bool disallow, uint32_t policyCode, std::string permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::SetDisallowedPolicyForAccount");
     MessageParcel data;
@@ -130,8 +130,8 @@ int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::Eleme
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount(AppExecFwk::ElementName &admin, int policyCode, bool &result,
-    std::string permissionTag, int32_t accountId)
+int32_t RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount(AppExecFwk::ElementName &admin,
+    int policyCode, bool &result, std::string permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount");
     MessageParcel data;

@@ -48,6 +48,10 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_CAMERA, EdmInterfaceCode::DISABLE_CAMERA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DEVELOPER_MODE, POLICY_CODE_END + 20},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_RESET_FACTORY, POLICY_CODE_END + 21},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SMS, EdmInterfaceCode::DISALLOWED_SMS},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MMS, EdmInterfaceCode::DISALLOWED_MMS},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE,
+        EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -66,7 +70,7 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
-}; 
+};
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 {
@@ -499,7 +503,8 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
     ErrCode ret;
     if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
-        ret = proxy->SetFingerprintAuthDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
+        ret = proxy->SetFingerprintAuthDisallowedPolicyForAccount(elementName, disallow,
+            ipcCode, permissionTag, accountId);
     } else {
         ret = proxy->SetDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
     }
@@ -549,7 +554,8 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     bool disallow = false;
     ErrCode ret;
     if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
-        ret = proxy->GetFingerprintAuthDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
+        ret = proxy->GetFingerprintAuthDisallowedPolicyForAccount(elementName, ipcCode,
+            disallow, permissionTag, accountId);
     } else {
         ret = proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
     }
