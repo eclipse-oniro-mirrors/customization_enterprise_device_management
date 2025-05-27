@@ -53,7 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         parcel.WriteInt32(WITHOUT_USERID);
         if (operateType) {
             parcel.WriteParcelable(&admin);
-            int32_t isReadOnly = CommonFuzzer::GetU32Data(data) % 2;
+            int32_t isReadOnly = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
             parcel.WriteInt32(isReadOnly);
         } else {
             parcel.WriteString("");

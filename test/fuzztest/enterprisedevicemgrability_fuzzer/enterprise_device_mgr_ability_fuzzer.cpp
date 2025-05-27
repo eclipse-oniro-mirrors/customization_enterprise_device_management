@@ -97,7 +97,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     admin.SetBundleName(fuzzString);
     admin.SetAbilityName(fuzzString);
     AdminType type = GetData<AdminType>();
-    bool isDebug = CommonFuzzer::GetU32Data(data) % 2;
+    bool isDebug = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
     enterpriseDeviceMgrAbility->VerifyEnableAdminCondition(admin, type, userId, isDebug);
     std::string adminName(reinterpret_cast<const char*>(data), size);
     const std::string policyName(reinterpret_cast<const char*>(data), size);
