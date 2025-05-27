@@ -54,6 +54,15 @@ public:
     int32_t GetDomainFilterRules(MessageParcel &data, std::vector<IPTABLES::DomainFilterRule> &rule);
     int32_t TurnOnMobileData(MessageParcel &data);
     int32_t TurnOffMobileData(MessageParcel &data);
+    int32_t AddApn(const AppExecFwk::ElementName &admin, const std::map<std::string, std::string> &apnInfoMap);
+    int32_t DeleteApn(MessageParcel &data);
+    int32_t UpdateApn(const AppExecFwk::ElementName &admin,
+        const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId);
+    int32_t SetPreferApn(const AppExecFwk::ElementName &admin, const std::string &apnId);
+    int32_t QueryApn(const AppExecFwk::ElementName &admin, const std::string &apnId,
+        std::map<std::string, std::string> &apnInfoMap);
+    int32_t QueryApnIds(const AppExecFwk::ElementName &admin,
+        const std::map<std::string, std::string> &apnInfoMap, std::vector<std::string> &apnIds);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,

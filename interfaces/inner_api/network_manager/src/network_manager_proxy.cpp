@@ -379,6 +379,144 @@ int32_t NetworkManagerProxy::TurnOffMobileData(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
+int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin,
+    const std::map<std::string, std::string> &apnInfoMap)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::SetApn::ADD_FLAG);
+    if (apnInfoMap.size() > EdmConstants::SetApn::MAX_MAP_SIZE) {
+        return ERR_INVALID_VALUE;
+    }
+    data.WriteInt32(apnInfoMap.size());
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.first);
+    }
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.second);
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SET_APN_INFO);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::DeleteApn(MessageParcel &data)
+{
+    EDMLOGD("NetworkManagerProxy::DeleteApn");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
+    const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::SetApn::UPDATE_FLAG);
+    data.WriteString(apnId);
+    data.WriteInt32(apnInfoMap.size());
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.first);
+    }
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.second);
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SET_APN_INFO);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::SetPreferApn(const AppExecFwk::ElementName &admin, const std::string &apnId)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::SetApn::SET_PREFER_FLAG);
+    data.WriteString(apnId);
+    
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SET_APN_INFO);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, const std::string &apnId,
+    std::map<std::string, std::string> &apnInfoMap)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::SetApn::QUERY_INFO_FLAG);
+    data.WriteString(apnId);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:QueryApn error: %{public}d", ret);
+        return ret;
+    }
+
+    int32_t size = reply.ReadInt32();
+    std::vector<std::string> keys;
+    std::vector<std::string> values;
+    for (int32_t i = 0; i < size; i++) {
+        std::string key = reply.ReadString();
+        keys.push_back(key);
+    }
+    for (int32_t i = 0; i < size; i++) {
+        std::string value = reply.ReadString();
+        values.push_back(value);
+    }
+    for (int32_t i = 0; i < size; i++) {
+        apnInfoMap[keys[i]] = values[i];
+    }
+
+    EDMLOGD("EnterpriseDeviceMgrProxy:QueryApn success");
+    return ERR_OK;
+}
+
+int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
+    const std::map<std::string, std::string> &apnInfoMap, std::vector<std::string> &apnIds)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::SetApn::QUERY_ID_FLAG);
+    data.WriteInt32(apnInfoMap.size());
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.first);
+    }
+    for (const auto& iter : apnInfoMap) {
+        data.WriteString(iter.second);
+    }
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:QueryApnIds error: %{public}d", ret);
+        return ret;
+    }
+    
+    int32_t size = reply.ReadInt32();
+    for (int32_t i = 0; i < size; i++) {
+        std::string id = reply.ReadString();
+        apnIds.push_back(id);
+    }
+    EDMLOGD("EnterpriseDeviceMgrProxy:QueryApnIds success. %{public}d", size);
+    return ERR_OK;
+}
+
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(MessageParcel &data)
 {

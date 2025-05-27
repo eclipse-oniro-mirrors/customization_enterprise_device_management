@@ -68,6 +68,7 @@ ohos_shared_library("edmplugin") {
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
+    "telephony_data:tel_telephony_data",
     "window_manager:libwm",
     "window_manager:sms",
   ]
@@ -290,7 +291,10 @@ ohos_shared_library("edmplugin") {
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [ 
+      "./src/disallow_modify_apn_plugin.cpp",
+      "./src/set_apn_plugin.cpp",
       "./src/turnonoff_mobile_data_plugin.cpp",
+      "./src/utils/apn_utils.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -315,10 +319,6 @@ ohos_shared_library("edmplugin") {
 
   if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
-  }
-
-  if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disallow_modify_apn_plugin.cpp" ]
   }
 
   deps = [

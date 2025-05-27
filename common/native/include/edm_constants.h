@@ -141,6 +141,15 @@ namespace EdmConstants {
         const char* const SHUT_DOWN = "shutDown";
         const char* const LOCK_SCREEN = "lockScreen";
     } // namespace DeviceControl
+
+    namespace SetApn {
+        constexpr uint32_t MAX_MAP_SIZE = 50;
+        const std::string ADD_FLAG = "AddApn";
+        const std::string UPDATE_FLAG = "UpdateApn";
+        const std::string SET_PREFER_FLAG = "SetPreferApn";
+        const std::string QUERY_ID_FLAG = "QueryApnIds";
+        const std::string QUERY_INFO_FLAG = "QueryApn";
+    }
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -190,6 +199,7 @@ namespace EdmPermission {
     // api 20
     const char* const PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -267,6 +277,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
     const char* const POLICY_CLEAR_UP_APPLICATION_DATA = "clear_up_application_data";
+    const char* const POLICY_SET_APN_INFO = "set_apn_info";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

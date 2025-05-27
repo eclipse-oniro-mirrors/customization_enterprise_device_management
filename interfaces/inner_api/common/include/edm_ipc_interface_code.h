@@ -125,6 +125,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_REMOTE_DIAGNOSIS = 1083,
     CLEAR_UP_APPLICATION_DATA = 1084,
     DISABLE_USER_MTP_CLIENT = 1085,
+    SET_APN_INFO = 1086,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
