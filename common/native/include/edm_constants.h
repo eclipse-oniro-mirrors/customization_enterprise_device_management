@@ -119,6 +119,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
         const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
+        const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -141,6 +142,12 @@ namespace EdmConstants {
         const char* const SHUT_DOWN = "shutDown";
         const char* const LOCK_SCREEN = "lockScreen";
     } // namespace DeviceControl
+
+    namespace MobileData {
+        constexpr int32_t FORCE_OPEN = 2;
+        const std::string DISALLOW_FLAG = "DisallowMobileData";
+        const std::string FORCE_FLAG = "ForceMobileData";
+    } // namespace MobileData
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -267,6 +274,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
     const char* const POLICY_CLEAR_UP_APPLICATION_DATA = "clear_up_application_data";
+    const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

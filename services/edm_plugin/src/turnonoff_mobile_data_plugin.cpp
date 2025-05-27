@@ -43,13 +43,14 @@ void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnO
 ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnSetPolicy isForce %{public}d", isForce);
+    std::string dataPolicy = system::GetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "");
+    if (dataPolicy == "disallow") {
+        EDMLOGE("TurnOnOffMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
+        return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
+    }
     int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, isForce ? "force_open" : "none")) {
-        EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -58,6 +59,11 @@ ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
 ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnRemovePolicy");
+    std::string dataPolicy = system::GetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "");
+    if (dataPolicy == "disallow") {
+        EDMLOGE("TurnOnOffMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
+        return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
+    }
     if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
