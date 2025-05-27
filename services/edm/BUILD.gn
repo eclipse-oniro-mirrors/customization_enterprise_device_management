@@ -231,8 +231,14 @@ ohos_shared_library("edmservice") {
 
   if (!enterprise_device_management_feature_pc_only &&
       cellular_data_edm_enable) {
-    sources += [ "./src/query_policy/disallow_modify_apn_query.cpp" ]
-    defines += [ "APN_EDM_ENABLE" ]
+    sources += [
+      "./src/query_policy/disallow_modify_apn_query.cpp",
+      "./src/query_policy/disallow_sim_query.cpp",
+    ]
+    defines += [
+      "APN_EDM_ENABLE",
+      "TELEPHONY_EDM_ENABLE",
+    ]
   }
 
   deps = [

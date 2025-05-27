@@ -92,6 +92,10 @@
 #include "disallow_modify_apn_query.h"
 #endif
 
+#ifdef TELEPHONY_EDM_ENABLE
+#include "disallow_sim_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -364,10 +368,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
         default:
             break;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQueryFourth(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOWED_SMS:
@@ -416,7 +420,25 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
     }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SIM:
+#ifdef TELEPHONY_EDM_ENABLE
+            obj = std::make_shared<DisallowSimQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
+
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }
+
 } // namespace EDM
 } // namespace OHOS

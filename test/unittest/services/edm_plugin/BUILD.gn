@@ -262,9 +262,11 @@ ohos_unittest("EdmPluginTest") {
     ]
     sources += [ 
       "./src/turnonoff_mobile_data_plugin_test.cpp",
+      "./src/disallowed_sim_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
+      "TELEPHONY_EDM_ENABLE",
     ]
   }
 
@@ -597,9 +599,11 @@ ohos_static_library("edm_all_plugin_static") {
     ]
     sources += [ 
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
+      "TELEPHONY_EDM_ENABLE",
     ]
   }
 

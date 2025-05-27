@@ -46,6 +46,7 @@
 #include "disallowed_bluetooth_devices_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_running_bundles_query.h"
+#include "disallow_sim_query.h"
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
 #include "disallowed_wifi_list_query.h"
@@ -107,6 +108,7 @@ const std::string TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY =
 const std::string TEST_PERMISSION_ENTERPRISE_GET_DEVICE_INFO = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
 const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM = "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
 const std::string TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
 void PluginPolicyQueryTest::SetUp() {}
 
 void PluginPolicyQueryTest::TearDown() {}
@@ -1526,6 +1528,39 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_apn");
+}
+
+/**
+ * @tc.name: TestDisallowSimQuery001
+ * @tc.desc: Test DisallowSimQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowSimQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowSimQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowSimQuery002
+ * @tc.desc: Test DisallowSimQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowSimQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowSimQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_TELEPHONY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_sim");
 }
 } // namespace TEST
 } // namespace EDM

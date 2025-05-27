@@ -1,0 +1,112 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "disallowed_sim_plugin.h"
+
+#include "parameters.h"
+#include "telephony_errors.h"
+#include "int_serializer.h"
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
+ 
+namespace OHOS {
+namespace EDM {
+ 
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedSimPlugin::GetPlugin());
+const std::string PARAM_DISABLE_SLOT0 = "persist.edm.disable_slot_0";
+const std::string PARAM_DISABLE_SLOT1 = "persist.edm.disable_slot_1";
+ 
+void DisallowedSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedSimPlugin, int32_t>> ptr)
+{
+    EDMLOGI("DisallowedSimPlugin InitPlugin...");
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_SIM, "disallowed_sim",
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->SetSerializer(IntSerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&DisallowedSimPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnHandlePolicyListener(&DisallowedSimPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&DisallowedSimPlugin::OnAdminRemove);
+}
+ 
+ErrCode DisallowedSimPlugin::OnSetPolicy(int32_t &slotId)
+{
+    EDMLOGI("DisallowedSimPlugin OnSetPolicy slotId %{public}d", slotId);
+    bool ret = false;
+    if (slotId == 0) {
+        ret = system::SetParameter(PARAM_DISABLE_SLOT0, "true");
+    } else if (slotId == 1) {
+        ret = system::SetParameter(PARAM_DISABLE_SLOT1, "true");
+    }
+    if (!ret) {
+        EDMLOGE("DisallowedSimPlugin:OnSetPolicy SetParameter fail, slotId %{public}d", slotId);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    
+    return ERR_OK;
+}
+
+ErrCode DisallowedSimPlugin::OnRemovePolicy(int32_t &slotId)
+{
+    EDMLOGI("DisallowedSimPlugin OnRemovePolicy slotId %{public}d", slotId);
+    bool ret = false;
+    if (slotId == 0) {
+        ret = system::SetParameter(PARAM_DISABLE_SLOT0, "false");
+    } else if (slotId == 1) {
+        ret = system::SetParameter(PARAM_DISABLE_SLOT1, "false");
+    }
+    if (!ret) {
+        EDMLOGE("DisallowedSimPlugin:OnRemovePolicy SetParameter fail, slotId %{public}d", slotId);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    
+    return ERR_OK;
+}
+
+ErrCode DisallowedSimPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    EDMLOGD("DisallowedSimPlugin OnGetPolicy.");
+    int32_t slotId = data.ReadInt32();
+    
+    bool isDisable = false;
+    if (slotId == 0) {
+        isDisable = system::GetParameter(PARAM_DISABLE_SLOT0, "false") == "true";
+    } else if (slotId == 1) {
+        isDisable = system::GetParameter(PARAM_DISABLE_SLOT1, "false") == "true";
+    } else {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(isDisable);
+
+    return ERR_OK;
+}
+
+ErrCode DisallowedSimPlugin::OnAdminRemove(const std::string &adminName, int32_t &data,
+    int32_t &mergeData, int32_t userId)
+{
+    EDMLOGI("DisallowedSimPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
+        adminName.c_str(), data, userId);
+    if (!system::SetParameter(PARAM_DISABLE_SLOT0, "false")) {
+        EDMLOGE("DisallowedSimPlugin:OnAdminRemove SetParameter fail");
+    }
+    if (!system::SetParameter(PARAM_DISABLE_SLOT1, "false")) {
+        EDMLOGE("DisallowedSimPlugin:OnAdminRemove SetParameter fail");
+    }
+    
+    return ERR_OK;
+}
+
+} // namespace EDM
+} // namespace OHOS

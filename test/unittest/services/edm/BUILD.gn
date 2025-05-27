@@ -64,6 +64,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_sim_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/get_device_encryption_status_query.cpp",

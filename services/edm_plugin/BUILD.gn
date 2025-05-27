@@ -291,9 +291,11 @@ ohos_shared_library("edmplugin") {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [ 
       "./src/turnonoff_mobile_data_plugin.cpp",
+      "./src/disallowed_sim_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
+      "TELEPHONY_EDM_ENABLE",
     ]
   }
   
