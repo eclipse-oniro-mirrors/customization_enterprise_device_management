@@ -82,7 +82,7 @@ ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
         apnInfo["opkey"] = opkey1;
     } else {
         EDMLOGE("mcc or mnc is invalid");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ApnUtils::ApnInsert(apnInfo);
 }
@@ -200,7 +200,7 @@ ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
     std::map<std::string, std::string> apnInfo = ParserApnMap(data);
     std::vector<std::string> result = ApnUtils::ApnQuery(apnInfo);
     reply.WriteInt32(static_cast<int32_t>(result.size()));
-    for (const auto & ele : result) {
+    for (const auto &ele : result) {
         reply.WriteString(ele);
     }
     return ERR_OK;

@@ -1420,7 +1420,8 @@ bool NetworkManagerAddon::CheckParameters(const std::map<std::string, std::strin
         if (!valid) {
             EDMLOGE("invalid key: %{public}s", i.first.c_str());
         }
-        return valid;});
+        return valid;
+    });
     return allValid;
 }
 
@@ -1445,7 +1446,8 @@ void FieldToKey(const std::map<std::string, std::string> &parameters, std::map<s
     }
 }
 
-void ParametersTransform(const std::map<std::string, std::string> &parameters, std::map<std::string, std::string> &results)
+void ParametersTransform(const std::map<std::string, std::string> &parameters,
+    std::map<std::string, std::string> &results)
 {
     results = {
         {"profile_name", parameters.at("profile_name")},
@@ -1459,7 +1461,7 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters, s
         ALL_APN_INFO_KEYS.begin(), ALL_APN_INFO_KEYS.end(),
         REQUIRED_APN_INFO_KEYS.begin(), REQUIRED_APN_INFO_KEYS.end(),
         std::inserter(optionalFields, optionalFields.begin())
-    );     
+    );
     for (const auto& ele : optionalFields) {
         if (parameters.find(ele) != parameters.end()) {
             results[ele] = parameters.at(ele);
@@ -1637,7 +1639,8 @@ napi_value NetworkManagerAddon::ConvertApnInfoToJS(napi_env env, const std::map<
     return info;
 }
 
-napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param)
+napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin,
+    napi_value param)
 {
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param), "apnId param error");

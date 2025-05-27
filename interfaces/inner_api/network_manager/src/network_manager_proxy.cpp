@@ -379,7 +379,8 @@ int32_t NetworkManagerProxy::TurnOffMobileData(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin, const std::map<std::string, std::string> &apnInfoMap)
+int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin,
+    const std::map<std::string, std::string> &apnInfoMap)
 {
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -391,10 +392,10 @@ int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin, const 
         return ERR_INVALID_VALUE;
     }
     data.WriteInt32(apnInfoMap.size());
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
@@ -420,10 +421,10 @@ int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
     data.WriteString(EdmConstants::SetApn::UPDATE_FLAG);
     data.WriteString(apnId);
     data.WriteInt32(apnInfoMap.size());
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
@@ -475,7 +476,7 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
         std::string value = reply.ReadString();
         values.push_back(value);
     }
-    for(int32_t i = 0; i < size; i++) {
+    for (int32_t i = 0; i < size; i++) {
         apnInfoMap[keys[i]] = values[i];
     }
 
@@ -495,10 +496,10 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     data.WriteParcelable(&admin);
     data.WriteString(EdmConstants::SetApn::QUERY_ID_FLAG);
     data.WriteInt32(apnInfoMap.size());
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
-    for(const auto& iter : apnInfoMap) {
+    for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
     }
     int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_APN_INFO, data, reply);

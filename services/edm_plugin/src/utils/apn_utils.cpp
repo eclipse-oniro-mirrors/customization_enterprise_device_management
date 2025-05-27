@@ -106,7 +106,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
     int32_t rowCnt = 0;
     queryResult->GetRowCount(rowCnt);
     for (int32_t rowIdx = 0; rowIdx < rowCnt; ++rowIdx) {
-        if (queryResult->GoToRow(rowIdx)){
+        if (queryResult->GoToRow(rowIdx)) {
             EDMLOGE("ApnQueryVector GoToRow error");
             queryResult->Close();
             return;
@@ -188,7 +188,7 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
             results[columnName] = std::to_string(value);
         } else if (dataType == DataShare::DataType::TYPE_STRING) {
             queryResult->GetString(idx, results[columnName]);
-        }  
+        }
     }
     queryResult->Close();
     return ERR_OK;
