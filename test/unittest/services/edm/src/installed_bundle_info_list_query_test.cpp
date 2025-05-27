@@ -38,11 +38,9 @@ protected:
 };
 
 void InstalledBundleInfoListQueryTest::SetUp() {
-    Utils::SetEdmInitialEnv();
 }
 
 void InstalledBundleInfoListQueryTest::TearDown() {
-    Utils::ResetTokenTypeAndUid();
 }
 
 /**

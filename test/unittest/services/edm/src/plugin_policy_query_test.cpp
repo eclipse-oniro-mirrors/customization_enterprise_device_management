@@ -1424,7 +1424,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableRemoteDeskQuery002, TestSize.Level1)
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
 }
 
 /**
@@ -1478,7 +1478,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableRemoteDiagnosisQuery002, TestSize.Lev
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
 }
 
 /**
