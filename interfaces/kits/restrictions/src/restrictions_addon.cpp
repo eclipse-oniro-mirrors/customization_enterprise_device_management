@@ -689,9 +689,9 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
     ErrCode ret = ERR_OK;
     auto itemCode = itemCodeMap.find(settingsItem);
     if (itemCode == itemCodeMap.end()) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-            return nullptr;
-        }
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
     std::uint32_t ipcCode = itemCode->second;
     ret = proxy->SetUserRestriction(elementName, disallow, ipcCode);
     if (FAILED(ret)) {

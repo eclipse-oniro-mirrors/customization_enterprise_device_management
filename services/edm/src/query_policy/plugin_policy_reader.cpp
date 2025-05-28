@@ -368,10 +368,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
         default:
             break;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQueryFourth(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOWED_SMS:
@@ -419,6 +419,15 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        default:
+            break;
+    }
+    return GetPolicyQueryEnd();
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
         case EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS:
 #ifdef POWER_MANAGER_EDM_ENABLE
             obj = std::make_shared<DisallowPowerLongPressQuery>();
