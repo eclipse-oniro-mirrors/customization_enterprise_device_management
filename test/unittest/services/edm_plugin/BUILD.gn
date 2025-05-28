@@ -137,6 +137,7 @@ ohos_unittest("EdmPluginTest") {
   if (power_manager_edm_enable && screenlock_mgr_edm_enable) {
     external_deps += [ "power_manager:powermgr_client" ]
     sources += [
+      "./src/disallow_power_long_press_plugin_test.cpp",
       "./src/reboot_plugin_test.cpp",
       "./src/shutdown_plugin_test.cpp",
     ]
@@ -448,6 +449,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (power_manager_edm_enable && screenlock_mgr_edm_enable) {
     external_deps += [ "power_manager:powermgr_client" ]
     sources += [
+      "../../../../services/edm_plugin/src/disallow_power_long_press_plugin.cpp",
       "../../../../services/edm_plugin/src/reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/shutdown_plugin.cpp",
     ]

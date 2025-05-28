@@ -43,7 +43,8 @@
       "enterprise_device_management_support_all",
       "enterprise_device_management_feature_charging_type_setting",
       "enterprise_device_management_feature_coverage",
-      "enterprise_device_management_feature_pc_only"
+      "enterprise_device_management_feature_pc_only",
+      "enterprise_device_management_feature_block_long_press"
     ],
     "adapted_system_type": [
       "standard"

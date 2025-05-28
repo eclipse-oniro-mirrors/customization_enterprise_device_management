@@ -235,6 +235,11 @@ ohos_shared_library("edmservice") {
     defines += [ "APN_EDM_ENABLE" ]
   }
 
+  if (power_manager_edm_enable) {
+    sources += [ "./src/query_policy/disallow_power_long_press_query.cpp" ]
+    defines += [ "POWER_MANAGER_EDM_ENABLE" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",

@@ -92,6 +92,10 @@
 #include "disallow_modify_apn_query.h"
 #endif
 
+#ifdef POWER_MANAGER_EDM_ENABLE
+#include "disallow_power_long_press_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -415,6 +419,15 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS:
+#ifdef POWER_MANAGER_EDM_ENABLE
+            obj = std::make_shared<DisallowPowerLongPressQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
     }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }

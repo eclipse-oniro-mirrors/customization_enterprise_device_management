@@ -52,6 +52,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MMS, EdmInterfaceCode::DISALLOWED_MMS},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE,
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS, EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS}
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -688,9 +689,9 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
     ErrCode ret = ERR_OK;
     auto itemCode = itemCodeMap.find(settingsItem);
     if (itemCode == itemCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
+            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+            return nullptr;
+        }
     std::uint32_t ipcCode = itemCode->second;
     ret = proxy->SetUserRestriction(elementName, disallow, ipcCode);
     if (FAILED(ret)) {
