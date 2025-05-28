@@ -38,4 +38,5 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 17] void ReplaceSuperAdmin([in] ElementName oldAdmin, [in] ElementName newAdmin, [in] boolean keepPolicy);
     [ipccode 18] void GetAdmins([out] List<sharedptr<Want>> wants);
     [ipccode 19] void SetAdminRunningMode([in] ElementName admin, [in] unsigned int runningMode);
+    [ipccode 20] void SetDelegatedPolicies([in] String bundleName, [in] String[] policies, [in] int userId);
 }

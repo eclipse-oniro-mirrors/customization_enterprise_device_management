@@ -69,6 +69,28 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY
 };
 
+std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
+    PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+    PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
+    PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES, PolicyName::POLICY_SET_BROWSER_POLICIES,
+    PolicyName::POLICY_ALLOWED_INSTALL_BUNDLES, PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES,
+    PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, PolicyName::POLICY_SNAPSHOT_SKIP,
+    PolicyName::POLICY_LOCATION_POLICY, PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
+    PolicyName::POLICY_GLOBAL_PROXY, PolicyName::POLICY_DISABLED_BLUETOOTH,
+    PolicyName::POLICY_DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISABLED_PRINTER,
+    PolicyName::POLICY_POLICY_SCREEN_SHOT, PolicyName::POLICY_DISABLED_HDC,
+    PolicyName::POLICY_DISABLE_MICROPHONE, PolicyName::POLICY_FINGERPRINT_AUTH,
+    PolicyName::POLICY_DISABLE_USB, PolicyName::POLICY_DISABLE_WIFI,
+    PolicyName::POLICY_DISALLOWED_TETHERING, PolicyName::POLICY_INACTIVE_USER_FREEZE,
+    PolicyName::POLICY_PASSWORD_POLICY, PolicyName::POLICY_CLIPBOARD_POLICY,
+    PolicyName::POLICY_NTP_SERVER, PolicyName::POLICY_SET_UPDATE_POLICY,
+    PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
+    PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
+    PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+    PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST,
+    PolicyName::POLICY_ALLOW_ALL,
+};
+
 std::shared_ptr<PermissionChecker> PermissionChecker::GetInstance()
 {
     std::call_once(flag_, []() {
@@ -82,6 +104,11 @@ std::shared_ptr<PermissionChecker> PermissionChecker::GetInstance()
 std::shared_ptr<IExternalManagerFactory> PermissionChecker::GetExternalManagerFactory()
 {
     return externalManagerFactory_;
+}
+
+bool PermissionChecker::IsAllowDelegatedPolicy(const std::string &policy)
+{
+    return allowDelegatedPolicies_.find(policy) != allowDelegatedPolicies_.end();
 }
 
 ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, const std::string &permission,

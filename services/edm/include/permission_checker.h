@@ -54,6 +54,7 @@ public:
     bool CheckIsSystemAppOrNative();
     bool CheckSpecialPolicyCallQuery(uint32_t code);
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
+    bool IsAllowDelegatedPolicy(const std::string &policy);
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
     virtual ~PermissionChecker() = default;
 
@@ -65,6 +66,7 @@ private:
     static std::once_flag flag_;
     static std::shared_ptr<PermissionChecker> instance_;
     static std::vector<uint32_t> supportAdminNullPolicyCode_;
+    static std::unordered_set<std::string> allowDelegatedPolicies_;
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
