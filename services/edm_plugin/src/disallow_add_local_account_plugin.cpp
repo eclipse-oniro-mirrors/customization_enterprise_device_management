@@ -23,6 +23,8 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
 
+const std::string ACCOUNT_CREATE_CONSTRAINT = "constraint.os.account.create";
+
 void DisallowAddLocalAccountPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr)
 {
@@ -46,7 +48,7 @@ ErrCode DisallowAddLocalAccountPlugin::RemoveOtherModulePolicy()
 
 ErrCode DisallowAddLocalAccountPlugin::SetGlobalOsAccountConstraints(bool data)
 {
-    std::vector<std::string> constraints = {"constraint.os.account.create.directly"};
+    std::vector<std::string> constraints = {ACCOUNT_CREATE_CONSTRAINT};
     std::vector<int32_t> ids;
     AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ids.empty()) {
@@ -55,7 +57,7 @@ ErrCode DisallowAddLocalAccountPlugin::SetGlobalOsAccountConstraints(bool data)
     }
     ErrCode ret = AccountSA::OsAccountManager::SetGlobalOsAccountConstraints(constraints, data, ids.at(0), true);
     if (FAILED(ret)) {
-        EDMLOGE("DisallowAddLocalAccountPlugin SetGlobalOsAccountConstraints failed");
+        EDMLOGE("DisallowAddLocalAccountPlugin SetGlobalOsAccountConstraints failed %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
