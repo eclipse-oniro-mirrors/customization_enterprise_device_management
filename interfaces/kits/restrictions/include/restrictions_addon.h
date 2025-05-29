@@ -59,6 +59,8 @@ private:
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
+    static OHOS::ErrCode NativeGetDisallowedPolicyForAccount(bool hasAdmin, AppExecFwk::ElementName &elementName,
+        std::uint32_t ipcCode, int32_t accountId, bool &disallow);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::unordered_map<std::string, uint32_t> itemCodeMap;
