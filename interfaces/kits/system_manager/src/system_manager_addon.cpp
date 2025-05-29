@@ -392,10 +392,32 @@ bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, Up
         errorMsg = "the property 'delayUpdateTime' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
-    if (!JsObjectToBool(env, object, "disableSystemOtaUpdate", false, updatePolicy.disableSystemOtaUpdate)) {
+    if (!JsDisableSystemOtaUpdateToUpdatePolicy(env, object, "disableSystemOtaUpdate", updatePolicy.otaPolicyType)) {
         errorMsg = "the property 'disableSystemOtaUpdate' in type 'OtaUpdatePolicy' is check failed";
         return false;
     }
+    return true;
+}
+
+bool SystemManagerAddon::JsDisableSystemOtaUpdateToUpdatePolicy(napi_env env, napi_value object, const char *filedStr,
+    OtaPolicyType &otaPolicyType)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (!hasProperty) {
+        otaPolicyType = OtaPolicyType::DEFAULT;
+        return true;
+    }
+    napi_value prop = nullptr;
+    bool res = false;
+    if (!(napi_get_named_property(env, object, filedStr, &prop) == napi_ok && ParseBool(env, res, prop))) {
+        EDMLOGE("get js ParseBool failed.");
+        return false;
+    }
+    otaPolicyType = res ? OtaPolicyType::DISABLE_OTA : OtaPolicyType::ENABLE_OTA;
     return true;
 }
 
@@ -429,7 +451,11 @@ napi_value SystemManagerAddon::ConvertUpdatePolicyToJs(napi_env env, const Updat
     NAPI_CALL(env, napi_set_named_property(env, otaUpdatePolicy, "installEndTime", installEndTime));
 
     napi_value disableSystemOtaUpdate = nullptr;
-    NAPI_CALL(env, napi_get_boolean(env, updatePolicy.disableSystemOtaUpdate, &disableSystemOtaUpdate));
+    bool isDisableSystemOtaUpdate = false;
+    if (updatePolicy.otaPolicyType == OtaPolicyType::DISABLE_OTA) {
+        isDisableSystemOtaUpdate = true;
+    }
+    NAPI_CALL(env, napi_get_boolean(env, isDisableSystemOtaUpdate, &disableSystemOtaUpdate));
     NAPI_CALL(env, napi_set_named_property(env, otaUpdatePolicy, "disableSystemOtaUpdate", disableSystemOtaUpdate));
     return otaUpdatePolicy;
 }

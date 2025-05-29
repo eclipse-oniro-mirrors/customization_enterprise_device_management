@@ -133,7 +133,7 @@ HWTEST_F(UpdatePolicyUtilsTest, TestReadUpdatePolicySuc, TestSize.Level1)
     policy.installTime.delayUpdateTime = 0;
     policy.installTime.installWindowStart = 0;
     policy.installTime.installWindowEnd = 0;
-    policy.disableSystemOtaUpdate = true;
+    policy.otaPolicyType = OtaPolicyType::DISABLE_OTA;
     UpdatePolicyUtils::WriteUpdatePolicy(data, policy);
 
     UpdatePolicy policy2;
@@ -144,7 +144,38 @@ HWTEST_F(UpdatePolicyUtilsTest, TestReadUpdatePolicySuc, TestSize.Level1)
     ASSERT_TRUE(policy2.installTime.delayUpdateTime == 0);
     ASSERT_TRUE(policy2.installTime.installWindowStart == 0);
     ASSERT_TRUE(policy2.installTime.installWindowEnd == 0);
-    ASSERT_TRUE(policy2.disableSystemOtaUpdate);
+    ASSERT_TRUE(policy2.otaPolicyType == OtaPolicyType::DISABLE_OTA);
+}
+
+/*
+ *@tc.name: TestProcessOtaPolicyTypeWithInllegalType
+ *@tc.desc: Test ProcessOtaPolicyType success func.
+ *@tc.type: FUNC
+ */
+  HWTEST_F(UpdatePolicyUtilsTest, TestProcessOtaPolicyTypeWithInllegalType, TestSize.Level1)
+{
+    OtaPolicyType otaPolicyType;
+    UpdatePolicyUtils::ProcessOtaPolicyType(10, otaPolicyType);
+
+    ASSERT_TRUE(otaPolicyType == OtaPolicyType::DEFAULT);
+}
+
+/*
+ *@tc.name: TestProcessPackageTypeWithAllType
+ *@tc.desc: Test ProcessOtaPolicyType success func.
+ *@tc.type: FUNC
+ */
+ HWTEST_F(UpdatePolicyUtilsTest, TestProcessPackageTypeWithAllType, TestSize.Level1)
+{
+    OtaPolicyType otaPolicyType;
+    UpdatePolicyUtils::ProcessOtaPolicyType(static_cast<int32_t>(OtaPolicyType::ENABLE_OTA), otaPolicyType);
+    ASSERT_TRUE(otaPolicyType == OtaPolicyType::ENABLE_OTA);
+
+    UpdatePolicyUtils::ProcessOtaPolicyType(static_cast<int32_t>(OtaPolicyType::DISABLE_OTA), otaPolicyType);
+    ASSERT_TRUE(otaPolicyType == OtaPolicyType::DISABLE_OTA);
+
+    UpdatePolicyUtils::ProcessOtaPolicyType(static_cast<int32_t>(OtaPolicyType::DEFAULT), otaPolicyType);
+    ASSERT_TRUE(otaPolicyType == OtaPolicyType::DEFAULT);
 }
 } // namespace TEST
 } // namespace EDM

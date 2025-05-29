@@ -48,9 +48,13 @@ ErrCode SwitchWifiPlugin::OnTurnOnPolicy(bool &isForce)
     }
 
     std::shared_ptr<Wifi::WifiDevice> devicePtr = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (devicePtr == nullptr) {
+        EDMLOGE("SwitchWifiPlugin:OnTurnOnPolicy WifiDevice null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     int ret = devicePtr->EnableWifi();
     if (ret != Wifi::WIFI_OPT_SUCCESS || !system::SetParameter(PARAM_FORCE_OPEN_WIFI, isForce ? "true" : "false")) {
-        EDMLOGE("SwitchWifiPlugin:OnSetPolicy SetParameter fail or send request fail. %{public}d", ret);
+        EDMLOGE("SwitchWifiPlugin:OnTurnOnPolicy SetParameter fail or send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -69,6 +73,10 @@ ErrCode SwitchWifiPlugin::OnTurnOffPolicy()
     }
 
     std::shared_ptr<Wifi::WifiDevice> devicePtr = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (devicePtr == nullptr) {
+        EDMLOGE("SwitchWifiPlugin:OnTurnOffPolicy WifiDevice null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     int ret = devicePtr->DisableWifi();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         EDMLOGE("SwitchWifiPlugin:OnTurnOffPolicy send request fail. %{public}d", ret);
