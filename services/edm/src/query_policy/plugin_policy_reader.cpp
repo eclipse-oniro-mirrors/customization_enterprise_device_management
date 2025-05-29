@@ -412,6 +412,15 @@ ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        default:
+            break;
+    }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
         case EdmInterfaceCode::DISALLOW_MODIFY_APN:
 #ifdef APN_EDM_ENABLE
             obj = std::make_shared<DisallowModifyAPNQuery>();
@@ -419,15 +428,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        default:
-            break;
-    }
-    return GetPolicyQueryEnd();
-}
-
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
-{
-    switch (code) {
         case EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS:
 #ifdef POWER_MANAGER_EDM_ENABLE
             obj = std::make_shared<DisallowPowerLongPressQuery>();
