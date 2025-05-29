@@ -33,11 +33,10 @@ void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnO
 {
     EDMLOGI("TurnOnMobileDataPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::TURNONOFF_MOBILE_DATA, "turnon_mobile_data",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveListener(&TurnOnOffMobileDataPlugin::OnAdminRemove);
 }
  
 ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
@@ -72,17 +71,6 @@ ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    
-    return ERR_OK;
-}
-
-ErrCode TurnOnOffMobileDataPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("TurnOnOffMobileDataPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
-        adminName.c_str(), data, userId);
-    if (!system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
-        EDMLOGE("TurnOnOffMobileDataPlugin:OnAdminRemove SetParameter fail");
     }
     
     return ERR_OK;

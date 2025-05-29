@@ -389,7 +389,8 @@ int32_t NetworkManagerProxy::ForceTurnOnMobileData(const AppExecFwk::ElementName
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(EdmConstants::MobileData::FORCE_FLAG);
     data.WriteInt32(EdmConstants::MobileData::FORCE_OPEN);
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 

@@ -92,6 +92,10 @@
 #include "disallow_modify_apn_query.h"
 #endif
 
+#ifdef MOBILE_DATA_ENABLE
+#include "disallowed_mobile_data_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -361,6 +365,22 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_MAINTENANCE_MODE:
             obj = std::make_shared<DisableMaintenanceModeQuery>();
             return ERR_OK;
+        default:
+            break;
+    }
+    return GetPolicyQueryFourth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
+#ifdef MOBILE_DATA_ENABLE
+            obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }

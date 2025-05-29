@@ -25,7 +25,6 @@
      void InitPlugin(std::shared_ptr<IPluginTemplate<TurnOnOffMobileDataPlugin, bool>> ptr) override;
      ErrCode OnSetPolicy(bool &isForce);
      ErrCode OnRemovePolicy();
-     ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
  };
  } // namespace EDM
  } // namespace OHOS

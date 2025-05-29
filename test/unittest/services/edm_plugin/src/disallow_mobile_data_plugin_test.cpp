@@ -50,7 +50,7 @@ void DisallowMobileDataTest::TearDownTestSuite(void)
 HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_001, TestSize.Level1)
 {
     std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
     MessageParcel reply;
@@ -67,7 +67,7 @@ HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_001, TestSize.Lev
 HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_002, TestSize.Level1)
 {
     std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"true", "", true};
     MessageParcel data;
     MessageParcel reply;
@@ -84,7 +84,7 @@ HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_002, TestSize.Lev
 HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_003, TestSize.Level1)
 {
     std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
     MessageParcel reply;
@@ -102,7 +102,7 @@ HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_003, TestSize.Lev
 HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_004, TestSize.Level1)
 {
     std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"true", "", true};
     MessageParcel data;
     MessageParcel reply;
@@ -120,7 +120,7 @@ HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_004, TestSize.Lev
 HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_005, TestSize.Level1)
 {
     std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWE_MOBILE_DATA);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
     MessageParcel reply;
@@ -128,6 +128,26 @@ HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_005, TestSize.Lev
     data.WriteInt32(EdmConstants::MobileData::FORCE_OPEN);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowMobileDataSuccess_006
+ * @tc.desc: Test DisallowMobileDataPlugin::OnSetPolicy function sucess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowMobileDataTest, TestDisallowMobileDataSuccess_006, TestSize.Level1)
+{
+    std::shared_ptr<DisallowMobileDataPlugin> plugin = std::make_shared<DisallowMobileDataPlugin>();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString(EdmConstants::MobileData::FORCE_FLAG);
+    data.WriteInt32(EdmConstants::MobileData::FORCE_OPEN);
+    system::SetParameter("persist.edm.mobile_data_policy", "disallow");
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ENTERPRISE_POLICES_DENIED);
+    system::SetParameter("persist.edm.mobile_data_policy", "none");
 }
 } // namespace TEST
 } // namespace EDM
