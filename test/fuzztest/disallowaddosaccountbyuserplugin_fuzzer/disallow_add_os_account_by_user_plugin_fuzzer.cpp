@@ -59,7 +59,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             parcel.WriteStringVector(value);
         } else {
             parcel.WriteString("");
-            bool hasAdmin = CommonFuzzer::GetU32Data(data) % 2;
+            bool hasAdmin = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
             if (hasAdmin) {
                 parcel.WriteInt32(0);
                 parcel.WriteParcelable(&admin);

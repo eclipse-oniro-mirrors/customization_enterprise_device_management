@@ -43,7 +43,7 @@ void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
     parcel.WriteInt32(WITHOUT_USERID);
     if (operateType) {
         parcel.WriteParcelable(&admin);
-        bool isSetAll = CommonFuzzer::GetU32Data(data) % 2;
+        bool isSetAll = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
         int32_t pos = 0;
         int32_t stringSize = size / 3;
         std::string appId(CommonFuzzer::GetString(data, pos, stringSize, size));
@@ -66,7 +66,7 @@ void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
         }
     } else {
         parcel.WriteString("");
-        bool hasAdmin = CommonFuzzer::GetU32Data(data) % 2;
+        bool hasAdmin = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
         if (hasAdmin) {
             parcel.WriteInt32(HAS_ADMIN);
             parcel.WriteParcelable(&admin);
