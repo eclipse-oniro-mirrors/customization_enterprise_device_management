@@ -16,6 +16,7 @@ src:*/customization/enterprise_device_management/test/unittest/services/edm_plug
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/location_policy_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/screen_off_time_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/disallow_modify_apn_plugin_test.cpp
+src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/disallowed_sms_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_admin_connection_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_bundle_connection_test.cpp
 src:*/third_party/googletest/googlemock/include/gmock/gmock-cardinalities.h
