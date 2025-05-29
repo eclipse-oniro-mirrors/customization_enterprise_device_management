@@ -322,6 +322,10 @@ ohos_shared_library("edmplugin") {
     sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
   }
 
+  if (enterprise_device_management_feature_block_long_press) {
+    defines += [ "FEATURE_BLOCK_LONG_PRESS" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",
