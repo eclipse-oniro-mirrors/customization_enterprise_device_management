@@ -31,7 +31,7 @@ void DisallowPowerLongPressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     EDMLOGI("DisallowPowerLongPressPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+        EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
         IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS,
