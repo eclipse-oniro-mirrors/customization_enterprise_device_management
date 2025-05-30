@@ -29,7 +29,7 @@ std::string DisallowPowerLongPressQuery::GetPolicyName()
 std::string DisallowPowerLongPressQuery::GetPermission(IPlugin::PermissionType permissionType,
     const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 }
 
 ErrCode DisallowPowerLongPressQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
