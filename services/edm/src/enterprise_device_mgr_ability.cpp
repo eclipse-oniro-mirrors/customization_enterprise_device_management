@@ -80,6 +80,7 @@ const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
 const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
 const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
+const std::string POLICY_ALLOW_ALL = "allow_all";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::dataLock_;
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
@@ -658,28 +659,6 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
     EDMLOGI("InitAllPolices userIds size %{public}zu", userIds.size());
     devicePolicies->QueryAllUserId(userIds);
     policyMgr_->Init(userIds);
-    allowDelegatedPolicies_ = {
-        PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER,
-        PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
-        PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES, PolicyName::POLICY_SET_BROWSER_POLICIES,
-        PolicyName::POLICY_ALLOWED_INSTALL_BUNDLES, PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES,
-        PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, PolicyName::POLICY_SNAPSHOT_SKIP,
-        PolicyName::POLICY_LOCATION_POLICY, PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
-        PolicyName::POLICY_GLOBAL_PROXY, PolicyName::POLICY_DISABLED_BLUETOOTH,
-        PolicyName::POLICY_DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISABLED_PRINTER,
-        PolicyName::POLICY_POLICY_SCREEN_SHOT, PolicyName::POLICY_DISABLED_HDC,
-        PolicyName::POLICY_DISABLE_MICROPHONE, PolicyName::POLICY_FINGERPRINT_AUTH,
-        PolicyName::POLICY_DISABLE_USB, PolicyName::POLICY_DISABLE_WIFI,
-        PolicyName::POLICY_DISALLOWED_TETHERING, PolicyName::POLICY_INACTIVE_USER_FREEZE,
-        PolicyName::POLICY_PASSWORD_POLICY, PolicyName::POLICY_CLIPBOARD_POLICY,
-        PolicyName::POLICY_NTP_SERVER, PolicyName::POLICY_SET_UPDATE_POLICY,
-        PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
-        PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
-        PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
-        PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_DISALLOWED_SMS,
-        PolicyName::POLICY_DISALLOWED_MMS, PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE,
-        PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST, PolicyName::POLICY_CLEAR_UP_APPLICATION_DATA,
-    };
 }
 
 void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
@@ -1830,6 +1809,58 @@ ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(std::string &bundleName, std::
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &bundleName,
+    const std::vector<std::string> &policies, int32_t userId)
+{
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::SetDelegatedPolicies check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    std::vector<std::string> setPolicies = policies;
+    if (setPolicies.size() > EdmConstants::POLICIES_MAX_SIZE) {
+            return EdmReturnErrCode::PARAM_ERROR;
+    }
+    for (const std::string &policy : setPolicies) {
+        if (!GetPermissionChecker()->IsAllowDelegatedPolicy(policy)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+    }
+    std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
+    if (adminItem != nullptr) {
+        return ERR_EDM_ADD_ADMIN_FAILED;
+    }
+    if (!GetBundleMgr()->IsBundleInstalled(bundleName, userId)) {
+        EDMLOGE("SetDelegatedPolicies the delegated application does not installed.");
+        return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
+    }
+    std::string appDistributionType = GetBundleMgr()->GetApplicationInfo(bundleName, userId);
+    if (appDistributionType != APP_TYPE_ENTERPRISE_MDM && appDistributionType != APP_TYPE_ENTERPRISE_NORMAL) {
+        EDMLOGE("SetDelegatedPolicies get appDistributionType %{public}s.", appDistributionType.c_str());
+        return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
+    }
+    if (std::find(setPolicies.begin(), setPolicies.end(), POLICY_ALLOW_ALL) != setPolicies.end()) {
+        setPolicies = { POLICY_ALLOW_ALL };
+    }
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string callingBundleName;
+    if (GetExternalManagerFactory()->CreateBundleManager()->GetNameForUid(uid, callingBundleName) != ERR_OK) {
+        EDMLOGW("SetDelegatedPolicies CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
+        return ERR_EDM_PERMISSION_ERROR;
+    }
+    EntInfo entInfo;
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    Admin virtualAdmin(abilityInfo, AdminType::VIRTUAL_ADMIN, entInfo, {}, false);
+    virtualAdmin.SetParentAdminName(callingBundleName);
+    virtualAdmin.SetAccessiblePolicies(setPolicies);
+    system::SetParameter(PARAM_EDM_ENABLE, "true");
+    NotifyAdminEnabled(true);
+    return AdminManager::GetInstance()->SetAdminValue(userId, virtualAdmin);
+}
+
 ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin,
     const std::string &bundleName, const std::vector<std::string> &policies)
 {
@@ -1862,11 +1893,11 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
     if (FAILED(ret)) {
         return ret;
     }
-    if (!GetBundleMgr()->IsBundleInstalled(bundleName, EdmConstants::DEFAULT_USER_ID)) {
+    if (!GetBundleMgr()->IsBundleInstalled(bundleName, GetCurrentUserId())) {
         EDMLOGE("SetDelegatedPolicies the delegated application does not installed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
-    std::string appDistributionType = GetBundleMgr()->GetApplicationInfo(bundleName, EdmConstants::DEFAULT_USER_ID);
+    std::string appDistributionType = GetBundleMgr()->GetApplicationInfo(bundleName, GetCurrentUserId());
     if (appDistributionType != APP_TYPE_ENTERPRISE_MDM && appDistributionType != APP_TYPE_ENTERPRISE_NORMAL) {
         EDMLOGE("SetDelegatedPolicies get appDistributionType %{public}s.", appDistributionType.c_str());
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
@@ -1877,7 +1908,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
     Admin virtualAdmin(abilityInfo, AdminType::VIRTUAL_ADMIN, entInfo, {}, adminItem->adminInfo_.isDebug_);
     virtualAdmin.SetParentAdminName(parentAdminName);
     virtualAdmin.SetAccessiblePolicies(policies);
-    ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, virtualAdmin);
+    ret = AdminManager::GetInstance()->SetAdminValue(GetCurrentUserId(), virtualAdmin);
     if (ret == ERR_OK) {
         HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
             static_cast<int32_t>(AdminType::VIRTUAL_ADMIN), parentAdminName);
@@ -1904,7 +1935,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDelegatedBundleNames(const AppExecFwk::El
     const std::string &policyName, std::vector<std::string> &bundleNames)
 {
     std::string parentAdminName = parentAdmin.GetBundleName();
-    if (allowDelegatedPolicies_.find(policyName) == allowDelegatedPolicies_.end()) {
+    if (!GetPermissionChecker()->IsAllowDelegatedPolicy(policyName)) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
@@ -1927,7 +1958,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
     }
     InitAllPlugins();
     for (const std::string &policy : policies) {
-        if (allowDelegatedPolicies_.find(policy) == allowDelegatedPolicies_.end()) {
+        if (!GetPermissionChecker()->IsAllowDelegatedPolicy(policy)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
         auto plugin = pluginMgr_->GetPluginByPolicyName(policy);
