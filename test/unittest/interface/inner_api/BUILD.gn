@@ -137,6 +137,12 @@ ohos_unittest("EdmInnerApiUnitTest") {
     defines += [ "WIFI_EDM_ENABLE" ]
   }
 
+  if (os_account_edm_enable && netmanager_base_edm_enable &&
+      netmanager_ext_edm_enable && cellular_data_edm_enable) {
+    sources += [ "./proxy/telephony_manager_proxy_test.cpp" ]
+    defines += [ "TELEPHONY_EDM_ENABLE" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
