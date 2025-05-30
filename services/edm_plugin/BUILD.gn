@@ -296,9 +296,11 @@ ohos_shared_library("edmplugin") {
       "./src/set_apn_plugin.cpp",
       "./src/turnonoff_mobile_data_plugin.cpp",
       "./src/utils/apn_utils.cpp",
+      "./src/disallowed_sim_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
+      "TELEPHONY_EDM_ENABLE",
     ]
   }
   

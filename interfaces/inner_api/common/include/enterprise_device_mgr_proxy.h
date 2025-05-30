@@ -62,6 +62,7 @@ public:
     ErrCode CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin, AppExecFwk::ElementName &newAdmin, bool keepPolicy);
     ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode);
+    ErrCode SetDelegatedPolicies(std::string &bundleName, std::vector<std::string> &policies, int32_t userId);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

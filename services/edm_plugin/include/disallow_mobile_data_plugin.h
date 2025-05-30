@@ -36,6 +36,8 @@ public:
     {
         return ERR_OK;
     };
+private:
+   ErrCode OnHandleForceOpen(MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS

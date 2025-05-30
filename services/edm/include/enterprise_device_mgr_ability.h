@@ -66,6 +66,8 @@ public:
         bool keepPolicy) override;
     ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
     ErrCode SetAdminRunningMode(const AppExecFwk::ElementName &admin, uint32_t runningMode) override;
+    ErrCode SetDelegatedPolicies(const std::string &bundleName,
+        const std::vector<std::string> &policies, int32_t userId) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -166,7 +168,6 @@ private:
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<PluginManager> pluginMgr_;
-    std::unordered_set<std::string> allowDelegatedPolicies_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;

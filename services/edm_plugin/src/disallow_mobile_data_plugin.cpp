@@ -37,7 +37,7 @@ DisallowMobileDataPlugin::DisallowMobileDataPlugin()
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
-    needSave_ = false;
+    needSave_ = true;
 }
 
 ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -60,34 +60,45 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
                 EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
+            policyData.isChanged = true;
+            policyData.mergePolicyData = "true";
+            policyData.policyData = "true";
             return ERR_OK;
         }
         if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_NONE)) {
             EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
+        policyData.isChanged = true;
+        policyData.mergePolicyData = "false";
+        policyData.policyData = "false";
         return ERR_OK;
     }
     if (flag == EdmConstants::MobileData::FORCE_FLAG) {
-        const int32_t foceOpen = data.ReadInt32();
-        EDMLOGI("DisallowMobileDataPlugin:ReadInt32 foceOpen:%{public}d", foceOpen);
-        if (foceOpen != EdmConstants::MobileData::FORCE_OPEN) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        std::string dataPolicy = system::GetParameter(PARAM_MOBILE_DATA_POLICY, "");
-        if (dataPolicy == MOBILE_DATA_DISALLOW) {
-            EDMLOGE("DisallowMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
-            return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
-        }
-        int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
-        EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
-        if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_FORCE_OPEN)) {
-            EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        return ERR_OK;
+        return OnHandleForceOpen(data);
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode DisallowMobileDataPlugin::OnHandleForceOpen(MessageParcel &data)
+{
+    const int32_t foceOpen = data.ReadInt32();
+    EDMLOGI("DisallowMobileDataPlugin:ReadInt32 foceOpen:%{public}d", foceOpen);
+    if (foceOpen != EdmConstants::MobileData::FORCE_OPEN) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::string dataPolicy = system::GetParameter(PARAM_MOBILE_DATA_POLICY, "");
+    if (dataPolicy == MOBILE_DATA_DISALLOW) {
+        EDMLOGE("DisallowMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
+        return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
+    }
+    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
+    EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
+    if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_FORCE_OPEN)) {
+        EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
 ErrCode DisallowMobileDataPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,

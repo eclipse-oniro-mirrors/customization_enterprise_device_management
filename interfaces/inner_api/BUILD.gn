@@ -34,6 +34,7 @@ config("edmservice_kits_config") {
     "system_manager/include",
     "usb_manager/include",
     "wifi_manager/include",
+    "telephony_manager/include",
   ]
 }
 
@@ -73,6 +74,7 @@ ohos_shared_library("edmservice_kits") {
     "./usb_manager/src/usb_manager_proxy.cpp",
     "./wifi_manager/src/array_wifi_id_serializer.cpp",
     "./wifi_manager/src/wifi_manager_proxy.cpp",
+    "./telephony_manager/src/telephony_manager_proxy.cpp",
   ]
 
   innerapi_tags = [ "platformsdk" ]
