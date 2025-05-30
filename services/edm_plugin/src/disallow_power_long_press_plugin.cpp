@@ -45,21 +45,13 @@ void DisallowPowerLongPressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
 ErrCode DisallowPowerLongPressPlugin::SetOtherModulePolicy(bool data)
 {
     EDMLOGI("DisallowPowerLongPressPlugin SetOtherModulePolicy...");
-#ifdef FEATURE_BLOCK_LONG_PRESS
     return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", data ? "1" : "0");
-#else
-    return ERR_OK;
-#endif
 }
 
 ErrCode DisallowPowerLongPressPlugin::RemoveOtherModulePolicy()
 {
     EDMLOGI("DisallowPowerLongPressPlugin RemoveOtherModulePolicy...");
-#ifdef FEATURE_BLOCK_LONG_PRESS
     return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", "0");
-#else
-    return ERR_OK;
-#endif
 }
 } // namespace EDM
 } // namespace OHOS

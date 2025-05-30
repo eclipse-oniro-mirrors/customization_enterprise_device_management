@@ -17,7 +17,6 @@ declare_args() {
   enterprise_device_management_support_all = true
   enterprise_device_management_feature_charging_type_setting = false
   enterprise_device_management_feature_pc_only = false
-  enterprise_device_management_feature_block_long_press = false
 
   ability_runtime_edm_enable = false
   if (defined(global_parts_info) &&
