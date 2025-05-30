@@ -164,7 +164,7 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addApn", AddApn),
         DECLARE_NAPI_FUNCTION("deleteApn", DeleteApn),
         DECLARE_NAPI_FUNCTION("updateApn", UpdateApn),
-        DECLARE_NAPI_FUNCTION("setPreferApn", SetPreferApn),
+        DECLARE_NAPI_FUNCTION("setPreferredApn", SetPreferApn),
         DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
