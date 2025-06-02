@@ -111,6 +111,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
+#include "get_auto_unlock_after_reboot_query.h"
 #endif
 
 #include "allowed_install_bundles_query.h"
@@ -449,6 +450,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowModifyEthernetIpQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif  
         default:
             break;
     }
@@ -492,10 +500,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
+#endif      
+        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<DisallowModifyEthernetIpQuery>();
+            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
