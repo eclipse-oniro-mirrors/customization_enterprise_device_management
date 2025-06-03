@@ -143,7 +143,7 @@ ohos_shared_library("edmplugin") {
       ]
     }
 
-    if (power_manager_edm_enable && enterprise_device_management_feature_pc_only) {
+    if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
       sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
     }
 

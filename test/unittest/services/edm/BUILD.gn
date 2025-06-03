@@ -171,7 +171,7 @@ ohos_static_library("edmservice_static") {
     sources += [ "../../../../services/edm/src/query_policy/set_browser_policies_query.cpp" ]
   }
 
-  if (power_manager_edm_enable && enterprise_device_management_feature_pc_only) {
+  if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm/src/query_policy/disallow_power_long_press_query.cpp" ]
   }
 
