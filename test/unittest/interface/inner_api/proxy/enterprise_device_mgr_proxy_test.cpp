@@ -967,7 +967,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesIpcFail, TestSize
     OHOS::AppExecFwk::ElementName admin;
     std::string bundleName = "com.edm.test.demo";
     std::vector<std::string> policies;
-    EXPECT_CALL(*object_, SetDelegatedPolicies(_, _, _))
+    EXPECT_CALL(*object_, SetDelegatedPolicies(testing::An<const AppExecFwk::ElementName &>(),
+        testing::An<const std::string &>(), testing::An<const std::vector<std::string> &>()))
         .Times(1)
         .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(admin, bundleName, policies);
@@ -984,7 +985,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesSuccess, TestSize
     OHOS::AppExecFwk::ElementName admin;
     std::string bundleName = "com.edm.test.demo";
     std::vector<std::string> policies;
-    EXPECT_CALL(*object_, SetDelegatedPolicies(_, _, _))
+    EXPECT_CALL(*object_, SetDelegatedPolicies(testing::An<const AppExecFwk::ElementName &>(),
+        testing::An<const std::string &>(), testing::An<const std::vector<std::string> &>()))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(admin, bundleName, policies);
@@ -1185,6 +1187,42 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsEdmEnabledWithEdmDisable, TestSize.
     Utils::SetEdmServiceDisable();
     bool errVal = enterpriseDeviceMgrProxyTest->IsEdmEnabled();
     ASSERT_FALSE(errVal);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPolicies
+ * @tc.desc: Test SetDelegatedPolicies failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPolicies, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    std::vector<std::string> policies;
+    int32_t userId = 100;
+    EXPECT_CALL(*object_, SetDelegatedPolicies(testing::An<const std::string &>(),
+        testing::An<const std::vector<std::string> &>(), testing::An<int32_t>()))
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(bundleName, policies, userId);
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesIsSuccess
+ * @tc.desc: Test SetDelegatedPolicies func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesIsSuccess, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    std::vector<std::string> policies;
+    int32_t userId = 100;
+    EXPECT_CALL(*object_, SetDelegatedPolicies(testing::An<const std::string &>(),
+        testing::An<const std::vector<std::string> &>(), testing::An<int32_t>()))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(bundleName, policies, userId);
+    EXPECT_TRUE(errVal == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

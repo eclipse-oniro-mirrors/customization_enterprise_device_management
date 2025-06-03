@@ -45,6 +45,7 @@ void EnterpriseDeviceMgrStub::InitSystemCodeList()
         EdmInterfaceCode::GET_ADMINS,
         EdmInterfaceCode::REPLACE_SUPER_ADMIN,
         EdmInterfaceCode::SET_ADMIN_RUNNING_MODE,
+        EdmInterfaceCode::SET_DELEGATED_POLICIES_OVERRIDE,
     };
 }
 

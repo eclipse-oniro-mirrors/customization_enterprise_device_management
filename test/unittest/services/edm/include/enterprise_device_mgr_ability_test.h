@@ -63,6 +63,7 @@ public:
     int GetAndSwitchPolicyManagerByUserIdTest002(void);
 protected:
     int32_t TestDump();
+    void initPolicies();
     sptr<EnterpriseDeviceMgrAbilityMock> edmMgr_ = nullptr;
     std::shared_ptr<EdmAppManagerImplMock> appMgrMock_ = nullptr;
     std::shared_ptr<EdmBundleManagerImplMock> bundleMgrMock_ = nullptr;

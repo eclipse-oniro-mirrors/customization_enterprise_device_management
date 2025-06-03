@@ -343,6 +343,18 @@ ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(
     return mgrService->SetDelegatedPolicies(parentAdmin, bundleName, policies);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(std::string &bundleName,
+    std::vector<std::string> &policies, int32_t userId)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SetDelegatedPolicies");
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->SetDelegatedPolicies(bundleName, policies, userId);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::GetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin,
     std::string &bundleOrPolicyName, uint32_t code, std::vector<std::string> &result)
 {

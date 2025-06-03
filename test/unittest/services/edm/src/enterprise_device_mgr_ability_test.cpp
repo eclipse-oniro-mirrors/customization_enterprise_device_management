@@ -69,6 +69,31 @@ const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string EDM_TEST_ENT_PERMISSION = "ohos.permission.EDM_TEST_ENT_PERMISSION";
 const std::string TEST_POLICY_VALUE = "test_policy_value";
 
+void EnterpriseDeviceMgrAbilityTest::initPolicies()
+{
+    permissionCheckerMock_->allowDelegatedPolicies_ = {
+        PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+        PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
+        PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES, PolicyName::POLICY_SET_BROWSER_POLICIES,
+        PolicyName::POLICY_ALLOWED_INSTALL_BUNDLES, PolicyName::POLICY_DISALLOWED_INSTALL_BUNDLES,
+        PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, PolicyName::POLICY_SNAPSHOT_SKIP,
+        PolicyName::POLICY_LOCATION_POLICY, PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
+        PolicyName::POLICY_GLOBAL_PROXY, PolicyName::POLICY_DISABLED_BLUETOOTH,
+        PolicyName::POLICY_DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISABLED_PRINTER,
+        PolicyName::POLICY_POLICY_SCREEN_SHOT, PolicyName::POLICY_DISABLED_HDC,
+        PolicyName::POLICY_DISABLE_MICROPHONE, PolicyName::POLICY_FINGERPRINT_AUTH,
+        PolicyName::POLICY_DISABLE_USB, PolicyName::POLICY_DISABLE_WIFI,
+        PolicyName::POLICY_DISALLOWED_TETHERING, PolicyName::POLICY_INACTIVE_USER_FREEZE,
+        PolicyName::POLICY_PASSWORD_POLICY, PolicyName::POLICY_CLIPBOARD_POLICY,
+        PolicyName::POLICY_NTP_SERVER, PolicyName::POLICY_SET_UPDATE_POLICY,
+        PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
+        PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
+        PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST,
+        PolicyName::POLICY_ALLOW_ALL,
+    };
+}
+
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
     plugin_ = PLUGIN::ArrayMapTestPlugin::GetPlugin();
@@ -3463,7 +3488,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPlugin, 
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_ENT_PERMISSION;
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
@@ -3496,7 +3521,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPluginHasNo
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
@@ -3530,7 +3555,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
@@ -3559,7 +3584,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBu
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3593,7 +3618,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundl
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3628,7 +3653,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEnterpriseN
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3718,7 +3743,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmi
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3766,7 +3791,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermi
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3799,7 +3824,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidP
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -3827,7 +3852,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesSuc, TestSiz
     edmMgr_->pluginMgr_->pluginsCode_.clear();
     edmMgr_->pluginMgr_->pluginsName_.clear();
     edmMgr_->pluginMgr_->AddPlugin(plugin_);
-    edmMgr_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
+    permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
@@ -4108,6 +4133,131 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetAdminRunningModeSuc, TestSize.Le
     ErrCode res = edmMgr_->SetAdminRunningMode(admin, static_cast<uint32_t>(RunningMode::MULTI_USER));
     EXPECT_TRUE(res == ERR_OK);
     DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithPermissionDenied
+ * @tc.desc: Test SetDelegatedPolicies without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPermissionDenied, TestSize.Level1)
+{
+    const std::string bundleName = "";
+    const std::vector<std::string> policies = {};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithAbnormalPolicy
+ * @tc.desc: Test SetDelegatedPolicies without abnormal policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithAbnormalPolicy, TestSize.Level1)
+{
+    const std::string bundleName = "";
+    const std::vector<std::string> policies = {"test"};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithadmin
+ * @tc.desc: Test SetDelegatedPolicies with bundlename is admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithadmin, TestSize.Level1)
+{
+    const std::string bundleName = ADMIN_PACKAGENAME;
+    const std::vector<std::string> policies = {"allow_all"};
+    int32_t userId = 100;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    initPolicies();
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == ERR_EDM_ADD_ADMIN_FAILED);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithUninstallBundle
+ * @tc.desc: Test SetDelegatedPolicies with bundlename is uninstall.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithUninstallBundle, TestSize.Level1)
+{
+    const std::string bundleName = ADMIN_PACKAGENAME;
+    const std::vector<std::string> policies = {"allow_all"};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(false)));
+    initPolicies();
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithIsNormalBundle
+ * @tc.desc: Test SetDelegatedPolicies with bundlename is uninstall.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithIsNormalBundle, TestSize.Level1)
+{
+    const std::string bundleName = ADMIN_PACKAGENAME;
+    const std::vector<std::string> policies = {"allow_all"};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("normal")));
+    initPolicies();
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesWithGetNameForUidFailed
+ * @tc.desc: Test SetDelegatedPolicies with bundlename is uninstall.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithGetNameForUidFailed, TestSize.Level1)
+{
+    const std::string bundleName = ADMIN_PACKAGENAME;
+    const std::vector<std::string> policies = {"allow_all"};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("enterprise_normal")));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(1)));
+    initPolicies();
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == ERR_EDM_PERMISSION_ERROR);
+}
+
+/**
+ * @tc.name: TestSetDelegatedPoliciesSuccess
+ * @tc.desc: Test SetDelegatedPolicies success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesSuccess, TestSize.Level1)
+{
+    const std::string bundleName = ADMIN_PACKAGENAME;
+    const std::vector<std::string> policies = {"allow_all"};
+    int32_t userId = 100;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, IsBundleInstalled).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationInfo).WillOnce(DoAll(Return("enterprise_normal")));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    initPolicies();
+    ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
