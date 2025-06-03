@@ -32,14 +32,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    uint32_t code = (CommonFuzzer::GetU32Data(data)) % 3100;
+    uint32_t code = (CommonFuzzer::GetU32Data(data)) % INTERFACE_CODE_DIVISOR;
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB) {
         return 0;
     }
-    uint32_t funcFlag = data[4] % 2;
-    uint32_t operateType = data[5] % 3;
+    uint32_t funcFlag = data[4] % BINARY_DECISION_DIVISOR;
+    uint32_t operateType = data[5] % OPERATE_TYPE_DIVISOR;
     code = CREATE_FUNC_CODE(funcFlag, operateType, code);
 
     MessageParcel parcel;

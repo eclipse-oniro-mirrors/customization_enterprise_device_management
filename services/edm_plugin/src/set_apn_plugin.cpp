@@ -152,6 +152,7 @@ void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, M
     EDMLOGI("SetApnPlugin::GenerateApnMap start");
     if (apnInfo.size() > EdmConstants::SetApn::MAX_MAP_SIZE) {
         EDMLOGE("GenerateApnMap size error");
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return;
     }
     int32_t size = 0;
@@ -160,6 +161,7 @@ void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, M
             size++;
         }
     }
+    reply.WriteInt32(ERR_OK);
     reply.WriteInt32(size);
     for (const auto &[key, value] : apnInfo) {
         if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
@@ -182,6 +184,7 @@ ErrCode SetApnPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, 
     } else if (flag == EdmConstants::SetApn::QUERY_INFO_FLAG) {
         return QueryInfo(data, reply);
     } else {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -196,6 +199,7 @@ ErrCode SetApnPlugin::QueryInfo(MessageParcel &data, MessageParcel &reply)
         GenerateApnMap(apnInfo, reply);
         return ERR_OK;
     } else {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 }
@@ -205,6 +209,7 @@ ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
     EDMLOGI("SetApnPlugin::QueryId start");
     std::map<std::string, std::string> apnInfo = ParserApnMap(data);
     std::vector<std::string> result = ApnUtils::ApnQuery(apnInfo);
+    reply.WriteInt32(ERR_OK);
     reply.WriteInt32(static_cast<int32_t>(result.size()));
     for (const auto &ele : result) {
         reply.WriteString(ele);

@@ -65,6 +65,8 @@ public:
         (override));
     MOCK_METHOD(int, GetAdmins, ((std::vector<std::shared_ptr<AAFwk::Want>> &)), (override));
     MOCK_METHOD(int, SetAdminRunningMode, (const AppExecFwk::ElementName &, uint32_t), (override));
+    MOCK_METHOD(int, SetDelegatedPolicies, (const std::string &, (const std::vector<std::string> &), int32_t),
+        (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

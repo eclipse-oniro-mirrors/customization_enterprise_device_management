@@ -29,6 +29,7 @@ namespace OHOS {
 namespace EDM {
 std::shared_ptr<AdminManager> AdminManager::instance_;
 std::once_flag AdminManager::flag_;
+const std::string POLICY_ALLOW_ALL = "allow_all";
 
 std::shared_ptr<AdminManager> AdminManager::GetInstance()
 {
@@ -277,8 +278,7 @@ ErrCode AdminManager::GetSubOrSuperOrByodAdminByPkgName(const std::string &subAd
     }
     auto adminItem = std::find_if(userAdmin.begin(), userAdmin.end(), [&](const std::shared_ptr<Admin> &admin) {
         return admin->adminInfo_.packageName_ == subAdminName && (admin->GetAdminType() == AdminType::ENT ||
-            admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN || admin->GetAdminType() == AdminType::VIRTUAL_ADMIN ||
-            admin->GetAdminType() == AdminType::BYOD);
+            admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN);
     });
     if (adminItem == userAdmin.end()) {
         EDMLOGW("GetSubOrSuperOrByodAdminByPkgName::not find sub-super admin or super or byod Admin");
@@ -460,7 +460,8 @@ bool AdminManager::HasPermissionToHandlePolicy(std::shared_ptr<Admin> admin, con
         return true;
     }
     auto policies = admin->adminInfo_.accessiblePolicies_;
-    return std::find(policies.begin(), policies.end(), policyName) != policies.end();
+    bool hasAllowAll = std::find(policies.begin(), policies.end(), POLICY_ALLOW_ALL) != policies.end();
+    return hasAllowAll || std::find(policies.begin(), policies.end(), policyName) != policies.end();
 }
 
 std::shared_ptr<Admin> AdminManager::GetSuperAdmin()
