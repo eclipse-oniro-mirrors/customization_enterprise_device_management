@@ -67,7 +67,7 @@ constexpr const char* ICON = "icon";
 constexpr const char* ICON_ID = "iconId";
 constexpr const char* DEBUG = "debug";
 constexpr const char* APP_INDEX = "appIndex";
-const std::string CONTEXT_DATA_STORAGE_BUNDLE("/data/storage/el1/bundle/");
+static const std::string CONTEXT_DATA_STORAGE_BUNDLE("/data/storage/el1/bundle/");
 
 static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
     {"AddAllowedInstallBundles", static_cast<int32_t>(PolicyType::ALLOW_INSTALL)},

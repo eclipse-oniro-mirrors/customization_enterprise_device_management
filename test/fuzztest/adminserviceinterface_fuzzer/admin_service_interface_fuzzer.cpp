@@ -39,14 +39,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         CommonFuzzer::SetParcelContent(parcel, data, size);
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
-    uint32_t code = (CommonFuzzer::GetU32Data(data)) % 3100;
+    uint32_t code = (CommonFuzzer::GetU32Data(data)) % INTERFACE_CODE_DIVISOR;
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
         code < MIN_INTERAFCE_CODE) {
         return 0;
     }
-    uint32_t operateType = data[4] % 3;
+    uint32_t operateType = data[4] % OPERATE_TYPE_DIVISOR;
     code = POLICY_FUNC_CODE(operateType, code);
     MessageParcel parcel;
     CommonFuzzer::SetParcelContent(parcel, data, size);

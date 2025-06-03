@@ -756,19 +756,36 @@ napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info i
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-
-    AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-    std::string bundleName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
-        "parameter bundleName error");
-    std::vector<std::string> policies;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_TWO]),
-        "parameter policies error");
-    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(elementName, bundleName, policies);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+    bool matchFlag =
+        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) && MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    if (matchFlag) {
+        AppExecFwk::ElementName elementName;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+            "Parameter admin error");
+        std::string bundleName;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+            "parameter bundleName error");
+        std::vector<std::string> policies;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_TWO]),
+            "parameter policies error");
+        int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(elementName, bundleName, policies);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+        }
+    } else {
+        std::string bundleName;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ZERO]),
+            "parameter bundleName error");
+        std::vector<std::string> policies;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_ONE]),
+            "parameter policies error");
+        int32_t userId = 0;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]),
+            "Parameter user id error");
+        int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(bundleName, policies, userId);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+        }
     }
     return nullptr;
 }

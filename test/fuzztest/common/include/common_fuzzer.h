@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace EDM {
+static constexpr uint32_t BINARY_DECISION_DIVISOR = 2;
+static constexpr uint32_t OPERATE_TYPE_DIVISOR = 3;
+static constexpr uint32_t INTERFACE_CODE_DIVISOR = 3100;
 class CommonFuzzer {
 public:
     static void OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel &parcel);
