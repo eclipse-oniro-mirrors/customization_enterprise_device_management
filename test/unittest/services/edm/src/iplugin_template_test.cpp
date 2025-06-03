@@ -374,6 +374,26 @@ HWTEST_F(PluginTemplateTest, TestDestroyPlugin, TestSize.Level1)
     ASSERT_TRUE(PLUGIN::HandlePolicyJsonBiFunctionPlg::pluginInstance_ == nullptr);
 }
 
+/**
+ * @tc.name: TestOtherServiceStart
+ * @tc.desc: Test PluginTemplate OtherServiceStart func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestOtherServiceStart, TestSize.Level1)
+{
+    int policyCode = 33;
+    uint32_t funcCode;
+    std::shared_ptr<IPlugin> plugin;
+    PluginManager::GetInstance()->AddPlugin(PLUGIN::OtherServiceStartRunnerPlg::GetPlugin());
+
+    funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
+    plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+
+    g_visit = false;
+    plugin->OnOtherServiceStart();
+    ASSERT_TRUE(g_visit);
+}
+
 void PluginTemplateTest::SetUp()
 {
     if (policyManager_ == nullptr) {

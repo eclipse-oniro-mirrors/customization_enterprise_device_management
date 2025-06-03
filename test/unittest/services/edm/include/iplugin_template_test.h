@@ -419,6 +419,21 @@ public:
         ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
     }
 };
+
+class OtherServiceStartRunnerPlg : public PluginSingleton<OtherServiceStartRunnerPlg, std::string> {
+public:
+    void OtherServiceStart() { g_visit = true; }
+
+    void InitPlugin(std::shared_ptr<IPluginTemplate<OtherServiceStartRunnerPlg, std::string>> ptr) override
+    {
+        int policyCode = 33;
+        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+        ptr->InitAttribute(policyCode, "OtherServiceStartRunnerPlg", config);
+        ptr->SetSerializer(StringSerializer::GetInstance());
+        ptr->SetOtherServiceStartListener(&OtherServiceStartRunnerPlg::OtherServiceStart);
+    }
+};
 } // namespace PLUGIN
 
 class PluginTemplateTest : public testing::Test {
