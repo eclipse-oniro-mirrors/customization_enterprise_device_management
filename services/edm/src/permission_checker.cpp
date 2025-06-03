@@ -51,6 +51,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_WIFI,
     EdmInterfaceCode::DISABLE_MTP_CLIENT,
     EdmInterfaceCode::DISABLE_MTP_SERVER,
+    EdmInterfaceCode::DISABLE_SAMBA_CLIENT,
+    EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::DISALLOWED_TETHERING,
     EdmInterfaceCode::INACTIVE_USER_FREEZE,
     EdmInterfaceCode::DISABLE_CAMERA,
