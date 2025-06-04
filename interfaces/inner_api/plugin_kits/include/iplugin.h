@@ -102,7 +102,7 @@ public:
     virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);
     virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) = 0;
-    virtual void OnOtherServiceStart() {};
+    virtual void OnOtherServiceStart(int32_t systemAbilityId) {};
 
     std::uint32_t GetCode();
     std::string GetPolicyName();

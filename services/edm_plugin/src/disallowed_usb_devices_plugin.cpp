@@ -184,7 +184,7 @@ ErrCode DisallowedUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, 
     return UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
 }
 
-void DisallowedUsbDevicesPlugin::OnOtherServiceStart()
+void DisallowedUsbDevicesPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string disallowUsbDevicePolicy;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy,

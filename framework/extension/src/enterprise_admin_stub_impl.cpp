@@ -118,5 +118,24 @@ void EnterpriseAdminStubImpl::OnAccountRemoved(const int32_t accountId)
     }
 }
 
+void EnterpriseAdminStubImpl::OnKioskModeEntering(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnKioskModeEntering(bundleName, accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
+void EnterpriseAdminStubImpl::OnKioskModeExiting(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnKioskModeExiting(bundleName, accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
 } // namespace EDM
 } // namespace OHOS

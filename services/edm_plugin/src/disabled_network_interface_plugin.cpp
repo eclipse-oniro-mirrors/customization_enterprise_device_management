@@ -161,7 +161,7 @@ ErrCode DisabledNetworkInterfacePlugin::OnAdminRemove(const std::string &adminNa
     return ERR_OK;
 }
 
-void DisabledNetworkInterfacePlugin::OnOtherServiceStart()
+void DisabledNetworkInterfacePlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,

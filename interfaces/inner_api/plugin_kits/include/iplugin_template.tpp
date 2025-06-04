@@ -372,7 +372,7 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveDoneListener(BiAdminConsumer &&lis
 }
 
 template <class CT, class DT>
-void IPluginTemplate<CT, DT>::OnOtherServiceStart()
+void IPluginTemplate<CT, DT>::OnOtherServiceStart(int32_t systemAbilityId)
 {
     if (instance_ == nullptr) {
         return;
@@ -380,20 +380,20 @@ void IPluginTemplate<CT, DT>::OnOtherServiceStart()
     if (otherServiceStartFunc_.otherServiceStart_ == nullptr) {
         return;
     }
-    (otherServiceStartFunc_.otherServiceStart_)();
+    (otherServiceStartFunc_.otherServiceStart_)(systemAbilityId);
 }
 
 template <class CT, class DT>
-void IPluginTemplate<CT, DT>::SetOtherServiceStartListener(Runner &&listener)
+void IPluginTemplate<CT, DT>::SetOtherServiceStartListener(IntConsumer &&listener)
 {
     if (instance_ == nullptr) {
         return;
     }
-    auto otherServiceStart = [this]() -> void {
-        if (otherServiceStartFunc_.runner_ == nullptr) {
+    auto otherServiceStart = [this](int32_t systemAbilityId) -> void {
+        if (otherServiceStartFunc_.intConsumer_ == nullptr) {
             return;
         }
-        (instance_.get()->*(otherServiceStartFunc_.runner_))();
+        (instance_.get()->*(otherServiceStartFunc_.intConsumer_))(systemAbilityId);
         return;
     };
     otherServiceStartFunc_ = OtherServiceStartFunc(otherServiceStart, listener);

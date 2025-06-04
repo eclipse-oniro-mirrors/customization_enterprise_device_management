@@ -65,6 +65,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallowed_sms_plugin_test.cpp",
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
+    "./src/set_allowed_kiosk_apps_plugin_test.cpp",
   ]
 
   configs = [
@@ -383,6 +384,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
+    "../../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     "../../../../services/edm_plugin/src/snapshot_skip_plugin.cpp",
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/installer_callback.cpp",
@@ -417,6 +419,7 @@ ohos_static_library("edm_all_plugin_static") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_base",
@@ -432,6 +435,7 @@ ohos_static_library("edm_all_plugin_static") {
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",
+    "window_manager:session_manager_lite",
   ]
   defines = []
   if (update_service_edm_enable) {

@@ -388,6 +388,101 @@ HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataSuc, TestSize.Le
     int32_t ret = applicationManagerProxy_->ClearUpApplicationData(admin, param);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestSetAllowedKioskAppsFail
+ * @tc.desc: Test SetAllowedKioskApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAllowedKioskAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    int32_t ret = applicationManagerProxy_->SetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetAllowedKioskAppsSuc
+ * @tc.desc: Test SetAllowedKioskApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAllowedKioskAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->SetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAllowedKioskAppsFail
+ * @tc.desc: Test GetAllowedKioskApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedKioskAppsSuc
+ * @tc.desc: Test GetAllowedKioskApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedFail
+ * @tc.desc: Test IsAppKioskAllowed without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAppKioskAllowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    std::string bundleName;
+    bool isAllowed = false;
+    int32_t ret = applicationManagerProxy_->IsAppKioskAllowed(bundleName, isAllowed);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(!isAllowed);
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedSuc
+ * @tc.desc: Test IsAppKioskAllowed success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAppKioskAllowedSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string bundleName;
+    bool isAllowed = false;
+    int32_t ret = applicationManagerProxy_->IsAppKioskAllowed(bundleName, isAllowed);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

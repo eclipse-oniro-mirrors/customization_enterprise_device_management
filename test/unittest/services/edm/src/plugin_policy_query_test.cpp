@@ -57,6 +57,7 @@
 #include "get_device_encryption_status_query.h"
 #include "get_display_version_query.h"
 #include "get_security_patch_tag_query.h"
+#include "is_app_kiosk_allowed_query.h"
 #include "inactive_user_freeze_query.h"
 #include "location_policy_query.h"
 #include "ntp_server_query.h"
@@ -1597,6 +1598,40 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_apn");
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedQuery001
+ * @tc.desc: Test IsAppKioskAllowedQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestIsAppKioskAllowedQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<IsAppKioskAllowedQuery>();
+    std::string permissionTag;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag) == "");
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_ALLOWED_KIOSK_APPS);
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedQuery002
+ * @tc.desc: Test IsAppKioskAllowedQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestIsAppKioskAllowedQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<IsAppKioskAllowedQuery>();
+    std::string policyData{"[\"com.example.edmtest\"]"};
+    MessageParcel data;
+    data.WriteString("com.example.edmtest");
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
 }
 
 /**

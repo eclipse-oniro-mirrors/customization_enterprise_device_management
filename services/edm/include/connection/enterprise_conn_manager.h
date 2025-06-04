@@ -24,6 +24,7 @@
 #include "enterprise_account_connection.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
+#include "enterprise_kiosk_connection.h"
 #include "enterprise_update_connection.h"
 #include "ienterprise_connection.h"
 #include "singleton.h"
@@ -40,6 +41,8 @@ public:
         const UpdateInfo &updateInfo);
     sptr<IEnterpriseConnection> CreateAccountConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const int32_t accountId);
+    sptr<IEnterpriseConnection> CreateKioskConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const std::string &bundleName, int32_t accountId);
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };
 } // namespace EDM
