@@ -47,6 +47,10 @@ ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
         EDMLOGE("TurnOnOffMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
     }
+    if (!isForce && !system::SetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "none")) {
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy SetParameter fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
