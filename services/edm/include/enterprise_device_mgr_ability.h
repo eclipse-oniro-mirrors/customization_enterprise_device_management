@@ -64,6 +64,7 @@ public:
     bool IsSuperAdmin(const std::string &bundleName) override;
     bool IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
+    void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
         std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
         commonEventFuncMap_;
@@ -118,14 +119,17 @@ private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
 #endif
+    void OnCommonEventUserSwitched(const EventFwk::CommonEventData &data);
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
+    void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
+    void ConnectEnterpriseAbility();
 #ifdef PASTEBOARD_EDM_ENABLE
     void OnPasteboardServiceStart();
 #endif
@@ -135,6 +139,8 @@ private:
 #endif
     void CreateSecurityContent(const std::string &bundleName, const std::string &abilityName,
         uint32_t code, const std::string &policyName, ErrCode errorCode);
+    bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
+        bool isAdminEnabled);
     void InitAllAdmins();
     void InitAllPlugins();
     void InitAllPolices();
@@ -162,6 +168,7 @@ private:
     std::chrono::system_clock::time_point lastCallTime_;
     std::condition_variable waitSignal_;
     std::mutex waitMutex_;
+    bool hasConnect_ = false;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {

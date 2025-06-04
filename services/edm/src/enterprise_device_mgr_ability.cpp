@@ -82,6 +82,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventUserSwitched(data);
+        };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventUserRemoved(data);
         };
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED] =
@@ -95,6 +99,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
     commonEventFuncMap_[SYSTEM_UPDATE_FOR_POLICY] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventSystemUpdate(data);
+        };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventBmsReady(data);
         };
 }
 
@@ -198,6 +206,33 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
 }
 #endif
 
+void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
+{
+    int userIdToSwitch = data.GetCode();
+    if (userIdToSwitch < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error userid:%{public}d", userIdToSwitch);
+        return;
+    }
+    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin) {
+        bool isInstall = GetBundleMgr()->IsBundleInstalled(superAdmin->adminInfo_.packageName_, userIdToSwitch);
+        if (isInstall) {
+            ConnectAbility(userIdToSwitch, superAdmin);
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin)
+{
+    AAFwk::Want want;
+    want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection =
+        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
+    manager->ConnectAbility(connection);
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
 {
     int userIdToRemove = data.GetCode();
@@ -268,6 +303,22 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventBmsReady");
+    ConnectEnterpriseAbility();
+}
+
+bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
+    uint32_t code, int32_t userId, bool isAdminEnabled)
+{
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
+    return manager->ConnectAbility(connection);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
@@ -502,14 +553,15 @@ void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart()
 void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
 {
     EDMLOGI("OnAbilityManagerServiceStart");
-    auto superAdmin = adminMgr_->GetSuperAdmin();
-    if (superAdmin != nullptr) {
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
-            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, false);
-        manager->ConnectAbility(connection);
+    ConnectEnterpriseAbility();
+}
+
+void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
+{
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin != nullptr && !hasConnect_) {
+        hasConnect_ = OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
     }
 }
 
