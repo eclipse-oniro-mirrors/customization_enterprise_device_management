@@ -70,6 +70,7 @@
 #include "usb_read_only_query.h"
 #include "disallowed_sms_query.h"
 #include "disallowed_mms_query.h"
+#include "disallow_power_long_press_query.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -1596,6 +1597,39 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyAPNQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_modify_apn");
+}
+
+/**
+ * @tc.name: TestDisallowPowerLongPressQuery001
+ * @tc.desc: Test DisallowPowerLongPressQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowPowerLongPressQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowPowerLongPressQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowPowerLongPressQuery002
+ * @tc.desc: Test DisallowPowerLongPressQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowPowerLongPressQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowPowerLongPressQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_power_long_press");
 }
 } // namespace TEST
 } // namespace EDM

@@ -150,6 +150,10 @@ ohos_shared_library("edmplugin") {
       ]
     }
 
+    if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
+      sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
+    }
+
     if (update_service_edm_enable) {
       external_deps += [ "update_service:updateservicekits" ]
       sources += [ "./src/reset_factory_plugin.cpp" ]

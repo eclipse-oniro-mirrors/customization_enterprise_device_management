@@ -122,6 +122,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
+        const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -292,6 +293,7 @@ namespace PolicyName {
     const char* const POLICY_SET_APN_INFO = "set_apn_info";
     const char* const POLICY_DISALLOW_SIM = "disallowed_sim";
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
+    const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -144,6 +144,13 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
+  if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
+    external_deps += [ "power_manager:powermgr_client" ]
+    sources += [
+      "./src/disallow_power_long_press_plugin_test.cpp",
+    ]
+  }
+
   if (wifi_edm_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
@@ -457,6 +464,13 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/shutdown_plugin.cpp",
+    ]
+  }
+
+  if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
+    external_deps += [ "power_manager:powermgr_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disallow_power_long_press_plugin.cpp",
     ]
   }
 
