@@ -47,6 +47,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_mtp_server_plugin_test.cpp",
     "./src/disable_remote_desk_plugin_test.cpp",
     "./src/disable_remote_diagnosis_plugin_test.cpp",
+    "./src/disable_samba_client_plugin_test.cpp",
+    "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
@@ -267,7 +269,8 @@ ohos_unittest("EdmPluginTest") {
       "cellular_data:tel_cellular_data_api",
       "core_service:tel_core_service_api"
     ]
-    sources += [ 
+    sources += [
+      "./src/disallow_mobile_data_plugin_test.cpp",
       "./src/disallow_modify_apn_plugin_test.cpp",
       "./src/set_apn_plugin_test.cpp",
       "./src/turnonoff_mobile_data_plugin_test.cpp",
@@ -364,6 +367,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_desk_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -613,6 +618,7 @@ ohos_static_library("edm_all_plugin_static") {
       "core_service:tel_core_service_api"
     ]
     sources += [
+      "../../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
       "../../../../services/edm_plugin/src/set_apn_plugin.cpp",
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",

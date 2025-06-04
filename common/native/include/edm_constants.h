@@ -112,6 +112,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
+        const char* const LABEL_DISALLOWED_POLICY_SAMBA_CLIENT = "sambaClient";
+        const char* const LABEL_DISALLOWED_POLICY_SAMBA_SERVER = "sambaServer";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DESK = "remoteDesk";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS = "remoteDiagnosis";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
@@ -119,6 +121,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
         const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
+        const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
     } // namespace Restrictions
 
@@ -151,6 +154,12 @@ namespace EdmConstants {
         const std::string QUERY_ID_FLAG = "QueryApnIds";
         const std::string QUERY_INFO_FLAG = "QueryApn";
     }
+
+    namespace MobileData {
+        constexpr int32_t FORCE_OPEN = 2;
+        const std::string DISALLOW_FLAG = "DisallowMobileData";
+        const std::string FORCE_FLAG = "ForceMobileData";
+    } // namespace MobileData
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -218,6 +227,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
+    const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
     const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
@@ -281,6 +292,7 @@ namespace PolicyName {
     const char* const POLICY_CLEAR_UP_APPLICATION_DATA = "clear_up_application_data";
     const char* const POLICY_SET_APN_INFO = "set_apn_info";
     const char* const POLICY_DISALLOW_SIM = "disallowed_sim";
+    const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";

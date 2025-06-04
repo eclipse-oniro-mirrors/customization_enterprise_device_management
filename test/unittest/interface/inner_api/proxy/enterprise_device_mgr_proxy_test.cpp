@@ -1224,6 +1224,42 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetDelegatedPoliciesIsSuccess, TestSi
     ErrCode errVal = enterpriseDeviceMgrProxyTest->SetDelegatedPolicies(bundleName, policies, userId);
     EXPECT_TRUE(errVal == ERR_OK);
 }
+
+/**
+ * @tc.name: TestSetAdminRunningModeFail
+ * @tc.desc: Test SetAdminRunningMode fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetAdminRunningModeFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, SetAdminRunningMode(_, _))
+        .Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    uint32_t runningMode = 0;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetAdminRunningMode(admin, runningMode);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetAdminRunningModeSuc
+ * @tc.desc: Test SetAdminRunningMode success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetAdminRunningModeSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, SetAdminRunningMode(_, _))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    uint32_t runningMode = 0;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetAdminRunningMode(admin, runningMode);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

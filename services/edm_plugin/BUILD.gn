@@ -130,6 +130,13 @@ ohos_shared_library("edmplugin") {
       sources += [ "./src/set_domain_account_policy_plugin.cpp" ]
     }
 
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/disable_samba_client_plugin.cpp",
+        "./src/disable_samba_server_plugin.cpp",
+      ]
+    }
+
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
       sources += [ "./src/lock_screen_plugin.cpp" ]
@@ -294,7 +301,8 @@ ohos_shared_library("edmplugin") {
 
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
-    sources += [ 
+    sources += [
+      "./src/disallow_mobile_data_plugin.cpp",
       "./src/disallow_modify_apn_plugin.cpp",
       "./src/set_apn_plugin.cpp",
       "./src/turnonoff_mobile_data_plugin.cpp",

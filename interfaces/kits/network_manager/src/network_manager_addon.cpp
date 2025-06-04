@@ -164,7 +164,7 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addApn", AddApn),
         DECLARE_NAPI_FUNCTION("deleteApn", DeleteApn),
         DECLARE_NAPI_FUNCTION("updateApn", UpdateApn),
-        DECLARE_NAPI_FUNCTION("setPreferApn", SetPreferApn),
+        DECLARE_NAPI_FUNCTION("setPreferredApn", SetPreferApn),
         DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
@@ -1364,18 +1364,42 @@ napi_value NetworkManagerAddon::TurnOnMobileData(napi_env env, napi_callback_inf
 {
     EDMLOGI("NAPI_TurnOnMobileData called");
 #if defined(CELLULAR_DATA_EDM_ENABLE)
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "TurnOnMobileData";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
-    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
-        return nullptr;
-    }
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->TurnOnMobileData(adapterAddonData.data);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasIsForce = MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasIsForce, "The second parameter must be boolean.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    bool isForce;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, isForce, argv[ARR_INDEX_ONE]),
+        "isForce name param error");
+    if (isForce) {
+        int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->ForceTurnOnMobileData(elementName);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+        }
+    } else {
+        AddonMethodSign addonMethodSign;
+        addonMethodSign.name = "TurnOnMobileData";
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+        addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+        AdapterAddonData adapterAddonData{};
+        napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+        if (result == nullptr) {
+            return nullptr;
+        }
+        int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->TurnOnMobileData(adapterAddonData.data);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+        }
     }
     return nullptr;
 #else

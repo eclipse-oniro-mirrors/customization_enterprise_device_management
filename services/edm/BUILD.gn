@@ -142,6 +142,14 @@ ohos_shared_library("edmservice") {
     defines += [ "USERIAM_EDM_ENABLE" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/query_policy/disable_samba_client_query.cpp",
+      "./src/query_policy/disable_samba_server_query.cpp",
+    ]
+    defines += [ "SAMBA_EDM_ENABLE" ]
+  }
+
   if (ability_runtime_edm_enable) {
     sources += [ "./src/query_policy/disallowed_running_bundles_query.cpp" ]
     defines += [ "ABILITY_RUNTIME_EDM_ENABLE" ]
@@ -231,8 +239,14 @@ ohos_shared_library("edmservice") {
 
   if (!enterprise_device_management_feature_pc_only &&
       cellular_data_edm_enable) {
-    sources += [ "./src/query_policy/disallow_modify_apn_query.cpp" ]
-    defines += [ "APN_EDM_ENABLE" ]
+    sources += [
+      "./src/query_policy/disallow_modify_apn_query.cpp",
+      "./src/query_policy/disallowed_mobile_data_query.cpp",
+    ]
+    defines += [
+      "APN_EDM_ENABLE",
+      "MOBILE_DATA_ENABLE",
+    ]
   }
 
   if (!enterprise_device_management_feature_pc_only && power_manager_edm_enable) {
