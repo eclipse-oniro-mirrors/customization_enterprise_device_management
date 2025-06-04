@@ -13,20 +13,22 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
- #define SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
-  
- #include "plugin_singleton.h"
+#ifndef EDM_UNIT_TEST_DISALLOW_MOBILE_DATA_PLUGIIN_TEST_H
+#define EDM_UNIT_TEST_DISALLOW_MOBILE_DATA_PLUGIIN_TEST_H
    
- namespace OHOS {
- namespace EDM {
- class TurnOnOffMobileDataPlugin : public PluginSingleton<TurnOnOffMobileDataPlugin, bool> {
- public:
-     void InitPlugin(std::shared_ptr<IPluginTemplate<TurnOnOffMobileDataPlugin, bool>> ptr) override;
-     ErrCode OnSetPolicy(bool &isForce);
-     ErrCode OnRemovePolicy();
- };
- } // namespace EDM
- } // namespace OHOS
-   
- #endif // SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
+#include <gtest/gtest.h>
+
+namespace OHOS {
+namespace EDM {
+namespace TEST {
+class DisallowMobileDataTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+};
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS
+
+#endif // EDM_UNIT_TEST_DISALLOW_MOBILE_DATA_PLUGIIN_TEST_H

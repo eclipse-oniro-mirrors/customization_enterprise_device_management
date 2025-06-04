@@ -54,6 +54,7 @@ public:
     int32_t GetDomainFilterRules(MessageParcel &data, std::vector<IPTABLES::DomainFilterRule> &rule);
     int32_t TurnOnMobileData(MessageParcel &data);
     int32_t TurnOffMobileData(MessageParcel &data);
+    int32_t ForceTurnOnMobileData(const AppExecFwk::ElementName &admin);
     int32_t AddApn(const AppExecFwk::ElementName &admin, const std::map<std::string, std::string> &apnInfoMap);
     int32_t DeleteApn(MessageParcel &data);
     int32_t UpdateApn(const AppExecFwk::ElementName &admin,

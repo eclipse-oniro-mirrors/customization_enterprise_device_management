@@ -92,6 +92,10 @@
 #include "disallow_modify_apn_query.h"
 #endif
 
+#ifdef MOBILE_DATA_ENABLE
+#include "disallowed_mobile_data_query.h"
+#endif
+
 #ifdef SAMBA_EDM_ENABLE
 #include "disable_samba_client_query.h"
 #include "disable_samba_server_query.h"
@@ -420,6 +424,22 @@ ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+    }
+    return GetPolicyQueryFitth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
+#ifdef MOBILE_DATA_ENABLE
+            obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
     }
     return GetPolicyQueryEnd(obj, code);
 }
