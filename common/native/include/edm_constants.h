@@ -112,6 +112,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
         const char* const LABEL_DISALLOWED_POLICY_MTP_CLIENT = "mtpClient";
         const char* const LABEL_DISALLOWED_POLICY_MTP_SERVER = "mtpServer";
+        const char* const LABEL_DISALLOWED_POLICY_SAMBA_CLIENT = "sambaClient";
+        const char* const LABEL_DISALLOWED_POLICY_SAMBA_SERVER = "sambaServer";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DESK = "remoteDesk";
         const char* const LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS = "remoteDiagnosis";
         const char* const LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE = "maintenanceMode";
@@ -224,6 +226,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
+    const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
     const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";

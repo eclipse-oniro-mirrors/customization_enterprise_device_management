@@ -96,6 +96,11 @@
 #include "disallowed_mobile_data_query.h"
 #endif
 
+#ifdef SAMBA_EDM_ENABLE
+#include "disable_samba_client_query.h"
+#include "disable_samba_server_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -374,22 +379,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
-        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
-#ifdef MOBILE_DATA_ENABLE
-            obj = std::make_shared<DisallowedMobileDataQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        default:
-            break;
-    }
-    return GetPolicyQueryEnd(obj, code);
-}
-
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
-{
-    switch (code) {
         case EdmInterfaceCode::DISALLOWED_SMS:
 #ifdef SMS_EDM_ENABLE
             obj = std::make_shared<DisallowedSMSQuery>();
@@ -431,6 +420,43 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOW_MODIFY_APN:
 #ifdef APN_EDM_ENABLE
             obj = std::make_shared<DisallowModifyAPNQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+    }
+    return GetPolicyQueryFitth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
+#ifdef MOBILE_DATA_ENABLE
+            obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISABLE_SAMBA_CLIENT:
+#ifdef SAMBA_EDM_ENABLE
+            obj = std::make_shared<DisableSambaClientQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLE_SAMBA_SERVER:
+#ifdef SAMBA_EDM_ENABLE
+            obj = std::make_shared<DisableSambaServerQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

@@ -129,6 +129,8 @@ enum EdmInterfaceCode : uint32_t {
     SET_APN_INFO = 1086,
     DISALLOWED_SIM = 1087,
     DISALLOWED_MOBILE_DATA = 1088,
+    DISABLE_SAMBA_CLIENT = 1092,
+    DISABLE_SAMBA_SERVER = 1093,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
