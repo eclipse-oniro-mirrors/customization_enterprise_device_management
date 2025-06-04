@@ -526,13 +526,13 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
         "parameter accountId error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::string feature;
@@ -540,27 +540,14 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     int32_t accountId = -1;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]), "parameter accountId parse error");
 
-    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
-        return nullptr;
-    }
     auto labelCode = labelCodeMapForAccount.find(feature);
     if (labelCode == labelCodeMapForAccount.end()) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
         return nullptr;
     }
     std::uint32_t ipcCode = labelCode->second;
-    std::string permissionTag = WITHOUT_PERMISSION_TAG;
     bool disallow = false;
-    ErrCode ret;
-    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
-        ret = proxy->GetFingerprintAuthDisallowedPolicyForAccount(elementName, ipcCode,
-            disallow, permissionTag, accountId);
-    } else {
-        ret = proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
-    }
+    ErrCode ret = NativeGetDisallowedPolicyForAccount(hasAdmin, elementName, ipcCode, accountId, disallow);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -568,6 +555,31 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, disallow, &result));
     return result;
+}
+
+OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(bool hasAdmin,
+    AppExecFwk::ElementName &elementName, std::uint32_t ipcCode, int32_t accountId, bool &disallow)
+{
+    std::string permissionTag = WITHOUT_PERMISSION_TAG;
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+        if (hasAdmin) {
+            return proxy->GetFingerprintAuthDisallowedPolicyForAccount(&elementName, ipcCode,
+                disallow, permissionTag, accountId);
+        } else {
+            return proxy->GetFingerprintAuthDisallowedPolicyForAccount(nullptr, ipcCode,
+                disallow, permissionTag, accountId);
+        }
+    } else {
+        if (!hasAdmin) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        return proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
+    }
 }
 
 napi_value RestrictionsAddon::AddDisallowedListForAccount(napi_env env, napi_callback_info info)
