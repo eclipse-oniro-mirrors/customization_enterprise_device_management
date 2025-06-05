@@ -21,6 +21,7 @@
 #include "func_code_utils.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
+#include "telephony_errors.h"
 
 namespace OHOS {
 namespace EDM {
@@ -54,10 +55,14 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
         const bool isDisallow = data.ReadBool();
         EDMLOGI("DisallowMobileDataPlugin:ReadBool isDisallow:%{public}d", isDisallow);
         if (isDisallow) {
-            int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(false);
-            EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
             if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_DISALLOW)) {
                 EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+            int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(false);
+            EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
+            if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
+                EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
             policyData.isChanged = true;
@@ -92,10 +97,14 @@ ErrCode DisallowMobileDataPlugin::OnHandleForceOpen(MessageParcel &data)
         EDMLOGE("DisallowMobileDataPlugin::OnSetPolicy failed, because mobile data disallow");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
     }
-    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
-    EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
     if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_FORCE_OPEN)) {
         EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
+    EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
+    if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
+        EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
