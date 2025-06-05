@@ -138,4 +138,9 @@ declare_args() {
       defined(global_parts_info.telephony_cellular_data)) {
     cellular_data_edm_enable = true
   }
+  nfc_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.communication_nfc)) {
+    nfc_edm_enable = true
+  }
 }

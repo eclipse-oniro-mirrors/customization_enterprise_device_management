@@ -132,6 +132,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_SAMBA_CLIENT = 1092,
     DISABLE_SAMBA_SERVER = 1093,
     DISALLOW_POWER_LONG_PRESS = 1095,
+    DISALLOWED_NFC = 1098,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

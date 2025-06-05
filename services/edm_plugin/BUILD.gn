@@ -328,6 +328,7 @@ ohos_shared_library("edmplugin") {
     sources += [ 
       "./src/disallowed_sms_plugin.cpp",
       "./src/disallowed_mms_plugin.cpp",
+      "./src/disallowed_nfc_plugin.cpp",
     ]
   }
 
