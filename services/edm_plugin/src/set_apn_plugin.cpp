@@ -29,7 +29,6 @@ const std::set<std::string> ALL_APN_INFO_FIELD = {
     "profile_name", "mcc", "mnc",
     "apn", "apn_types", "auth_user",
     "proxy_ip_address", "mms_ip_address", "auth_type",
-    "edited"
 };
 
 SetApnPlugin::SetApnPlugin()

@@ -32,13 +32,12 @@ const char *const PROXY_PASSWORD = "password";
 const char *const EXCLUSION_LIST_PROP_NAME = "exclusionList";
 #endif
 
-#if defined(CELLULAR_DATA_EDM_ENABLE)
 const std::set<std::string> REQUIRED_APN_INFO_KEYS = { "apnName", "mcc", "mnc", "apn" };
 const std::set<std::string> ALL_APN_INFO_KEYS = {
     "apnName", "mcc", "mnc",
     "apn", "type", "user",
     "proxy", "mmsproxy", "authType",
-    "edit"
+    "pwd"
 };
 const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "apnName", "profile_name" },
@@ -47,12 +46,12 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "proxy", "proxy_ip_address" },
     { "mmsproxy", "mms_ip_address" },
     { "authType", "auth_type" },
-    { "edit", "edited" },
     { "mcc", "mcc" },
     { "mnc", "mnc" },
-    { "apn", "apn" }
+    { "apn", "apn" },
+    { "pwd", "auth_pwd" }
 };
-#endif
+constexpr int32_t STRLEN_THREE = 3;
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
@@ -1480,17 +1479,19 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters,
         {"mcc", parameters.at("mcc")},
         {"mnc", parameters.at("mnc")},
         {"apn", parameters.at("apn")},
+        {"edited", "1"}
     };
 
-    std::set<std::string> optionalFields;
+    std::set<std::string> optionalKeys;
     std::set_difference(
         ALL_APN_INFO_KEYS.begin(), ALL_APN_INFO_KEYS.end(),
         REQUIRED_APN_INFO_KEYS.begin(), REQUIRED_APN_INFO_KEYS.end(),
-        std::inserter(optionalFields, optionalFields.begin())
+        std::inserter(optionalKeys, optionalKeys.begin())
     );
-    for (const auto& ele : optionalFields) {
-        if (parameters.find(ele) != parameters.end()) {
-            results[ele] = parameters.at(ele);
+    for (const auto& ele : optionalKeys) {
+        std::string field = KEY_TO_FIELD.at(ele);
+        if (parameters.find(field) != parameters.end()) {
+            results[field] = parameters.at(field);
         }
     }
 
@@ -1501,9 +1502,6 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters,
         (results.at("auth_type") != "0" && results.at("auth_type") != "1" &&
         results.at("auth_type") != "2" && results.at("auth_type") != "3")) {
         results["auth_type"] = "-1";
-    }
-    if (parameters.find("edited") == parameters.end() || parameters.at("edited") != "0") {
-        results["edited"] = "1";
     }
 }
 
@@ -1552,9 +1550,17 @@ napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DeleteApn called");
 #if defined(CELLULAR_DATA_EDM_ENABLE)
+    auto checkStringIsNull = [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
+        std::string apnId;
+        if (!ParseString(env, apnId, argv)) {
+            return false;
+        }
+        return apnId != "";
+    };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "DeleteApn";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.argsConvert = {nullptr, checkStringIsNull};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -1599,7 +1605,7 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     std::map<std::string, std::string> apnInfoMapEx;
     KeyToField(apnInfoMap, apnInfoMapEx);
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]) && apnId != "", "apnId param error");
     
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMapEx, apnId);
     if (FAILED(ret)) {
@@ -1633,7 +1639,7 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
         "element name param error");
 
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_ONE]), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_ONE]) && apnId != "", "apnId param error");
 
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetPreferApn(elementName, apnId);
     if (FAILED(ret)) {
@@ -1669,7 +1675,7 @@ napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppEx
     napi_value param)
 {
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param), "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param) && apnId != "", "apnId param error");
     std::map<std::string, std::string> apnInfo;
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, apnInfo);
     if (FAILED(ret)) {
