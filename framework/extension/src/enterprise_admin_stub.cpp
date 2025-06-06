@@ -70,6 +70,12 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         case COMMAND_ON_ACCOUNT_REMOVED:
             OnAccountRemovedInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_KIOSK_MODE_ENTERING:
+            OnKioskModeEnteringInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_KIOSK_MODE_EXITING:
+            OnKioskModeExitingInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -146,6 +152,22 @@ void EnterpriseAdminStub::OnAccountRemovedInner(MessageParcel& data, MessageParc
     EDMLOGI("EnterpriseAdminStub::OnAccountRemoved");
     int32_t accountId = data.ReadInt32();
     OnAccountRemoved(accountId);
+}
+
+void EnterpriseAdminStub::OnKioskModeEnteringInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnKioskModeEnteringInner");
+    std::string bundleName = data.ReadString();
+    int32_t accountId = data.ReadInt32();
+    OnKioskModeEntering(bundleName, accountId);
+}
+
+void EnterpriseAdminStub::OnKioskModeExitingInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnKioskModeExitingInner");
+    std::string bundleName = data.ReadString();
+    int32_t accountId = data.ReadInt32();
+    OnKioskModeExiting(bundleName, accountId);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

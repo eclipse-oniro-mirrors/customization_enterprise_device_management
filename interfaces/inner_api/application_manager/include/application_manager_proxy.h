@@ -39,6 +39,9 @@ public:
     int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,
         int32_t userId);
     int32_t ClearUpApplicationData(const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param);
+    int32_t SetAllowedKioskApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &bundleNames);
+    int32_t GetAllowedKioskApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &bundleNames);
+    int32_t IsAppKioskAllowed(const std::string &bundleName, bool &isAllowed);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

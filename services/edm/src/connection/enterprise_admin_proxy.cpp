@@ -140,6 +140,32 @@ void EnterpriseAdminProxy::OnAccountRemoved(const int32_t accountId)
     SendRequest(COMMAND_ON_ACCOUNT_REMOVED, data);
 }
 
+void EnterpriseAdminProxy::OnKioskModeEntering(const std::string &bundleName, int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnKioskModeEntering");
+    SendRequest(COMMAND_ON_KIOSK_MODE_ENTERING, data);
+}
+
+void EnterpriseAdminProxy::OnKioskModeExiting(const std::string &bundleName, int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnKioskModeExiting");
+    SendRequest(COMMAND_ON_KIOSK_MODE_EXITING, data);
+}
+
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     MessageParcel reply;

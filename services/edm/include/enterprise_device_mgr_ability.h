@@ -93,6 +93,7 @@ protected:
 private:
     void AddCommonEventFuncMap();
     void AddOnAddSystemAbilityFuncMap();
+    void AddOnAddSystemAbilityFuncMapSecond();
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     void NotifyAdminEnabled(bool isEnabled);
@@ -138,6 +139,7 @@ private:
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
     void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
+    void OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
@@ -147,6 +149,7 @@ private:
     bool CheckRunningMode(uint32_t runningMode);
     void ConnectEnterpriseAbility();
     void CallOnOtherServiceStart(uint32_t interfaceCode);
+    void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
     void InitAllAdmins();

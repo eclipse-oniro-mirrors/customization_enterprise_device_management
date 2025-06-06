@@ -389,7 +389,7 @@ HWTEST_F(PluginTemplateTest, TestOtherServiceStart, TestSize.Level1)
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
 
     g_visit = false;
-    plugin->OnOtherServiceStart();
+    plugin->OnOtherServiceStart(100);
     ASSERT_TRUE(g_visit);
 }
 

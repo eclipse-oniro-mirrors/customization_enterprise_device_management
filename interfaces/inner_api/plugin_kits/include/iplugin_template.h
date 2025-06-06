@@ -55,7 +55,7 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
-    void OnOtherServiceStart() override;
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 
     /*
      * Sets the handle of the policy processing object.
@@ -193,6 +193,14 @@ protected:
 
     /*
      * This is a member function pointer type of CT class.
+     * Represents an operation that accepts a single int input argument and returns no result.
+     *
+     * @param systemAbilityId System ability id
+     * @see SetOtherServiceStartListener
+     */
+    typedef void (CT::*IntConsumer)(int32_t systemAbilityId);
+    /*
+     * This is a member function pointer type of CT class.
      * Represents an operation that accepts no arguments and returns no result.
      *
      * @param data Admin policy data
@@ -217,7 +225,7 @@ protected:
      * @see OnAdminRemoveDone
      * @see AdminRemoveDoneFunc
      */
-    typedef std::function<void()> OtherServiceStart;
+    typedef std::function<void(int32_t)> OtherServiceStart;
 
     virtual bool GetMergePolicyData(DT &policyData);
 
@@ -321,7 +329,7 @@ protected:
      *
      * @param listener Listening member function pointer of CT Class
      */
-    void SetOtherServiceStartListener(Runner &&listener);
+    void SetOtherServiceStartListener(IntConsumer &&listener);
 
     /*
      * Mapping between HandlePolicy and member function types that support overloading.
@@ -416,12 +424,12 @@ protected:
      */
     struct OtherServiceStartFunc {
         OtherServiceStart otherServiceStart_ = nullptr;
-        Runner runner_ = nullptr;
+        IntConsumer intConsumer_ = nullptr;
 
         OtherServiceStartFunc() {}
 
-        OtherServiceStartFunc(OtherServiceStart otherServiceStart, Runner runner)
-            : otherServiceStart_(std::move(otherServiceStart)), runner_(runner) {}
+        OtherServiceStartFunc(OtherServiceStart otherServiceStart, IntConsumer intConsumer)
+            : otherServiceStart_(std::move(otherServiceStart)), intConsumer_(intConsumer) {}
     };
 
     // Member function callback object of the AdminRemoveDone event.

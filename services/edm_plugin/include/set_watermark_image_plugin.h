@@ -47,7 +47,7 @@ public:
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
-    void OnOtherServiceStart() override;
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);

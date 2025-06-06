@@ -58,6 +58,10 @@ public:
 
     void OnAccountRemoved(const int32_t accountId) override {}
 
+    void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) override {}
+
+    void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

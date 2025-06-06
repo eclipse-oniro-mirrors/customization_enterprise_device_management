@@ -54,6 +54,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
@@ -83,6 +84,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
     "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../services/edm/src/query_policy/ipolicy_query.cpp",
+    "../../../services/edm/src/query_policy/is_app_kiosk_allowed_query.cpp",
     "../../../services/edm/src/query_policy/ntp_server_query.cpp",
     "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
@@ -142,6 +144,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "samgr:samgr_proxy",
     "window_manager:sms",
     "window_manager:libwm",
+    "window_manager:session_manager_lite",
   ]
 
   deps = [
@@ -177,6 +180,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
       "../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
+      "../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     ]
 
     if (os_account_edm_enable) {

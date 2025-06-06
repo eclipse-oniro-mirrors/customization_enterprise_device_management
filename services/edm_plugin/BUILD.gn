@@ -70,6 +70,7 @@ ohos_shared_library("edmplugin") {
     "telephony_data:tel_telephony_data",
     "window_manager:libwm",
     "window_manager:sms",
+    "window_manager:session_manager_lite",
   ]
 
   if (enterprise_device_management_support_all) {
@@ -102,6 +103,7 @@ ohos_shared_library("edmplugin") {
       "./src/uninstall_plugin.cpp",
       "./src/utils/battery_utils.cpp",
       "./src/clear_up_application_data_plugin.cpp",
+      "./src/set_allowed_kiosk_apps_plugin.cpp",
     ]
     if (time_service_edm_enable) {
       external_deps += [ "time_service:time_client" ]

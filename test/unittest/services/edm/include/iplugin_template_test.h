@@ -471,7 +471,7 @@ public:
 
 class OtherServiceStartRunnerPlg : public PluginSingleton<OtherServiceStartRunnerPlg, std::string> {
 public:
-    void OtherServiceStart() { g_visit = true; }
+    void OtherServiceStart(int32_t systemAbilityId) { g_visit = true; }
 
     void InitPlugin(std::shared_ptr<IPluginTemplate<OtherServiceStartRunnerPlg, std::string>> ptr) override
     {

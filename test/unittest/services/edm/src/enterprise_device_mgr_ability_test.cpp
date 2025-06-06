@@ -49,7 +49,7 @@ constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 8;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -2723,6 +2723,48 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventSystemUpdate, TestSize
     EventFwk::CommonEventData data;
     edmMgr_->OnCommonEventSystemUpdate(data);
     EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestOnCommonEventKioskModeOn
+ * @tc.desc: Test OnCommonEventKioskModeOn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOn, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventKioskMode(data, true);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventKioskModeOff
+ * @tc.desc: Test OnCommonEventKioskModeOff func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOff, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventKioskMode(data, false);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
