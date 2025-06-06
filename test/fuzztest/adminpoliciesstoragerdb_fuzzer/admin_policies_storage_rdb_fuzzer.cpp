@@ -15,6 +15,7 @@
 
 #include "admin_policies_storage_rdb_fuzzer.h"
 
+#include "cJSON.h"
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code.h"
@@ -41,7 +42,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_data = data;
     g_size = size;
     g_pos = 0;
-
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
     std::string fuzzString(reinterpret_cast<const char*>(data), size);
@@ -58,36 +58,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     fuzzAdminInfo.managedEvents_ = { event };
     fuzzAdminInfo.parentAdminName_ = fuzzString;
     admin.adminInfo_ = fuzzAdminInfo;
-
     std::vector<std::string> permissions = { fuzzString };
-
     adminPoliciesStorageRdb->InsertAdmin(userId, admin);
     adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
     adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
-
     std::string packageName(reinterpret_cast<const char*>(data), size);
     std::string currentParentName = fuzzString;
     std::string targetParentName = fuzzString;
     std::string stringInfo = fuzzString;
     std::vector<std::string> info = { fuzzString };
-
     adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
     adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
-
     std::vector<ManagedEvent> managedEvents = {event};
     adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
-
     adminPoliciesStorageRdb->ReplaceAdmin(packageName, userId, admin);
     adminPoliciesStorageRdb->UpdateParentName(packageName, currentParentName, targetParentName);
     adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, info);
-
     std::shared_ptr<NativeRdb::ResultSet> resultSet;
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
     adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
     std::string str = fuzzString;
-    Json::Value root;
-    root[fuzzString] = fuzzString;
+    cJSON* root = cJSON_CreateObject();
     adminPoliciesStorageRdb->ConvertStrToJson(str, root);
+    cJSON_Delete(root);
     adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }

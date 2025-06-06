@@ -15,6 +15,7 @@
 
 #include "admin_policies_storage_rdb.h"
 
+#include "cjson_check.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_rdb_filed_const.h"
@@ -153,26 +154,52 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
     NativeRdb::ValuesBucket &valuesBucket)
 {
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminInfo_.adminType_));
+
     if (!admin.adminInfo_.entInfo_.enterpriseName.empty()) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.adminInfo_.entInfo_.enterpriseName);
     }
+
     if (!admin.adminInfo_.entInfo_.description.empty()) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.adminInfo_.entInfo_.description);
     }
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    Json::Value permissionJson;
+
+    cJSON *permissionsArray = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
     for (const auto &permission : admin.adminInfo_.permission_) {
-        permissionJson.append(permission);
-    }
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, Json::writeString(builder, permissionJson));
-    if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
-        Json::Value policiesJson;
-        for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
-            policiesJson.append(policy);
+        cJSON* itemJson = cJSON_CreateString(permission.c_str());
+        if (itemJson == nullptr) {
+            cJSON_Delete(permissionsArray);
+            return;
         }
-        valuesBucket.PutString(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES, Json::writeString(builder, policiesJson));
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR_VOID(itemJson, permissionsArray);
     }
+    char *permissionsStr = cJSON_PrintUnformatted(permissionsArray);
+    if (permissionsStr != nullptr) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, permissionsStr);
+        free(permissionsStr);
+    }
+    cJSON_Delete(permissionsArray);
+
+    if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
+        cJSON *policiesArray = nullptr;
+        CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
+        for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
+            cJSON* itemJson = cJSON_CreateString(policy.c_str());
+            if (itemJson == nullptr) {
+                cJSON_Delete(policiesArray);
+                return;
+            }
+            CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR_VOID(itemJson, policiesArray);
+        }
+        char *policiesStr = cJSON_PrintUnformatted(policiesArray);
+        if (policiesStr != nullptr) {
+            valuesBucket.PutString(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES, policiesStr);
+            free(policiesStr);
+        }
+        cJSON_Delete(policiesArray);
+    }
+
+    // Add running mode if not default
     RunningMode runningMode = admin.adminInfo_.runningMode_;
     if (runningMode != RunningMode::DEFAULT) {
         valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<uint32_t>(runningMode));
@@ -224,13 +251,23 @@ bool AdminPoliciesStorageRdb::UpdateManagedEvents(int32_t userId, const std::str
     }
     // update admin_policies set subscribe_events=? where user_id=? and package_name=?
     NativeRdb::ValuesBucket valuesBucket;
-    Json::StreamWriterBuilder builder;
-    builder.settings_["indentation"] = "";
-    Json::Value managedEventsJson;
+
+    cJSON *managedEventsArray = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(managedEventsArray, false);
     for (const auto &it : managedEvents) {
-        managedEventsJson.append(static_cast<uint32_t>(it));
+        cJSON* itemJson = cJSON_CreateNumber(static_cast<uint32_t>(it));
+        if (itemJson == nullptr) {
+            cJSON_Delete(managedEventsArray);
+            return false;
+        }
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(itemJson, managedEventsArray, false);
     }
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_SUBSCRIBE_EVENTS, Json::writeString(builder, managedEventsJson));
+    char *managedEventsStr = cJSON_PrintUnformatted(managedEventsArray);
+    if (managedEventsStr != nullptr) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_SUBSCRIBE_EVENTS, managedEventsStr);
+        free(managedEventsStr);
+    }
+    cJSON_Delete(managedEventsArray);
 
     NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
@@ -273,18 +310,33 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
 
 void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info)
 {
-    if (!stringInfo.empty() && stringInfo != "null") {
-        Json::Value jsonInfo;
-        ConvertStrToJson(stringInfo, jsonInfo);
-        if (jsonInfo.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    if (stringInfo.empty() || stringInfo == "null") {
+        return;
+    }
+    cJSON *jsonInfo = nullptr;
+    ConvertStrToJson(stringInfo, jsonInfo);
+    if (jsonInfo == nullptr) {
+        EDMLOGE("AdminPoliciesStorageRdb::SetAdminStringInfo failed: JSON parsing failed.");
+        return;
+    }
+
+    if (cJSON_IsArray(jsonInfo)) {
+        int arraySize = cJSON_GetArraySize(jsonInfo);
+        if (arraySize > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+            EDMLOGE("AdminPoliciesStorageRdb::SetAdminStringInfo failed: Array size exceeds limit.");
+            cJSON_Delete(jsonInfo);
             return;
         }
-        for (uint32_t i = 0; i < jsonInfo.size(); i++) {
-            if (jsonInfo[i].isString()) {
-                info.emplace_back(jsonInfo[i].asString());
+
+        cJSON *element = nullptr;
+        cJSON_ArrayForEach(element, jsonInfo) {
+            if (cJSON_IsString(element)) {
+                info.emplace_back(element->valuestring);
             }
         }
     }
+
+    cJSON_Delete(jsonInfo);
 }
 
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
@@ -326,32 +378,40 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
 {
     std::string managedEventsStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
-    if (!managedEventsStr.empty() && managedEventsStr != "null") {
-        Json::Value managedEventsJson;
-        ConvertStrToJson(managedEventsStr, managedEventsJson);
-        if (managedEventsJson.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-            return;
-        }
-        for (uint32_t i = 0; i < managedEventsJson.size(); i++) {
-            if (managedEventsJson[i].isUInt()) {
-                item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(managedEventsJson[i].asUInt()));
-            }
+    if (managedEventsStr.empty() || managedEventsStr == "null") {
+        return;
+    }
+
+    cJSON* managedEventsJson = nullptr;
+    ConvertStrToJson(managedEventsStr, managedEventsJson);
+    if (managedEventsJson == nullptr) {
+        return;
+    }
+    
+    if (cJSON_GetArraySize(managedEventsJson) > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        cJSON_Delete(managedEventsJson);
+        return;
+    }
+
+    cJSON* element = nullptr;
+    cJSON_ArrayForEach(element, managedEventsJson) {
+        if (cJSON_IsNumber(element)) {
+            item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(element->valueint));
         }
     }
+    
+    cJSON_Delete(managedEventsJson);
 }
 
-void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, Json::Value &json)
+void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, cJSON *json)
 {
     if (str.empty()) {
         EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: str is empty.");
+        json = nullptr;
         return;
     }
-    Json::String err;
-    Json::CharReaderBuilder builder;
-    std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    if (!reader->parse(str.c_str(), str.c_str() + str.length(), &json, &err)) {
-        EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: %{public}s", err.c_str());
-    }
+
+    json = cJSON_Parse(str.c_str());
 }
 } // namespace EDM
 } // namespace OHOS

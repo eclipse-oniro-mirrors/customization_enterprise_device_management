@@ -22,12 +22,11 @@
 #include <string>
 #include <vector>
 
-#include "array_map_serializer.h"
 #include "array_string_serializer.h"
 #include "bool_serializer.h"
 #include "func_code_utils.h"
 #include "iplugin.h"
-#include "json_serializer.h"
+#include "cjson_serializer.h"
 #include "map_string_serializer.h"
 #include "plugin_manager.h"
 #include "plugin_singleton.h"
@@ -38,6 +37,58 @@ namespace EDM {
 namespace TEST {
 static bool g_visit = false;
 namespace PLUGIN {
+
+#ifndef CJSON_TEST_SERIALIZER
+#define CJSON_TEST_SERIALIZER
+
+class CjsonTestSerializer : public IPolicySerializer<cJSON*>, public DelayedSingleton<CjsonTestSerializer> {
+public:
+    bool Deserialize(const std::string &jsonString, cJSON* &dataObj)
+    {
+        if (jsonString.empty()) {
+            return true;
+        }
+        dataObj = cJSON_Parse(jsonString.c_str());
+        return dataObj != nullptr;
+    }
+
+    bool Serialize(cJSON *const &dataObj, std::string &jsonString)
+    {
+        if (dataObj == nullptr) {
+            jsonString = "";
+            return true;
+        }
+        char *cJsonStr = cJSON_Print(dataObj);
+        if (cJsonStr != nullptr) {
+            jsonString = std::string(cJsonStr);
+            cJSON_free(cJsonStr);
+        }
+        return !jsonString.empty();
+    }
+
+    bool GetPolicy(MessageParcel &data, cJSON* &result)
+    {
+        std::string jsonString = data.ReadString();
+        return Deserialize(jsonString, result);
+    }
+
+    bool WritePolicy(MessageParcel &reply, cJSON* &result)
+    {
+        std::string jsonString;
+        if (!Serialize(result, jsonString)) {
+            return false;
+        }
+        return reply.WriteString(jsonString);
+    }
+
+    bool MergePolicy(std::vector<cJSON*> &data, cJSON* &result)
+    {
+        return true;
+    }
+};
+
+#endif // CJSON_TEST_SERIALIZER
+
 #ifndef ARRAY_TEST_PLUGIN
 #define ARRAY_TEST_PLUGIN
 
@@ -89,36 +140,18 @@ public:
 
 #endif // MAP_TEST_PLUGIN
 
-#ifndef ARRAY_MAP_TEST_PLUGIN
-#define ARRAY_MAP_TEST_PLUGIN
-
-class ArrayMapTestPlugin : public PluginSingleton<ArrayMapTestPlugin, std::vector<std::map<std::string, std::string>>> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<ArrayMapTestPlugin,
-        std::vector<std::map<std::string, std::string>>>> ptr) override
-    {
-        int policyCode = 13;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "ArrayMapTestPlugin", config);
-        ptr->SetSerializer(ArrayMapSerializer::GetInstance());
-    }
-};
-
-#endif // ARRAY_MAP_TEST_PLUGIN
-
 #ifndef JSON_TEST_PLUGIN
 #define JSON_TEST_PLUGIN
 
-class JsonTestPlugin : public PluginSingleton<JsonTestPlugin, Json::Value> {
+class JsonTestPlugin : public PluginSingleton<JsonTestPlugin, cJSON*> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<JsonTestPlugin, Json::Value>> ptr) override
+    void InitPlugin(std::shared_ptr<IPluginTemplate<JsonTestPlugin, cJSON*>> ptr) override
     {
         int policyCode = 14;
         IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "JsonTestPlugin", config);
-        ptr->SetSerializer(JsonSerializer::GetInstance());
+        ptr->SetSerializer(CjsonSerializer::GetInstance());
     }
 };
 
@@ -141,9 +174,9 @@ public:
 
 #endif // STRING_TEST_PLUGIN
 
-class InitAttributePlg : public PluginSingleton<InitAttributePlg, Json::Value> {
+class InitAttributePlg : public PluginSingleton<InitAttributePlg, cJSON*> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<InitAttributePlg, Json::Value>> ptr) override
+    void InitPlugin(std::shared_ptr<IPluginTemplate<InitAttributePlg, cJSON*>> ptr) override
     {
         int policyCode = 20;
         IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
@@ -152,7 +185,7 @@ public:
     }
 };
 
-class HandlePolicySupplierPlg : public PluginSingleton<HandlePolicySupplierPlg, Json::Value> {
+class HandlePolicySupplierPlg : public PluginSingleton<HandlePolicySupplierPlg, cJSON*> {
 public:
     ErrCode SetSupplier()
     {
@@ -166,13 +199,13 @@ public:
         return ERR_EDM_PARAM_ERROR;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicySupplierPlg, Json::Value>> ptr) override
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicySupplierPlg, cJSON*>> ptr) override
     {
         int policyCode = 21;
         IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicySupplierPlg", config);
-        ptr->SetSerializer(JsonSerializer::GetInstance());
+        ptr->SetSerializer(CjsonTestSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicySupplierPlg::SetSupplier, FuncOperateType::SET);
         ptr->SetOnHandlePolicyListener(&HandlePolicySupplierPlg::RemoveSupplier, FuncOperateType::REMOVE);
     }
@@ -342,53 +375,69 @@ public:
     }
 };
 
-class HandlePolicyJsonBiFunctionPlg : public PluginSingleton<HandlePolicyJsonBiFunctionPlg, Json::Value> {
+class HandlePolicyJsonBiFunctionPlg : public PluginSingleton<HandlePolicyJsonBiFunctionPlg, cJSON*> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
+    ErrCode SetFunction(cJSON*& data, cJSON*& currentData, cJSON*& mergeData, int32_t userId)
     {
-        currentData = data;
+        if (currentData != nullptr) {
+            cJSON_Delete(currentData);
+        }
+        currentData = cJSON_Duplicate(data, true);
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
+    ErrCode RemoveFunction(cJSON*& data, cJSON*& currentData, cJSON*& mergeData, int32_t userId)
     {
-        currentData = Json::nullValue;
+        if (currentData != nullptr) {
+            cJSON_Delete(currentData);
+        }
+        currentData = cJSON_CreateNull();
         return ERR_OK;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyJsonBiFunctionPlg, Json::Value>> ptr) override
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyJsonBiFunctionPlg, cJSON*>> ptr) override
     {
         int policyCode = 30;
         IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyJsonBiFunctionPlg", config);
-        ptr->SetSerializer(JsonSerializer::GetInstance());
+        
+        ptr->SetSerializer(CjsonTestSerializer::GetInstance());
+        
+        // 注册回调函数
         ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::SetFunction, FuncOperateType::SET);
         ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
     }
 };
 
-class HandlePolicyBiFunctionUnsavePlg : public PluginSingleton<HandlePolicyBiFunctionUnsavePlg, Json::Value> {
+class HandlePolicyBiFunctionUnsavePlg : public PluginSingleton<HandlePolicyBiFunctionUnsavePlg, cJSON*> {
 public:
-    ErrCode SetFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
+    ErrCode SetFunction(cJSON*& data, cJSON*& currentData, cJSON*& mergeData, int32_t userId)
     {
-        currentData = data;
+        if (currentData) {
+            cJSON_Delete(currentData);
+        }
+        currentData = cJSON_Duplicate(data, true);
         return ERR_OK;
     }
 
-    ErrCode RemoveFunction(Json::Value &data, Json::Value &currentData, Json::Value &mergeData, int32_t userId)
+    ErrCode RemoveFunction(cJSON*& data, cJSON*& currentData, cJSON*& mergeData, int32_t userId)
     {
-        currentData = Json::nullValue;
+        if (currentData) {
+            cJSON_Delete(currentData);
+        }
+        currentData = cJSON_CreateNull();
         return ERR_OK;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionUnsavePlg, Json::Value>> ptr) override
+    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionUnsavePlg, cJSON*>> ptr) override
     {
         int policyCode = 31;
         IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
         ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionUnsavePlg", config, false, true);
-        ptr->SetSerializer(JsonSerializer::GetInstance());
+        
+        ptr->SetSerializer(CjsonTestSerializer::GetInstance());
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::SetFunction, FuncOperateType::SET);
         ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionUnsavePlg::RemoveFunction, FuncOperateType::REMOVE);
     }

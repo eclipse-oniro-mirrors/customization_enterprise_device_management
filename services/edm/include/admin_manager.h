@@ -23,7 +23,6 @@
 #include "admin.h"
 #include "admin_policies_storage_rdb.h"
 #include "ent_info.h"
-#include "json/json.h"
 
 namespace OHOS {
 namespace EDM {

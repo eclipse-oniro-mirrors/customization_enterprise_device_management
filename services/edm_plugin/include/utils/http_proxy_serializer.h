@@ -18,7 +18,6 @@
 
 #include "http_proxy.h"
 #include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "singleton.h"
 
 namespace OHOS {

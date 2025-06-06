@@ -25,7 +25,8 @@
 #ifndef JSON_NOEXCEPTION
 #define JSON_NOEXCEPTION
 #endif
-#include "json/json.h"
+#include "cJSON.h"
+#include "cjson_check.h"
 #include "singleton.h"
 
 #include "edm_constants.h"
@@ -120,31 +121,54 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
     if (jsonString.empty()) {
         return true;
     }
-    Json::Value root;
-    const auto rawJsonLength = static_cast<int>(jsonString.length());
-    JSONCPP_STRING err;
-    Json::CharReaderBuilder builder;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    if (!reader->parse(jsonString.c_str(), jsonString.c_str() + rawJsonLength, &root, &err)) {
-        EDMLOGE("ArraySerializer Deserialize json to vector error. %{public}s ", err.c_str());
+
+    cJSON *root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
+        EDMLOGE("ArraySerializer Deserialize json to vector error");
         return false;
     }
-    if (!root.isArray()) {
+
+    if (!cJSON_IsArray(root)) {
+        EDMLOGE("Input JSON is not an array.");
+        cJSON_Delete(root);
         return false;
     }
-    if (root.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+
+    const int array_size = cJSON_GetArraySize(root);
+    if (array_size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("Array size exceeds maximum limit.");
+        cJSON_Delete(root);
         return false;
     }
-    dataObj = std::vector<DT>(root.size());
-    for (std::uint32_t i = 0; i < root.size(); ++i) {
-        Json::StreamWriterBuilder writerBuilder;
-        const std::string valueJsonString = Json::writeString(writerBuilder, root[i]);
-        DT value;
-        if (!serializerInner_->Deserialize(valueJsonString, value)) {
+
+    dataObj = std::vector<DT>(array_size);
+    for (int i = 0; i < array_size; ++i) {
+        cJSON *item = cJSON_GetArrayItem(root, i);
+        if (item == nullptr) {
+            EDMLOGE("Failed to get array item");
+            cJSON_Delete(root);
             return false;
         }
+
+        char *itemJson = cJSON_PrintUnformatted(item);
+        if (itemJson == nullptr) {
+            EDMLOGE("Failed to serialize JSON item at index");
+            cJSON_Delete(root);
+            return false;
+        }
+
+        DT value;
+        if (!serializerInner_->Deserialize(itemJson, value)) {
+            free(itemJson);
+            cJSON_Delete(root);
+            return false;
+        }
+
         dataObj.at(i) = value;
+        free(itemJson);
     }
+
+    cJSON_Delete(root);
     return true;
 }
 
@@ -155,18 +179,35 @@ bool ArraySerializer<DT, T_ARRAY>::Serialize(const T_ARRAY &dataObj, std::string
         jsonString = "";
         return true;
     }
-    Json::Value arrayData(Json::arrayValue);
+
+    cJSON *arrayData = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(arrayData, false);
+
     for (std::uint32_t i = 0; i < dataObj.size(); ++i) {
         std::string itemJson;
         DT item = dataObj.at(i);
         if (!serializerInner_->Serialize(item, itemJson)) {
+            cJSON_Delete(arrayData);
             return false;
         }
-        arrayData[i] = itemJson;
+        
+        cJSON *itemJsonObj = cJSON_CreateString(itemJson.c_str());
+        if (itemJsonObj == nullptr) {
+            cJSON_Delete(arrayData);
+            return false;
+        }
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(itemJsonObj, arrayData, false);
     }
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "    ";
-    jsonString = Json::writeString(builder, arrayData);
+
+    char *jsonStr = cJSON_Print(arrayData);
+    cJSON_Delete(arrayData);
+    
+    if (jsonStr == nullptr) {
+        return false;
+    }
+    
+    jsonString = jsonStr;
+    free(jsonStr);
     return true;
 }
 

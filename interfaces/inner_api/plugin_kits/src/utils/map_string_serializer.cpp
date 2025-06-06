@@ -15,6 +15,7 @@
 
 #include "map_string_serializer.h"
 #include <string_ex.h>
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -23,46 +24,53 @@ bool MapStringSerializer::Deserialize(const std::string &jsonString, std::map<st
     if (jsonString.empty()) {
         return true;
     }
-    Json::Value root;
-    const auto rawJsonLength = static_cast<int>(jsonString.length());
-    JSONCPP_STRING err;
-    Json::CharReaderBuilder builder;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    if (!reader->parse(jsonString.c_str(), jsonString.c_str() + rawJsonLength, &root, &err)) {
-        EDMLOGE("MapStringSerializer::Deserialize jsonString error: %{public}s", err.c_str());
+
+    cJSON *root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
         return false;
     }
-    if (!root.isObject()) {
-        EDMLOGE("MapStringSerializer::Deserialize jsonString is not map.");
+
+    if (!cJSON_IsObject(root)) {
+        EDMLOGE("JSON is not an object.");
+        cJSON_Delete(root);
         return false;
     }
-    if (root.empty()) {
-        return true;
-    }
-    for (auto &member : root.getMemberNames()) {
-        if (root[member].type() != Json::ValueType::stringValue && root[member].type() != Json::ValueType::intValue &&
-            root[member].type() != Json::ValueType::uintValue && root[member].type() != Json::ValueType::booleanValue) {
-            EDMLOGE("MapStringSerializer::Deserialize member type is not support.");
+
+    cJSON *item = nullptr;
+    cJSON_ArrayForEach(item, root) {
+        if (!cJSON_IsString(item)) {
+            EDMLOGE("item is not a string.");
+            cJSON_Delete(root);
             return false;
         }
-        dataObj.insert(std::pair<std::string, std::string>(member, root[member].asString()));
+        dataObj.emplace(item->string, item->valuestring);
     }
+
+    cJSON_Delete(root);
     return true;
 }
 
 bool MapStringSerializer::Serialize(const std::map<std::string, std::string> &dataObj, std::string &jsonString)
 {
-    if (dataObj.empty()) {
-        jsonString = "";
-        return true;
-    }
-    Json::Value root;
+    cJSON *root = nullptr;
+    CJSON_CREATE_OBJECT_AND_CHECK(root, false);
+
     for (const auto &item : dataObj) {
-        root[item.first] = item.second;
+        if (!cJSON_AddStringToObject(root, item.first.c_str(), item.second.c_str())) {
+            cJSON_Delete(root);
+            return false;
+        }
     }
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "    ";
-    jsonString = Json::writeString(builder, root);
+
+    char *jsonStr = cJSON_Print(root);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    jsonString = jsonStr;
+    free(jsonStr);
+    cJSON_Delete(root);
     return true;
 }
 

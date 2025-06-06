@@ -14,14 +14,13 @@
  */
 
 #include <gtest/gtest.h>
-#include "array_map_serializer.h"
 #include "array_string_serializer.h"
 #include "bool_serializer.h"
+#include "cjson_serializer.h"
 #include "func_code_utils.h"
 #include "long_serializer.h"
 #include "map_string_serializer.h"
 #include "string_serializer.h"
-#include "utils/json_serializer.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -158,155 +157,6 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
 }
 
 /**
- * @tc.name: ArrayMapStringSerializer
- * @tc.desc: Test ArrayMapSerializer::Serialize.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, ArrayMapStringSerializer, TestSize.Level1)
-{
-    auto serializer = ArrayMapSerializer::GetInstance();
-    vector<map<string, string>> value = {
-        {
-            { "id", "1" },
-            { "name", "leon" },
-            { "desc", "hello" },
-        },
-        {
-            { "id", "2" },
-            { "name", "job" },
-            { "desc", "world" },
-        }
-    };
-    string exceptStr;
-    string jsonString;
-    ASSERT_TRUE(serializer->Serialize(value, jsonString));
-    auto sd = remove_if(jsonString.begin(), jsonString.end(), isspace);
-    jsonString.erase(sd, jsonString.end());
-    exceptStr = R"(["{\n\"desc\":\"hello\",\n\"id\":\"1\",\n\"name\":\"leon\"\n}")";
-    exceptStr.append(R"(,"{\n\"desc\":\"world\",\n\"id\":\"2\",\n\"name\":\"job\"\n}"])");
-    ASSERT_EQ(jsonString, exceptStr);
-}
-
-/**
- * @tc.name: ArrayMapStringDeserialize
- * @tc.desc: Test ArrayMapSerializer::Deserialize.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, ArrayMapStringDeserialize, TestSize.Level1)
-{
-    auto serializer = ArrayMapSerializer::GetInstance();
-    vector<map<string, string>> value;
-    std::string jsonString = R"([{"desc":"hello","id":"1","name":"leon"},{"desc":"world","id":"2","name":"job"}])";
-    ASSERT_TRUE(serializer->Deserialize(jsonString, value));
-    ASSERT_TRUE(value.size() == 2);
-
-    map<string, string> expectZero = {
-        { "id",   "1" },
-        { "name", "leon" },
-        { "desc", "hello" },
-    };
-    ASSERT_TRUE(value.at(0) == expectZero);
-    map<string, string> expectOne = {
-        { "id",   "2" },
-        { "name", "job" },
-        { "desc", "world" },
-    };
-    ASSERT_TRUE(value.at(1) == expectOne);
-}
-
-/**
- * @tc.name: ArrayMapStringGetPolicy
- * @tc.desc: Test ArrayMapSerializer::GetPolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, ArrayMapStringGetPolicy, TestSize.Level1)
-{
-    auto serializer = ArrayMapSerializer::GetInstance();
-    vector<map<string, string>> value;
-    MessageParcel messageParcel1;
-    vector<std::string> value2 = {
-        R"({"id":"1","name":"leon","desc":"hello world"})",
-        R"({"id":"2","name":"job","desc":"two"})",
-        R"({"id":"3","name":"james","desc":"three"})",
-        R"({"id":"4","name":"bao","desc":"four"})",
-        R"({"id":"5","name":"fox","desc":"five"})"
-    };
-    messageParcel1.WriteStringVector(value2);
-    ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
-    ASSERT_TRUE(value.size() == 5);
-    serializer->Deduplication(value);
-    ASSERT_TRUE(value.size() == 5);
-}
-
-/**
- * @tc.name: ArrayMapStringWritePolicy
- * @tc.desc: Test ArrayMapSerializer::WritePolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, ArrayMapStringWritePolicy, TestSize.Level1)
-{
-    MessageParcel messageParcel2;
-    auto serializer = ArrayMapSerializer::GetInstance();
-    vector<map<string, string>> value = {
-        {
-            { "id", "1" },
-            { "name", "leon" },
-            { "desc", "hello" },
-        },
-        {
-            { "id", "2" },
-            { "name", "job" },
-            { "desc", "world" },
-        }
-    };
-    ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-
-    value = {};
-    ASSERT_TRUE(serializer->GetPolicy(messageParcel2, value));
-    ASSERT_TRUE(value.size() == 2);
-    serializer->Deduplication(value);
-    ASSERT_TRUE(value.size() == 2);
-}
-
-/**
- * @tc.name: ArrayMapStringMergePolicy
- * @tc.desc: Test ArrayMapSerializer::MergePolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, ArrayMapStringMergePolicy, TestSize.Level1)
-{
-    auto serializer = ArrayMapSerializer::GetInstance();
-    vector<map<string, string>> value;
-    vector<vector<map<string, string>>> policyValues {
-        {
-            {
-                { "id", "1" },
-                { "name", "leon" },
-                { "desc", "hello" },
-            },
-            {
-                { "id", "2" },
-                { "name", "job" },
-                { "desc", "world" },
-            }
-        },
-        {
-            {
-                { "id", "1" },
-                { "name", "leon" },
-                { "desc", "hello" },
-            },
-            {
-                { "id", "3" },
-                { "name", "james" },
-            }
-        }
-    };
-    serializer->MergePolicy(policyValues, value);
-    ASSERT_TRUE(value.size() == 3);
-}
-
-/**
  * @tc.name: MAP_STRING
  * @tc.desc: Test MapStringSerializer.
  * @tc.type: FUNC
@@ -411,18 +261,23 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_002, TestSize.Level1)
 HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_Deserialize, TestSize.Level1)
 {
     auto serializer = MapStringSerializer::GetInstance();
-    Json::Value root;
-    root["string"] = "str";
-    root["bool"] = true;
-    root["int"] = 1;
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "    ";
-    std::string jsonString = Json::writeString(builder, root);
+    
+    cJSON* root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "string", "str");
+    cJSON_AddStringToObject(root, "bool", "true");
+    cJSON_AddStringToObject(root, "int", "1");
+    
+    char* jsonString = cJSON_PrintUnformatted(root);
+    std::string jsonStr(jsonString);
+    cJSON_free(jsonString);
+    
     std::map<std::string, std::string> result;
-    ASSERT_TRUE(serializer->Deserialize(jsonString, result));
+    ASSERT_TRUE(serializer->Deserialize(jsonStr, result));
     ASSERT_TRUE(result["string"] == "str");
     ASSERT_TRUE(result["bool"] == "true");
     ASSERT_TRUE(result["int"] == "1");
+    
+    cJSON_Delete(root);
 }
 
 /**
@@ -433,16 +288,21 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_Deserialize, TestSize.Level
 HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_DeserializeFail, TestSize.Level1)
 {
     auto serializer = MapStringSerializer::GetInstance();
-    Json::Value root;
-    Json::Value sub;
-    sub["key"] = "value";
-    root["object"] = sub;
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "    ";
-    std::string jsonString = Json::writeString(builder, root);
+    
+    cJSON* root = cJSON_CreateObject();
+    cJSON* sub = cJSON_CreateObject();
+    cJSON_AddStringToObject(sub, "key", "value");
+    cJSON_AddItemToObject(root, "object", sub);
+    
+    char* jsonString = cJSON_Print(root);
+    std::string jsonStr(jsonString);
+    cJSON_free(jsonString);
+    
     std::map<std::string, std::string> result;
-    ASSERT_FALSE(serializer->Deserialize(jsonString, result));
+    ASSERT_FALSE(serializer->Deserialize(jsonStr, result));
     ASSERT_TRUE(result.empty());
+    
+    cJSON_Delete(root);
 }
 
 /**
@@ -452,44 +312,56 @@ HWTEST_F(PolicySerializerTest, MAP_STRING_Serializer_DeserializeFail, TestSize.L
  */
 HWTEST_F(PolicySerializerTest, JSON, TestSize.Level1)
 {
-    auto serializer = JsonSerializer::GetInstance();
-    Json::Value value;
-    value["k1"] = "v1";
-    value["k2"] = "v2";
-    value["k3"] = 3;
-    string jsonString;
+    auto serializer = CjsonSerializer::GetInstance();
+    
+    cJSON* value = cJSON_CreateObject();
+    cJSON_AddStringToObject(value, "k1", "v1");
+    cJSON_AddStringToObject(value, "k2", "v2");
+    cJSON_AddNumberToObject(value, "k3", 3);
+    
+    std::string jsonString;
     ASSERT_TRUE(serializer->Serialize(value, jsonString));
-    auto sd = remove_if(jsonString.begin(), jsonString.end(), isspace);
+    auto sd = std::remove_if(jsonString.begin(), jsonString.end(), isspace);
     jsonString.erase(sd, jsonString.end());
     ASSERT_EQ(jsonString, R"({"k1":"v1","k2":"v2","k3":3})");
+    cJSON_Delete(value);
 
     jsonString = R"(["v1","v2","v3","v4","v5","v6"])";
+    value = nullptr;
     ASSERT_TRUE(serializer->Deserialize(jsonString, value));
-    ASSERT_TRUE(value.isArray() && value.size() == 6);
+    ASSERT_TRUE(cJSON_IsArray(value) && cJSON_GetArraySize(value) == 6);
+    cJSON_Delete(value);
 
     MessageParcel messageParcel1;
     std::string value2 = R"(["v1","v2"])";
     messageParcel1.WriteString(value2);
-    value = {};
+    value = nullptr;
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
-    ASSERT_TRUE(value.isArray() && value.size() == 2);
+    ASSERT_TRUE(cJSON_IsArray(value) && cJSON_GetArraySize(value) == 2);
+    cJSON_Delete(value);
 
     MessageParcel messageParcel2;
-    value = Json::Value(Json::arrayValue);
-    value[0] = 1;
-    value[1] = 2;
-    value[3] = 3;
+    value = cJSON_CreateArray();
+    cJSON_AddItemToArray(value, cJSON_CreateNumber(1));
+    cJSON_AddItemToArray(value, cJSON_CreateNumber(2));
+    cJSON_AddItemToArray(value, cJSON_CreateNull());
+    cJSON_AddItemToArray(value, cJSON_CreateNumber(3));
     ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
     value2 = "";
     messageParcel2.ReadString(value2);
     jsonString = value2;
-    sd = remove_if(jsonString.begin(), jsonString.end(), isspace);
+    sd = std::remove_if(jsonString.begin(), jsonString.end(), isspace);
     jsonString.erase(sd, jsonString.end());
     ASSERT_EQ(jsonString, R"([1,2,null,3])");
+    cJSON_Delete(value);
 
-    std::vector<Json::Value> vec = {jsonString};
+    std::vector<cJSON*> vec;
+    value = cJSON_Parse(jsonString.c_str());
+    ASSERT_TRUE(value != nullptr);
+    vec.push_back(value);
     serializer->MergePolicy(vec, value);
     ASSERT_TRUE(vec.size() == 1);
+    cJSON_Delete(value);
 }
 
 /**

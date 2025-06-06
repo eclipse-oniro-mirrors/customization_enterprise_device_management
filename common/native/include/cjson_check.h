@@ -47,6 +47,35 @@ namespace EDM {
             return (ret);                       \
         }                                       \
     } while (0)
+
+#define CJSON_CREATE_ARRAY_AND_CHECK_VOID(obj)       \
+    do {                                             \
+        (obj) = cJSON_CreateArray();                 \
+        if ((obj) == nullptr) {                      \
+            EDMLOGE("cJSON_CreateArray error");      \
+            return;                                  \
+        }                                            \
+    } while (0)
+
+#define CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(obj, array, ret)  \
+    do {                                                              \
+        if (!cJSON_AddItemToArray((array), (obj))) {                  \
+            EDMLOGE("cJSON_AddItemToArray error");                    \
+            cJSON_Delete((obj));                                      \
+            cJSON_Delete((array));                                    \
+            return ret;                                               \
+        }                                                             \
+    } while (0)
+
+#define CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR_VOID(obj, array)  \
+    do {                                                              \
+        if (!cJSON_AddItemToArray((array), (obj))) {                  \
+            EDMLOGE("cJSON_AddItemToArray error");                    \
+            cJSON_Delete((obj));                                      \
+            cJSON_Delete((array));                                    \
+            return;                                                   \
+        }                                                             \
+    } while (0)
 } // namespace EDM
 } // namespace OHOS
 #endif // COMMON_NATIVE_INCLUDE_CJSON_CHECK_H
