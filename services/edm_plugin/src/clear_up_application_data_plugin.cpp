@@ -18,6 +18,7 @@
 #include "app_mgr_proxy.h"
 #include "clear_up_application_data_param_serializer.h"
 #include "edm_ipc_interface_code.h"
+#include "external_manager_factory.h"
 #include "iplugin_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -40,6 +41,10 @@ void ClearUpApplicationDataPlugin::InitPlugin(
 ErrCode ClearUpApplicationDataPlugin::OnSetPolicy(ClearUpApplicationDataParam &param)
 {
     EDMLOGD("ClearUpApplicationDataPlugin::OnSetPolicy, bundleName = %{public}s", param.bundleName.c_str());
+    if (param.bundleName.empty() || !IsBundleInstalled(param)) {
+        EDMLOGE("Parameter bundle name wrong");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     sptr<ISystemAbilityManager> abilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (abilityMgr == nullptr) {
         EDMLOGE("Failed to get ISystemAbilityManager");
@@ -61,6 +66,12 @@ ErrCode ClearUpApplicationDataPlugin::OnSetPolicy(ClearUpApplicationDataParam &p
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool ClearUpApplicationDataPlugin::IsBundleInstalled(const ClearUpApplicationDataParam &param)
+{
+    std::shared_ptr<IExternalManagerFactory> factory = std::make_shared<ExternalManagerFactory>();
+    return factory->CreateBundleManager()->IsBundleInstalled(param.bundleName, param.userId, param.appIndex);
 }
 } // namespace EDM
 } // namespace OHOS

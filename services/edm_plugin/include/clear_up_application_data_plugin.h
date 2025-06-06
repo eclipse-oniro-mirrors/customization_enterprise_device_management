@@ -27,6 +27,8 @@ public:
         std::shared_ptr<IPluginTemplate<ClearUpApplicationDataPlugin, ClearUpApplicationDataParam>> ptr) override;
 
     ErrCode OnSetPolicy(ClearUpApplicationDataParam &param);
+private:
+    static bool IsBundleInstalled(const ClearUpApplicationDataParam &param);
 };
 } // namespace EDM
 } // namespace OHOS
