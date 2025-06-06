@@ -1596,6 +1596,8 @@ bool EnterpriseDeviceMgrAbility::CheckSpecialPolicyCallQuery(uint32_t code)
             return uid == EdmConstants::BLUETOOTH_SERVICE_UID;
         } else if (code == EdmInterfaceCode::PASSWORD_POLICY) {
             return uid == EdmConstants::USERIAM_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::DISABLE_USB) {
+            return uid == EdmConstants::USB_SERVICE_UID;
         }
     }
     return false;
