@@ -17,7 +17,6 @@
 #define SERVICES_EDM_INCLUDE_UTILS_WIFI_DEVICE_CONFIG_SERIALIZER_H
 
 #include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "singleton.h"
 #include "wifi_msg.h"
 
@@ -38,11 +37,6 @@ public:
     bool WritePolicy(MessageParcel &reply, Wifi::WifiDeviceConfig &result) override;
 
     bool MergePolicy(std::vector<Wifi::WifiDeviceConfig> &data, Wifi::WifiDeviceConfig &result) override;
-private:
-    Json::Value SerializerIpAddress(const Wifi::WifiIpAddress &address);
-    Wifi::WifiIpAddress DeserializeIpAddress(const Json::Value &ipAddressJson);
-    void ConvertStrToJson(const std::string &str, Json::Value &json);
-    void ConvertJsonToStr(const Json::Value &json, std::string &str);
 };
 } // namespace EDM
 } // namespace OHOS

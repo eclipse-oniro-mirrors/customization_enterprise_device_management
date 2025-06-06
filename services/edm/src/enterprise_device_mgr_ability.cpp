@@ -71,6 +71,9 @@ const std::string PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PR
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
+const std::string SYSTEM_KIOSK_MODE_ON = "usual.event.KIOSK_MODE_ON";
+const std::string SYSTEM_KIOSK_MODE_OFF = "usual.event.KIOSK_MODE_OFF";
+const std::string WANT_BUNDLE_NAME = "bundleName";
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
@@ -81,6 +84,7 @@ const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
 const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
 const std::string POLICY_ALLOW_ALL = "allow_all";
+const int32_t INVALID_SYSTEM_ABILITY_ID = -1;
 
 std::shared_mutex EnterpriseDeviceMgrAbility::dataLock_;
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
@@ -127,6 +131,14 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventBmsReady(data);
         };
+    commonEventFuncMap_[SYSTEM_KIOSK_MODE_ON] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventKioskMode(data, true);
+        };
+    commonEventFuncMap_[SYSTEM_KIOSK_MODE_OFF] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventKioskMode(data, false);
+        };
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -164,8 +176,23 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
     }
 }
 
+void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
+{
+    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnAbilityManagerServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, ABILITY_MGR_SERVICE_ID);
+        };
+    addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
+        };
+}
+
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
+    AddOnAddSystemAbilityFuncMapSecond();
     addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAppManagerServiceStart();
@@ -173,14 +200,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnCommonEventServiceStart();
-        };
-    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnAbilityManagerServiceStart();
-        };
-    addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
@@ -407,6 +426,28 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
 {
     EDMLOGI("OnCommonEventBmsReady");
     ConnectEnterpriseAbility();
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
+{
+    AAFwk::Want want = data.GetWant();
+    int32_t paramUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
+    EDMLOGE("OnCommonEventKioskMode userId:%{public}d", paramUserId);
+    std::string bundleName = want.GetStringParam(WANT_BUNDLE_NAME);
+    auto code = static_cast<uint32_t>(
+        isModeOn ? IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING : IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING);
+    std::vector<std::shared_ptr<Admin>> admins;
+    int32_t currentUserId = GetCurrentUserId();
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        sptr<IEnterpriseConnection> connection = manager->CreateKioskConnection(
+            connectWant, code, currentUserId, bundleName, paramUserId);
+        manager->ConnectAbility(connection);
+    }
 }
 
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
@@ -736,6 +777,11 @@ void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
 
 void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
 {
+    CallOnOtherServiceStart(interfaceCode, INVALID_SYSTEM_ABILITY_ID);
+}
+
+void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
+{
     EDMLOGI("EnterpriseDeviceMgrAbility::CallOnOtherServiceStart %{public}d", interfaceCode);
     InitAllPlugins();
     std::uint32_t funcCode =
@@ -745,7 +791,7 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
         return;
     }
-    plugin->OnOtherServiceStart();
+    plugin->OnOtherServiceStart(systemAbilityId);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()

@@ -212,11 +212,13 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
+    const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
     const char* const POLICY_ADD_OS_ACCOUNT = "add_os_account";
     const char* const POLICY_ALLOWED_BLUETOOTH_DEVICES = "allowed_bluetooth_devices";
+    const char* const POLICY_ALLOWED_KIOSK_APPS = "allowed_kiosk_apps";
     const char* const POLICY_DISALLOWED_BLUETOOTH_DEVICES = "disallowed_bluetooth_devices";
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";

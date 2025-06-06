@@ -16,8 +16,8 @@
 #ifndef INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_INSTALL_PARAM_SERIALIZER_H
 #define INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_INSTALL_PARAM_SERIALIZER_H
 
+#include <map>
 #include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "singleton.h"
 
 namespace OHOS {

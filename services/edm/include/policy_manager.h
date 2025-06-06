@@ -24,7 +24,6 @@
 #include "device_policies_storage_rdb.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
-#include "json/json.h"
 #include "ipolicy_manager.h"
 #include "user_policy_manager.h"
 

@@ -92,7 +92,7 @@ ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
     return UsbPolicyUtils::SetUsbDisabled(true);
 }
 
-void DisableUsbPlugin::OnOtherServiceStart()
+void DisableUsbPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     EDMLOGI("DisableUsbPlugin::OnOtherServiceStart start");
     std::string disableUsbPolicy;

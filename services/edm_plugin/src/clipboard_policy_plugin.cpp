@@ -196,7 +196,7 @@ ErrCode ClipboardPolicyPlugin::HandlePasteboardPolicy(std::map<int32_t, Clipboar
     return ERR_OK;
 }
 
-void ClipboardPolicyPlugin::OnOtherServiceStart()
+void ClipboardPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_CLIPBOARD_POLICY,

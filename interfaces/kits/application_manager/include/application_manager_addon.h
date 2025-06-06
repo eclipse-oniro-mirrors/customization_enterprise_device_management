@@ -53,6 +53,9 @@ public:
     static napi_value RemoveKeepAliveApps(napi_env env, napi_callback_info info);
     static napi_value GetKeepAliveApps(napi_env env, napi_callback_info info);
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
+    static napi_value SetAllowedKioskApps(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedKioskApps(napi_env env, napi_callback_info info);
+    static napi_value IsAppKioskAllowed(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemovellowedRunningBundles(napi_env env, napi_callback_info info,

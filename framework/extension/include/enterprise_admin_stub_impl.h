@@ -55,6 +55,10 @@ public:
     void OnAccountSwitched(const int32_t accountId) override;
 
     void OnAccountRemoved(const int32_t accountId) override;
+
+    void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) override;
+
+    void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

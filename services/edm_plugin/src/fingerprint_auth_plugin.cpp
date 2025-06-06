@@ -203,7 +203,7 @@ ErrCode FingerprintAuthPlugin::OnAdminRemove(const std::string &adminName, const
     return ERR_OK;
 }
 
-void FingerprintAuthPlugin::OnOtherServiceStart()
+void FingerprintAuthPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_FINGERPRINT_AUTH,

@@ -66,7 +66,7 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
     return ERR_OK;
 }
 
-void PasswordPolicyPlugin::OnOtherServiceStart()
+void PasswordPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_PASSWORD_POLICY,
