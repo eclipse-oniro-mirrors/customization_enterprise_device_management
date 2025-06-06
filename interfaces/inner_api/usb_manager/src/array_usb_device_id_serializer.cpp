@@ -112,6 +112,7 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
 
         if (!cJSON_AddNumberToObject(item, "vendorId", device.GetVendorId()) ||
         !cJSON_AddNumberToObject(item, "productId", device.GetProductId())) {
+            cJSON_Delete(item);
             cJSON_Delete(root);
             return false;
         }
