@@ -14,7 +14,10 @@
  */
 
 #define protected public
+#define private public
 #include "manage_keep_alive_apps_plugin_test.h"
+#include "disallowed_running_bundles_plugin.h"
+#undef private
 #undef protected
 
 #include "bundle_info.h"
@@ -24,11 +27,6 @@
 #include "iservice_registry.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
-
-#define private public
-#include "disallowed_running_bundles_plugin.h"
-#undef private
-
 #include "array_string_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
@@ -207,9 +205,29 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnGetPolicyFail, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     std::vector<std::string> keepAliveApps;
+    data.WriteString("bundleName");
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     reply.ReadStringVector(&keepAliveApps);
     ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (keepAliveApps.empty()));
+}
+
+/**
+ * @tc.name: TestGetDisallowModifyFail
+ * @tc.desc: Test ManageKeepAliveAppsPlugin::OnGetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageKeepAliveAppsPluginTest, TestGetDisallowModifyFail, TestSize.Level1)
+{
+    ManageKeepAliveAppsPlugin plugin;
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    std::vector<std::string> keepAliveApps;
+    data.WriteString("disallowModity");
+    data.WriteString("com.test1");
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    bool disallowModify = reply.ReadBool();
+    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (!disallowModify));
 }
 
 /**
