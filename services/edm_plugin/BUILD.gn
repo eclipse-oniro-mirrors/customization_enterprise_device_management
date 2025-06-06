@@ -328,8 +328,12 @@ ohos_shared_library("edmplugin") {
     sources += [ 
       "./src/disallowed_sms_plugin.cpp",
       "./src/disallowed_mms_plugin.cpp",
-      "./src/disallowed_nfc_plugin.cpp",
     ]
+  }
+
+  if (nfc_edm_enable) {
+    external_deps += [ "nfc:nfc_inner_kits_controller" ]
+    sources += [ "./src/disallowed_nfc_plugin.cpp" ]
   }
 
   if (!enterprise_device_management_feature_pc_only) {

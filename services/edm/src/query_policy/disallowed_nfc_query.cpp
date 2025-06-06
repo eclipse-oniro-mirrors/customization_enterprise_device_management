@@ -13,29 +13,29 @@
  * limitations under the License.
  */
 
- #include "disallowed_nfc_query.h"
+#include "disallowed_nfc_query.h"
 
- #include "array_string_serializer.h"
- #include "edm_log.h"
- 
- 
- namespace OHOS {
- namespace EDM {
- std::string DisallowedNFCQuery::GetPolicyName()
- {
-     return PolicyName::POLICY_DISALLOWED_NFC;
- }
- 
- std::string DisallowedNFCQuery::GetPermission(IPlugin::PermissionType permissionType,
-     const std::string &permissionTag)
- {
-     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
- }
- 
- ErrCode DisallowedNFCQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-     int32_t userId)
- {
-     return GetBoolPolicy(policyData, reply);
- }
- } // namespace EDM
- } // namespace OHOS
+#include "array_string_serializer.h"
+#include "edm_log.h"
+
+
+namespace OHOS {
+namespace EDM {
+std::string DisallowedNFCQuery::GetPolicyName()
+{
+    return PolicyName::POLICY_DISALLOWED_NFC;
+}
+
+std::string DisallowedNFCQuery::GetPermission(IPlugin::PermissionType permissionType,
+    const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisallowedNFCQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
+} // namespace EDM
+} // namespace OHOS

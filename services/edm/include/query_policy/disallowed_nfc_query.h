@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H
- #define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H
- 
- #include "ipolicy_query.h"
- 
- namespace OHOS {
- namespace EDM {
- 
- class DisallowedNFCQuery : public IPolicyQuery {
- public:
-     ~DisallowedNFCQuery() override = default;
- 
-     std::string GetPolicyName() override;
- 
-     std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
- 
-     ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
- };
- } // namespace EDM
- } // namespace OHOS
- 
- #endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H
+#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H
+#define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H
+
+#include "ipolicy_query.h"
+
+namespace OHOS {
+namespace EDM {
+
+class DisallowedNFCQuery : public IPolicyQuery {
+public:
+    ~DisallowedNFCQuery() override = default;
+
+    std::string GetPolicyName() override;
+
+    std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
+
+    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOWED_NFC_QUERY_H

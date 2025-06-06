@@ -17,13 +17,13 @@
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
+#include "nfc_controller.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedNFCPlugin::GetPlugin());
-// static int previousNfcState = 0;
 
 void DisallowedNFCPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNFCPlugin, bool>> ptr)
 {
@@ -37,6 +37,16 @@ void DisallowedNFCPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedN
     ptr->SetOnHandlePolicyListener(&DisallowedNFCPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowedNFCPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.nfc_disable";
+}
+
+ErrCode DisallowedNFCPlugin::SetOtherModulePolicy(bool data)
+{
+    int currentNfcState = KITS::NfcController::GetInstance().GetNfcState();
+    if (currentNfcState == 1) {
+        EDMLOGI("DisallowedNFCPlugin turnOff nfc!");
+        KITS::NfcController::GetInstance().TurnOff();
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
