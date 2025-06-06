@@ -37,6 +37,8 @@ ohos_shared_library("edmplugin") {
     "./src/utils/update_policy_serializer.cpp",
     "./src/utils/upgrade_package_info_serializer.cpp",
     "./src/utils/clear_up_application_data_param_serializer.cpp",
+    "./src/utils/manage_keep_alive_apps_serializer.cpp",
+    "./src/utils/manage_keep_alive_apps_info.cpp",
   ]
   public_configs = [
     ":edm_plugin_config",

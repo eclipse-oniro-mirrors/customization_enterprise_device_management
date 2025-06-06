@@ -42,6 +42,10 @@ public:
     int32_t SetAllowedKioskApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &bundleNames);
     int32_t GetAllowedKioskApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &bundleNames);
     int32_t IsAppKioskAllowed(const std::string &bundleName, bool &isAllowed);
+    int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
+        bool disallowModify, int32_t userId, std::string &retMessage);
+    int32_t IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin, std::string &keepAliveApp,
+        bool &disallowModify, int32_t userId);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
