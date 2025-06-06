@@ -55,6 +55,7 @@
             OHOS::EDM::UpdatePolicyUtils::*;
             OHOS::EDM::FingerprintPolicy::*;
             OHOS::EDM::LocationPolicy::*;
+            OHOS::EDM::KioskFeature::*;
             OHOS::EDM::PasswordSerializer::*;
             OHOS::EDM::DomainAccountPolicy::*;
             OHOS::EDM::WatermarkImageSerializer::*;

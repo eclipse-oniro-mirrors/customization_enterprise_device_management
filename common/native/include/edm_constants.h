@@ -63,6 +63,11 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    namespace ApplicationManager {
+        const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
+        const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
+    }
+
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
         const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";
@@ -296,6 +301,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_SIM = "disallowed_sim";
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
+    const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
