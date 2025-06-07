@@ -66,6 +66,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
+    "./src/disallowed_nfc_plugin_test.cpp",
   ]
 
   configs = [
@@ -395,6 +396,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disallowed_mms_plugin.cpp",
     "../../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
+    "../../../../services/edm_plugin/src/disallowed_nfc_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]

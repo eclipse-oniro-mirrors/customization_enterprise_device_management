@@ -24,7 +24,6 @@ namespace EDM {
 class DisallowedNFCPlugin : public PluginSingleton<DisallowedNFCPlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNFCPlugin, bool>> ptr) override;
-    ErrCode SetOtherModulePolicy(bool data) override;
 };
 } // namespace EDM
 } // namespace OHOS
