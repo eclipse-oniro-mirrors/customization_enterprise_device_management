@@ -128,6 +128,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
+        const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -309,6 +310,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
+    const char* const POLICY_DISALLOWED_NFC = "disallowed_nfc";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

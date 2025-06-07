@@ -335,6 +335,10 @@ ohos_shared_library("edmplugin") {
     ]
   }
 
+  if (nfc_edm_enable) {
+    sources += [ "./src/disallowed_nfc_plugin.cpp" ]
+  }
+
   if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
   }

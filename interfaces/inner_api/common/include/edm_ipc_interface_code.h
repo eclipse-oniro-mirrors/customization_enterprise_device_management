@@ -135,6 +135,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOW_POWER_LONG_PRESS = 1095,
     ALLOWED_KIOSK_APPS = 1096,
     IS_APP_KIOSK_ALLOWED = 1097,
+    DISALLOWED_NFC = 1098,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
