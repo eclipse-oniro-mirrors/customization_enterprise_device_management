@@ -71,8 +71,6 @@ const std::string PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PR
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
-const std::string SYSTEM_KIOSK_MODE_ON = "usual.event.KIOSK_MODE_ON";
-const std::string SYSTEM_KIOSK_MODE_OFF = "usual.event.KIOSK_MODE_OFF";
 const std::string WANT_BUNDLE_NAME = "bundleName";
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
@@ -131,11 +129,11 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventBmsReady(data);
         };
-    commonEventFuncMap_[SYSTEM_KIOSK_MODE_ON] =
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_ON] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventKioskMode(data, true);
         };
-    commonEventFuncMap_[SYSTEM_KIOSK_MODE_OFF] =
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_OFF] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventKioskMode(data, false);
         };

@@ -79,9 +79,8 @@ ErrCode SetAllowedKioskAppsPlugin::OnGetPolicy(
 ErrCode SetAllowedKioskAppsPlugin::OnAdminRemove(
     const std::string &adminName, std::vector<std::string> &data, std::vector<std::string> &mergeData, int32_t userId)
 {
-    std::vector<std::string> emptyBundleNames;
-    SetKioskAppsToAms(emptyBundleNames);
-    SetKioskAppsToWms(emptyBundleNames);
+    SetKioskAppsToAms(mergeData);
+    SetKioskAppsToWms(mergeData);
     return ERR_OK;
 }
 
@@ -102,13 +101,28 @@ void SetAllowedKioskAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 
 int32_t SetAllowedKioskAppsPlugin::SetKioskAppsToAms(const std::vector<std::string> &bundleNames)
 {
-    EDMLOGI("SetAllowedKioskAppsPlugin SetKioskAppsToAms");
+    EDMLOGI("SetAllowedKioskAppsPlugin SetKioskAppsToAms size:%{public}d", bundleNames.size());
+    int32_t ret = OHOS::AAFwk::AbilityManagerClient::GetInstance()->UpdateKioskApplicationList(bundleNames);
+    if (FAILED(ret)) {
+        EDMLOGE("SetAllowedKioskAppsPlugin SetKioskAppsToAms failed %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
 int32_t SetAllowedKioskAppsPlugin::SetKioskAppsToWms(const std::vector<std::string> &bundleNames)
 {
-    EDMLOGI("SetAllowedKioskAppsPlugin SetKioskAppsToWms");
+    EDMLOGI("SetAllowedKioskAppsPlugin SetKioskAppsToWms size:%{public}d", bundleNames.size());
+    auto wmsProxy = OHOS::Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+    if (wmsProxy == nullptr) {
+        EDMLOGE("SetAllowedKioskAppsPlugin SetKioskAppsToWms proxy is nullptr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    auto ret = wmsProxy->UpdateKioskAppList(bundleNames);
+    if (ret != OHOS::Rosen::WMError::WM_OK) {
+        EDMLOGE("SetAllowedKioskAppsPlugin SetKioskAppsToWms failed %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 } // namespace EDM
