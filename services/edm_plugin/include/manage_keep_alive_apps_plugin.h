@@ -22,8 +22,7 @@
 #include "iplugin.h"
 #include "iremote_stub.h"
 #include "manage_keep_alive_apps_info.h"
- 
- 
+
 namespace OHOS {
 namespace EDM {
 class ManageKeepAliveAppsPlugin : public IPlugin {
@@ -31,13 +30,11 @@ public:
     ManageKeepAliveAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         std::string &othersMergePolicyData) override;
- 
+
 private:
     ErrCode RemoveOtherModulePolicy(const std::vector<ManageKeepAliveAppInfo> &data, int32_t userId,
         std::vector<ManageKeepAliveAppInfo> &failedData);
     ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId, bool disallowModify);
- 
- 
     ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
     ErrCode OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
         std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData,

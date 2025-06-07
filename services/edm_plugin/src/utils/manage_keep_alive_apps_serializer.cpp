@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
- #include "manage_keep_alive_apps_serializer.h"
+#include "manage_keep_alive_apps_serializer.h"
 
- #include "cJSON.h"
- #include "cjson_check.h"
+#include "cJSON.h"
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -188,7 +188,6 @@ bool ManageKeepAliveAppsSerializer::UpdateByMergePolicy(std::vector<ManageKeepAl
             }
         }
     }
-
     return true;
 }
 } // namespace EDM
