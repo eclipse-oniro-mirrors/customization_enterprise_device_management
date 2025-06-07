@@ -189,7 +189,7 @@ ErrCode AllowUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, std::
     return ERR_OK;
 }
 
-void AllowUsbDevicesPlugin::OnOtherServiceStart()
+void AllowUsbDevicesPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     EDMLOGI("DisableUsbPlugin::OnOtherServiceStart start");
     std::string allowUsbDevicePolicy;

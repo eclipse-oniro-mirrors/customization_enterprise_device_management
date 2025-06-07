@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_WATERMARK_IMAGE_SERIALIZER_H
 #define SERVICES_EDM_INCLUDE_UTILS_WATERMARK_IMAGE_SERIALIZER_H
 
+#include <map>
 #include "ipolicy_serializer.h"
 #include "watermark_image_type.h"
 

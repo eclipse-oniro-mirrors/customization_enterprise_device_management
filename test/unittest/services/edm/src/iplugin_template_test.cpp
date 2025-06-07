@@ -33,11 +33,10 @@ HWTEST_F(PluginTemplateTest, TestTemplate, TestSize.Level1)
     PluginManager::GetInstance()->AddPlugin(PLUGIN::ArrayTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::BoolTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::MapTestPlugin::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::ArrayMapTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::JsonTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::StringTestPlugin::GetPlugin());
 
-    std::vector<std::uint32_t> policyCodes = {10, 11, 12, 13, 14, 15};
+    std::vector<std::uint32_t> policyCodes = {10, 11, 12, 14, 15};
     for (auto policyCode : policyCodes) {
         uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
         std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -390,7 +389,7 @@ HWTEST_F(PluginTemplateTest, TestOtherServiceStart, TestSize.Level1)
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
 
     g_visit = false;
-    plugin->OnOtherServiceStart();
+    plugin->OnOtherServiceStart(100);
     ASSERT_TRUE(g_visit);
 }
 

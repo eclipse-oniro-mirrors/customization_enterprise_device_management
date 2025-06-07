@@ -23,7 +23,7 @@
 #ifndef JSON_NOEXCEPTION
 #define JSON_NOEXCEPTION
 #endif
-#include "json/json.h"
+#include "cJSON.h"
 
 namespace OHOS {
 namespace EDM {
@@ -47,7 +47,7 @@ private:
     void CreateUpdateValuesBucket(int32_t userId, const Admin &admin, NativeRdb::ValuesBucket &valuesBucket);
     void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
     void SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
-    void ConvertStrToJson(const std::string &str, Json::Value &json);
+    void ConvertStrToJson(const std::string &str, cJSON *json);
     void SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info);
     static bool CreateAdminPoliciesTable();
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;

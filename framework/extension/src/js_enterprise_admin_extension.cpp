@@ -252,6 +252,31 @@ void JsEnterpriseAdminExtension::OnAccountRemoved(const int32_t accountId)
     };
     handler_->PostTask(task);
 }
+
+void JsEnterpriseAdminExtension::OnKioskModeEntering(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnKioskModeEntering");
+    auto task = [bundleName, accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
+                              AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onKioskModeEntering", argv, JS_NAPI_ARGC_TWO);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnKioskModeExiting(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnKioskModeExiting");
+    auto task = [bundleName, accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
+                              AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onKioskModeExiting", argv, JS_NAPI_ARGC_TWO);
+    };
+    handler_->PostTask(task);
+}
+
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
 {
     napi_value nSystemUpdateInfo = nullptr;

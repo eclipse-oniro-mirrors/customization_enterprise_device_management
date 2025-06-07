@@ -29,7 +29,7 @@ public:
         std::vector<std::string> &mergePolicyData, int32_t userId);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<std::string> &data,
         std::vector<std::string> &mergeData, int32_t userId);
-    void OnOtherServiceStart();
+    void OnOtherServiceStart(int32_t systemAbilityId);
 
 private:
     int32_t SetSnapshotSkipByUserIdAndBundleNameList(int32_t userId, const std::vector<std::string> &mergeData);

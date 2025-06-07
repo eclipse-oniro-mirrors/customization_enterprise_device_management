@@ -18,7 +18,6 @@
 
 #include "domain_filter_rule.h"
 #include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "singleton.h"
 
 namespace OHOS {

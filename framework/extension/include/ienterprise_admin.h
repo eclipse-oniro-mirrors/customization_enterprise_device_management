@@ -78,6 +78,17 @@ public:
      */
     virtual void OnAccountRemoved(const int32_t accountId) = 0;
 
+    /**
+     * Called when a device is entering kiosk mode.
+     * @param bundleName  The authorized bundleName using kiosk mode.
+     */
+    virtual void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) = 0;
+
+    /**
+     * Called when a device is exiting kiosk mode.
+     */
+    virtual void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -88,7 +99,9 @@ public:
         COMMAND_ON_SYSTEM_UPDATE = 7,
         COMMAND_ON_ACCOUNT_ADDED = 8,
         COMMAND_ON_ACCOUNT_SWITCHED = 9,
-        COMMAND_ON_ACCOUNT_REMOVED = 10
+        COMMAND_ON_ACCOUNT_REMOVED = 10,
+        COMMAND_ON_KIOSK_MODE_ENTERING = 11,
+        COMMAND_ON_KIOSK_MODE_EXITING = 12
     };
 };
 } // namespace EDM

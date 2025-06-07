@@ -119,7 +119,7 @@ ErrCode SnapshotSkipPlugin::OnAdminRemove(const std::string &adminName, std::vec
     return ERR_OK;
 }
 
-void SnapshotSkipPlugin::OnOtherServiceStart()
+void SnapshotSkipPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     auto serializer = ArrayStringSerializer::GetInstance();
     std::vector<int32_t> userIds = { EdmConstants::DEFAULT_USER_ID };

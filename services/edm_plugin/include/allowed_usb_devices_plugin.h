@@ -31,7 +31,7 @@ public:
         std::vector<UsbDeviceId> &mergeData, int32_t userId);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<UsbDeviceId> &data,
         std::vector<UsbDeviceId> &mergeData, int32_t userId);
-    void OnOtherServiceStart();
+    void OnOtherServiceStart(int32_t systemAbilityId);
 
 private:
     bool HasConflictPolicy();

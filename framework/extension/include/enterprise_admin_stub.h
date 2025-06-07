@@ -61,6 +61,10 @@ private:
     void OnAccountSwitchedInner(MessageParcel& data, MessageParcel& reply);
 
     void OnAccountRemovedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnKioskModeEnteringInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnKioskModeExitingInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

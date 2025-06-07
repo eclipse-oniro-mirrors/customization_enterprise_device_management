@@ -62,6 +62,14 @@ sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAccountConnection(const
     return connection;
 }
 
+sptr<IEnterpriseConnection> EnterpriseConnManager::CreateKioskConnection(
+    const AAFwk::Want &want, uint32_t code, uint32_t userId, const std::string &bundleName, int32_t accountId)
+{
+    sptr<IEnterpriseConnection> connection(
+        new (std::nothrow)EnterpriseKioskConnection(want, code, userId, bundleName, accountId));
+    return connection;
+}
+
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

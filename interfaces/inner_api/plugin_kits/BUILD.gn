@@ -30,13 +30,11 @@ ohos_shared_library("plugin_kits") {
     "./src/iplugin_manager.cpp",
     "./src/ipolicy_manager.cpp",
     "./src/iwatermark_observer_manager.cpp",
-    "./src/utils/array_map_serializer.cpp",
     "./src/utils/array_string_serializer.cpp",
     "./src/utils/bool_serializer.cpp",
     "./src/utils/cjson_serializer.cpp",
     "./src/utils/func_code_utils.cpp",
     "./src/utils/int_serializer.cpp",
-    "./src/utils/json_serializer.cpp",
     "./src/utils/long_serializer.cpp",
     "./src/utils/map_string_serializer.cpp",
     "./src/utils/string_serializer.cpp",
@@ -57,7 +55,6 @@ ohos_shared_library("plugin_kits") {
     "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_single",
-    "jsoncpp:jsoncpp",
   ]
 
   sanitize = {
