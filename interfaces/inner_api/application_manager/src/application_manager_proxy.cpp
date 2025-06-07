@@ -150,6 +150,11 @@ int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(keepAliveApps);
