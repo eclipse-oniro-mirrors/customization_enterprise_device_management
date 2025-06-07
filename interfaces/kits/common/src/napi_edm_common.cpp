@@ -281,6 +281,39 @@ napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray,
     return result;
 }
 
+bool ParseIntArray(napi_env env, std::vector<int32_t> &intArray, napi_value args)
+{
+    EDMLOGD("begin to parse int array");
+    bool isArray = false;
+    if (napi_is_array(env, args, &isArray) != napi_ok || !isArray) {
+        EDMLOGE("ParseIntArray is not array");
+        return false;
+    }
+    uint32_t len;
+    if (napi_get_array_length(env, args, &len) != napi_ok) {
+        EDMLOGE("ParseIntArray get array length failed");
+        return false;
+    }
+    if (len > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("ParseIntArray len is over limit");
+        return false;
+    }
+    for (uint32_t i = 0; i < len; i++) {
+        napi_value event;
+        if (napi_get_element(env, args, i, &event) != napi_ok) {
+            EDMLOGE("ParseIntArray get array element failed");
+            return false;
+        }
+        int32_t value = 0;
+        if (napi_get_value_int32(env, event, &value) != napi_ok) {
+            EDMLOGE("ParseIntArray get array int failed");
+            return false;
+        }
+        intArray.push_back(value);
+    }
+    return true;
+}
+
 napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> &elementArray, napi_value args)
 {
     EDMLOGD("begin to parse element array");

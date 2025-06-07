@@ -201,6 +201,14 @@ int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName 
     return ERR_OK;
 }
 
+int32_t ApplicationManagerProxy::SetKioskFeatures(MessageParcel &data)
+{
+    EDMLOGD("ApplicationManagerProxy::SetKioskFeatures");
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_KIOSK_FEATURE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
 int32_t ApplicationManagerProxy::ClearUpApplicationData(
     const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param)
 {

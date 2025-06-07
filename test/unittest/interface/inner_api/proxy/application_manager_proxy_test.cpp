@@ -373,6 +373,44 @@ HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataFail, TestSize.L
 }
 
 /**
+ * @tc.name: TestSetKioskFeaturesFail
+ * @tc.desc: Test SetKioskFeatures without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetKioskFeaturesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> apps;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(apps);
+
+    ErrCode ret = applicationManagerProxy_->SetKioskFeatures(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetKioskFeaturesSuc
+ * @tc.desc: Test SetKioskFeatures success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetKioskFeaturesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> apps;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(apps);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->SetKioskFeatures(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestClearUpApplicationDataSuc
  * @tc.desc: Test ClearUpApplicationData success func.
  * @tc.type: FUNC

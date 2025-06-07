@@ -30,6 +30,7 @@ ohos_shared_library("plugin_kits") {
     "./src/iplugin_manager.cpp",
     "./src/ipolicy_manager.cpp",
     "./src/iwatermark_observer_manager.cpp",
+    "./src/utils/array_int_serializer.cpp",
     "./src/utils/array_string_serializer.cpp",
     "./src/utils/bool_serializer.cpp",
     "./src/utils/cjson_serializer.cpp",
