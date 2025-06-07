@@ -99,8 +99,7 @@
         "usb_manager",
         "user_auth_framework",
         "wifi",
-        "window_manager",
-        "nfc"
+        "window_manager"
       ]
     },
     "build": {
