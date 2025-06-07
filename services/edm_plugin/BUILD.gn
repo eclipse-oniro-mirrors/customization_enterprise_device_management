@@ -30,13 +30,13 @@ config("edm_plugin_config") {
 
 ohos_shared_library("edmplugin") {
   sources = [
+    "./src/utils/clear_up_application_data_param_serializer.cpp",
     "./src/utils/installer_callback.cpp",
     "./src/utils/managed_browser_policy_serializer.cpp",
     "./src/utils/operate_device_param_serializer.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
     "./src/utils/update_policy_serializer.cpp",
     "./src/utils/upgrade_package_info_serializer.cpp",
-    "./src/utils/clear_up_application_data_param_serializer.cpp",
   ]
   public_configs = [
     ":edm_plugin_config",
@@ -60,6 +60,7 @@ ohos_shared_library("edmplugin") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "file_api:securitylabel",
@@ -69,8 +70,8 @@ ohos_shared_library("edmplugin") {
     "samgr:samgr_proxy",
     "telephony_data:tel_telephony_data",
     "window_manager:libwm",
-    "window_manager:sms",
     "window_manager:session_manager_lite",
+    "window_manager:sms",
   ]
 
   if (enterprise_device_management_support_all) {
@@ -78,6 +79,7 @@ ohos_shared_library("edmplugin") {
     sources += [
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
+      "./src/clear_up_application_data_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_client_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
@@ -99,12 +101,11 @@ ohos_shared_library("edmplugin") {
       "./src/operate_device_plugin.cpp",
       "./src/power_policy_plugin.cpp",
       "./src/screen_off_time_plugin.cpp",
+      "./src/set_allowed_kiosk_apps_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/battery_utils.cpp",
-      "./src/clear_up_application_data_plugin.cpp",
-      "./src/set_allowed_kiosk_apps_plugin.cpp",
     ]
     if (time_service_edm_enable) {
       external_deps += [ "time_service:time_client" ]
@@ -113,8 +114,8 @@ ohos_shared_library("edmplugin") {
 
     if (os_account_edm_enable) {
       external_deps += [
-        "graphic_2d:librender_service_client",
         "graphic_2d:librender_service_base",
+        "graphic_2d:librender_service_client",
         "os_account:libaccountkits",
         "os_account:os_account_innerkits",
       ]
@@ -301,22 +302,23 @@ ohos_shared_library("edmplugin") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+  if (!enterprise_device_management_feature_pc_only && 
+      cellular_data_edm_enable) {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [
       "./src/disallow_mobile_data_plugin.cpp",
       "./src/disallow_modify_apn_plugin.cpp",
+      "./src/disallowed_sim_plugin.cpp",
       "./src/set_apn_plugin.cpp",
       "./src/turnonoff_mobile_data_plugin.cpp",
       "./src/utils/apn_utils.cpp",
-      "./src/disallowed_sim_plugin.cpp",
     ]
-    defines += [ 
+    defines += [
       "CELLULAR_DATA_EDM_ENABLE",
       "TELEPHONY_EDM_ENABLE",
     ]
   }
-  
+
   if (enterprise_device_management_feature_charging_type_setting) {
     defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
   }
@@ -327,9 +329,9 @@ ohos_shared_library("edmplugin") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ 
-      "./src/disallowed_sms_plugin.cpp",
+    sources += [
       "./src/disallowed_mms_plugin.cpp",
+      "./src/disallowed_sms_plugin.cpp",
     ]
   }
 
