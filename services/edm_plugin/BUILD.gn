@@ -93,6 +93,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/battery_utils.cpp",
+      "./src/utils/bluetooth_config_utils.cpp",
     ]
 
     if (os_account_edm_enable) {
@@ -129,6 +130,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/allowed_bluetooth_devices_plugin.cpp",
         "./src/disable_bluetooth_plugin.cpp",
         "./src/disallowed_bluetooth_devices_plugin.cpp",
+        "./src/disallowed_bluetooth_protocols_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
         "./src/switch_bluetooth_plugin.cpp",
       ]

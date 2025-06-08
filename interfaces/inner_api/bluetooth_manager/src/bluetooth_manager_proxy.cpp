@@ -161,5 +161,30 @@ int32_t BluetoothManagerProxy::TurnOnOrOffBluetooth(MessageParcel &data)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_BLUETOOTH);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t BluetoothManagerProxy::AddOrRemoveDisallowedBluetoothProtocols(MessageParcel &data, bool isAdd)
+{
+    EDMLOGD("BluetoothManagerProxy::AddOrRemoveDisallowedBluetoothProtocols");
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+int32_t BluetoothManagerProxy::GetDisallowedBluetoothProtocols(MessageParcel &data, std::vector<int32_t> &protocols)
+{
+    EDMLOGD("BluetoothManagerProxy::GetDisallowedBluetoothProtocols");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("BluetoothManagerProxy:GetDisallowedBluetoothProtocols fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadInt32Vector(&protocols)) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
