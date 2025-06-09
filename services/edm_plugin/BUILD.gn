@@ -32,8 +32,6 @@ ohos_shared_library("device_core_plugin") {
   sources = [
     "./src/utils/installer_callback.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
-    "./src/utils/manage_keep_alive_apps_serializer.cpp",
-    "./src/utils/manage_keep_alive_apps_info.cpp",
   ]
 
   public_configs = [
@@ -423,6 +421,8 @@ ohos_shared_library("sys_service_plugin") {
         "./src/disallowed_running_bundles_plugin.cpp",
         "./src/manage_auto_start_apps_plugin.cpp",
         "./src/manage_keep_alive_apps_plugin.cpp",
+        "./src/utils/manage_keep_alive_apps_serializer.cpp",
+        "./src/utils/manage_keep_alive_apps_info.cpp",
       ]
     }
 
