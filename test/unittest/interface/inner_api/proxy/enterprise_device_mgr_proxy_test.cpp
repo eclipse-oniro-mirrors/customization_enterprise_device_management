@@ -1260,6 +1260,40 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetAdminRunningModeSuc, TestSize.Leve
     ErrCode errVal = enterpriseDeviceMgrProxyTest->SetAdminRunningMode(admin, runningMode);
     EXPECT_TRUE(errVal == ERR_OK);
 }
+
+/**
+ * @tc.name: TestSetBundleInstallPoliciesFail
+ * @tc.desc: Test SetBundleInstallPolicies fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetBundleInstallPoliciesFail, TestSize.Level1)
+{
+    std::vector<std::string> bundles = { "test" };
+    int32_t userId = 100;
+    int32_t policyType = 1;
+    EXPECT_CALL(*object_, SetBundleInstallPolicies(_, _, _))
+        .Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetBundleInstallPolicies(bundles, userId, policyType);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetBundleInstallPoliciesSuc
+ * @tc.desc: Test SetBundleInstallPolicies success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetBundleInstallPoliciesSuc, TestSize.Level1)
+{
+    std::vector<std::string> bundles = { "test" };
+    int32_t userId = 100;
+    int32_t policyType = 1;
+    EXPECT_CALL(*object_, SetBundleInstallPolicies(_, _, _))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetBundleInstallPolicies(bundles, userId, policyType);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
