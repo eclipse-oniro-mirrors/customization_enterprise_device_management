@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_KEEP_ALIVE_APPS_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_KEEP_ALIVE_APPS_PLUGIN_H
- 
+
 #include "ability_manager_interface.h"
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
@@ -29,6 +29,15 @@ class ManageKeepAliveAppsPlugin : public IPlugin {
 public:
     ManageKeepAliveAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override{};
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+        const std::string &mergeJsonData, int32_t userId) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override {};
+    ErrCode GetOthersMergePolicyData(const std::string &adminName,
         std::string &othersMergePolicyData) override;
 
 private:
@@ -52,5 +61,5 @@ private:
 };
 } // namespace EDM
 } // namespace OHOS
- 
+
 #endif /* SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_KEEP_ALIVE_APPS_PLUGIN_H */
