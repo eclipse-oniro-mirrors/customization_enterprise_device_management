@@ -60,6 +60,18 @@ EventFwk::CommonEventData getCommonEventData(const uint8_t* data, size_t size)
     return eventData;
 }
 
+void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
+{
+    AdminInfo fuzzAdminInfo;
+    fuzzAdminInfo.packageName_ = fuzzString;
+    fuzzAdminInfo.className_ = fuzzString;
+    fuzzAdminInfo.entInfo_ = entInfo;
+    fuzzAdminInfo.permission_ = { fuzzString };
+    fuzzAdminInfo.managedEvents_ = { event };
+    fuzzAdminInfo.parentAdminName_ = fuzzString;
+    admin.adminInfo_ = fuzzAdminInfo;
+}
+
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -72,6 +84,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_data = data;
     g_size = size;
     g_pos = 0;
+    int32_t pos = 0;
+    int32_t stringSize = (size - pos) / 5;
 
     TEST::Utils::SetEdmInitialEnv();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
@@ -106,6 +120,38 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string bundleName(reinterpret_cast<const char*>(data), size);
     TEST::Utils::ResetTokenTypeAndUid();
     PluginManager::GetInstance()->DumpPlugin();
+
+    std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string newAdminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    uint32_t code = CommonFuzzer::GetU32Data(data);
+    int32_t fd = CommonFuzzer::GetU32Data(data);
+    bool isAdminEnabled = CommonFuzzer::GetU32Data(data) % 2;
+    std::vector<std::u16string> args;
+    std::vector<std::string> policies;
+    Admin edmAdmin;
+    ManagedEvent event = GetData<ManagedEvent>();
+    EntInfo entInfo;
+    entInfo.enterpriseName = fuzzString;
+    entInfo.description = fuzzString;
+    InitAdminParam(edmAdmin, fuzzString, entInfo, event);
+    std::shared_ptr<Admin> adminPtr = std::make_shared<Admin>(edmAdmin);
+    enterpriseDeviceMgrAbility->OnCommonEventUserAdded(eventData);
+    enterpriseDeviceMgrAbility->OnCommonEventUserSwitched(eventData);
+    enterpriseDeviceMgrAbility->OnCommonEventPackageChanged(eventData);
+    enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
+    enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId, isAdminEnabled);
+    enterpriseDeviceMgrAbility->Dump(fd, args);
+    enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName, userId);
+    enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
+    enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
+    enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
+    enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId);
+    enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId);
+    enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);
+    enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName);
+    enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
+    enterpriseDeviceMgrAbility->CheckDelegatedPolicies(adminPtr, policies);
+    enterpriseDeviceMgrAbility->OnStop();
     return 0;
 }
 } // namespace EDM
