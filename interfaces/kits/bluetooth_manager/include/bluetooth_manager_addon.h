@@ -49,6 +49,12 @@ private:
     static napi_value TurnOnBluetooth(napi_env env, napi_callback_info info);
     static napi_value TurnOffBluetooth(napi_env env, napi_callback_info info);
     static napi_value TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen);
+    static napi_value AddDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info,
+        std::string function);
+    static void CreateProtocolObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS
