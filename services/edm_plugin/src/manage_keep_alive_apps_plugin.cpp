@@ -106,12 +106,10 @@ ErrCode ManageKeepAliveAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         appInfo.SetDisallowModify(disallowModify);
         tmpData.push_back(appInfo);
     }
-    std::vector<ManageKeepAliveAppInfo> needAddData =
-        ManageKeepAliveAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
     std::vector<ManageKeepAliveAppInfo> needAddMergeData =
-        ManageKeepAliveAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needAddData);
+        ManageKeepAliveAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, tmpData);
     std::vector<ManageKeepAliveAppInfo> afterHandle =
-        ManageKeepAliveAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, needAddData);
+        ManageKeepAliveAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, tmpData);
     std::vector<ManageKeepAliveAppInfo> afterMerge =
         ManageKeepAliveAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
     if (afterMerge.size() > maxListSize_) {
