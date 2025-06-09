@@ -39,6 +39,8 @@ public:
     int32_t GetAllowedBluetoothDevices(std::vector<std::string> &deviceIds);
     int32_t GetDisallowedBluetoothDevices(std::vector<std::string> &deviceIds);
     int32_t TurnOnOrOffBluetooth(MessageParcel &data);
+    int32_t AddOrRemoveDisallowedBluetoothProtocols(MessageParcel &data, bool isAdd);
+    int32_t GetDisallowedBluetoothProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
 
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;

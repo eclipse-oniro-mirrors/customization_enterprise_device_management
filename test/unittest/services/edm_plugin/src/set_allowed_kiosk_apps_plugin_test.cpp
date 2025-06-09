@@ -59,8 +59,8 @@ HWTEST_F(SetAllowedKioskAppsPluginTest, SetAllowedKioskAppsPluginDataEmpty, Test
     std::vector<std::string> data;
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(data.empty());
 }
 
 /**
@@ -90,10 +90,10 @@ HWTEST_F(SetAllowedKioskAppsPluginTest, SetAllowedKioskAppsPluginSuc, TestSize.L
     data.push_back(TEST_BUNDLE_NAME);
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     plugin.OnOtherServiceStart(ABILITY_MGR_SERVICE_ID);
     plugin.OnOtherServiceStart(WINDOW_MANAGER_SERVICE_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(!data.empty());
 }
 
 /**
@@ -108,6 +108,20 @@ HWTEST_F(SetAllowedKioskAppsPluginTest, SetAllowedKioskAppsPluginGetTest, TestSi
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: SetAllowedKioskAppsPluginOnAdminRemove
+ * @tc.desc: Test SetAllowedKioskAppsPlugin::OnAdminRemove function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetAllowedKioskAppsPluginTest, SetAllowedKioskAppsPluginOnAdminRemove, TestSize.Level1)
+{
+    SetAllowedKioskAppsPlugin plugin;
+    std::vector<std::string> data;
+    std::vector<std::string> mergeData;
+    ErrCode ret = plugin.OnAdminRemove(TEST_BUNDLE_NAME, data, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

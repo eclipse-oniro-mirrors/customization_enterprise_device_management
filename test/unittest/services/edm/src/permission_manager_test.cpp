@@ -24,6 +24,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+constexpr int POLICY_CODE = 100;
 class PermissionManagerTest : public testing::Test {
 protected:
     // Sets up the test fixture.
@@ -50,7 +51,7 @@ void PermissionManagerTest::TearDown()
 HWTEST_F(PermissionManagerTest, TestAddPermission, TestSize.Level1)
 {
     ASSERT_EQ(PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN),
+        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, POLICY_CODE),
         ERR_OK);
 }
 
@@ -62,7 +63,7 @@ HWTEST_F(PermissionManagerTest, TestAddPermission, TestSize.Level1)
 HWTEST_F(PermissionManagerTest, GetReqPermission01, TestSize.Level1)
 {
     PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+        std::string("ohos.permission.EDM_TEST_PERMISSION"), IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, POLICY_CODE);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
     std::vector<std::string> reqPermission;
@@ -78,7 +79,8 @@ HWTEST_F(PermissionManagerTest, GetReqPermission01, TestSize.Level1)
 HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
 {
     PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"), IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"),
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, POLICY_CODE);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
     std::vector<std::string> reqPermission;
@@ -96,7 +98,8 @@ HWTEST_F(PermissionManagerTest, GetReqPermission02, TestSize.Level1)
 HWTEST_F(PermissionManagerTest, GetReqPermission03, TestSize.Level1)
 {
     PermissionManager::GetInstance()->AddPermission(
-        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"), IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+        std::string("ohos.permission.EDM_TEST_ENT_PERMISSION"),
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, POLICY_CODE);
     std::vector<std::string> permission = {
         "ohos.permission.EDM_TEST_ENT_PERMISSION", "ohos.permission.EMD_TEST_PERMISSION_FAIL" };
     std::vector<std::string> reqPermission;

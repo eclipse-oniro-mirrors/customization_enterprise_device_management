@@ -19,6 +19,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
+#include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
@@ -28,6 +29,10 @@ using namespace OHOS::EDM;
 
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nKioskFeature = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKioskFeature));
+    CreateKioskFeatureObject(env, nKioskFeature);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundles", AddDisallowedRunningBundles),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundles", RemoveDisallowedRunningBundles),
@@ -38,6 +43,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundlesSync", AddDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundlesSync", RemoveDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("getDisallowedRunningBundlesSync", GetDisallowedRunningBundlesSync),
+        DECLARE_NAPI_FUNCTION("setKioskFeatures", SetKioskFeatures),
         DECLARE_NAPI_FUNCTION("addKeepAliveApps", AddKeepAliveApps),
         DECLARE_NAPI_FUNCTION("removeKeepAliveApps", RemoveKeepAliveApps),
         DECLARE_NAPI_FUNCTION("getKeepAliveApps", GetKeepAliveApps),
@@ -45,6 +51,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setAllowedKioskApps", SetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("getAllowedKioskApps", GetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
+        DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
@@ -594,6 +601,54 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
     return result;
 }
 
+void ApplicationManagerAddon::CreateKioskFeatureObject(napi_env env, napi_value value)
+{
+    napi_value nAllowNotificationCenter;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(KioskFeature::ALLOW_NOTIFICATION_CENTER), &nAllowNotificationCenter));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_NOTIFICATION_CENTER",
+        nAllowNotificationCenter));
+
+    napi_value nAllowContorlCenter;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(KioskFeature::ALLOW_CONTROL_CENTER), &nAllowContorlCenter));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_CONTROL_CENTER", nAllowContorlCenter));
+}
+
+napi_value ApplicationManagerAddon::SetKioskFeatures(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetKioskFeatures called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setKioskFeatures");
+    auto convertKioskFeature2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<int32_t> kioskFeatures;
+        bool parseRet = ParseIntArray(env, kioskFeatures, argv);
+        if (!parseRet) {
+            EDMLOGE("NAPI_SetKioskFeatures ParseIntArray fail");
+            return false;
+        }
+        data.WriteInt32Vector(kioskFeatures);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetKioskFeatures";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertKioskFeature2Data};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->SetKioskFeatures(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetKioskFeatures failed!");
+    }
+    return nullptr;
+}
+
 napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_ClearUpApplicationData called");
@@ -603,26 +658,26 @@ napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_ca
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "Parameter admin error.");
     ASSERT_AND_THROW_PARAM_ERROR(
         env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "Parameter bundleName error.");
     ASSERT_AND_THROW_PARAM_ERROR(
         env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "Parameter appIndex error.");
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number), "TParameter accountId error.");
+        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number), "Parameter accountId error.");
 
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error");
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
 
     ClearUpApplicationDataParam param;
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]), "Parameter bundleName parse error");
+        env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]), "Parameter bundleName parse error.");
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseInt(env, param.appIndex, argv[ARR_INDEX_TWO]), "Parameter appIndex parse error");
+        env, ParseInt(env, param.appIndex, argv[ARR_INDEX_TWO]), "Parameter appIndex parse error.");
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseInt(env, param.userId, argv[ARR_INDEX_THREE]), "Parameter accountId parse error");
+        env, ParseInt(env, param.userId, argv[ARR_INDEX_THREE]), "Parameter accountId parse error.");
     EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
             "elementName.abilityname:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());

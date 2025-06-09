@@ -63,6 +63,11 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    namespace ApplicationManager {
+        const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
+        const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
+    }
+
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
         const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";
@@ -128,6 +133,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
+        const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -247,6 +253,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
+    const char* const POLICY_DISALLOWED_BLUETOOTH_PROTOCOLS = "disallowed_bluetooth_protocols";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
@@ -301,6 +308,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_SIM = "disallowed_sim";
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
+    const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -308,6 +316,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
+    const char* const POLICY_DISALLOWED_NFC = "disallowed_nfc";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

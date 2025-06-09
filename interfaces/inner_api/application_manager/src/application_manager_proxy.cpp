@@ -209,31 +209,12 @@ int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName 
     return ERR_OK;
 }
 
-
-int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,
-    std::string &keepAliveApp, bool &disallowModify, int32_t userId)
+int32_t ApplicationManagerProxy::SetKioskFeatures(MessageParcel &data)
 {
-    EDMLOGI("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
+    EDMLOGD("ApplicationManagerProxy::SetKioskFeatures");
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
-    data.WriteInt32(userId);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY);
-    data.WriteString(keepAliveApp);
-    proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
-    
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
-        return ret;
-    }
-    reply.ReadBool(disallowModify);
-    return ERR_OK;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_KIOSK_FEATURE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::ClearUpApplicationData(
@@ -316,6 +297,32 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName
         return ret;
     }
     reply.ReadBool(isAllowed);
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,
+    std::string &keepAliveApp, bool &disallowModify, int32_t userId)
+{
+    EDMLOGI("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY);
+    data.WriteString(keepAliveApp);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
+    
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(disallowModify);
     return ERR_OK;
 }
 } // namespace EDM

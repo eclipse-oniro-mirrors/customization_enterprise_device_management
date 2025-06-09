@@ -153,7 +153,6 @@ private:
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
     void InitAllAdmins();
-    void InitAllPlugins();
     void InitAllPolices();
     void RemoveAllDebugAdmin();
     void AddSystemAbilityListeners();
@@ -164,21 +163,13 @@ private:
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
-    void UnloadPluginTask();
     
     static std::shared_mutex adminLock_;
-    static std::shared_mutex dataLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
-    std::shared_ptr<PluginManager> pluginMgr_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
-    bool pluginHasInit_ = false;
-    bool notifySignal_ = false;
-    std::chrono::system_clock::time_point lastCallTime_;
-    std::condition_variable waitSignal_;
-    std::mutex waitMutex_;
     bool hasConnect_ = false;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE

@@ -53,7 +53,7 @@ HWTEST_F(ClearUpApplicationDataPluginTest, TestClearUpApplicationData, TestSize.
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
     SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST

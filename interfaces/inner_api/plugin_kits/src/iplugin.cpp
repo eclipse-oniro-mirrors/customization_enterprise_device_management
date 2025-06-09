@@ -106,6 +106,16 @@ std::uint32_t IPlugin::GetCode()
     return policyCode_;
 }
 
+std::uint32_t IPlugin::GetBasicPluginCode()
+{
+    return basicPluginCode_;
+}
+
+void IPlugin::SetBasicPluginCode(std::uint32_t basicPluginCode)
+{
+    basicPluginCode_ = basicPluginCode;
+}
+
 ErrCode IPlugin::GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData)
 {
     return ERR_OK;
