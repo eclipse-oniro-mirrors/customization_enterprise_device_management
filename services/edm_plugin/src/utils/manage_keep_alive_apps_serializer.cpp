@@ -15,6 +15,7 @@
 
 #include "manage_keep_alive_apps_serializer.h"
 
+#include <map>
 #include "cJSON.h"
 #include "cjson_check.h"
 
