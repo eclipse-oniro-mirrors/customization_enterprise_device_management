@@ -107,6 +107,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SCREENSHOT = "screenshot";
         const char* const LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const char* const LABEL_DISALLOWED_POLICY_USB = "usb";
+        const char* const LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE = "usbStorageDeviceWrite";
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
         const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
@@ -254,6 +255,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
     const char* const POLICY_FIREWALL_RULE = "firewall_rule";

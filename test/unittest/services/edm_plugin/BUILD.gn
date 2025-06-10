@@ -296,7 +296,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disallow_modify_ethernet_ip_plugin_test.cpp" ]
+    sources += [
+      "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
+      "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
+    ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
   
   sanitize = {

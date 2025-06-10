@@ -370,6 +370,14 @@ ohos_static_library("edmservice_fuzz_static") {
     if (!enterprise_device_management_feature_pc_only) {
       sources += [ "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp" ]
     }
+
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
+        "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
+    }
   }
 
   sanitize = {

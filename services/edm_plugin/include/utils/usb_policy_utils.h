@@ -27,6 +27,10 @@ public:
     static ErrCode SetUsbDisabled(bool data);
     static ErrCode AddAllowedUsbDevices(std::vector<UsbDeviceId> data);
     static ErrCode SetDisallowedUsbDevices(std::vector<USB::UsbDeviceType> data);
+    static ErrCode QueryAllCreatedOsAccountIds(std::vector<int32_t> &userIds);
+#ifdef FEATURE_PC_ONLY
+    static ErrCode IsUsbStorageDeviceWriteDisallowed(bool &isDisallowed);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
