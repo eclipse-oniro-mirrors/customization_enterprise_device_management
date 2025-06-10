@@ -86,6 +86,18 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->SaveSubscribeEvents(events, bundleName, userId);
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
     adminManager->GetSuperAdmin();
+
+    Admin adminItem = admin;
+    std::shared_ptr<Admin> getAdmin = std::make_shared<Admin>(admin);
+    std::string policyName(reinterpret_cast<const char*>(data), size);
+    adminManager->UpdateAdmin(getAdmin, userId, adminItem);
+    adminManager->ReplaceSuperAdminByPackageName(parentName, adminItem);
+    adminManager->GetPoliciesByVirtualAdmin(bundleName, parentName, subAdmins);
+    adminManager->GetVirtualAdminsByPolicy(policyName, parentName, packageNameList);
+    adminManager->HasPermissionToHandlePolicy(getAdmin, policyName);
+    adminManager->Dump();
+    adminManager->ClearAdmins();
+    adminManager->InsertAdmins(userId, adminPtrVec);
 }
 
 // Fuzzer entry point.
