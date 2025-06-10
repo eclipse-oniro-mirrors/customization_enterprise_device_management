@@ -109,6 +109,10 @@
 #include "disallowed_nfc_query.h"
 #endif
 
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "disallowed_airplane_mode_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -441,6 +445,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
 #ifdef MOBILE_DATA_ENABLE
             obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+            obj = std::make_shared<DisallowedAirplaneModeQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

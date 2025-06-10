@@ -213,6 +213,7 @@ ohos_shared_library("edmservice") {
   }
 
   if (netmanager_base_edm_enable) {
+    sources += [ "./src/query_policy/disallowed_airplane_mode_query.cpp" ]
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
   }
 
