@@ -51,7 +51,6 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "apn", "apn" },
     { "pwd", "auth_pwd" }
 };
-constexpr int32_t STRLEN_THREE = 3;
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
