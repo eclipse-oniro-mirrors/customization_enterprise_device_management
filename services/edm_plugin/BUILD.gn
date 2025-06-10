@@ -254,9 +254,11 @@ ohos_shared_library("communication_plugin") {
         "./src/disallow_mobile_data_plugin.cpp",
         "./src/disallow_modify_apn_plugin.cpp",
         "./src/disallowed_sim_plugin.cpp",
+        "./src/domain_call_policy_plugin.cpp",
         "./src/set_apn_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
+        "./src/utils/domain_call_policy_serializer.cpp",
       ]
       defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
     }

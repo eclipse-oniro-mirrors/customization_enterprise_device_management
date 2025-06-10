@@ -166,6 +166,15 @@ namespace EdmConstants {
         const std::string DISALLOW_FLAG = "DisallowMobileData";
         const std::string FORCE_FLAG = "ForceMobileData";
     } // namespace MobileData
+
+    namespace CallPolicy {
+        const std::string OUTGOING = "outgoing";
+        const std::string INCOMING = "incoming";
+        const std::string TRUST_INCOMING = "trustIncoming";
+        const std::string TRUST_OUTGOING = "trustOutgoing";
+        const std::string BLOCK_INCOMING = "blockIncoming";
+        const std::string BLOCK_OUTGOING = "blockOutgoing";
+    }
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -304,6 +313,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
+    const char* const POLICY_DOMAIN_CALL_POLICY = "domain_call_policy";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
