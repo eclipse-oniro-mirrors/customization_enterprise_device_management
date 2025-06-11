@@ -275,7 +275,9 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
     std::string retMessage;
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    bool disallowModify = true;
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -289,10 +291,12 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsSuc, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
     std::string retMessage;
+    bool disallowModify = true;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps,
+        disallowModify, DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -532,7 +536,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifyFail
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
-    bool disallowModify = true;
+    bool disallowModify = false;
     std::string retMessage;
     ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps,
         disallowModify, DEFAULT_USER_ID, retMessage);
@@ -548,7 +552,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifySuc,
 {
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
-    bool disallowModify = true;
+    bool disallowModify = false;
     std::string retMessage;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)

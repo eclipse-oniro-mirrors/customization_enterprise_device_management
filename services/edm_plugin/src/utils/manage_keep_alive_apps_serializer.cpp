@@ -105,7 +105,7 @@ bool ManageKeepAliveAppsSerializer::Deserialize(const std::string &policy, std::
         }
         ManageKeepAliveAppInfo appInfo;
         appInfo.SetBundleName(cJSON_GetStringValue(bundleName));
-        appInfo.SetDisallowModify(disallowModify == nullptr ? false : cJSON_IsTrue(disallowModify));
+        appInfo.SetDisallowModify(disallowModify == nullptr ? true : cJSON_IsTrue(disallowModify));
         dataObj.emplace_back(appInfo);
     }
     cJSON_Delete(root);
