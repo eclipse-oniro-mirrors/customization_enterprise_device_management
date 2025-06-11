@@ -14,6 +14,7 @@
  */
 #include "disallowed_sim_plugin.h"
 
+#include "core_service_client.h"
 #include "parameters.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -59,6 +60,10 @@ ErrCode DisallowedSimPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, in
     if (!ret) {
         EDMLOGE("DisallowedSimPlugin:OnSetPolicy SetParameter fail, slotId %{public}d", data);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(data);
+    if (simId > 0) {
+        Telephony::CoreServiceClient::GetInstance().SetActiveSim(data, 0);
     }
     mergeData |= currentData;
     
