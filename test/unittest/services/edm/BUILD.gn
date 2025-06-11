@@ -226,6 +226,12 @@ ohos_static_library("edmservice_static") {
     external_deps += [ "usb_manager:usbsrv_client" ]
   }
 
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disallow_vpn_query.cpp",
+    ]
+  }
+
   deps = [
     "../../../../common/external:edm_external_adapters",
     "../../../../common/native:edm_commom",

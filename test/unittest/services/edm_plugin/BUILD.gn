@@ -288,6 +288,12 @@ ohos_unittest("EdmPluginTest") {
   if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
   }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "./src/disallow_vpn_plugin_test.cpp"
+    ]
+  }
   
   sanitize = {
     boundary_sanitize = true
@@ -635,6 +641,12 @@ ohos_static_library("edm_all_plugin_static") {
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
       "TELEPHONY_EDM_ENABLE",
+    ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "../../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
     ]
   }
 

@@ -109,6 +109,10 @@
 #include "disallowed_nfc_query.h"
 #endif
 
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
+#endif
+
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -485,6 +489,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOWED_NFC:
 #ifdef NFC_EDM_ENABLE
             obj = std::make_shared<DisallowedNFCQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_VPN:
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+            obj = std::make_shared<DisallowVPNQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

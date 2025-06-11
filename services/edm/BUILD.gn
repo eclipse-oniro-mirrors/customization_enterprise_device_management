@@ -262,6 +262,11 @@ ohos_shared_library("edmservice") {
     defines += [ "POWER_MANAGER_EDM_ENABLE" ]
   }
 
+  if (netmanager_ext_edm_enable) {
+    sources += [ "./src/query_policy/disallow_vpn_query.cpp" ]
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",
