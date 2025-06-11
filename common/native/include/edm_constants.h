@@ -129,6 +129,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
+        const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -304,6 +305,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
+    const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

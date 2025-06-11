@@ -60,7 +60,10 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS, EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS}
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS,
+        EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK}
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {

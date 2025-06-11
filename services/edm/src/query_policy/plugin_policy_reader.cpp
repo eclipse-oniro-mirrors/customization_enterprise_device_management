@@ -115,6 +115,7 @@
 #include "disable_mtp_server_query.h"
 #include "disable_remote_desk_query.h"
 #include "disable_remote_diagnosis_query.h"
+#include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_user_mtp_client_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
@@ -432,10 +433,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &
         default:
             break;
     }
-    return GetPolicyQueryFitth(obj, code);
+    return GetPolicyQueryFifth(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
@@ -445,6 +446,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK:
+            obj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
+            return ERR_OK;
         default:
             break;
     }
