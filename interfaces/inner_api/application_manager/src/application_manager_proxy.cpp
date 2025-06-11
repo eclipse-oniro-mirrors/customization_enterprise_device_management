@@ -137,13 +137,6 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
 }
 
 int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName &admin,
-    const std::vector<std::string> &keepAliveApps, int32_t userId, std::string &retMessage)
-{
-    EDMLOGI("ApplicationManagerProxy::AddKeepAliveApps");
-    return ApplicationManagerProxy::AddKeepAliveApps(admin, keepAliveApps, false, userId, retMessage);
-}
-
-int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName &admin,
     const std::vector<std::string> &keepAliveApps, bool disallowModify, int32_t userId, std::string &retMessage)
 {
     EDMLOGI("ApplicationManagerProxy::AddKeepAliveAppsWithDisallowModify");
@@ -194,6 +187,7 @@ int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName 
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME);
@@ -310,6 +304,7 @@ int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFw
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY);

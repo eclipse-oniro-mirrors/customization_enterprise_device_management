@@ -87,7 +87,7 @@ napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env
         "Parameter keepAliveApps error");
  
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    bool isModifyKeepAliveAppsDisallowed = false;
+    bool isModifyKeepAliveAppsDisallowed = true;
     int32_t ret = applicationManagerProxy->IsModifyKeepAliveAppsDisallowed(elementName, keepAliveApp,
         isModifyKeepAliveAppsDisallowed, userId);
     if (FAILED(ret)) {
@@ -137,11 +137,11 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
     int32_t userId = 0;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
  
-    bool disallowModify = false;
+    bool disallowModify = true;
     if (argc == ARGS_SIZE_FOUR) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
             "Parameter disallowModify error");
-        EDMLOGI("NAPI_AddOrRemoveKeepAliveApps called hhh disallowModify: %{public}d", disallowModify);
+        EDMLOGI("NAPI_AddOrRemoveKeepAliveApps called disallowModify: %{public}d", disallowModify);
     }
     
     EDMLOGD(

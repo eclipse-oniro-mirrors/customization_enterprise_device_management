@@ -32,8 +32,6 @@ public:
         std::vector<std::string> &bundles, bool isSync = false);
     int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd);
     int32_t GetAutoStartApps(MessageParcel &data, std::vector<AppExecFwk::ElementName> &autoStartApps);
-    int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
-        int32_t userId, std::string &retMessage);
     int32_t RemoveKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         int32_t userId);
     int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,
