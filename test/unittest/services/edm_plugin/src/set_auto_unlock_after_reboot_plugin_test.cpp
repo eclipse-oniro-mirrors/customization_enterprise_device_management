@@ -15,11 +15,11 @@
 
 #include "set_auto_unlock_after_reboot_plugin_test.h"
 
-#include "set_auto_unlock_after_reboot_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 #include "plugin_singleton.h"
+#include "set_auto_unlock_after_reboot_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;

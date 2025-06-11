@@ -1758,7 +1758,7 @@ HWTEST_F(PluginPolicyQueryTest, TestGetAutoUnlockAfterRebootQuery003, TestSize.L
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
-    ASSERT_TRUE(queryObj->GetPolicyName() == "set_auto_unlock_after_reboot");
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT);
 }
 
 /**
