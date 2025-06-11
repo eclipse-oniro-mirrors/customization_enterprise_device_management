@@ -250,6 +250,7 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disallow_modify_apn_query.cpp",
       "./src/query_policy/disallowed_mobile_data_query.cpp",
+      "./src/query_policy/disallowed_telephony_call_query.cpp",
     ]
     defines += [
       "APN_EDM_ENABLE",

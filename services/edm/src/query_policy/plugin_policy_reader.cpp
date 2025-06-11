@@ -94,6 +94,7 @@
 
 #ifdef MOBILE_DATA_ENABLE
 #include "disallowed_mobile_data_query.h"
+#include "disallowed_telephony_call_query.h"
 #endif
 
 #ifdef SAMBA_EDM_ENABLE
@@ -441,6 +442,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
 #ifdef MOBILE_DATA_ENABLE
             obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL:
+#ifdef MOBILE_DATA_ENABLE
+            obj = std::make_shared<DisallowedTelephonyCallQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

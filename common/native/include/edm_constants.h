@@ -129,6 +129,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
+        const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -168,12 +169,9 @@ namespace EdmConstants {
     } // namespace MobileData
 
     namespace CallPolicy {
+        constexpr uint32_t NUMBER_LIST_MAX_SIZE = 1000;
         const std::string OUTGOING = "outgoing";
         const std::string INCOMING = "incoming";
-        const std::string TRUST_INCOMING = "trustIncoming";
-        const std::string TRUST_OUTGOING = "trustOutgoing";
-        const std::string BLOCK_INCOMING = "blockIncoming";
-        const std::string BLOCK_OUTGOING = "blockOutgoing";
     }
 } // namespace EdmConstants
 
@@ -314,6 +312,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
     const char* const POLICY_DOMAIN_CALL_POLICY = "domain_call_policy";
+    const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -138,6 +138,7 @@ enum EdmInterfaceCode : uint32_t {
     IS_APP_KIOSK_ALLOWED = 1097,
     DISALLOWED_NFC = 1098,
     DOMAIN_CALL_POLICY = 1099,
+    DISALLOWED_TELEPHONY_CALL = 1100,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

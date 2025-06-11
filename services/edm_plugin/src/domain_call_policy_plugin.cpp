@@ -21,12 +21,16 @@
 #include "edm_ipc_interface_code.h"
 #include "domain_call_policy_serializer.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 #include "policy_flag.h"
 #include "func_code_utils.h"
+#include "call_manager_client.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DomainCallPolicyPlugin>());
+const std::string PARAM_DISALLOWED_TELEPHONY_CALL = "persist.edm.telephony_call_disable";
 
 DomainCallPolicyPlugin::DomainCallPolicyPlugin()
 {
@@ -42,42 +46,34 @@ ErrCode DomainCallPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, MessagePa
     HandlePolicyData &policyData, int32_t userId)
 {
     EDMLOGI("DomainCallPolicyPlugin OnHandlePolicy.");
+    if (system::GetBoolParameter(PARAM_DISALLOWED_TELEPHONY_CALL, false)) {
+        EDMLOGE("DomainCallPolicyPlugin::OnHandlePolicy failed, because telephony call disallow");
+        return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
+    }
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     const std::string callType = data.ReadString();
     const int32_t flag = data.ReadInt32();
-    const int32_t size = data.ReadInt32();
     std::vector<std::string> addList;
-    for(int32_t i = 0; i < size; i++) {
-        const std::string number = data.ReadString();
-        addList.push_back(number);
-    }
+    data.ReadStringVector(&addList);
     auto serializer = DomainCallPolicySerializer::GetInstance();
-    std::map<std::string, std::vector<std::string>> policies;
-    std::map<std::string, std::vector<std::string>> mergePolicies;
+    std::map<std::string, DomainCallPolicyType> policies;
+    std::map<std::string, DomainCallPolicyType> mergePolicies;
     if (!serializer->Deserialize(policyData.policyData, policies) ||
         !serializer->Deserialize(policyData.mergePolicyData, mergePolicies)) {
         EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::string policyTye;
-    if (callType == EdmConstants::CallPolicy::OUTGOING && flag == (int32_t)PolicyFlag::BLOCK_LIST) {
-        policyTye = EdmConstants::CallPolicy::BLOCK_OUTGOING;
-    } else if (callType == EdmConstants::CallPolicy::OUTGOING && flag == (int32_t)PolicyFlag::TRUST_LIST) {
-        policyTye = EdmConstants::CallPolicy::TRUST_OUTGOING;
-    } else if (callType == EdmConstants::CallPolicy::INCOMING && flag == (int32_t)PolicyFlag::BLOCK_LIST) {
-        policyTye = EdmConstants::CallPolicy::BLOCK_INCOMING;
-    } else if (callType == EdmConstants::CallPolicy::INCOMING && flag == (int32_t)PolicyFlag::TRUST_LIST) {
-        policyTye = EdmConstants::CallPolicy::TRUST_INCOMING;
-    } else {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
+    ErrCode ret = ERR_OK;
     if (type == FuncOperateType::SET) {
-        AddCurrentAndMergePolicy(policies, mergePolicies, policyTye, addList);
+        ret = AddCurrentAndMergePolicy(policies, mergePolicies, callType, flag, addList);
     } else if (type == FuncOperateType::REMOVE) {
-        RemoveCurrentAndMergePolicy(policies, mergePolicies, policyTye, addList);
+        ret = RemoveCurrentAndMergePolicy(policies, mergePolicies, callType, flag, addList);
     } else {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (ret != ERR_OK) {
+        return ret;
     }
     std::string afterHandle;
     std::string afterMerge;
@@ -85,59 +81,86 @@ ErrCode DomainCallPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, MessagePa
         EDMLOGE("DomainCallPolicyPlugin::OnHandlePolicy Serialize current policy and merge policy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    EDMLOGI("DomainCallPolicyPlugin OnHandlePolicy afterHandle: %{public}s.", afterHandle.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->Init(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->SetCallPolicyInfo(
+        mergePolicies[EdmConstants::CallPolicy::OUTGOING].policyFlag,
+        mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
+        mergePolicies[EdmConstants::CallPolicy::INCOMING].policyFlag,
+        mergePolicies[EdmConstants::CallPolicy::INCOMING].numberList);
 
     return ERR_OK;
 }
 
 ErrCode DomainCallPolicyPlugin::AddCurrentAndMergePolicy(
-    std::map<std::string, std::vector<std::string>> &policies,
-    std::map<std::string, std::vector<std::string>> &mergePolicies, const std::string &policyTye,
-    const std::vector<std::string> &addList)
+    std::map<std::string, DomainCallPolicyType> &policies,
+    std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &policyTye,
+    const int32_t flag, const std::vector<std::string> &addList)
 {
     EDMLOGI("DomainCallPolicyPlugin AddCurrentAndMergePolicy.");
+    // 黑/白名单 互斥
+    std::vector<std::string> &numberList = policies[policyTye].numberList;
+    int32_t policyFlag = mergePolicies[policyTye].policyFlag;
+    if (flag != policyFlag && numberList.size() > 0) {
+        EDMLOGE("DomainCallPolicyPlugin::AddCurrentAndMergePolicy current policy is "
+            "%{public}d, set value is %{public}d", policyFlag, flag);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     // 合并去重
-    std::vector<std::string> &numberList = policies[policyTye];
     std::unordered_set<std::string> uset;
     uset.insert(numberList.begin(), numberList.end());
     uset.insert(addList.begin(), addList.end());
     std::vector<std::string> result(uset.begin(), uset.end());
-    
-    policies[policyTye] = result;
+    policies[policyTye].numberList = result;
+    policies[policyTye].policyFlag = flag;
 
     for (auto policy : policies) {
         if (mergePolicies.find(policy.first) == mergePolicies.end()) {
             mergePolicies[policy.first] = policy.second;
             continue;
         }
-        mergePolicies[policy.first].insert(mergePolicies[policy.first].end(),
-            policy.second.begin(), policy.second.end());
+        uset.clear();
+        uset.insert(mergePolicies[policy.first].numberList.begin(), mergePolicies[policy.first].numberList.end());
+        uset.insert(policy.second.numberList.begin(), policy.second.numberList.end());
+        std::vector<std::string> mergeResult(uset.begin(), uset.end());
+        mergePolicies[policy.first].numberList = mergeResult;
+        mergePolicies[policy.first].policyFlag = policy.second.policyFlag;
     }
     return ERR_OK;
 }
 
 ErrCode DomainCallPolicyPlugin::RemoveCurrentAndMergePolicy(
-    std::map<std::string, std::vector<std::string>> &policies,
-    std::map<std::string, std::vector<std::string>> &mergePolicies, const std::string &policyTye,
-    const std::vector<std::string> &addList)
+    std::map<std::string, DomainCallPolicyType> &policies,
+    std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &policyTye,
+    const int32_t flag, const std::vector<std::string> &addList)
 {
-    std::vector<std::string> numberList = policies[policyTye];
+    std::vector<std::string> numberList = policies[policyTye].numberList;
+    int32_t policyFlag = mergePolicies[policyTye].policyFlag;
+    if (flag != policyFlag && numberList.size() > 0) {
+        EDMLOGE("DomainCallPolicyPlugin::AddCurrentAndMergePolicy current policy is "
+            "%{public}d, set value is %{public}d", policyFlag, flag);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
 
     for (auto it = addList.begin(); it != addList.end(); ++it) {
         numberList.erase(std::remove(numberList.begin(), numberList.end(), *it), numberList.end());
     }
-    policies[policyTye] = numberList;
+    policies[policyTye].numberList = numberList;
 
     for (auto policy : policies) {
         if (mergePolicies.find(policy.first) == mergePolicies.end()) {
             mergePolicies[policy.first] = policy.second;
             continue;
         }
-        mergePolicies[policy.first].insert(mergePolicies[policy.first].end(),
-            policy.second.begin(), policy.second.end());
+        std::unordered_set<std::string> uset;
+        uset.insert(mergePolicies[policy.first].numberList.begin(), mergePolicies[policy.first].numberList.end());
+        uset.insert(policy.second.numberList.begin(), policy.second.numberList.end());
+        std::vector<std::string> mergeResult(uset.begin(), uset.end());
+        mergePolicies[policy.first].numberList = mergeResult;
+        mergePolicies[policy.first].policyFlag = policy.second.policyFlag;
     }
     return ERR_OK;
 }
@@ -159,10 +182,10 @@ ErrCode DomainCallPolicyPlugin::GetOthersMergePolicyData(const std::string &admi
     if (adminValues.empty()) {
         return ERR_OK;
     }
-    std::map<std::string, std::vector<std::string>> mergeData;
+    std::map<std::string, DomainCallPolicyType> mergeData;
     auto serializer = DomainCallPolicySerializer::GetInstance();
     for (const auto &item : adminValues) {
-        std::map<std::string, std::vector<std::string>> dataItem;
+        std::map<std::string, DomainCallPolicyType> dataItem;
         if (item.second.empty()) {
             continue;
         }
@@ -174,8 +197,9 @@ ErrCode DomainCallPolicyPlugin::GetOthersMergePolicyData(const std::string &admi
                 mergeData[item.first] = item.second;
                 continue;
             }
-            mergeData[item.first].insert(mergeData[item.first].end(),
-                item.second.begin(), item.second.end());
+            mergeData[item.first].numberList.insert(mergeData[item.first].numberList.end(),
+                item.second.numberList.begin(), item.second.numberList.end());
+            mergeData[item.first].policyFlag = item.second.policyFlag;
         }
     }
 
@@ -191,34 +215,23 @@ ErrCode DomainCallPolicyPlugin::OnGetPolicy(std::string &policyData, MessageParc
     const std::string callType = data.ReadString();
     const int32_t flag = data.ReadInt32();
     EDMLOGI("DomainCallPolicyPlugin::OnGetPolicy callType:%{public}s, flag:%{public}d", callType.c_str(), flag);
-    std::string policyTye;
-    if (callType == EdmConstants::CallPolicy::OUTGOING && flag == (int32_t)PolicyFlag::BLOCK_LIST) {
-        policyTye = EdmConstants::CallPolicy::BLOCK_OUTGOING;
-    } else if (callType == EdmConstants::CallPolicy::OUTGOING && flag == (int32_t)PolicyFlag::TRUST_LIST) {
-        policyTye = EdmConstants::CallPolicy::TRUST_OUTGOING;
-    } else if (callType == EdmConstants::CallPolicy::INCOMING && flag == (int32_t)PolicyFlag::BLOCK_LIST) {
-        policyTye = EdmConstants::CallPolicy::BLOCK_INCOMING;
-    } else if (callType == EdmConstants::CallPolicy::INCOMING && flag == (int32_t)PolicyFlag::TRUST_LIST) {
-        policyTye = EdmConstants::CallPolicy::TRUST_INCOMING;
-    } else {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
+    
     auto serializer = DomainCallPolicySerializer::GetInstance();
-    std::map<std::string, std::vector<std::string>> policies;
+    std::map<std::string, DomainCallPolicyType> policies;
     if (!serializer->Deserialize(policyData, policies)) {
         EDMLOGE("DomainCallPolicyPlugin::OnGetPolicy Deserialize fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     reply.WriteInt32(ERR_OK);
     int32_t size = 0;
-    auto it = policies.find(policyTye);
+    auto it = policies.find(callType);
     if (it == policies.end()) {
         reply.WriteInt32(size);
     } else {
-        reply.WriteInt32(it->second.size());
-        for (const auto &number : it->second) {
-            reply.WriteString(number);
+        if (flag == it->second.policyFlag) {
+            data.WriteStringVector(it->second.numberList);
+        } else {
+            reply.WriteInt32(size);
         }
     }
     return ERR_OK;
@@ -227,7 +240,40 @@ ErrCode DomainCallPolicyPlugin::OnGetPolicy(std::string &policyData, MessageParc
 ErrCode DomainCallPolicyPlugin::OnAdminRemove(const std::string &adminName,
     const std::string &policyData, const std::string &mergeData, int32_t userId)
 {
+    auto serializer = DomainCallPolicySerializer::GetInstance();
+    std::map<std::string, DomainCallPolicyType> policies;
+    std::map<std::string, DomainCallPolicyType> mergePolicies;
+    if (!serializer->Deserialize(policyData, policies) ||
+        !serializer->Deserialize(mergeData, mergePolicies)) {
+        EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->SetCallPolicyInfo(
+        mergePolicies[EdmConstants::CallPolicy::OUTGOING].policyFlag,
+        mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
+        mergePolicies[EdmConstants::CallPolicy::INCOMING].policyFlag,
+        mergePolicies[EdmConstants::CallPolicy::INCOMING].numberList);
     return ERR_OK;
+    return ERR_OK;
+}
+
+void DomainCallPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
+{
+    EDMLOGI("DomainCallPolicyPlugin::OnOtherServiceStart systemAbilityId:%{public}d", systemAbilityId);
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DOMAIN_CALL_POLICY,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    auto serializer_ = DomainCallPolicySerializer::GetInstance();
+    std::map<std::string, DomainCallPolicyType> policies;
+    serializer_->Deserialize(policyData, policies);
+    if (policies.size() > 0) {
+        DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->Init(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
+        DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->SetCallPolicyInfo(
+            policies[EdmConstants::CallPolicy::OUTGOING].policyFlag,
+            policies[EdmConstants::CallPolicy::OUTGOING].numberList,
+            policies[EdmConstants::CallPolicy::INCOMING].policyFlag,
+            policies[EdmConstants::CallPolicy::INCOMING].numberList);
+    }
 }
 } // namespace EDM
 } // namespace OHOS

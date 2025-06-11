@@ -16,33 +16,37 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DOMAIN_CALL_POLICY_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DOMAIN_CALL_POLICY_PLUGIN_H
 
+#include "domain_call_policy_serializer.h"
 #include "iplugin.h"
 #include "ipolicy_manager.h"
 
 namespace OHOS {
-namespace EDM {
-class DomainCallPolicyPlugin : public IPlugin {
-public:
-    DomainCallPolicyPlugin();
-
-    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-        HandlePolicyData &policyData, int32_t userId) override;
-    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
-        int32_t userId) override{};
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
-        int32_t userId) override;
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
-
-private:
-    ErrCode AddCurrentAndMergePolicy(std::map<std::string, std::vector<std::string>> &policies,
-        std::map<std::string, std::vector<std::string>> &mergePolicies, const std::string &polictType,
-        const std::vector<std::string> &policyName);
-    ErrCode RemoveCurrentAndMergePolicy(std::map<std::string, std::vector<std::string>> &policies,
-        std::map<std::string, std::vector<std::string>> &mergePolicies, const std::string &polictType,
-        const std::vector<std::string> &policyName);
-};
+    namespace EDM {
+    class DomainCallPolicyPlugin : public IPlugin {
+    public:
+        DomainCallPolicyPlugin();
+    
+        ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+            HandlePolicyData &policyData, int32_t userId) override;
+        void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+            int32_t userId) override{};
+        ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+            int32_t userId) override;
+        void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+            int32_t userId) override{};
+        ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+            int32_t userId) override;
+        ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+        void OnOtherServiceStart(int32_t systemAbilityId) override;
+    
+    private:
+        ErrCode AddCurrentAndMergePolicy(std::map<std::string, DomainCallPolicyType> &policies,
+            std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &polictType,
+            const int32_t flag, const std::vector<std::string> &policyName);
+        ErrCode RemoveCurrentAndMergePolicy(std::map<std::string, DomainCallPolicyType> &policies,
+            std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &polictType,
+            const int32_t flag, const std::vector<std::string> &policyName);
+    };
 } // namespace EDM
 } // namespace OHOS
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,16 +15,18 @@
 
 #include "domain_call_policy_serializer.h"
 
+#include <unordered_set>
 #include "cJSON.h"
 #include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
 
-const char* const NUMBER_LIST = "NumberList";
+const char* const POLICY_FLAG = "policyFlag";
+const char* const NUMBER_LIST = "numberList";
 
 bool DomainCallPolicySerializer::Deserialize(const std::string &policy,
-    std::map<std::string, std::vector<std::string>> &dataObj)
+    std::map<std::string, DomainCallPolicyType> &dataObj)
 {
     if (policy.empty()) {
         return true;
@@ -35,8 +37,9 @@ bool DomainCallPolicySerializer::Deserialize(const std::string &policy,
     }
     cJSON* mapItem;
     cJSON_ArrayForEach(mapItem, root) {
+        cJSON* policyFlag = cJSON_GetObjectItem(mapItem, POLICY_FLAG);
         cJSON* numberList = cJSON_GetObjectItem(mapItem, NUMBER_LIST);
-        if (!cJSON_IsArray(numberList)) {
+        if (!cJSON_IsArray(numberList) || !cJSON_IsNumber(policyFlag)) {
             cJSON_Delete(root);
             return false;
         }
@@ -50,13 +53,14 @@ bool DomainCallPolicySerializer::Deserialize(const std::string &policy,
             }
             numberVector.push_back(std::string(policyValue));
         }
-        dataObj[mapItem->string] = numberVector;
+        dataObj[mapItem->string].numberList = numberVector;
+        dataObj[mapItem->string].policyFlag = policyFlag->valueint;
     }
     cJSON_Delete(root);
     return true;
 }
 
-bool DomainCallPolicySerializer::Serialize(const std::map<std::string, std::vector<std::string>> &dataObj,
+bool DomainCallPolicySerializer::Serialize(const std::map<std::string, DomainCallPolicyType> &dataObj,
     std::string &policy)
 {
     cJSON* root = nullptr;
@@ -64,13 +68,14 @@ bool DomainCallPolicySerializer::Serialize(const std::map<std::string, std::vect
     for (auto& mapIt : dataObj) {
         cJSON* policyObject = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policyObject, false, root);
+        cJSON_AddNumberToObject(policyObject, POLICY_FLAG, mapIt.second.policyFlag);
         cJSON* array = cJSON_CreateArray();
         if (array == nullptr) {
             cJSON_Delete(root);
             cJSON_Delete(policyObject);
             return false;
         }
-        for (auto& vectorIt : mapIt.second) {
+        for (auto& vectorIt : mapIt.second.numberList) {
             cJSON* policyValue = cJSON_CreateString(vectorIt.c_str());
             if (policyValue == nullptr) {
                 cJSON_Delete(root);
@@ -104,20 +109,34 @@ bool DomainCallPolicySerializer::Serialize(const std::map<std::string, std::vect
 }
 
 bool DomainCallPolicySerializer::GetPolicy(MessageParcel &data,
-    std::map<std::string, std::vector<std::string>> &result)
+    std::map<std::string, DomainCallPolicyType> &result)
 {
     return true;
 }
 
 bool DomainCallPolicySerializer::WritePolicy(MessageParcel &reply,
-    std::map<std::string, std::vector<std::string>> &result)
+    std::map<std::string, DomainCallPolicyType> &result)
 {
     return true;
 }
 
-bool DomainCallPolicySerializer::MergePolicy(std::vector<std::map<std::string, std::vector<std::string>>> &data,
-    std::map<std::string, std::vector<std::string>> &result)
+bool DomainCallPolicySerializer::MergePolicy(std::vector<std::map<std::string, DomainCallPolicyType>> &data,
+    std::map<std::string, DomainCallPolicyType> &result)
 {
+    for (auto policyMap : data) {
+        for (auto iter : policyMap) {
+            if (result.find(iter.first) == result.end()) {
+                result[iter.first] = iter.second;
+                continue;
+            }
+            std::unordered_set<std::string> uset;
+            uset.insert(result[iter.first].numberList.begin(), result[iter.first].numberList.end());
+            uset.insert(iter.second.numberList.begin(), iter.second.numberList.end());
+            std::vector<std::string> mergeResult(uset.begin(), uset.end());
+            result[iter.first].numberList = mergeResult;
+            result[iter.first].policyFlag = iter.second.policyFlag;
+        }
+    }
     return true;
 }
 } // namespace EDM

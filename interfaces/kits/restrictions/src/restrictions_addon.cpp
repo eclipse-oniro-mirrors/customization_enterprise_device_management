@@ -56,6 +56,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NFC, EdmInterfaceCode::DISALLOWED_NFC},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL}
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {

@@ -146,8 +146,8 @@ napi_value TelephonyManagerAddon::AddOutgoingCallPolicyNumbers(napi_env env, nap
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
 
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddOutgoingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -186,8 +186,8 @@ napi_value TelephonyManagerAddon::RemoveOutgoingCallPolicyNumbers(napi_env env, 
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
 
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveOutgoingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -222,8 +222,8 @@ napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, nap
         "element name param error");
 
     std::vector<std::string> numbers;
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetOutgoingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -267,8 +267,8 @@ napi_value TelephonyManagerAddon::AddIncomingCallPolicyNumbers(napi_env env, nap
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
 
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddIncomingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -307,8 +307,8 @@ napi_value TelephonyManagerAddon::RemoveIncomingCallPolicyNumbers(napi_env env, 
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
 
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveIncomingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -343,8 +343,8 @@ napi_value TelephonyManagerAddon::GetIncomingCallPolicyNumbers(napi_env env, nap
         "element name param error");
 
     std::vector<std::string> numbers;
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetIncomingCallPolicyNumbers(
-        elementName, policy, numbers);
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetCallPolicyNumbers(
+        elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }

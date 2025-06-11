@@ -69,54 +69,50 @@ int32_t TelephonyManagerProxy::IsSimDisabled(MessageParcel &data, bool &result)
     return ERR_OK;
 }
 
-int32_t TelephonyManagerProxy::AddOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, const std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::AddCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+    const std::string &callType, const int32_t policyFlag, const std::vector<std::string> &numbers)
 {
-    EDMLOGD("TelephonyManagerProxy::AddOutgoingCallPolicyNumbers.");
+    EDMLOGD("TelephonyManagerProxy::AddCallPolicyNumbers.");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::CallPolicy::OUTGOING);
+    data.WriteString(callType);
     data.WriteInt32(policyFlag);
-    if (numbers.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    if (numbers.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE) {
         return ERR_INVALID_VALUE;
     }
-    data.WriteInt32(numbers.size());
-    for (const auto& iter : numbers) {
-        data.WriteString(iter);
-    }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DOMAIN_CALL_POLICY);
+    data.WriteStringVector(numbers);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DOMAIN_CALL_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t TelephonyManagerProxy::RemoveOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, const std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::RemoveCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+    const std::string &callType, const int32_t policyFlag, const std::vector<std::string> &numbers)
 {
-    EDMLOGD("TelephonyManagerProxy::RemoveOutgoingCallPolicyNumbers.");
+    EDMLOGD("TelephonyManagerProxy::RemoveCallPolicyNumbers.");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::CallPolicy::OUTGOING);
+    data.WriteString(callType);
     data.WriteInt32(policyFlag);
-    if (numbers.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    if (numbers.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE) {
         return ERR_INVALID_VALUE;
     }
-    data.WriteInt32(numbers.size());
-    for (const auto& iter : numbers) {
-        data.WriteString(iter);
-    }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DOMAIN_CALL_POLICY);
+    data.WriteStringVector(numbers);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::DOMAIN_CALL_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t TelephonyManagerProxy::GetOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+    const std::string &callType, const int32_t policyFlag, std::vector<std::string> &numbers)
 {
-    EDMLOGD("TelephonyManagerProxy::GetOutgoingCallPolicyNumbers.");
+    EDMLOGD("TelephonyManagerProxy::GetCallPolicyNumbers.");
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -124,106 +120,19 @@ int32_t TelephonyManagerProxy::GetOutgoingCallPolicyNumbers(const AppExecFwk::El
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteString(EdmConstants::CallPolicy::OUTGOING);
+    data.WriteString(callType);
     data.WriteInt32(policyFlag);
 
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DOMAIN_CALL_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetOutgoingCallPolicyNumbers fail. %{public}d", ret);
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers fail. %{public}d", ret);
         return ret;
     }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetOutgoingCallPolicyNumbers size overlimit. size: %{public}d", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (int32_t i = 0; i < size; i++) {
-        std::string number = reply.ReadString();
-        numbers.push_back(number);
-    }
-    EDMLOGD("EnterpriseDeviceMgrProxy:GetOutgoingCallPolicyNumbers success. %{public}d", size);
+    reply.ReadStringVector(&numbers);
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success. %{public}d", size);
     return ERR_OK;
 }
-
-int32_t TelephonyManagerProxy::AddIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, const std::vector<std::string> &numbers)
-{
-    EDMLOGD("TelephonyManagerProxy::AddIncomingCallPolicyNumbers.");
-    MessageParcel data;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::CallPolicy::INCOMING);
-    data.WriteInt32(policyFlag);
-    if (numbers.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-        return ERR_INVALID_VALUE;
-    }
-    data.WriteInt32(numbers.size());
-    for (const auto& iter : numbers) {
-        data.WriteString(iter);
-    }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DOMAIN_CALL_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-}
-
-int32_t TelephonyManagerProxy::RemoveIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, const std::vector<std::string> &numbers)
-{
-    EDMLOGD("TelephonyManagerProxy::RemoveIncomingCallPolicyNumbers.");
-    MessageParcel data;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::CallPolicy::INCOMING);
-    data.WriteInt32(policyFlag);
-    if (numbers.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-        return ERR_INVALID_VALUE;
-    }
-    data.WriteInt32(numbers.size());
-    for (const auto& iter : numbers) {
-        data.WriteString(iter);
-    }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::DOMAIN_CALL_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-}
-
-int32_t TelephonyManagerProxy::GetIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const int32_t policyFlag, std::vector<std::string> &numbers)
-{
-    EDMLOGD("TelephonyManagerProxy::GetIncomingCallPolicyNumbers.");
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(EdmConstants::CallPolicy::INCOMING);
-    data.WriteInt32(policyFlag);
-
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DOMAIN_CALL_POLICY, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetIncomingCallPolicyNumbers fail. %{public}d", ret);
-        return ret;
-    }
-    int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetIncomingCallPolicyNumbers size overlimit. size: %{public}d", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (int32_t i = 0; i < size; i++) {
-        std::string number = reply.ReadString();
-        numbers.push_back(number);
-    }
-    EDMLOGD("EnterpriseDeviceMgrProxy:GetIncomingCallPolicyNumbers success. %{public}d", size);
-    return ERR_OK;
-}
-
 } // namespace EDM
 } // namespace OHOS

@@ -20,26 +20,31 @@
 #include "ipolicy_serializer.h"
 
 namespace OHOS {
-namespace EDM {
-
-/*
- * Policy data serializer of type std::map<std::string, std::vector<std::string>>.
- */
-class DomainCallPolicySerializer : public IPolicySerializer<std::map<std::string, std::vector<std::string>>>,
-    public DelayedSingleton<DomainCallPolicySerializer> {
-public:
-    bool Deserialize(const std::string &policy, std::map<std::string, std::vector<std::string>> &dataObj) override;
-
-    bool Serialize(const std::map<std::string, std::vector<std::string>> &dataObj, std::string &policy) override;
-
-    bool GetPolicy(MessageParcel &data, std::map<std::string, std::vector<std::string>> &result) override;
-
-    bool WritePolicy(MessageParcel &reply, std::map<std::string, std::vector<std::string>> &result) override;
-
-    bool MergePolicy(std::vector<std::map<std::string, std::vector<std::string>>> &data,
-        std::map<std::string, std::vector<std::string>> &result) override;
-};
-} // namespace EDM
-} // namespace OHOS
+    namespace EDM {
+    
+    struct DomainCallPolicyType {
+        std::vector<std::string> numberList;
+        int32_t policyFlag = 0;
+    };
+    
+    /*
+     * Policy data serializer of type std::map<std::string, DomainCallPolicyType>.
+     */
+    class DomainCallPolicySerializer : public IPolicySerializer<std::map<std::string, DomainCallPolicyType>>,
+        public DelayedSingleton<DomainCallPolicySerializer> {
+    public:
+        bool Deserialize(const std::string &policy, std::map<std::string, DomainCallPolicyType> &dataObj) override;
+    
+        bool Serialize(const std::map<std::string, DomainCallPolicyType> &dataObj, std::string &policy) override;
+    
+        bool GetPolicy(MessageParcel &data, std::map<std::string, DomainCallPolicyType> &result) override;
+    
+        bool WritePolicy(MessageParcel &reply, std::map<std::string, DomainCallPolicyType> &result) override;
+    
+        bool MergePolicy(std::vector<std::map<std::string, DomainCallPolicyType>> &data,
+            std::map<std::string, DomainCallPolicyType> &result) override;
+    };
+    } // namespace EDM
+    } // namespace OHOS
 
 #endif // SERVICES_EDM_INCLUDE_UTILS_DOMAIN_CALL_POLICY_SERIALIZER_H

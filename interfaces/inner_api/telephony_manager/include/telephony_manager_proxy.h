@@ -28,17 +28,11 @@ public:
     int32_t SetSimDisabled(MessageParcel &data);
     int32_t SetSimEnabled(MessageParcel &data);
     int32_t IsSimDisabled(MessageParcel &data, bool &result);
-    int32_t AddOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+    int32_t AddCallPolicyNumbers(const AppExecFwk::ElementName &admin, const std::string &callType,
         const int32_t policyFlag, const std::vector<std::string> &numbers);
-    int32_t RemoveOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-        const int32_t policyFlag, const std::vector<std::string> &numbers);
-    int32_t GetOutgoingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-        const int32_t policyFlag, std::vector<std::string> &numbers);
-    int32_t AddIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-        const int32_t policyFlag, const std::vector<std::string> &numbers);
-    int32_t RemoveIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-        const int32_t policyFlag, const std::vector<std::string> &numbers);
-    int32_t GetIncomingCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+    int32_t RemoveCallPolicyNumbers(const AppExecFwk::ElementName &admin,
+        const std::string &callType, const int32_t policyFlag, const std::vector<std::string> &numbers);
+    int32_t GetCallPolicyNumbers(const AppExecFwk::ElementName &admin, const std::string &callType,
         const int32_t policyFlag, std::vector<std::string> &numbers);
 private:
     static std::shared_ptr<TelephonyManagerProxy> instance_;
