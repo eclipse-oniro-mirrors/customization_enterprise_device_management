@@ -112,7 +112,7 @@ HWTEST_F(ManageKeepAliveAppsSerializerTest, TestDeserializeWithJustBundleName, T
     ASSERT_TRUE(ret);
     ASSERT_TRUE(dataObj.size() == 1);
     ASSERT_TRUE(dataObj[0].GetBundleName() == "test1");
-    ASSERT_FALSE(dataObj[0].GetDisallowModify());
+    ASSERT_TRUE(dataObj[0].GetDisallowModify());
 }
 
 /**
