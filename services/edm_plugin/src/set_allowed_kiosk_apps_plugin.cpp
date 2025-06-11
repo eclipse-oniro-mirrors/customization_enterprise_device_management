@@ -43,26 +43,23 @@ void SetAllowedKioskAppsPlugin::InitPlugin(
 ErrCode SetAllowedKioskAppsPlugin::OnSetPolicy(std::vector<std::string> &data,
     std::vector<std::string> &currentData, std::vector<std::string> &mergeData, int32_t userId)
 {
-    std::vector<std::string> needAddData =
-        ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(currentData, data);
-    std::vector<std::string> afterHandle =
-        ArrayStringSerializer::GetInstance()->SetUnionPolicyData(currentData, needAddData);
-    std::vector<std::string> afterMerge =
-        ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
-    if (afterMerge.size() > EdmConstants::POLICIES_MAX_SIZE) {
-        EDMLOGE("SetAllowedKioskAppsPlugin OnSetPolicy merge data is too large.");
+    if (data.size() > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGE("SetAllowedKioskAppsPlugin OnSetPolicy data is too large.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    ErrCode ret = SetKioskAppsToAms(afterMerge);
+    ErrCode ret = SetKioskAppsToAms(data);
     if (FAILED(ret)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    ret = SetKioskAppsToWms(afterMerge);
+    ret = SetKioskAppsToWms(data);
     if (FAILED(ret)) {
+        EDMLOGE("SetAllowedKioskAppsPlugin OnSetPolicy error clear");
+        std::vector<std::string> emptyBundleNames;
+        SetKioskAppsToAms(emptyBundleNames);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = afterHandle;
-    mergeData = afterMerge;
+    currentData = data;
+    mergeData = data;
     return ERR_OK;
 }
 
@@ -79,8 +76,10 @@ ErrCode SetAllowedKioskAppsPlugin::OnGetPolicy(
 ErrCode SetAllowedKioskAppsPlugin::OnAdminRemove(
     const std::string &adminName, std::vector<std::string> &data, std::vector<std::string> &mergeData, int32_t userId)
 {
-    SetKioskAppsToAms(mergeData);
-    SetKioskAppsToWms(mergeData);
+    if (mergeData.empty()) {
+        SetKioskAppsToAms(mergeData);
+        SetKioskAppsToWms(mergeData);
+    }
     return ERR_OK;
 }
 
