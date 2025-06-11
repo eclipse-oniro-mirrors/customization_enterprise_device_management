@@ -245,6 +245,7 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnAdminRemoveDoneFail, TestSize.Leve
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("bundleName");
     std::vector<std::string> keepAliveApps;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     reply.ReadStringVector(&keepAliveApps);
