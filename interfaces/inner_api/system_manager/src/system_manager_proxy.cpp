@@ -149,20 +149,14 @@ int32_t SystemManagerProxy::GetUpdateAuthData(MessageParcel &data, std::string &
 
 int32_t SystemManagerProxy::SetAutoUnlockAfterReboot(MessageParcel &data)
 {
-#ifdef FEATURE_PC_ONLY
     EDMLOGD("SystemManagerProxy::SetAutoUnlockAfterReboot");
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
-#else
-    EDMLOGW("SystemManagerProxy::SetAutoUnlockAfterReboot Unsupported Capabilities");
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
 }
 
 int32_t SystemManagerProxy::GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData)
 {
-#ifdef FEATURE_PC_ONLY
     EDMLOGD("SystemManagerProxy::GetAutoUnlockAfterReboot");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
@@ -175,10 +169,6 @@ int32_t SystemManagerProxy::GetAutoUnlockAfterReboot(MessageParcel &data, bool &
     }
     reply.ReadBool(authData);
     return ERR_OK;
-#else
-    EDMLOGW("SystemManagerProxy::GetAutoUnlockAfterReboot Unsupported Capabilities");
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
 }
 } // namespace EDM
 } // namespace OHOS
