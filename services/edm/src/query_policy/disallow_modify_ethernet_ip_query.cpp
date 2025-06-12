@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_apn_query.h"
+#include "disallow_modify_ethernet_ip_query.h"
 
 namespace OHOS {
 namespace EDM {
