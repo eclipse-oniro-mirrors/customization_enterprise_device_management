@@ -231,13 +231,13 @@ ohos_shared_library("edmservice") {
   }
 
   if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
-    sources += [ 
-      "./src/query_policy/disallowed_sms_query.cpp",
+    sources += [
       "./src/query_policy/disallowed_mms_query.cpp",
+      "./src/query_policy/disallowed_sms_query.cpp",
     ]
     defines += [ 
       "SMS_EDM_ENABLE",
-      "MMS_EDM_ENABLE"
+      "MMS_EDM_ENABLE",
     ]
   }
 
@@ -261,6 +261,11 @@ ohos_shared_library("edmservice") {
   if (!enterprise_device_management_feature_pc_only && power_manager_edm_enable) {
     sources += [ "./src/query_policy/disallow_power_long_press_query.cpp" ]
     defines += [ "POWER_MANAGER_EDM_ENABLE" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
 
   deps = [

@@ -19,6 +19,10 @@
 #include "ipolicy_query.h"
 #undef protected
 
+#ifdef FEATURE_PC_ONLY
+#include "disallow_modify_ethernet_ip_query.h"
+#endif
+
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_usb_devices_query.h"
 #include "allowed_wifi_list_query.h"
@@ -1743,6 +1747,61 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetBiometricsAndScreenLockQuery002, T
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery001
+ * @tc.desc: Test DisallowModifyEthernetIpQuery QueryPolicy function return false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery002
+ * @tc.desc: Test DisallowModifyEthernetIpQuery QueryPolicy function return true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery003
+ * @tc.desc: Test DisallowModifyEthernetIpQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag) ==
+        TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

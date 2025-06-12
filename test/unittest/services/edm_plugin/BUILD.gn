@@ -289,6 +289,10 @@ ohos_unittest("EdmPluginTest") {
   if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
   }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/disallow_modify_ethernet_ip_plugin_test.cpp" ]
+  }
   
   sanitize = {
     boundary_sanitize = true
@@ -640,6 +644,10 @@ ohos_static_library("edm_all_plugin_static") {
       "CELLULAR_DATA_EDM_ENABLE",
       "TELEPHONY_EDM_ENABLE",
     ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "../../../../services/edm_plugin/src/disallow_modify_ethernet_ip_plugin.cpp" ]
   }
 
   sanitize = {

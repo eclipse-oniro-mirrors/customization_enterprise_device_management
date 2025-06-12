@@ -292,6 +292,11 @@ ohos_unittest("EdmServicesUnitTest") {
     defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   configs = [
     ":module_private_config",
     "../../../../common/config:coverage_flags",
