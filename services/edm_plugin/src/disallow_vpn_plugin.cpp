@@ -29,7 +29,7 @@ void DisallowVPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPl
     EDMLOGI("DisallowVPNPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
         IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_VPN, PolicyName::POLICY_DISALLOW_VPN,
