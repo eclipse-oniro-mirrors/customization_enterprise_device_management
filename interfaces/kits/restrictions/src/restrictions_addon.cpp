@@ -104,7 +104,6 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
-        DECLARE_NAPI_FUNCTION("getUserRestriction", GetUserRestriction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
