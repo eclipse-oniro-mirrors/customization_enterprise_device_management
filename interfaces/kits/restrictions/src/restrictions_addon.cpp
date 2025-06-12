@@ -66,6 +66,11 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK}
 };
 
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK}
+}
+
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
     EdmInterfaceCode::DISABLE_BLUETOOTH,
     EdmInterfaceCode::DISALLOW_MODIFY_DATETIME,
@@ -99,6 +104,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
+        DECLARE_NAPI_FUNCTION("getUserRestriction", GetUserRestriction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
