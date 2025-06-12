@@ -450,13 +450,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
+        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<DisallowModifyEthernetIpQuery>();
+            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif  
+#endif
         default:
             break;
     }
@@ -500,14 +500,14 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif      
-        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
+#endif
+        case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
 #ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+            obj = std::make_shared<DisallowModifyEthernetIpQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
+#endif        
     }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }
