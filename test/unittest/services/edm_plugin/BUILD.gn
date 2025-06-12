@@ -373,7 +373,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
-    "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -465,7 +464,10 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
-    sources += [ "../../../../services/edm_plugin/src/lock_screen_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/lock_screen_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp"
+    ]
   }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable) {
