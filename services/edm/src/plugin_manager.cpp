@@ -60,7 +60,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::DISABLE_REMOTE_DESK,
     EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
     EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::ALLOWED_KIOSK_APPS,
-    EdmInterfaceCode::SET_KIOSK_FEATURE,EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK
+    EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
