@@ -64,7 +64,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
         EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
-        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK}，
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
 
 };
 
