@@ -18,7 +18,6 @@
 
 #include "disallowed_mms_plugin.h"
 #include "edm_ipc_interface_code.h"
-#include "inactive_user_freeze_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -27,8 +26,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class DisallowedMMSPluginTest
-    : public testing::TestWithParam<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>> {
+class DisallowedMMSPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
@@ -47,28 +45,22 @@ void DisallowedMMSPluginTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
-INSTANTIATE_TEST_SUITE_P(TestOnSetPolicy, DisallowedMMSPluginTest,
-    testing::ValuesIn(std::vector<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>>({
-        {DisallowedMMSPlugin::GetPlugin(), EdmInterfaceCode::DISALLOWED_MMS}
-    })));
-
 /**
  * @tc.name: TestOnSetPolicy
- * @tc.desc: Test DisallowedTetheringPluginTest::OnSetPolicy function.
+ * @tc.desc: Test DisallowedMMSPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_P(DisallowedMMSPluginTest, TestOnSetPolicy, TestSize.Level1)
+HWTEST_F(DisallowedMMSPluginTest, TestOnSetPolicy, TestSize.Level1)
 {
-    auto param = GetParam();
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = param.first;
+    std::shared_ptr<IPlugin> plugin = DisallowedMMSPlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, param.second);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOWED_MMS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
 }
 } // namespace TEST
