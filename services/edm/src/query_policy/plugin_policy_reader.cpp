@@ -507,7 +507,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif        
+#endif
     }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }
