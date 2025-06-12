@@ -69,7 +69,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK}
-}
+};
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
     EdmInterfaceCode::DISABLE_BLUETOOTH,
