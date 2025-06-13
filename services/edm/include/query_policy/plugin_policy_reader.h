@@ -40,7 +40,7 @@ public:
     ErrCode GetPolicyQuerySecond(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
+    ErrCode GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
 
 private:
