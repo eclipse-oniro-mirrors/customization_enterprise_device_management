@@ -36,6 +36,7 @@ enum class EdmAddonCommonType {
     USERID = 7,
     INT32 = 8,
     INT64 = 9,
+    ARRAY_INT32 = 10,
     CUSTOM = 100,
 };
 

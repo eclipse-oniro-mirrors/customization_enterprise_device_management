@@ -1,0 +1,217 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <gtest/gtest.h>
+#include "allowed_app_distribution_types_plugin.h"
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
+#include "plugin_singleton.h"
+#include "utils.h"
+
+using namespace testing::ext;
+using namespace testing;
+
+namespace OHOS {
+namespace EDM {
+namespace TEST {
+
+class AllowedAppDistributionTypesPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+};
+void AllowedAppDistributionTypesPluginTest::SetUpTestSuite(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void AllowedAppDistributionTypesPluginTest::TearDownTestSuite(void)
+{
+    Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is original ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+/**
+* @tc.name: TestOnSetPolicy001
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnSetPolicy function when policy is empty.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy001, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: TestOnSetPolicy002
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnSetPolicy function when policy has value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy002, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(2);
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: TestOnSetPolicy003
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnSetPolicy function when policy has invalid value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy003, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(7);
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+* @tc.name: TestOnSetPolicy004
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnSetPolicy function when policy has invalid value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy004, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(0);
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+* @tc.name: TestOnRemovePolicy001
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnRemovePolicy function when policy is empty.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy001, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: TestOnRemovePolicy002
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnRemovePolicy function when policy has value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy002, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(2);
+    std::vector<int32_t> currentData;
+    currentData.push_back(1);
+    currentData.push_back(2);
+    currentData.push_back(3);
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: TestOnRemovePolicy003
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnRemovePolicy function when policy has invalid value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy003, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(7);
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+* @tc.name: TestOnRemovePolicy004
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnRemovePolicy function when policy has invalid value.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy004, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(0);
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+* @tc.name: TestOnAdminRemovePolicy001
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnAdminRemove function when policy is true.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnAdminRemovePolicy001, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::string adminName{"testAdminName"};
+    std::vector<int32_t> policyData;
+    std::vector<int32_t> mergeData;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+* @tc.name: TestOnAdminRemovePolicy002
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnAdminRemove function when policy is disabled.
+* @tc.type: FUNC
+*/
+HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnAdminRemovePolicy002, TestSize.Level1)
+{
+    AllowedAppDistributionTypesPlugin plugin;
+    std::string adminName{"testAdminName"};
+    std::vector<int32_t> policyData;
+    policyData.push_back(1);
+    policyData.push_back(2);
+    std::vector<int32_t> mergeData;
+    mergeData.push_back(3);
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+}
+}
+}

@@ -29,7 +29,10 @@ ohos_shared_library("bundlemanager") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  deps = [
+    "../../inner_api:edmservice_kits",
+    "../common:napi_edm_common",
+  ]
 
   external_deps = [
     "ability_base:want",

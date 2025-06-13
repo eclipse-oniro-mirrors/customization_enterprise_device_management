@@ -109,6 +109,7 @@
 #include "disallowed_nfc_query.h"
 #endif
 
+#include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -468,6 +469,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE:
+            obj = std::make_shared<AllowedAppDistributionTypesQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISABLE_SAMBA_CLIENT:
 #ifdef SAMBA_EDM_ENABLE
             obj = std::make_shared<DisableSambaClientQuery>();

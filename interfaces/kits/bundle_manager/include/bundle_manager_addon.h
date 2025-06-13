@@ -25,6 +25,7 @@
 #include "napi_edm_error.h"
 #include "want.h"
 #include "edm_bundle_info.h"
+#include "func_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -84,6 +85,11 @@ public:
     static napi_value RemoveDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
     static napi_value GetInstalledBundleList(napi_env env, napi_callback_info info);
+    static napi_value AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
+    static napi_value removeInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info,
+        FuncOperateType operateType);
+    static napi_value GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
@@ -104,6 +110,7 @@ private:
         bool &hasUserId);
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
+    static void CreateAppDistributionTypeObject(napi_env env, napi_value value);
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);
