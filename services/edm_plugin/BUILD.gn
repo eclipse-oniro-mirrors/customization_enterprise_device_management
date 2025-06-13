@@ -158,7 +158,10 @@ ohos_shared_library("device_core_plugin") {
 
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
-      sources += [ "./src/lock_screen_plugin.cpp" ]
+      sources += [
+        "./src/lock_screen_plugin.cpp",
+        "./src/disable_set_biometrics_and_screenLock_plugin.cpp"
+      ]
     }
 
     if (!enterprise_device_management_feature_pc_only) {
@@ -333,6 +336,8 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/disable_samba_client_plugin.cpp",
         "./src/disable_samba_server_plugin.cpp",
+        "./src/disallow_modify_ethernet_ip_plugin.cpp",
+        "./src/set_auto_unlock_after_reboot_plugin.cpp"
       ]
     }
 

@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../common/config/common.gni")
 
 ohos_shared_library("systemmanager") {
   include_dirs = [
@@ -39,6 +40,11 @@ ohos_shared_library("systemmanager") {
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
 
   relative_install_dir = "module/enterprise"
   sanitize = {

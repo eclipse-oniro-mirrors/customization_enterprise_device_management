@@ -60,7 +60,18 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS, EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS}
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS,
+        EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
+
+};
+
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -96,6 +107,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedListForAccount", RemoveDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
+        DECLARE_NAPI_FUNCTION("getUserRestricted", GetUserRestricted),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -714,6 +726,56 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
+}
+
+napi_value RestrictionsAddon::GetUserRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUserRestricted called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter settingsItem error");
+    std::string settingsItem;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
+        "parameter settingsItem parse error");
+    if (hasAdmin) {
+        EDMLOGD("GetUserRestricted: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+            elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    } else {
+        EDMLOGD("GetUserRestricted: elementName is null");
+    }
+
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+
+    auto itemCode = itemQueryCodeMap.find(settingsItem);
+    if (itemCode == itemQueryCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = itemCode->second;
+
+    bool restricted = false;
+    ErrCode ret = proxy->GetUserRestricted(hasAdmin ? &elementName : nullptr, ipcCode, restricted);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, restricted, &result));
+    return result;
 }
 
 static napi_module g_restrictionsModule = {
