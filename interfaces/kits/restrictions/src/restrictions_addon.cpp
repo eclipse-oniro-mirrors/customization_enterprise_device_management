@@ -65,13 +65,16 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
-
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
+        EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
+        EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
