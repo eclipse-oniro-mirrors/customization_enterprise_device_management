@@ -131,6 +131,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
+        const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -308,6 +309,7 @@ namespace PolicyName {
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
     const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
+    const char* const POLICY_SET_DEVICE_NAME = "set_device_name";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
