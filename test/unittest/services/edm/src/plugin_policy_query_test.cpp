@@ -45,6 +45,7 @@
 #include "disable_remote_diagnosis_query.h"
 #include "disable_samba_client_query.h"
 #include "disable_samba_server_query.h"
+#include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_user_mtp_client_query.h"
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
@@ -104,6 +105,8 @@ const std::string TEST_POLICY_DATA =
     "{\"complexityReg\":\"^(?=.*[a-zA-Z]).{1,9}$\", \"validityPeriod\": 2,"
     "\"additionalDescription\": \"testDescription\"}";
 const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
+const std::string PERSIST_EDM_SET_BIOMETRICS_AND_SCREENLOCK_DISABLE =
+    "persist.edm.set_biometrics_and_screenLock_disable";
 const std::string TEST_PERMISSION_TAG_VERSION_11 = "version_11";
 const std::string TEST_PERMISSION_TAG_VERSION_12 = "version_12";
 const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH = "ohos.permission.ENTERPRISE_MANAGE_BLUETOOTH";
@@ -1741,6 +1744,44 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedAirplaneModeQuery002, TestSize.Lev
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_airplane_mode");
+}
+
+/**
+ * @tc.name: TestDisableSetBiometricsAndScreenLockQuery001
+ * @tc.desc: Test DisableSetBiometricsAndScreenLockQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableSetBiometricsAndScreenLockQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_EQ(OHOS::system::GetBoolParameter(PERSIST_EDM_SET_BIOMETRICS_AND_SCREENLOCK_DISABLE, false),
+        reply.ReadBool());
+}
+
+/**
+ * @tc.name: TestDisableSetBiometricsAndScreenLockQuery002
+ * @tc.desc: Test DisableSetBiometricsAndScreenLockQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableSetBiometricsAndScreenLockQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 #ifdef FEATURE_PC_ONLY

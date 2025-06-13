@@ -59,6 +59,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::PASSWORD_POLICY,
     EdmInterfaceCode::DISABLE_REMOTE_DESK,
     EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS,
+    EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE,
     EdmInterfaceCode::DISALLOWED_SMS,
     EdmInterfaceCode::DISALLOWED_MMS,
