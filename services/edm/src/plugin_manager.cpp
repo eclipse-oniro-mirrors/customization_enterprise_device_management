@@ -60,7 +60,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::DISABLE_REMOTE_DESK,
     EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
     EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::ALLOWED_KIOSK_APPS,
-    EdmInterfaceCode::SET_KIOSK_FEATURE
+    EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -80,7 +80,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
-    EdmInterfaceCode::DISALLOWED_NFC
+    EdmInterfaceCode::DISALLOWED_NFC, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

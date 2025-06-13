@@ -45,6 +45,8 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("notifyUpdatePackages", NotifyUpdatePackages),
         DECLARE_NAPI_FUNCTION("getUpdateResult", GetUpgradeResult),
         DECLARE_NAPI_FUNCTION("getUpdateAuthData", GetUpdateAuthData),
+        DECLARE_NAPI_FUNCTION("setAutoUnlockAfterReboot", SetAutoUnlockAfterReboot),
+        DECLARE_NAPI_FUNCTION("getAutoUnlockAfterReboot", GetAutoUnlockAfterReboot),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -353,6 +355,65 @@ void SystemManagerAddon::NativeUpgradeResultComplete(napi_env env, napi_status s
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
+}
+
+napi_value SystemManagerAddon::SetAutoUnlockAfterReboot(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGI("SystemManagerAddon::SetAutoUnlockAfterReboot called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setAutoUnlockAfterReboot");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetAutoUnlockAfterReboot";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetAutoUnlockAfterReboot(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SystemManagerAddon::SetAutoUnlockAfterReboot failed!");
+    }
+    return nullptr;
+#else
+    EDMLOGW("SystemManagerAddon::SetAutoUnlockAfterReboot Unsupported Capabilities");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::GetAutoUnlockAfterReboot(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGI("SystemManagerAddon::GetAutoUnlockAfterReboot called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAutoUnlockAfterReboot");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAutoUnlockAfterReboot";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    bool isAllowed = false;
+    int32_t ret =
+        SystemManagerProxy::GetSystemManagerProxy()->GetAutoUnlockAfterReboot(adapterAddonData.data, isAllowed);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SystemManagerAddon::GetAutoUnlockAfterReboot failed!");
+        return nullptr;
+    }
+    napi_value resultBool = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, isAllowed, &resultBool));
+    return resultBool;
+#else
+    EDMLOGW("SystemManagerAddon::GetAutoUnlockAfterReboot Unsupported Capabilities");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
 bool SystemManagerAddon::JsObjToUpdatePolicy(napi_env env, napi_value object, UpdatePolicy &updatePolicy,

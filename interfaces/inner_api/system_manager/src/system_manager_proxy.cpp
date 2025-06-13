@@ -146,5 +146,29 @@ int32_t SystemManagerProxy::GetUpdateAuthData(MessageParcel &data, std::string &
     reply.ReadString(authData);
     return ERR_OK;
 }
+
+int32_t SystemManagerProxy::SetAutoUnlockAfterReboot(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetAutoUnlockAfterReboot");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData)
+{
+    EDMLOGD("SystemManagerProxy::GetAutoUnlockAfterReboot");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(authData);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

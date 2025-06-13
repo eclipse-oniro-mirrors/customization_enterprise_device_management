@@ -67,6 +67,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/get_auto_unlock_after_reboot_query.cpp",
     "../../../../services/edm/src/query_policy/get_device_encryption_status_query.cpp",
     "../../../../services/edm/src/query_policy/get_display_version_query.cpp",
     "../../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
@@ -291,8 +292,17 @@ ohos_unittest("EdmServicesUnitTest") {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
   }
 
+  if (enterprise_device_management_feature_pc_only){
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   if (!enterprise_device_management_feature_pc_only) {
     defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
 
   configs = [

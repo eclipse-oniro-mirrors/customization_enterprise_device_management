@@ -19,6 +19,10 @@
 #include "ipolicy_query.h"
 #undef protected
 
+#ifdef FEATURE_PC_ONLY
+#include "disallow_modify_ethernet_ip_query.h"
+#endif
+
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_usb_devices_query.h"
 #include "allowed_wifi_list_query.h"
@@ -74,6 +78,9 @@
 #include "disallowed_mms_query.h"
 #include "disallow_power_long_press_query.h"
 #include "disallowed_nfc_query.h"
+#ifdef FEATURE_PC_ONLY
+#include "get_auto_unlock_after_reboot_query.h"
+#endif
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -1735,6 +1742,114 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedAirplaneModeQuery002, TestSize.Lev
         == TEST_PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_airplane_mode");
 }
+
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: TestGetAutoUnlockAfterRebootQuery001
+ * @tc.desc: Test GetAutoUnlockAfterRebootQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetAutoUnlockAfterRebootQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAutoUnlockAfterRebootQuery002
+ * @tc.desc: Test GetAutoUnlockAfterRebootQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetAutoUnlockAfterRebootQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAutoUnlockAfterRebootQuery003
+ * @tc.desc: Test GetAutoUnlockAfterRebootQuery GetQueryName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestGetAutoUnlockAfterRebootQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT);
+}
+
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery001
+ * @tc.desc: Test DisallowModifyEthernetIpQuery QueryPolicy function return false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery002
+ * @tc.desc: Test DisallowModifyEthernetIpQuery QueryPolicy function return true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowModifyEthernetIpQuery003
+ * @tc.desc: Test DisallowModifyEthernetIpQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyEthernetIpQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowModifyEthernetIpQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag) ==
+        TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
