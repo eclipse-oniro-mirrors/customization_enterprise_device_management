@@ -34,6 +34,8 @@ public:
     int32_t GetUpgradeResult(const AppExecFwk::ElementName &admin, const std::string &version,
         UpgradeResult &upgradeResult);
     int32_t GetUpdateAuthData(MessageParcel &data, std::string &authData);
+    int32_t SetAutoUnlockAfterReboot(MessageParcel &data);
+    int32_t GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;

@@ -13,22 +13,24 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_ethernet_ip_query.h"
+#include "get_auto_unlock_after_reboot_query.h"
+
+#include "edm_constants.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyEthernetIpQuery::GetPolicyName()
+std::string GetAutoUnlockAfterRebootQuery::GetPolicyName()
 {
-    return PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP;
+    return PolicyName::POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT;
 }
 
-std::string DisallowModifyEthernetIpQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
+std::string GetAutoUnlockAfterRebootQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM;
 }
 
-ErrCode DisallowModifyEthernetIpQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+ErrCode GetAutoUnlockAfterRebootQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     return GetBoolPolicy(policyData, reply);

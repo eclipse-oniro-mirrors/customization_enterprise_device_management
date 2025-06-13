@@ -148,8 +148,12 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_samba_client_query.cpp",
       "./src/query_policy/disable_samba_server_query.cpp",
+      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp"
     ]
-    defines += [ "SAMBA_EDM_ENABLE" ]
+    defines += [
+      "SAMBA_EDM_ENABLE",
+      "FEATURE_PC_ONLY"
+    ]
   }
 
   if (ability_runtime_edm_enable) {
