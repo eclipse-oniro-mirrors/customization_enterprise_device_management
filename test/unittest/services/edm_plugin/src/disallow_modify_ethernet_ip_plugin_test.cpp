@@ -49,7 +49,7 @@ HWTEST_F(DisallowModifyEthernetIpPluginTest, TestDisallowModifyEthernetIpPluginS
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallModifyEthernetIpPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisallowModifyEthernetIpPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP);
     HandlePolicyData handlePolicyData{"false", "", false};
@@ -68,7 +68,7 @@ HWTEST_F(DisallowModifyEthernetIpPluginTest, TestDisallowModifyEthernetIpPluginS
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisallModifyEthernetIpPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisallowModifyEthernetIpPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP);
     HandlePolicyData handlePolicyData{"false", "", false};

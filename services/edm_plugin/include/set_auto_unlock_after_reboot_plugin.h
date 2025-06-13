@@ -13,25 +13,20 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_ethernet_ip_query.h"
+#ifndef SERVICES_EDM_PLUGIN_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_H
+
+#include "basic_bool_plugin.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyEthernetIpQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP;
-}
-
-std::string DisallowModifyEthernetIpQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
-}
-
-ErrCode DisallowModifyEthernetIpQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+class SetAutoUnlockAfterRebootPlugin :
+    public PluginSingleton<SetAutoUnlockAfterRebootPlugin, bool>, public BasicBoolPlugin {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetAutoUnlockAfterRebootPlugin, bool>> ptr) override;
+};
 } // namespace EDM
 } // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_H

@@ -13,25 +13,21 @@
  * limitations under the License.
  */
 
-#include "disallow_modify_ethernet_ip_query.h"
+#ifndef EDM_UNIT_TEST_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_TEST_H
+
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace EDM {
-std::string DisallowModifyEthernetIpQuery::GetPolicyName()
-{
-    return PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP;
-}
+namespace TEST {
+class SetAutoUnlockAfterRebootPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
 
-std::string DisallowModifyEthernetIpQuery::GetPermission(IPlugin::PermissionType permissionType,
-    const std::string &permissionTag)
-{
-    return EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
-}
-
-ErrCode DisallowModifyEthernetIpQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    return GetBoolPolicy(policyData, reply);
-}
+    static void TearDownTestSuite(void);
+};
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
+#endif // EDM_UNIT_TEST_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_TEST_H

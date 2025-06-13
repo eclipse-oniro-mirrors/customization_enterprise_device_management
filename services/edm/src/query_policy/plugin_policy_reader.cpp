@@ -111,6 +111,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
+#include "get_auto_unlock_after_reboot_query.h"
 #endif
 
 #include "allowed_install_bundles_query.h"
@@ -457,6 +458,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_SET_DEVICE_NAME:
             obj = std::make_shared<DisableSetDeviceNameQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
