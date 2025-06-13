@@ -111,6 +111,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
+#include "get_auto_unlock_after_reboot_query.h"
 #endif
 
 #include "allowed_install_bundles_query.h"
@@ -445,6 +446,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFitth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
 #ifdef MOBILE_DATA_ENABLE
             obj = std::make_shared<DisallowedMobileDataQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

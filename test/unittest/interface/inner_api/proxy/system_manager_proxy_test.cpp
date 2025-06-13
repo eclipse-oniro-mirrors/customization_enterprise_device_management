@@ -316,6 +316,47 @@ HWTEST_F(SystemManagerProxyTest, TestGetUpdateAuthDataSuc, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_EQ(authData, AUTH_DATA);
 }
+
+/**
+ * @tc.name: TestSetAutoUnlockAfterRebootSuc
+ * @tc.desc: Test SetAutoUnlockAfterReboot func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetAutoUnlockAfterRebootSuc, TestSize.Level1)
+{
+    bool isAllowed = true;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isAllowed);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    
+    int32_t ret = systemmanagerProxy->SetAutoUnlockAfterReboot(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+
+/**
+ * @tc.name: TestSetAutoUnlockAfterRebootFail
+ * @tc.desc: Test SetAutoUnlockAfterReboot func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetAutoUnlockAfterRebootFail, TestSize.Level1)
+{
+    bool isAllowed = true;
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isAllowed);
+
+    int32_t ret = systemmanagerProxy->SetAutoUnlockAfterReboot(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

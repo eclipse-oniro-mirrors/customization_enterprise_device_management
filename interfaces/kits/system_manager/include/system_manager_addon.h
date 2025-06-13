@@ -52,6 +52,8 @@ private:
     static napi_value NotifyUpdatePackages(napi_env env, napi_callback_info info);
     static napi_value GetUpgradeResult(napi_env env, napi_callback_info info);
     static napi_value GetUpdateAuthData(napi_env env, napi_callback_info info);
+    static napi_value SetAutoUnlockAfterReboot(napi_env env, napi_callback_info info);
+    static napi_value GetAutoUnlockAfterReboot(napi_env env, napi_callback_info info);
     static void CreatePolicyTypeObject(napi_env env, napi_value value);
     static void CreatePackageTypeObject(napi_env env, napi_value value);
     static void CreateUpgradeStatusObject(napi_env env, napi_value value);
