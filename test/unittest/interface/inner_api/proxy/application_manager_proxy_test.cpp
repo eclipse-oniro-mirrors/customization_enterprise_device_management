@@ -538,11 +538,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifyFail
     std::vector<std::string> keepAliveApps;
     bool disallowModify = false;
     std::string retMessage;
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps,
-        disallowModify, DEFAULT_USER_ID, retMessage);
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
- 
+
 /**
  * @tc.name: TestAddKeepAliveAppsWithDisallowModifySuc
  * @tc.desc: Test AddKeepAliveAppsWithDisallowModify success func.
@@ -557,11 +557,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifySuc,
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps,
-        disallowModify, DEFAULT_USER_ID, retMessage);
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
- 
+
 /**
  * @tc.name: TestGetKeepAliveAppDisallowModifyFail
  * @tc.desc: Test GetKeepAliveAppDisallowModify without enable edm service func.
@@ -574,10 +574,10 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifyFail, Tes
     std::string keepAliveApp;
     bool disallowModify;
     ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
-        disallowModify, DEFAULT_USER_ID);
+        DEFAULT_USER_ID, disallowModify);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
- 
+
 /**
  * @tc.name: TestGetKeepAliveAppDisallowModifySuc
  * @tc.desc: Test GetKeepAliveAppDisallowModify success func.
@@ -592,7 +592,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifySuc, Test
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
     ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
-        disallowModify, DEFAULT_USER_ID);
+        DEFAULT_USER_ID, disallowModify);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(disallowModify);
 }

@@ -295,7 +295,7 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName
 }
 
 int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,
-    std::string &keepAliveApp, bool &disallowModify, int32_t userId)
+    std::string &keepAliveApp, int32_t userId, bool &disallowModify)
 {
     EDMLOGI("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
