@@ -49,6 +49,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_remote_diagnosis_plugin_test.cpp",
     "./src/disable_samba_client_plugin_test.cpp",
     "./src/disable_samba_server_plugin_test.cpp",
+    "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
@@ -256,6 +257,12 @@ ohos_unittest("EdmPluginTest") {
 
   if (camera_framework_edm_enable) {
     sources += [ "./src/disable_camera_plugin_test.cpp" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/set_auto_unlock_after_reboot_plugin_test.cpp"
+    ]
   }
 
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -473,7 +480,10 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
-    sources += [ "../../../../services/edm_plugin/src/lock_screen_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/lock_screen_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp"
+    ]
   }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable) {
@@ -627,6 +637,12 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "camera_framework:camera_framework" ]
     sources +=
         [ "../../../../services/edm_plugin/src/disable_camera_plugin.cpp" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp"
+    ]
   }
 
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
