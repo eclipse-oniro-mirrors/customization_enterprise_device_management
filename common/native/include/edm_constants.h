@@ -97,6 +97,11 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
     }
 
+    namespace KeepAlive {
+        const char* const GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME = "bundleName";
+        const char* const GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY = "disallowModify";
+    }
+
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";
@@ -131,6 +136,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
+        const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
     } // namespace Restrictions
 
@@ -308,6 +314,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
     const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
+    const char* const POLICY_SET_DEVICE_NAME = "set_device_name";
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
     const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
