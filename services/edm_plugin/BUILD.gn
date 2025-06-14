@@ -118,7 +118,11 @@ ohos_shared_library("device_core_plugin") {
 
     if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       external_deps += [ "os_account:domain_account_innerkits" ]
-      sources += [ "./src/set_domain_account_policy_plugin.cpp" ]
+      sources += [
+        "./src/disallowed_usb_storage_device_write_plugin.cpp",
+        "./src/set_domain_account_policy_plugin.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
     }
 
     if (audio_framework_edm_enable) {

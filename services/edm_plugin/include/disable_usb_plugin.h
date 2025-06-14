@@ -28,7 +28,7 @@ public:
 private:
     ErrCode SetOtherModulePolicy(bool data) override;
     ErrCode RemoveOtherModulePolicy() override;
-    bool HasConflictPolicy();
+    ErrCode HasConflictPolicy(bool &hasConflict);
     void OnOtherServiceStart(int32_t systemAbilityId);
 };
 } // namespace EDM
