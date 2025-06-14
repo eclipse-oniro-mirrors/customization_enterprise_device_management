@@ -56,12 +56,10 @@ std::vector<ManageKeepAliveAppInfo> ManageKeepAliveAppsSerializer::SetNeedRemove
     std::vector<ManageKeepAliveAppInfo> &mergeData, std::vector<ManageKeepAliveAppInfo> &data)
 {
     std::vector<ManageKeepAliveAppInfo> removeData;
-    std::map<std::string, ManageKeepAliveAppInfo> mergeMap;
-    for (const ManageKeepAliveAppInfo &item : mergeData) {
-        mergeMap[item.GetBundleName()] = item;
-    }
     for (const ManageKeepAliveAppInfo &item : data) {
-        if (mergeMap.find(item.GetBundleName()) == mergeMap.end()) {
+        if (std::find_if(mergeData.begin(), mergeData.end(), [&item](const ManageKeepAliveAppInfo &mergeItem) {
+            return mergeItem.GetBundleName() == item.GetBundleName();
+        }) == mergeData.end()) {
             removeData.push_back(item);
         }
     }
@@ -125,7 +123,11 @@ bool ManageKeepAliveAppsSerializer::Serialize(const std::vector<ManageKeepAliveA
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policyObject, false, root);
         cJSON_AddStringToObject(policyObject, BUNDLE_NAME, mapIt.GetBundleName().c_str());
         cJSON_AddBoolToObject(policyObject, DISALLOW_MODIFY, mapIt.GetDisallowModify());
-        cJSON_AddItemToArray(root, policyObject);
+        if (!cJSON_AddItemToArray(root, policyObject)) {
+            cJSON_Delete(root);
+            cJSON_Delete(policyObject);
+            return false;
+        }
     }
     char *cJsonStr = cJSON_Print(root);
     if (cJsonStr != nullptr) {
