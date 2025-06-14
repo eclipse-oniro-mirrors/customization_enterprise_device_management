@@ -97,6 +97,11 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
     }
 
+    namespace KeepAlive {
+        const char* const GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME = "bundleName";
+        const char* const GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY = "disallowModify";
+    }
+
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";

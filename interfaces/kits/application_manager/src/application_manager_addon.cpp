@@ -52,9 +52,51 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAllowedKioskApps", GetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
+        DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsModifyKeepAliveAppsDisallowed called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isModifyKeepAliveAppsDisallowed");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    
+    int32_t userId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    
+    std::string keepAliveApp;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, keepAliveApp, argv[ARR_INDEX_TWO]) && keepAliveApp.size() > 0,
+        "Parameter keepAliveApps error");
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    bool isModifyKeepAliveAppsDisallowed = true;
+    int32_t ret = applicationManagerProxy->IsModifyKeepAliveAppsDisallowed(elementName, keepAliveApp,
+        userId, isModifyKeepAliveAppsDisallowed);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiIsModify = nullptr;
+    napi_get_boolean(env, isModifyKeepAliveAppsDisallowed, &napiIsModify);
+    return napiIsModify;
 }
 
 napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)
@@ -75,34 +117,37 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
     std::string function)
 {
     EDMLOGI("NAPI_AddOrRemoveKeepAliveApps called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
     ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-
     std::vector<std::string> keepAliveApps;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, keepAliveApps, argv[ARR_INDEX_ONE]),
         "Parameter keepAliveApps error");
     int32_t userId = 0;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
+    bool disallowModify = true;
+    if (argc >= ARGS_SIZE_FOUR) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
+            "Parameter disallowModify error");
+        EDMLOGI("NAPI_AddOrRemoveKeepAliveApps called disallowModify: %{public}d", disallowModify);
+    }
     EDMLOGD(
         "EnableAdmin: elementName.bundlename %{public}s, "
         "elementName.abilityname:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     int32_t ret = 0;
     std::string retMessage;
     if (function == "AddKeepAliveApps") {
-        ret = applicationManagerProxy->AddKeepAliveApps(elementName, keepAliveApps, userId, retMessage);
+        ret = applicationManagerProxy->AddKeepAliveApps(elementName, keepAliveApps, disallowModify, userId, retMessage);
     } else {
         ret = applicationManagerProxy->RemoveKeepAliveApps(elementName, keepAliveApps, userId);
     }
@@ -147,7 +192,7 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
         return nullptr;
     }
     napi_value napiKeepAliveApps = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &napiKeepAliveApps));
+    napi_create_array(env, &napiKeepAliveApps);
     ConvertStringVectorToJS(env, keepAliveApps, napiKeepAliveApps);
     return napiKeepAliveApps;
 }
