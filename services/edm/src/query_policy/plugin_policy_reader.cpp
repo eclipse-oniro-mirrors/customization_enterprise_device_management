@@ -487,6 +487,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_VPN:
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+            obj = std::make_shared<DisallowVPNQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
@@ -534,13 +541,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowModifyEthernetIpQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOW_VPN:
-#ifdef NETMANAGER_EXT_EDM_ENABLE
-            obj = std::make_shared<DisallowVPNQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
