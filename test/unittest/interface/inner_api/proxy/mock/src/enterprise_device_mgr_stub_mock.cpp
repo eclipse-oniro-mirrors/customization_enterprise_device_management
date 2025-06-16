@@ -364,8 +364,10 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy(uint32_t cod
     code_ = code;
     reply.WriteInt32(ERR_OK);
     std::vector<int32_t> inputData;
-    inputData.push_back(1);
-    inputData.push_back(2);
+    int32_t policyOne = 1;
+    int32_t policyTwo = 2;
+    inputData.push_back(policyOne);
+    inputData.push_back(policyTwo);
     reply.WriteInt32Vector(inputData);
     return 0;
 }

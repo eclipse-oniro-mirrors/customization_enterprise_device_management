@@ -51,6 +51,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_samba_client_plugin_test.cpp",
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
+    "./src/disable_set_device_name_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
@@ -63,6 +64,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/screen_off_time_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
+    "./src/utils/allowed_app_distribution_types_utils_test.cpp",
     "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
     "./src/disallowed_sms_plugin_test.cpp",
@@ -130,6 +132,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_running_bundles_plugin_test.cpp",
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
+      "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
     ]
   }
 
@@ -298,7 +301,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disallow_modify_ethernet_ip_plugin_test.cpp" ]
+    sources += [
+      "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
+      "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
+    ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
   
   sanitize = {
@@ -385,6 +392,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_set_device_name_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -478,8 +487,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
     sources += [
-      "../../../../services/edm_plugin/src/lock_screen_plugin.cpp",
-      "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp"
+      "../../../../services/edm_plugin/src/lock_screen_plugin.cpp"
     ]
   }
 
@@ -552,6 +560,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
     ]
   }
 

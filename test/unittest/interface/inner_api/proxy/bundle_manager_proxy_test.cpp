@@ -40,6 +40,8 @@ namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string TEST_PACKAGE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
+const int32_t APP_DISTRIBUTION_TYPE1 = 1;
+const int32_t APP_DISTRIBUTION_TYPE2 = 2;
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -474,8 +476,8 @@ HWTEST_F(BundleManagerProxyTest, TestAddInstallationAllowedAppDistributionTypesS
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::vector<int32_t> inputData;
-    inputData.push_back(1);
-    inputData.push_back(2);
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
     data.WriteInt32Vector(inputData);
 
     int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::SET);
@@ -495,8 +497,8 @@ HWTEST_F(BundleManagerProxyTest, TestAddInstallationAllowedAppDistributionTypesF
     admin.SetBundleName(ADMIN_PACKAGENAME);
     data.WriteParcelable(&admin);
     std::vector<int32_t> inputData;
-    inputData.push_back(1);
-    inputData.push_back(2);
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
     data.WriteInt32Vector(inputData);
 
     int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::SET);
@@ -518,8 +520,8 @@ HWTEST_F(BundleManagerProxyTest, TestRemoveInstallationAllowedAppDistributionTyp
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::vector<int32_t> inputData;
-    inputData.push_back(1);
-    inputData.push_back(2);
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
     data.WriteInt32Vector(inputData);
 
     int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::REMOVE);
@@ -539,8 +541,8 @@ HWTEST_F(BundleManagerProxyTest, TestRemoveInstallationAllowedAppDistributionTyp
     admin.SetBundleName(ADMIN_PACKAGENAME);
     data.WriteParcelable(&admin);
     std::vector<int32_t> inputData;
-    inputData.push_back(1);
-    inputData.push_back(2);
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
     data.WriteInt32Vector(inputData);
 
     int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::REMOVE);

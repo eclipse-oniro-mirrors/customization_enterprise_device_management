@@ -75,6 +75,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
     "../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
+    "../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
@@ -170,6 +171,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
       "../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
       "../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
+      "../../../services/edm_plugin/src/disable_set_device_name_plugin.cpp",
       "../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
       "../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -372,6 +374,14 @@ ohos_static_library("edmservice_fuzz_static") {
 
     if (!enterprise_device_management_feature_pc_only) {
       sources += [ "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp" ]
+    }
+
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
+        "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
     }
   }
 

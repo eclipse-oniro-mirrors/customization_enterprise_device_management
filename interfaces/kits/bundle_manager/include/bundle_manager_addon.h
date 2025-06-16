@@ -86,7 +86,7 @@ public:
     static napi_value GetDisallowedUninstallBundlesSync(napi_env env, napi_callback_info info);
     static napi_value GetInstalledBundleList(napi_env env, napi_callback_info info);
     static napi_value AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
-    static napi_value removeInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
+    static napi_value RemoveInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info,
         FuncOperateType operateType);
     static napi_value GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);

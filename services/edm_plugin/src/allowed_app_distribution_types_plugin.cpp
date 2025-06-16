@@ -19,8 +19,9 @@
 
 #include <system_ability_definition.h>
 
-#include "array_int_serializer.h"
 #include "allowed_app_distribution_types_utils.h"
+#include "app_distribution_type.h"
+#include "array_int_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
@@ -31,8 +32,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowedAppDistributionTypesPlugin::GetPlugin());
-const int32_t LOWER_BOUND = 1;
-const int32_t UPPER_BOUND = 6;
 
 void AllowedAppDistributionTypesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowedAppDistributionTypesPlugin, std::vector<int32_t>>> ptr)
@@ -56,7 +55,8 @@ ErrCode AllowedAppDistributionTypesPlugin::OnSetPolicy(std::vector<int32_t> &dat
         return ERR_OK;
     }
     for (const auto &item : data) {
-        if (item < LOWER_BOUND || item > UPPER_BOUND) {
+        if (item < static_cast<int32_t>(AppDistributionType::APP_GALLERY) ||
+            item > static_cast<int32_t>(AppDistributionType::CROWDTESTING)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
     }
@@ -84,7 +84,8 @@ ErrCode AllowedAppDistributionTypesPlugin::OnRemovePolicy(std::vector<int32_t> &
         return ERR_OK;
     }
     for (const auto &item : data) {
-        if (item < LOWER_BOUND || item > UPPER_BOUND) {
+        if (item < static_cast<int32_t>(AppDistributionType::APP_GALLERY) ||
+            item > static_cast<int32_t>(AppDistributionType::CROWDTESTING)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
     }
@@ -105,10 +106,6 @@ ErrCode AllowedAppDistributionTypesPlugin::OnAdminRemove(const std::string &admi
     std::vector<int32_t> &mergeData, int32_t userId)
 {
     EDMLOGD("AllowedAppDistributionTypesPlugin OnAdminRemove");
-    if (data.empty()) {
-        EDMLOGW("AllowedAppDistributionTypesPlugin OnRemovePolicy data is empty:");
-        return ERR_OK;
-    }
     return AllowedAppDistributionTypesUtils::SetAppDistributionTypes(mergeData);
 }
 } // namespace EDM

@@ -112,6 +112,7 @@
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
+#include "disable_usb_storage_device_write_query.h"
 #endif
 
 #include "allowed_app_distribution_types_query.h"
@@ -122,6 +123,7 @@
 #include "disable_remote_desk_query.h"
 #include "disable_remote_diagnosis_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
+#include "disable_set_device_name_query.h"
 #include "disable_user_mtp_client_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
@@ -455,9 +457,19 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK:
             obj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISABLE_SET_DEVICE_NAME:
+            obj = std::make_shared<DisableSetDeviceNameQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

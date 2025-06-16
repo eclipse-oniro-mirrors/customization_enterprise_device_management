@@ -64,6 +64,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
+    "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
@@ -227,6 +228,11 @@ ohos_static_library("edmservice_static") {
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
     external_deps += [ "usb_manager:usbsrv_client" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+      sources += [ "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp" ]
+      defines += [ "FEATURE_PC_ONLY" ]
   }
 
   deps = [

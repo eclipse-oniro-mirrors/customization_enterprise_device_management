@@ -69,9 +69,9 @@ bool ArrayIntSerializer::Serialize(const std::vector<int32_t> &dataObj, std::str
         return true;
     }
     cJSON* jsonArray = nullptr;
-    CJSON_CREATE_ARRAY_AND_CHECK(jsonArray , false);
+    CJSON_CREATE_ARRAY_AND_CHECK(jsonArray, false);
     for (const auto& item : dataObj) {
-        cJSON_AddItemToArray(jsonArray , cJSON_CreateNumber(item));
+        cJSON_AddItemToArray(jsonArray, cJSON_CreateNumber(item));
     }
     char* jsonStr = cJSON_Print(jsonArray);
     if (jsonStr == nullptr) {
@@ -112,6 +112,7 @@ bool ArrayIntSerializer::MergePolicy(std::vector<std::vector<int32_t>> &data, st
         }
     }
     result.assign(stData.begin(), stData.end());
+    Deduplication(result);
     return true;
 }
 

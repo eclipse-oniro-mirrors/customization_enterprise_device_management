@@ -114,7 +114,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addInstallationAllowedAppDistributionTypes",
             AddInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("removeInstallationAllowedAppDistributionTypes",
-            removeInstallationAllowedAppDistributionTypes),
+            RemoveInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("getInstallationAllowedAppDistributionTypes",
             GetInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
@@ -782,12 +782,14 @@ void BundleManagerAddon::CreateAppDistributionTypeObject(napi_env env, napi_valu
 napi_value BundleManagerAddon::AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddInstallationAllowedAppDistributionTypes called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addInstallationAllowedAppDistributionTypes");
     return AddOrRemoveInstallationAllowedAppDistributionTypes(env, info, FuncOperateType::SET);
 }
 
-napi_value BundleManagerAddon::removeInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
+napi_value BundleManagerAddon::RemoveInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveAllowedInstallAppDistributionTypes called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeInstallationAllowedAppDistributionTypes");
     return AddOrRemoveInstallationAllowedAppDistributionTypes(env, info, FuncOperateType::REMOVE);
 }
 
@@ -817,6 +819,7 @@ napi_value BundleManagerAddon::AddOrRemoveInstallationAllowedAppDistributionType
 
 napi_value BundleManagerAddon::GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
 {
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getInstallationAllowedAppDistributionTypes");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetInstallationAllowedAppDistributionTypes";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};

@@ -21,12 +21,11 @@
 #include "message_parcel.h"
 #include "iplugin.h"
 #include "iremote_stub.h"
-
-#include "basic_array_string_plugin.h"
+#include "manage_keep_alive_apps_info.h"
 
 namespace OHOS {
 namespace EDM {
-class ManageKeepAliveAppsPlugin : public IPlugin, public BasicArrayStringPlugin {
+class ManageKeepAliveAppsPlugin : public IPlugin {
 public:
     ManageKeepAliveAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -42,16 +41,23 @@ public:
         std::string &othersMergePolicyData) override;
 
 private:
-    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-        std::vector<std::string> &failedData) override;
-    ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-        std::vector<std::string> &failedData) override;
-    ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
+    ErrCode RemoveOtherModulePolicy(const std::vector<ManageKeepAliveAppInfo> &data, int32_t userId,
+        std::vector<ManageKeepAliveAppInfo> &failedData);
+    ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId, bool disallowModify);
     ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
+    ErrCode OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
+        std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData,
+        int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<std::string> &data,
+        std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData,
+        int32_t userId);
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
+        int32_t userId, std::vector<ManageKeepAliveAppInfo> &failedData, bool disallowModify);
     void ParseErrCode(ErrCode &ret);
     void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
     sptr<AAFwk::IAbilityManager> GetAbilityManager();
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
+    uint32_t maxListSize_ = 0;
 };
 } // namespace EDM
 } // namespace OHOS
