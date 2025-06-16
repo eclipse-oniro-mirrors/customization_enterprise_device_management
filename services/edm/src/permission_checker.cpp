@@ -67,6 +67,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
     EdmInterfaceCode::IS_APP_KIOSK_ALLOWED,
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
+    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
     EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
