@@ -112,6 +112,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SCREENSHOT = "screenshot";
         const char* const LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const char* const LABEL_DISALLOWED_POLICY_USB = "usb";
+        const char* const LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE = "usbStorageDeviceWrite";
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
         const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
@@ -134,6 +135,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
+        const char* const LABEL_DISALLOWED_POLICY_AIRPLANE_MODE = "airplaneMode";
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
@@ -262,6 +264,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
     const char* const POLICY_FIREWALL_RULE = "firewall_rule";
@@ -313,6 +316,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
     const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
+    const char* const POLICY_DISALLOWED_AIRPLANE_MODE = "disallowed_airplane_mode";
     const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
     const char* const POLICY_SET_DEVICE_NAME = "set_device_name";
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";

@@ -56,6 +56,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NFC, EdmInterfaceCode::DISALLOWED_NFC},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_AIRPLANE_MODE, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN}
 };
 
@@ -90,6 +91,8 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
+        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

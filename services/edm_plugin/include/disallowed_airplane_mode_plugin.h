@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,25 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_AIRPLANE_MODE_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_AIRPLANE_MODE_H
 
 #include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableUsbPlugin : public PluginSingleton<DisableUsbPlugin, bool>, public BasicBoolPlugin {
+class DisallowedAirplaneModePlugin : public PluginSingleton<DisallowedAirplaneModePlugin, bool>,
+    public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedAirplaneModePlugin, bool>> ptr) override;
 
 private:
     ErrCode SetOtherModulePolicy(bool data) override;
-    ErrCode RemoveOtherModulePolicy() override;
-    ErrCode HasConflictPolicy(bool &hasConflict);
-    void OnOtherServiceStart(int32_t systemAbilityId);
+
+    ErrCode RemoveOtherModulePolicy() override
+    {
+        return ERR_OK;
+    }
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_USB_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_AIRPLANE_MODE_H

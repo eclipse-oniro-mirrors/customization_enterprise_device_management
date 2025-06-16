@@ -109,9 +109,14 @@
 #include "disallowed_nfc_query.h"
 #endif
 
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "disallowed_airplane_mode_query.h"
+#endif
+
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
+#include "disable_usb_storage_device_write_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -456,6 +461,12 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+            obj = std::make_shared<DisallowedAirplaneModeQuery>();
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK:
             obj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
             return ERR_OK;
@@ -465,6 +476,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

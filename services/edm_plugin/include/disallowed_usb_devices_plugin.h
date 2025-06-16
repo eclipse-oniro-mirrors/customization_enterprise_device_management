@@ -35,7 +35,7 @@ public:
     void OnOtherServiceStart(int32_t systemAbilityId);
 
 private:
-    bool HasConflictPolicy();
+    ErrCode HasConflictPolicy(bool &hasConflict, std::vector<USB::UsbDeviceType> &usbDeviceTypes);
     void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
         std::vector<USB::UsbDeviceType> &combineData);
 };
