@@ -102,6 +102,11 @@ namespace EdmConstants {
         const char* const GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY = "disallowModify";
     }
 
+    namespace AutoStart {
+        const char* const GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO = "bundleInfo";
+        const char* const GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY = "disallowModify";
+    }
+
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";
