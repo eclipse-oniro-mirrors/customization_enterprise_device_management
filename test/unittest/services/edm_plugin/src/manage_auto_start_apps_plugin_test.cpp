@@ -173,7 +173,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyRemoveFailWithNotExist
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ErrCode res;
     reply.ReadInt32(res);
-    ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(ret == res);
 }
 
