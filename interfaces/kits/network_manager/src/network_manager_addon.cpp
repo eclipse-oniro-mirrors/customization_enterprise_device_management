@@ -1551,10 +1551,10 @@ napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
 #if defined(CELLULAR_DATA_EDM_ENABLE)
     auto checkStringIsNull = [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
         std::string apnId;
-        if (!ParseString(env, apnId, argv)) {
+        if (!ParseString(env, apnId, argv) || apnId == "") {
             return false;
         }
-        return apnId != "";
+        return data.WriteString(apnId);
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "DeleteApn";
