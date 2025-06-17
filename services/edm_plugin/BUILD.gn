@@ -58,6 +58,7 @@ ohos_shared_library("device_core_plugin") {
     "access_token:libtokenid_sdk",
     "cJSON:cjson",
     "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "hilog:libhilog",
     "init:libbegetutil",

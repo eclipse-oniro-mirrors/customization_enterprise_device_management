@@ -450,6 +450,7 @@ ohos_static_library("edm_all_plugin_static") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
