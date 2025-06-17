@@ -67,7 +67,7 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     std::vector<ManageAutoStartAppInfo> totalMergePolicyData;
     ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
     ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
-            totalMergePolicyData);
+        totalMergePolicyData);
     ErrCode res = EdmReturnErrCode::PARAM_ERROR;
     if (type == FuncOperateType::SET) {
         res = OnSetPolicy(autoStartApps, disallowModify, currentData, mergeData, userId);
@@ -89,7 +89,6 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     policyData.mergePolicyData = afterMerge;
     EDMLOGI("ManageAutoStartAppsPlugin hhh OnSetPolicy mergePolicy:%{public}s.", afterMerge.c_str());
     return ERR_OK;
-
 }
 
 ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data,
@@ -180,7 +179,7 @@ ErrCode ManageAutoStartAppsPlugin::OnAdminRemove(const std::string &adminName, c
     std::vector<ManageAutoStartAppInfo> needRemoveMergePolicy =
         ManageAutoStartAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, currentData);
     std::vector<ManageAutoStartAppInfo> failedData;
-    return SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);;
+    return SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);
 }
 
 ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
@@ -188,8 +187,8 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
 {
     std::unordered_map<std::string, std::string> adminValues;
     IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
-    EDMLOGI("ManageAutoStartAppsPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
-        (uint32_t)adminValues.size());
+    EDMLOGI("ManageAutoStartAppsPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.",
+        GetPolicyName().c_str(), (uint32_t)adminValues.size());
     if (adminValues.empty()) {
         return ERR_OK;
     }
@@ -282,8 +281,8 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
     return ERR_OK;
 }
 
-ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vector<ManageAutoStartAppInfo> &data, bool isSet,
-    std::vector<ManageAutoStartAppInfo> &failedData, int32_t userId)
+ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vector<ManageAutoStartAppInfo> &data,
+    bool isSet, std::vector<ManageAutoStartAppInfo> &failedData, int32_t userId)
 {
     EDMLOGI("ManageAutoStartAppsPlugin SetOrRemoveOtherModulePolicy: %{public}d.", isSet);
     auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();

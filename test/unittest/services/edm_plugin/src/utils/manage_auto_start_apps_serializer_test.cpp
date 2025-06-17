@@ -117,7 +117,6 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestDeserializeWithJustBundleNameAnd
     ASSERT_TRUE(dataObj[0].GetAbilityName() == "testAB1");
     ASSERT_TRUE(dataObj[0].GetUniqueKey() == "test1/testAB1");
     ASSERT_FALSE(dataObj[0].GetDisallowModify());
-
 }
  
 /**
