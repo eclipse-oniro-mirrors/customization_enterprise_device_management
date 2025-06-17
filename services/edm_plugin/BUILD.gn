@@ -79,6 +79,8 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_printer_plugin.cpp",
       "./src/disable_remote_desk_plugin.cpp",
       "./src/disable_remote_diagnosis_plugin.cpp",
+      "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
+      "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
@@ -116,7 +118,11 @@ ohos_shared_library("device_core_plugin") {
 
     if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       external_deps += [ "os_account:domain_account_innerkits" ]
-      sources += [ "./src/set_domain_account_policy_plugin.cpp" ]
+      sources += [
+        "./src/disallowed_usb_storage_device_write_plugin.cpp",
+        "./src/set_domain_account_policy_plugin.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
     }
 
     if (audio_framework_edm_enable) {
@@ -156,7 +162,9 @@ ohos_shared_library("device_core_plugin") {
 
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
-      sources += [ "./src/lock_screen_plugin.cpp" ]
+      sources += [
+        "./src/lock_screen_plugin.cpp"
+      ]
     }
 
     if (!enterprise_device_management_feature_pc_only) {
@@ -256,11 +264,11 @@ ohos_shared_library("communication_plugin") {
         "./src/disallow_modify_apn_plugin.cpp",
         "./src/disallowed_sim_plugin.cpp",
         "./src/disallowed_telephony_call_plugin.cpp",
-        "./src/domain_call_policy_plugin.cpp",
+        "./src/telephony_call_policy_plugin.cpp",
         "./src/set_apn_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
-        "./src/utils/domain_call_policy_serializer.cpp",
+        "./src/utils/telephony_call_policy_serializer.cpp",
       ]
       defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
     }
@@ -274,6 +282,7 @@ ohos_shared_library("communication_plugin") {
       ]
       sources += [
         "./src/disabled_network_interface_plugin.cpp",
+        "./src/disallowed_airplane_mode_plugin.cpp",
         "./src/domain_filter_rule_plugin.cpp",
         "./src/firewall_rule_plugin.cpp",
         "./src/global_proxy_plugin.cpp",
@@ -335,6 +344,8 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/disable_samba_client_plugin.cpp",
         "./src/disable_samba_server_plugin.cpp",
+        "./src/disallow_modify_ethernet_ip_plugin.cpp",
+        "./src/set_auto_unlock_after_reboot_plugin.cpp"
       ]
     }
 
@@ -425,6 +436,8 @@ ohos_shared_library("sys_service_plugin") {
         "./src/disallowed_running_bundles_plugin.cpp",
         "./src/manage_auto_start_apps_plugin.cpp",
         "./src/manage_keep_alive_apps_plugin.cpp",
+        "./src/utils/manage_keep_alive_apps_serializer.cpp",
+        "./src/utils/manage_keep_alive_apps_info.cpp",
       ]
     }
 

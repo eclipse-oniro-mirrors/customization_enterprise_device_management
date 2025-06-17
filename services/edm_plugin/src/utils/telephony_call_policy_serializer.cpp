@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "domain_call_policy_serializer.h"
+#include "telephony_call_policy_serializer.h"
 
 #include <unordered_set>
 #include "cJSON.h"
@@ -25,8 +25,8 @@ namespace EDM {
 const char* const POLICY_FLAG = "policyFlag";
 const char* const NUMBER_LIST = "numberList";
 
-bool DomainCallPolicySerializer::Deserialize(const std::string &policy,
-    std::map<std::string, DomainCallPolicyType> &dataObj)
+bool TelephonyCallPolicySerializer::Deserialize(const std::string &policy,
+    std::map<std::string, TelephonyCallPolicyType> &dataObj)
 {
     if (policy.empty()) {
         return true;
@@ -60,7 +60,7 @@ bool DomainCallPolicySerializer::Deserialize(const std::string &policy,
     return true;
 }
 
-bool DomainCallPolicySerializer::Serialize(const std::map<std::string, DomainCallPolicyType> &dataObj,
+bool TelephonyCallPolicySerializer::Serialize(const std::map<std::string, TelephonyCallPolicyType> &dataObj,
     std::string &policy)
 {
     cJSON* root = nullptr;
@@ -108,20 +108,20 @@ bool DomainCallPolicySerializer::Serialize(const std::map<std::string, DomainCal
     return true;
 }
 
-bool DomainCallPolicySerializer::GetPolicy(MessageParcel &data,
-    std::map<std::string, DomainCallPolicyType> &result)
+bool TelephonyCallPolicySerializer::GetPolicy(MessageParcel &data,
+    std::map<std::string, TelephonyCallPolicyType> &result)
 {
     return true;
 }
 
-bool DomainCallPolicySerializer::WritePolicy(MessageParcel &reply,
-    std::map<std::string, DomainCallPolicyType> &result)
+bool TelephonyCallPolicySerializer::WritePolicy(MessageParcel &reply,
+    std::map<std::string, TelephonyCallPolicyType> &result)
 {
     return true;
 }
 
-bool DomainCallPolicySerializer::MergePolicy(std::vector<std::map<std::string, DomainCallPolicyType>> &data,
-    std::map<std::string, DomainCallPolicyType> &result)
+bool TelephonyCallPolicySerializer::MergePolicy(std::vector<std::map<std::string, TelephonyCallPolicyType>> &data,
+    std::map<std::string, TelephonyCallPolicyType> &result)
 {
     for (auto policyMap : data) {
         for (auto iter : policyMap) {

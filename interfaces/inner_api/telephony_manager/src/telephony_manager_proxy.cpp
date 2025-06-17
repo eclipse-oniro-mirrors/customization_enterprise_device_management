@@ -85,7 +85,7 @@ int32_t TelephonyManagerProxy::AddCallPolicyNumbers(const AppExecFwk::ElementNam
     }
     data.WriteStringVector(numbers);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DOMAIN_CALL_POLICY);
+        EdmInterfaceCode::TELEPHONY_CALL_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -105,7 +105,7 @@ int32_t TelephonyManagerProxy::RemoveCallPolicyNumbers(const AppExecFwk::Element
     }
     data.WriteStringVector(numbers);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-        EdmInterfaceCode::DOMAIN_CALL_POLICY);
+        EdmInterfaceCode::TELEPHONY_CALL_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -123,7 +123,7 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementNam
     data.WriteString(callType);
     data.WriteInt32(policyFlag);
 
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DOMAIN_CALL_POLICY, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::TELEPHONY_CALL_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -131,7 +131,7 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementNam
         return ret;
     }
     reply.ReadStringVector(&numbers);
-    EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success. %{public}d", size);
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success. %{public}lu", numbers.size());
     return ERR_OK;
 }
 } // namespace EDM

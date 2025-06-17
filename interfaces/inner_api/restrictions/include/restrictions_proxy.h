@@ -46,6 +46,7 @@ public:
     int32_t GetDisallowedListForAccount(AppExecFwk::ElementName &admin, std::string feature, int32_t accountId,
         std::vector<std::string> &result);
     int32_t SetUserRestriction(const AppExecFwk::ElementName &admin, bool disallow, int policyCode);
+    int32_t GetUserRestricted(const AppExecFwk::ElementName *admin, int policyCode, bool &result);
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
     static std::once_flag flag_;

@@ -181,6 +181,117 @@ HWTEST_F(TelephonyManagerProxyTest, TestIsSimDisabledFail, TestSize.Level1)
     ASSERT_FALSE(result);
 }
 
+/**
+ * @tc.name: TestAddCallPolicyNumbersSuc
+ * @tc.desc: Test AddCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    numbers.push_back("1111111");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddCallPolicyNumbersFail
+ * @tc.desc: Test AddCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    numbers.push_back("1111111");
+    int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveCallPolicyNumbersSuc
+ * @tc.desc: Test RemoveCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    numbers.push_back("1111111");
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->RemoveCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveCallPolicyNumbersFail
+ * @tc.desc: Test RemoveCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    numbers.push_back("1111111");
+    int32_t ret = telephonyManagerProxy->RemoveCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetCallPolicyNumbersSuc
+ * @tc.desc: Test GetCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetCallPolicyNumbersFail
+ * @tc.desc: Test GetCallPolicyNumbers func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

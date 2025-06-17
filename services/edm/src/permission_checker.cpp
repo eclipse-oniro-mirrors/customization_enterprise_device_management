@@ -59,19 +59,24 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::PASSWORD_POLICY,
     EdmInterfaceCode::DISABLE_REMOTE_DESK,
     EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS,
+    EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
+    EdmInterfaceCode::DISABLE_SET_DEVICE_NAME,
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE,
     EdmInterfaceCode::DISALLOWED_SMS,
     EdmInterfaceCode::DISALLOWED_MMS,
     EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
     EdmInterfaceCode::IS_APP_KIOSK_ALLOWED,
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
+    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
+    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_NEAR_LINK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY,
-    EdmInterfaceCode::DISALLOWED_NFC
+    EdmInterfaceCode::DISALLOWED_NFC,
+    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

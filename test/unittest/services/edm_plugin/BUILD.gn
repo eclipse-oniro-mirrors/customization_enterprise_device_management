@@ -49,6 +49,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_remote_diagnosis_plugin_test.cpp",
     "./src/disable_samba_client_plugin_test.cpp",
     "./src/disable_samba_server_plugin_test.cpp",
+    "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
+    "./src/disable_set_device_name_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
@@ -128,6 +130,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_running_bundles_plugin_test.cpp",
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
+      "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
     ]
   }
 
@@ -172,6 +175,7 @@ ohos_unittest("EdmPluginTest") {
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
     sources += [
+      "./src/disallowed_airplane_mode_plugin_test.cpp",
       "./src/domain_filter_rule_plugin_test.cpp",
       "./src/firewall_rule_plugin_test.cpp",
       "./src/global_proxy_plugin_test.cpp",
@@ -258,6 +262,12 @@ ohos_unittest("EdmPluginTest") {
     sources += [ "./src/disable_camera_plugin_test.cpp" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/set_auto_unlock_after_reboot_plugin_test.cpp"
+    ]
+  }
+
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [ "os_account:domain_account_innerkits" ]
     sources += [
@@ -278,6 +288,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/set_apn_plugin_test.cpp",
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/disallowed_sim_plugin_test.cpp",
+      "./src/telephony_call_policy_plugin_test.cpp",
+      "./src/disallowed_telephony_call_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -287,6 +299,14 @@ ohos_unittest("EdmPluginTest") {
 
   if (!enterprise_device_management_feature_pc_only) {
     sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
+      "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
+    ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
   
   sanitize = {
@@ -372,6 +392,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_set_device_name_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -463,7 +485,9 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
-    sources += [ "../../../../services/edm_plugin/src/lock_screen_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/lock_screen_plugin.cpp"
+    ]
   }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable) {
@@ -506,6 +530,7 @@ ohos_static_library("edm_all_plugin_static") {
     ]
     sources += [
       "../../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_airplane_mode_plugin.cpp",
       "../../../../services/edm_plugin/src/domain_filter_rule_plugin.cpp",
       "../../../../services/edm_plugin/src/firewall_rule_plugin.cpp",
       "../../../../services/edm_plugin/src/get_all_network_interfaces_plugin.cpp",
@@ -535,6 +560,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
     ]
   }
 
@@ -619,6 +646,12 @@ ohos_static_library("edm_all_plugin_static") {
         [ "../../../../services/edm_plugin/src/disable_camera_plugin.cpp" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp"
+    ]
+  }
+
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
     external_deps += [
       "cellular_data:tel_cellular_data_api",
@@ -631,11 +664,18 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
       "../../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_call_policy_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/telephony_call_policy_serializer.cpp",
+      "../../../../services/edm_plugin/src/disallowed_telephony_call_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
       "TELEPHONY_EDM_ENABLE",
     ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [ "../../../../services/edm_plugin/src/disallow_modify_ethernet_ip_plugin.cpp" ]
   }
 
   sanitize = {

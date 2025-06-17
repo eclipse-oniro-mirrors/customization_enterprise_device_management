@@ -21,6 +21,7 @@
 #include "iptables_utils.h"
 
 using namespace OHOS::EDM;
+constexpr int32_t STRING_MAX_LEN = 100;
 
 napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
 {
@@ -119,6 +120,16 @@ napi_value TelephonyManagerAddon::IsSimDisabled(napi_env env, napi_callback_info
 #endif
 }
 
+bool TelephonyManagerAddon::CheckVectorStringLength(const std::vector<std::string> &array)
+{
+    for (const auto &item : array) {
+        if (item.empty() || item.length() > STRING_MAX_LEN) {
+            return false;
+        }
+    }
+    return true;
+}
+
 napi_value TelephonyManagerAddon::AddOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddOutgoingCallPolicyNumbers called");
@@ -145,6 +156,7 @@ napi_value TelephonyManagerAddon::AddOutgoingCallPolicyNumbers(napi_env env, nap
     std::vector<std::string> numbers;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddCallPolicyNumbers(
         elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
@@ -185,6 +197,7 @@ napi_value TelephonyManagerAddon::RemoveOutgoingCallPolicyNumbers(napi_env env, 
     std::vector<std::string> numbers;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveCallPolicyNumbers(
         elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
@@ -266,6 +279,7 @@ napi_value TelephonyManagerAddon::AddIncomingCallPolicyNumbers(napi_env env, nap
     std::vector<std::string> numbers;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddCallPolicyNumbers(
         elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
@@ -306,6 +320,7 @@ napi_value TelephonyManagerAddon::RemoveIncomingCallPolicyNumbers(napi_env env, 
     std::vector<std::string> numbers;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
         "apnInfo name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveCallPolicyNumbers(
         elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);

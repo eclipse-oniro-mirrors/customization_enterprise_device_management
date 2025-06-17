@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DOMAIN_CALL_POLICY_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DOMAIN_CALL_POLICY_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_TELEPHONY_CALL_POLICY_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_TELEPHONY_CALL_POLICY_PLUGIN_H
 
-#include "domain_call_policy_serializer.h"
+#include "telephony_call_policy_serializer.h"
 #include "iplugin.h"
 #include "ipolicy_manager.h"
 
 namespace OHOS {
     namespace EDM {
-    class DomainCallPolicyPlugin : public IPlugin {
+    class TelephonyCallPolicyPlugin : public IPlugin {
     public:
-        DomainCallPolicyPlugin();
+        TelephonyCallPolicyPlugin();
     
         ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
             HandlePolicyData &policyData, int32_t userId) override;
@@ -40,14 +40,20 @@ namespace OHOS {
         void OnOtherServiceStart(int32_t systemAbilityId) override;
     
     private:
-        ErrCode AddCurrentAndMergePolicy(std::map<std::string, DomainCallPolicyType> &policies,
-            std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &polictType,
+        std::vector<std::string> MergeAndRemoveDuplicates(const std::vector<std::string> &v1,
+            const std::vector<std::string> &v2);
+        bool IsTrustBlockConflict(const std::string &policyTye, const int32_t flag,
+            std::map<std::string, TelephonyCallPolicyType> &mergePolicies);
+        bool CheckIsLimit(const std::string &policyTye, const int32_t flag,
+            const std::vector<std::string> &addList, std::map<std::string, TelephonyCallPolicyType> &mergePolicies);
+        ErrCode AddCurrentAndMergePolicy(std::map<std::string, TelephonyCallPolicyType> &policies,
+            std::map<std::string, TelephonyCallPolicyType> &mergePolicies, const std::string &polictType,
             const int32_t flag, const std::vector<std::string> &policyName);
-        ErrCode RemoveCurrentAndMergePolicy(std::map<std::string, DomainCallPolicyType> &policies,
-            std::map<std::string, DomainCallPolicyType> &mergePolicies, const std::string &polictType,
+        ErrCode RemoveCurrentAndMergePolicy(std::map<std::string, TelephonyCallPolicyType> &policies,
+            std::map<std::string, TelephonyCallPolicyType> &mergePolicies, const std::string &polictType,
             const int32_t flag, const std::vector<std::string> &policyName);
     };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DOMAIN_CALL_POLICY_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_TELEPHONY_CALL_POLICY_PLUGIN_H
