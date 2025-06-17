@@ -52,6 +52,7 @@
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
 #include "disallow_modify_datetime_query.h"
+#include "disallowed_airplane_mode_query.h"
 #include "disallowed_bluetooth_devices_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_running_bundles_query.h"
@@ -125,6 +126,7 @@ const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI = "ohos.permission.ENTE
 const std::string TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY =
     "ohos.permission.ENTERPRISE_SET_BUNDLE_INSTALL_POLICY";
 const std::string TEST_PERMISSION_ENTERPRISE_GET_DEVICE_INFO = "ohos.permission.ENTERPRISE_GET_DEVICE_INFO";
+const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_NETWORK = "ohos.permission.ENTERPRISE_MANAGE_NETWORK";
 const std::string TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM = "ohos.permission.ENTERPRISE_MANAGE_SYSTEM";
 const std::string TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
 void PluginPolicyQueryTest::SetUp() {}
@@ -1747,6 +1749,38 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedNFCQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_nfc");
 }
 
+/**
+ * @tc.name: TestDisallowedAirplaneModeQuery001
+ * @tc.desc: Test DisallowedAirplaneModeQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedAirplaneModeQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedAirplaneModeQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedAirplaneModeQuery002
+ * @tc.desc: Test DisallowedAirplaneModeQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedAirplaneModeQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedAirplaneModeQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_NETWORK);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_airplane_mode");
+}
 
 /**
  * @tc.name: TestDisableSetBiometricsAndScreenLockQuery001

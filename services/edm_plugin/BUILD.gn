@@ -280,6 +280,7 @@ ohos_shared_library("communication_plugin") {
       ]
       sources += [
         "./src/disabled_network_interface_plugin.cpp",
+        "./src/disallowed_airplane_mode_plugin.cpp",
         "./src/domain_filter_rule_plugin.cpp",
         "./src/firewall_rule_plugin.cpp",
         "./src/global_proxy_plugin.cpp",

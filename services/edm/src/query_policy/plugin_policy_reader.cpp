@@ -109,6 +109,10 @@
 #include "disallowed_nfc_query.h"
 #endif
 
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+#include "disallowed_airplane_mode_query.h"
+#endif
+
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
@@ -451,6 +455,12 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 #ifdef MOBILE_DATA_ENABLE
             obj = std::make_shared<DisallowedMobileDataQuery>();
             return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+            obj = std::make_shared<DisallowedAirplaneModeQuery>();
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif

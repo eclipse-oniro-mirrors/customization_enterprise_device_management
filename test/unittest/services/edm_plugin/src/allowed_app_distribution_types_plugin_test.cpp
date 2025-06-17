@@ -187,25 +187,10 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy004, TestSize.
 
 /**
 * @tc.name: TestOnAdminRemovePolicy001
-* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnAdminRemove function when policy is true.
+* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnAdminRemove function.
 * @tc.type: FUNC
 */
 HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnAdminRemovePolicy001, TestSize.Level1)
-{
-    AllowedAppDistributionTypesPlugin plugin;
-    std::string adminName{"testAdminName"};
-    std::vector<int32_t> policyData;
-    std::vector<int32_t> mergeData;
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
-* @tc.name: TestOnAdminRemovePolicy002
-* @tc.desc: Test AllowedAppDistributionTypesPlugin::OnAdminRemove function when policy is disabled.
-* @tc.type: FUNC
-*/
-HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnAdminRemovePolicy002, TestSize.Level1)
 {
     AllowedAppDistributionTypesPlugin plugin;
     std::string adminName{"testAdminName"};

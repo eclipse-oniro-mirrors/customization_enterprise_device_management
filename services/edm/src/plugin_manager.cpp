@@ -83,6 +83,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::DISALLOWED_NFC, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
+    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
