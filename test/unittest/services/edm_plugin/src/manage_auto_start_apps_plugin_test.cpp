@@ -14,7 +14,9 @@
  */
 
 #define protected public
+#define private public
 #include "manage_auto_start_apps_plugin_test.h"
+#define private public
 #undef protected
 
 #include "bundle_info.h"
@@ -27,11 +29,15 @@
 
 #include "array_string_serializer.h"
 #include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "install_plugin.h"
 #include "uninstall_plugin.h"
 #include "utils.h"
+#include "func_code.h"
+#include "manage_auto_start_app_info.h"
+#include "manage_auto_start_apps_serializer.h"
 
 using namespace testing::ext;
 
@@ -58,6 +64,179 @@ void ManageAutoStartAppsPluginTest::TearDownTestSuite(void)
 }
 
 /**
+ * @tc.name: TestOnHandlePolicyAddFailWithNullData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnHandlePolicy add when data is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyAddFailWithNullData, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    std::vector<std::string> autoStartApps;
+    data.WriteStringVector(autoStartApps);
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyRemoveFailWithNullData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnHandlePolicy remove when data is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyRemoveFailWithNullData, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    std::vector<std::string> autoStartApps;
+    data.WriteStringVector(autoStartApps);
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyFailWithOversizeData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnHandlePolicy when data is oversize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyFailWithOversizeData, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
+    std::vector<std::string> dataStr;
+    for (int i = 0; i < 15; i++) {
+        std::string str = "test/test" + std::to_string(i);
+        dataStr.push_back(str);
+    }
+    data.WriteStringVector(dataStr);
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyAddFailWithNotExistedData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnHandlePolicy add when app is not existed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyAddFailWithNotExistedData, TestSize.Level1)
+{
+    std::vector<std::string> autoStartApps = {"com.not.existed/com.not.exxisted"};
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteStringVector(autoStartApps);
+    HandlePolicyData policyData;
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ErrCode res;
+    reply.ReadInt32(res);
+    ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == res);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyRemoveFailWithNotExistedData
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnHandlePolicy remove when app is not existed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnHandlePolicyRemoveFailWithNotExistedData, TestSize.Level1)
+{
+    std::vector<std::string> autoStartApps = {"com.not.existed/com.not.exxisted"};
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteStringVector(autoStartApps);
+    HandlePolicyData policyData;
+    ArrayStringSerializer::GetInstance()->Serialize(autoStartApps, policyData.policyData);
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ErrCode res;
+    reply.ReadInt32(res);
+    ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == res);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyFail
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnGetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicyFail, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    std::vector<std::string> autoStartApps;
+    data.WriteString("bundleName");
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    reply.ReadStringVector(&autoStartApps);
+    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (autoStartApps.empty()));
+}
+
+/**
+ * @tc.name: TestGetDisallowModifyFail
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnGetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestGetDisallowModifyFail, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    std::vector<std::string> autoStartApps;
+    data.WriteString("disallowModity");
+    data.WriteString("com.test1");
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    bool disallowModify = reply.ReadBool();
+    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (!disallowModify));
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveDoneFail
+ * @tc.desc: Test ManageAutoStartAppsPlugin::OnAdminRemoveDone.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnAdminRemoveDoneFail, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    std::string adminName;
+    std::string currentJsonData;
+    plugin.OnAdminRemoveDone(adminName, currentJsonData, DEFAULT_USER_ID);
+
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("bundleName");
+    std::vector<std::string> autoStartApps;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    reply.ReadStringVector(&autoStartApps);
+    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (autoStartApps.empty()));
+}
+
+/**
  * @tc.name: TestOnSetPolicySucWithNullData
  * @tc.desc: Test ManageAutoStartAppsPlugin::OnSetPolicy when data is empty.
  * @tc.type: FUNC
@@ -67,9 +246,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySucWithNullData, TestSize
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data;
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    bool disallowModify = false;
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -87,9 +267,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleExceededLim
         std::string str = "test/test" + std::to_string(i);
         data.push_back(str);
     }
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    bool disallowModify = false;
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -103,9 +284,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithbundleNotExist, T
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    bool disallowModify = false;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -119,9 +301,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyFailWithInvalidData, Test
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {INVALID_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    bool disallowModify = false;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -143,13 +326,14 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         ManageAutoStartAppsPlugin plugin;
         plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
-        std::vector<std::string> currentData;
-        std::vector<std::string> mergeData;
-        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        std::vector<ManageAutoStartAppInfo> currentData;
+        std::vector<ManageAutoStartAppInfo> mergeData;
+        bool disallowModify = false;
+        ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
         std::string policyData;
-        ArrayStringSerializer::GetInstance()->Serialize(currentData, policyData);
+        ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, policyData);
         MessageParcel parcel;
         MessageParcel getReply;
         ret = plugin.OnGetPolicy(policyData, parcel, getReply, DEFAULT_USER_ID);
@@ -162,11 +346,11 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 
         std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
         mergeData.clear();
-        ret = plugin.OnBasicRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
         MessageParcel removeReply;
-        ArrayStringSerializer::GetInstance()->Serialize(currentData, policyData);
+        ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, policyData);
         ret = plugin.OnGetPolicy(policyData, parcel, removeReply, DEFAULT_USER_ID);
         std::vector<std::string> afterRemove;
         EXPECT_TRUE(ret == ERR_OK);
@@ -208,9 +392,9 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestS
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data;
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -224,9 +408,9 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, Tes
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
     std::vector<std::string> data = {ERROR_TEST_BUNDLE};
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    std::vector<ManageAutoStartAppInfo> currentData;
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -248,19 +432,25 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         ManageAutoStartAppsPlugin plugin;
         plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
-        std::vector<std::string> currentData;
-        std::vector<std::string> mergeData;
-        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        std::vector<ManageAutoStartAppInfo> currentData;
+        std::vector<ManageAutoStartAppInfo> mergeData;
+        bool disallowModify = false;
+        ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
         data = {INVALID_TEST_BUNDLE};
-        currentData = {INVALID_TEST_BUNDLE};
-        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ManageAutoStartAppInfo info;
+        info.SetBundleName(INVALID_TEST_BUNDLE);
+        info.SetAbilityName("");
+        currentData.push_back(info);
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 
         data = {RIGHT_TEST_BUNDLE};
-        currentData = {RIGHT_TEST_BUNDLE};
-        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ManageAutoStartAppInfo info1;
+        info1.SetUniqueKey(RIGHT_TEST_BUNDLE);
+        currentData = {info1};
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
@@ -289,9 +479,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         ManageAutoStartAppsPlugin plugin;
         plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
         std::vector<std::string> data = {RIGHT_TEST_BUNDLE};
-        std::vector<std::string> currentData;
-        std::vector<std::string> mergeData;
-        ret = plugin.OnBasicSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        std::vector<ManageAutoStartAppInfo> currentData;
+        std::vector<ManageAutoStartAppInfo> mergeData;
+        bool disallowModify = false;
+        ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
@@ -302,7 +493,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
 
         data = {RIGHT_TEST_BUNDLE};
         mergeData.clear();
-        ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
     }
 }

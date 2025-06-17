@@ -15,58 +15,275 @@
 
 #include "manage_auto_start_apps_plugin.h"
 
+#include <algorithm>
+
+#include "app_control/app_control_proxy.h"
 #include <bundle_info.h>
 #include <bundle_mgr_interface.h>
 #include <system_ability_definition.h>
 
 #include "ability_auto_startup_client.h"
-#include "array_string_serializer.h"
+#include "manage_auto_start_apps_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
+#include "func_code_utils.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ManageAutoStartAppsPlugin>());
 const std::string SEPARATOR = "/";
 
-void ManageAutoStartAppsPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<ManageAutoStartAppsPlugin, std::vector<std::string>>> ptr)
+ManageAutoStartAppsPlugin::ManageAutoStartAppsPlugin()
 {
-    EDMLOGI("ManageAutoStartAppsPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::MANAGE_AUTO_START_APPS, PolicyName::POLICY_MANAGE_AUTO_START_APPS,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(ArrayStringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&ManageAutoStartAppsPlugin::OnBasicRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveListener(&ManageAutoStartAppsPlugin::OnBasicAdminRemove);
+    policyCode_ = EdmInterfaceCode::MANAGE_AUTO_START_APPS;
+    policyName_ = PolicyName::POLICY_MANAGE_AUTO_START_APPS;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
     maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
 }
 
-ErrCode ManageAutoStartAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
-    int32_t userId, std::vector<std::string> &failedData)
+ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
-    return SetOrRemoveOtherModulePolicy(data, true, failedData);
+    EDMLOGI("ManageAutoStartAppsPlugin hhh OnHandlePolicy.");
+    uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+    FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+    std::vector<std::string> autoStartApps;
+    data.ReadStringVector(&autoStartApps);
+    bool disallowModify = false;
+    data.ReadBool(disallowModify);
+    std::vector<ManageAutoStartAppInfo> currentData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    std::string mergePolicyStr;
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    std::vector<ManageAutoStartAppInfo> totalMergePolicyData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
+    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
+            totalMergePolicyData);
+    ErrCode res = EdmReturnErrCode::PARAM_ERROR;
+    if (type == FuncOperateType::SET) {
+        res = OnSetPolicy(autoStartApps, disallowModify, currentData, mergeData, userId);
+    } else if (type == FuncOperateType::REMOVE) {
+        res = OnRemovePolicy(autoStartApps, currentData, mergeData, userId);
+    }
+    EDMLOGI("ManageAutoStartAppsPlugin hhh OnSetPolicy hhhh");
+    if (res != ERR_OK) {
+        reply.WriteInt32(res);
+        return res;
+    }
+    reply.WriteInt32(ERR_OK);
+    std::string afterHandle;
+    std::string afterMerge;
+    ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
+    ManageAutoStartAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    policyData.isChanged = (policyData.mergePolicyData != afterMerge);
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterMerge;
+    EDMLOGI("ManageAutoStartAppsPlugin hhh OnSetPolicy mergePolicy:%{public}s.", afterMerge.c_str());
+    return ERR_OK;
+
+}
+
+ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data,
+    std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
+{
+    if (data.empty()) {
+        EDMLOGW("BasicArrayStringPlugin OnRemovePolicy data is empty.");
+        return ERR_OK;
+    }
+    if (data.size() > maxListSize_) {
+        EDMLOGE("BasicArrayStringPlugin OnRemovePolicy input data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::vector<ManageAutoStartAppInfo> needRemovePolicy =
+        ManageAutoStartAppsSerializer::GetInstance()->SetIntersectionPolicyData(data, currentData);
+    std::vector<ManageAutoStartAppInfo> needRemoveMergePolicy =
+        ManageAutoStartAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
+
+    std::vector<ManageAutoStartAppInfo> failedData;
+    if (!needRemoveMergePolicy.empty()) {
+        ErrCode ret = SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
+    }
+    if (failedData.empty()) {
+        currentData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy,
+            currentData);
+    } else {
+        auto removeData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData,
+            needRemovePolicy);
+        currentData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(removeData,
+            currentData);
+    }
+    mergeData = ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, mergeData);
+    return ERR_OK;
 }
 
 ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("ManageAutoStartAppsPlugin OnGetPolicy policyData : %{public}s, userId : %{public}d", policyData.c_str(),
-        userId);
-    return BasicGetPolicy(policyData, data, reply, userId);
+    EDMLOGI("ManageAutoStartAppsPlugin OnGetPolicy.");
+    std::string type = data.ReadString();
+    if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO) {
+        std::vector<ManageAutoStartAppInfo> appInfos;
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
+        std::vector<std::string> policies;
+        for (const ManageAutoStartAppInfo &item : appInfos) {
+            policies.push_back(item.GetUniqueKey());
+        }
+        reply.WriteInt32(ERR_OK);
+        reply.WriteStringVector(policies);
+    } else if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY) {
+        std::string uniqueKey = data.ReadString();
+        std::string mergePolicyStr;
+        IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+        std::vector<ManageAutoStartAppInfo> mergePolicyData;
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
+        bool hasSetAutoStart = false;
+        for (const ManageAutoStartAppInfo &item : mergePolicyData) {
+            if (item.GetUniqueKey() == uniqueKey) {
+                reply.WriteInt32(ERR_OK);
+                reply.WriteBool(item.GetDisallowModify());
+                hasSetAutoStart = true;
+                break;
+            }
+        }
+        if (!hasSetAutoStart) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteBool(false);
+        }
+    } else {
+        EDMLOGE("ManageAutoStartAppsPlugin::OnGetPolicy type error");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
-ErrCode ManageAutoStartAppsPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-    std::vector<std::string> &failedData)
+ErrCode ManageAutoStartAppsPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+    const std::string &mergeJsonData, int32_t userId)
 {
-    return SetOrRemoveOtherModulePolicy(data, false, failedData);
+    EDMLOGI("ManageAutoStartAppsPlugin OnAdminRemoveDone");
+    
+    std::vector<ManageAutoStartAppInfo> currentData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(currentJsonData, currentData);
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergeJsonData, mergeData);
+    std::vector<ManageAutoStartAppInfo> needRemoveMergePolicy =
+        ManageAutoStartAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, currentData);
+    std::vector<ManageAutoStartAppInfo> failedData;
+    return SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);;
 }
 
-ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vector<std::string> &data, bool isSet,
-    std::vector<std::string> &failedData)
+ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
+    std::string &othersMergePolicyData)
+{
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    EDMLOGI("ManageAutoStartAppsPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+        (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto serializer = ManageAutoStartAppsSerializer::GetInstance();
+    std::vector<std::vector<ManageAutoStartAppInfo>> data;
+    for (const auto &item : adminValues) {
+        std::vector<ManageAutoStartAppInfo> dataItem;
+        if (!item.second.empty()) {
+            if (!serializer->Deserialize(item.second, dataItem)) {
+                return ERR_EDM_OPERATE_JSON;
+            }
+            data.push_back(dataItem);
+        }
+    }
+    std::vector<ManageAutoStartAppInfo> result;
+    if (!serializer->MergePolicy(data, result)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+
+    std::string mergePolicyStr;
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    std::vector<ManageAutoStartAppInfo> mergePolicyData;
+    if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+
+    if (!serializer->UpdateByMergePolicy(result, mergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+
+    if (!serializer->Serialize(result, othersMergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+
+    return ERR_OK;
+}
+
+ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
+    std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
+{
+    if (data.empty()) {
+        EDMLOGW("ManageAutoStartAppsPlugin OnSetPolicy data is empty.");
+        return ERR_OK;
+    }
+    if (data.size() > maxListSize_) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::vector<ManageAutoStartAppInfo> tmpData;
+    for (const auto &item : data) {
+        ManageAutoStartAppInfo appInfo;
+        appInfo.SetUniqueKey(item);
+        appInfo.SetDisallowModify(disallowModify);
+        tmpData.push_back(appInfo);
+    }
+    std::vector<ManageAutoStartAppInfo> addData =
+        ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
+    std::vector<ManageAutoStartAppInfo> needAddMergeData =
+        ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, addData);
+    std::vector<ManageAutoStartAppInfo> afterHandle =
+        ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, addData);
+    std::vector<ManageAutoStartAppInfo> afterMerge =
+        ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    if (afterMerge.size() > maxListSize_) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy merge data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+
+    std::vector<ManageAutoStartAppInfo> failedData;
+    if (!needAddMergeData.empty()) {
+        ErrCode ret = SetOrRemoveOtherModulePolicy(needAddMergeData, true, failedData, userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
+    }
+    if (failedData.empty()) {
+        currentData = afterHandle;
+        mergeData = afterMerge;
+    } else {
+        currentData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData, afterHandle);
+        mergeData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData, afterMerge);
+    }
+    return ERR_OK;
+}
+
+ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vector<ManageAutoStartAppInfo> &data, bool isSet,
+    std::vector<ManageAutoStartAppInfo> &failedData, int32_t userId)
 {
     EDMLOGI("ManageAutoStartAppsPlugin SetOrRemoveOtherModulePolicy: %{public}d.", isSet);
     auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
@@ -75,52 +292,35 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     bool flag = false;
-    for (const auto &str : data) {
+    for (const ManageAutoStartAppInfo &item : data) {
         OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
-        if (!ParseAutoStartAppWant(str, autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
-            EDMLOGW("ParseAutoStartAppWant failed bundleName: %{public}s, abilityName: %{public}s",
-                autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
-            failedData.push_back(str);
-            continue;
-        }
+        autoStartupInfo.bundleName = item.GetBundleName();
+        autoStartupInfo.abilityName = item.GetAbilityName();
+        autoStartupInfo.userId = userId;
         if (!CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
             EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
                 autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
             if (!isSet) {
                 flag = true;
             }
-            failedData.push_back(str);
+            failedData.push_back(item);
             continue;
         }
         ErrCode res;
         if (isSet) {
-            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, true);
+            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, !item.GetDisallowModify());
         } else {
-            res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, true);
+            res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, !item.GetDisallowModify());
         }
         if (res != ERR_OK) {
             EDMLOGW("OnRemovePolicy SetOrCancelApplicationAutoStartupByEDM err res: %{public}d bundleName: %{public}s "
                 "abilityName:%{public}s", res, autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
-            failedData.push_back(str);
+            failedData.push_back(item);
             continue;
         }
         flag = true;
     }
     return flag ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
-}
-
-bool ManageAutoStartAppsPlugin::ParseAutoStartAppWant(std::string appWant, std::string &bundleName,
-    std::string &abilityName)
-{
-    size_t index = appWant.find(SEPARATOR);
-    if (index != appWant.npos) {
-        bundleName = appWant.substr(0, index);
-        abilityName = appWant.substr(index + 1);
-    } else {
-        EDMLOGE("ManageAutoStartAppsPlugin ParseAutoStartAppWant parse auto start app want failed");
-        return false;
-    }
-    return true;
 }
 
 bool ManageAutoStartAppsPlugin::CheckBundleAndAbilityExited(const std::string &bundleName,
