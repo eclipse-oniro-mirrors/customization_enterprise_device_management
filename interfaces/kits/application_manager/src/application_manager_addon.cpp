@@ -285,10 +285,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
     }
     MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(HAS_USERID);
-    parcelData.WriteInt32(userId);
-    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    SetBaseDataForGetPolicy(userId, parcelData);
     parcelData.WriteInt32(HAS_ADMIN);
     parcelData.WriteParcelable(&elementName);
     parcelData.WriteString(OHOS::EDM::EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO);
@@ -317,6 +314,14 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
         idx++;
     }
     return napiAutoStartApps;
+}
+
+void ApplicationManagerAddon::SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data)
+{
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
 }
 
 napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info)
