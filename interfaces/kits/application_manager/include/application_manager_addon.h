@@ -75,6 +75,7 @@ private:
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_;
     static int32_t GetCurrentUserId();
+    static void SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS
