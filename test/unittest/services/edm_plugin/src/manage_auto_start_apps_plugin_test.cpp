@@ -14,9 +14,9 @@
  */
 
 #define protected public
-#define private public
+#define PRIVATE public
 #include "manage_auto_start_apps_plugin_test.h"
-#undef private
+#undef PRIVATE
 #undef protected
 
 #include "bundle_info.h"
