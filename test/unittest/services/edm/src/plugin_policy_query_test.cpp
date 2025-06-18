@@ -85,6 +85,10 @@
 #include "disable_usb_storage_device_write_query.h"
 #endif
 
+#ifdef NOTIFICATION_EDM_ENABLE
+#include "disallowed_notification_query.h"
+#endif
+
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::EDM;
@@ -1968,6 +1972,40 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetDeviceNameQuery002, TestSize.Level
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+#ifdef NOTIFICATION_EDM_ENABLE
+/**
+ * @tc.name: TestDisallowedNotificationQuery001
+ * @tc.desc: Test DisallowedNotificationQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedNotificationQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedNotificationQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedNotificationQuery002
+ * @tc.desc: Test DisallowedNotificationQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedNotificationQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedNotificationQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_notification");
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

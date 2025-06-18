@@ -466,6 +466,10 @@ ohos_shared_library("sys_service_plugin") {
       external_deps += [ "time_service:time_client" ]
       sources += [ "./src/set_datetime_plugin.cpp" ]
     }
+
+    if (notification_edm_enable) {
+      sources += [ "./src/disallowed_notification_plugin.cpp" ]
+    }
   }
   deps = [
     "../../common/external:edm_external_adapters",

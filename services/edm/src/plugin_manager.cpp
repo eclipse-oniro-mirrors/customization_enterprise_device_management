@@ -91,7 +91,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::LOCATION_POLICY, EdmInterfaceCode::MANAGE_AUTO_START_APPS,
     EdmInterfaceCode::FINGERPRINT_AUTH, EdmInterfaceCode::PASSWORD_POLICY,
     EdmInterfaceCode::CLIPBOARD_POLICY, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
-    EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA,
+    EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA, EdmInterfaceCode::DISALLOWED_NOTIFICATION
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
