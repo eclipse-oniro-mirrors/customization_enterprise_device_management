@@ -342,6 +342,7 @@ ohos_shared_library("communication_plugin") {
         "./src/disable_samba_client_plugin.cpp",
         "./src/disable_samba_server_plugin.cpp",
         "./src/disallow_modify_ethernet_ip_plugin.cpp",
+        "./src/set_install_local_enterprise_app_enabled_plugin.cpp",
       ]
     }
 
