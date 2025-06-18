@@ -117,6 +117,7 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#include "get_install_local_enterprise_app_enabled_query.h"
 #endif
 
 #include "allowed_install_bundles_query.h"
