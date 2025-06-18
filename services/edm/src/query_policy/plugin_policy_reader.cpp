@@ -113,6 +113,10 @@
 #include "disallowed_airplane_mode_query.h"
 #endif
 
+#ifdef NOTIFICATION_EDM_ENABLE
+#include "disallowed_notification_query.h"
+#endif
+
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
@@ -480,6 +484,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
+#ifdef NOTIFICATION_EDM_ENABLE
+            obj = std::make_shared<DisallowedNotificationQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

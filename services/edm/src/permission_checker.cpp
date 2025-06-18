@@ -75,7 +75,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_NEAR_LINK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY,
-    EdmInterfaceCode::DISALLOWED_NFC
+    EdmInterfaceCode::DISALLOWED_NFC,
+    EdmInterfaceCode::DISALLOWED_NOTIFICATION
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
