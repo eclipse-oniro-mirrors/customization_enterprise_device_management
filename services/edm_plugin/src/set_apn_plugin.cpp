@@ -93,7 +93,7 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
     if (data.ReadString(apnId)) {
         std::map<std::string, std::string> apnInfo = ParserApnMap(data);
         if (apnInfo.size() == 0) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         return ApnUtils::ApnUpdate(apnInfo, apnId);
     } else {
