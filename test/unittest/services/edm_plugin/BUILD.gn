@@ -264,7 +264,8 @@ ohos_unittest("EdmPluginTest") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
-      "./src/set_auto_unlock_after_reboot_plugin_test.cpp"
+      "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
+      "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
     ]
   }
 
