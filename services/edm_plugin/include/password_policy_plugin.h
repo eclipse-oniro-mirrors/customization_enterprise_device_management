@@ -30,7 +30,7 @@ public:
     ErrCode OnAdminRemove(const std::string &adminName, PasswordPolicy &data, PasswordPolicy &mergeData,
         int32_t userId);
 
-    void OnOtherServiceStart();
+    void OnOtherServiceStart(int32_t systemAbilityId);
 
     void SetGlobalConfigParam(const PasswordPolicy &policy);
 };

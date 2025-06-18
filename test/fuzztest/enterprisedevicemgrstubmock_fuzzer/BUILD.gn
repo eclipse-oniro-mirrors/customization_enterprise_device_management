@@ -54,6 +54,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
+    "../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
@@ -72,6 +73,8 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disable_remote_diagnosis_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
+    "../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
+    "../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
@@ -83,6 +86,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
     "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../services/edm/src/query_policy/ipolicy_query.cpp",
+    "../../../services/edm/src/query_policy/is_app_kiosk_allowed_query.cpp",
     "../../../services/edm/src/query_policy/ntp_server_query.cpp",
     "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
@@ -136,13 +140,13 @@ ohos_static_library("edmservice_fuzz_static") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "netmanager_base:netsys_controller",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:sms",
     "window_manager:libwm",
+    "window_manager:session_manager_lite",
   ]
 
   deps = [
@@ -165,6 +169,8 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
       "../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
       "../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
+      "../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
+      "../../../services/edm_plugin/src/disable_set_device_name_plugin.cpp",
       "../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
       "../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
@@ -178,6 +184,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
       "../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
+      "../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     ]
 
     if (os_account_edm_enable) {
@@ -367,6 +374,14 @@ ohos_static_library("edmservice_fuzz_static") {
     if (!enterprise_device_management_feature_pc_only) {
       sources += [ "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp" ]
     }
+
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
+        "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
+    }
   }
 
   sanitize = {
@@ -429,7 +444,6 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

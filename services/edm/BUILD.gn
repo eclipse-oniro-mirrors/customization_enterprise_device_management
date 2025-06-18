@@ -63,7 +63,6 @@ ohos_shared_library("edmservice") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -84,6 +83,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/enterprise_admin_proxy.cpp",
       "./src/connection/enterprise_bundle_connection.cpp",
       "./src/connection/enterprise_conn_manager.cpp",
+      "./src/connection/enterprise_kiosk_connection.cpp",
       "./src/connection/enterprise_update_connection.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",
@@ -99,6 +99,8 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_mtp_server_query.cpp",
       "./src/query_policy/disable_remote_desk_query.cpp",
       "./src/query_policy/disable_remote_diagnosis_query.cpp",
+      "./src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
+      "./src/query_policy/disable_set_device_name_query.cpp",
       "./src/query_policy/disable_user_mtp_client_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
@@ -110,6 +112,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/inactive_user_freeze_query.cpp",
       "./src/query_policy/installed_bundle_info_list_query.cpp",
       "./src/query_policy/ipolicy_query.cpp",
+      "./src/query_policy/is_app_kiosk_allowed_query.cpp",
       "./src/query_policy/ntp_server_query.cpp",
       "./src/query_policy/plugin_policy_reader.cpp",
       "./src/query_policy/snapshot_skip_query.cpp",
@@ -146,8 +149,12 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_samba_client_query.cpp",
       "./src/query_policy/disable_samba_server_query.cpp",
+      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp"
     ]
-    defines += [ "SAMBA_EDM_ENABLE" ]
+    defines += [
+      "SAMBA_EDM_ENABLE",
+      "FEATURE_PC_ONLY"
+    ]
   }
 
   if (ability_runtime_edm_enable) {
@@ -212,6 +219,7 @@ ohos_shared_library("edmservice") {
   }
 
   if (netmanager_base_edm_enable) {
+    sources += [ "./src/query_policy/disallowed_airplane_mode_query.cpp" ]
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
   }
 
@@ -221,14 +229,21 @@ ohos_shared_library("edmservice") {
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
   }
 
+  if (nfc_edm_enable) {
+    sources += [
+      "./src/query_policy/disallowed_nfc_query.cpp",
+    ]
+    defines += [ "NFC_EDM_ENABLE" ]
+  }
+
   if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
-    sources += [ 
-      "./src/query_policy/disallowed_sms_query.cpp",
+    sources += [
       "./src/query_policy/disallowed_mms_query.cpp",
+      "./src/query_policy/disallowed_sms_query.cpp",
     ]
     defines += [ 
       "SMS_EDM_ENABLE",
-      "MMS_EDM_ENABLE"
+      "MMS_EDM_ENABLE",
     ]
   }
 
@@ -252,6 +267,13 @@ ohos_shared_library("edmservice") {
   if (!enterprise_device_management_feature_pc_only && power_manager_edm_enable) {
     sources += [ "./src/query_policy/disallow_power_long_press_query.cpp" ]
     defines += [ "POWER_MANAGER_EDM_ENABLE" ]
+  }
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/query_policy/disable_usb_storage_device_write_query.cpp",
+      "./src/query_policy/disallow_modify_ethernet_ip_query.cpp",
+    ]
+    defines += [ "FEATURE_PC_ONLY" ]
   }
 
   deps = [

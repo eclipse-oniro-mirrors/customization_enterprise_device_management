@@ -425,7 +425,7 @@ ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adm
     return ERR_OK;
 }
 
-void SetWatermarkImagePlugin::OnOtherServiceStart()
+void SetWatermarkImagePlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     SetAllWatermarkImage();
 }

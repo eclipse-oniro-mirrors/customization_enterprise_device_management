@@ -19,7 +19,11 @@
 #include <gtest/gtest.h>
 #include <iremote_object.h>
 #include "edm_log.h"
+#define private public
+#define protected public
 #include "iplugin.h"
+#undef private
+#undef protected
 
 namespace OHOS {
 namespace EDM {

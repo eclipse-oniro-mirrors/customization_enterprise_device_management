@@ -27,6 +27,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./iplugin_test.cpp",
     "./ipolicy_manager_test.cpp",
     "./policy_serializer_test.cpp",
+    "./utils/array_int_serializer_test.cpp",
     "./utils/cjson_serializer_test.cpp",
     "./utils_test.cpp",
   ]
@@ -44,7 +45,6 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "googletest:gmock_main",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
   ]
 
   sanitize = {

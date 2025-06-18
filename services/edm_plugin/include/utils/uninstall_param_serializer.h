@@ -17,7 +17,6 @@
 #define SERVICES_EDM_INCLUDE_UTILS_UNINSTALL_PARAM_SERIALIZER_H
 
 #include "ipolicy_serializer.h"
-#include "json/json.h"
 #include "singleton.h"
 
 namespace OHOS {

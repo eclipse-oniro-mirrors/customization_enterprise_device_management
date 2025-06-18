@@ -53,7 +53,11 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
 ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data)
 {
     EDMLOGI("DisableUsbPlugin OnSetPolicy...disable = %{public}d", data);
-    if (data && HasConflictPolicy()) {
+    bool hasConflict = false;
+    if (FAILED(HasConflictPolicy(hasConflict))) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (data && hasConflict) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     if (FAILED(UsbPolicyUtils::SetUsbDisabled(data))) {
@@ -62,29 +66,44 @@ ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data)
     return ERR_OK;
 }
 
-bool DisableUsbPlugin::HasConflictPolicy()
+ErrCode DisableUsbPlugin::HasConflictPolicy(bool &hasConflict)
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string allowUsbDevice;
     policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
     if (!allowUsbDevice.empty()) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! allowedUsbDevice: %{public}s", allowUsbDevice.c_str());
-        return true;
+        hasConflict = true;
+        return ERR_OK;
     }
     std::string disallowUsbDevice;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevice);
     if (!disallowUsbDevice.empty()) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! disallowUsbDevice: %{public}s", disallowUsbDevice.c_str());
-        return true;
+        hasConflict = true;
+        return ERR_OK;
     }
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
         usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
         EDMLOGE("DisableUsbPlugin POLICY CONFLICT! usbStoragePolicy: %{public}s", usbStoragePolicy.c_str());
-        return true;
+        hasConflict = true;
+        return ERR_OK;
     }
-    return false;
+#ifdef FEATURE_PC_ONLY
+    bool isDisallowed = false;
+    if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {
+        EDMLOGE("DisableUsbPlugin HasConflictPolicy, IsUsbStorageDeviceWriteDisallowed failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (isDisallowed) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! disalloweStorageDeviceWrite: %{public}d", isDisallowed);
+        hasConflict = true;
+        return ERR_OK;
+    }
+#endif
+    return ERR_OK;
 }
 
 ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
@@ -92,7 +111,7 @@ ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
     return UsbPolicyUtils::SetUsbDisabled(true);
 }
 
-void DisableUsbPlugin::OnOtherServiceStart()
+void DisableUsbPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     EDMLOGI("DisableUsbPlugin::OnOtherServiceStart start");
     std::string disableUsbPolicy;

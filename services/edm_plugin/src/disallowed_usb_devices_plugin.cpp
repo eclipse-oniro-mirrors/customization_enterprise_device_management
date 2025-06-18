@@ -53,7 +53,16 @@ ErrCode DisallowedUsbDevicesPlugin::OnSetPolicy(std::vector<USB::UsbDeviceType> 
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    if (HasConflictPolicy()) {
+    bool hasConflict = false;
+#ifdef FEATURE_PC_ONLY
+    if (FAILED(HasConflictPolicy(hasConflict, data))) {
+#else
+    std::vector<USB::UsbDeviceType> emptyData;
+    if (FAILED(HasConflictPolicy(hasConflict, emptyData))) {
+#endif
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (hasConflict) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
@@ -113,22 +122,41 @@ ErrCode DisallowedUsbDevicesPlugin::OnRemovePolicy(std::vector<USB::UsbDeviceTyp
     return ERR_OK;
 }
 
-bool DisallowedUsbDevicesPlugin::HasConflictPolicy()
+ErrCode DisallowedUsbDevicesPlugin::HasConflictPolicy(bool &hasConflict,
+    std::vector<USB::UsbDeviceType> &usbDeviceTypes)
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
     policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
     if (disableUsb == "true") {
         EDMLOGE("DisallowedUsbDevicesPlugin policy conflict! Usb is disabled.");
-        return true;
+        hasConflict = true;
+        return ERR_OK;
     }
     std::string allowUsbDevice;
     policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
     if (!allowUsbDevice.empty()) {
         EDMLOGE("DisallowedUsbDevicesPlugin policy conflict! AllowedUsbDevice: %{public}s", allowUsbDevice.c_str());
-        return true;
+        hasConflict = true;
+        return ERR_OK;
     }
-    return false;
+#ifdef FEATURE_PC_ONLY
+    bool isDisallowed = false;
+    if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {
+        EDMLOGE("DisallowedUsbDevicesPlugin HasConflictPolicy, IsUsbStorageDeviceWriteDisallowed failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    bool IsUsbStorageDeviceDisallowed =
+        std::find_if(usbDeviceTypes.begin(), usbDeviceTypes.end(), [&](USB::UsbDeviceType disallowedType) {
+            return disallowedType.baseClass == USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
+        }) != usbDeviceTypes.end();
+    if (isDisallowed && IsUsbStorageDeviceDisallowed) {
+        EDMLOGE("DisallowedUsbDevicesPlugin policy conflict! usbStorageDeviceWrite and usbStorageDevice disallowed");
+        hasConflict = true;
+        return ERR_OK;
+    }
+#endif
+    return ERR_OK;
 }
 
 void DisallowedUsbDevicesPlugin::CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
@@ -184,7 +212,7 @@ ErrCode DisallowedUsbDevicesPlugin::OnAdminRemove(const std::string &adminName, 
     return UsbPolicyUtils::SetDisallowedUsbDevices(disallowedUsbDeviceTypes);
 }
 
-void DisallowedUsbDevicesPlugin::OnOtherServiceStart()
+void DisallowedUsbDevicesPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     std::string disallowUsbDevicePolicy;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy,

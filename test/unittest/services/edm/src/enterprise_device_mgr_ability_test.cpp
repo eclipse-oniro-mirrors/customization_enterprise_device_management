@@ -43,13 +43,13 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int32_t WITHOUT_ADMIN_SUCCESS_POLICY_CODE = 1024;
-constexpr int32_t ARRAY_MAP_TESTPLUGIN_POLICYCODE = 13;
+constexpr int32_t MAP_TESTPLUGIN_POLICYCODE = 12;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 8;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -96,7 +96,7 @@ void EnterpriseDeviceMgrAbilityTest::initPolicies()
 
 void EnterpriseDeviceMgrAbilityTest::SetUp()
 {
-    plugin_ = PLUGIN::ArrayMapTestPlugin::GetPlugin();
+    plugin_ = PLUGIN::MapTestPlugin::GetPlugin();
     appMgrMock_ = std::make_shared<EdmAppManagerImplMock>();
     bundleMgrMock_ = std::make_shared<EdmBundleManagerImplMock>();
     osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
@@ -105,7 +105,6 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     permissionCheckerMock_ = std::make_shared<PermissionCheckerMock>();
     edmMgr_ = new (std::nothrow) EnterpriseDeviceMgrAbilityMock();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->pluginMgr_ = PluginManager::GetInstance();
     edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
     EXPECT_CALL(*edmMgr_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
     EXPECT_CALL(*edmMgr_, GetPermissionChecker).WillRepeatedly(DoAll(Return(permissionCheckerMock_)));
@@ -119,7 +118,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
     edmMgr_->adminMgr_->ClearAdmins();
-    edmMgr_->pluginMgr_->instance_.reset();
+    PluginManager::GetInstance()->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
@@ -152,7 +151,7 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 }
 
 void EnterpriseDeviceMgrAbilityTest::GetPolicySuccess(int32_t userId, const std::string& adminName,
@@ -256,7 +255,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
@@ -279,7 +278,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithoutAdmin, Tes
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
@@ -304,7 +303,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckCallingUidFa
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -355,7 +354,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -384,7 +383,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyGetAdminByPkgName
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME_1);
     MessageParcel data;
@@ -410,9 +409,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -422,7 +421,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -448,7 +447,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
     elementName.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -474,9 +473,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -510,9 +509,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -537,9 +536,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
     data.WriteString("");
     data.WriteString("{\"name\" : \"testValue\"}");
@@ -561,9 +560,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest008, TestSize
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -629,10 +628,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithAdminInactive, T
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
@@ -657,7 +656,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(1)));
@@ -665,7 +664,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckCallingUidF
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -686,7 +685,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -696,7 +695,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithCheckEdmPermissi
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -717,14 +716,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithGetAdminByPkgNam
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_1);
     MessageParcel data;
@@ -752,7 +751,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicySuc, TestSize.Level1
         Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -778,7 +777,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithoutAdminSuc, Tes
     data.WriteInt32(1);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 }
@@ -796,9 +795,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest006, TestSize.Le
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -831,7 +830,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -839,7 +838,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
@@ -849,40 +848,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyFuncTest007, TestSize.Le
     data.WriteParcelable(&admin);
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
-}
-
-/**
- * @tc.name: TestOnCommonEventUserRemovedWithPolicy
- * @tc.desc: Test OnCommonEventUserRemoved remove user 101 with policy.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemovedWithPolicy, TestSize.Level1)
-{
-    // enable super admin
-    AppExecFwk::ElementName superAdmin;
-    superAdmin.SetBundleName(ADMIN_PACKAGENAME);
-    superAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-    EnableAdminSuc(superAdmin, AdminType::ENT, DEFAULT_USER_ID);
-    // authorize sub-super admin
-    std::string subSuperAdmin = ADMIN_PACKAGENAME_1;
-    AuthorizeAdminSuc(superAdmin, ADMIN_PACKAGENAME_1);
-    // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
-    SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
-    SetPolicy(subSuperAdmin, plugin->GetPolicyName());
-    // remove user 101
-    EventFwk::CommonEventData data;
-    data.SetCode(TEST_USER_ID);
-    edmMgr_->OnCommonEventUserRemoved(data);
-    // get policy of userId = 101
-    GetPolicyFailed(TEST_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
-    GetPolicyFailed(TEST_USER_ID, subSuperAdmin, plugin->GetPolicyName());
-    // get policy of userId = 100
-    GetPolicySuccess(DEFAULT_USER_ID, superAdmin.GetBundleName(), plugin->GetPolicyName());
-    GetPolicySuccess(DEFAULT_USER_ID, subSuperAdmin, plugin->GetPolicyName());
-    // disable super admin
-    DisableSuperAdminSuc(superAdmin.GetBundleName());
 }
 
 /**
@@ -934,7 +899,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // sub-super admin set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
 
     // remove sub-super admin under userId = 101
@@ -982,7 +947,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
 
@@ -1107,7 +1072,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSi
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
     // disable super admin
@@ -1290,7 +1255,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminPolicy, TestSize.Level1)
 
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
     // remove policy with userId = 101
@@ -1315,7 +1280,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, 
     AuthorizeAdminSuc(admin, subSuperBundleName);
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(subSuperBundleName, plugin->GetPolicyName());
 
     // remove policy with userId = 100
@@ -1342,7 +1307,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, Tes
 
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
     // remove policy with userId = 100
@@ -1371,7 +1336,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubOrSuperAdminAndAdminPolicy
 
     // set policy with userId = 100 and 101
     auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
-    edmMgr_->pluginMgr_->AddPlugin(plugin);
+    PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
     std::vector<int32_t> userIds{TEST_USER_ID};
@@ -2726,6 +2691,48 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventSystemUpdate, TestSize
 }
 
 /**
+ * @tc.name: TestOnCommonEventKioskModeOn
+ * @tc.desc: Test OnCommonEventKioskModeOn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOn, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventKioskMode(data, true);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventKioskModeOff
+ * @tc.desc: Test OnCommonEventKioskModeOff func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOff, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventKioskMode(data, false);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
  * @tc.name: TestAddOnAddSystemAbilityFuncMap
  * @tc.desc: Test AddOnAddSystemAbilityFuncMap func.
  * @tc.type: FUNC
@@ -2780,7 +2787,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithUserNotE
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2804,7 +2811,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithoutAdmin
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2830,7 +2837,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckCalling
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2883,7 +2890,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckPermiss
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2909,9 +2916,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -2921,7 +2928,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2948,7 +2955,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc, TestSiz
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
     MessageParcel reply;
     AppExecFwk::ElementName admin;
@@ -2974,9 +2981,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONErro
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3011,9 +3018,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestS
     plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3039,9 +3046,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestS
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE);
     MessageParcel data2;
     data2.WriteParcelable(&admin);
@@ -3065,9 +3072,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithMergePol
     plugin_ = PLUGIN::HandlePolicyJsonBiFunctionPlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
@@ -3134,10 +3141,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithAdminInacti
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_NOT_ACTIVE);
     MessageParcel data;
@@ -3162,7 +3169,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
     std::vector<std::shared_ptr<Admin>> adminVec = {std::make_shared<Admin>(testAdmin)};
     edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, adminVec);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(1)));
@@ -3170,7 +3177,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckCallin
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3191,7 +3198,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckEdmPer
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -3201,7 +3208,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithCheckEdmPer
         Return(ERR_OK)));
     GetBundleInfoMock(true, "");
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3229,7 +3236,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerSuc, TestSize.L
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     MessageParcel data;
@@ -3255,7 +3262,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
     data.WriteInt32(1);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
 }
@@ -3273,9 +3280,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest006, TestSi
     plugin_ = PLUGIN::HandlePolicyBiFunctionUnsavePlg::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -3308,7 +3315,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
 {
     PrepareBeforeHandleDevicePolicy();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->AddPlugin(plugin_);
 
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
@@ -3316,7 +3323,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, GetDevicePolicyInnerFuncTest007, TestSi
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, ARRAY_MAP_TESTPLUGIN_POLICYCODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME_FAILED);
     MessageParcel data;
@@ -3486,8 +3493,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPlugin, 
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_ENT_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
@@ -3518,9 +3525,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPluginHasNo
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = "";
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
@@ -3552,9 +3559,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
 
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = NONE_PERMISSION_MATCH;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
@@ -3581,9 +3588,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBu
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3615,9 +3622,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundl
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3650,9 +3657,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEnterpriseN
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3740,9 +3747,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmi
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3788,9 +3795,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermi
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3821,9 +3828,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidP
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;
@@ -3849,9 +3856,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesSuc, TestSiz
 {
     plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
-    edmMgr_->pluginMgr_->pluginsCode_.clear();
-    edmMgr_->pluginMgr_->pluginsName_.clear();
-    edmMgr_->pluginMgr_->AddPlugin(plugin_);
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    PluginManager::GetInstance()->pluginsName_.clear();
+    PluginManager::GetInstance()->AddPlugin(plugin_);
     permissionCheckerMock_->allowDelegatedPolicies_ = { plugin_->GetPolicyName() };
 
     AppExecFwk::ElementName admin;

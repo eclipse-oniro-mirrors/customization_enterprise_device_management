@@ -32,13 +32,19 @@ public:
         std::vector<std::string> &bundles, bool isSync = false);
     int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd);
     int32_t GetAutoStartApps(MessageParcel &data, std::vector<AppExecFwk::ElementName> &autoStartApps);
-    int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
-        int32_t userId, std::string &retMessage);
     int32_t RemoveKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         int32_t userId);
     int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,
         int32_t userId);
+    int32_t SetKioskFeatures(MessageParcel &data);
     int32_t ClearUpApplicationData(const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param);
+    int32_t SetAllowedKioskApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &bundleNames);
+    int32_t GetAllowedKioskApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &bundleNames);
+    int32_t IsAppKioskAllowed(const std::string &bundleName, bool &isAllowed);
+    int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
+        bool disallowModify, int32_t userId, std::string &retMessage);
+    int32_t IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin, std::string &keepAliveApp,
+        int32_t userId, bool &disallowModify);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

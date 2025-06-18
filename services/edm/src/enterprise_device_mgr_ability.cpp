@@ -71,6 +71,7 @@ const std::string PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PR
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
+const std::string WANT_BUNDLE_NAME = "bundleName";
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
@@ -81,13 +82,12 @@ const std::string APP_TYPE_ENTERPRISE_MDM = "enterprise_mdm";
 const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
 const std::string POLICY_ALLOW_ALL = "allow_all";
+const int32_t INVALID_SYSTEM_ABILITY_ID = -1;
 
-std::shared_mutex EnterpriseDeviceMgrAbility::dataLock_;
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
-constexpr int32_t TIMER_TIMEOUT = 360000; // 6 * 60 * 1000;
 constexpr const char *WITHOUT_PERMISSION_TAG = "";
 #ifndef EDM_FUZZ_TEST
 const int EDM_UID = 3057;
@@ -127,6 +127,14 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventBmsReady(data);
         };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_ON] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventKioskMode(data, true);
+        };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_OFF] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventKioskMode(data, false);
+        };
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -164,8 +172,23 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
     }
 }
 
+void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
+{
+    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnAbilityManagerServiceStart();
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, ABILITY_MGR_SERVICE_ID);
+        };
+    addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
+        };
+}
+
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
+    AddOnAddSystemAbilityFuncMapSecond();
     addSystemAbilityFuncMap_[APP_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAppManagerServiceStart();
@@ -173,14 +196,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[COMMON_EVENT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnCommonEventServiceStart();
-        };
-    addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnAbilityManagerServiceStart();
-        };
-    addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
         };
 #ifdef PASTEBOARD_EDM_ENABLE
     addSystemAbilityFuncMap_[PASTEBOARD_SERVICE_ID] =
@@ -409,6 +424,28 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
     ConnectEnterpriseAbility();
 }
 
+void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
+{
+    AAFwk::Want want = data.GetWant();
+    int32_t paramUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
+    EDMLOGE("OnCommonEventKioskMode userId:%{public}d", paramUserId);
+    std::string bundleName = want.GetStringParam(WANT_BUNDLE_NAME);
+    auto code = static_cast<uint32_t>(
+        isModeOn ? IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING : IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING);
+    std::vector<std::shared_ptr<Admin>> admins;
+    int32_t currentUserId = GetCurrentUserId();
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        sptr<IEnterpriseConnection> connection = manager->CreateKioskConnection(
+            connectWant, code, currentUserId, bundleName, paramUserId);
+        manager->ConnectAbility(connection);
+    }
+}
+
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
     uint32_t code, int32_t userId, bool isAdminEnabled)
 {
@@ -524,8 +561,8 @@ EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
         AdminManager::GetInstance().reset();
     }
 
-    if (pluginMgr_) {
-        pluginMgr_.reset();
+    if (PluginManager::GetInstance()) {
+        PluginManager::GetInstance().reset();
     }
 
     if (policyMgr_) {
@@ -598,50 +635,6 @@ void EnterpriseDeviceMgrAbility::InitAllAdmins()
 {
     AdminManager::GetInstance()->Init();
     EDMLOGD("create AdminManager::GetInstance() success");
-}
-
-void EnterpriseDeviceMgrAbility::InitAllPlugins()
-{
-    std::unique_lock<std::shared_mutex> autoLock(dataLock_);
-    if (!pluginMgr_) {
-        pluginMgr_ = PluginManager::GetInstance();
-    }
-    EDMLOGD("create pluginMgr_ success");
-    lastCallTime_ = std::chrono::system_clock::now();
-    if (pluginHasInit_) {
-        std::unique_lock<std::mutex> lock(waitMutex_);
-        notifySignal_ = true;
-        waitSignal_.notify_one();
-    } else {
-        pluginMgr_->LoadPlugin();
-        pluginHasInit_ = true;
-        std::thread timerThread([this]() {
-            this->UnloadPluginTask();
-        });
-        timerThread.detach();
-    }
-}
-
-void EnterpriseDeviceMgrAbility::UnloadPluginTask()
-{
-    while (pluginHasInit_) {
-        {
-            std::unique_lock<std::mutex> lock(waitMutex_);
-            notifySignal_ = false;
-            waitSignal_.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [this] {
-                return this->notifySignal_;
-            });
-        }
-        std::unique_lock<std::shared_mutex> autoLock(dataLock_);
-        auto now = std::chrono::system_clock::now();
-        auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCallTime_).count();
-        if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
-            if (pluginMgr_) {
-                pluginMgr_->UnloadPlugin();
-            }
-            pluginHasInit_ = false;
-        }
-    }
 }
 
 void EnterpriseDeviceMgrAbility::InitAllPolices()
@@ -736,16 +729,21 @@ void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
 
 void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
 {
+    CallOnOtherServiceStart(interfaceCode, INVALID_SYSTEM_ABILITY_ID);
+}
+
+void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
+{
     EDMLOGI("EnterpriseDeviceMgrAbility::CallOnOtherServiceStart %{public}d", interfaceCode);
-    InitAllPlugins();
+    PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, interfaceCode);
-    auto plugin = pluginMgr_->GetPluginByFuncCode(funcCode);
+    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
         return;
     }
-    plugin->OnOtherServiceStart();
+    plugin->OnOtherServiceStart(systemAbilityId);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
@@ -771,14 +769,6 @@ void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, 
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {
-    EDMLOGD("EnterpriseDeviceMgrAbility::OnStop()");
-    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    if (pluginHasInit_) {
-        pluginHasInit_ = false;
-        std::unique_lock<std::mutex> lock(waitMutex_);
-        notifySignal_ = true;
-        waitSignal_.notify_one();
-    }
 }
 
 std::shared_ptr<IEdmBundleManager> EnterpriseDeviceMgrAbility::GetBundleMgr()
@@ -1143,8 +1133,8 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
     const std::string &policyValue, int32_t userId)
 {
-    InitAllPlugins();
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByPolicyName(policyName);
+    PluginManager::GetInstance()->LoadAllPlugin();
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName(policyName);
     if (plugin == nullptr) {
         EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
@@ -1372,7 +1362,7 @@ int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
 ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std::string &bundleName,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("UpdateDevicePolicy: get plugin failed, code:%{public}d", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1405,8 +1395,8 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    InitAllPlugins();
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1473,8 +1463,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    InitAllPlugins();
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -1569,8 +1559,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
         EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    InitAllPlugins();
-    std::shared_ptr<IPlugin> plugin = pluginMgr_->GetPluginByFuncCode(code);
+    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -1956,12 +1946,12 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
     if (admin == nullptr) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
-    InitAllPlugins();
+    PluginManager::GetInstance()->LoadAllPlugin();
     for (const std::string &policy : policies) {
         if (!GetPermissionChecker()->IsAllowDelegatedPolicy(policy)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        auto plugin = pluginMgr_->GetPluginByPolicyName(policy);
+        auto plugin = PluginManager::GetInstance()->GetPluginByPolicyName(policy);
         if (plugin == nullptr) {
             EDMLOGE("CheckDelegatedPolicies get policyName is not exist.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;

@@ -14,8 +14,8 @@
  */
 
 #include "array_usb_device_id_serializer.h"
+#include "cjson_check.h"
 #include "edm_constants.h"
-#include "json/json.h"
 #include "usb_device_id.h"
 
 namespace OHOS {
@@ -47,36 +47,52 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
     if (jsonString.empty()) {
         return true;
     }
-    Json::Value root;
-    Json::CharReaderBuilder builder;
-    const std::unique_ptr<Json::CharReader> charReader(builder.newCharReader());
-    std::string err;
-    if (!charReader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.length(), &root, &err)) {
-        return false;
-    }
-    if (!root.isArray()) {
-        EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize root is not array");
-        return false;
-    }
-    if (root.size() > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
-        EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize data size=[%{public}u] is too large", root.size());
-        return false;
-    }
-    dataObj = std::vector<UsbDeviceId>(root.size());
 
-    for (std::uint32_t i = 0; i < root.size(); ++i) {
-        const Json::Value& item = root[i];
+    cJSON *root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
+        EDMLOGE("JSON parse error");
+        return false;
+    }
 
-        if (!item.isMember("vendorId") || !item.isMember("productId") ||
-            !item["vendorId"].isConvertibleTo(Json::intValue) || !item["productId"].isConvertibleTo(Json::intValue)) {
-            EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize invalid data at index %{public}u", i);
+    if (!cJSON_IsArray(root)) {
+        EDMLOGE("JSON is not an array.");
+        cJSON_Delete(root);
+        return false;
+    }
+
+    const int arraySize = cJSON_GetArraySize(root);
+    if (arraySize > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize data size=%{public}d is too large", arraySize);
+        cJSON_Delete(root);
+        return false;
+    }
+
+    dataObj.resize(arraySize);
+
+    for (int i = 0; i < arraySize; ++i) {
+        cJSON *item = cJSON_GetArrayItem(root, i);
+        if (item == nullptr) {
+            EDMLOGE("Invalid item.");
+            cJSON_Delete(root);
             return false;
         }
-        UsbDeviceId value;
-        value.SetVendorId(item["vendorId"].asInt());
-        value.SetProductId(item["productId"].asInt());
-        dataObj[i] = value;
+
+        cJSON *vendor_id = cJSON_GetObjectItem(item, "vendorId");
+        cJSON *product_id = cJSON_GetObjectItem(item, "productId");
+
+        if (!vendor_id || !product_id || !cJSON_IsNumber(vendor_id) || !cJSON_IsNumber(product_id)) {
+            EDMLOGE("Invalid USB device data.");
+            cJSON_Delete(root);
+            return false;
+        }
+
+        UsbDeviceId device;
+        device.SetVendorId(vendor_id->valueint);
+        device.SetProductId(product_id->valueint);
+        dataObj[i] = device;
     }
+
+    cJSON_Delete(root);
     return true;
 }
 
@@ -86,16 +102,32 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
         jsonString = "";
         return true;
     }
-    Json::Value arrayData(Json::arrayValue);
-    for (const auto& item : dataObj) {
-        Json::Value root;
-        root["vendorId"] = item.GetVendorId();
-        root["productId"] = item.GetProductId();
-        arrayData.append(root);
+
+    cJSON *root = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(root, false);
+
+    for (const auto &device : dataObj) {
+        cJSON* item = nullptr;
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
+
+        if (!cJSON_AddNumberToObject(item, "vendorId", device.GetVendorId()) ||
+        !cJSON_AddNumberToObject(item, "productId", device.GetProductId())) {
+            cJSON_Delete(item);
+            cJSON_Delete(root);
+            return false;
+        }
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(item, root, false);
     }
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "    ";
-    jsonString = Json::writeString(builder, arrayData);
+
+    char *jsonStr = cJSON_Print(root);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    jsonString = jsonStr;
+    free(jsonStr);
+    cJSON_Delete(root);
     return true;
 }
 

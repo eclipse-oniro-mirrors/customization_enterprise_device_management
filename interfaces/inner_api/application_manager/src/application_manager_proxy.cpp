@@ -137,9 +137,9 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
 }
 
 int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName &admin,
-    const std::vector<std::string> &keepAliveApps, int32_t userId, std::string &retMessage)
+    const std::vector<std::string> &keepAliveApps, bool disallowModify, int32_t userId, std::string &retMessage)
 {
-    EDMLOGI("ApplicationManagerProxy::AddKeepAliveApps");
+    EDMLOGI("ApplicationManagerProxy::AddKeepAliveAppsWithDisallowModify");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
@@ -151,6 +151,7 @@ int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName 
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteStringVector(keepAliveApps);
+    data.WriteBool(disallowModify);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret != ERR_OK) {
         retMessage = reply.ReadString();
@@ -186,9 +187,10 @@ int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName 
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME);
     proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
     
     int32_t ret = ERR_INVALID_VALUE;
@@ -199,6 +201,14 @@ int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName 
     }
     reply.ReadStringVector(&keepAliveApps);
     return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::SetKioskFeatures(MessageParcel &data)
+{
+    EDMLOGD("ApplicationManagerProxy::SetKioskFeatures");
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_KIOSK_FEATURE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::ClearUpApplicationData(
@@ -215,6 +225,100 @@ int32_t ApplicationManagerProxy::ClearUpApplicationData(
     data.WriteString(WITHOUT_PERMISSION_TAG);
     MessageParcelUtils::WriteClearUpApplicationDataParam(param, data);
     return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::SetAllowedKioskApps(
+    const AppExecFwk::ElementName &admin, const std::vector<std::string> &bundleNames)
+{
+    EDMLOGI("ApplicationManagerProxy::SetAllowedKioskApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ALLOWED_KIOSK_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteStringVector(bundleNames);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetAllowedKioskApps(
+    const AppExecFwk::ElementName &admin, std::vector<std::string> &bundleNames)
+{
+    EDMLOGI("ApplicationManagerProxy::GetAllowedKioskApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(EdmInterfaceCode::ALLOWED_KIOSK_APPS, data, reply);
+
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&bundleNames);
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName, bool &isAllowed)
+{
+    EDMLOGI("ApplicationManagerProxy::IsAppKioskAllowed");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    data.WriteString(bundleName);
+    proxy->GetPolicy(EdmInterfaceCode::IS_APP_KIOSK_ALLOWED, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    int32_t readRet = reply.ReadInt32(ret);
+    if (readRet && (ret == EdmReturnErrCode::ADMIN_INACTIVE)) {
+        isAllowed = false;
+        return ERR_OK;
+    }
+    bool blRes = readRet && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("ApplicationManagerProxy::IsAppKioskAllowed fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(isAllowed);
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,
+    std::string &keepAliveApp, int32_t userId, bool &disallowModify)
+{
+    EDMLOGI("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY);
+    data.WriteString(keepAliveApp);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
+    
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(disallowModify);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

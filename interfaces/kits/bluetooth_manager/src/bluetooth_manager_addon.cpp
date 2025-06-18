@@ -15,6 +15,7 @@
 
 #include "bluetooth_manager_addon.h"
 
+#include "bt_protocol_utils.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "errors.h"
@@ -27,6 +28,10 @@ using namespace OHOS::EDM;
 
 napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nProtocol = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nProtocol));
+    CreateProtocolObject(env, nProtocol);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getBluetoothInfo", GetBluetoothInfo),
         DECLARE_NAPI_FUNCTION("setBluetoothDisabled", SetBluetoothDisabled),
@@ -39,6 +44,11 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedBluetoothDevices", RemoveDisallowedBluetoothDevices),
         DECLARE_NAPI_FUNCTION("turnOnBluetooth", TurnOnBluetooth),
         DECLARE_NAPI_FUNCTION("turnOffBluetooth", TurnOffBluetooth),
+        DECLARE_NAPI_FUNCTION("addDisallowedBluetoothProtocols", AddDisallowedBluetoothProtocols),
+        DECLARE_NAPI_FUNCTION("getDisallowedBluetoothProtocols", GetDisallowedBluetoothProtocols),
+        DECLARE_NAPI_FUNCTION("removeDisallowedBluetoothProtocols", RemoveDisallowedBluetoothProtocols),
+
+        DECLARE_NAPI_PROPERTY("Protocol", nProtocol),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -254,6 +264,87 @@ napi_value BluetoothManagerAddon::TurnOnOrOffBluetooth(napi_env env, napi_callba
         napi_throw(env, CreateError(env, retCode));
     }
     return nullptr;
+}
+
+napi_value BluetoothManagerAddon::AddDisallowedBluetoothProtocols(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddDisallowedBluetoothProtocols called");
+    return AddOrRemoveDisallowedBluetoothProtocols(env, info, "AddDisallowedBluetoothProtocols");
+}
+
+napi_value BluetoothManagerAddon::GetDisallowedBluetoothProtocols(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedBluetoothProtocols called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDisallowedBluetoothProtocols";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    std::vector<int32_t> protocols;
+    int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
+        GetDisallowedBluetoothProtocols(adapterAddonData.data, protocols);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, protocols.size(), &jsList));
+    for (size_t i = 0; i < protocols.size(); i++) {
+        napi_value item;
+        NAPI_CALL(env, napi_create_int32(env, protocols[i], &item));
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+}
+
+napi_value BluetoothManagerAddon::RemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveDisallowedBluetoothProtocols called");
+    return AddOrRemoveDisallowedBluetoothProtocols(env, info, "RemoveDisallowedBluetoothProtocols");
+}
+
+napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols called");
+    auto convertBtProtocol2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<int32_t> bluetoothProtocols;
+        if (!ParseIntArray(env, bluetoothProtocols, argv)) {
+            EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseIntArray fail");
+        }
+        data.WriteInt32Vector(bluetoothProtocols);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveDisallowedBluetoothProtocols";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::USERID, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, nullptr, convertBtProtocol2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
+        AddOrRemoveDisallowedBluetoothProtocols(adapterAddonData.data, function == "AddDisallowedBluetoothProtocols");
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+void BluetoothManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
+{
+    napi_value nGatt;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(BtProtocol::GATT), &nGatt));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "GATT", nGatt));
+    napi_value nSpp;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(BtProtocol::SPP), &nSpp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SPP", nSpp));
 }
 
 static napi_module g_bluetoothModule = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,22 @@
  * limitations under the License.
  */
 
-#include "array_map_serializer.h"
-#include "map_string_serializer.h"
+#ifndef EDM_UNIT_TEST_DISALLOWED_AIRPLANE_MODE_PLUGIIN_TEST_H
+#define EDM_UNIT_TEST_DISALLOWED_AIRPLANE_MODE_PLUGIIN_TEST_H
+   
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace EDM {
-ArrayMapSerializer::ArrayMapSerializer()
-{
-    serializerInner_ = MapStringSerializer::GetInstance();
-}
+namespace TEST {
+class DisallowedAirplaneModeTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
 
-ArrayMapSerializer::~ArrayMapSerializer()
-{
-    if (serializerInner_ != nullptr) {
-        serializerInner_.reset();
-    }
-}
+    static void TearDownTestSuite(void);
+};
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
+
+#endif // EDM_UNIT_TEST_DISALLOWED_AIRPLANE_MODE_PLUGIIN_TEST_H

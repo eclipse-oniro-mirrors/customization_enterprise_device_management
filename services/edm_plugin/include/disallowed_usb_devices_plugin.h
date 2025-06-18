@@ -32,10 +32,10 @@ public:
         std::vector<USB::UsbDeviceType> &mergeData, int32_t userId);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<USB::UsbDeviceType> &data,
         std::vector<USB::UsbDeviceType> &mergeData, int32_t userId);
-    void OnOtherServiceStart();
+    void OnOtherServiceStart(int32_t systemAbilityId);
 
 private:
-    bool HasConflictPolicy();
+    ErrCode HasConflictPolicy(bool &hasConflict, std::vector<USB::UsbDeviceType> &usbDeviceTypes);
     void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
         std::vector<USB::UsbDeviceType> &combineData);
 };

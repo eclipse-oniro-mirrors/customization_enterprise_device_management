@@ -39,6 +39,7 @@ group("fuzztest") {
     "globalproxyplugin_fuzzer:GlobalProxyPluginFuzzTest",
     "installplugin_fuzzer:InstallPluginFuzzTest",
     "iptablesruleplugin_fuzzer:IptablesRulePluginFuzzTest",
+    "kioskfeatureplugin_fuzzer:KioskFeaturePluginFuzzTest",
     "locationpolicyplugin_fuzzer:LocationPolicyPluginFuzzTest",
     "manageautostartappsplugin_fuzzer:ManageAutoStartAppsPluginFuzzTest",
     "powerpolicyplugin_fuzzer:PowerPolicyPluginFuzzTest",

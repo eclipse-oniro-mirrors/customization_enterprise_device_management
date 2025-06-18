@@ -17,8 +17,12 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "ipolicy_manager.h"
 #include "usb_device.h"
 #include "usb_srv_client.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
+#include "os_account_manager.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -77,5 +81,52 @@ ErrCode UsbPolicyUtils::SetDisallowedUsbDevices(std::vector<USB::UsbDeviceType> 
     }
     return ERR_OK;
 }
+
+ErrCode UsbPolicyUtils::QueryAllCreatedOsAccountIds(std::vector<int32_t> &userIds)
+{
+    EDMLOGI("UsbPolicyUtils QueryAllCreatedOsAccountIds enter");
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    std::vector<AccountSA::OsAccountInfo> accounts;
+    ErrCode ret = OHOS::AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accounts);
+    if (FAILED(ret) || accounts.empty()) {
+        EDMLOGE("UsbPolicyUtils QueryAllCreatedOsAccountIds, QueryAllCreatedOsAccounts failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (auto &account : accounts) {
+        userIds.push_back(account.GetLocalId());
+    }
+    EDMLOGI("UsbPolicyUtils QueryAllCreatedOsAccountIds success, size: %{public}zu", userIds.size());
+    return ERR_OK;
+#else
+    EDMLOGE("UsbPolicyUtils QueryAllCreatedOsAccountIds, QueryAllCreatedOsAccounts Unsupported Capabilities.");
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+#endif
+}
+
+#ifdef FEATURE_PC_ONLY
+ErrCode UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(bool &isDisallowed)
+{
+    EDMLOGI("UsbPolicyUtils IsUsbStorageDeviceWriteDisallowed enter");
+    std::vector<int32_t> userIds;
+    if (FAILED(QueryAllCreatedOsAccountIds(userIds))) {
+        EDMLOGE("UsbPolicyUtils IsUsbStorageDeviceWriteDisallowed, QueryAllCreatedOsAccountIds failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string disallowedUsbStorageDeviceWrite;
+    for (size_t i = 0; i < userIds.size(); i++) {
+        policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE,
+            disallowedUsbStorageDeviceWrite, userIds[i]);
+        if (disallowedUsbStorageDeviceWrite == "true") {
+            EDMLOGI("UsbPolicyUtils IsUsbStorageDeviceWriteDisallowed, usbStorageDeviceWrite is disallowed");
+            isDisallowed = true;
+            return ERR_OK;
+        }
+    }
+    EDMLOGI("UsbPolicyUtils IsUsbStorageDeviceWriteDisallowed end");
+    return ERR_OK;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

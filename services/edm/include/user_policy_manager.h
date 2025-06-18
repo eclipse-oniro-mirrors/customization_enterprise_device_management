@@ -22,7 +22,6 @@
 #include <unordered_map>
 #include "device_policies_storage_rdb.h"
 #include "edm_errors.h"
-#include "json/json.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,7 +31,7 @@ using AdminValueItemsMap = std::unordered_map<std::string, std::string>; /* Admi
 /*
  * This class is used to load and store /data/service/el1/public/edm/device_policies.json file.
  * provide the Get and Set api to operate on json file, the read and write json
- * file depend on jsoncpp library
+ * file depend on cJSON library
  */
 class UserPolicyManager {
 public:

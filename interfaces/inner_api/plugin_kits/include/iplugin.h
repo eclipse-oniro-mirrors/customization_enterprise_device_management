@@ -102,10 +102,12 @@ public:
     virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);
     virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) = 0;
-    virtual void OnOtherServiceStart() {};
+    virtual void OnOtherServiceStart(int32_t systemAbilityId) {};
 
     std::uint32_t GetCode();
     std::string GetPolicyName();
+    std::uint32_t GetBasicPluginCode();
+    void SetBasicPluginCode(std::uint32_t basicPluginCode);
     bool NeedSavePolicy();
     bool IsGlobalPolicy();
     std::vector<PolicyPermissionConfig> GetAllPermission();
@@ -123,6 +125,7 @@ public:
 protected:
     std::uint32_t policyCode_ = 0;
     std::string policyName_;
+    std::uint32_t basicPluginCode_ = 0;
     PolicyPermissionConfig permissionConfig_;
     std::map<FuncOperateType, PolicyPermissionConfig> permissionMap_;
     std::shared_ptr<IPlugin> extensionPlugin_ = nullptr;

@@ -63,6 +63,11 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    namespace ApplicationManager {
+        const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
+        const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
+    }
+
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
         const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";
@@ -92,6 +97,11 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
     }
 
+    namespace KeepAlive {
+        const char* const GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME = "bundleName";
+        const char* const GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY = "disallowModify";
+    }
+
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";
@@ -102,6 +112,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SCREENSHOT = "screenshot";
         const char* const LABEL_DISALLOWED_POLICY_SCREEN_RECORD = "screenRecord";
         const char* const LABEL_DISALLOWED_POLICY_USB = "usb";
+        const char* const LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE = "usbStorageDeviceWrite";
         const char* const LABEL_DISALLOWED_POLICY_WIFI = "wifi";
         const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
@@ -123,6 +134,11 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
+        const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
+        const char* const LABEL_DISALLOWED_POLICY_AIRPLANE_MODE = "airplaneMode";
+        const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
+        const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
+        const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -211,11 +227,13 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
+    const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
     const char* const POLICY_ADD_OS_ACCOUNT = "add_os_account";
     const char* const POLICY_ALLOWED_BLUETOOTH_DEVICES = "allowed_bluetooth_devices";
+    const char* const POLICY_ALLOWED_KIOSK_APPS = "allowed_kiosk_apps";
     const char* const POLICY_DISALLOWED_BLUETOOTH_DEVICES = "disallowed_bluetooth_devices";
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
@@ -240,10 +258,12 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
+    const char* const POLICY_DISALLOWED_BLUETOOTH_PROTOCOLS = "disallowed_bluetooth_protocols";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
     const char* const POLICY_FIREWALL_RULE = "firewall_rule";
@@ -294,6 +314,12 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_SIM = "disallowed_sim";
     const char* const POLICY_DISALLOW_MOBILE_DATA = "disallow_mobile_data";
     const char* const POLICY_DISALLOW_POWER_LONG_PRESS = "disallow_power_long_press";
+    const char* const POLICY_SET_KIOSK_FEATURE = "kiosk_feature";
+    const char* const POLICY_DISALLOWED_AIRPLANE_MODE = "disallowed_airplane_mode";
+    const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
+    const char* const POLICY_SET_DEVICE_NAME = "set_device_name";
+    const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
+    const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -301,6 +327,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
+    const char* const POLICY_DISALLOWED_NFC = "disallowed_nfc";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

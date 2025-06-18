@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_MANAGED_BROWSER_POLICY_SERIALIZER_H
 #define SERVICES_EDM_INCLUDE_UTILS_MANAGED_BROWSER_POLICY_SERIALIZER_H
 
+#include <map>
 #include "ipolicy_serializer.h"
 
 #include "managed_browser_policy_type.h"

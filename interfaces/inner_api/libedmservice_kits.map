@@ -55,6 +55,7 @@
             OHOS::EDM::UpdatePolicyUtils::*;
             OHOS::EDM::FingerprintPolicy::*;
             OHOS::EDM::LocationPolicy::*;
+            OHOS::EDM::KioskFeature::*;
             OHOS::EDM::PasswordSerializer::*;
             OHOS::EDM::DomainAccountPolicy::*;
             OHOS::EDM::WatermarkImageSerializer::*;
@@ -73,6 +74,13 @@
             OHOS::EDM::EdmSignatureInfo::*;
             VTT?for?OHOS::EDM::EdmSignatureInfo;
             vtable?for?OHOS::EDM::EdmSignatureInfo;
+            VTT?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
+            vtable?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
+            OHOS::EDM::ManageKeepAliveAppsSerializer::*;
+            OHOS::EDM::ManageKeepAliveAppInfo::*;
+            "virtual thunk to OHOS::EDM::ManageKeepAliveAppInfo::~ManageKeepAliveAppInfo()";
+            VTT?for?OHOS::EDM::ManageKeepAliveAppInfo;
+            vtable?for?OHOS::EDM::ManageKeepAliveAppInfo;
         };
     local:
         *;

@@ -275,7 +275,9 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
     std::string retMessage;
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    bool disallowModify = true;
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -289,10 +291,12 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsSuc, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> keepAliveApps;
     std::string retMessage;
+    bool disallowModify = true;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID, retMessage);
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps,
+        disallowModify, DEFAULT_USER_ID, retMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -373,6 +377,44 @@ HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataFail, TestSize.L
 }
 
 /**
+ * @tc.name: TestSetKioskFeaturesFail
+ * @tc.desc: Test SetKioskFeatures without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetKioskFeaturesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> apps;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(apps);
+
+    ErrCode ret = applicationManagerProxy_->SetKioskFeatures(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetKioskFeaturesSuc
+ * @tc.desc: Test SetKioskFeatures success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetKioskFeaturesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> apps;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(apps);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->SetKioskFeatures(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestClearUpApplicationDataSuc
  * @tc.desc: Test ClearUpApplicationData success func.
  * @tc.type: FUNC
@@ -387,6 +429,172 @@ HWTEST_F(ApplicationManagerProxyTest, TestClearUpApplicationDataSuc, TestSize.Le
     ClearUpApplicationDataParam param { ADMIN_PACKAGENAME, 0, 0 };
     int32_t ret = applicationManagerProxy_->ClearUpApplicationData(admin, param);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetAllowedKioskAppsFail
+ * @tc.desc: Test SetAllowedKioskApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAllowedKioskAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    int32_t ret = applicationManagerProxy_->SetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetAllowedKioskAppsSuc
+ * @tc.desc: Test SetAllowedKioskApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAllowedKioskAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->SetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAllowedKioskAppsFail
+ * @tc.desc: Test GetAllowedKioskApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedKioskAppsSuc
+ * @tc.desc: Test GetAllowedKioskApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<std::string> bundleNames;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedFail
+ * @tc.desc: Test IsAppKioskAllowed without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAppKioskAllowedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    std::string bundleName;
+    bool isAllowed = false;
+    int32_t ret = applicationManagerProxy_->IsAppKioskAllowed(bundleName, isAllowed);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(!isAllowed);
+}
+
+/**
+ * @tc.name: TestIsAppKioskAllowedSuc
+ * @tc.desc: Test IsAppKioskAllowed success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAppKioskAllowedSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string bundleName;
+    bool isAllowed = false;
+    int32_t ret = applicationManagerProxy_->IsAppKioskAllowed(bundleName, isAllowed);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddKeepAliveAppsWithDisallowModifyFail
+ * @tc.desc: Test AddKeepAliveAppsWithDisallowModify without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    bool disallowModify = false;
+    std::string retMessage;
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddKeepAliveAppsWithDisallowModifySuc
+ * @tc.desc: Test AddKeepAliveAppsWithDisallowModify success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddKeepAliveAppsWithDisallowModifySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    bool disallowModify = false;
+    std::string retMessage;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetKeepAliveAppDisallowModifyFail
+ * @tc.desc: Test GetKeepAliveAppDisallowModify without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::string keepAliveApp;
+    bool disallowModify;
+    ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
+        DEFAULT_USER_ID, disallowModify);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetKeepAliveAppDisallowModifySuc
+ * @tc.desc: Test GetKeepAliveAppDisallowModify success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifySuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string keepAliveApp;
+    bool disallowModify;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
+        DEFAULT_USER_ID, disallowModify);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(disallowModify);
 }
 } // namespace TEST
 } // namespace EDM

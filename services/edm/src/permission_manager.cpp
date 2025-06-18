@@ -25,7 +25,8 @@ PermissionManager::~PermissionManager()
     permissions_.clear();
 }
 
-ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin::PermissionType permissionType)
+ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin::PermissionType permissionType,
+    std::uint32_t code)
 {
     if (permission.empty()) {
         return ERR_OK;
@@ -47,6 +48,7 @@ ErrCode PermissionManager::AddPermission(const std::string &permission, IPlugin:
     } else {
         EDMLOGI("AddPermission::same permission has been added : %{public}s", permission.c_str());
     }
+    permissionToCodes_[permission].insert(code);
     EDMLOGD("AddPermission::return ok");
     return ERR_OK;
 }
@@ -57,6 +59,31 @@ AdminType PermissionManager::PermissionTypeToAdminType(IPlugin::PermissionType p
         return AdminType::BYOD;
     }
     return static_cast<AdminType>(permissionType);
+}
+
+void PermissionManager::RemovePermission(const std::string &permission,
+    IPlugin::PermissionType permissionType, std::uint32_t code)
+{
+    if (permission.empty()) {
+        return;
+    }
+    auto codeIt = permissionToCodes_.find(permission);
+    if (codeIt == permissionToCodes_.end()) {
+        return;
+    }
+    codeIt->second.erase(code);
+    if (!codeIt->second.empty()) {
+        return;
+    }
+    auto it = permissions_.find(permission);
+    if (it != permissions_.end()) {
+        if (it->second != PermissionTypeToAdminType(permissionType)) {
+            EDMLOGE("PermissionManager::RemovePermission AdminType error");
+            return;
+        }
+        permissions_.erase(it);
+    }
+    permissionToCodes_.erase(codeIt);
 }
 
 void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,

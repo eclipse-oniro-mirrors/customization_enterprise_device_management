@@ -40,7 +40,7 @@ public:
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
 
-    void OnOtherServiceStart() override;
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 
 private:
     ErrCode HandleFingerprintAuthPolicy(bool disallow, FingerprintPolicy &currentPolicy,

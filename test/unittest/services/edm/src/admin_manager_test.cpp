@@ -30,13 +30,14 @@ namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 101;
 constexpr int HUGE_ADMIN_SIZE = 100;
+constexpr int POLICY_CODE = 100;
 
 void AdminManagerTest::SetUp()
 {
     PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_PERMISSION",
-        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, POLICY_CODE);
     PermissionManager::GetInstance()->AddPermission("ohos.permission.EDM_TEST_ENT_PERMISSION",
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, POLICY_CODE);
     adminMgr_ = AdminManager::GetInstance();
     adminMgr_->Init();
     adminMgr_->ClearAdmins();

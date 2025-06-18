@@ -22,7 +22,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <mutex>
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -31,8 +30,76 @@
 
 namespace OHOS {
 namespace EDM {
+#if defined(_ARM64_) || defined(_X86_64_)
+const char* const PLUGIN_DIR = "/system/lib64/edm_plugin/";
+#else
+const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
+#endif
+
 std::shared_ptr<PluginManager> PluginManager::instance_;
-std::mutex PluginManager::mutexLock_;
+std::shared_timed_mutex PluginManager::mutexLock_;
+constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
+constexpr int32_t MUTEX_TIMEOUT = 10;;
+
+std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
+    EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES,
+    EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES,
+    EdmInterfaceCode::SCREEN_OFF_TIME, EdmInterfaceCode::DISALLOWED_UNINSTALL_BUNDLES,
+    EdmInterfaceCode::UNINSTALL, EdmInterfaceCode::DISABLED_PRINTER,
+    EdmInterfaceCode::DISABLED_HDC, EdmInterfaceCode::INSTALL,
+    EdmInterfaceCode::POWER_POLICY, EdmInterfaceCode::NTP_SERVER,
+    EdmInterfaceCode::LOCK_SCREEN, EdmInterfaceCode::SHUTDOWN,
+    EdmInterfaceCode::REBOOT, EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER,
+    EdmInterfaceCode::ADD_OS_ACCOUNT, EdmInterfaceCode::GET_BLUETOOTH_INFO,
+    EdmInterfaceCode::DISABLE_MICROPHONE, EdmInterfaceCode::DISABLE_BLUETOOTH,
+    EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::INACTIVE_USER_FREEZE,
+    EdmInterfaceCode::SNAPSHOT_SKIP, EdmInterfaceCode::WATERMARK_IMAGE,
+    EdmInterfaceCode::DISABLE_CAMERA, EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY,
+    EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, EdmInterfaceCode::SWITCH_BLUETOOTH,
+    EdmInterfaceCode::GET_BUNDLE_INFO_LIST, EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
+    EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::DISABLE_REMOTE_DESK,
+    EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
+    EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::ALLOWED_KIOSK_APPS,
+    EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
+    EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT
+};
+
+std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
+    EdmInterfaceCode::IS_WIFI_ACTIVE, EdmInterfaceCode::GET_NETWORK_INTERFACES,
+    EdmInterfaceCode::GET_IP_ADDRESS, EdmInterfaceCode::GET_MAC,
+    EdmInterfaceCode::SET_WIFI_PROFILE, EdmInterfaceCode::DISABLED_NETWORK_INTERFACE,
+    EdmInterfaceCode::IPTABLES_RULE, EdmInterfaceCode::SET_BROWSER_POLICIES,
+    EdmInterfaceCode::GLOBAL_PROXY, EdmInterfaceCode::USB_READ_ONLY,
+    EdmInterfaceCode::FIREWALL_RULE, EdmInterfaceCode::DOMAIN_FILTER_RULE,
+    EdmInterfaceCode::DISABLE_USB, EdmInterfaceCode::ALLOWED_USB_DEVICES,
+    EdmInterfaceCode::DISABLE_WIFI, EdmInterfaceCode::DISALLOWED_TETHERING,
+    EdmInterfaceCode::DISALLOWED_USB_DEVICES, EdmInterfaceCode::MANAGED_BROWSER_POLICY,
+    EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
+    EdmInterfaceCode::ALLOWED_WIFI_LIST, EdmInterfaceCode::DISALLOWED_WIFI_LIST,
+    EdmInterfaceCode::DISALLOWED_SMS, EdmInterfaceCode::DISALLOWED_MMS,
+    EdmInterfaceCode::SWITCH_WIFI, EdmInterfaceCode::DISALLOW_MODIFY_APN,
+    EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
+    EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
+    EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
+    EdmInterfaceCode::DISALLOWED_NFC, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
+    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
+};
+
+std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
+    EdmInterfaceCode::SET_DATETIME, EdmInterfaceCode::RESET_FACTORY,
+    EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, EdmInterfaceCode::INSTALL_CERTIFICATE,
+    EdmInterfaceCode::LOCATION_POLICY, EdmInterfaceCode::MANAGE_AUTO_START_APPS,
+    EdmInterfaceCode::FINGERPRINT_AUTH, EdmInterfaceCode::PASSWORD_POLICY,
+    EdmInterfaceCode::CLIPBOARD_POLICY, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
+    EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA,
+};
+
+std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
+    EdmInterfaceCode::GET_DEVICE_SERIAL, EdmInterfaceCode::GET_DEVICE_NAME,
+    EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
+    EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
+    EdmInterfaceCode::GET_ADMINPROVISION_INFO
+};
 
 PluginManager::PluginManager()
 {
@@ -42,13 +109,12 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
-    UnloadPlugin();
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> autoLock(mutexLock_);
+        std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
         if (instance_ == nullptr) {
             instance_.reset(new (std::nothrow) PluginManager());
         }
@@ -126,11 +192,13 @@ bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin)
     }
     for (auto &config : configs) {
         for (auto &typePermission : config.typePermissions) {
-            PermissionManager::GetInstance()->AddPermission(typePermission.second, typePermission.first);
+            PermissionManager::GetInstance()->AddPermission(typePermission.second,
+                typePermission.first, plugin->GetCode());
         }
         for (auto &tagPermission : config.tagPermissions) {
             for (auto &typePermission : tagPermission.second) {
-                PermissionManager::GetInstance()->AddPermission(typePermission.second, typePermission.first);
+                PermissionManager::GetInstance()->AddPermission(typePermission.second,
+                    typePermission.first, plugin->GetCode());
             }
         }
     }
@@ -160,6 +228,7 @@ bool PluginManager::AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin,
             basicPlugin->SetExtensionPlugin(extensionPlugin);
             basicPlugin->SetExecuteStrategy(CreateExecuteStrategy(strategy));
         }
+        extensionPlugin->SetBasicPluginCode(basicPluginCode);
         extensionPlugin->SetPluginType(IPlugin::PluginType::EXTENSION);
         extensionPluginMap_.insert(std::make_pair(basicPluginCode, extensionPlugin->GetCode()));
         executeStrategyMap_.insert(std::make_pair(basicPluginCode, strategy));
@@ -168,63 +237,229 @@ bool PluginManager::AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin,
     return false;
 }
 
-void PluginManager::LoadPlugin()
+void PluginManager::LoadAllPlugin()
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
-#if defined(_ARM64_) || defined(_X86_64_)
-    std::string pluginDir = "/system/lib64/edm_plugin/";
-#else
-    std::string pluginDir = "/system/lib/edm_plugin/";
-#endif
-    DIR *dir = opendir(pluginDir.c_str());
+    LoadPlugin(SONAME::DEVICE_CORE_PLUGIN_SO);
+    LoadPlugin(SONAME::COMMUNICATION_PLUGIN_SO);
+    LoadPlugin(SONAME::SYS_SERVICE_PLUGIN_SO);
+    LoadPlugin(SONAME::NEED_EXTRA_PLUGIN_SO);
+    LoadExtraPlugin();
+}
+
+void PluginManager::LoadExtraPlugin()
+{
+    EDMLOGI("PluginManager::LoadExtraPlugin start.");
+    DIR *dir = opendir(PLUGIN_DIR);
     if (dir == nullptr) {
         EDMLOGE("PluginManager::LoadPlugin open edm_plugin dir fail.");
         return;
     }
     struct dirent *entry;
     while ((entry = readdir(dir)) != nullptr) {
-        if (entry->d_type == DT_REG && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            LoadPlugin(pluginDir + entry->d_name);
+        if (entry->d_type == DT_REG && IsExtraPlugin(entry->d_name)) {
+            LoadPlugin(entry->d_name);
         }
     }
     closedir(dir);
 }
 
-void PluginManager::LoadPlugin(const std::string &pluginPath)
+bool PluginManager::IsExtraPlugin(const std::string &soName)
+{
+    return soName != SONAME::DEVICE_CORE_PLUGIN_SO
+        && soName != SONAME::COMMUNICATION_PLUGIN_SO
+        && soName != SONAME::SYS_SERVICE_PLUGIN_SO
+        && soName != SONAME::NEED_EXTRA_PLUGIN_SO
+        && soName != SONAME::OLD_EDM_PLUGIN_SO;
+}
+
+void PluginManager::LoadPluginByFuncCode(uint32_t funcCode)
+{
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
+    LoadPluginByCode(code);
+}
+
+void PluginManager::LoadPluginByCode(uint32_t code)
+{
+    if (code > EdmInterfaceCode::POLICY_CODE_END) {
+        LoadExtraPlugin();
+        return;
+    }
+    std::string soName;
+    if (!GetSoNameByCode(code, soName)) {
+        EDMLOGE("PluginManager::LoadPluginByCode soname not found");
+        return;
+    }
+    if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
+        LoadExtraPlugin();
+    }
+    LoadPlugin(soName);
+}
+
+void PluginManager::LoadPlugin(const std::string &soName)
+{
+    if (soName.empty()) {
+        EDMLOGE("PluginManager::LoadPlugin soName empty");
+        return;
+    }
+    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_, std::chrono::seconds(MUTEX_TIMEOUT));
+    if (!lock) {
+        EDMLOGE("PluginManager::UnloadPlugin mutex timeout.");
+        return;
+    }
+    EDMLOGI("PluginManager::LoadPlugin soName %{public}s", soName.c_str());
+    auto soLoadIter = soLoadStateMap_.find(soName);
+    if (soLoadIter == soLoadStateMap_.end()) {
+        soLoadStateMap_[soName] = std::make_shared<SoLoadState>();
+    }
+    std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
+    loadStatePtr->lastCallTime = std::chrono::system_clock::now();
+    if (loadStatePtr->pluginHasInit) {
+        std::unique_lock<std::mutex> lock(loadStatePtr->waitMutex);
+        loadStatePtr->notifySignal = true;
+        loadStatePtr->waitSignal.notify_one();
+    } else {
+        EDMLOGI("PluginManager::DlopenPlugin soName %{public}s", soName.c_str());
+        DlopenPlugin(PLUGIN_DIR + soName, loadStatePtr);
+        loadStatePtr->pluginHasInit = true;
+        std::thread timerThread([=]() {
+            this->UnloadPluginTask(soName, loadStatePtr);
+        });
+        timerThread.detach();
+    }
+}
+
+void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<SoLoadState> loadStatePtr)
+{
+    while (loadStatePtr->pluginHasInit) {
+        {
+            std::unique_lock<std::mutex> lock(loadStatePtr->waitMutex);
+            loadStatePtr->notifySignal = false;
+            loadStatePtr->waitSignal.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [=] {
+                return loadStatePtr->notifySignal;
+            });
+        }
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        auto now = std::chrono::system_clock::now();
+        auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
+        if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
+            UnloadPlugin(soName);
+            loadStatePtr->pluginHasInit = false;
+        }
+    }
+}
+
+void PluginManager::DlopenPlugin(const std::string &pluginPath, std::shared_ptr<SoLoadState> loadStatePtr)
 {
     void *handle = dlopen(pluginPath.c_str(), RTLD_LAZY);
     if (!handle) {
         EDMLOGE("PluginManager::open plugin so fail. %{public}s.", dlerror());
         return;
     }
-    pluginHandles_.push_back(handle);
+    loadStatePtr->pluginHandles = handle;
 }
 
-void PluginManager::UnloadPlugin()
+bool PluginManager::GetSoNameByCode(std::uint32_t code, std::string &soName)
 {
-    std::lock_guard<std::mutex> autoLock(mutexLock_);
-    for (auto codeIter = pluginsCode_.begin(); codeIter != pluginsCode_.end();) {
-        if (codeIter->second != nullptr) {
-            codeIter->second->ResetExtensionPlugin();
-        }
-        codeIter = pluginsCode_.erase(codeIter);
+    auto deviceCoreIter = std::find(deviceCoreSoCodes_.begin(), deviceCoreSoCodes_.end(), code);
+    if (deviceCoreIter != deviceCoreSoCodes_.end()) {
+        soName = SONAME::DEVICE_CORE_PLUGIN_SO;
+        return true;
     }
-    pluginsCode_.clear();
-    pluginsName_.clear();
-    for (auto handleIter = pluginHandles_.rbegin(); handleIter != pluginHandles_.rend(); ++handleIter) {
-        auto handle = *handleIter;
-        if (handle == nullptr) {
-            continue;
-        }
-        int result = dlclose(handle);
-        if (result != 0) {
-            EDMLOGE("PluginManager::UnloadPlugin close lib failed: %{public}s.", dlerror());
-        } else {
-            EDMLOGI("PluginManager::UnloadPlugin close lib success");
+    auto communicationIter = std::find(communicationSoCodes_.begin(), communicationSoCodes_.end(), code);
+    if (communicationIter != communicationSoCodes_.end()) {
+        soName = SONAME::COMMUNICATION_PLUGIN_SO;
+        return true;
+    }
+    auto sysServiceIter = std::find(sysServiceSoCodes_.begin(), sysServiceSoCodes_.end(), code);
+    if (sysServiceIter != sysServiceSoCodes_.end()) {
+        soName = SONAME::SYS_SERVICE_PLUGIN_SO;
+        return true;
+    }
+    auto needExtraIter = std::find(needExtraSoCodes_.begin(), needExtraSoCodes_.end(), code);
+    if (needExtraIter != needExtraSoCodes_.end()) {
+        soName = SONAME::NEED_EXTRA_PLUGIN_SO;
+        return true;
+    }
+    return false;
+}
+
+void PluginManager::UnloadPlugin(const std::string &soName)
+{
+    EDMLOGI("PluginManager::UnloadPlugin soName: %{public}s.", soName.c_str());
+    std::vector<uint32_t>* targetVec = nullptr;
+    if (soName == SONAME::DEVICE_CORE_PLUGIN_SO) {
+        targetVec = &deviceCoreSoCodes_;
+    } else if (soName == SONAME::COMMUNICATION_PLUGIN_SO) {
+        targetVec = &communicationSoCodes_;
+    } else if (soName == SONAME::SYS_SERVICE_PLUGIN_SO) {
+        targetVec = &sysServiceSoCodes_;
+    } else if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
+        targetVec = &needExtraSoCodes_;
+    } else {
+        std::vector<uint32_t> extraPluginCodeList;
+        targetVec = &extraPluginCodeList;
+        GetExtraPluginCodeList(targetVec);
+        extensionPluginMap_.clear();
+        executeStrategyMap_.clear();
+    }
+    for (const auto& code : *targetVec) {
+        RemovePlugin(GetPluginByCode(code));
+    }
+    std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
+    if (loadStatePtr->pluginHandles == nullptr) {
+        EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
+        return;
+    }
+    int result = dlclose(loadStatePtr->pluginHandles);
+    if (result != 0) {
+        EDMLOGE("PluginManager::UnloadPlugin %{public}s close lib failed: %{public}s.", soName.c_str(), dlerror());
+    } else {
+        EDMLOGI("PluginManager::UnloadPlugin %{public}s close lib success", soName.c_str());
+    }
+    soLoadStateMap_.erase(soName);
+}
+
+void PluginManager::GetExtraPluginCodeList(std::vector<uint32_t>* targetVec)
+{
+    for (const auto& it : pluginsCode_) {
+        if (it.first > EdmInterfaceCode::POLICY_CODE_END) {
+            targetVec->push_back(it.first);
         }
     }
-    pluginHandles_.clear();
-    EDMLOGI("PluginManager::UnloadPlugin finish.");
+    for (const auto& it : extensionPluginMap_) {
+        targetVec->push_back(it.second);
+    }
+}
+
+void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
+{
+    if (plugin == nullptr) {
+        return;
+    }
+    extensionPluginMap_.erase(plugin->GetCode());
+    plugin->ResetExtensionPlugin();
+    std::vector<IPlugin::PolicyPermissionConfig> configs = plugin->GetAllPermission();
+    if (configs.empty()) {
+        return;
+    }
+    for (const auto &config : configs) {
+        for (const auto &typePermission : config.typePermissions) {
+            PermissionManager::GetInstance()->RemovePermission(typePermission.second,
+                typePermission.first, plugin->GetCode());
+        }
+        for (const auto &tagPermission : config.tagPermissions) {
+            for (const auto &typePermission : tagPermission.second) {
+                PermissionManager::GetInstance()->RemovePermission(typePermission.second,
+                    typePermission.first, plugin->GetCode());
+            }
+        }
+    }
+    pluginsCode_.erase(plugin->GetCode());
+    pluginsName_.erase(plugin->GetPolicyName());
+    auto basicPlugin = GetPluginByCode(plugin->GetBasicPluginCode());
+    if (basicPlugin != nullptr) {
+        basicPlugin->ResetExtensionPlugin();
+    }
 }
 
 void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
