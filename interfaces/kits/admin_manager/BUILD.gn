@@ -51,6 +51,10 @@ ohos_shared_library("adminmanager") {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   relative_install_dir = "module/enterprise"
   sanitize = {
     boundary_sanitize = true

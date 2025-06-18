@@ -17,6 +17,7 @@
 #include "ability_manager_client.h"
 #include "admin_manager_addon.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
 #include "if_system_ability_manager.h"
@@ -163,7 +164,11 @@ void AdminManager::NativeEnableAdmin(napi_env env, void *data)
     }
     AsyncEnableAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncEnableAdminCallbackInfo *>(data);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-
+#ifdef FEATURE_PC_ONLY
+    if (ParseAdminType(asyncCallbackInfo->adminType) == AdminType::ENT) {
+        asyncCallbackInfo->userId = EdmConstants::DEFAULT_USER_ID;
+    }
+#endif
     asyncCallbackInfo->ret = proxy->EnableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
         ParseAdminType(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
 }
