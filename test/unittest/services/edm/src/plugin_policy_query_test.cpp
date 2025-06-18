@@ -80,10 +80,14 @@
 #include "disallowed_mms_query.h"
 #include "disallow_power_long_press_query.h"
 #include "disallowed_nfc_query.h"
-#include "disallow_vpn_query.h"
+
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#endif
+
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
 #endif
 
 using namespace testing::ext;
@@ -1969,6 +1973,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetDeviceNameQuery002, TestSize.Level
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+#ifdef NETMANAGER_EXT_EDM_ENABLE
 /**
  * @tc.name: TestDisallowVPNQuery001
  * @tc.desc: Test DisallowVPNQuery QueryPolicy function.
@@ -2001,6 +2006,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowVPNQuery002, TestSize.Level1)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_vpn");
 }
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

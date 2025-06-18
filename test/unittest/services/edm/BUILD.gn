@@ -318,6 +318,10 @@ ohos_unittest("EdmServicesUnitTest") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (netmanager_ext_edm_enable) {
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
+  }
+
   configs = [
     ":module_private_config",
     "../../../../common/config:coverage_flags",
