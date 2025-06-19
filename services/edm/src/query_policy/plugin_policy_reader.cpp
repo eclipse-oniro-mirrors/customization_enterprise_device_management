@@ -117,6 +117,7 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#include "install_local_enterprise_app_enabled_query.h"
 #endif
 
 #include "allowed_app_distribution_types_query.h"
@@ -474,6 +475,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
