@@ -461,6 +461,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
             obj = std::make_shared<DisallowedAirplaneModeQuery>();
+            return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif

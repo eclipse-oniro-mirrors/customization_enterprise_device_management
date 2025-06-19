@@ -62,7 +62,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::ALLOWED_KIOSK_APPS,
     EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
     EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
-    EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE
+    EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
+    EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -75,7 +76,6 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISABLE_USB, EdmInterfaceCode::ALLOWED_USB_DEVICES,
     EdmInterfaceCode::DISABLE_WIFI, EdmInterfaceCode::DISALLOWED_TETHERING,
     EdmInterfaceCode::DISALLOWED_USB_DEVICES, EdmInterfaceCode::MANAGED_BROWSER_POLICY,
-    EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
     EdmInterfaceCode::ALLOWED_WIFI_LIST, EdmInterfaceCode::DISALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_SMS, EdmInterfaceCode::DISALLOWED_MMS,
     EdmInterfaceCode::SWITCH_WIFI, EdmInterfaceCode::DISALLOW_MODIFY_APN,
