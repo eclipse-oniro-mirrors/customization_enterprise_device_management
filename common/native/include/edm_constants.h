@@ -139,6 +139,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
+        const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -245,6 +246,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_PRIVATE_SPACE = "disabled_private_space";
     const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";

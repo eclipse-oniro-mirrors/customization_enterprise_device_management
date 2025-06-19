@@ -113,6 +113,10 @@
 #include "disallowed_airplane_mode_query.h"
 #endif
 
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+#include "disable_private_space_query.h"
+#endif
+
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
@@ -488,10 +492,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         default:
             break;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQuerySixth(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOW_MODIFY_APN:
@@ -532,6 +536,20 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowModifyEthernetIpQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+    }
+    return GetPolicyQueryEnd(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISABLE_PRIVATE_SPACE:
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+            obj = std::make_shared<DisablePrivateSpaceQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

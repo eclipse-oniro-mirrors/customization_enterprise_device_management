@@ -297,7 +297,10 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
+    sources += [
+      "./src/disable_backup_and_restore_plugin_test.cpp",
+      "./src/disable_private_space_plugin_test.cpp",
+    ]
   }
 
   if (enterprise_device_management_feature_pc_only) {
@@ -387,6 +390,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
+    "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_desk_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
