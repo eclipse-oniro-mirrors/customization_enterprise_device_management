@@ -47,7 +47,8 @@ void SetInstallLocalEnterpriseAppEnabledPluginTest::TearDownTestSuite(void)
  * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledPluginTest OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetTrue, TestSize.Level1)
+HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetTrue,
+    TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -66,7 +67,8 @@ HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnter
  * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledPluginTest OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetFalse, TestSize.Level1)
+HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetFalse,
+    TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;

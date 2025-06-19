@@ -175,7 +175,8 @@ int32_t SystemManagerProxy::SetInstallLocalEnterpriseAppEnabled(MessageParcel &d
 {
     EDMLOGD("SystemManagerProxy::SetInstallLocalEnterpriseAppEnabled");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
  
