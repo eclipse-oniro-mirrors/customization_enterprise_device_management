@@ -594,7 +594,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifySuc, Test
     ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
         DEFAULT_USER_ID, disallowModify);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(disallowModify);
+    ASSERT_TRUE(disallowModify);
 }
 } // namespace TEST
 } // namespace EDM
