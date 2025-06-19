@@ -37,6 +37,7 @@ void DisallowedNotificationPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedNotificationPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowedNotificationPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.notification_disable";
 }
 } // namespace EDM
 } // namespace OHOS
