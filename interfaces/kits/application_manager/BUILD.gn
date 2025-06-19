@@ -30,7 +30,6 @@ ohos_shared_library("applicationmanager") {
   deps = [
     "../../inner_api:edmservice_kits",
     "../common:napi_edm_common",
-    "../../../common/external:edm_external_adapters",
   ]
 
   external_deps = [
