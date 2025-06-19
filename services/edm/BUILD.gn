@@ -149,7 +149,8 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_samba_client_query.cpp",
       "./src/query_policy/disable_samba_server_query.cpp",
-      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp"
+      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
+      "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",
     ]
     defines += [
       "SAMBA_EDM_ENABLE",
@@ -258,10 +259,12 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_modify_apn_query.cpp",
       "./src/query_policy/disallowed_mobile_data_query.cpp",
       "./src/query_policy/disallowed_telephony_call_query.cpp",
+      "./src/query_policy/telephony_call_policy_query.cpp",
     ]
     defines += [
       "APN_EDM_ENABLE",
       "MOBILE_DATA_ENABLE",
+      "TELEPHONY_EDM_ENABLE"
     ]
   }
 

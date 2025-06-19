@@ -70,6 +70,8 @@ private:
     static void NativeUpgradeResultComplete(napi_env env, napi_status status, void *data);
     static bool JsDisableSystemOtaUpdateToUpdatePolicy(napi_env env, napi_value object, const char *filedStr,
         OtaPolicyType &otaPolicyType);
+    static napi_value SetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
+    static napi_value IsInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

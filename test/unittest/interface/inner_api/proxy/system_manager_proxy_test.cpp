@@ -357,6 +357,84 @@ HWTEST_F(SystemManagerProxyTest, TestSetAutoUnlockAfterRebootFail, TestSize.Leve
     int32_t ret = systemmanagerProxy->SetAutoUnlockAfterReboot(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestIsInstallLocalEnterpriseAppEnabledFail
+ * @tc.desc: Test IsInstallLocalEnterpriseAppEnabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    bool isAllowed = true;
+    int32_t ret = systemmanagerProxy->IsInstallLocalEnterpriseAppEnabled(data, isAllowed);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+ 
+/**
+ * @tc.name: TestIsInstallLocalEnterpriseAppEnabledSuc
+ * @tc.desc: Test IsInstallLocalEnterpriseAppEnabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
+    bool isAllowed = true;
+    int32_t ret = systemmanagerProxy->IsInstallLocalEnterpriseAppEnabled(data, isAllowed);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isAllowed);
+}
+ 
+/**
+ * @tc.name: TestSetInstallLocalEnterpriseAppEnabledSuc
+ * @tc.desc: Test SetInstallLocalEnterpriseAppEnabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledSuc, TestSize.Level1)
+{
+    bool isAllowed = true;
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isAllowed);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    
+    int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabled(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+ 
+/**
+ * @tc.name: TestSetInstallLocalEnterpriseAppEnabledFail
+ * @tc.desc: Test SetInstallLocalEnterpriseAppEnabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledFail, TestSize.Level1)
+{
+    bool isAllowed = true;
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isAllowed);
+ 
+    int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabled(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

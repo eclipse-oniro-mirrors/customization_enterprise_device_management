@@ -35,7 +35,10 @@ namespace OHOS {
         void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
             int32_t userId) override{};
         ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-            int32_t userId) override;
+            int32_t userId) override
+        {
+            return ERR_OK;
+        };
         ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
         void OnOtherServiceStart(int32_t systemAbilityId) override;
     

@@ -94,7 +94,8 @@ ErrCode TelephonyCallPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
 }
 
 std::vector<std::string> TelephonyCallPolicyPlugin::MergeAndRemoveDuplicates(const std::vector<std::string> &v1,
-    const std::vector<std::string> &v2) {
+    const std::vector<std::string> &v2)
+{
     std::unordered_set<std::string> uset;
     uset.insert(v1.begin(), v1.end());
     uset.insert(v2.begin(), v2.end());
@@ -103,7 +104,8 @@ std::vector<std::string> TelephonyCallPolicyPlugin::MergeAndRemoveDuplicates(con
 }
 
 bool TelephonyCallPolicyPlugin::IsTrustBlockConflict(const std::string &policyTye, const int32_t flag,
-    std::map<std::string, TelephonyCallPolicyType> &mergePolicies) {
+    std::map<std::string, TelephonyCallPolicyType> &mergePolicies)
+{
     std::vector<std::string> numberList = mergePolicies[policyTye].numberList;
     int32_t policyFlag = mergePolicies[policyTye].policyFlag;
     if (flag != policyFlag && numberList.size() > 0) {
@@ -116,14 +118,11 @@ bool TelephonyCallPolicyPlugin::IsTrustBlockConflict(const std::string &policyTy
 }
 
 bool TelephonyCallPolicyPlugin::CheckIsLimit(const std::string &policyTye, const int32_t flag,
-    const std::vector<std::string> &addList, std::map<std::string, TelephonyCallPolicyType> &mergePolicies) {
+    const std::vector<std::string> &addList, std::map<std::string, TelephonyCallPolicyType> &mergePolicies)
+{
     std::vector<std::string> numberList = mergePolicies[policyTye].numberList;
     std::vector<std::string> allList = MergeAndRemoveDuplicates(numberList, addList);
-    if (allList.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE) {
-        return true;
-    }
-
-    return false;
+    return allList.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE;
 }
 
 ErrCode TelephonyCallPolicyPlugin::AddCurrentAndMergePolicy(
@@ -239,42 +238,12 @@ ErrCode TelephonyCallPolicyPlugin::GetOthersMergePolicyData(const std::string &a
     return ERR_OK;
 }
 
-ErrCode TelephonyCallPolicyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    const std::string callType = data.ReadString();
-    const int32_t flag = data.ReadInt32();
-    EDMLOGI("TelephonyCallPolicyPlugin::OnGetPolicy callType:%{public}s, flag:%{public}d", callType.c_str(), flag);
-    
-    auto serializer = TelephonyCallPolicySerializer::GetInstance();
-    std::map<std::string, TelephonyCallPolicyType> policies;
-    if (!serializer->Deserialize(policyData, policies)) {
-        EDMLOGE("TelephonyCallPolicyPlugin::OnGetPolicy Deserialize fail");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    reply.WriteInt32(ERR_OK);
-    int32_t size = 0;
-    auto it = policies.find(callType);
-    if (it == policies.end()) {
-        reply.WriteInt32(size);
-    } else {
-        if (flag == it->second.policyFlag) {
-            reply.WriteStringVector(it->second.numberList);
-        } else {
-            reply.WriteInt32(size);
-        }
-    }
-    return ERR_OK;
-}
-
 ErrCode TelephonyCallPolicyPlugin::OnAdminRemove(const std::string &adminName,
     const std::string &policyData, const std::string &mergeData, int32_t userId)
 {
     auto serializer = TelephonyCallPolicySerializer::GetInstance();
-    std::map<std::string, TelephonyCallPolicyType> policies;
     std::map<std::string, TelephonyCallPolicyType> mergePolicies;
-    if (!serializer->Deserialize(policyData, policies) ||
-        !serializer->Deserialize(mergeData, mergePolicies)) {
+    if (!serializer->Deserialize(mergeData, mergePolicies)) {
         EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -283,7 +252,6 @@ ErrCode TelephonyCallPolicyPlugin::OnAdminRemove(const std::string &adminName,
         mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
         mergePolicies[EdmConstants::CallPolicy::INCOMING].policyFlag,
         mergePolicies[EdmConstants::CallPolicy::INCOMING].numberList);
-    return ERR_OK;
     return ERR_OK;
 }
 

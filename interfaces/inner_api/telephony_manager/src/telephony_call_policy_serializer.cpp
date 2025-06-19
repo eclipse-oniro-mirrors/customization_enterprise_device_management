@@ -60,6 +60,24 @@ bool TelephonyCallPolicySerializer::Deserialize(const std::string &policy,
     return true;
 }
 
+cJSON* TelephonyCallPolicySerializer::CreateArray(const std::vector<std::string> &numberList)
+{
+    cJSON* array = cJSON_CreateArray();
+    if (array == nullptr) {
+        return nullptr;
+    }
+    for (auto& vectorIt : numberList) {
+        cJSON* policyValue = cJSON_CreateString(vectorIt.c_str());
+        if (policyValue == nullptr) {
+            cJSON_Delete(array);
+            return nullptr;
+        }
+        cJSON_AddItemToArray(array, policyValue);
+    }
+
+    return array;
+}
+
 bool TelephonyCallPolicySerializer::Serialize(const std::map<std::string, TelephonyCallPolicyType> &dataObj,
     std::string &policy)
 {
@@ -69,21 +87,11 @@ bool TelephonyCallPolicySerializer::Serialize(const std::map<std::string, Teleph
         cJSON* policyObject = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policyObject, false, root);
         cJSON_AddNumberToObject(policyObject, POLICY_FLAG, mapIt.second.policyFlag);
-        cJSON* array = cJSON_CreateArray();
+        cJSON* array = CreateArray(mapIt.second.numberList);
         if (array == nullptr) {
             cJSON_Delete(root);
             cJSON_Delete(policyObject);
             return false;
-        }
-        for (auto& vectorIt : mapIt.second.numberList) {
-            cJSON* policyValue = cJSON_CreateString(vectorIt.c_str());
-            if (policyValue == nullptr) {
-                cJSON_Delete(root);
-                cJSON_Delete(policyObject);
-                cJSON_Delete(array);
-                return false;
-            }
-            cJSON_AddItemToArray(array, policyValue);
         }
         if (!cJSON_AddItemToObject(policyObject, NUMBER_LIST, array)) {
             cJSON_Delete(root);

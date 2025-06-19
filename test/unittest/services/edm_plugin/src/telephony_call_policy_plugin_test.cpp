@@ -81,8 +81,8 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyNumbersSuccess, TestSiz
 HWTEST_F(TelephonyCallPolicyPluginTest, TestRemoveCallPolicyNumbersSuccess, TestSize.Level1)
 {
     std::shared_ptr<TelephonyCallPolicyPlugin> plugin = std::make_shared<TelephonyCallPolicyPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TELEPHONY_CALL_POLICY);
-    HandlePolicyData handlePolicyData{"", "", false};
+    std::string policyData = R"({"incoming":{"policyFlag":0,"numberList":["11111111"]}})";
+    HandlePolicyData handlePolicyData{policyData, "", false};
     MessageParcel data;
     MessageParcel reply;
     data.WriteString("incoming");
@@ -90,10 +90,8 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestRemoveCallPolicyNumbersSuccess, Test
     std::vector<std::string> numbers;
     numbers.push_back("11111111");
     data.WriteStringVector(numbers);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::TELEPHONY_CALL_POLICY);
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::ENTERPRISE_POLICES_DENIED);
-    code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::TELEPHONY_CALL_POLICY);
-    ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::ENTERPRISE_POLICES_DENIED);
 }
 

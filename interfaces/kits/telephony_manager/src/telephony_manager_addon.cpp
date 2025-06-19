@@ -133,6 +133,7 @@ bool TelephonyManagerAddon::CheckVectorStringLength(const std::vector<std::strin
 napi_value TelephonyManagerAddon::AddOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddOutgoingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addOutgoingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -174,6 +175,7 @@ napi_value TelephonyManagerAddon::AddOutgoingCallPolicyNumbers(napi_env env, nap
 napi_value TelephonyManagerAddon::RemoveOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveOutgoingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeOutgoingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -215,6 +217,7 @@ napi_value TelephonyManagerAddon::RemoveOutgoingCallPolicyNumbers(napi_env env, 
 napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetOutgoingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getOutgoingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
@@ -256,6 +259,7 @@ napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, nap
 napi_value TelephonyManagerAddon::AddIncomingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddIncomingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addIncomingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -297,6 +301,7 @@ napi_value TelephonyManagerAddon::AddIncomingCallPolicyNumbers(napi_env env, nap
 napi_value TelephonyManagerAddon::RemoveIncomingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveIncomingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeIncomingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -338,6 +343,7 @@ napi_value TelephonyManagerAddon::RemoveIncomingCallPolicyNumbers(napi_env env, 
 napi_value TelephonyManagerAddon::GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetIncomingCallPolicyNumbers called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getIncomingCallPolicyNumbers");
 #if defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};

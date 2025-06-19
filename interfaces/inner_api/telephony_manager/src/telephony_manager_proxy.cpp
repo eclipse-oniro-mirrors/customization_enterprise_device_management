@@ -131,7 +131,7 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementNam
         return ret;
     }
     reply.ReadStringVector(&numbers);
-    EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success. %{public}lu", numbers.size());
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success");
     return ERR_OK;
 }
 } // namespace EDM

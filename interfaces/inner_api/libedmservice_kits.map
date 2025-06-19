@@ -81,6 +81,9 @@
             "virtual thunk to OHOS::EDM::ManageKeepAliveAppInfo::~ManageKeepAliveAppInfo()";
             VTT?for?OHOS::EDM::ManageKeepAliveAppInfo;
             vtable?for?OHOS::EDM::ManageKeepAliveAppInfo;
+            VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            OHOS::EDM::TelephonyCallPolicySerializer::*;
         };
     local:
         *;
