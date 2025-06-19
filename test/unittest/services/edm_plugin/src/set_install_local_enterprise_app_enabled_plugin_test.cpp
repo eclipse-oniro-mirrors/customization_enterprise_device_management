@@ -19,7 +19,7 @@
 #include "iplugin_manager.h"
 #include "parameters.h"
 #include "plugin_singleton.h"
-#include "set_install_local_enterprise_app_enabled_plugin.h"
+#include "install_local_enterprise_app_enabled_plugin.h"
 #include "utils.h"
  
 using namespace testing::ext;
@@ -53,7 +53,7 @@ HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnter
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = SetInstallLocalEnterpriseAppEnabledPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = InstallLocalEnterpriseAppEnabledPlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
@@ -73,7 +73,7 @@ HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnter
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = SetInstallLocalEnterpriseAppEnabledPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = InstallLocalEnterpriseAppEnabledPlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
