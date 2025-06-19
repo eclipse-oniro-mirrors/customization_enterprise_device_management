@@ -90,7 +90,7 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleUpdate start");
     std::string apnId;
-    if (data.ReadString(apnId)) {
+    if (data.ReadString(apnId) && apnId != "") {
         std::map<std::string, std::string> apnInfo = ParserApnMap(data);
         if (apnInfo.size() == 0) {
             return EdmReturnErrCode::PARAM_ERROR;
@@ -105,7 +105,7 @@ ErrCode SetApnPlugin::HandleSetPrefer(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleSetPrefer start");
     std::string apnId;
-    if (data.ReadString(apnId)) {
+    if (data.ReadString(apnId) && apnId != "") {
         return ApnUtils::ApnSetPrefer(apnId);
     } else {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -116,7 +116,7 @@ ErrCode SetApnPlugin::HandleRemove(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleRemove start");
     std::string apnId;
-    if (data.ReadString(apnId)) {
+    if (data.ReadString(apnId) && apnId != "") {
         return ApnUtils::ApnDelete(apnId);
     } else {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -193,7 +193,7 @@ ErrCode SetApnPlugin::QueryInfo(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SetApnPlugin::QueryInfo start");
     std::string apnId;
-    if (data.ReadString(apnId)) {
+    if (data.ReadString(apnId) && apnId != "") {
         std::map<std::string, std::string> apnInfo = ApnUtils::ApnQuery(apnId);
         GenerateApnMap(apnInfo, reply);
         return ERR_OK;
