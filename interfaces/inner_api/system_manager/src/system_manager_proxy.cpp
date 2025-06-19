@@ -170,5 +170,30 @@ int32_t SystemManagerProxy::GetAutoUnlockAfterReboot(MessageParcel &data, bool &
     reply.ReadBool(authData);
     return ERR_OK;
 }
+
+int32_t SystemManagerProxy::SetInstallLocalEnterpriseAppEnabled(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetInstallLocalEnterpriseAppEnabled");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+ 
+int32_t SystemManagerProxy::IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall)
+{
+    EDMLOGD("SystemManagerProxy::IsInstallLocalEnterpriseAppEnabled");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(isAllowedInstall);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

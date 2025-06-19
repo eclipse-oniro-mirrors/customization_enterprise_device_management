@@ -125,6 +125,12 @@ ohos_shared_library("device_core_plugin") {
       defines += [ "FEATURE_PC_ONLY" ]
     }
 
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/install_local_enterprise_app_enabled_plugin.cpp",
+      ]
+    }
+
     if (audio_framework_edm_enable) {
       external_deps += [ "audio_framework:audio_client" ]
       sources += [ "./src/disable_microphone_plugin.cpp" ]
