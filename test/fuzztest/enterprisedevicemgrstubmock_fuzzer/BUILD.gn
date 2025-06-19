@@ -147,6 +147,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "window_manager:sms",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
+    "jsoncpp:jsoncpp",
   ]
 
   deps = [
