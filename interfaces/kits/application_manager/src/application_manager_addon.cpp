@@ -21,7 +21,6 @@
 #include "hisysevent_adapter.h"
 #include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
-#include "edm_os_account_manager_impl.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -230,7 +229,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     std::vector<AppExecFwk::ElementName> autoStartApps;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
         "Parameter autoStartApps error");
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     if (argc >= ARGS_SIZE_THREE) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
@@ -280,7 +280,8 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
     }
@@ -365,18 +366,6 @@ napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env
     napi_value napiIsModify = nullptr;
     napi_get_boolean(env, isModifyAutoStartAppDisallowed, &napiIsModify);
     return napiIsModify;
-}
-
-int32_t ApplicationManagerAddon::GetCurrentUserId()
-{
-    std::vector<int32_t> ids;
-    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
-    if (FAILED(ret) || ids.empty()) {
-        EDMLOGE("BatteryUtils GetCurrentUserId failed");
-        return -1;
-    }
-    EDMLOGD("BatteryUtils GetCurrentUserId user id = %{public}d", ids.at(0));
-    return (ids.at(0));
 }
 
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, napi_callback_info info)
