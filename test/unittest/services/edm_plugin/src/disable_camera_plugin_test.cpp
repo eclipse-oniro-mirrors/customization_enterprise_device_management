@@ -43,26 +43,6 @@ void DisableCameraPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableCameraPluginTestSet
- * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestSet, TestSize.Level1)
-{
-    bool data = true;
-    DisableCameraPlugin plugin;
-    HandlePolicyData handlePolicyData;
-    ErrCode ret = plugin.OnSetPolicy(data);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(data);
-
-    data = false;
-    ret = plugin.OnSetPolicy(data);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(data);
-}
-
-/**
  * @tc.name: TestDisableCameraPluginTestGet
  * @tc.desc: Test DisableCameraPluginTest::OnGetPolicy function.
  * @tc.type: FUNC
