@@ -23,20 +23,20 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DisallowNotificationPluginTest::SetUpTestSuite(void) {}
-void DisallowNotificationPluginTest::TearDownTestSuite(void) {}
+void DisallowedNotificationPluginTest::SetUpTestSuite(void) {}
+void DisallowedNotificationPluginTest::TearDownTestSuite(void) {}
 
 /**
- * @tc.name: TestDisallowNotificationPlugin001
- * @tc.desc: Test DisallowNotificationPlugin::OnSetPolicy function.
+ * @tc.name: TestDisallowedNotificationPlugin001
+ * @tc.desc: Test DisallowedNotificationPlugin::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowNotificationPluginTest, TestDisallowNotificationPlugin001, TestSize.Level1)
+HWTEST_F(DisallowedNotificationPluginTest, TestDisallowedNotificationPlugin001, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowNotificationPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisallowedNotificationPlugin::GetPlugin();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_NOTIFICATION);
     HandlePolicyData handlePolicyData{"", "", false};

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_DISALLOW_NOTIFICATION_PLUGIN_TEST_H
-#define EDM_UNIT_TEST_DISALLOW_NOTIFICATION_PLUGIN_TEST_H
+#ifndef EDM_UNIT_TEST_DISALLOWED_NOTIFICATION_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_DISALLOWED_NOTIFICATION_PLUGIN_TEST_H
 
 #include <cstdint>
 #include <gtest/gtest.h>
@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class DisallowNotificationPluginTest : public testing::Test {
+class DisallowedNotificationPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
@@ -32,4 +32,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_DISALLOW_NOTIFICATION_PLUGIN_TEST_H
+#endif // EDM_UNIT_TEST_DISALLOWED_NOTIFICATION_PLUGIN_TEST_H
