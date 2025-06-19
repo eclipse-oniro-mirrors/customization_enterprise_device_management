@@ -680,6 +680,7 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (netmanager_ext_edm_enable) {
+    external_deps += [ "netmanager_ext:net_vpn_manager_if" ]
     sources += [
       "../../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
     ]
