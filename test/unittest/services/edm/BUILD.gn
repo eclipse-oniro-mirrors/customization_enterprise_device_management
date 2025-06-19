@@ -236,7 +236,7 @@ ohos_static_library("edmservice_static") {
   if (enterprise_device_management_feature_pc_only) {
       sources += [
         "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
-        "../../../../services/edm/src/query_policy/get_install_local_enterprise_app_enabled_query.cpp",
+        "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
   }
