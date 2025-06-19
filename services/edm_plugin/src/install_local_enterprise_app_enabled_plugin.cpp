@@ -22,7 +22,7 @@
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = 
+const bool REGISTER_RESULT =
     IPluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
  
 void InstallLocalEnterpriseAppEnabledPlugin::InitPlugin(

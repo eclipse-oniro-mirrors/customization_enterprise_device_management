@@ -653,7 +653,7 @@ napi_value SystemManagerAddon::SetInstallLocalEnterpriseAppEnabled(napi_env env,
     if (result == nullptr) {
         return nullptr;
     }
-    int32_t ret = 
+    int32_t ret =
         SystemManagerProxy::GetSystemManagerProxy()->SetInstallLocalEnterpriseAppEnabled(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -683,7 +683,8 @@ napi_value SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled(napi_env env, 
     }
     bool isAllowedInstall = false;
     int32_t ret =
-        SystemManagerProxy::GetSystemManagerProxy()->IsInstallLocalEnterpriseAppEnabled(adapterAddonData.data, isAllowedInstall);
+        SystemManagerProxy::GetSystemManagerProxy()->IsInstallLocalEnterpriseAppEnabled(adapterAddonData.data,
+            isAllowedInstall);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled failed!");
