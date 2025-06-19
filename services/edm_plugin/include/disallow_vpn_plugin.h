@@ -24,6 +24,8 @@ namespace EDM {
 class DisallowVPNPlugin : public PluginSingleton<DisallowVPNPlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPlugin, bool>> ptr) override;
+private:
+    ErrCode SetOtherModulePolicy(bool data) override;
 };
 } // namespace EDM
 } // namespace OHOS

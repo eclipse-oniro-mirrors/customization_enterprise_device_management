@@ -200,6 +200,7 @@ ohos_static_library("edmservice_static") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "netmanager_ext:net_vpn_manager_if",
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",

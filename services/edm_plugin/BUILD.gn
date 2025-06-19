@@ -228,6 +228,7 @@ ohos_shared_library("communication_plugin") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "netmanager_ext:net_vpn_manager_if",
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",

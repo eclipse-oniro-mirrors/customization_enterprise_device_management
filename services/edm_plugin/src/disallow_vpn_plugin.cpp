@@ -20,6 +20,8 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
+#include "networkvpn_client.h"
+
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowVPNPlugin::GetPlugin());
@@ -38,6 +40,16 @@ void DisallowVPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPl
     ptr->SetOnHandlePolicyListener(&DisallowVPNPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowVPNPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.vpn_disable";
+}
+
+ErrCode DisallowVPNPlugin::SetOtherModulePolicy(bool data)
+{
+    EDMLOGI("DisallowVPNPlugin SetOtherModulePolicy...");
+    if (data) {
+        return NetManagerStandard::NetworkVpnClient::GetInstance().DestroyVpn() == 0 ? ERR_OK :
+            EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
