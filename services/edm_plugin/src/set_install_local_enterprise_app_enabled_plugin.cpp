@@ -13,7 +13,7 @@
  * limitations under the License.
  */
  
-#include "set_install_local_enterprise_app_enabled_plugin.h"
+#include "install_local_enterprise_app_enabled_plugin.h"
  
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
@@ -22,17 +22,19 @@
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetInstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
+const bool REGISTER_RESULT = 
+    IPluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
  
-void SetInstallLocalEnterpriseAppEnabledPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<SetInstallLocalEnterpriseAppEnabledPlugin, bool>> ptr)
+void InstallLocalEnterpriseAppEnabledPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<InstallLocalEnterpriseAppEnabledPlugin, bool>> ptr)
 {
-    EDMLOGI("SetInstallLocalEnterpriseAppEnabledPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED, PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin InitPlugin...");
+    ptr->InitAttribute(EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+        PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
     ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SetInstallLocalEnterpriseAppEnabledPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&SetInstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove);
+    ptr->SetOnHandlePolicyListener(&InstallLocalEnterpriseAppEnabledPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.is_local_install_enable";
 }
 } // namespace EDM

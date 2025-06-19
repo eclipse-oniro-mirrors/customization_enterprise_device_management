@@ -13,25 +13,26 @@
  * limitations under the License.
  */
  
-#include "get_install_local_enterprise_app_enabled_query.h"
+#include "install_local_enterprise_app_enabled_query.h"
  
 #include "edm_constants.h"
 #include "parameters.h"
  
 namespace OHOS {
 namespace EDM {
-std::string GetInstallLocalEnterpriceAppEnabledQuery::GetPolicyName()
+std::string InstallLocalEnterpriceAppEnabledQuery::GetPolicyName()
 {
     return PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED;
 }
  
-std::string GetInstallLocalEnterpriceAppEnabledQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+std::string InstallLocalEnterpriceAppEnabledQuery::GetPermission(IPlugin::PermissionType,
+    const std::string &permissionTag)
 {
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM;
 }
  
-ErrCode GetInstallLocalEnterpriceAppEnabledQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+ErrCode InstallLocalEnterpriceAppEnabledQuery::QueryPolicy(std::string &policyData,
+    MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     return GetBoolPolicy(policyData, reply);
 }

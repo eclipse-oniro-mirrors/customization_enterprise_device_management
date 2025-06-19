@@ -13,17 +13,17 @@
  * limitations under the License.
  */
  
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_GET_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_GET_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H
+#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H
+#define SERVICES_EDM_INCLUDE_QUERY_POLICY_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H
  
 #include "ipolicy_query.h"
  
 namespace OHOS {
 namespace EDM {
  
-class GetInstallLocalEnterpriceAppEnabledQuery : public IPolicyQuery {
+class InstallLocalEnterpriceAppEnabledQuery : public IPolicyQuery {
 public:
-    ~GetInstallLocalEnterpriceAppEnabledQuery() override = default;
+    ~InstallLocalEnterpriceAppEnabledQuery() override = default;
  
     std::string GetPolicyName() override;
  
@@ -34,4 +34,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
  
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_GET_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H
+#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_INSTALL_LOCAL_ENTERPRICE_APP_ENABLED_QUERY_H

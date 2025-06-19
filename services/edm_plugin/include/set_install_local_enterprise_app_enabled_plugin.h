@@ -13,20 +13,20 @@
  * limitations under the License.
  */
  
-#ifndef SERVICES_EDM_PLUGIN_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
  
 #include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
  
 namespace OHOS {
 namespace EDM {
-class SetInstallLocalEnterpriseAppEnabledPlugin :
-    public PluginSingleton<SetInstallLocalEnterpriseAppEnabledPlugin, bool>, public BasicBoolPlugin {
+class InstallLocalEnterpriseAppEnabledPlugin :
+    public PluginSingleton<InstallLocalEnterpriseAppEnabledPlugin, bool>, public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetInstallLocalEnterpriseAppEnabledPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<InstallLocalEnterpriseAppEnabledPlugin, bool>> ptr) override;
 };
 } // namespace EDM
 } // namespace OHOS
  
-#endif // SERVICES_EDM_PLUGIN_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
