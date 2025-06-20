@@ -51,7 +51,7 @@ ManageAutoStartAppsPlugin::ManageAutoStartAppsPlugin()
 ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
     HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("ManageAutoStartAppsPlugin hhh OnHandlePolicy.");
+    EDMLOGI("ManageAutoStartAppsPlugin OnHandlePolicy.");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     std::vector<std::string> autoStartApps;
@@ -74,7 +74,6 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     } else if (type == FuncOperateType::REMOVE) {
         res = OnRemovePolicy(autoStartApps, currentData, mergeData, userId);
     }
-    EDMLOGI("ManageAutoStartAppsPlugin hhh OnSetPolicy hhhh");
     if (res != ERR_OK) {
         reply.WriteInt32(res);
         return res;
@@ -87,7 +86,6 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     policyData.isChanged = (policyData.mergePolicyData != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
-    EDMLOGI("ManageAutoStartAppsPlugin hhh OnSetPolicy mergePolicy:%{public}s.", afterMerge.c_str());
     return ERR_OK;
 }
 
