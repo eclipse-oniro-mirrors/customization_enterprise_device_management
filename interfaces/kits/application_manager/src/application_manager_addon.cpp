@@ -231,7 +231,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         "Parameter autoStartApps error");
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    if ((argc >= ARGS_SIZE_FOUR && function == "AddAutoStartApps") || (argc >= ARGS_SIZE_THREE && function == "removeAutoStartApps") ) {
+    if ((argc >= ARGS_SIZE_FOUR && function == "AddAutoStartApps") ||
+        (argc >= ARGS_SIZE_THREE && function == "removeAutoStartApps")) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
     MessageParcel parcelData;
@@ -253,9 +254,6 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         parcelData.WriteBool(disallowModify);
         EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, " "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
         parcelData, function == "AddAutoStartApps");
     if (FAILED(ret)) {
