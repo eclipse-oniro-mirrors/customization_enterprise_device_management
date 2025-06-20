@@ -266,6 +266,7 @@ ohos_shared_library("communication_plugin") {
     if (!enterprise_device_management_feature_pc_only &&
         cellular_data_edm_enable && telephony_core_edm_enable) {
       external_deps += [
+        "call_manager:tel_call_manager_api",
         "cellular_data:tel_cellular_data_api",
         "core_service:tel_core_service_api",
         "data_share:datashare_consumer",
@@ -274,6 +275,8 @@ ohos_shared_library("communication_plugin") {
         "./src/disallow_mobile_data_plugin.cpp",
         "./src/disallow_modify_apn_plugin.cpp",
         "./src/disallowed_sim_plugin.cpp",
+        "./src/disallowed_telephony_call_plugin.cpp",
+        "./src/telephony_call_policy_plugin.cpp",
         "./src/set_apn_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",

@@ -88,6 +88,9 @@
             "virtual thunk to OHOS::EDM::ManageAutoStartAppInfo::~ManageAutoStartAppInfo()";
             VTT?for?OHOS::EDM::ManageAutoStartAppInfo;
             vtable?for?OHOS::EDM::ManageAutoStartAppInfo;
+            VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            OHOS::EDM::TelephonyCallPolicySerializer::*;
         };
     local:
         *;
