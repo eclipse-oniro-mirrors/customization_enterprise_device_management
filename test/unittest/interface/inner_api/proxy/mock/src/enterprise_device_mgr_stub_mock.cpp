@@ -357,6 +357,21 @@ int EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy(uint32_t cod
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock InvokeArrayIntSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<int32_t> inputData;
+    int32_t policyOne = 1;
+    int32_t policyTwo = 2;
+    inputData.push_back(policyOne);
+    inputData.push_back(policyTwo);
+    reply.WriteInt32Vector(inputData);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetSuperAdmin(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

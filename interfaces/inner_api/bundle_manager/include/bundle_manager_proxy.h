@@ -19,6 +19,7 @@
 #include "install_param.h"
 
 #include "edm_bundle_info.h"
+#include "func_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -39,7 +40,9 @@ public:
         AppExecFwk::InstallParam &installParam, std::string &retMessage);
     int32_t GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<EdmBundleInfo> &bundleInfos);
-
+    int32_t AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetInstallationAllowedAppDistributionTypes(MessageParcel &data,
+        std::vector<int32_t> &installationAllowedAppDistributionTypes);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;

@@ -22,6 +22,7 @@
 #include <string>
 
 #include "admin_manager.h"
+#include "app_control_interface.h"
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
@@ -68,6 +69,8 @@ public:
     ErrCode SetAdminRunningMode(const AppExecFwk::ElementName &admin, uint32_t runningMode) override;
     ErrCode SetDelegatedPolicies(const std::string &bundleName,
         const std::vector<std::string> &policies, int32_t userId) override;
+    ErrCode SetBundleInstallPolicies(const std::vector<std::string> &bundles, int32_t userId,
+        int32_t policyType) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -163,7 +166,7 @@ private:
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
-    
+
     static std::shared_mutex adminLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
