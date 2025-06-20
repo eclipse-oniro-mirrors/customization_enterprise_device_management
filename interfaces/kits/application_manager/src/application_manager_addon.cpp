@@ -231,7 +231,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         "Parameter autoStartApps error");
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    if (argc >= ARGS_SIZE_THREE) {
+    if ((argc >= ARGS_SIZE_FOUR && function == "AddAutoStartApps") || (argc >= ARGS_SIZE_THREE && function == "removeAutoStartApps") ) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
     MessageParcel parcelData;
