@@ -126,6 +126,10 @@ ohos_shared_library("device_core_plugin") {
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
+    
+    if (enterprise_device_management_feature_pc_only) {
+       sources += [ "./src/set_auto_unlock_after_reboot_plugin.cpp" ]
+    }
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
@@ -176,7 +180,6 @@ ohos_shared_library("device_core_plugin") {
     if (!enterprise_device_management_feature_pc_only) {
       sources += [
         "./src/disable_backup_and_restore_plugin.cpp",
-        "./src/set_auto_unlock_after_reboot_plugin.cpp",
       ]
     }
 
