@@ -589,5 +589,17 @@ int32_t EnterpriseDeviceMgrProxy::SetPolicyDisabled(MessageParcel &data,
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
     return HandleDevicePolicy(funcCode, data);
 }
+
+ErrCode EnterpriseDeviceMgrProxy::SetBundleInstallPolicies(std::vector<std::string> &bundles, int32_t userId,
+    int32_t policyType)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SetBundleInstallPolicies");
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return mgrService->SetBundleInstallPolicies(bundles, userId, policyType);
+}
 } // namespace EDM
 } // namespace OHOS

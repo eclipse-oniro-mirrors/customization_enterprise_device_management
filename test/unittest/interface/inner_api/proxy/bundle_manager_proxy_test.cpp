@@ -40,6 +40,8 @@ namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string TEST_PACKAGE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
+const int32_t APP_DISTRIBUTION_TYPE1 = 1;
+const int32_t APP_DISTRIBUTION_TYPE2 = 2;
 class BundleManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -457,6 +459,133 @@ HWTEST_F(BundleManagerProxyTest, GetInstalledBundleInfoListSuccess, TestSize.Lev
     ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, bundleInfos);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(bundleInfos.size() == 1);
+}
+
+/**
+ * @tc.name: TestAddInstallationAllowedAppDistributionTypesSuc
+ * @tc.desc: Test AddInstallationAllowedAppDistributionTypes success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestAddInstallationAllowedAppDistributionTypesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<int32_t> inputData;
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
+    data.WriteInt32Vector(inputData);
+
+    int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::SET);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddInstallationAllowedAppDistributionTypesFail
+ * @tc.desc: Test AddInstallationAllowedAppDistributionTypes without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestAddInstallationAllowedAppDistributionTypesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> inputData;
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
+    data.WriteInt32Vector(inputData);
+
+    int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::SET);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveInstallationAllowedAppDistributionTypesSuc
+ * @tc.desc: Test RemoveInstallationAllowedAppDistributionTypes success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestRemoveInstallationAllowedAppDistributionTypesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<int32_t> inputData;
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
+    data.WriteInt32Vector(inputData);
+
+    int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::REMOVE);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveInstallationAllowedAppDistributionTypesFail
+ * @tc.desc: Test RemoveInstallationAllowedAppDistributionTypes without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestRemoveInstallationAllowedAppDistributionTypesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> inputData;
+    inputData.push_back(APP_DISTRIBUTION_TYPE1);
+    inputData.push_back(APP_DISTRIBUTION_TYPE2);
+    data.WriteInt32Vector(inputData);
+
+    int32_t ret = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(data, FuncOperateType::REMOVE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetInstallationAllowedAppDistributionTypesSuc
+ * @tc.desc: Test GetInstallationAllowedAppDistributionTypes func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstallationAllowedAppDistributionTypesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy));
+    std::vector<int32_t> allowedAppDistributionTypes;
+    int32_t ret = bundleManagerProxy->GetInstallationAllowedAppDistributionTypes(data, allowedAppDistributionTypes);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(allowedAppDistributionTypes.size() == 2);
+}
+
+/**
+ * @tc.name: TestGetInstallationAllowedAppDistributionTypesFail
+ * @tc.desc: Test GetInstallationAllowedAppDistributionTypes func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstallationAllowedAppDistributionTypesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    std::vector<int32_t> allowedAppDistributionTypes;
+    int32_t ret = bundleManagerProxy->GetInstallationAllowedAppDistributionTypes(data, allowedAppDistributionTypes);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(allowedAppDistributionTypes.empty());
 }
 } // namespace TEST
 } // namespace EDM

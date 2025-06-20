@@ -109,6 +109,17 @@ static bool ArrayStringArgToData(napi_env env, napi_value argv, MessageParcel &d
     return true;
 }
 
+static bool ArrayIntArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+{
+    std::vector<int32_t> intArrValue;
+    bool isIntArr = ParseIntArray(env, intArrValue, argv);
+    if (!isIntArr) {
+        return false;
+    }
+    data.WriteInt32Vector(intArrValue);
+    return true;
+}
+
 static bool BooleanArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
 {
     bool blValue = false;
@@ -192,6 +203,8 @@ static std::string EdmAddonCommonType2String(EdmAddonCommonType argType)
             return "bool";
         case EdmAddonCommonType::INT32:
             return "number";
+        case EdmAddonCommonType::ARRAY_INT32:
+            return "number array";
         case EdmAddonCommonType::CUSTOM:
             /* use custom convert */
             [[fallthrough]];
@@ -211,7 +224,8 @@ static napi_value JsParamsToData(napi_env env, napi_value *argv, size_t argc,
         {EdmAddonCommonType::ARRAY_STRING, ArrayStringArgToData},
         {EdmAddonCommonType::BOOLEAN, BooleanArgToData},
         {EdmAddonCommonType::INT32, Int32ArgToData},
-        {EdmAddonCommonType::INT64, Int64ArgToData}
+        {EdmAddonCommonType::INT64, Int64ArgToData},
+        {EdmAddonCommonType::ARRAY_INT32, ArrayIntArgToData},
     };
 
     for (size_t i = 0; i < methodSign.argsType.size(); i++) {

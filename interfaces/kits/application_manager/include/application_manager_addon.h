@@ -58,6 +58,7 @@ public:
     static napi_value GetAllowedKioskApps(napi_env env, napi_callback_info info);
     static napi_value IsAppKioskAllowed(napi_env env, napi_callback_info info);
     static napi_value IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info);
+    static napi_value IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemovellowedRunningBundles(napi_env env, napi_callback_info info,
@@ -73,6 +74,7 @@ private:
     static bool CheckAddDisallowedRunningBundlesParamType(napi_env env, size_t argc,
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_;
+    static void SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS

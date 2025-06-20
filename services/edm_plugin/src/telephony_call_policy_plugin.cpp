@@ -106,12 +106,15 @@ std::vector<std::string> TelephonyCallPolicyPlugin::MergeAndRemoveDuplicates(con
 bool TelephonyCallPolicyPlugin::IsTrustBlockConflict(const std::string &policyTye, const int32_t flag,
     std::map<std::string, TelephonyCallPolicyType> &mergePolicies)
 {
-    std::vector<std::string> numberList = mergePolicies[policyTye].numberList;
-    int32_t policyFlag = mergePolicies[policyTye].policyFlag;
-    if (flag != policyFlag && numberList.size() > 0) {
-        EDMLOGE("TelephonyCallPolicyPlugin::AddCurrentAndMergePolicy current policy is "
-            "%{public}d, set value is %{public}d", policyFlag, flag);
-        return true;
+    auto iter = mergePolicies.find(policyTye);
+    if (iter != mergePolicies.end()) {
+        std::vector<std::string> numberList = mergePolicies[policyTye].numberList;
+        int32_t policyFlag = mergePolicies[policyTye].policyFlag;
+        if (flag != policyFlag && numberList.size() > 0) {
+            EDMLOGE("TelephonyCallPolicyPlugin::AddCurrentAndMergePolicy current policy is "
+                "%{public}d, set value is %{public}d", policyFlag, flag);
+            return true;
+        }
     }
 
     return false;

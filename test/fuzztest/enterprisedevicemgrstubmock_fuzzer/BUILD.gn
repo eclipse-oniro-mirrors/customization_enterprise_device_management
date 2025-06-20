@@ -65,6 +65,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/permission_manager.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
+    "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
@@ -147,6 +148,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "window_manager:sms",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
+    "jsoncpp:jsoncpp",
   ]
 
   deps = [
@@ -273,6 +275,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp",
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
       ]
     }
 
@@ -447,6 +451,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "jsoncpp:jsoncpp",
   ]
 
   if (enterprise_device_management_support_all) {

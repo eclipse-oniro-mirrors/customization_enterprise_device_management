@@ -81,6 +81,13 @@
             "virtual thunk to OHOS::EDM::ManageKeepAliveAppInfo::~ManageKeepAliveAppInfo()";
             VTT?for?OHOS::EDM::ManageKeepAliveAppInfo;
             vtable?for?OHOS::EDM::ManageKeepAliveAppInfo;
+            VTT?for?OHOS::EDM::ManageAutoStartAppsSerializer;
+            vtable?for?OHOS::EDM::ManageAutoStartAppsSerializer;
+            OHOS::EDM::ManageAutoStartAppsSerializer::*;
+            OHOS::EDM::ManageAutoStartAppInfo::*;
+            "virtual thunk to OHOS::EDM::ManageAutoStartAppInfo::~ManageAutoStartAppInfo()";
+            VTT?for?OHOS::EDM::ManageAutoStartAppInfo;
+            vtable?for?OHOS::EDM::ManageAutoStartAppInfo;
             VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
             vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
             OHOS::EDM::TelephonyCallPolicySerializer::*;

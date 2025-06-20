@@ -4266,6 +4266,51 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesSuccess, TestSi
     ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestSetBundleInstallPoliciesPermissionFailed
+ * @tc.desc: Test SetDelegatedPolicies permission denied.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesPermissionFailed, TestSize.Level1)
+{
+    const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t userId = 100;
+    int32_t policyType = 2;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestSetBundleInstallPoliciesTypeFailed
+ * @tc.desc: Test SetDelegatedPolicies with policy type is not support.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesTypeFailed, TestSize.Level1)
+{
+    const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t userId = 100;
+    int32_t policyType = 4;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestSetBundleInstallPoliciesSuc
+ * @tc.desc: Test SetDelegatedPolicies success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesSuc, TestSize.Level1)
+{
+    const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    int32_t userId = 100;
+    int32_t policyType = 2;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
