@@ -133,6 +133,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
+      "./src/utils/manage_auto_start_apps_serializer_test.cpp",
     ]
   }
 
@@ -565,6 +566,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
     ]
   }
 

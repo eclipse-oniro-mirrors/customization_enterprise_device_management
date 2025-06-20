@@ -45,6 +45,7 @@ public:
         bool disallowModify, int32_t userId, std::string &retMessage);
     int32_t IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin, std::string &keepAliveApp,
         int32_t userId, bool &disallowModify);
+    int32_t IsModifyAutoStartAppsDisallowed(MessageParcel &data, bool &isDisallowModify);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

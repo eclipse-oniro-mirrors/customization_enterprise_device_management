@@ -136,10 +136,25 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
     return ERR_OK;
 }
 
+int32_t ApplicationManagerProxy::IsModifyAutoStartAppsDisallowed(MessageParcel &data, bool &isDisallowModify)
+{
+    EDMLOGD("ApplicationManagerProxy::IsModifyAutoStartAppsDisallowed");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::MANAGE_AUTO_START_APPS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(isDisallowModify);
+    return ERR_OK;
+}
+
 int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName &admin,
     const std::vector<std::string> &keepAliveApps, bool disallowModify, int32_t userId, std::string &retMessage)
 {
-    EDMLOGI("ApplicationManagerProxy::AddKeepAliveAppsWithDisallowModify");
+    EDMLOGD("ApplicationManagerProxy::AddKeepAliveAppsWithDisallowModify");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
@@ -163,7 +178,7 @@ int32_t ApplicationManagerProxy::AddKeepAliveApps(const AppExecFwk::ElementName 
 int32_t ApplicationManagerProxy::RemoveKeepAliveApps(const AppExecFwk::ElementName &admin,
     const std::vector<std::string> &keepAliveApps, int32_t userId)
 {
-    EDMLOGI("ApplicationManagerProxy::RemoveKeepAliveApps");
+    EDMLOGD("ApplicationManagerProxy::RemoveKeepAliveApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     std::uint32_t funcCode =
@@ -180,7 +195,7 @@ int32_t ApplicationManagerProxy::RemoveKeepAliveApps(const AppExecFwk::ElementNa
 int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName &admin,
     std::vector<std::string> &keepAliveApps, int32_t userId)
 {
-    EDMLOGI("ApplicationManagerProxy::GetKeepAliveApps");
+    EDMLOGD("ApplicationManagerProxy::GetKeepAliveApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
@@ -297,7 +312,7 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName
 int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,
     std::string &keepAliveApp, int32_t userId, bool &disallowModify)
 {
-    EDMLOGI("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
+    EDMLOGD("ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
