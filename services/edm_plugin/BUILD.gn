@@ -124,6 +124,10 @@ ohos_shared_library("device_core_plugin") {
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
+    
+    if (enterprise_device_management_feature_pc_only) {
+       sources += [ "./src/set_auto_unlock_after_reboot_plugin.cpp" ]
+    }
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
@@ -347,7 +351,6 @@ ohos_shared_library("communication_plugin") {
         "./src/disable_samba_client_plugin.cpp",
         "./src/disable_samba_server_plugin.cpp",
         "./src/disallow_modify_ethernet_ip_plugin.cpp",
-        "./src/set_auto_unlock_after_reboot_plugin.cpp",
       ]
     }
 
