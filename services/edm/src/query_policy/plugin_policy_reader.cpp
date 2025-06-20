@@ -117,9 +117,10 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
-#include "get_install_local_enterprise_app_enabled_query.h"
+#include "install_local_enterprise_app_enabled_query.h"
 #endif
 
+#include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -478,6 +479,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
@@ -508,6 +516,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE:
+            obj = std::make_shared<AllowedAppDistributionTypesQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISABLE_SAMBA_CLIENT:
 #ifdef SAMBA_EDM_ENABLE
             obj = std::make_shared<DisableSambaClientQuery>();

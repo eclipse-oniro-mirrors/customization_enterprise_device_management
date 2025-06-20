@@ -71,6 +71,7 @@ ohos_shared_library("device_core_plugin") {
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
+      "./src/allowed_app_distribution_types_plugin.cpp",
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
@@ -94,6 +95,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/set_allowed_kiosk_apps_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
+      "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
     ]

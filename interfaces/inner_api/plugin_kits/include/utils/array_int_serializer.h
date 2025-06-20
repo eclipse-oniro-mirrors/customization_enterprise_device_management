@@ -26,6 +26,9 @@ namespace EDM {
  */
 class ArrayIntSerializer : public IPolicySerializer<std::vector<int32_t>>, public DelayedSingleton<ArrayIntSerializer> {
 public:
+    std::vector<int32_t> SetUnionPolicyData(std::vector<int32_t> &data, std::vector<int32_t> &currentData);
+    std::vector<int32_t> SetDifferencePolicyData(std::vector<int32_t> &data,
+        std::vector<int32_t> &currentData);
     bool Deserialize(const std::string &jsonString, std::vector<int32_t> &dataObj) override;
 
     bool Serialize(const std::vector<int32_t> &dataObj, std::string &jsonString) override;
