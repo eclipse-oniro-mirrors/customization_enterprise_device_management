@@ -126,6 +126,10 @@ ohos_shared_library("device_core_plugin") {
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
+    
+    if (enterprise_device_management_feature_pc_only) {
+       sources += [ "./src/set_auto_unlock_after_reboot_plugin.cpp" ]
+    }
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
@@ -442,6 +446,8 @@ ohos_shared_library("sys_service_plugin") {
         "./src/manage_auto_start_apps_plugin.cpp",
         "./src/manage_keep_alive_apps_plugin.cpp",
         "./src/utils/manage_keep_alive_apps_info.cpp",
+        "./src/utils/manage_auto_start_app_info.cpp",
+        "./src/utils/manage_auto_start_apps_serializer.cpp",
         "./src/utils/manage_keep_alive_apps_serializer.cpp",
       ]
     }
