@@ -78,7 +78,7 @@ void EnterpriseDeviceMgrProxyTest::TearDownTestSuite()
  * @tc.desc: Test EnableAdmin func.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminSuc, TestSize.Level0)
 {
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
