@@ -92,6 +92,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

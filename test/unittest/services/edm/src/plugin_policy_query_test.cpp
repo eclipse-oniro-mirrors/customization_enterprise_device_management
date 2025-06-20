@@ -1960,6 +1960,26 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbStorageDeviceWriteQuery002, TestSi
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_usb_storage_device_write");
 }
+
+/**
+ * @tc.name: DisableSudoQuery001
+ * @tc.desc: Test DisableSudoPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableSudoQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
 #endif
 
 /**

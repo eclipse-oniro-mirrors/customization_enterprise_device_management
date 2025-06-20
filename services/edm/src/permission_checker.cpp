@@ -69,6 +69,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
     EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
     EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
+    EdmInterfaceCode::DISALLOWED_SUDO,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,

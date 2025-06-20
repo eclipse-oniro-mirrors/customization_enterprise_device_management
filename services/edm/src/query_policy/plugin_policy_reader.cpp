@@ -496,6 +496,22 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         default:
             break;
     }
+    return GetPolicyQuerySixth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SUDO:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableSudoQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
     return GetPolicyQueryEnd(obj, code);
 }
 
