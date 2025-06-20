@@ -117,7 +117,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_DEVELOPER_MODE = "developerMode";
         const char* const LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_NEAR_LINK = "nearLink";
-        const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME
+        const char* const LABEL_DISALLOWED_POLICY_TETHERING = "tethering";
         const char* const LABEL_DISALLOWED_POLICY_INACTIVE_USER_FREEZE = "inactiveUserFreeze";
         const char* const LABEL_DISALLOWED_POLICY_CAMERA = "camera";
         const char* const LABEL_DISALLOWED_POLICY_RESET_FACTORY = "resetFactory";
