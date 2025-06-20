@@ -229,7 +229,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     std::vector<AppExecFwk::ElementName> autoStartApps;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
         "Parameter autoStartApps error");
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     if (argc >= ARGS_SIZE_THREE) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
@@ -279,7 +280,8 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-    int32_t userId = GetCurrentUserId();
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
     }
@@ -840,13 +842,6 @@ napi_value ApplicationManagerAddon::IsAppKioskAllowed(napi_env env, napi_callbac
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isAllowed, &result));
     return result;
-}
-
-int32_t ApplicationManagerAddon::GetCurrentUserId()
-{
-    int32_t userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    return userId;
 }
 
 static napi_module g_applicationManagerModule = {
