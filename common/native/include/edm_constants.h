@@ -145,6 +145,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
+        const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -182,6 +183,12 @@ namespace EdmConstants {
         const std::string DISALLOW_FLAG = "DisallowMobileData";
         const std::string FORCE_FLAG = "ForceMobileData";
     } // namespace MobileData
+
+    namespace CallPolicy {
+        constexpr uint32_t NUMBER_LIST_MAX_SIZE = 1000;
+        const std::string OUTGOING = "outgoing";
+        const std::string INCOMING = "incoming";
+    }
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -329,6 +336,8 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
+    const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
+    const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

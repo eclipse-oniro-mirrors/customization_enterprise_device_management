@@ -188,6 +188,12 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
         };
+#ifdef MOBILE_DATA_ENABLE
+    addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
+        };
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -690,6 +696,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);
 #endif
     AddSystemAbilityListener(RENDER_SERVICE);
+#ifdef MOBILE_DATA_ENABLE
+    AddSystemAbilityListener(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
