@@ -46,7 +46,7 @@ ErrCode DisallowVPNPlugin::SetOtherModulePolicy(bool data)
 {
     EDMLOGI("DisallowVPNPlugin SetOtherModulePolicy...");
     if (data) {
-        return NetManagerStandard::NetworkVpnClient::GetInstance().DestroyVpnUncheckedUid() == 0 ? ERR_OK :
+        return NetManagerStandard::NetworkVpnClient::GetInstance().DestroyVpn() == 0 ? ERR_OK :
             EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
