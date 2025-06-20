@@ -254,8 +254,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
     EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
+        "EnableAdmin: elementName.bundlename %{public}s, " "elementName.abilityname:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
         parcelData, function == "AddAutoStartApps");
