@@ -38,6 +38,8 @@ public:
     int32_t GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData);
     int32_t SetInstallLocalEnterpriseAppEnabled(MessageParcel &data);
     int32_t IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
+    int32_t AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;

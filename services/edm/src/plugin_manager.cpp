@@ -64,6 +64,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
     EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
     EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+    EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

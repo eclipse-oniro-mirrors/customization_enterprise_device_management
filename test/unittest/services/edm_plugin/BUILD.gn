@@ -306,6 +306,7 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
       "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
+      "./src/disallowed_nearlink_protocols_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -651,7 +652,9 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
-      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp"
+      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
     ]
   }
 

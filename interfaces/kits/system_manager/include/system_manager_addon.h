@@ -72,6 +72,10 @@ private:
         OtaPolicyType &otaPolicyType);
     static napi_value SetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
     static napi_value IsInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info, bool isAdd);
 };
 } // namespace EDM
 } // namespace OHOS
