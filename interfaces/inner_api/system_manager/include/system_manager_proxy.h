@@ -36,6 +36,8 @@ public:
     int32_t GetUpdateAuthData(MessageParcel &data, std::string &authData);
     int32_t SetAutoUnlockAfterReboot(MessageParcel &data);
     int32_t GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData);
+    int32_t SetInstallLocalEnterpriseAppEnabled(MessageParcel &data);
+    int32_t IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;

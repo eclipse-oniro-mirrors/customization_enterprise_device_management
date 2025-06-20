@@ -93,6 +93,7 @@ ohos_shared_library("edmservice") {
       "./src/permission_manager.cpp",
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
+      "./src/query_policy/allowed_app_distribution_types_query.cpp",
       "./src/query_policy/allowed_install_bundles_query.cpp",
       "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
@@ -149,7 +150,8 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_samba_client_query.cpp",
       "./src/query_policy/disable_samba_server_query.cpp",
-      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp"
+      "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
+      "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",
     ]
     defines += [
       "SAMBA_EDM_ENABLE",

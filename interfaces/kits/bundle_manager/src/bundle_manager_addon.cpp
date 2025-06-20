@@ -17,9 +17,12 @@
 
 #include <unordered_map>
 
+#include "app_distribution_type.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
+#include "napi_edm_adapter.h"
+#include "napi_edm_common.h"
 #include "os_account_manager.h"
 #include "policy_type.h"
 
@@ -83,6 +86,9 @@ static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
 
 napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nAppDistributionType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nAppDistributionType));
+    CreateAppDistributionTypeObject(env, nAppDistributionType);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("addAllowedInstallBundles", AddAllowedInstallBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedInstallBundles", RemoveAllowedInstallBundles),
@@ -105,6 +111,13 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedUninstallBundlesSync", RemoveDisallowedUninstallBundlesSync),
         DECLARE_NAPI_FUNCTION("getDisallowedUninstallBundlesSync", GetDisallowedUninstallBundlesSync),
         DECLARE_NAPI_FUNCTION("getInstalledBundleList", GetInstalledBundleList),
+        DECLARE_NAPI_FUNCTION("addInstallationAllowedAppDistributionTypes",
+            AddInstallationAllowedAppDistributionTypes),
+        DECLARE_NAPI_FUNCTION("removeInstallationAllowedAppDistributionTypes",
+            RemoveInstallationAllowedAppDistributionTypes),
+        DECLARE_NAPI_FUNCTION("getInstallationAllowedAppDistributionTypes",
+            GetInstallationAllowedAppDistributionTypes),
+        DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -736,6 +749,105 @@ void BundleManagerAddon::InitPolicyType(const std::string &workName, int32_t &po
         EDMLOGI("policy type map get error");
         policyType = static_cast<int32_t>(PolicyType::INVALID_TYPE);
     }
+}
+
+void BundleManagerAddon::CreateAppDistributionTypeObject(napi_env env, napi_value value)
+{
+    napi_value nAppGallery;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::APP_GALLERY), &nAppGallery));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "APP_GALLERY", nAppGallery));
+    napi_value nEnterprise;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::ENTERPRISE), &nEnterprise));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ENTERPRISE", nEnterprise));
+    napi_value nEnterpriseNormal;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::ENTERPRISE_NORMAL), &nEnterpriseNormal));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ENTERPRISE_NORMAL", nEnterpriseNormal));
+    napi_value nEnterpriseMdm;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::ENTERPRISE_MDM), &nEnterpriseMdm));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ENTERPRISE_MDM", nEnterpriseMdm));
+    napi_value nInternalTesting;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::INTERNALTESTING), &nInternalTesting));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INTERNALTESTING", nInternalTesting));
+    napi_value nCrowdTesting;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(AppDistributionType::CROWDTESTING), &nCrowdTesting));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CROWDTESTING", nCrowdTesting));
+}
+
+napi_value BundleManagerAddon::AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddInstallationAllowedAppDistributionTypes called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addInstallationAllowedAppDistributionTypes");
+    return AddOrRemoveInstallationAllowedAppDistributionTypes(env, info, FuncOperateType::SET);
+}
+
+napi_value BundleManagerAddon::RemoveInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveAllowedInstallAppDistributionTypes called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeInstallationAllowedAppDistributionTypes");
+    return AddOrRemoveInstallationAllowedAppDistributionTypes(env, info, FuncOperateType::REMOVE);
+}
+
+napi_value BundleManagerAddon::AddOrRemoveInstallationAllowedAppDistributionTypes(napi_env env,
+    napi_callback_info info, FuncOperateType operateType)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveInstallationAllowedAppDistributionTypes";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return nullptr;
+    }
+    int32_t retCode = bundleManagerProxy->AddOrRemoveInstallationAllowedAppDistributionTypes(adapterAddonData.data,
+        operateType);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value BundleManagerAddon::GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
+{
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getInstallationAllowedAppDistributionTypes");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetInstallationAllowedAppDistributionTypes";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return nullptr;
+    }
+    std::vector<int32_t> installationAllowedAppDistributionTypes;
+    int32_t retCode = bundleManagerProxy->GetInstallationAllowedAppDistributionTypes(adapterAddonData.data,
+        installationAllowedAppDistributionTypes);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    for (size_t i = 0; i < installationAllowedAppDistributionTypes.size(); i++) {
+        napi_value allowedType = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, installationAllowedAppDistributionTypes[i], &allowedType));
+        NAPI_CALL(env, napi_set_element(env, result, i, allowedType));
+    }
+    return result;
 }
 
 napi_value BundleManagerAddon::GetAllowedInstallBundlesSync(napi_env env, napi_callback_info info)

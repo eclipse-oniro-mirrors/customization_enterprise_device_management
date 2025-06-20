@@ -71,6 +71,7 @@ ohos_shared_library("device_core_plugin") {
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
+      "./src/allowed_app_distribution_types_plugin.cpp",
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
@@ -94,6 +95,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/set_allowed_kiosk_apps_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
+      "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
     ]
@@ -123,6 +125,12 @@ ohos_shared_library("device_core_plugin") {
         "./src/set_domain_account_policy_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
+    }
+
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/install_local_enterprise_app_enabled_plugin.cpp",
+      ]
     }
 
     if (audio_framework_edm_enable) {
@@ -162,13 +170,14 @@ ohos_shared_library("device_core_plugin") {
 
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
-      sources += [
-        "./src/lock_screen_plugin.cpp"
-      ]
+      sources += [ "./src/lock_screen_plugin.cpp" ]
     }
 
     if (!enterprise_device_management_feature_pc_only) {
-      sources += [ "./src/disable_backup_and_restore_plugin.cpp" ]
+      sources += [
+        "./src/disable_backup_and_restore_plugin.cpp",
+        "./src/set_auto_unlock_after_reboot_plugin.cpp",
+      ]
     }
 
     if (enterprise_device_management_feature_charging_type_setting) {
@@ -345,7 +354,6 @@ ohos_shared_library("communication_plugin") {
         "./src/disable_samba_client_plugin.cpp",
         "./src/disable_samba_server_plugin.cpp",
         "./src/disallow_modify_ethernet_ip_plugin.cpp",
-        "./src/set_auto_unlock_after_reboot_plugin.cpp"
       ]
     }
 
@@ -436,8 +444,8 @@ ohos_shared_library("sys_service_plugin") {
         "./src/disallowed_running_bundles_plugin.cpp",
         "./src/manage_auto_start_apps_plugin.cpp",
         "./src/manage_keep_alive_apps_plugin.cpp",
-        "./src/utils/manage_keep_alive_apps_serializer.cpp",
         "./src/utils/manage_keep_alive_apps_info.cpp",
+        "./src/utils/manage_keep_alive_apps_serializer.cpp",
       ]
     }
 

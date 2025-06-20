@@ -300,6 +300,7 @@ namespace PolicyName {
     const char* const POLICY_SET_WIFI_PROFILE = "set_wifi_profile";
     const char* const POLICY_ALLOWED_WIFI_LIST = "allowed_wifi_list";
     const char* const POLICY_DISALLOWED_WIFI_LIST = "disallowed_wifi_list";
+    const char* const POLICY_ALLOWED_INSTALL_APP_TYPE = "allowed_install_app_type";
     const char* const POLICY_SHUTDOWN_DEVICE = "shutdown_device";
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
     const char* const POLICY_UNINSTALL = "uninstall";
@@ -322,6 +323,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
     const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
+    const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

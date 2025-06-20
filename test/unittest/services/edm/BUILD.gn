@@ -60,6 +60,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
+    "../../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
@@ -234,7 +235,10 @@ ohos_static_library("edmservice_static") {
   }
 
   if (enterprise_device_management_feature_pc_only) {
-      sources += [ "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp" ]
+      sources += [
+        "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+        "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
+      ]
       defines += [ "FEATURE_PC_ONLY" ]
   }
 
@@ -277,6 +281,7 @@ ohos_unittest("EdmServicesUnitTest") {
   ]
 
   sources = [
+    "./src/admin_container_test.cpp",
     "./src/admin_manager_test.cpp",
     "./src/admin_test.cpp",
     "./src/device_policies_storage_rdb_test.cpp",
