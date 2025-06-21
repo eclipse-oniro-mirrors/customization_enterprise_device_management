@@ -23,6 +23,11 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #endif
 
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+#include "disable_private_space_query.h"
+#endif
+
+#include "allowed_app_distribution_types_query.h"
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_usb_devices_query.h"
 #include "allowed_wifi_list_query.h"
@@ -196,6 +201,37 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedBluetoothDevicesQuery001, TestSize
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
     == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_bluetooth_devices");
+}
+
+/**
+ * @tc.name: TestAllowedAppDistributionTypesQuery001
+ * @tc.desc: Test AllowedAppDistributionTypesQuery::QueryPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedAppDistributionTypesQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedAppDistributionTypesQuery>();
+    std::string policyValue{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAllowedAppDistributionTypesQuery002
+ * @tc.desc: Test AllowedAppDistributionTypesQuery GetPolicyName and GetPermission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedAppDistributionTypesQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedAppDistributionTypesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "allowed_install_app_type");
 }
 
 /**
@@ -1971,6 +2007,41 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetDeviceNameQuery002, TestSize.Level
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+/**
+ * @tc.name: TestDisablePrivateSpaceQuery001
+ * @tc.desc: Test DisablePrivateSpaceQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisablePrivateSpaceQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisablePrivateSpaceQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisablePrivateSpaceQuery002
+ * @tc.desc: Test DisablePrivateSpaceQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisablePrivateSpaceQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisablePrivateSpaceQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISABLED_PRIVATE_SPACE);
+}
+#endif
 
 #ifdef NOTIFICATION_EDM_ENABLE
 /**

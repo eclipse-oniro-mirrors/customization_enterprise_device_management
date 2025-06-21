@@ -67,6 +67,8 @@ public:
     MOCK_METHOD(int, SetAdminRunningMode, (const AppExecFwk::ElementName &, uint32_t), (override));
     MOCK_METHOD(int, SetDelegatedPolicies, (const std::string &, (const std::vector<std::string> &), int32_t),
         (override));
+    MOCK_METHOD(int, SetBundleInstallPolicies, ((const std::vector<std::string> &), int32_t, int32_t),
+        (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
@@ -136,6 +138,9 @@ public:
 
     int InvokeWifiListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
+
+    int InvokeArrayIntSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 
     int InvokeDisallowedUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);

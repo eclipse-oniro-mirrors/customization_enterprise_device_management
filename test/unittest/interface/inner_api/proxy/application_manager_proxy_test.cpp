@@ -594,7 +594,160 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppDisallowModifySuc, Test
     ErrCode ret = applicationManagerProxy_->IsModifyKeepAliveAppsDisallowed(admin, keepAliveApp,
         DEFAULT_USER_ID, disallowModify);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(disallowModify);
+    ASSERT_TRUE(disallowModify);
+}
+
+/**
+ * @tc.name: TestAddAutoStartAppsWithDisallowModifyFail
+ * @tc.desc: Test AddAutoStartAppsWithDisallowModify without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsWithDisallowModifyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> apps;
+    bool disallowModify = false;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(apps);
+    data.WriteBool(disallowModify);
+ 
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+ 
+/**
+ * @tc.name: TestAddAutoStartAppsWithDisallowModifySuc
+ * @tc.desc: Test AddAutoStartAppsWithDisallowModify success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsWithDisallowModifySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> apps;
+    bool disallowModify = false;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(apps);
+    data.WriteBool(disallowModify);
+ 
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+/**
+ * @tc.name: TestRemoveAutoStartAppsWithUserIdFail
+ * @tc.desc: Test RemoveAutoStartAppsWithUserId without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsWithUserIdFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> apps;
+    int32_t userId = 1;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(apps);
+    data.WriteInt32(userId);
+    
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+ 
+/**
+ * @tc.name: TestRemoveAutoStartAppsWithUserIdSuc
+ * @tc.desc: Test RemoveAutoStartAppsWithUserId success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsWithUserIdSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> apps;
+    int32_t userId = 1;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(apps);
+    data.WriteInt32(userId);
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+/**
+ * @tc.name: TestGetAutoStartAppsWithUserIdSuc
+ * @tc.desc: Test GetAutoStartAppsWithUserId success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsWithUserIdSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    int32_t userId = 1;
+    data.WriteInt32(userId);
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(apps.size() == 1);
+}
+ 
+/**
+ * @tc.name: TestGetAutoStartAppsWithUserIdFail
+ * @tc.desc: Test GetAutoStartAppsWithUserId without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsWithUserIdFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t userId = 1;
+    data.WriteInt32(userId);
+    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+ 
+/**
+ * @tc.name: TestGetAutoStartAppDisallowModifyWithUserIdSuc
+ * @tc.desc: Test GetAutoStartAppDisallowModifyWithUserId success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppDisallowModifyWithUserIdSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    int32_t userId = 1;
+    data.WriteInt32(userId);
+    bool disallowModify = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->IsModifyAutoStartAppsDisallowed(data, disallowModify);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+/**
+ * @tc.name: TestGetAutoStartAppDisallowModifyWithUserIdFail
+ * @tc.desc: Test GetAutoStartAppDisallowModifyWithUserId without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppDisallowModifyWithUserIdFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t userId = 1;
+    data.WriteInt32(userId);
+    bool disallowModify = false;
+    ErrCode ret = applicationManagerProxy_->IsModifyAutoStartAppsDisallowed(data, disallowModify);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

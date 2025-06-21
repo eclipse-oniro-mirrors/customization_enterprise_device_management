@@ -345,6 +345,30 @@ int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &
     return InnerGetVectorFromParcelIntelligent(reply, bundleInfos);
 }
 
+int32_t BundleManagerProxy::AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data,
+    FuncOperateType operateType)
+{
+    EDMLOGD("BluetoothManagerProxy::AddOrRemoveAllowedInstallAppDistributionTypes");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t BundleManagerProxy::GetInstallationAllowedAppDistributionTypes(MessageParcel &data,
+    std::vector<int32_t> &installationAllowedAppDistributionTypes)
+{
+    EDMLOGD("BundleManagerProxy::GetInstallationAllowedAppDistributionTypes");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32Vector(&installationAllowedAppDistributionTypes);
+    return ERR_OK;
+}
+
 ErrCode BundleManagerProxy::InnerGetVectorFromParcelIntelligent(MessageParcel &reply,
     std::vector<EdmBundleInfo> &parcelableInfos)
 {

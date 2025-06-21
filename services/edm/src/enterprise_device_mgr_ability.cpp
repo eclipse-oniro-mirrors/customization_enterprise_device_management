@@ -48,6 +48,7 @@
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
 #include "plugin_policy_reader.h"
+#include "policy_type.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
@@ -83,6 +84,7 @@ const std::string APP_TYPE_ENTERPRISE_NORMAL = "enterprise_normal";
 const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_display";
 const std::string POLICY_ALLOW_ALL = "allow_all";
 const int32_t INVALID_SYSTEM_ABILITY_ID = -1;
+const int32_t MAX_POLICY_TYPE = 3;
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
@@ -92,6 +94,8 @@ constexpr const char *WITHOUT_PERMISSION_TAG = "";
 #ifndef EDM_FUZZ_TEST
 const int EDM_UID = 3057;
 #endif
+
+const int EDC_UID = 7200;
 
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 {
@@ -184,6 +188,12 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
         };
+#ifdef MOBILE_DATA_ENABLE
+    addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
+        };
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -686,6 +696,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);
 #endif
     AddSystemAbilityListener(RENDER_SERVICE);
+#ifdef MOBILE_DATA_ENABLE
+    AddSystemAbilityListener(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -1989,5 +2002,30 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk:
     }
     return ERR_OK;
 }
+
+ErrCode EnterpriseDeviceMgrAbility::SetBundleInstallPolicies(const std::vector<std::string> &bundles, int32_t userId,
+    int32_t policyType)
+{
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+    if (policyType < 0 || policyType > MAX_POLICY_TYPE) {
+        EDMLOGE("SetBundleInstallPolicies policy type is abnormal, value : %{public}d.", policyType);
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN) && IPCSkeleton::GetCallingUid() == EDC_UID) {
+        auto ruleMap = std::vector<AppExecFwk::AppInstallControlRuleType> {
+            AppExecFwk::AppInstallControlRuleType::UNSPECIFIED,
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_UNINSTALL,
+            AppExecFwk::AppInstallControlRuleType::ALLOWED_INSTALL,
+            AppExecFwk::AppInstallControlRuleType::DISALLOWED_INSTALL,
+        };
+        AppExecFwk::AppInstallControlRuleType rule = ruleMap[policyType];
+        std::vector<std::string> data = bundles;
+        return GetBundleMgr()->AddAppInstallControlRule(data, rule, userId);
+    }
+    return EdmReturnErrCode::PERMISSION_DENIED;
+}
+
 } // namespace EDM
 } // namespace OHOS

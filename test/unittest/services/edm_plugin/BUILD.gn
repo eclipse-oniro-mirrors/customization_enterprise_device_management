@@ -40,6 +40,7 @@ ohos_unittest("EdmPluginTest") {
 
   sources = [
     "../../common/mock/src/edm_data_ability_utils_mock.cpp",
+    "./src/allowed_app_distribution_types_plugin_test.cpp",
     "./src/bundle_install_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
     "./src/disable_maintenance_mode_plugin_test.cpp",
@@ -63,6 +64,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/screen_off_time_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
+    "./src/utils/allowed_app_distribution_types_utils_test.cpp",
     "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
     "./src/disallowed_sms_plugin_test.cpp",
@@ -131,6 +133,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
+      "./src/utils/manage_auto_start_apps_serializer_test.cpp",
     ]
   }
 
@@ -264,7 +267,8 @@ ohos_unittest("EdmPluginTest") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
-      "./src/set_auto_unlock_after_reboot_plugin_test.cpp"
+      "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
+      "./src/install_local_enterprise_app_enabled_plugin_test.cpp",
     ]
   }
 
@@ -285,9 +289,12 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/disallow_mobile_data_plugin_test.cpp",
       "./src/disallow_modify_apn_plugin_test.cpp",
-      "./src/set_apn_plugin_test.cpp",
-      "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/disallowed_sim_plugin_test.cpp",
+      "./src/disallowed_telephony_call_plugin_test.cpp",
+      "./src/set_apn_plugin_test.cpp",
+      "./src/telephony_call_policy_plugin_test.cpp",
+      "./src/turnonoff_mobile_data_plugin_test.cpp",
+      "./src/utils/telephony_call_policy_serializer_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -296,7 +303,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
+      "./src/disable_backup_and_restore_plugin_test.cpp",
+      "./src/disable_private_space_plugin_test.cpp",
+    ]
   }
 
   if (enterprise_device_management_feature_pc_only) {
@@ -386,6 +397,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
+    "../../../../services/edm_plugin/src/allowed_app_distribution_types_plugin.cpp",
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_backup_and_restore_plugin.cpp",
@@ -423,6 +435,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disallowed_sms_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_mms_plugin.cpp",
     "../../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
+    "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../../services/edm_plugin/src/disallowed_nfc_plugin.cpp",
   ]
@@ -566,6 +579,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
     ]
   }
 
@@ -659,15 +674,18 @@ ohos_static_library("edm_all_plugin_static") {
   if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
     external_deps += [
       "cellular_data:tel_cellular_data_api",
-      "core_service:tel_core_service_api"
+      "core_service:tel_core_service_api",
+      "call_manager:tel_call_manager_api"
     ]
     sources += [
       "../../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_telephony_call_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
       "../../../../services/edm_plugin/src/set_apn_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_call_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
-      "../../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
