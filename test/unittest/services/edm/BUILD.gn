@@ -260,6 +260,12 @@ ohos_static_library("edmservice_static") {
     defines += [ "SUDO_EDM_ENABLE" ]
   }
 
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disallow_vpn_query.cpp",
+    ]
+  }
+
   deps = [
     "../../../../common/external:edm_external_adapters",
     "../../../../common/native:edm_commom",
@@ -341,6 +347,10 @@ ohos_unittest("EdmServicesUnitTest") {
 
   if (notification_edm_enable) {
     defines += [ "NOTIFICATION_EDM_ENABLE" ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
   }
 
   configs = [

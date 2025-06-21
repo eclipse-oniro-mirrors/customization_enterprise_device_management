@@ -324,6 +324,12 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_notification_plugin_test.cpp"
     ]
   }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "./src/disallow_vpn_plugin_test.cpp"
+    ]
+  }
   
   sanitize = {
     boundary_sanitize = true
@@ -711,6 +717,13 @@ ohos_static_library("edm_all_plugin_static") {
   if (notification_edm_enable) {
     sources += [
       "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp",
+    ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    external_deps += [ "netmanager_ext:net_vpn_manager_if" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
     ]
   }
 

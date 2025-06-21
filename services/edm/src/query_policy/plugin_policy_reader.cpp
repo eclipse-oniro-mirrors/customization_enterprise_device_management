@@ -137,6 +137,10 @@
 #include "disable_sudo_query.h"
 #endif
 
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
@@ -550,6 +554,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
 #ifdef NOTIFICATION_EDM_ENABLE
             obj = std::make_shared<DisallowedNotificationQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_VPN:
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+            obj = std::make_shared<DisallowVPNQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
