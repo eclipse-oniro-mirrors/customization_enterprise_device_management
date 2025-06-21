@@ -287,6 +287,11 @@ ohos_shared_library("edmservice") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (notification_edm_enable) {
+    sources += [ "./src/query_policy/disallowed_notification_query.cpp" ]
+    defines += [ "NOTIFICATION_EDM_ENABLE" ]
+  }
+
   deps = [
     "../../common/external:edm_external_adapters",
     "../../common/native:edm_commom",

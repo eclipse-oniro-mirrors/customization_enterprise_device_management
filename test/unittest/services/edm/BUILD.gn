@@ -186,6 +186,12 @@ ohos_static_library("edmservice_static") {
     sources += [ "../../../../services/edm/src/query_policy/disallowed_airplane_mode_query.cpp" ]
   }
 
+  if (notification_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disallowed_notification_query.cpp",
+    ]
+  }
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_manager",
@@ -319,6 +325,10 @@ ohos_unittest("EdmServicesUnitTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (notification_edm_enable) {
+    defines += [ "NOTIFICATION_EDM_ENABLE" ]
   }
 
   configs = [
