@@ -133,6 +133,10 @@
 #include "install_local_enterprise_app_enabled_query.h"
 #endif
 
+#ifdef SUDO_EDM_ENABLE
+#include "disable_sudo_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_maintenance_mode_query.h"
@@ -515,6 +519,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SUDO:
+#ifdef SUDO_EDM_ENABLE
+            obj = std::make_shared<DisableSudoQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL:
 #ifdef TELEPHONY_EDM_ENABLE
             obj = std::make_shared<DisallowedTelephonyCallQuery>();

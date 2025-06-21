@@ -144,6 +144,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
+        const char* const LABEL_DISALLOWED_POLICY_SUDO = "sudo";
         const char* const LABEL_DISALLOWED_POLICY_NOTIFICATION = "notification";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
@@ -264,6 +265,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
     const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
+    const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
     const char* const POLICY_DISABLE_USB = "disable_usb";
