@@ -21,43 +21,40 @@
 
 namespace OHOS {
 namespace EDM {
-enum class NearlinkProtocol : uint32_t {
-    SSAP = 0,
-    DATA_TRANSFER = 1
-};
+enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
 class NearlinkProtocolUtils {
 public:
-    bool IntToProtocolStr(int32_t value, std::string &str)
+    static bool IntToProtocolStr(int32_t value, std::string &str)
     {
-        if (value < static_cast<int>(NearlinkProtocol::SSAP)
-        || value > static_cast<int>(NearlinkProtocol::DATA_TRANSFER)) {
+        static const std::unordered_map<NearlinkProtocol, std::string> protocolToStrMap = {
+            {NearlinkProtocol::SSAP, "SSAP"}, {NearlinkProtocol::DATA_TRANSFER, "DATA_TRANSFER"}};
+
+        if (value < static_cast<int>(NearlinkProtocol::SSAP) ||
+            value > static_cast<int>(NearlinkProtocol::DATA_TRANSFER)) {
             return false;
         }
-        std::unordered_map<NearlinkProtocol, std::string> protocolToStrMap {
-            {NearlinkProtocol::SSAP, "SSAP"},
-            {NearlinkProtocol::DATA_TRANSFER, "DATA_TRANSFER"}
-        };
+
         str = protocolToStrMap.at(static_cast<NearlinkProtocol>(value));
         return true;
     }
 
-    bool StrToProtocolInt(const std::string &str, int32_t value)
+    static bool StrToProtocolInt(const std::string &str, int32_t &value)
     {
-        std::unordered_map<std::string, NearlinkProtocol> StrToProtocolMap {
-            {"SSAP", NearlinkProtocol::SSAP},
-            {"DATA_TRANSFER", NearlinkProtocol::DATA_TRANSFER}
-        };
-        auto it = StrToProtocolMap.find(str);
-        if (it == StrToProtocolMap.end()) {
+        static const std::unordered_map<std::string, NearlinkProtocol> strToProtocolMap = {
+            {"SSAP", NearlinkProtocol::SSAP}, {"DATA_TRANSFER", NearlinkProtocol::DATA_TRANSFER}};
+
+        auto it = strToProtocolMap.find(str);
+        if (it == strToProtocolMap.end()) {
             return false;
         }
-        value = static_cast<int>(it->second);
+
+        value = static_cast<int32_t>(it->second);
         return true;
     }
 };
 
-} // namespace EDM
-} // namespace OHOS
+}  // namespace EDM
+}  // namespace OHOS
 
-#endif // INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_NEARLINK_PROTOCOL_UTILS_H
+#endif  // INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_NEARLINK_PROTOCOL_UTILS_H
