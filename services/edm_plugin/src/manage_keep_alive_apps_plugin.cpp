@@ -88,7 +88,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     std::string afterMerge;
     ManageKeepAliveAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
     ManageKeepAliveAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
-    policyData.isChanged = (policyData.policyData != afterHandle);
+    policyData.isChanged = (policyData.policyData != afterHandle || mergePolicyStr != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
     return ERR_OK;
