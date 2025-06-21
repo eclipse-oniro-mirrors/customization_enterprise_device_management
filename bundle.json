@@ -71,6 +71,7 @@
         "common_event_service",
         "core_service",
         "data_share",
+        "distributed_notification_service",
         "drivers_interface_usb",
         "graphic_2d",
         "file_api",
