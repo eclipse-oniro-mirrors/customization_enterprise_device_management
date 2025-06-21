@@ -13,25 +13,46 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_NEARLINK_PROTOCOL_UTILS_H
-#define INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_NEARLINK_PROTOCOL_UTILS_H
-
-#include <string>
-#include <unordered_map>
+#include "nearlink_protocol_utils.h"
 
 namespace OHOS {
 namespace EDM {
-enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
-
-class NearlinkProtocolUtils {
-public:
-    static const std::unordered_map<NearlinkProtocol, std::string> protocolToStrMap;
-    static const std::unordered_map<std::string, NearlinkProtocol> strToProtocolMap;
-    static bool IntToProtocolStr(int32_t value, std::string &str);
-    static bool StrToProtocolInt(const std::string &str, int32_t &value);
+const std::unordered_map<NearlinkProtocol, std::string> NearlinkProtocolUtils::protocolToStrMap = {
+    {NearlinkProtocol::SSAP, "SSAP"},
+    {NearlinkProtocol::DATA_TRANSFER, "DATA_TRANSFER"}
 };
 
+const std::unordered_map<std::string, NearlinkProtocol> NearlinkProtocolUtils::strToProtocolMap = {
+    {"SSAP", NearlinkProtocol::SSAP},
+    {"DATA_TRANSFER", NearlinkProtocol::DATA_TRANSFER}
+};
+
+bool NearlinkProtocolUtils::IntToProtocolStr(int32_t value, std::string &str)
+{
+    if (value < static_cast<int>(NearlinkProtocol::SSAP) || value > static_cast<int>(NearlinkProtocol::DATA_TRANSFER)) {
+        return false;
+    }
+
+     // 安全转换为枚举类型并获取对应的字符串
+    auto it = protocolToStrMap.find(static_cast<NearlinkProtocol>(value));
+    if (it != protocolToStrMap.end()) {
+        str = it->second;
+        return true;
+    }
+
+    return false;
+}
+
+bool NearlinkProtocolUtils::StrToProtocolInt(const std::string &str, int32_t &value)
+{
+
+    auto it = strToProtocolMap.find(str);
+    if (it == strToProtocolMap.end()) {
+        return false;
+    }
+
+    value = static_cast<int32_t>(it->second);
+    return true;
+}
 }  // namespace EDM
 }  // namespace OHOS
-
-#endif  // INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_NEARLINK_PROTOCOL_UTILS_H
