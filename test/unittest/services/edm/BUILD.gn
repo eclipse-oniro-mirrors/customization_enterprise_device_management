@@ -321,7 +321,11 @@ ohos_unittest("EdmServicesUnitTest") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
+    sources += [ "../../../../services/edm/src/query_policy/disable_private_space_query.cpp" ]
+    defines += [
+      "BACKUP_AND_RESTORE_EDM_ENABLE",
+      "PRIVATE_SPACE_EDM_ENABLE"
+    ]
   }
 
   if (enterprise_device_management_feature_pc_only) {

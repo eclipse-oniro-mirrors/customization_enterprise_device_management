@@ -304,7 +304,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/disable_backup_and_restore_plugin_test.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
+      "./src/disable_backup_and_restore_plugin_test.cpp",
+      "./src/disable_private_space_plugin_test.cpp",
+    ]
   }
 
   if (enterprise_device_management_feature_pc_only) {
