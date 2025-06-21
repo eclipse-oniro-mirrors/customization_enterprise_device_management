@@ -144,6 +144,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
+        const char* const LABEL_DISALLOWED_POLICY_NOTIFICATION = "notification";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
@@ -337,6 +338,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
     const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
+    const char* const POLICY_DISALLOWED_NOTIFICATION = "disallowed_notification";
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";

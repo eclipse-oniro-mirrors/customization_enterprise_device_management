@@ -318,6 +318,12 @@ ohos_unittest("EdmPluginTest") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (notification_edm_enable) {
+    sources += [
+      "./src/disallowed_notification_plugin_test.cpp"
+    ]
+  }
+
   if (netmanager_ext_edm_enable) {
     sources += [
       "./src/disallow_vpn_plugin_test.cpp"
@@ -695,6 +701,12 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm_plugin/src/disallow_modify_ethernet_ip_plugin.cpp" ]
+  }
+
+  if (notification_edm_enable) {
+    sources += [
+      "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp",
+    ]
   }
 
   if (netmanager_ext_edm_enable) {
