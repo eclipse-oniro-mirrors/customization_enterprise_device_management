@@ -96,6 +96,11 @@
 #include "disallowed_mobile_data_query.h"
 #endif
 
+#ifdef TELEPHONY_EDM_ENABLE
+#include "disallowed_telephony_call_query.h"
+#include "telephony_call_policy_query.h"
+#endif
+
 #ifdef SAMBA_EDM_ENABLE
 #include "disable_samba_client_query.h"
 #include "disable_samba_server_query.h"
@@ -489,6 +494,29 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
+    return GetPolicyQuerySixth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL:
+#ifdef TELEPHONY_EDM_ENABLE
+            obj = std::make_shared<DisallowedTelephonyCallQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::TELEPHONY_CALL_POLICY:
+#ifdef TELEPHONY_EDM_ENABLE
+            obj = std::make_shared<TelephonyCallPolicyQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

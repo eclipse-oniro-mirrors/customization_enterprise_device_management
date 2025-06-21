@@ -155,6 +155,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "window_manager:sms",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
+    "jsoncpp:jsoncpp",
   ]
 
   deps = [
@@ -281,6 +282,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp",
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
       ]
     }
 
@@ -455,6 +458,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "jsoncpp:jsoncpp",
   ]
 
   if (enterprise_device_management_support_all) {

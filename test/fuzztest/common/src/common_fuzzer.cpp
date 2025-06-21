@@ -59,6 +59,7 @@
 #include "location_policy_plugin.h"
 #include "lock_screen_plugin.h"
 #include "manage_auto_start_apps_plugin.h"
+#include "manage_auto_start_apps_serializer.h"
 #include "ntp_server_plugin.h"
 #include "operate_device_plugin.h"
 #include "password_policy_plugin.h"
@@ -139,7 +140,7 @@ const bool REGISTER_IS_WIFI_ACTIVE_PLUGIN = PluginManager::GetInstance()->AddPlu
 const bool REGISTER_LOCATION_POLICY_PLUGIN = PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
 const bool REGISTER_LOCK_SCREEN_PLUGIN = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
 const bool REGISTER_MANAGE_AUTO_START_APPS_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(ManageAutoStartAppsPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageAutoStartAppsPlugin>());
 const bool REGISTER_NTP_SERVER_PLUGIN = PluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
 const bool REGISTER_OPERATE_DEVICE_PLUGIN = PluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
 const bool REGISTER_POWER_POLICY_PLUGIN =
