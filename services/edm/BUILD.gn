@@ -220,6 +220,18 @@ ohos_shared_library("edmservice") {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
+  if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "os_account:libaccountkits",
+      "os_account:os_account_innerkits",
+    ]
+
+    sources += [
+      "./src/query_policy/disable_sudo_query.cpp",
+    ]
+    defines += [ "SUDO_EDM_ENABLE" ]
+  }
+
   if (netmanager_base_edm_enable) {
     sources += [ "./src/query_policy/disallowed_airplane_mode_query.cpp" ]
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
@@ -285,6 +297,16 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_modify_ethernet_ip_query.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (notification_edm_enable) {
+    sources += [ "./src/query_policy/disallowed_notification_query.cpp" ]
+    defines += [ "NOTIFICATION_EDM_ENABLE" ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [ "./src/query_policy/disallow_vpn_query.cpp" ]
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
   }
 
   deps = [

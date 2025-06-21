@@ -13,27 +13,33 @@
  * limitations under the License.
  */
 
-#include "disallowed_airplane_mode_plugin_test.h"
-
-#include "disallowed_airplane_mode_plugin.h"
-#include "edm_constants.h"
+#include <gtest/gtest.h>
+#include "disable_sudo_plugin.h"
+#include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
+using namespace testing;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-void DisallowedAirplaneModeTest::SetUpTestSuite(void)
+class DisableSudoPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+};
+
+void DisableSudoPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowedAirplaneModeTest::TearDownTestSuite(void)
+void DisableSudoPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
@@ -41,39 +47,33 @@ void DisallowedAirplaneModeTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisallowedAirplaneModeSuccess_001
- * @tc.desc: Test DisallowedAirplaneModePlugin::OnSetPolicy function sucess.
+ * @tc.name: TestDisableSudoPluginTestSet
+ * @tc.desc: Test DisableSudoPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowedAirplaneModeTest, TestDisallowedAirplaneModeSuccess_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisallowedAirplaneModePlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestDisallowedAirplaneModeSuccess_002
- * @tc.desc: Test DisallowedAirplaneModePlugin::OnSetPolicy function sucess.
- * @tc.type: FUNC
- */
-HWTEST_F(DisallowedAirplaneModeTest, TestDisallowedAirplaneModeSuccess_002, TestSize.Level1)
+HWTEST_F(DisableSudoPluginTest, TestDisableSudoPluginTestSet, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowedAirplaneModePlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"true", "", false};
+    std::shared_ptr<IPlugin> plugin = DisableSudoPlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE);
+        EdmInterfaceCode::DISALLOWED_SUDO);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+
     ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyData.policyData == "true");
+    ASSERT_TRUE(handlePolicyData.isChanged);
+
+    // 恢复环境，取消禁用
+    MessageParcel dataFalse;
+    dataFalse.WriteBool(false);
+    HandlePolicyData handlePolicyDataFalse{"true", "", false};
+    ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyDataFalse.policyData == "false");
+    ASSERT_FALSE(handlePolicyDataFalse.isChanged);
 }
 } // namespace TEST
 } // namespace EDM

@@ -85,9 +85,22 @@
 #include "disallowed_mms_query.h"
 #include "disallow_power_long_press_query.h"
 #include "disallowed_nfc_query.h"
+
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#endif
+
+#ifdef SUDO_EDM_ENABLE
+#include "disable_sudo_query.h"
+#endif
+
+#ifdef NOTIFICATION_EDM_ENABLE
+#include "disallowed_notification_query.h"
+#endif
+
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
 #endif
 
 using namespace testing::ext;
@@ -1964,6 +1977,30 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbStorageDeviceWriteQuery002, TestSi
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_usb_storage_device_write");
 }
+
+#endif
+
+#ifdef SUDO_EDM_ENABLE
+/**
+ * @tc.name: DisableSudoQuery001
+ * @tc.desc: Test DisableSudoPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableSudoQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag));
+    ASSERT_EQ(flag, ERR_OK);
+    bool result = false;
+    ASSERT_TRUE(reply.ReadBool(result));
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
 #endif
 
 /**
@@ -2036,6 +2073,76 @@ HWTEST_F(PluginPolicyQueryTest, TestDisablePrivateSpaceQuery002, TestSize.Level1
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISABLED_PRIVATE_SPACE);
+}
+#endif
+
+#ifdef NOTIFICATION_EDM_ENABLE
+/**
+ * @tc.name: TestDisallowedNotificationQuery001
+ * @tc.desc: Test DisallowedNotificationQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedNotificationQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedNotificationQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedNotificationQuery002
+ * @tc.desc: Test DisallowedNotificationQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedNotificationQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedNotificationQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_notification");
+}
+#endif
+
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+/**
+ * @tc.name: TestDisallowVPNQuery001
+ * @tc.desc: Test DisallowVPNQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowVPNQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowVPNQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowVPNQuery002
+ * @tc.desc: Test DisallowVPNQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowVPNQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowVPNQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disallow_vpn");
 }
 #endif
 } // namespace TEST

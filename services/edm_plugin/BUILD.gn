@@ -58,6 +58,7 @@ ohos_shared_library("device_core_plugin") {
     "access_token:libtokenid_sdk",
     "cJSON:cjson",
     "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -130,8 +131,12 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/set_domain_account_policy_plugin.cpp",
+        "./src/disable_sudo_plugin.cpp",
       ]
-      defines += [ "FEATURE_PC_ONLY" ]
+      defines += [
+        "FEATURE_PC_ONLY",
+        "SUDO_EDM_ENABLE"
+      ]
     }
     
     if (enterprise_device_management_feature_pc_only) {
@@ -323,11 +328,15 @@ ohos_shared_library("communication_plugin") {
     }
 
     if (netmanager_ext_edm_enable) {
-      external_deps += [ "netmanager_ext:ethernet_manager_if" ]
+      external_deps += [
+        "netmanager_ext:ethernet_manager_if",
+        "netmanager_ext:net_vpn_manager_if",
+      ]
       sources += [
         "./src/get_all_network_interfaces_plugin.cpp",
         "./src/get_ip_address_plugin.cpp",
         "./src/get_mac_plugin.cpp",
+        "./src/disallow_vpn_plugin.cpp"
       ]
     }
 
@@ -489,6 +498,10 @@ ohos_shared_library("sys_service_plugin") {
     if (time_service_edm_enable) {
       external_deps += [ "time_service:time_client" ]
       sources += [ "./src/set_datetime_plugin.cpp" ]
+    }
+
+    if (notification_edm_enable) {
+      sources += [ "./src/disallowed_notification_plugin.cpp" ]
     }
   }
   deps = [

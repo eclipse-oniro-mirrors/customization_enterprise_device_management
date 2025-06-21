@@ -66,6 +66,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
     EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
     EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
+    EdmInterfaceCode::DISALLOWED_SUDO, EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -86,7 +87,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::DISALLOWED_NFC, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
     EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE, EdmInterfaceCode::TELEPHONY_CALL_POLICY,
-    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL
+    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL, EdmInterfaceCode::DISALLOW_VPN
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -95,7 +96,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::LOCATION_POLICY, EdmInterfaceCode::MANAGE_AUTO_START_APPS,
     EdmInterfaceCode::FINGERPRINT_AUTH, EdmInterfaceCode::PASSWORD_POLICY,
     EdmInterfaceCode::CLIPBOARD_POLICY, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
-    EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA,
+    EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA, EdmInterfaceCode::DISALLOWED_NOTIFICATION
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {

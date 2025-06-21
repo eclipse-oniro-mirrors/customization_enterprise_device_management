@@ -186,6 +186,12 @@ ohos_static_library("edmservice_static") {
     sources += [ "../../../../services/edm/src/query_policy/disallowed_airplane_mode_query.cpp" ]
   }
 
+  if (notification_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disallowed_notification_query.cpp",
+    ]
+  }
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_manager",
@@ -240,6 +246,24 @@ ohos_static_library("edmservice_static") {
         "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+    if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "os_account:libaccountkits",
+      "os_account:os_account_innerkits",
+    ]
+
+    sources += [
+      "../../../../services/edm/src/query_policy/disable_sudo_query.cpp",
+    ]
+    defines += [ "SUDO_EDM_ENABLE" ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/disallow_vpn_query.cpp",
+    ]
   }
 
   deps = [
@@ -319,6 +343,14 @@ ohos_unittest("EdmServicesUnitTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (notification_edm_enable) {
+    defines += [ "NOTIFICATION_EDM_ENABLE" ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
   }
 
   configs = [

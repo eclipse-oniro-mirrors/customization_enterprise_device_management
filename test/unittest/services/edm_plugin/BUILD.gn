@@ -278,6 +278,7 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
       "./src/set_watermark_plugin_test.cpp",
+      "./src/disable_sudo_plugin_test.cpp",
     ]
   }
 
@@ -317,6 +318,18 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_nearlink_protocols_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (notification_edm_enable) {
+    sources += [
+      "./src/disallowed_notification_plugin_test.cpp"
+    ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "./src/disallow_vpn_plugin_test.cpp"
+    ]
   }
   
   sanitize = {
@@ -464,6 +477,7 @@ ohos_static_library("edm_all_plugin_static") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
@@ -692,6 +706,28 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm_plugin/src/disallow_modify_ethernet_ip_plugin.cpp" ]
+  }
+
+  if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../../services/edm_plugin/src/disable_sudo_plugin.cpp"
+    ]
+    defines += [ 
+      "SUDO_EDM_ENABLE"
+    ]
+  }
+
+  if (notification_edm_enable) {
+    sources += [
+      "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp",
+    ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    external_deps += [ "netmanager_ext:net_vpn_manager_if" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
+    ]
   }
 
   sanitize = {

@@ -144,8 +144,11 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
+        const char* const LABEL_DISALLOWED_POLICY_SUDO = "sudo";
+        const char* const LABEL_DISALLOWED_POLICY_NOTIFICATION = "notification";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
+        const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -263,6 +266,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
     const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
+    const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
     const char* const POLICY_DISABLE_USB = "disable_usb";
@@ -335,7 +339,9 @@ namespace PolicyName {
     const char* const POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "set_biometrics_and_screenLock";
     const char* const POLICY_SET_DEVICE_NAME = "set_device_name";
     const char* const POLICY_DISALLOW_MODIFY_ETHERNET_IP = "disallow_modify_ethernet_ip";
+    const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
+    const char* const POLICY_DISALLOWED_NOTIFICATION = "disallowed_notification";
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";

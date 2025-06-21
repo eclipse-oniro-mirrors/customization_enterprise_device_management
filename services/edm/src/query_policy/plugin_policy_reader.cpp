@@ -122,11 +122,23 @@
 #include "disable_private_space_query.h"
 #endif
 
+#ifdef NOTIFICATION_EDM_ENABLE
+#include "disallowed_notification_query.h"
+#endif
+
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
+#endif
+
+#ifdef SUDO_EDM_ENABLE
+#include "disable_sudo_query.h"
+#endif
+
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
 #endif
 
 #include "allowed_app_distribution_types_query.h"
@@ -511,6 +523,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SUDO:
+#ifdef SUDO_EDM_ENABLE
+            obj = std::make_shared<DisableSudoQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL:
 #ifdef TELEPHONY_EDM_ENABLE
             obj = std::make_shared<DisallowedTelephonyCallQuery>();
@@ -528,6 +547,20 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_PRIVATE_SPACE:
 #ifdef PRIVATE_SPACE_EDM_ENABLE
             obj = std::make_shared<DisablePrivateSpaceQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
+#ifdef NOTIFICATION_EDM_ENABLE
+            obj = std::make_shared<DisallowedNotificationQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_VPN:
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+            obj = std::make_shared<DisallowVPNQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

@@ -80,9 +80,9 @@ HWTEST_F(KioskFeaturePluginTest, TestOnSetPolicyInputNull, TestSize.Level1)
     std::vector<int32_t> mergeData;
     ErrCode errCode = plugin->OnSetPolicy(data, currentData, mergeData, EdmConstants::DEFAULT_USER_ID);
     EXPECT_TRUE(errCode == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, false));
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER,
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER,
         false));
 }
 
