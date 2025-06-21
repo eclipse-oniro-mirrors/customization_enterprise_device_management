@@ -41,6 +41,8 @@ struct AsyncNotifyUpdatePackagesCallbackInfo : AsyncCallbackInfo {
     UpgradePackageInfo packageInfo;
 };
 
+enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
+
 class SystemManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -78,6 +80,7 @@ private:
     static napi_value RemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
         FuncOperateType operateType);
+    static void CreateProtocolObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

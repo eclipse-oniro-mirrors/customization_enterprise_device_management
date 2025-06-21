@@ -15,11 +15,7 @@
 
 #include <gtest/gtest.h>
 
-#define private public
-#define protected public
 #include "disallowed_nearlink_protocols_plugin.h"
-#undef protected
-#undef private
 
 #include "edm_constants.h"
 #include "edm_data_ability_utils_mock.h"

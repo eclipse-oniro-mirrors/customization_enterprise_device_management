@@ -17,11 +17,8 @@
 
 #include <system_ability_definition.h>
 
-#define protected public
-#define private public
 #include "disallowed_nearlink_protocols_plugin.h"
-#undef protected
-#undef private
+
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"

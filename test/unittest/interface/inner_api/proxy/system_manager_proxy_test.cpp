@@ -20,6 +20,7 @@
 #include "system_manager_proxy.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "func_code.h"
 #include "update_policy_utils.h"
 #include "utils.h"
 
@@ -441,7 +442,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledFail, Te
  * @tc.desc: Test AddOrRemoveDisallowedNearlinkProtocols without enable edm service func.
  * @tc.type: FUNC
  */
-HWTEST_F(NearlinkManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsFail, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     MessageParcel data;
@@ -450,7 +451,7 @@ HWTEST_F(NearlinkManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsFai
     data.WriteParcelable(&admin);
     data.WriteInt32Vector(protocols);
 
-    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, true);
+    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, FuncOperateType::SET);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -459,7 +460,7 @@ HWTEST_F(NearlinkManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsFai
  * @tc.desc: Test AddOrRemoveDisallowedNearlinkProtocols success func.
  * @tc.type: FUNC
  */
-HWTEST_F(NearlinkManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc, TestSize.Level1)
 {
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
@@ -470,7 +471,7 @@ HWTEST_F(NearlinkManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, true);
+    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, FuncOperateType::SET);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

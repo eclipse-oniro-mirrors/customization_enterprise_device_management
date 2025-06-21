@@ -15,23 +15,22 @@
 
 #include "disallowed_nearlink_protocols_plugin.h"
 
-#include "array_int_serializer.h"
-#include "nearlink_config_utils.h"
-#include "nearlink_protocol_utils.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+
+#include "array_int_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_os_account_manager_impl.h"
 #include "func_code_utils.h"
-#include "parameters.h"
+#include "nearlink_config_utils.h"
+#include "nearlink_protocol_utils.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedNearlinkProtocolsPlugin::GetPlugin());
-const std::string EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
 constexpr int32_t NEARLINK_UID = 7030;
 
 void DisallowedNearlinkProtocolsPlugin::InitPlugin(
@@ -39,19 +38,21 @@ void DisallowedNearlinkProtocolsPlugin::InitPlugin(
 {
     EDMLOGI("DisallowedNearlinkProtocolsPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
-        PolicyName::POLICY_DISALLOWED_NEARLINK_PROTOCOLS, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+        PolicyName::POLICY_DISALLOWED_NEARLINK_PROTOCOLS,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        true);
     ptr->SetSerializer(ArrayIntSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowedNearlinkProtocolsPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyDoneListener(&DisallowedNearlinkProtocolsPlugin::OnChangedPolicyDone, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&DisallowedNearlinkProtocolsPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
-    ptr->SetOnHandlePolicyDoneListener(&DisallowedNearlinkProtocolsPlugin::OnChangedPolicyDone,
-        FuncOperateType::REMOVE);
+    ptr->SetOnHandlePolicyDoneListener(
+        &DisallowedNearlinkProtocolsPlugin::OnChangedPolicyDone, FuncOperateType::REMOVE);
     ptr->SetOnAdminRemoveListener(&DisallowedNearlinkProtocolsPlugin::OnAdminRemove);
 }
 
-ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
-    std::vector<int32_t> &mergeData, int32_t userId)
+ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(
+    std::vector<int32_t> &data, std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnSetPolicy userId = %{public}d", userId);
     if (data.empty()) {
@@ -62,19 +63,12 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &dat
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy size is over limit");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    bool isExist = false;
-    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(userId, isExist);
-    if (FAILED(ret) || !isExist) {
-        EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy userId is not exist");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
+    NearlinkConfigUtils nearlinkConfigUtils;
     for (size_t i = 0; i < data.size(); ++i) {
         std::string protocol;
-        NearlinkProtocolUtils nearlinkProtocolUtils;
-        if (!nearlinkProtocolUtils.IntToProtocolStr(data[i], protocol)) {
+        if (!NearlinkProtocolUtils::IntToProtocolStr(data[i], protocol)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        NearlinkConfigUtils nearlinkConfigUtils;
         if (!nearlinkConfigUtils.UpdateProtocol(std::to_string(userId), protocol, true)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -85,8 +79,8 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &dat
     return ERR_OK;
 }
 
-ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(std::vector<int32_t> &data,
-    std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
+ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(
+    std::vector<int32_t> &data, std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnRemovePolicy userId = %{public}d", userId);
     if (data.empty()) {
@@ -97,13 +91,12 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(std::vector<int32_t> &
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnRemovePolicy size is over limit");
         return EdmReturnErrCode::PARAM_ERROR;
     }
+    NearlinkConfigUtils nearlinkConfigUtils;
     for (size_t i = 0; i < data.size(); ++i) {
         std::string protocol;
-        NearlinkProtocolUtils nearlinkProtocolUtils;
-        if (!nearlinkProtocolUtils.IntToProtocolStr(data[i], protocol)) {
+        if (!NearlinkProtocolUtils::IntToProtocolStr(data[i], protocol)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        NearlinkConfigUtils nearlinkConfigUtils;
         if (!nearlinkConfigUtils.UpdateProtocol(std::to_string(userId), protocol, false)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -114,13 +107,13 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(std::vector<int32_t> &
     return ERR_OK;
 }
 
-ErrCode DisallowedNearlinkProtocolsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
+ErrCode DisallowedNearlinkProtocolsPlugin::OnGetPolicy(
+    std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnGetPolicy");
     std::vector<int32_t> protocols;
     NearlinkConfigUtils nearlinkConfigUtils;
-    if (!nearlinkConfigUtils.queryProtocols(std::to_string(userId), protocols)) {
+    if (!nearlinkConfigUtils.QueryProtocols(std::to_string(userId), protocols)) {
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -129,8 +122,8 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnGetPolicy(std::string &policyData, 
     return ERR_OK;
 }
 
-ErrCode DisallowedNearlinkProtocolsPlugin::OnAdminRemove(const std::string &adminName,
-    std::vector<int32_t> &policyData, std::vector<int32_t> &mergeData, int32_t userId)
+ErrCode DisallowedNearlinkProtocolsPlugin::OnAdminRemove(
+    const std::string &adminName, std::vector<int32_t> &policyData, std::vector<int32_t> &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnAdminRemove");
     NearlinkConfigUtils nearlinkConfigUtils;
@@ -153,7 +146,7 @@ void DisallowedNearlinkProtocolsPlugin::NotifyNearlinkProtocolsChanged()
 {
     EDMLOGD("DisallowedNearlinkProtocolsPlugin NotifyNearlinkProtocolsChanged.");
     AAFwk::Want want;
-    want.SetAction(EDM_CONFIG_CHANGED_EVENT);
+    want.SetAction(EdmConstants::EDM_CONFIG_CHANGED_EVENT);
     EventFwk::CommonEventData eventData;
     eventData.SetWant(want);
     EventFwk::CommonEventPublishInfo eventInfo;
@@ -164,5 +157,5 @@ void DisallowedNearlinkProtocolsPlugin::NotifyNearlinkProtocolsChanged()
         EDMLOGE("NotifyNearlinkProtocolsChanged failed.");
     }
 }
-} // namespace EDM
-} // namespace OHOS
+}  // namespace EDM
+}  // namespace OHOS

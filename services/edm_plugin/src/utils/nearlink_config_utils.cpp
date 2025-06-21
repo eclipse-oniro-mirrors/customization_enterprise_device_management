@@ -143,8 +143,7 @@ bool NearlinkConfigUtils::RemoveProtocol(
 bool NearlinkConfigUtils::IsProtocolExist(const std::string &protocol, cJSON *userItem)
 {
     cJSON *protocolItem = nullptr;
-    cJSON_ArrayForEach(protocolItem, userItem)
-    {
+    cJSON_ArrayForEach(protocolItem, userItem) {
         if (strcmp(protocolItem->valuestring, protocol.c_str()) == 0) {
             return true;
         }
@@ -184,12 +183,10 @@ bool NearlinkConfigUtils::QueryProtocols(const std::string &userId, std::vector<
     if (!userItem) {
         return true;
     }
-    NearlinkProtocolUtils nearlinkProtocolUtils;
     cJSON *protocolItem = nullptr;
-    cJSON_ArrayForEach(protocolItem, userItem)
-    {
+    cJSON_ArrayForEach(protocolItem, userItem) {
         int32_t protocol = 0;
-        nearlinkProtocolUtils.StrToProtocolInt(protocolItem->valuestring, protocol);
+        NearlinkProtocolUtils::StrToProtocolInt(protocolItem->valuestring, protocol);
         protocols.push_back(protocol);
     }
     return true;

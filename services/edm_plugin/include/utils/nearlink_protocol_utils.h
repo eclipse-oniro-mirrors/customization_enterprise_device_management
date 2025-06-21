@@ -25,33 +25,10 @@ enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
 class NearlinkProtocolUtils {
 public:
-    static bool IntToProtocolStr(int32_t value, std::string &str)
-    {
-        static const std::unordered_map<NearlinkProtocol, std::string> protocolToStrMap = {
-            {NearlinkProtocol::SSAP, "SSAP"}, {NearlinkProtocol::DATA_TRANSFER, "DATA_TRANSFER"}};
-
-        if (value < static_cast<int>(NearlinkProtocol::SSAP) ||
-            value > static_cast<int>(NearlinkProtocol::DATA_TRANSFER)) {
-            return false;
-        }
-
-        str = protocolToStrMap.at(static_cast<NearlinkProtocol>(value));
-        return true;
-    }
-
-    static bool StrToProtocolInt(const std::string &str, int32_t &value)
-    {
-        static const std::unordered_map<std::string, NearlinkProtocol> strToProtocolMap = {
-            {"SSAP", NearlinkProtocol::SSAP}, {"DATA_TRANSFER", NearlinkProtocol::DATA_TRANSFER}};
-
-        auto it = strToProtocolMap.find(str);
-        if (it == strToProtocolMap.end()) {
-            return false;
-        }
-
-        value = static_cast<int32_t>(it->second);
-        return true;
-    }
+    static const std::unordered_map<NearlinkProtocol, std::string> protocolToStrMap;
+    static const std::unordered_map<std::string, NearlinkProtocol> strToProtocolMap;
+    static bool IntToProtocolStr(int32_t value, std::string &str);
+    static bool StrToProtocolInt(const std::string &str, int32_t &value);
 };
 
 }  // namespace EDM

@@ -31,7 +31,7 @@ group("fuzztest") {
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
     "disallowedrunningbundlesplugin_fuzzer:DisallowedRunningBundlesPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
-    "disallowednearlinkprotocolsplugin_fuzzer:DisallowNearlinkProtocolsPluginFuzzTest",
+    "disallowednearlinkprotocolsplugin_fuzzer:DisallowedNearlinkProtocolsPluginFuzzTest",
     "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
     "firewallruleplugin_fuzzer:FireWallRulePluginFuzzTest",

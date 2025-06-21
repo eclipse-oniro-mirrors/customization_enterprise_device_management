@@ -20,7 +20,6 @@
 #include "edm_log.h"
 #include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
-#include "nearlink_protocol_utils.h"
 
 using namespace OHOS::EDM;
 
@@ -736,12 +735,11 @@ napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env e
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
-    return nullptr;
 #else
     EDMLOGW("SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    return nullptr;
 #endif
+    return nullptr;
 }
 
 napi_value SystemManagerAddon::SetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info)
