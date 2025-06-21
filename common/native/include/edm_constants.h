@@ -102,6 +102,11 @@ namespace EdmConstants {
         const char* const GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY = "disallowModify";
     }
 
+    namespace AutoStart {
+        const char* const GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO = "bundleInfo";
+        const char* const GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY = "disallowModify";
+    }
+
     namespace Restrictions {
         const char* const LABEL_DISALLOWED_POLICY_BLUETOOTH = "bluetooth";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_DATETIME = "modifyDateTime";
@@ -139,6 +144,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK = "setBiometricsAndScreenLock";
         const char* const LABEL_DISALLOWED_POLICY_ETHERNET_IP = "setEthernetIp";
         const char* const LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME = "setDeviceName";
+        const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
+        const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
     } // namespace Restrictions
 
@@ -177,6 +184,12 @@ namespace EdmConstants {
         const std::string DISALLOW_FLAG = "DisallowMobileData";
         const std::string FORCE_FLAG = "ForceMobileData";
     } // namespace MobileData
+
+    namespace CallPolicy {
+        constexpr uint32_t NUMBER_LIST_MAX_SIZE = 1000;
+        const std::string OUTGOING = "outgoing";
+        const std::string INCOMING = "incoming";
+    }
 } // namespace EdmConstants
 
 namespace EdmPermission {
@@ -246,6 +259,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_MICROPHONE = "disable_microphone";
     const char* const POLICY_DISABLED_MTP_CLIENT = "disabled_mtp_client";
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
+    const char* const POLICY_DISABLED_PRIVATE_SPACE = "disabled_private_space";
     const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
@@ -324,6 +338,8 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT = "set_auto_unlock_after_reboot";
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
+    const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
+    const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

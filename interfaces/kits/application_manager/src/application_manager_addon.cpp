@@ -27,6 +27,7 @@
 
 using namespace OHOS::EDM;
 
+const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nKioskFeature = nullptr;
@@ -53,6 +54,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
+        DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -213,34 +215,47 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     std::string function)
 {
     EDMLOGI("NAPI_AddOrRemoveAutoStartApps called");
-    auto coonvertElementName2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
-        std::vector<AppExecFwk::ElementName> autoStartApps;
-        bool isUint = ParseElementArray(env, autoStartApps, argv);
-        if (!isUint) {
-            return false;
-        }
-        std::vector<std::string> autoStartAppsString;
-        for (size_t i = 0; i < autoStartApps.size(); i++) {
-            std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
-            autoStartAppsString.push_back(appWant);
-        }
-        data.WriteStringVector(autoStartAppsString);
-        return true;
-    };
-
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "AddOrRemoveAutoStartApps";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
-    addonMethodSign.argsConvert = {nullptr, coonvertElementName2Data};
-    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
-        return nullptr;
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::vector<AppExecFwk::ElementName> autoStartApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
+        "Parameter autoStartApps error");
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    if ((argc >= ARGS_SIZE_FOUR && function == "AddAutoStartApps") ||
+        (argc >= ARGS_SIZE_THREE && function == "removeAutoStartApps")) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
+    }
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(HAS_USERID);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteParcelable(&elementName);
+    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> autoStartAppsString;
+    for (size_t i = 0; i < autoStartApps.size(); i++) {
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
+        autoStartAppsString.push_back(appWant);
+    }
+    parcelData.WriteStringVector(autoStartAppsString);
+    bool disallowModify = false;
+    if (argc >= ARGS_SIZE_FOUR) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
+            "Parameter disallowModify error");
+        parcelData.WriteBool(disallowModify);
+        EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
-        adapterAddonData.data, function == "AddAutoStartApps");
+        parcelData, function == "AddAutoStartApps");
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -251,18 +266,30 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
 {
     EDMLOGI("NAPI_GetAutoStartApps called");
     HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAutoStartApps");
-    std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "GetAutoStartApps";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
-    addonMethodSign.methodAttribute = MethodAttribute::GET;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
-        return nullptr;
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    if (argc >= ARGS_SIZE_TWO) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
     }
+    MessageParcel parcelData;
+    SetBaseDataForGetPolicy(userId, parcelData);
+    parcelData.WriteInt32(HAS_ADMIN);
+    parcelData.WriteParcelable(&elementName);
+    parcelData.WriteString(OHOS::EDM::EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO);
+    std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->GetAutoStartApps(
-        adapterAddonData.data, autoStartApps);
+        parcelData, autoStartApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -285,6 +312,57 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
         idx++;
     }
     return napiAutoStartApps;
+}
+
+void ApplicationManagerAddon::SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data)
+{
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+}
+
+napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("IsModifyAutoStartAppsDisallowed called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isModifyAutoStartAppsDisallowed");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    OHOS::AppExecFwk::ElementName autoStartApp;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, autoStartApp, argv[ARR_INDEX_ONE]),
+        "Parameter autoStartApp error");
+    int32_t userId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(HAS_USERID);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    parcelData.WriteInt32(HAS_ADMIN);
+    parcelData.WriteParcelable(&elementName);
+    parcelData.WriteString(OHOS::EDM::EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY);
+    std::string appWant = autoStartApp.GetBundleName() + "/" + autoStartApp.GetAbilityName();
+    parcelData.WriteString(appWant);
+
+    bool isModifyAutoStartAppDisallowed = false;
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->IsModifyAutoStartAppsDisallowed(
+        parcelData, isModifyAutoStartAppDisallowed);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiIsModify = nullptr;
+    napi_get_boolean(env, isModifyAutoStartAppDisallowed, &napiIsModify);
+    return napiIsModify;
 }
 
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, napi_callback_info info)

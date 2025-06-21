@@ -22,6 +22,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "napi_base_context.h"
+#include "policy_flag.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -994,6 +995,16 @@ void AdminManager::CreateRunningModeObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MULTI_USER", nMultiUser));
 }
 
+void AdminManager::CreatePolicyObject(napi_env env, napi_value value)
+{
+    napi_value nBlock;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(PolicyFlag::BLOCK_LIST), &nBlock));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BLOCK_LIST", nBlock));
+    napi_value nTrust;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(PolicyFlag::TRUST_LIST), &nTrust));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TRUST_LIST", nTrust));
+}
+
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSuperAdmin called");
@@ -1131,6 +1142,10 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nRunningMode));
     CreateRunningModeObject(env, nRunningMode);
 
+    napi_value nPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPolicy));
+    CreatePolicyObject(env, nPolicy);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("enableAdmin", EnableAdmin),
         DECLARE_NAPI_FUNCTION("disableAdmin", DisableAdmin),
@@ -1156,6 +1171,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
         DECLARE_NAPI_PROPERTY("RunningMode", nRunningMode),
+        DECLARE_NAPI_PROPERTY("Policy", nPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;

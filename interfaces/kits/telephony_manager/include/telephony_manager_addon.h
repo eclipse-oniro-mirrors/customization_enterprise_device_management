@@ -35,6 +35,13 @@ private:
     static napi_value SetSimDisabled(napi_env env, napi_callback_info info);
     static napi_value SetSimEnabled(napi_env env, napi_callback_info info);
     static napi_value IsSimDisabled(napi_env env, napi_callback_info info);
+    static napi_value AddOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value RemoveOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value AddIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value RemoveIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static bool CheckVectorStringLength(const std::vector<std::string> &array);
 };
 } // namespace EDM
 } // namespace OHOS
