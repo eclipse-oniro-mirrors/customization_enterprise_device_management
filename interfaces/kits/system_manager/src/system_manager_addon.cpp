@@ -652,7 +652,7 @@ napi_value SystemManagerAddon::AddDisallowedNearlinkProtocols(napi_env env, napi
 {
 #if defined(FEATURE_PC_ONLY)
     EDMLOGI("NAPI_AddDisallowedNearlinkProtocols called");
-    return AddOrRemoveDisallowedNearlinkProtocols(env, info, true);
+    return AddOrRemoveDisallowedNearlinkProtocols(env, info, FuncOperateType::SET);
 #else
     EDMLOGW("SystemManagerAddon::AddDisallowedNearlinkProtocols Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -699,7 +699,7 @@ napi_value SystemManagerAddon::RemoveDisallowedNearlinkProtocols(napi_env env, n
 {
 #if defined(FEATURE_PC_ONLY)
     EDMLOGI("NAPI_RemoveDisallowedNearlinkProtocols called");
-    return AddOrRemoveDisallowedNearlinkProtocols(env, info, false);
+    return AddOrRemoveDisallowedNearlinkProtocols(env, info, FuncOperateType::REMOVE);
 #else
     EDMLOGW("SystemManagerAddon::RemoveDisallowedNearlinkProtocols Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -708,7 +708,7 @@ napi_value SystemManagerAddon::RemoveDisallowedNearlinkProtocols(napi_env env, n
 }
 
 napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
-    bool isAdd)
+    FuncOperateType operateType)
 {
 #if defined(FEATURE_PC_ONLY)
     EDMLOGI("NAPI_AddOrRemoveDisallowedNearlinkProtocols called");
@@ -717,6 +717,7 @@ napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env e
         std::vector<int32_t> nearlinkProtocols;
         if (!ParseIntArray(env, nearlinkProtocols, argv)) {
             EDMLOGE("NAPI_AddOrRemoveDisallowedNearlinkProtocols ParseIntArray fail");
+            return false;
         }
         data.WriteInt32Vector(nearlinkProtocols);
         return true;
@@ -730,7 +731,6 @@ napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env e
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
     }
-     FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
     int32_t retCode = SystemManagerProxy::GetSystemManagerProxy()->
         AddOrRemoveDisallowedNearlinkProtocols(adapterAddonData.data, operateType);
     if (FAILED(retCode)) {

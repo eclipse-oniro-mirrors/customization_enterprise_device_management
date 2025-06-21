@@ -15,10 +15,12 @@
 
 #include "nearlink_config_utils.h"
 
-#include "nearlink_protocol_utils.h"
-#include "directory_ex.h"
-#include "edm_log.h"
 #include <unistd.h>
+
+#include "directory_ex.h"
+
+#include "edm_log.h"
+#include "nearlink_protocol_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,7 +28,7 @@ const std::string CONFIG_PATH = "/data/service/el1/public/edm/config/system/all/
 const std::string CONFIG_SYSTEM_ALL_DIR = "/data/service/el1/public/edm/config/system/all";
 const std::string NEARLINK_DIR = "nearlink";
 const std::string SEPARATOR = "/";
-const char* const PROTOCOL_DENY_LIST = "ProtocolDenyList";
+const char *const PROTOCOL_DENY_LIST = "ProtocolDenyList";
 constexpr int32_t EDM_UID = 3057;
 constexpr int32_t EDM_GID = 3057;
 
@@ -38,7 +40,7 @@ NearlinkConfigUtils::NearlinkConfigUtils()
     if (std::find(files.begin(), files.end(), NEARLINK_DIR) == files.end()) {
         CreateNearlinkConfigDir(CONFIG_SYSTEM_ALL_DIR + SEPARATOR + NEARLINK_DIR);
     }
-    loadConfig();
+    LoadConfig();
 }
 
 NearlinkConfigUtils::~NearlinkConfigUtils()
@@ -51,64 +53,98 @@ NearlinkConfigUtils::~NearlinkConfigUtils()
 
 bool NearlinkConfigUtils::UpdateProtocol(const std::string &userId, const std::string &protocol, bool isAdd)
 {
-    EDMLOGI("NearlinkConfigUtils::UpdateProtocol()");
-    if (!root_ && !loadConfig()) {
+    EDMLOGI("NearlinkConfigUtils::UpdateProtocol() - userId: %s, isAdd: %d", userId.c_str(), isAdd);
+
+    // 通用前置检查
+    if (!root_ && !LoadConfig()) {
+        EDMLOGE("Failed to load config before update protocol");
         return false;
     }
-    CheckProtocolDenyListExists();
-    cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
-    cJSON* userItem = cJSON_GetObjectItem(denyList, userId.c_str());
+    if (!CheckProtocolDenyListExists()) {
+        EDMLOGE("Failed to ensure PROTOCOL_DENY_LIST exists");
+        return false;
+    }
+
+    // 获取 denyList 和 userItem
+    cJSON *denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
+    if (!denyList) {
+        EDMLOGE("PROTOCOL_DENY_LIST not found in config");
+        return false;
+    }
+    cJSON *userItem = cJSON_GetObjectItem(denyList, userId.c_str());
+
+    // 调用子函数处理增删逻辑
     if (isAdd) {
-        cJSON* protocols =  cJSON_CreateString(protocol.c_str());
-        if (!userItem) {
-            userItem = cJSON_CreateArray();
-            cJSON_bool resultAddArray = cJSON_AddItemToArray(userItem, protocols);
-            if (resultAddArray == cJSON_False) {
-                cJSON_Delete(userItem);
-                cJSON_Delete(protocols);
-            }
-            cJSON_bool resultAddObj = cJSON_AddItemToObject(denyList, userId.c_str(), userItem);
-            if (resultAddObj == cJSON_False) {
-                cJSON_Delete(userItem);
-            }
-        } else {
-            if (IsProtocolExist(protocol, userItem)) {
-                return true;
-            }
-            cJSON_bool resultAddArray = cJSON_AddItemToArray(userItem, protocols);
-            if (resultAddArray == cJSON_False) {
-                cJSON_Delete(protocols);
-            }
+        return AddProtocol(protocol, userId, denyList, userItem);
+    } else {
+        return RemoveProtocol(protocol, userId, denyList, userItem);
+    }
+}
+
+bool NearlinkConfigUtils::AddProtocol(
+    const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem)
+{
+    if (userItem && IsProtocolExist(protocol, userItem)) {
+        EDMLOGI("Protocol %s already exists for user %s", protocol.c_str(), userId.c_str());
+        return true;  // 协议已存在，无需添加
+    }
+
+    cJSON *protocols = cJSON_CreateString(protocol.c_str());
+    if (!protocols) {
+        EDMLOGE("Failed to create protocol string item");
+        return false;
+    }
+
+    if (!userItem) {
+        // 新增用户条目
+        CJSON_CREATE_ARRAY_AND_CHECK(userItem, false);
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(protocols, userItem, false);
+        if (!cJSON_AddItemToObject(denyList, userId.c_str(), userItem)) {
+            EDMLOGE("cJSON_AddItemToObject Error");
+            cJSON_Delete(userItem);
+            return false;
         }
     } else {
-        if (!userItem) {
-            return true;
-        }
-
-        int indexToRemove = -1;
-        for (int i = 0; i < cJSON_GetArraySize(userItem); ++i) {
-            cJSON* item = cJSON_GetArrayItem(userItem, i);
-            if (strcmp(item->valuestring, protocol.c_str()) == 0) {
-                indexToRemove = i;
-                break;
-            }
-        }
-
-        if (indexToRemove >= 0) {
-            cJSON_DeleteItemFromArray(userItem, indexToRemove);
-        }
-
-        if (cJSON_GetArraySize(userItem) == 0) {
-            cJSON_DeleteItemFromObject(denyList, userId.c_str());
-        }
+        // 直接添加到现有数组
+        CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(protocols, userItem, false);
     }
     return SaveConfig();
 }
 
-bool NearlinkConfigUtils::IsProtocolExist(const std::string &protocol, cJSON* userItem)
+bool NearlinkConfigUtils::RemoveProtocol(
+    const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem)
 {
-    cJSON* protocolItem = nullptr;
-    cJSON_ArrayForEach(protocolItem, userItem) {
+    if (!userItem) {
+        EDMLOGI("User %s entry does not exist, nothing to remove", userId.c_str());
+        return true;
+    }
+
+    int indexToRemove = -1;
+    for (int i = 0; i < cJSON_GetArraySize(userItem); ++i) {
+        cJSON *item = cJSON_GetArrayItem(userItem, i);
+        if (item && item->valuestring && strcmp(item->valuestring, protocol.c_str()) == 0) {
+            indexToRemove = i;
+            break;
+        }
+    }
+
+    if (indexToRemove < 0) {
+        EDMLOGI("Protocol %s not found in user %s", protocol.c_str(), userId.c_str());
+        return true;  // 协议不存在，无需删除
+    }
+
+    cJSON_DeleteItemFromArray(userItem, indexToRemove);
+    if (cJSON_GetArraySize(userItem) == 0) {
+        cJSON_DeleteItemFromObject(denyList, userId.c_str());  // 删除空用户条目
+    }
+    return SaveConfig();
+}
+
+bool NearlinkConfigUtils::IsProtocolExist(const std::string &protocol, cJSON *userItem)
+{
+    cJSON *protocolItem = nullptr;
+    cJSON_ArrayForEach(protocolItem, userItem)
+    {
         if (strcmp(protocolItem->valuestring, protocol.c_str()) == 0) {
             return true;
         }
@@ -116,7 +152,7 @@ bool NearlinkConfigUtils::IsProtocolExist(const std::string &protocol, cJSON* us
     return false;
 }
 
-bool NearlinkConfigUtils::CreateNearlinkConfigDir(const std::string dir)
+bool NearlinkConfigUtils::CreateNearlinkConfigDir(const std::string &dir)
 {
     EDMLOGI("NearlinkConfigUtils::CreateNearlinkConfigDir");
     if (!OHOS::ForceCreateDirectory(dir)) {
@@ -135,22 +171,23 @@ bool NearlinkConfigUtils::CreateNearlinkConfigDir(const std::string dir)
     return true;
 }
 
-bool NearlinkConfigUtils::queryProtocols(const std::string& userId, std::vector<int32_t> &protocols)
+bool NearlinkConfigUtils::QueryProtocols(const std::string &userId, std::vector<int32_t> &protocols)
 {
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
-    cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
+    cJSON *denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
     if (!denyList) {
         return true;
     }
-    cJSON* userItem = cJSON_GetObjectItem(denyList, userId.c_str());
+    cJSON *userItem = cJSON_GetObjectItem(denyList, userId.c_str());
     if (!userItem) {
         return true;
     }
     NearlinkProtocolUtils nearlinkProtocolUtils;
-    cJSON* protocolItem = nullptr;
-    cJSON_ArrayForEach(protocolItem, userItem) {
+    cJSON *protocolItem = nullptr;
+    cJSON_ArrayForEach(protocolItem, userItem)
+    {
         int32_t protocol = 0;
         nearlinkProtocolUtils.StrToProtocolInt(protocolItem->valuestring, protocol);
         protocols.push_back(protocol);
@@ -161,10 +198,10 @@ bool NearlinkConfigUtils::queryProtocols(const std::string& userId, std::vector<
 bool NearlinkConfigUtils::RemoveUserIdItem(const std::string &userId)
 {
     EDMLOGI("NearlinkConfigUtils::RemoveUserIdItem");
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
-    cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
+    cJSON *denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
     if (!denyList) {
         return true;
     }
@@ -175,24 +212,24 @@ bool NearlinkConfigUtils::RemoveUserIdItem(const std::string &userId)
 bool NearlinkConfigUtils::RemoveProtocolDenyList()
 {
     EDMLOGI("NearlinkConfigUtils::RemoveProtocolDenyList");
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
     cJSON_DeleteItemFromObject(root_, PROTOCOL_DENY_LIST);
     return SaveConfig();
 }
 
-bool NearlinkConfigUtils::loadConfig()
+bool NearlinkConfigUtils::LoadConfig()
 {
-    EDMLOGI("NearlinkConfigUtils::loadConfig");
+    EDMLOGI("NearlinkConfigUtils::LoadConfig");
     std::ifstream inFile(CONFIG_PATH, std::ios::binary);
     if (inFile.good()) {
-    EDMLOGI("NearlinkConfigUtils::loadConfig inFile.good");
+        EDMLOGI("NearlinkConfigUtils::LoadConfig inFile.good");
         inFile.seekg(0, std::ios::end);
         size_t size = inFile.tellg();
         if (size == 0) {
             inFile.close();
-            root_ = cJSON_CreateObject();
+            CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
             return true;
         }
         inFile.seekg(0, std::ios::beg);
@@ -202,9 +239,9 @@ bool NearlinkConfigUtils::loadConfig()
         root_ = cJSON_Parse(jsonStr.c_str());
         return root_ != nullptr;
     }
-    EDMLOGI("NearlinkConfigUtils::loadConfig inFile fail");
+    EDMLOGI("NearlinkConfigUtils::LoadConfig inFile fail");
     inFile.close();
-    root_ = cJSON_CreateObject();
+    CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
     return true;
 }
 
@@ -214,7 +251,7 @@ bool NearlinkConfigUtils::SaveConfig()
     if (!root_) {
         return false;
     }
-    char* jsonStr = cJSON_Print(root_);
+    char *jsonStr = cJSON_Print(root_);
     if (!jsonStr) {
         return false;
     }
@@ -229,15 +266,22 @@ bool NearlinkConfigUtils::SaveConfig()
     return true;
 }
 
-void NearlinkConfigUtils::CheckProtocolDenyListExists()
+bool NearlinkConfigUtils::CheckProtocolDenyListExists()
 {
     if (!root_) {
-        root_ = cJSON_CreateObject();
+        CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
     }
-    cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
+    cJSON *denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
     if (!denyList) {
-        cJSON_AddItemToObject(root_, PROTOCOL_DENY_LIST, cJSON_CreateObject());
+        cJSON *protocolDenyList = nullptr;
+        CJSON_CREATE_OBJECT_AND_CHECK(protocolDenyList, false);
+        if (!cJSON_AddItemToObject(root_, PROTOCOL_DENY_LIST, protocolDenyList)) {
+            EDMLOGE("NearlinkConfigUtils::cJSON_AddItemToObject Root Error");
+            cJSON_Delete(protocolDenyList);
+            return false;
+        }
     }
+    return true;
 }
-} // namespace EDM
-} // namespace OHOS
+}  // namespace EDM
+}  // namespace OHOS

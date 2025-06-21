@@ -24,6 +24,7 @@
 #include "want.h"
 
 #include "edm_errors.h"
+#include "func_code.h"
 #include "system_manager_proxy.h"
 #include "update_policy_utils.h"
 
@@ -75,7 +76,8 @@ private:
     static napi_value AddDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
-    static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
+        FuncOperateType operateType);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -18,6 +18,7 @@
 
 #include "enterprise_device_mgr_proxy.h"
 
+#include "func_code.h"
 #include "update_policy_utils.h"
 
 namespace OHOS {

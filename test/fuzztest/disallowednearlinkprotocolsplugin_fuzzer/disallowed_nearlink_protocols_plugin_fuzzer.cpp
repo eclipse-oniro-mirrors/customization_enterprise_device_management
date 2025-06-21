@@ -44,7 +44,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 3;
     DisallowedNearlinkProtocolsPlugin plugin;
     std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
     MessageParcel requestData;

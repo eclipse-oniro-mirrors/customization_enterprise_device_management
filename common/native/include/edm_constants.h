@@ -54,6 +54,7 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
     const char* const PERMISSION_TAG_NORMAL = "normal";
+    const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
