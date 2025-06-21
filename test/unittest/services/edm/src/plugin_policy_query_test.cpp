@@ -91,6 +91,10 @@
 #include "disable_usb_storage_device_write_query.h"
 #endif
 
+#ifdef SUDO_EDM_ENABLE
+#include "disable_sudo_query.h"
+#endif
+
 #ifdef NOTIFICATION_EDM_ENABLE
 #include "disallowed_notification_query.h"
 #endif
@@ -1972,6 +1976,30 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbStorageDeviceWriteQuery002, TestSi
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_usb_storage_device_write");
+}
+
+#endif
+
+#ifdef SUDO_EDM_ENABLE
+/**
+ * @tc.name: DisableSudoQuery001
+ * @tc.desc: Test DisableSudoPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableSudoQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag));
+    ASSERT_EQ(flag, ERR_OK);
+    bool result = false;
+    ASSERT_TRUE(reply.ReadBool(result));
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
 }
 #endif
 
