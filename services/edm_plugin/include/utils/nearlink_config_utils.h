@@ -16,10 +16,12 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_NEARLINK_CONFIG_UTILS_H
 #define SERVICES_EDM_INCLUDE_UTILS_NEARLINK_CONFIG_UTILS_H
 
-#include "cJSON.h"
-#include "cjson_check.h"
 #include <fstream>
 #include <string>
+
+#include "cJSON.h"
+
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,16 +31,19 @@ public:
     ~NearlinkConfigUtils();
     bool UpdateProtocol(const std::string &userId, const std::string &protocol, bool isAdd);
     bool RemoveUserIdItem(const std::string &userId);
+    bool AddProtocol(const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem);
+    bool RemoveProtocol(const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem);
     bool RemoveProtocolDenyList();
-    bool queryProtocols(const std::string& userId, std::vector<int32_t> &protocols);
+    bool QueryProtocols(const std::string &userId, std::vector<int32_t> &protocols);
+
 private:
-    cJSON* root_;
-    bool loadConfig();
-    bool saveConfig();
-    bool CreateNearlinkConfigDir(const std::string dir);
-    void CheckProtocolDenyListExists();
-    bool IsProtocolExist(const std::string &protocol, cJSON* userItem);
+    cJSON *root_;
+    bool LoadConfig();
+    bool SaveConfig();
+    bool CreateNearlinkConfigDir(const std::string &dir);
+    bool CheckProtocolDenyListExists();
+    bool IsProtocolExist(const std::string &protocol, cJSON *userItem);
 };
-} // namespace EDM
-} // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_UTILS_NEARLINK_CONFIG_UTILS_H
+}  // namespace EDM
+}  // namespace OHOS
+#endif  // SERVICES_EDM_INCLUDE_UTILS_NEARLINK_CONFIG_UTILS_H
