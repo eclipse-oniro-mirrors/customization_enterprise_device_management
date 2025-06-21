@@ -135,6 +135,7 @@ private:
     static void CreateAdminTypeObject(napi_env env, napi_value value);
     static void CreateManagedEventObject(napi_env env, napi_value value);
     static void CreateRunningModeObject(napi_env env, napi_value value);
+    static void CreatePolicyObject(napi_env env, napi_value value);
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);

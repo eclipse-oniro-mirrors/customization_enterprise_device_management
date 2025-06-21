@@ -16,27 +16,43 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_AUTO_START_APPS_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_AUTO_START_APPS_PLUGIN_H
 
-#include "basic_array_string_plugin.h"
-#include "plugin_singleton.h"
+#include "ability_manager_interface.h"
+#include "bundle_mgr_interface.h"
+#include "message_parcel.h"
+#include "iplugin.h"
 #include "iremote_stub.h"
+#include "manage_auto_start_app_info.h"
 
 namespace OHOS {
 namespace EDM {
-class ManageAutoStartAppsPlugin : public PluginSingleton<ManageAutoStartAppsPlugin, std::vector<std::string>>,
-    public BasicArrayStringPlugin {
+class ManageAutoStartAppsPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<ManageAutoStartAppsPlugin, std::vector<std::string>>> ptr) override;
+    ManageAutoStartAppsPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+        const std::string &mergeJsonData, int32_t userId) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override {};
+    ErrCode GetOthersMergePolicyData(const std::string &adminName,
+        std::string &othersMergePolicyData) override;
 
 private:
-    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-        std::vector<std::string> &failedData) override;
-    ErrCode RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-        std::vector<std::string> &failedData) override;
-    ErrCode SetOrRemoveOtherModulePolicy(const std::vector<std::string> &data, bool isSet,
-        std::vector<std::string> &failedData);
-    bool ParseAutoStartAppWant(std::string appWant, std::string &bundleName, std::string &abilityName);
-    bool CheckBundleAndAbilityExited (const std::string &bundleName, const std::string &abilityName);
+    ErrCode SetOrRemoveOtherModulePolicy(const std::vector<ManageAutoStartAppInfo> &data, bool isSet,
+        std::vector<ManageAutoStartAppInfo> &failedData, int32_t userId);
+    ErrCode OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
+        std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData,
+        int32_t userId);
+    ErrCode OnRemovePolicy(std::vector<std::string> &data,
+        std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData,
+        int32_t userId);
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
+        int32_t userId, std::vector<ManageAutoStartAppInfo> &failedData, bool disallowModify);
+    bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName);
+    uint32_t maxListSize_ = 0;
 };
 } // namespace EDM
 } // namespace OHOS
