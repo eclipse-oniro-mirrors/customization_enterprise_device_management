@@ -125,7 +125,10 @@ ohos_shared_library("device_core_plugin") {
         "./src/set_domain_account_policy_plugin.cpp",
         "./src/disable_sudo_plugin.cpp",
       ]
-      defines += [ "FEATURE_PC_ONLY" ]
+      defines += [
+        "FEATURE_PC_ONLY",
+        "SUDO_EDM_ENABLE"
+      ]
     }
     
     if (enterprise_device_management_feature_pc_only) {

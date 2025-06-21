@@ -692,6 +692,9 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/disable_sudo_plugin.cpp"
     ]
+    defines += [ 
+      "SUDO_EDM_ENABLE"
+    ]
   }
 
   sanitize = {

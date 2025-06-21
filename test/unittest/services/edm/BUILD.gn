@@ -223,7 +223,6 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_remote_diagnosis_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_sudo_query.cpp",
       "../../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
       "../../../../services/edm/src/watermark/watermark_application_observer.cpp",
@@ -241,6 +240,18 @@ ohos_static_library("edmservice_static") {
         "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+    if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "os_account:libaccountkits",
+      "os_account:os_account_innerkits",
+    ]
+
+    sources += [
+      "../../../../services/edm/src/query_policy/disable_sudo_query.cpp",
+    ]
+    defines += [ "SUDO_EDM_ENABLE" ]
   }
 
   deps = [

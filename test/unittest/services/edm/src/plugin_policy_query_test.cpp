@@ -84,6 +84,9 @@
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+
+#ifdef SUDO_EDM_ENABLE
+#include "disable_sudo_query.h"
 #endif
 
 using namespace testing::ext;
@@ -1961,6 +1964,9 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbStorageDeviceWriteQuery002, TestSi
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_usb_storage_device_write");
 }
 
+#endif
+
+#ifdef SUDO_EDM_ENABLE
 /**
  * @tc.name: DisableSudoQuery001
  * @tc.desc: Test DisableSudoPluginTest::QueryPolicy function.
@@ -1974,9 +1980,10 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
     int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(reply.ReadInt32(flag));
+    ASSERT_EQ(flag, ERR_OK);
     bool result = false;
-    reply.ReadBool(result);
+    ASSERT_TRUE(reply.ReadBool(result));
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(result);
 }
