@@ -88,6 +88,7 @@
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#endif
 
 #ifdef SUDO_EDM_ENABLE
 #include "disable_sudo_query.h"
