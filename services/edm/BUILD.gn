@@ -250,8 +250,14 @@ ohos_shared_library("edmservice") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/query_policy/disable_backup_and_restore_query.cpp" ]
-    defines += [ "BACKUP_AND_RESTORE_EDM_ENABLE" ]
+    sources += [
+      "./src/query_policy/disable_backup_and_restore_query.cpp",
+      "./src/query_policy/disable_private_space_query.cpp",
+    ]
+    defines += [
+      "BACKUP_AND_RESTORE_EDM_ENABLE",
+      "PRIVATE_SPACE_EDM_ENABLE",
+    ]
   }
 
   if (!enterprise_device_management_feature_pc_only &&
