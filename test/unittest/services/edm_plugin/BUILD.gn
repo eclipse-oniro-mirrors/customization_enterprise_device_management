@@ -318,6 +318,12 @@ ohos_unittest("EdmPluginTest") {
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
+
+  if (notification_edm_enable) {
+    sources += [
+      "./src/disallowed_notification_plugin_test.cpp"
+    ]
+  }
   
   sanitize = {
     boundary_sanitize = true
@@ -698,6 +704,12 @@ ohos_static_library("edm_all_plugin_static") {
     ]
     defines += [ 
       "SUDO_EDM_ENABLE"
+    ]
+  }
+
+  if (notification_edm_enable) {
+    sources += [
+      "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp",
     ]
   }
 
