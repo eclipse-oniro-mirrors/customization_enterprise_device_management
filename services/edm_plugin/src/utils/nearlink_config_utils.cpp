@@ -59,7 +59,7 @@ bool NearlinkConfigUtils::UpdateProtocol(const std::string &userId, const std::s
     cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
     cJSON* userItem = cJSON_GetObjectItem(denyList, userId.c_str());
     if (isAdd) {
-        cJSON* protocols =  cJSON_CreateString(protocol.c_str())
+        cJSON* protocols =  cJSON_CreateString(protocol.c_str());
         if (!userItem) {
             userItem = cJSON_CreateArray();
             cJSON_bool resultAddArray = cJSON_AddItemToArray(userItem, protocols);
