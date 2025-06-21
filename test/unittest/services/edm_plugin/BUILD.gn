@@ -661,7 +661,8 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
-      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp"
+      "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp",
+      "../../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
     ]
   }
 
