@@ -15,7 +15,6 @@
 
 #include "disallowed_airplane_mode_plugin_test.h"
 
-#include "core_service_client.h"
 #include "disallowed_airplane_mode_plugin.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
