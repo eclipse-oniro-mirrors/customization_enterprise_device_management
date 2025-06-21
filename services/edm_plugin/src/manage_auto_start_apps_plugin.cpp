@@ -83,7 +83,7 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     std::string afterMerge;
     ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
     ManageAutoStartAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
-    policyData.isChanged = (policyData.mergePolicyData != afterMerge);
+    policyData.isChanged = (mergePolicyStr != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
     return ERR_OK;
