@@ -506,13 +506,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
-#ifdef NOTIFICATION_EDM_ENABLE
-            obj = std::make_shared<DisallowedNotificationQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
         default:
             break;
     }
@@ -539,6 +532,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_PRIVATE_SPACE:
 #ifdef PRIVATE_SPACE_EDM_ENABLE
             obj = std::make_shared<DisablePrivateSpaceQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
+#ifdef NOTIFICATION_EDM_ENABLE
+            obj = std::make_shared<DisallowedNotificationQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
