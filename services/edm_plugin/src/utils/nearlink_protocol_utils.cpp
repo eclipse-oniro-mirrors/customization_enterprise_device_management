@@ -45,7 +45,6 @@ bool NearlinkProtocolUtils::IntToProtocolStr(int32_t value, std::string &str)
 
 bool NearlinkProtocolUtils::StrToProtocolInt(const std::string &str, int32_t &value)
 {
-
     auto it = strToProtocolMap.find(str);
     if (it == strToProtocolMap.end()) {
         return false;
