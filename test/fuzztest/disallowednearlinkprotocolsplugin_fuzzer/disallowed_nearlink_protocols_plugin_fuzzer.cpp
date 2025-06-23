@@ -18,6 +18,7 @@
 #include "disallowed_nearlink_protocols_plugin.h"
 
 #include "common_fuzzer.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {
