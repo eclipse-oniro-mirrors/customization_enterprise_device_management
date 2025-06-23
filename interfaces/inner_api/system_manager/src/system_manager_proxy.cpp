@@ -195,5 +195,32 @@ int32_t SystemManagerProxy::IsInstallLocalEnterpriseAppEnabled(MessageParcel &da
     reply.ReadBool(isAllowedInstall);
     return ERR_OK;
 }
+
+
+int32_t SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType)
+{
+    EDMLOGD("SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols)
+{
+    EDMLOGD("SystemManagerProxy::GetDisallowedNearlinkProtocols");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("SystemManagerProxy:GetDisallowedNearlinkProtocols fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadInt32Vector(&protocols)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
 } // namespace EDM
 } // namespace OHOS

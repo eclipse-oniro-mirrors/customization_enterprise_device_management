@@ -102,6 +102,12 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
   ]
 
+  sources += [
+    "../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
+    "../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
+    "../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
+  ]
+  
   public_configs = [
     ":edm_config",
     "../../../common/config:coverage_flags",

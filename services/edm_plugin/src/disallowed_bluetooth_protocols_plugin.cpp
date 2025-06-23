@@ -31,7 +31,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedBluetoothProtocolsPlugin::GetPlugin());
-const std::string EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
 
 void DisallowedBluetoothProtocolsPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisallowedBluetoothProtocolsPlugin, std::vector<int32_t>>> ptr)
@@ -150,7 +149,7 @@ void DisallowedBluetoothProtocolsPlugin::NotifyBluetoothProtocolsChanged()
 {
     EDMLOGD("DisallowedBluetoothProtocolsPlugin NotifyBluetoothProtocolsChanged.");
     AAFwk::Want want;
-    want.SetAction(EDM_CONFIG_CHANGED_EVENT);
+    want.SetAction(EdmConstants::EDM_CONFIG_CHANGED_EVENT);
     EventFwk::CommonEventData eventData;
     eventData.SetWant(want);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {

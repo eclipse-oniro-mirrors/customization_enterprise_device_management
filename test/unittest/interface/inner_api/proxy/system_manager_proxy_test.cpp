@@ -20,6 +20,7 @@
 #include "system_manager_proxy.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "func_code.h"
 #include "update_policy_utils.h"
 #include "utils.h"
 
@@ -435,6 +436,45 @@ HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledFail, Te
     int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabled(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedNearlinkProtocolsFail
+ * @tc.desc: Test AddOrRemoveDisallowedNearlinkProtocols without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> protocols;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(protocols);
+
+    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, FuncOperateType::SET);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveDisallowedNearlinkProtocolsSuc
+ * @tc.desc: Test AddOrRemoveDisallowedNearlinkProtocols success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<int32_t> protocols;
+    data.WriteParcelable(&admin);
+    data.WriteInt32Vector(protocols);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, FuncOperateType::SET);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

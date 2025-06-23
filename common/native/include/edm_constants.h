@@ -54,6 +54,7 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
     const char* const PERMISSION_TAG_NORMAL = "normal";
+    const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
@@ -277,6 +278,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_DISALLOWED_BLUETOOTH_PROTOCOLS = "disallowed_bluetooth_protocols";
+    const char* const POLICY_DISALLOWED_NEARLINK_PROTOCOLS = "disallowed_nearlink_protocols";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";

@@ -37,6 +37,10 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nUpgradeStatus));
     CreateUpgradeStatusObject(env, nUpgradeStatus);
 
+    napi_value nProtocol = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nProtocol));
+    CreateProtocolObject(env, nProtocol);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
@@ -47,12 +51,16 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUpdateAuthData", GetUpdateAuthData),
         DECLARE_NAPI_FUNCTION("setAutoUnlockAfterReboot", SetAutoUnlockAfterReboot),
         DECLARE_NAPI_FUNCTION("getAutoUnlockAfterReboot", GetAutoUnlockAfterReboot),
+        DECLARE_NAPI_FUNCTION("addDisallowedNearLinkProtocols", AddDisallowedNearlinkProtocols),
+        DECLARE_NAPI_FUNCTION("getDisallowedNearLinkProtocols", GetDisallowedNearlinkProtocols),
+        DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("setInstallLocalEnterpriseAppEnabled", SetInstallLocalEnterpriseAppEnabled),
         DECLARE_NAPI_FUNCTION("isInstallLocalEnterpriseAppEnabled", IsInstallLocalEnterpriseAppEnabled),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
         DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
+        DECLARE_NAPI_PROPERTY("Protocol", nProtocol),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -639,6 +647,101 @@ napi_value SystemManagerAddon::ConvertUpdateResultToJs(napi_env env, const Upgra
     return nUpgradeResult;
 }
 
+napi_value SystemManagerAddon::AddDisallowedNearlinkProtocols(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("NAPI_AddDisallowedNearlinkProtocols called");
+    return AddOrRemoveDisallowedNearlinkProtocols(env, info, FuncOperateType::SET);
+#else
+    EDMLOGW("SystemManagerAddon::AddDisallowedNearlinkProtocols Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::GetDisallowedNearlinkProtocols(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("NAPI_GetDisallowedNearlinkProtocols called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDisallowedNearlinkProtocols";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    std::vector<int32_t> protocols;
+    int32_t retCode = SystemManagerProxy::GetSystemManagerProxy()->
+        GetDisallowedNearlinkProtocols(adapterAddonData.data, protocols);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, protocols.size(), &jsList));
+    for (size_t i = 0; i < protocols.size(); i++) {
+        napi_value item;
+        NAPI_CALL(env, napi_create_int32(env, protocols[i], &item));
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+#else
+    EDMLOGW("SystemManagerAddon::GetDisallowedNearlinkProtocols Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::RemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("NAPI_RemoveDisallowedNearlinkProtocols called");
+    return AddOrRemoveDisallowedNearlinkProtocols(env, info, FuncOperateType::REMOVE);
+#else
+    EDMLOGW("SystemManagerAddon::RemoveDisallowedNearlinkProtocols Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
+    FuncOperateType operateType)
+{
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("NAPI_AddOrRemoveDisallowedNearlinkProtocols called");
+    auto convertNearlinkProtocol2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        std::vector<int32_t> nearlinkProtocols;
+        if (!ParseIntArray(env, nearlinkProtocols, argv)) {
+            EDMLOGE("NAPI_AddOrRemoveDisallowedNearlinkProtocols ParseIntArray fail");
+            return false;
+        }
+        data.WriteInt32Vector(nearlinkProtocols);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveDisallowedNearlinkProtocols";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, convertNearlinkProtocol2Data, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = SystemManagerProxy::GetSystemManagerProxy()->
+        AddOrRemoveDisallowedNearlinkProtocols(adapterAddonData.data, operateType);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+#else
+    EDMLOGW("SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+#endif
+    return nullptr;
+}
+
 napi_value SystemManagerAddon::SetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info)
 {
 #ifdef FEATURE_PC_ONLY
@@ -698,6 +801,17 @@ napi_value SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled(napi_env env, 
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+void SystemManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
+{
+    napi_value nSsap;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(NearlinkProtocol::SSAP), &nSsap));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SSAP", nSsap));
+    napi_value nDataTransfer;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(NearlinkProtocol::DATA_TRANSFER),
+    &nDataTransfer));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATA_TRANSFER", nDataTransfer));
 }
 
 static napi_module g_systemManagerModule = {

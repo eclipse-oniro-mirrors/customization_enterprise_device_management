@@ -18,6 +18,7 @@
 
 #include "enterprise_device_mgr_proxy.h"
 
+#include "func_code.h"
 #include "update_policy_utils.h"
 
 namespace OHOS {
@@ -38,6 +39,8 @@ public:
     int32_t GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData);
     int32_t SetInstallLocalEnterpriseAppEnabled(MessageParcel &data);
     int32_t IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
+    int32_t AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
 
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;
