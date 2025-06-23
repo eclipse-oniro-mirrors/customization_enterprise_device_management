@@ -176,7 +176,10 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
-    external_deps += [ "netmanager_base:net_conn_manager_if" ]
+    external_deps += [
+      "netmanager_base:net_conn_manager_if",
+      "core_service:tel_core_service_api",
+    ]
     sources += [
       "./src/disallowed_airplane_mode_plugin_test.cpp",
       "./src/domain_filter_rule_plugin_test.cpp",
@@ -268,7 +271,7 @@ ohos_unittest("EdmPluginTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
-      "./src/install_local_enterprise_app_enabled_plugin_test.cpp",
+      "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
     ]
   }
 
@@ -680,6 +683,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
+      "../../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
     ]
   }
 
