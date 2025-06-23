@@ -84,6 +84,7 @@ ErrCode TelephonyCallPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->Init(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
     DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->SetCallPolicyInfo(
         mergePolicies[EdmConstants::CallPolicy::OUTGOING].policyFlag,
         mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
