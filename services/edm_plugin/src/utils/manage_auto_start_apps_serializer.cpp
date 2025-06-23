@@ -148,7 +148,7 @@ bool ManageAutoStartAppsSerializer::Serialize(const std::vector<ManageAutoStartA
     char *cJsonStr = cJSON_Print(root);
     if (cJsonStr != nullptr) {
         policy = std::string(cJsonStr);
-        EDMLOGI("hhh ManageAutoStartAppsSerializer::Serialize : %{public}s.", policy.c_str());
+        EDMLOGI("ManageAutoStartAppsSerializer::Serialize : %{public}s.", policy.c_str());
         cJSON_free(cJsonStr);
     }
     cJSON_Delete(root);
