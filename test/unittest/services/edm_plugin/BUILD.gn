@@ -679,6 +679,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
+      "../../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
     ]
   }
 

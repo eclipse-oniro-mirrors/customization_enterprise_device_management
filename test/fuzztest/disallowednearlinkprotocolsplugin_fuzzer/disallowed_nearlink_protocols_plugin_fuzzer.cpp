@@ -15,16 +15,9 @@
 
 #include "disallowed_nearlink_protocols_plugin_fuzzer.h"
 
-#include <system_ability_definition.h>
-
 #include "disallowed_nearlink_protocols_plugin.h"
 
 #include "common_fuzzer.h"
-#include "edm_ipc_interface_code.h"
-#include "ienterprise_device_mgr.h"
-#include "func_code.h"
-#include "message_parcel.h"
-#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
