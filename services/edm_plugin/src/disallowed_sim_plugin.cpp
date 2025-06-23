@@ -109,8 +109,8 @@ ErrCode DisallowedSimPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     } else if (slotId == SOLT1_ID) {
         isDisable = system::GetBoolParameter(PARAM_DISABLE_SLOT1, false);
     } else {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(isDisable);
