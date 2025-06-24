@@ -392,6 +392,7 @@ void PluginManager::UnloadPlugin(const std::string &soName)
 {
     EDMLOGI("PluginManager::UnloadPlugin soName: %{public}s.", soName.c_str());
     std::vector<uint32_t>* targetVec = nullptr;
+    std::vector<uint32_t> extraPluginCodeList;
     if (soName == SONAME::DEVICE_CORE_PLUGIN_SO) {
         targetVec = &deviceCoreSoCodes_;
     } else if (soName == SONAME::COMMUNICATION_PLUGIN_SO) {
@@ -401,7 +402,6 @@ void PluginManager::UnloadPlugin(const std::string &soName)
     } else if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
         targetVec = &needExtraSoCodes_;
     } else {
-        std::vector<uint32_t> extraPluginCodeList;
         targetVec = &extraPluginCodeList;
         GetExtraPluginCodeList(targetVec);
         extensionPluginMap_.clear();
