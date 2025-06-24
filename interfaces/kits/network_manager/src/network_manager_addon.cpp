@@ -37,7 +37,6 @@ const std::set<std::string> ALL_APN_INFO_KEYS = {
     "apnName", "mcc", "mnc",
     "apn", "type", "user",
     "proxy", "mmsproxy", "authType",
-    "pwd"
 };
 const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "apnName", "profile_name" },
@@ -49,7 +48,6 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "mcc", "mcc" },
     { "mnc", "mnc" },
     { "apn", "apn" },
-    { "pwd", "auth_pwd" }
 };
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
@@ -1551,7 +1549,7 @@ napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
 #if defined(CELLULAR_DATA_EDM_ENABLE)
     auto checkStringIsNull = [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
         std::string apnId;
-        if (!ParseString(env, apnId, argv) || apnId == "") {
+        if (!ParseString(env, apnId, argv) || apnId.empty()) {
             return false;
         }
         return data.WriteString(apnId);
@@ -1605,7 +1603,7 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     KeyToField(apnInfoMap, apnInfoMapEx);
     ASSERT_AND_THROW_PARAM_ERROR(env, apnInfoMapEx.size() != 0, "No parameters to update");
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]) && apnId != "", "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]) && !apnId.empty(), "apnId param error");
     
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMapEx, apnId);
     if (FAILED(ret)) {
@@ -1639,7 +1637,7 @@ napi_value NetworkManagerAddon::SetPreferApn(napi_env env, napi_callback_info in
         "element name param error");
 
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_ONE]) && apnId != "", "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_ONE]) && !apnId.empty(), "apnId param error");
 
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetPreferApn(elementName, apnId);
     if (FAILED(ret)) {
@@ -1675,7 +1673,7 @@ napi_value NetworkManagerAddon::QueryApnInfoById(napi_env env, const OHOS::AppEx
     napi_value param)
 {
     std::string apnId;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param) && apnId != "", "apnId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, param) && !apnId.empty(), "apnId param error");
     std::map<std::string, std::string> apnInfo;
     int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->QueryApn(admin, apnId, apnInfo);
     if (FAILED(ret)) {
