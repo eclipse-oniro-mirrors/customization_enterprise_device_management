@@ -83,6 +83,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_remote_diagnosis_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
+      "./src/disallow_distributed_transmission_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
