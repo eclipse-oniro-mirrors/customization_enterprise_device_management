@@ -138,6 +138,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MMS = "mms";
         const char* const LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE = "backupAndRestore";
         const char* const LABEL_DISALLOWED_POLICY_APN = "setApn";
+        const char* const LABEL_DISALLOWED_POLICY_DISTRIBUTED_TRANSMISSION = "distributedTransmissionOutgoing";
         const char* const LABEL_DISALLOWED_POLICY_MOBILE_DATA = "mobileData";
         const char* const LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS = "powerLongPress";
         const char* const LABEL_DISALLOWED_POLICY_NFC = "nfc";
@@ -283,6 +284,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_SMS = "disallowed_sms";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION = "disallowed_distributed_transmission";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";

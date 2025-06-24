@@ -103,6 +103,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
       "./src/query_policy/disable_set_device_name_query.cpp",
       "./src/query_policy/disable_user_mtp_client_query.cpp",
+      "./src/query_policy/disallow_distributed_transmission_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
       "./src/query_policy/disallowed_tethering_query.cpp",

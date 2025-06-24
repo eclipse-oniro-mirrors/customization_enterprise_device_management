@@ -151,6 +151,7 @@
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
 #include "disable_user_mtp_client_query.h"
+#include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -565,6 +566,18 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        default:
+            break;
+    }
+    return GetPolicyQuerySeventh(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
+            obj = std::make_shared<DisallowDistributedTransmissionQuery>();
+            return ERR_OK;
         default:
             break;
     }

@@ -55,6 +55,7 @@
 #include "disable_user_mtp_client_query.h"
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
+#include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_airplane_mode_query.h"
 #include "disallowed_bluetooth_devices_query.h"
@@ -2002,6 +2003,46 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
     ASSERT_FALSE(result);
 }
 #endif
+
+/**
+ * @tc.name: TestDisallowDistributedTransmissionQuery001
+ * @tc.desc: Test DisallowDistributedTransmissionQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowDistributedTransmissionQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = true;
+    reply.ReadBool(result);
+    ASSERT_TRUE(!result);
+}
+
+/**
+ * @tc.name: TestDisallowDistributedTransmissionQuery002
+ * @tc.desc: Test DisallowDistributedTransmissionQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowDistributedTransmissionQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionQuery>();
+    std::string policyData("true");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
+}
 
 /**
  * @tc.name: TestDisableSetDeviceNameQuery001
