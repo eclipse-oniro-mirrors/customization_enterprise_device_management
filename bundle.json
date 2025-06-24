@@ -73,6 +73,7 @@
         "graphic_2d",
         "file_api",
         "ets_runtime",
+        "runtime_core",
         "eventhandler",
         "netmanager_base",
         "netmanager_ext",
