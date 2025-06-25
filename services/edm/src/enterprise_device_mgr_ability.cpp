@@ -444,6 +444,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
         isModeOn ? IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING : IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING);
     std::vector<std::shared_ptr<Admin>> admins;
     int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        return;
+    }
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
     for (const auto& admin : admins) {
         EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());

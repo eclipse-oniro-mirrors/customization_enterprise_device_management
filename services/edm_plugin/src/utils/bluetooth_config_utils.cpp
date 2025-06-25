@@ -177,8 +177,8 @@ bool BluetoothConfigUtils::loadConfig()
     if (inFile.good()) {
         EDMLOGI("BluetoothConfigUtils::loadConfig inFile.good");
         inFile.seekg(0, std::ios::end);
-        size_t size = inFile.tellg();
-        if (size == 0) {
+        std::streamsize size = inFile.tellg();
+        if (size <= 0) {
             inFile.close();
             root_ = cJSON_CreateObject();
             return true;
