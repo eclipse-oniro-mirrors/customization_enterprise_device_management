@@ -31,7 +31,7 @@ public:
     static bool UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin);
     static bool GetStringProperty(ani_env *env,  ani_object aniAdmin, const std::string &propertyName,
         std::string &property);
-    static bool SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_double value);
+    static bool SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value);
 
 private:
     static const std::unordered_map<int32_t, std::string> errMessageMap;

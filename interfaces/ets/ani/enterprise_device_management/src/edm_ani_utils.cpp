@@ -202,9 +202,9 @@ bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::Ele
     return true;
 }
 
-bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_double value)
+bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value)
 {
-    static const char *className = "Lstd/core/Double;";
+    static const char *className = "Lstd/core/Long;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EDMLOGE("Find class '%{public}s' failed", className);
@@ -212,7 +212,7 @@ bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::strin
     }
 
     ani_method ctor;
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "D:V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "J:V", &ctor)) {
         EDMLOGE("Find method '<ctor>' failed");
         return false;
     }

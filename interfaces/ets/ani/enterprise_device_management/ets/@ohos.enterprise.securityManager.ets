@@ -21,13 +21,13 @@ export default namespace securityManager {
 
     export interface PasswordPolicy {
         complexityRegex?: string;
-        validityPeriod?: number;
+        validityPeriod?: long;
         additionalDescription?: string;
     }
 
     export class PasswordPolicyInner implements PasswordPolicy {
         complexityRegex?: string = "";
-        validityPeriod?: number = 0;
+        validityPeriod?: long = 0;
         additionalDescription?: string = "";
     }
 
