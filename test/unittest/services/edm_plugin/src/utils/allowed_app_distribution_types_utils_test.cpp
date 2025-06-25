@@ -53,8 +53,11 @@ HWTEST_F(AllowedAppDistributionTypesUtilsTest, TestSetAppDistributionTypes001, T
     std::vector<int32_t> policyData;
     policyData.push_back(1);
     policyData.push_back(2);
-    ErrCode ret = allowedAppDistributionTypesUtils.SetAppDistributionTypes(policyData);
-    ASSERT_TRUE(ret == ERR_OK);
+    ErrCode ret1 = allowedAppDistributionTypesUtils.SetAppDistributionTypes(policyData);
+    ASSERT_TRUE(ret1 == ERR_OK);
+    std::vector<int32_t> emptyData;
+    ErrCode ret2 = allowedAppDistributionTypesUtils.SetAppDistributionTypes(emptyData);
+    ASSERT_TRUE(ret2 == ERR_OK);
 }
 }
 }
