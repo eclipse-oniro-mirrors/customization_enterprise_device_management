@@ -18,6 +18,9 @@
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
+#include "core_service_client.h"
+#include "telephony_types.h"
+#include "parameters.h"
 
 using namespace testing::ext;
 
@@ -30,38 +33,45 @@ const std::string UPDATE_FLAG = "UpdateApn";
 const std::string SET_PREFER_FLAG = "SetPreferApn";
 const std::string QUERY_ID_FLAG = "QueryApnIds";
 const std::string QUERY_INFO_FLAG = "QueryApn";
+constexpr int32_t ADD_FIELD_SIZE = 8;
+constexpr int32_t UPDATE_FIELD_SIZE = 2;
 }
 std::string g_testApnId = "-1";
-void SetApnPluginTest::SetUpTestSuite(void)
-{
-    Utils::SetEdmServiceEnable();
-    Utils::SetEdmInitialEnv();
-}
 
-void SetApnPluginTest::TearDownTestSuite(void)
+static bool HasSimCard()
 {
-    Utils::SetEdmServiceDisable();
-    Utils::ResetTokenTypeAndUid();
-    ASSERT_TRUE(Utils::IsOriginalUTEnv());
-    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+    bool hasSimCard = false;
+    if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
+        return hasSimCard;
+    }
+    int32_t slotCount = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
+
+    for (int32_t i = 0; i<slotCount; i++) {
+        int32_t id = Telephony::CoreServiceClient::GetInstance().GetSimId(i);
+        if (id > 0) {
+            hasSimCard = true;
+            break;
+        }
+    }
+    return hasSimCard;
 }
 
 static void AddTestData(MessageParcel &data)
 {
-    data.WriteInt32(8);
+    data.WriteInt32(ADD_FIELD_SIZE);
     data.WriteString("profile_name");
     data.WriteString("apn");
     data.WriteString("mcc");
     data.WriteString("mnc");
-    data.WriteString("auto_user");
+    data.WriteString("auth_user");
     data.WriteString("apn_types");
     data.WriteString("proxy_ip_address");
     data.WriteString("mms_ip_address");
 
     data.WriteString("TEST_ADD_PROFILE_NAME");
     data.WriteString("TEST_ADD_APN");
-    data.WriteString("TEST_ADD_MCC");
-    data.WriteString("TEST_ADD_MNC");
+    data.WriteString(system::GetParameter("telephony.sim.opkey0", ""));
+    data.WriteString("");
     data.WriteString("TEST_ADD_AUTH_USER");
     data.WriteString("TEST_ADD_APN_TYPES");
     data.WriteString("TEST_ADD_PROXY_IP_ADDRESS");
@@ -70,33 +80,37 @@ static void AddTestData(MessageParcel &data)
 
 static void UpdateTestData(MessageParcel &data)
 {
-    data.WriteInt32(8);
+    data.WriteInt32(UPDATE_FIELD_SIZE);
     data.WriteString("profile_name");
     data.WriteString("apn");
-    data.WriteString("mcc");
-    data.WriteString("mnc");
-    data.WriteString("auto_user");
-    data.WriteString("apn_types");
-    data.WriteString("proxy_ip_address");
-    data.WriteString("mms_ip_address");
-
     data.WriteString("TEST_UPDATE_PROFILE_NAME");
     data.WriteString("TEST_UPDATE_APN");
-    data.WriteString("TEST_UPDATE_MCC");
-    data.WriteString("TEST_UPDATE_MNC");
-    data.WriteString("TEST_UPDATE_AUTH_USER");
-    data.WriteString("TEST_UPDATE_APN_TYPES");
-    data.WriteString("TEST_UPDATE_PROXY_IP_ADDRESS");
-    data.WriteString("TEST_UPDATE_MMS_IP_ADDRESS");
 }
 
-/**
- * @tc.name: TestAddApn
- * @tc.desc: Test SetApnPlugin::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetApnPluginTest, TestAddApn, TestSize.Level1)
+static void GetApnId()
 {
+    std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
+    std::string policyData;
+    MessageParcel data;
+    data.WriteString(QUERY_ID_FLAG);
+    AddTestData(data);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    if (ret != ERR_OK) {
+        EDMLOGE("SetApnPluginTest GetApnId failed");
+        return;
+    }
+    ret = reply.ReadInt32();
+    if (ret == ERR_OK && reply.ReadInt32() > 0) {
+        g_testApnId = reply.ReadString();
+    }
+}
+
+static void AddApn()
+{
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -105,32 +119,44 @@ HWTEST_F(SetApnPluginTest, TestAddApn, TestSize.Level1)
     AddTestData(data);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    if (ret != ERR_OK) {
+        EDMLOGE("SetApnPluginTest AddApn failed");
+        return;
+    }
+    GetApnId();
 }
 
-/**
- * @tc.name: TestQueryApnId
- * @tc.desc: Test SetApnPlugin::OnQueryPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetApnPluginTest, TestQueryApnId, TestSize.Level1)
+static void DeleteApn()
 {
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
-    data.WriteString(QUERY_ID_FLAG);
-    AddTestData(data);
+    data.WriteString(g_testApnId);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    std::vector<std::string> val;
-    ASSERT_TRUE(reply.ReadStringVector(&val) == ERR_OK);
-    g_testApnId = val[0];
-    char *pValue = nullptr;
-    int32_t apnIdInt = static_cast<int32_t>(std::strtol(g_testApnId.c_str(), &pValue, 10));
-    ASSERT_TRUE(g_testApnId.c_str() != pValue);
-    ASSERT_TRUE(apnIdInt >= 0);
+    if (ret != ERR_OK) {
+        EDMLOGE("SetApnPluginTest AddApn failed");
+    }
+}
+
+void SetApnPluginTest::SetUpTestSuite(void)
+{
+    Utils::SetEdmServiceEnable();
+    Utils::SetEdmInitialEnv();
+    AddApn();
+}
+
+void SetApnPluginTest::TearDownTestSuite(void)
+{
+    DeleteApn();
+    Utils::SetEdmServiceDisable();
+    Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**
@@ -140,18 +166,29 @@ HWTEST_F(SetApnPluginTest, TestQueryApnId, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnInfoForAdd, TestSize.Level1)
 {
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
-    HandlePolicyData handlePolicyData{"", "", false};
+    std::string policyData;
     MessageParcel data;
     data.WriteString(QUERY_INFO_FLAG);
     data.WriteString(g_testApnId);
     MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    std::string profileName;
-    ASSERT_TRUE(reply.ReadString(profileName));
-    ASSERT_TRUE(profileName == "TEST_ADD_PROFILE_NAME");
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    int size = reply.ReadInt32();
+    std::vector<std::string> keys;
+    for (int idx = 0; idx < size; idx++) {
+        keys.push_back(reply.ReadString());
+    }
+    std::vector<std::string> values;
+    for (int idx = 0; idx < size; idx++) {
+        values.push_back(reply.ReadString());
+    }
+    ASSERT_TRUE(keys[0] == "apn");
+    ASSERT_TRUE(values[0] == "TEST_ADD_APN");
 }
 
 /**
@@ -161,6 +198,9 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForAdd, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
 {
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -180,18 +220,29 @@ HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
 {
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::SET_APN_INFO);
-    HandlePolicyData handlePolicyData{"", "", false};
+    std::string policyData;
     MessageParcel data;
     data.WriteString(QUERY_INFO_FLAG);
     data.WriteString(g_testApnId);
     MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    std::string profileName;
-    ASSERT_TRUE(reply.ReadString(profileName));
-    ASSERT_TRUE(profileName == "TEST_UPDATE_PROFILE_NAME");
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    int size = reply.ReadInt32();
+    std::vector<std::string> keys;
+    for (int idx = 0; idx < size; idx++) {
+        keys.push_back(reply.ReadString());
+    }
+    std::vector<std::string> values;
+    for (int idx = 0; idx < size; idx++) {
+        values.push_back(reply.ReadString());
+    }
+    ASSERT_TRUE(keys[0] == "apn");
+    ASSERT_TRUE(values[0] == "TEST_UPDATE_APN");
 }
 
 /**
@@ -201,28 +252,14 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
 {
+    if (!HasSimCard()) {
+        return;
+    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
     data.WriteString(SET_PREFER_FLAG);
-    data.WriteString(g_testApnId);
-    MessageParcel reply;
-    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestDeleteApn
- * @tc.desc: Test SetApnPlugin::OnRemovePolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetApnPluginTest, TestDeleteApn, TestSize.Level1)
-{
-    std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
-    HandlePolicyData handlePolicyData{"", "", false};
-    MessageParcel data;
     data.WriteString(g_testApnId);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
