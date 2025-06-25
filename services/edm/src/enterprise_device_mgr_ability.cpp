@@ -782,6 +782,7 @@ void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, 
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
 }
 
 std::shared_ptr<IEdmBundleManager> EnterpriseDeviceMgrAbility::GetBundleMgr()

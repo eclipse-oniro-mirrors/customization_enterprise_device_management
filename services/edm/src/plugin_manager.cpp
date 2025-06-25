@@ -115,6 +115,7 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
+    NotifyUnloadAllPlugin();
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
@@ -465,6 +466,21 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
     auto basicPlugin = GetPluginByCode(plugin->GetBasicPluginCode());
     if (basicPlugin != nullptr) {
         basicPlugin->ResetExtensionPlugin();
+    }
+}
+
+void PluginManager::NotifyUnloadAllPlugin()
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+    for (const auto& it : soLoadStateMap_) {
+        auto state = it.second;
+        if (state->pluginHasInit) {
+            state->pluginHasInit = false;
+            std::unique_lock<std::mutex> lock(state->waitMutex);
+            state->notifySignal = true;
+            state->lastCallTime = std::chrono::system_clock::time_point(std::chrono::milliseconds(0));
+            state->waitSignal.notify_one();
+        }
     }
 }
 
