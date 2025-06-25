@@ -53,9 +53,9 @@ export default namespace adminManager {
         taskpool.execute((): EnterpriseInfo => {
             return getEnterpriseInfoSync(admin);
         }).then((content: NullishType) => {
-            callback(new BusinessError<void>(), content as EnterpriseInfo);
+            callback(null, content as EnterpriseInfo);
         }).catch((err: BusinessError) : void => {
-            callback(err, new EnterpriseInfoInner("", ""));
+            callback(err, undefined);
         });
     }
 
