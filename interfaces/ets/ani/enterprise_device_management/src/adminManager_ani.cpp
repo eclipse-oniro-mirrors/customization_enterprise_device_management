@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace EDM {
 
-static const char* NAMESPACE_NAME = "L@ohos/enterprise/adminManager/adminManager;";
+static const char* NAMESPACE_NAME = "@ohos.enterprise.adminManager.adminManager";
 
 ani_status AdminManagerAni::Init(ani_env* env)
 {
@@ -59,7 +59,7 @@ ani_object AdminManagerAni::GetEnterpriseInfoSync(ani_env* env, ani_object aniAd
         return nullptr;
     }
 
-    const char *className = "L@ohos/enterprise/adminManager/adminManager/EnterpriseInfoInner;";
+    const char *className = "@ohos.enterprise.adminManager.adminManager.EnterpriseInfoInner";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EdmAniUtils::AniThrow(env, EdmReturnErrCode::PARAM_ERROR);
@@ -68,7 +68,7 @@ ani_object AdminManagerAni::GetEnterpriseInfoSync(ani_env* env, ani_object aniAd
     }
 
     ani_method ctor;
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lstd/core/String;:V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{std.core.String}:", &ctor)) {
         EdmAniUtils::AniThrow(env, EdmReturnErrCode::PARAM_ERROR);
         EDMLOGE("Find method '<ctor>' failed");
         return nullptr;
@@ -98,7 +98,7 @@ ani_object AdminManagerAni::GetSuperAdminSync(ani_env* env)
         return nullptr;
     }
 
-    const char *className = "L@ohos/app/ability/Want/Want;";
+    const char *className = "@ohos.app.ability.Want.Want";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EdmAniUtils::AniThrow(env, EdmReturnErrCode::PARAM_ERROR);
