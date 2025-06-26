@@ -382,6 +382,104 @@ HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase, TestSize.Level1)
     
     // Unload the plugin
     PluginManager::GetInstance()->UnloadPlugin(soName);
+    // Verify plugin is unloaded
+    EXPECT_EQ(PluginManager::GetInstance()->soLoadStateMap_.find(soName),
+              PluginManager::GetInstance()->soLoadStateMap_.end());
+}
+
+/**
+ * @tc.name: TestUnloadPlugin_NormalCase2
+ * @tc.desc: Test PluginManager UnloadPlugin func with normal case.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase2, TestSize.Level1)
+{
+    // Load a plugin first
+    std::string soName = SONAME::COMMUNICATION_PLUGIN_SO;
+    PluginManager::GetInstance()->LoadPlugin(soName);
+    
+    // Verify plugin is loaded
+    auto loadState = PluginManager::GetInstance()->soLoadStateMap_[soName];
+    ASSERT_TRUE(loadState != nullptr);
+    ASSERT_TRUE(loadState->pluginHasInit);
+    
+    // Unload the plugin
+    PluginManager::GetInstance()->UnloadPlugin(soName);
+    
+    // Verify plugin is unloaded
+    EXPECT_EQ(PluginManager::GetInstance()->soLoadStateMap_.find(soName),
+              PluginManager::GetInstance()->soLoadStateMap_.end());
+}
+
+/**
+ * @tc.name: TestUnloadPlugin_NormalCase3
+ * @tc.desc: Test PluginManager UnloadPlugin func with normal case.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase3, TestSize.Level1)
+{
+    // Load a plugin first
+    std::string soName = SONAME::SYS_SERVICE_PLUGIN_SO;
+    PluginManager::GetInstance()->LoadPlugin(soName);
+    
+    // Verify plugin is loaded
+    auto loadState = PluginManager::GetInstance()->soLoadStateMap_[soName];
+    ASSERT_TRUE(loadState != nullptr);
+    ASSERT_TRUE(loadState->pluginHasInit);
+    
+    // Unload the plugin
+    PluginManager::GetInstance()->UnloadPlugin(soName);
+    
+    // Verify plugin is unloaded
+    EXPECT_EQ(PluginManager::GetInstance()->soLoadStateMap_.find(soName),
+              PluginManager::GetInstance()->soLoadStateMap_.end());
+}
+
+/**
+ * @tc.name: TestUnloadPlugin_NormalCase4
+ * @tc.desc: Test PluginManager UnloadPlugin func with normal case.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase4, TestSize.Level1)
+{
+    // Load a plugin first
+    std::string soName = SONAME::NEED_EXTRA_PLUGIN_SO;
+    PluginManager::GetInstance()->LoadPlugin(soName);
+    
+    // Verify plugin is loaded
+    auto loadState = PluginManager::GetInstance()->soLoadStateMap_[soName];
+    ASSERT_TRUE(loadState != nullptr);
+    ASSERT_TRUE(loadState->pluginHasInit);
+    
+    // Unload the plugin
+    PluginManager::GetInstance()->UnloadPlugin(soName);
+    
+    // Verify plugin is unloaded
+    EXPECT_EQ(PluginManager::GetInstance()->soLoadStateMap_.find(soName),
+              PluginManager::GetInstance()->soLoadStateMap_.end());
+}
+
+/**
+ * @tc.name: TestUnloadPlugin_NormalCase5
+ * @tc.desc: Test PluginManager UnloadPlugin func with normal case.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase5, TestSize.Level1)
+{
+    // Load a plugin first
+    PluginManager::GetInstance()->LoadExtraPlugin();
+    if (PluginManager::GetInstance()->soLoadStateMap_.empty()) {
+        return;
+    }
+
+    std::string soName = PluginManager::GetInstance()->soLoadStateMap_.begin()->first;
+    // Verify plugin is loaded
+    auto loadState = PluginManager::GetInstance()->soLoadStateMap_[soName];
+    ASSERT_TRUE(loadState != nullptr);
+    ASSERT_TRUE(loadState->pluginHasInit);
+    
+    // Unload the plugin
+    PluginManager::GetInstance()->UnloadPlugin(soName);
     
     // Verify plugin is unloaded
     EXPECT_EQ(PluginManager::GetInstance()->soLoadStateMap_.find(soName),

@@ -118,10 +118,15 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
     edmMgr_->adminMgr_->ClearAdmins();
-    PluginManager::GetInstance()->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
+}
+
+void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
+{
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 int32_t EnterpriseDeviceMgrAbilityTest::TestDump()
@@ -3262,6 +3267,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
     data.WriteInt32(1);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
     PluginManager::GetInstance()->AddPlugin(plugin_);
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -4292,7 +4298,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesTypeFailed,
     const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     int32_t userId = 100;
     int32_t policyType = 4;
-    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }

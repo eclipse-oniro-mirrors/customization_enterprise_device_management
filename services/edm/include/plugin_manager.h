@@ -62,6 +62,7 @@ public:
     void LoadPluginByCode(uint32_t code);
     void LoadPluginByFuncCode(uint32_t funcCode);
     void DumpPlugin();
+    void NotifyUnloadAllPlugin();
 
 private:
     std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
