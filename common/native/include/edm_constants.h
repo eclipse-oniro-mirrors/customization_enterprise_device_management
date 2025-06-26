@@ -96,6 +96,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOW_NEAR_LINK = 18;
         constexpr uint32_t DISABLE_DEVELOPER_MODE = 20;
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
+        constexpr uint32_t DISABLE_OTA = 23;
     }
 
     namespace KeepAlive {
@@ -151,6 +152,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
+        const char* const LABEL_DISALLOWED_POLICY_OTA = "otaUpdate";
     } // namespace Restrictions
 
     namespace SecurityManager {
