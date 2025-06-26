@@ -25,9 +25,10 @@ namespace OHOS {
 namespace EDM {
 class ApnUtils {
 public:
-    static int32_t ApnInsert(const std::map<std::string, std::string> &apnInfo);
+    static int32_t ApnInsert(const std::map<std::string, std::string> &apnInfo, const char *pwd, int32_t pwdLen);
     static int32_t ApnDelete(const std::string &apnId);
-    static int32_t ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId);
+    static int32_t ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId,
+        const char *pwd, int32_t pwdLen);
     static std::vector<std::string> ApnQuery(const std::map<std::string, std::string> &apnInfo);
     static std::map<std::string, std::string> ApnQuery(const std::string &apnId);
     static int32_t ApnSetPrefer(const std::string &apnId);
