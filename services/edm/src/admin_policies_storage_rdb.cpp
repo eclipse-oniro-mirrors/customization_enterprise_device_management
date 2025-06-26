@@ -313,8 +313,7 @@ void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, 
     if (stringInfo.empty() || stringInfo == "null") {
         return;
     }
-    cJSON *jsonInfo = nullptr;
-    ConvertStrToJson(stringInfo, jsonInfo);
+    cJSON *jsonInfo = cJSON_Parse(stringInfo.c_str());
     if (jsonInfo == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::SetAdminStringInfo failed: JSON parsing failed.");
         return;
@@ -382,8 +381,7 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
         return;
     }
 
-    cJSON* managedEventsJson = nullptr;
-    ConvertStrToJson(managedEventsStr, managedEventsJson);
+    cJSON* managedEventsJson = cJSON_Parse(managedEventsStr.c_str());
     if (managedEventsJson == nullptr) {
         return;
     }

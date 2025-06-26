@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace EDM {
 
-bool BitSerializer::MergePolicy(std::vector<int32_t> &data, int32_t &result)
+bool BitSerializer::MergePolicy(std::vector<uint32_t> &data, uint32_t &result)
 {
     for (const auto &policy : data) {
         if (policy >= 0) {
