@@ -23,6 +23,7 @@ namespace EDM {
 struct ApnPassword {
     char* password = nullptr;
     size_t passwordSize = 0;
+    static constexpr size_t MAX_PASSWORD_SIZE = SCHAR_MAX;
 
     ~ApnPassword()
     {

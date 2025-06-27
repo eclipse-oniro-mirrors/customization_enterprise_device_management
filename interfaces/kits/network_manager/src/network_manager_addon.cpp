@@ -1528,9 +1528,14 @@ static bool ParsePwd(napi_env env, napi_value args, ApnPassword &apnPassword)
         return false;
     }
 
-    apnPassword.password = new (std::nothrow) char[apnPassword.passwordSize + 1];
+    if (apnPassword.passwordSize > ApnPassword::MAX_PASSWORD_SIZE) {
+        EDMLOGE("ParsePwd: The password length exceeds the limit.");
+        return false;
+    }
+
+    apnPassword.password = static_cast<char *>(calloc(apnPassword.passwordSize + 1, 1));
     if (!apnPassword.password) {
-        EDMLOGE("ParsePwd: malloc failed.");
+        EDMLOGE("ParsePwd: calloc failed.");
         return false;
     }
 
