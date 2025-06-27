@@ -18,17 +18,32 @@
 
 #include <string>
 #include <memory>
+
 #include "datashare_helper.h"
 #include "cellular_data_client.h"
+#include "securec.h"
+#include "apn_password.h"
 
 namespace OHOS {
 namespace EDM {
+struct ApnUtilsPassword : ApnPassword {
+    ~ApnUtilsPassword()
+    {
+        if (password != nullptr) {
+            memset_s(password, passwordSize, 0, passwordSize);
+            password = nullptr;
+        }
+        passwordSize = 0;
+    }
+};
+
 class ApnUtils {
 public:
-    static int32_t ApnInsert(const std::map<std::string, std::string> &apnInfo, const char *pwd, int32_t pwdLen);
+    static int32_t ApnInsert(const std::map<std::string, std::string> &apnInfo,
+        const ApnUtilsPassword &apnUtilsPassword);
     static int32_t ApnDelete(const std::string &apnId);
     static int32_t ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId,
-        const char *pwd, int32_t pwdLen);
+        const ApnUtilsPassword &apnUtilsPassword);
     static std::vector<std::string> ApnQuery(const std::map<std::string, std::string> &apnInfo);
     static std::map<std::string, std::string> ApnQuery(const std::string &apnId);
     static int32_t ApnSetPrefer(const std::string &apnId);

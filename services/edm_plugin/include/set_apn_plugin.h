@@ -44,7 +44,7 @@ private:
     ErrCode HandleRemove(MessageParcel &data);
     ErrCode QueryId(MessageParcel &data, MessageParcel &reply);
     ErrCode QueryInfo(MessageParcel &data, MessageParcel &reply);
-    std::map<std::string, std::string> ParserApnMap(MessageParcel &data, const char **pwd, int32_t *pwdLen);
+    std::map<std::string, std::string> ParserApnMap(MessageParcel &data, ApnUtilsPassword &apnUtilsPassword);
     void GenerateApnMap(std::map<std::string, std::string> &apnInfo, MessageParcel &reply);
 };
 } // namespace EDM

@@ -39,7 +39,8 @@ std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateDataAbilityHelper()
     return DataShare::DataShareHelper::Creator(remoteObject, PDP_PROFILE_BASE_URI);
 }
 
-int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo, const char *pwd, int32_t pwdLen)
+int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo,
+    const ApnUtilsPassword &apnUtilsPassword)
 {
     EDMLOGI("ApnUtils::ApnInsert start");
     auto helper = CreateDataAbilityHelper();
@@ -47,8 +48,8 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo, c
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
-    if (pwd != nullptr) {
-        values.Put("auth_pwd", std::string(pwd));
+    if (apnUtilsPassword.password != nullptr) {
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password));
     }
     Uri uri(PDP_PROFILE_URI);
     int32_t ret = helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -67,7 +68,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
 }
 
 int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId,
-    const char *pwd, int32_t pwdLen)
+    const ApnUtilsPassword &apnUtilsPassword)
 {
     EDMLOGI("ApnUtils::ApnUpdate start");
     auto helper = CreateDataAbilityHelper();
@@ -75,8 +76,8 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
-    if (pwd != nullptr) {
-        values.Put("auth_pwd", std::string(pwd));
+    if (apnUtilsPassword.password != nullptr) {
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password));
     }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);

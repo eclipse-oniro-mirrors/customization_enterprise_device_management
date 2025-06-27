@@ -68,11 +68,10 @@ ErrCode SetApnPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data
 ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleAdd start");
-    const char *pwd = nullptr;
-    int32_t pwdLen = -1;
+    ApnUtilsPassword apnUtilsPassword;
     ErrCode ret = ERR_OK;
     do {
-        std::map<std::string, std::string> apnInfo = ParserApnMap(data, &pwd, &pwdLen);
+        std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
         if (apnInfo.size() == 0) {
             ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
             break;
@@ -89,12 +88,9 @@ ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
             ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
             break;
         }
-        ret = ApnUtils::ApnInsert(apnInfo, pwd, pwdLen);
+        ret = ApnUtils::ApnInsert(apnInfo, apnUtilsPassword);
     } while (0);
 
-    if (pwd != nullptr) {
-        pwd = nullptr;
-    }
     return ret;
 }
 
@@ -102,17 +98,16 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleUpdate start");
     std::string apnId;
-    const char *pwd = nullptr;
-    int32_t pwdLen = -1;
+    ApnUtilsPassword apnUtilsPassword;
     if (data.ReadString(apnId)) {
         if (apnId.empty()) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        std::map<std::string, std::string> apnInfo = ParserApnMap(data, &pwd, &pwdLen);
+        std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
         if (apnInfo.size() == 0) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        return ApnUtils::ApnUpdate(apnInfo, apnId, pwd, pwdLen);
+        return ApnUtils::ApnUpdate(apnInfo, apnId, apnUtilsPassword);
     } else {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -146,7 +141,7 @@ ErrCode SetApnPlugin::HandleRemove(MessageParcel &data)
     }
 }
 
-std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &data, const char **pwd, int32_t *pwdLen)
+std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &data, ApnUtilsPassword &apnPassword)
 {
     EDMLOGI("SetApnPlugin::ParserApnMap start");
     std::map<std::string, std::string> result;
@@ -166,17 +161,12 @@ std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &dat
     for (int32_t idx = 0; idx < mapSize; ++idx) {
         result[keys[idx]] = values[idx];
     }
-    int32_t pwdLenTmp = data.ReadInt32();
-    const char *pwdTmp = nullptr;
-    if (pwdLenTmp >= 0) {
-        pwdTmp = data.ReadCString();
+    int32_t pwdLen = data.ReadInt32();
+    if (pwdLen >= 0) {
+        apnPassword.passwordSize = static_cast<int32_t>(pwdLen);
+        apnPassword.password = const_cast<char *>(data.ReadCString());
     }
-    if (pwdLen != nullptr) {
-        *pwdLen = pwdLenTmp;
-    }
-    if (pwd != nullptr) {
-        *pwd = pwdTmp;
-    }
+    data.RewindRead(0);
     return result;
 }
 
@@ -243,7 +233,8 @@ ErrCode SetApnPlugin::QueryInfo(MessageParcel &data, MessageParcel &reply)
 ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SetApnPlugin::QueryId start");
-    std::map<std::string, std::string> apnInfo = ParserApnMap(data, nullptr, nullptr);
+    ApnUtilsPassword apnUtilsPassword;
+    std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
     std::vector<std::string> result = ApnUtils::ApnQuery(apnInfo);
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(static_cast<int32_t>(result.size()));
