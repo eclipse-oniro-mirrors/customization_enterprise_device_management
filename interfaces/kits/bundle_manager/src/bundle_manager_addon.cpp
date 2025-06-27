@@ -912,6 +912,7 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
     int32_t ret = bundleManagerProxy->GetBundlesByPolicyType(elementName, accountId, appIds, policyType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
+        return nullptr;
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_array(env, &result));

@@ -167,6 +167,7 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
         asyncCallbackInfo->appId, policies);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
+        return nullptr;
     }
     napi_value res;
     NAPI_CALL(env, napi_create_string_utf8(env, policies.c_str(), NAPI_AUTO_LENGTH, &res));
