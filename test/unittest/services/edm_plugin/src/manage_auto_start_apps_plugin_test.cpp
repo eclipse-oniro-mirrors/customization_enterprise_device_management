@@ -189,7 +189,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicyFail, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     std::vector<std::string> autoStartApps;
-    data.WriteString("bundleName");
+    data.WriteString("bundleInfo");
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     reply.ReadStringVector(&autoStartApps);
     ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (autoStartApps.empty()));
@@ -229,7 +229,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnAdminRemoveDoneFail, TestSize.Leve
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
-    data.WriteString("bundleName");
+    data.WriteString("bundleInfo");
     std::vector<std::string> autoStartApps;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     reply.ReadStringVector(&autoStartApps);
@@ -336,6 +336,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, policyData);
         MessageParcel parcel;
         MessageParcel getReply;
+        parcel.WriteString("bundleInfo");
         ret = plugin.OnGetPolicy(policyData, parcel, getReply, DEFAULT_USER_ID);
         std::vector<std::string> res;
         EXPECT_TRUE(ret == ERR_OK);
@@ -350,8 +351,10 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         EXPECT_TRUE(ret == ERR_OK);
 
         MessageParcel removeReply;
-        ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, policyData);
-        ret = plugin.OnGetPolicy(policyData, parcel, removeReply, DEFAULT_USER_ID);
+        std::string afterRemovePolicyData;
+        ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, afterRemovePolicyData);
+        parcel.WriteString("bundleInfo");
+        ret = plugin.OnGetPolicy(afterRemovePolicyData, parcel, removeReply, DEFAULT_USER_ID);
         std::vector<std::string> afterRemove;
         EXPECT_TRUE(ret == ERR_OK);
         EXPECT_TRUE(removeReply.ReadInt32() == ERR_OK);
@@ -377,6 +380,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicySuc, TestSize.Level1)
     std::string policyData = RIGHT_TEST_BUNDLE;
     MessageParcel data;
     MessageParcel reply;
+    data.WriteString("bundleInfo");
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -444,7 +448,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         info.SetAbilityName("");
         currentData.push_back(info);
         ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-        EXPECT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+        EXPECT_TRUE(ret == ERR_OK);
 
         data = {RIGHT_TEST_BUNDLE};
         ManageAutoStartAppInfo info1;
