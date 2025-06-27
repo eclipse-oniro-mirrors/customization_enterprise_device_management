@@ -110,10 +110,6 @@
 #include "disallow_power_long_press_query.h"
 #endif
 
-#ifdef NFC_EDM_ENABLE
-#include "disallowed_nfc_query.h"
-#endif
-
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "disallowed_airplane_mode_query.h"
 #endif
@@ -614,13 +610,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISABLE_SAMBA_SERVER:
 #ifdef SAMBA_EDM_ENABLE
             obj = std::make_shared<DisableSambaServerQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOWED_NFC:
-#ifdef NFC_EDM_ENABLE
-            obj = std::make_shared<DisallowedNFCQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

@@ -90,7 +90,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
     "../../../../services/edm/src/query_policy/disallowed_sms_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_mms_query.cpp",
-    "../../../../services/edm/src/query_policy/disallowed_nfc_query.cpp",
   ]
 
   public_configs = [
