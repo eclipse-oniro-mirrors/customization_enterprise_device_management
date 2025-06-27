@@ -81,6 +81,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_VPN,
     EdmInterfaceCode::DISALLOWED_NOTIFICATION,
     EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
