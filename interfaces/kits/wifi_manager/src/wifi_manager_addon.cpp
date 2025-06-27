@@ -738,6 +738,7 @@ napi_value WifiManagerAddon::IsWifiActiveHandler(napi_env env,
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
     if (execute != nullptr) {
+        addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
         return AddonMethodAdapter(env, info, addonMethodSign, execute, NativeBoolCallbackComplete);
     }
     AdapterAddonData adapterAddonData{};
@@ -788,8 +789,9 @@ napi_value WifiManagerAddon::SetWifiProfileHandler(napi_env env,
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {nullptr, convertWifiDeviceConfigAndPwd2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
     if (execute != nullptr) {
+        addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_11;
         return AddonMethodAdapter(env, info, addonMethodSign, execute, NativeVoidCallbackComplete);
     }
     AdapterAddonData adapterAddonData{};
