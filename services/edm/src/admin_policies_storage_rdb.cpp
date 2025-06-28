@@ -182,7 +182,7 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
 
     if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
         cJSON *policiesArray = nullptr;
-        CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
+        CJSON_CREATE_ARRAY_AND_CHECK_VOID(policiesArray);
         for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
             cJSON* itemJson = cJSON_CreateString(policy.c_str());
             if (itemJson == nullptr) {
