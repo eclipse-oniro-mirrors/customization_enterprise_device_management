@@ -155,6 +155,7 @@ private:
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
+    bool CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug);
     void InitAllAdmins();
     void InitAllPolices();
     void RemoveAllDebugAdmin();
