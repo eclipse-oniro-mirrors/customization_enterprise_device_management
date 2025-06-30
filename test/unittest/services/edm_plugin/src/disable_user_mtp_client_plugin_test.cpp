@@ -61,7 +61,16 @@ HWTEST_F(DisableUserMtpClientPluginTest, TestDisableUserMtpClientPluginTestSet, 
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_USER_MTP_CLIENT);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyData.policyData == "true");
+    ASSERT_TRUE(handlePolicyData.isChanged);
+
+    // 恢复环境，取消禁用
+    MessageParcel dataFalse;
+    dataFalse.WriteBool(false);
+    HandlePolicyData handlePolicyDataFalse{"true", "", false};
+    ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

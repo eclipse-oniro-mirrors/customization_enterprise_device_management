@@ -92,16 +92,8 @@ ErrCode DisableUserMtpClientPlugin::SetMtpClientPolicy(bool policy, int32_t user
     EDMLOGI("DisableUserMtpClientPlugin::SetMtpClientPolicy, userId: %{public}d, policy: %{public}d", userId, policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_MTP_CLIENT_WRITE);
-    int32_t enforcerId = -1;
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    ErrCode result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, enforcerId);
-    EDMLOGI("DisableUserMtpClientPlugin::SetMtpClientPolicy, GetOsAccountLocalIdFromUid result: %{public}d, "
-            "enforcerId: %{public}d", result, enforcerId);
-    if (FAILED(result)) {
-        return result;
-    }
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,
-        enforcerId, true);
+        EdmConstants::DEFAULT_USER_ID, true);
     EDMLOGI("DisableUserMtpClientPlugin::SetMtpClientPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
     return ret;
 }
