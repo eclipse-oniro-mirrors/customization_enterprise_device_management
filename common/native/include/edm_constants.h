@@ -97,6 +97,7 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_DEVELOPER_MODE = 20;
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
         constexpr uint32_t DISABLE_OTA = 23;
+        constexpr uint32_t DISALLOWED_NFC = 24;
     }
 
     namespace KeepAlive {
@@ -357,7 +358,6 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
-    const char* const POLICY_DISALLOWED_NFC = "disallowed_nfc";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

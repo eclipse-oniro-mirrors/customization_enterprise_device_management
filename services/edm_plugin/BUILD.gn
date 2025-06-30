@@ -384,10 +384,6 @@ ohos_shared_library("communication_plugin") {
         "./src/disallowed_sms_plugin.cpp",
       ]
     }
-
-    if (nfc_edm_enable) {
-      sources += [ "./src/disallowed_nfc_plugin.cpp" ]
-    }
   }
 
   deps = [
