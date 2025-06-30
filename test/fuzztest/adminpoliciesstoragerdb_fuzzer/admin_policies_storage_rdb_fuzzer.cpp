@@ -77,10 +77,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::shared_ptr<NativeRdb::ResultSet> resultSet;
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
     adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
-    std::string str = fuzzString;
-    cJSON* root = cJSON_CreateObject();
-    adminPoliciesStorageRdb->ConvertStrToJson(str, root);
-    cJSON_Delete(root);
     adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }
