@@ -42,18 +42,18 @@ ErrCode DisableMtpClientPlugin::OnSetPolicy(bool &data, bool &currentData, bool 
 {
     EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, mergeData: %{public}d, "
             "userId: %{public}d", data, currentData, mergeData, userId);
-    std::vector<int> activatedOsAccountIds;
-    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activatedOsAccountIds);
-    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryActiveOsAccountIds ret: %{public}d", ret);
-    if (FAILED(ret)) {
-        EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryActiveOsAccountIds failed");
+    std::vector<AccountSA::OsAccountInfo> accounts;
+    ErrCode ret = OHOS::AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accounts);
+    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryAllCreatedOsAccounts ret: %{public}d", ret);
+    if (FAILED(ret) || accounts.empty()) {
+        EDMLOGE("DisableMtpClientPlugin::OnSetPolicy, QueryAllCreatedOsAccounts failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    for (size_t i = 0; i < activatedOsAccountIds.size(); i++) {
+    for (size_t i = 0; i < accounts.size(); i++) {
         auto policyManager = IPolicyManager::GetInstance();
         std::string disableUserMtpClientPolicy;
         policyManager->GetPolicy("", PolicyName::POLICY_DISABLED_USER_MTP_CLIENT, disableUserMtpClientPolicy,
-            activatedOsAccountIds[i]);
+            accounts[i].GetLocalId());
         if (disableUserMtpClientPolicy == "true" && data == true) { // 如果用户级存在只读策略时，设备级想设置为禁用策略，则返回策略冲突
             EDMLOGE("DisableMtpClientPlugin configuration conflict");
             return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
