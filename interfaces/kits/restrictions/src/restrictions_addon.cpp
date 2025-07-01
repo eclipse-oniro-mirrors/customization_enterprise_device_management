@@ -100,6 +100,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY,
+        EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

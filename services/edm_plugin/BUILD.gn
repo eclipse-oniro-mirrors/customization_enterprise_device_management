@@ -104,6 +104,7 @@ ohos_shared_library("device_core_plugin") {
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
+      "./src/disallow_export_recovery_key_plugin.cpp",
       "./src/disallowed_nearlink_protocols_plugin.cpp",
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",

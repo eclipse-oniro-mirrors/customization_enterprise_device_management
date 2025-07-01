@@ -154,6 +154,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
         const char* const LABEL_DISALLOWED_POLICY_OTA = "otaUpdate";
+        const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -288,6 +289,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION = "disallowed_distributed_transmission";
+    const char* const POLICY_DISALLOWED_EXPORT_RECOVERY_KEY = "disallowed_export_recovery_key";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
