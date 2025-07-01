@@ -32,6 +32,9 @@ std::string PasswordPolicyQuery::GetPolicyName()
 
 std::string PasswordPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
+    if (permissionTag == EdmConstants::PERMISSION_TAG_SYSTEM_API) {
+        return "";
+    }
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY;
 }
 
