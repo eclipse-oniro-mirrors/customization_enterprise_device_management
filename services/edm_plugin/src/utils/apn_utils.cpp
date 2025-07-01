@@ -113,12 +113,12 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
             mccmnc = ApnQuery(apnId)["mcc"] + apnInfo.at("mnc");
         }
         values.Put("mccmnc", mccmnc);
+        std::string opkey;
+        if (GetOpkey(mccmnc, opkey) != ERR_OK) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        values.Put("opkey", opkey);
     }
-    std::string opkey;
-    if (GetOpkey(mccmnc, opkey) != ERR_OK) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    values.Put("opkey", opkey);
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
