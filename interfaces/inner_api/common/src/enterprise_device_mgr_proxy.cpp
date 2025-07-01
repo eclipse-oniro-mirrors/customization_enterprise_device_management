@@ -61,6 +61,13 @@ bool EnterpriseDeviceMgrProxy::IsEdmEnabled()
     return edmParaValue == "true";
 }
 
+bool EnterpriseDeviceMgrProxy::IsEdmExtEnabled()
+{
+    std::string edmExtParaValue = system::GetParameter("persist.edm.edm_ext_enable", "false");
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetParameter %{public}s", edmExtParaValue.c_str());
+    return edmExtParaValue == "true";
+}
+
 ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {

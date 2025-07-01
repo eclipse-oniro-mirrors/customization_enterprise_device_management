@@ -32,6 +32,7 @@ ohos_shared_library("edm_commom") {
     "./src/plugin_utils/firewall_rule.cpp",
     "./src/plugin_utils/iptables_utils.cpp",
     "./src/plugin_utils/message_parcel_utils.cpp",
+    "./src/plugin_utils/password_policy_utils.cpp",
     "./src/security_report.cpp",
     "./src/usb_device_id.cpp",
     "./src/wifi_id.cpp",

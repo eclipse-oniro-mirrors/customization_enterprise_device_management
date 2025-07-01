@@ -18,6 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
+#include "password_policy_utils.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
@@ -48,6 +49,11 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
     SetGlobalConfigParam(policy);
     currentData = policy;
     mergeData = policy;
+    PasswordPolicyUtils passwordPolicyUtils;
+    if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
+        EDMLOGE("LocationPolicyPlugin set location failed. UpdatePasswordPolicy error.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
@@ -61,6 +67,11 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != ERR_OK) {
         EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    PasswordPolicyUtils passwordPolicyUtils;
+    if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
+        EDMLOGE("LocationPolicyPlugin set location failed. UpdatePasswordPolicy error.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
