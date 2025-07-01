@@ -191,6 +191,7 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
+    Uri uri((PDP_PROFILE_URI));
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
         EDMLOGE("QueryApnResultSet error");
