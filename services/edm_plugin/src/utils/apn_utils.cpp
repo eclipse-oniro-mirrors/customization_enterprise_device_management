@@ -44,7 +44,7 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
     auto helper = CreateDataAbilityHelper();
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo("mccmnc", mccmnc);
-    Uri uri(OPKEY_URI);
+    Uri uri((OPKEY_URI));
     std::vector<std::string> columns;
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
@@ -81,7 +81,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     values.Put("opkey", opkey);
-    Uri uri(PDP_PROFILE_URI);
+    Uri uri((PDP_PROFILE_URI));
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
@@ -91,7 +91,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
     auto helper = CreateDataAbilityHelper();
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
-    Uri uri(PDP_PROFILE_URI);
+    Uri uri((PDP_PROFILE_URI));
     return helper->Delete(uri, predicates) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
@@ -121,7 +121,7 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     values.Put("opkey", opkey);
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
-    Uri uri(PDP_PROFILE_URI);
+    Uri uri((PDP_PROFILE_URI));
     return helper->Update(uri, predicates, values) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
@@ -142,7 +142,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
     for (const auto & [key, value] : apnInfo) {
         predicates.EqualTo(key, value);
     }
-    Uri uri(std::string(PDP_PROFILE_URI));
+    Uri uri((PDP_PROFILE_URI));
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
         EDMLOGE("QueryApnId error");
