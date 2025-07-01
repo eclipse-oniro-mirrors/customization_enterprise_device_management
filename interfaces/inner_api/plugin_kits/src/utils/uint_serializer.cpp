@@ -15,6 +15,7 @@
 
 #include "uint_serializer.h"
 
+#include <charconv>
 #include <string_ex.h>
 #include "edm_constants.h"
 
@@ -23,17 +24,10 @@ namespace EDM {
 
 bool UIntSerializer::Deserialize(const std::string &jsonString, uint32_t &dataObj)
 {
-    dataObj = 0;
-    if (jsonString.empty()) {
-        return true;
-    }
-    char* endptr;
-    errno = 0;
-    dataObj = strtol(jsonString.c_str(), &endptr, EdmConstants::DECIMAL);
-    if (errno == ERANGE || endptr == jsonString.c_str() || *endptr != '\0') {
-        return false;
-    }
-    return true;
+    const char* begin = jsonString.data();
+    const char* end = begin + jsonString.size();
+    auto [ptr, ec] = std::from_chars(begin, end, dataObj);
+    return (ec == std::errc() && ptr == end);
 }
 
 bool UIntSerializer::Serialize(const uint32_t &dataObj, std::string &jsonString)
@@ -44,13 +38,13 @@ bool UIntSerializer::Serialize(const uint32_t &dataObj, std::string &jsonString)
 
 bool UIntSerializer::GetPolicy(MessageParcel &data, uint32_t &result)
 {
-    result = data.ReadInt32();
+    result = data.ReadUint32();
     return true;
 }
 
 bool UIntSerializer::WritePolicy(MessageParcel &reply, uint32_t &result)
 {
-    return reply.WriteInt32(result);
+    return reply.WriteUint32(result);
 }
 
 bool UIntSerializer::MergePolicy(std::vector<uint32_t> &data, uint32_t &result)

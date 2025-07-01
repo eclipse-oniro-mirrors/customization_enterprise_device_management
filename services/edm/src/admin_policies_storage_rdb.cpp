@@ -400,16 +400,5 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
     
     cJSON_Delete(managedEventsJson);
 }
-
-void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, cJSON *json)
-{
-    if (str.empty()) {
-        EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: str is empty.");
-        json = nullptr;
-        return;
-    }
-
-    json = cJSON_Parse(str.c_str());
-}
 } // namespace EDM
 } // namespace OHOS
