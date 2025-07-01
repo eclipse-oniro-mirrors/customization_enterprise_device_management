@@ -28,8 +28,7 @@ namespace EDM {
 namespace {
 constexpr const char *PDP_PROFILE_BASE_URI = "datashare:///com.ohos.pdpprofileability";
 constexpr const char *PDP_PROFILE_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile";
-constexpr int32_t SIM_SLOT_ZERO_ID = 0;
-constexpr int32_t SIM_SLOT_ONE_ID = 1;
+constexpr const char *OPKEY_URI = "datashare:///com.ohos.pdpprofileability/opkey/opkey_info";
 }
 
 std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateDataAbilityHelper()
@@ -37,6 +36,34 @@ std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateDataAbilityHelper()
     EDMLOGI("Create data ability helper");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     return DataShare::DataShareHelper::Creator(remoteObject, PDP_PROFILE_BASE_URI);
+}
+
+int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
+{
+    EDMLOGI("ApnUtils::GetOpkey start");
+    auto helper = CreateDataAbilityHelper();
+    DataShare::DataSharePredicates predicates;
+    predicates.EqualTo("mccmnc", mccmnc);
+    Uri uri(OPKEY_URI);
+    std::vector<std::string> columns;
+    std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
+    if (queryResult == nullptr) {
+        EDMLOGE("GetOpkey error");
+        return -1;
+    }
+
+    if (queryResult->GoToRow(0) != DataShare::E_OK) {
+        EDMLOGE("GetOpkey GoToRow error");
+        queryResult->Close();
+        return -1;
+    }
+
+    int32_t columnIndex = -1;
+    if (queryResult->GetColumnIndex("mccmnc", columnIndex) != DataShare::E_OK ||
+        queryResult->GetString(columnIndex, opkey) != DataShare::E_OK) {
+        return -1;
+    }
+    return 0;
 }
 
 int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
@@ -47,6 +74,13 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
+    std::string mccmnc = apnInfo.at("mcc") + apnInfo.at("mnc");
+    values.Put("mccmnc", mccmnc);
+    std::string opkey;
+    if (GetOpkey(mccmnc, opkey) != ERR_OK) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    values.Put("opkey", opkey);
     Uri uri(PDP_PROFILE_URI);
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -69,6 +103,22 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
+    if (apnInfo.find("mcc") != apnInfo.end() || apnInfo.find("mnc") != apnInfo.end()) {
+        std::string mccmnc;
+        if (apnInfo.find("mcc") != apnInfo.end() && apnInfo.find("mnc") != apnInfo.end()) {
+            mccmnc = apnInfo.at("mcc") + apnInfo.at("mnc");
+        } else if (apnInfo.find("mcc") != apnInfo.end()) {
+            mccmnc = apnInfo.at("mcc") + ApnQuery(apnId)["mnc"];
+        } else {
+            mccmnc = ApnQuery(apnId)["mcc"] + apnInfo.at("mnc");
+        }
+        values.Put("mccmnc", mccmnc);
+    }
+    std::string opkey;
+    if (GetOpkey(mccmnc, opkey) != ERR_OK) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    values.Put("opkey", opkey);
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri(PDP_PROFILE_URI);
@@ -80,12 +130,11 @@ std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::str
     EDMLOGI("ApnUtils::ApnQueryId start");
     auto helper = CreateDataAbilityHelper();
     std::vector<std::string> result;
-    ApnQueryVector(helper, SIM_SLOT_ZERO_ID, apnInfo, result);
-    ApnQueryVector(helper, SIM_SLOT_ONE_ID, apnInfo, result);
+    ApnQueryVector(helper, apnInfo, result);
     return result;
 }
 
-void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
+void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper,
     const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result)
 {
     std::vector<std::string> columns;
@@ -93,11 +142,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
     for (const auto & [key, value] : apnInfo) {
         predicates.EqualTo(key, value);
     }
-    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
-    if (simId < 0) {
-        return;
-    }
-    Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
+    Uri uri(std::string(PDP_PROFILE_URI));
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
         EDMLOGE("QueryApnId error");
@@ -131,31 +176,21 @@ std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
     auto helper = CreateDataAbilityHelper();
 
     std::map<std::string, std::string> results;
-    int32_t queryResult = ApnQueryResultSet(helper, SIM_SLOT_ZERO_ID, apnId, results);
-
+    int32_t queryResult = ApnQueryResultSet(helper, apnId, results);
     if (queryResult < 0) {
         EDMLOGE("QueryApnInfo error");
+        return {};
     }
-    if (results.size() == 0) {
-        queryResult = ApnQueryResultSet(helper, SIM_SLOT_ONE_ID, apnId, results);
-        if (queryResult < 0) {
-            EDMLOGE("QueryApnInfo error");
-            return {};
-        }
-    }
+
     return results;
 }
 
-int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, int32_t slotId,
-    const std::string &apnId, std::map<std::string, std::string> &results)
+int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, const std::string &apnId,
+    std::map<std::string, std::string> &results)
 {
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
-
-    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
-    Uri uri(std::string(PDP_PROFILE_URI) + "?simId=" + std::to_string(simId));
-
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
         EDMLOGE("QueryApnResultSet error");
