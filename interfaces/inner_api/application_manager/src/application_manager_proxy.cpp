@@ -243,7 +243,7 @@ int32_t ApplicationManagerProxy::ClearUpApplicationData(
 }
 
 int32_t ApplicationManagerProxy::SetAllowedKioskApps(
-    const AppExecFwk::ElementName &admin, const std::vector<std::string> &bundleNames)
+    const AppExecFwk::ElementName &admin, const std::vector<std::string> &appIdentifiers)
 {
     EDMLOGI("ApplicationManagerProxy::SetAllowedKioskApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -254,12 +254,12 @@ int32_t ApplicationManagerProxy::SetAllowedKioskApps(
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteStringVector(bundleNames);
+    data.WriteStringVector(appIdentifiers);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::GetAllowedKioskApps(
-    const AppExecFwk::ElementName &admin, std::vector<std::string> &bundleNames)
+    const AppExecFwk::ElementName &admin, std::vector<std::string> &appIdentifiers)
 {
     EDMLOGI("ApplicationManagerProxy::GetAllowedKioskApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -278,11 +278,11 @@ int32_t ApplicationManagerProxy::GetAllowedKioskApps(
         EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    reply.ReadStringVector(&bundleNames);
+    reply.ReadStringVector(&appIdentifiers);
     return ERR_OK;
 }
 
-int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName, bool &isAllowed)
+int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &appIdentifier, bool &isAllowed)
 {
     EDMLOGI("ApplicationManagerProxy::IsAppKioskAllowed");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -292,7 +292,7 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &bundleName
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(WITHOUT_ADMIN);
-    data.WriteString(bundleName);
+    data.WriteString(appIdentifier);
     proxy->GetPolicy(EdmInterfaceCode::IS_APP_KIOSK_ALLOWED, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     int32_t readRet = reply.ReadInt32(ret);

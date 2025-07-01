@@ -178,6 +178,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
 {
+    addSystemAbilityFuncMap_[BUNDLE_MGR_SERVICE_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        };
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart();
@@ -684,6 +688,7 @@ void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
 
 void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 {
+    AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
