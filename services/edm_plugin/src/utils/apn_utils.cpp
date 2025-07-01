@@ -47,6 +47,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
+    values.Put("mccmnc", apnInfo.at("mcc") + apnInfo.at("mnc"));
     Uri uri(PDP_PROFILE_URI);
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -68,6 +69,15 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
+    }
+    if (apnInfo.find("mcc") != apnInfo.end() || apnInfo.find("mnc") != apnInfo.end()) {
+        if (apnInfo.find("mcc") != apnInfo.end() && apnInfo.find("mnc") != apnInfo.end()) {
+            values.Put("mccmnc", apnInfo.at("mcc") + apnInfo.at("mnc"));
+        } else if (apnInfo.find("mcc") != apnInfo.end()) {
+            values.Put("mccmnc", apnInfo.at("mcc") + ApnQuery(apnId)["mnc"]);
+        } else {
+            values.Put("mccmnc", ApnQuery(apnId)["mcc"] + apnInfo.at("mnc"));
+        }
     }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
