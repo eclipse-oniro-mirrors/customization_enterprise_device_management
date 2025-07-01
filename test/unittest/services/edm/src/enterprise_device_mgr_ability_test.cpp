@@ -47,6 +47,8 @@ constexpr int32_t MAP_TESTPLUGIN_POLICYCODE = 12;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
+constexpr int32_t BEGIN_POLICY_CODE = 10;
+constexpr int32_t END_POLICY_CODE = 33;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
 constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
@@ -121,6 +123,13 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
+}
+
+void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
+{
+    for (int32_t i = BEGIN_POLICY_CODE; i <= END_POLICY_CODE; i++) {
+        PluginManager::deviceCoreSoCodes_.push_back(i);
+    }
 }
 
 void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()

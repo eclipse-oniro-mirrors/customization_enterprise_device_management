@@ -751,10 +751,11 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
 void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::CallOnOtherServiceStart %{public}d", interfaceCode);
-    PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, interfaceCode);
-    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
         return;
@@ -1412,7 +1413,10 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -1480,7 +1484,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1576,7 +1583,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
         EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
