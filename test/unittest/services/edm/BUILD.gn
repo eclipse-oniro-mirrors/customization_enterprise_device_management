@@ -225,8 +225,6 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_remote_desk_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_remote_diagnosis_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
       "../../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",

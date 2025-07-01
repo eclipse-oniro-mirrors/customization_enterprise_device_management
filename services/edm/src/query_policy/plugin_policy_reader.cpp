@@ -142,8 +142,6 @@
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
-#include "disable_remote_desk_query.h"
-#include "disable_remote_diagnosis_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
 #include "disable_user_mtp_client_query.h"
@@ -398,12 +396,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
             return ERR_OK;
         case EdmInterfaceCode::DISABLE_MTP_SERVER:
             obj = std::make_shared<DisableMtpServerQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISABLE_REMOTE_DESK:
-            obj = std::make_shared<DisableRemoteDeskQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS:
-            obj = std::make_shared<DisableRemoteDiagnosisQuery>();
             return ERR_OK;
         case EdmInterfaceCode::DISABLE_USER_MTP_CLIENT:
             obj = std::make_shared<DisableUserMtpClientQuery>();

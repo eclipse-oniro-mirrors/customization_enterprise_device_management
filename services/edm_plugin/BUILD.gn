@@ -79,8 +79,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
-      "./src/disable_remote_desk_plugin.cpp",
-      "./src/disable_remote_diagnosis_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_distributed_transmission_plugin.cpp",
