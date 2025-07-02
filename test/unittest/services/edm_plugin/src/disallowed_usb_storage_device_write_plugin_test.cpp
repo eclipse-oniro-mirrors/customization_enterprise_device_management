@@ -18,6 +18,7 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -61,16 +62,23 @@ HWTEST_F(DisableUsbStorageDeviceWritePluginTest, TestDisableUsbStorageDeviceWrit
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
-    ASSERT_TRUE(handlePolicyData.isChanged);
+    std::string value = system::GetParameter(
+        EdmConstants::CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE, "false");
+    if (value == "false") {
+        EDMLOGE("TestDisableUsbStorageDeviceWritePluginTestSet OnHandlePolicy failed, interface unsupported");
+        ASSERT_TRUE(ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    } else {
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(handlePolicyData.policyData == "true");
+        ASSERT_TRUE(handlePolicyData.isChanged);
 
-    // 恢复环境，取消禁用
-    MessageParcel dataFalse;
-    dataFalse.WriteBool(false);
-    HandlePolicyData handlePolicyDataFalse{"true", "", false};
-    ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+        // 恢复环境，取消禁用
+        MessageParcel dataFalse;
+        dataFalse.WriteBool(false);
+        HandlePolicyData handlePolicyDataFalse{"true", "", false};
+        ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 } // namespace TEST
 } // namespace EDM
