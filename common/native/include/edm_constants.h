@@ -98,6 +98,8 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
         constexpr uint32_t DISABLE_OTA = 23;
         constexpr uint32_t DISALLOWED_NFC = 24;
+        constexpr uint32_t DISALLOW_REMOTE_DESK = 25;
+        constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
     }
 
     namespace KeepAlive {
@@ -269,8 +271,6 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_PRIVATE_SPACE = "disabled_private_space";
     const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
-    const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
-    const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
     const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
