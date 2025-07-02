@@ -1298,14 +1298,34 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
     return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
 }
 
+bool EnterpriseDeviceMgrAbility::CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug)
+{
+    if (isDebug) {
+        return true;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        return true;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
+        EDMLOGE("DoDisableAdmin GetHapTokenInfo failed.");
+        return false;
+    }
+    if (adminType == AdminType::BYOD && GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        PERMISSION_GET_ADMINPROVISION_INFO) && hapTokenInfo.bundleName == bundleName) {
+        return true;
+    }
+    return false;
+}
+
 // non-thread-safe function
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType)
 {
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
-        EDMLOGW("DoDisableAdmin::DisableSuperAdmin check permission failed.");
+    if (!CheckDisableAdmin(bundleName, adminType, isDebug)) {
+        EDMLOGW("DoDisableAdmin::DisableSuperAdmin or DisableByodAdmin check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);

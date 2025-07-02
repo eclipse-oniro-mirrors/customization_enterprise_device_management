@@ -4072,6 +4072,43 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoGetHap
 }
 
 /**
+ * @tc.name: TestCheckDisableAdmin001
+ * @tc.desc: Test CheckDisableAdmin isDebug is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin001, TestSize.Level1)
+{
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, true);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestCheckDisableAdmin002
+ * @tc.desc: Test CheckDisableAdmin VerifyCallingPermission success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin002, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+    .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, false);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestCheckDisableAdmin003
+ * @tc.desc: Test CheckDisableAdmin with GetHapTokenInfoFailed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin003, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+    .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, false);
+    ASSERT_FALSE(result);
+}
+
+/**
  * @tc.name: TestGetAdminsSuc
  * @tc.desc: Test GetAdmins success.
  * @tc.type: FUNC
