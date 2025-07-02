@@ -279,27 +279,28 @@ bool PluginManager::IsExtraPlugin(const std::string &soName)
         && soName != SONAME::OLD_EDM_PLUGIN_SO;
 }
 
-void PluginManager::LoadPluginByFuncCode(uint32_t funcCode)
+ErrCode PluginManager::LoadPluginByFuncCode(uint32_t funcCode)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
-    LoadPluginByCode(code);
+    return LoadPluginByCode(code);
 }
 
-void PluginManager::LoadPluginByCode(uint32_t code)
+ErrCode PluginManager::LoadPluginByCode(uint32_t code)
 {
     if (code > EdmInterfaceCode::POLICY_CODE_END) {
         LoadExtraPlugin();
-        return;
+        return ERR_OK;
     }
     std::string soName;
     if (!GetSoNameByCode(code, soName)) {
         EDMLOGE("PluginManager::LoadPluginByCode soname not found");
-        return;
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
         LoadExtraPlugin();
     }
     LoadPlugin(soName);
+    return ERR_OK;
 }
 
 void PluginManager::LoadPlugin(const std::string &soName)
