@@ -78,9 +78,10 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     values.Put("mccmnc", mccmnc);
     std::string opkey;
     if (GetOpkey(mccmnc, opkey) != ERR_OK) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        values.Put("opkey", mccmnc);
+    } else {
+        values.Put("opkey", opkey);
     }
-    values.Put("opkey", opkey);
     Uri uri((PDP_PROFILE_URI));
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -115,9 +116,10 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
         values.Put("mccmnc", mccmnc);
         std::string opkey;
         if (GetOpkey(mccmnc, opkey) != ERR_OK) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            values.Put("opkey", mccmnc);
+        } else {
+            values.Put("opkey", opkey);
         }
-        values.Put("opkey", opkey);
     }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
