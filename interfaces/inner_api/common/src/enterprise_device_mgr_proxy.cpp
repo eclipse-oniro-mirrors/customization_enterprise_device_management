@@ -499,7 +499,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int
 }
 
 bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply)
-{  
+{
     if (policyCode == EdmInterfaceCode::PASSWORD_POLICY) {
         if (!IsEdmExtEnabled()) {
             reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
