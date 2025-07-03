@@ -289,7 +289,7 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
 
     auto dataShareHelper = CreatePdpProfileAbilityHelper();
     int32_t simId = MatchValidSimId(apnId);
-    if (simId != ERR_OK) {
+    if (simId < 0) {
         EDMLOGE("ApnUtils::ApnSetPrefer match failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
