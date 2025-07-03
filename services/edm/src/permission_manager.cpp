@@ -61,31 +61,6 @@ AdminType PermissionManager::PermissionTypeToAdminType(IPlugin::PermissionType p
     return static_cast<AdminType>(permissionType);
 }
 
-void PermissionManager::RemovePermission(const std::string &permission,
-    IPlugin::PermissionType permissionType, std::uint32_t code)
-{
-    if (permission.empty()) {
-        return;
-    }
-    auto codeIt = permissionToCodes_.find(permission);
-    if (codeIt == permissionToCodes_.end()) {
-        return;
-    }
-    codeIt->second.erase(code);
-    if (!codeIt->second.empty()) {
-        return;
-    }
-    auto it = permissions_.find(permission);
-    if (it != permissions_.end()) {
-        if (it->second != PermissionTypeToAdminType(permissionType)) {
-            EDMLOGE("PermissionManager::RemovePermission AdminType error");
-            return;
-        }
-        permissions_.erase(it);
-    }
-    permissionToCodes_.erase(codeIt);
-}
-
 void PermissionManager::GetAdminGrantedPermission(const std::vector<std::string> &permissions, AdminType adminType,
     std::vector<std::string> &reqPermission)
 {

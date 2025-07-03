@@ -450,18 +450,6 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
     if (configs.empty()) {
         return;
     }
-    for (const auto &config : configs) {
-        for (const auto &typePermission : config.typePermissions) {
-            PermissionManager::GetInstance()->RemovePermission(typePermission.second,
-                typePermission.first, plugin->GetCode());
-        }
-        for (const auto &tagPermission : config.tagPermissions) {
-            for (const auto &typePermission : tagPermission.second) {
-                PermissionManager::GetInstance()->RemovePermission(typePermission.second,
-                    typePermission.first, plugin->GetCode());
-            }
-        }
-    }
     pluginsCode_.erase(plugin->GetCode());
     pluginsName_.erase(plugin->GetPolicyName());
     auto basicPlugin = GetPluginByCode(plugin->GetBasicPluginCode());

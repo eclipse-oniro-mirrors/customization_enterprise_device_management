@@ -1117,6 +1117,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
         }
     }
     /* Get all request and registered permissions */
+    PluginManager::GetInstance()->LoadAllPlugin();
     std::vector<std::string> permissionList;
     if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(admin.GetBundleName(), type, userId,
         permissionList))) {
