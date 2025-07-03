@@ -59,10 +59,11 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
     }
 
     int32_t columnIndex = -1;
-    if (queryResult->GetColumnIndex("mccmnc", columnIndex) != DataShare::E_OK ||
+    if (queryResult->GetColumnIndex("operator_key", columnIndex) != DataShare::E_OK ||
         queryResult->GetString(columnIndex, opkey) != DataShare::E_OK) {
         return -1;
     }
+    EDMLOGI("ApnUtils::GetOpkey opkey=%{public}s", opkey.c_str());
     return 0;
 }
 
