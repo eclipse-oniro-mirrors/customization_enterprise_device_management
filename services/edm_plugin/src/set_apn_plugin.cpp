@@ -20,7 +20,6 @@
 #include "iplugin_manager.h"
 #include "func_code_utils.h"
 #include "edm_ipc_interface_code.h"
-#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {

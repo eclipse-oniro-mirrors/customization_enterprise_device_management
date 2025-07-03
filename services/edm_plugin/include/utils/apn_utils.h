@@ -32,13 +32,14 @@ public:
     static std::map<std::string, std::string> ApnQuery(const std::string &apnId);
     static int32_t ApnSetPrefer(const std::string &apnId);
 private:
-    static std::shared_ptr<DataShare::DataShareHelper> CreatePdPProfileAbilityHelper();
+    static std::shared_ptr<DataShare::DataShareHelper> CreatePdpProfileAbilityHelper();
     static std::shared_ptr<DataShare::DataShareHelper> CreateOpkeyAbilityHelper();
     static int32_t ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, const std::string &apnId,
         std::map<std::string, std::string> &results);
     static void ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper,
         const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result);
     static int32_t GetOpkey(const std::string &mccmnc, std::string &opkey);
+    static int32_t MatchValidSimId(const std::string &apnId);
 };
 } // namespace EDM
 } // namespace OHOS

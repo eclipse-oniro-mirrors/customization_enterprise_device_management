@@ -16,6 +16,7 @@
 #include "apn_utils.h"
 
 #include <algorithm>
+#include "parameters.h"
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "pdp_profile_data.h"
@@ -28,11 +29,14 @@ namespace EDM {
 namespace {
 constexpr const char *PDP_PROFILE_BASE_URI = "datashare:///com.ohos.pdpprofileability";
 constexpr const char *PDP_PROFILE_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile";
+constexpr const char *PDP_PROFILE_PREFER_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile/preferapn";
 constexpr const char *OPKEY_BASE_URI = "datashare:///com.ohos.opkeyability";
 constexpr const char *OPKEY_URI = "datashare:///com.ohos.opkeyability/opkey/opkey_info";
+constexpr int32_t SIM_SLOT_ZERO = 0;
+constexpr int32_t SIM_SLOT_ONE = 1;
 }
 
-std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreatePdPProfileAbilityHelper()
+std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreatePdpProfileAbilityHelper()
 {
     EDMLOGI("Create pdp profile ability helper");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
@@ -82,7 +86,7 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
 int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 {
     EDMLOGI("ApnUtils::ApnInsert start");
-    auto helper = CreatePdPProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -90,10 +94,10 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     std::string mccmnc = apnInfo.at("mcc") + apnInfo.at("mnc");
     values.Put("mccmnc", mccmnc);
     std::string opkey;
-    if (GetOpkey(mccmnc, opkey) != ERR_OK) {
-        values.Put("opkey", mccmnc);
-    } else {
+    if (GetOpkey(mccmnc, opkey) == ERR_OK && !opkey.empty()) {
         values.Put("opkey", opkey);
+    } else {
+        values.Put("opkey", mccmnc);
     }
     Uri uri((PDP_PROFILE_URI));
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -102,7 +106,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 int32_t ApnUtils::ApnDelete(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnDelete start");
-    auto helper = CreatePdPProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
@@ -112,7 +116,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
 int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnUpdate start");
-    auto helper = CreatePdPProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -128,10 +132,10 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
         }
         values.Put("mccmnc", mccmnc);
         std::string opkey;
-        if (GetOpkey(mccmnc, opkey) != ERR_OK) {
-            values.Put("opkey", mccmnc);
-        } else {
+        if (GetOpkey(mccmnc, opkey) == ERR_OK && !opkey.empty()) {
             values.Put("opkey", opkey);
+        } else {
+            values.Put("opkey", mccmnc);
         }
     }
     DataShare::DataSharePredicates predicates;
@@ -143,7 +147,7 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
 std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::string> &apnInfo)
 {
     EDMLOGI("ApnUtils::ApnQueryId start");
-    auto helper = CreatePdPProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
     std::vector<std::string> result;
     ApnQueryVector(helper, apnInfo, result);
     return result;
@@ -188,7 +192,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
 std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnQueryInfo start");
-    auto helper = CreatePdPProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
 
     std::map<std::string, std::string> results;
     int32_t queryResult = ApnQueryResultSet(helper, apnId, results);
@@ -245,17 +249,71 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
     return ERR_OK;
 }
 
+int32_t ApnUtils::MatchValidSimId(const std::string &apnId)
+{
+    std::string opkey;
+    if (GetOpkey(ApnQuery(apnId)["mccmnc"], opkey) != ERR_OK || opkey.empty()) {
+        return -1;
+    }
+
+    std::string opkey0 = system::GetParameter("telephony.sim.opkey0", "");
+    std::string opkey1 = system::GetParameter("telephony.sim.opkey1", "");
+    if (opkey != opkey0 && opkey != opkey1) {
+        return -1;
+    }
+
+    int32_t slot0SimId = -1;
+    int32_t slot1SimId = -1;
+    if (opkey == opkey0) {
+        if (Telephony::CoreServiceClient::GetInstance().IsSimActive(SIM_SLOT_ZERO)) {
+            slot0SimId = Telephony::CoreServiceClient::GetInstance().GetSimId(SIM_SLOT_ZERO);
+        }
+    }
+    if (opkey == opkey1) {
+        if (Telephony::CoreServiceClient::GetInstance().IsSimActive(SIM_SLOT_ONE)) {
+            slot1SimId = Telephony::CoreServiceClient::GetInstance().GetSimId(SIM_SLOT_ONE);
+        }
+    }
+    if (slot0SimId >= 0) {
+        return slot0SimId;
+    }
+    if (slot1SimId >= 0) {
+        return slot1SimId;
+    }
+    return -1;
+}
+
 int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnSetPrefer start");
+
+    auto dataShareHelper = CreatePdpProfileAbilityHelper();
+    int32_t simId = MatchValidSimId(apnId);
+    if (simId != ERR_OK) {
+        EDMLOGE("ApnUtils::ApnSetPrefer match failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     char* pResult = nullptr;
     const int32_t apnIdInt = static_cast<int32_t>(std::strtol(apnId.c_str(), &pResult, 10));
     if (apnId.c_str() == pResult) {
         EDMLOGE("ApnUtils::ApnSetPrefer failed to convert type");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return Telephony::CellularDataClient::GetInstance().SetPreferApn(apnIdInt) == DataShare::E_OK ? ERR_OK :
-        EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    DataShare::DataSharePredicates predicates;
+    DataShare::DataShareValuesBucket values;
+    double profileIdAsDouble = static_cast<double>(apnIdInt);
+    double simIdAsDouble = static_cast<double>(simId);
+    values.Put(Telephony::PdpProfileData::PROFILE_ID, profileIdAsDouble);
+    values.Put(Telephony::PdpProfileData::SIM_ID, simIdAsDouble);
+    Uri preferApnUri(PDP_PROFILE_PREFER_URI);
+    int32_t result = dataShareHelper->Update(preferApnUri, predicates, values);
+    if (result < DataShare::E_OK) {
+        EDMLOGE("SetPreferApn fail! result:%{public}d", result);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("SetPreferApn result:%{public}d", result);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
