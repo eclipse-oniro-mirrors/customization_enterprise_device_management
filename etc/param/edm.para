@@ -12,7 +12,6 @@
 # limitations under the License.
 
 persist.edm.edm_enable=false
-persist.edm.edm_ext_enable=false
 persist.edm.location_policy=none
 persist.edm.mic_disable=false
 persist.edm.is_local_install_enable=false
