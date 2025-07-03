@@ -53,6 +53,7 @@ void DisableBluetoothPluginTest::TearDownTestSuite(void)
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
