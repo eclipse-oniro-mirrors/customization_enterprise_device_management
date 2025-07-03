@@ -28,20 +28,32 @@ namespace EDM {
 namespace {
 constexpr const char *PDP_PROFILE_BASE_URI = "datashare:///com.ohos.pdpprofileability";
 constexpr const char *PDP_PROFILE_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile";
-constexpr const char *OPKEY_URI = "datashare:///com.ohos.pdpprofileability/opkey/opkey_info";
+constexpr const char *OPKEY_BASE_URI = "datashare:///com.ohos.opkeyability";
+constexpr const char *OPKEY_URI = "datashare:///com.ohos.opkeyability/opkey/opkey_info";
 }
 
-std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateDataAbilityHelper()
+std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreatePdPProfileAbilityHelper()
 {
-    EDMLOGI("Create data ability helper");
+    EDMLOGI("Create pdp profile ability helper");
     sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     return DataShare::DataShareHelper::Creator(remoteObject, PDP_PROFILE_BASE_URI);
+}
+
+std::shared_ptr<DataShare::DataShareHelper> ApnUtils::CreateOpkeyAbilityHelper()
+{
+    EDMLOGI("Create opkey ability helper");
+    sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    return DataShare::DataShareHelper::Creator(remoteObject, OPKEY_BASE_URI);
 }
 
 int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
 {
     EDMLOGI("ApnUtils::GetOpkey start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreateOpkeyAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("GetOpkey helper get failed");
+        return -1;
+    }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo("mccmnc", mccmnc);
     Uri uri((OPKEY_URI));
@@ -70,7 +82,7 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
 int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 {
     EDMLOGI("ApnUtils::ApnInsert start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreatePdPProfileAbilityHelper();
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -90,7 +102,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 int32_t ApnUtils::ApnDelete(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnDelete start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreatePdPProfileAbilityHelper();
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
@@ -100,7 +112,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
 int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnUpdate start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreatePdPProfileAbilityHelper();
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -131,7 +143,7 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
 std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::string> &apnInfo)
 {
     EDMLOGI("ApnUtils::ApnQueryId start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreatePdPProfileAbilityHelper();
     std::vector<std::string> result;
     ApnQueryVector(helper, apnInfo, result);
     return result;
@@ -176,7 +188,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
 std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnQueryInfo start");
-    auto helper = CreateDataAbilityHelper();
+    auto helper = CreatePdPProfileAbilityHelper();
 
     std::map<std::string, std::string> results;
     int32_t queryResult = ApnQueryResultSet(helper, apnId, results);
