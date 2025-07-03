@@ -47,6 +47,14 @@ group("fuzztest") {
     "setbrowserpoliciesplugin_fuzzer:SetBrowserPoliciesPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
+    "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
+    "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+    "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
+    "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
+    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
+    "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
+    "disallowpowerlongpressplugin_fuzzer:DisallowPowerLongPressPluginFuzzTest",
+    "setapnplugin_fuzzer:SetApnPluginFuzzTest",
   ]
   defines = []
   if (os_account_edm_enable) {

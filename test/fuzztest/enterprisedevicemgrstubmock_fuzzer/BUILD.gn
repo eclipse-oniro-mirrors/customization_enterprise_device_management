@@ -260,6 +260,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "netmanager_base:net_policy_manager_if",
         "netmanager_base:netsys_controller",
         "netmanager_ext:ethernet_manager_if",
+        "netmanager_ext:net_vpn_manager_if",
       ]
       sources += [
         "../../../services/edm_plugin/src/disabled_network_interface_plugin.cpp",
@@ -283,6 +284,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/domain_filter_rule_serializer.cpp",
         "../../../services/edm_plugin/src/utils/firewall_rule_serializer.cpp",
         "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
+        "../../../services/edm_plugin/src/disallowed_airplane_mode_plugin.cpp",
+        "../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
       ]
     }
 
@@ -402,6 +405,32 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
+    }
+
+    if (!enterprise_device_management_feature_pc_only &&
+        cellular_data_edm_enable && telephony_core_edm_enable) {
+      external_deps += [
+        "call_manager:tel_call_manager_api",
+        "cellular_data:tel_cellular_data_api",
+        "core_service:tel_core_service_api",
+        "data_share:datashare_consumer",
+      ]
+      sources += [
+        "../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",
+        "../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
+        "../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
+        "../../../services/edm_plugin/src/disallowed_telephony_call_plugin.cpp",
+        "../../../services/edm_plugin/src/telephony_call_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/set_apn_plugin.cpp",
+        "../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/apn_utils.cpp",
+      ]
+      defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
+    }
+
+    if (power_manager_edm_enable &&
+        !enterprise_device_management_feature_pc_only) {
+      sources += [ "../../../services/edm_plugin/src/disallow_power_long_press_plugin.cpp" ]
     }
   }
 
