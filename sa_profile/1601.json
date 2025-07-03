@@ -13,6 +13,10 @@
                     {
                         "name":"persist.edm.edm_enable",
                         "value":"true"
+                    },
+                    {
+                        "name":"persist.edm.edm_ext_enable",
+                        "value":"true"
                     }
                 ]
             }
