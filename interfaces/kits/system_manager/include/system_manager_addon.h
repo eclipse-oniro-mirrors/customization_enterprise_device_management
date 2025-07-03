@@ -74,7 +74,7 @@ private:
     static bool JsDisableSystemOtaUpdateToUpdatePolicy(napi_env env, napi_value object, const char *filedStr,
         OtaPolicyType &otaPolicyType);
     static napi_value SetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
-    static napi_value IsInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
+    static napi_value GetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info);
     static napi_value AddDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info);
