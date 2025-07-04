@@ -180,9 +180,9 @@ int32_t SystemManagerProxy::SetInstallLocalEnterpriseAppEnabled(MessageParcel &d
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
  
-int32_t SystemManagerProxy::IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall)
+int32_t SystemManagerProxy::GetInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall)
 {
-    EDMLOGD("SystemManagerProxy::IsInstallLocalEnterpriseAppEnabled");
+    EDMLOGD("SystemManagerProxy::GetInstallLocalEnterpriseAppEnabled");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
     proxy->GetPolicy(EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED, data, reply);
