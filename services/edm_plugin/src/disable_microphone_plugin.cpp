@@ -43,7 +43,7 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
     persistParam_ = "persist.edm.mic_disable";
 }
 
-ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow)
+ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow, int32_t userId)
 {
     EDMLOGI("DisableMicrophonePlugin OnSetPolicy...isDisallow = %{public}d", isDisallow);
     auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
@@ -61,7 +61,7 @@ ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow)
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode DisableMicrophonePlugin::RemoveOtherModulePolicy()
+ErrCode DisableMicrophonePlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
         ->GetGroupManager(OHOS::AudioStandard::DEFAULT_VOLUME_GROUP_ID);

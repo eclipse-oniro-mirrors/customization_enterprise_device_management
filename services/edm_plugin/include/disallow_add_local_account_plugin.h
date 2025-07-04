@@ -28,9 +28,9 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr) override;
 
 private:
-    ErrCode SetOtherModulePolicy(bool data) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 
-    ErrCode RemoveOtherModulePolicy() override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 
     ErrCode SetGlobalOsAccountConstraints(bool data);
 };

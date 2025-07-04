@@ -25,7 +25,7 @@ class DisallowVPNPlugin : public PluginSingleton<DisallowVPNPlugin, bool>, publi
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPlugin, bool>> ptr) override;
 private:
-    ErrCode SetOtherModulePolicy(bool data) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

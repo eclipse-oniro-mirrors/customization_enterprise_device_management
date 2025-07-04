@@ -88,6 +88,7 @@
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#include "disable_print_query.h"
 #endif
 
 #ifdef SUDO_EDM_ENABLE
@@ -1847,6 +1848,29 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbStorageDeviceWriteQuery002, TestSi
 HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableSudoQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag));
+    ASSERT_EQ(flag, ERR_OK);
+    bool result = false;
+    ASSERT_TRUE(reply.ReadBool(result));
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+#endif
+
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: DisablePrintQuery001
+ * @tc.desc: Test DisablePrintPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisablePrintQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisablePrintQuery>();
     std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;

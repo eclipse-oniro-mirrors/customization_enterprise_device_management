@@ -42,13 +42,13 @@ void DisallowPowerLongPressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     persistParam_ = "persist.edm.disable_power_key_shutdown";
 }
 
-ErrCode DisallowPowerLongPressPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisallowPowerLongPressPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowPowerLongPressPlugin SetOtherModulePolicy...");
     return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", data ? "1" : "0");
 }
 
-ErrCode DisallowPowerLongPressPlugin::RemoveOtherModulePolicy()
+ErrCode DisallowPowerLongPressPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     EDMLOGI("DisallowPowerLongPressPlugin RemoveOtherModulePolicy...");
     return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", "0");

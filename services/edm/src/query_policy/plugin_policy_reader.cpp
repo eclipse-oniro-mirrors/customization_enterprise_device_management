@@ -128,6 +128,7 @@
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
+#include "disable_print_query.h"
 #endif
 
 #ifdef SUDO_EDM_ENABLE
@@ -570,6 +571,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
         case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowExportRecoveryKeyQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLED_PRINT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisablePrintQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

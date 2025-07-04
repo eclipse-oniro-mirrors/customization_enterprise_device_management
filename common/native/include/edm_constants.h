@@ -161,6 +161,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
         const char* const LABEL_DISALLOWED_POLICY_OTA = "otaUpdate";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
+        const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -364,6 +365,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
+    const char* const POLICY_DISABLED_PRINT = "disabled_print";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

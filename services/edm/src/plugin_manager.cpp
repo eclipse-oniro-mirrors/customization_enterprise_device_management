@@ -68,6 +68,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
     EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
     EdmInterfaceCode::DISALLOWED_SUDO, EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
+    EdmInterfaceCode::DISABLED_PRINT,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

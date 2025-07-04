@@ -40,7 +40,7 @@ void DisallowedAirplaneModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     persistParam_ = "persist.edm.airplane_mode_disable";
 }
 
-ErrCode DisallowedAirplaneModePlugin::SetOtherModulePolicy(bool data)
+ErrCode DisallowedAirplaneModePlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowedAirplaneModePlugin OnSetPolicy disallow = %{public}d", data);
     if (data) {

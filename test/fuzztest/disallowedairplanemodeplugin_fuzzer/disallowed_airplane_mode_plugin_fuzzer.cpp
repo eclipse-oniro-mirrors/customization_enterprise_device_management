@@ -44,9 +44,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     DisallowedAirplaneModePlugin plugin;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
     bool status = CommonFuzzer::GetU32Data(data) % 2;
-    plugin.SetOtherModulePolicy(status);
-    plugin.RemoveOtherModulePolicy();
+    plugin.SetOtherModulePolicy(status, userId);
+    plugin.RemoveOtherModulePolicy(userId);
     return 0;
 }
 } // namespace EDM

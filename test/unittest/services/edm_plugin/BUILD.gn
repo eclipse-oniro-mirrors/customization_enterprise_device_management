@@ -280,6 +280,7 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
       "./src/set_watermark_plugin_test.cpp",
+      "./src/disable_print_plugin_test.cpp",
       "./src/disable_sudo_plugin_test.cpp",
     ]
   }
@@ -713,9 +714,11 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [
+      "../../../../services/edm_plugin/src/disable_print_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_sudo_plugin.cpp"
     ]
-    defines += [ 
+    defines += [
+      "FEATURE_PC_ONLY",
       "SUDO_EDM_ENABLE"
     ]
   }
