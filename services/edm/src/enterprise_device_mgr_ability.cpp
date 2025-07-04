@@ -1361,7 +1361,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     }
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
-    if (adminType == AdminType::BYOD) {
+    if (adminType != AdminType::NORMAL) {
         DelDisallowUninstallApp(bundleName);
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
