@@ -14,6 +14,7 @@
  */
 
 #include "switch_bluetooth_plugin_test.h"
+#include "bluetooth_host.h"
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
@@ -32,6 +33,7 @@ void SwitchBluetoothTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 

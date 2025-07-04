@@ -17,6 +17,7 @@
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "get_bluetooth_info_plugin.h"
+#include "bluetooth_host.h"
 #include "iplugin_manager.h"
 #include "utils.h"
 
@@ -61,6 +62,7 @@ void GetBluetoothInfoPluginTest::TearDownTestSuite(void)
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
