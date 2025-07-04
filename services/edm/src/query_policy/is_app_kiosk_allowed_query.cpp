@@ -34,12 +34,12 @@ std::string IsAppKioskAllowedQuery::GetPermission(IPlugin::PermissionType permis
 ErrCode IsAppKioskAllowedQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    std::string bundleName = data.ReadString();
-    EDMLOGI("IsAppKioskAllowedQuery::QueryPolicy bundleName:%{public}s", bundleName.c_str());
-    std::vector<std::string> bundleNameList;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, bundleNameList);
-    auto it = std::find(bundleNameList.begin(), bundleNameList.end(), bundleName);
-    bool isAllowed = (it != bundleNameList.end());
+    std::string appIdentifier = data.ReadString();
+    EDMLOGI("IsAppKioskAllowedQuery::QueryPolicy appIdentifier:%{public}s", appIdentifier.c_str());
+    std::vector<std::string> appIdentifierList;
+    ArrayStringSerializer::GetInstance()->Deserialize(policyData, appIdentifierList);
+    auto it = std::find(appIdentifierList.begin(), appIdentifierList.end(), appIdentifier);
+    bool isAllowed = (it != appIdentifierList.end());
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(isAllowed);
     return ERR_OK;

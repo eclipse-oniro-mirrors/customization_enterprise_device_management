@@ -777,11 +777,11 @@ napi_value ApplicationManagerAddon::SetAllowedKioskApps(napi_env env, napi_callb
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
         env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName error");
-    std::vector<std::string> bundleNames;
+    std::vector<std::string> appIdentifiers;
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseStringArray(env, bundleNames, argv[ARR_INDEX_ONE]), "Parameter bundleNames error");
+        env, ParseStringArray(env, appIdentifiers, argv[ARR_INDEX_ONE]), "Parameter appIdentifiers error");
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    int32_t ret = applicationManagerProxy->SetAllowedKioskApps(elementName, bundleNames);
+    int32_t ret = applicationManagerProxy->SetAllowedKioskApps(elementName, appIdentifiers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -803,16 +803,16 @@ napi_value ApplicationManagerAddon::GetAllowedKioskApps(napi_env env, napi_callb
     ASSERT_AND_THROW_PARAM_ERROR(
         env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName error");
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    std::vector<std::string> bundleNames;
-    int32_t ret = applicationManagerProxy->GetAllowedKioskApps(elementName, bundleNames);
+    std::vector<std::string> appIdentifiers;
+    int32_t ret = applicationManagerProxy->GetAllowedKioskApps(elementName, appIdentifiers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value napiBundleNames = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &napiBundleNames));
-    ConvertStringVectorToJS(env, bundleNames, napiBundleNames);
-    return napiBundleNames;
+    napi_value napiAppIdentifiers = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &napiAppIdentifiers));
+    ConvertStringVectorToJS(env, appIdentifiers, napiAppIdentifiers);
+    return napiAppIdentifiers;
 }
 
 napi_value ApplicationManagerAddon::IsAppKioskAllowed(napi_env env, napi_callback_info info)
@@ -825,13 +825,13 @@ napi_value ApplicationManagerAddon::IsAppKioskAllowed(napi_env env, napi_callbac
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_string), "Parameter bundleName error.");
-    std::string bundleName;
+        env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_string), "Parameter appIdentifier error.");
+    std::string appIdentifier;
     ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseString(env, bundleName, argv[ARR_INDEX_ZERO]), "Parameter bundleName parse error");
+        env, ParseString(env, appIdentifier, argv[ARR_INDEX_ZERO]), "Parameter appIdentifier parse error");
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     bool isAllowed = false;
-    int32_t ret = applicationManagerProxy->IsAppKioskAllowed(bundleName, isAllowed);
+    int32_t ret = applicationManagerProxy->IsAppKioskAllowed(appIdentifier, isAllowed);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
