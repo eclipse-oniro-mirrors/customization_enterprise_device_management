@@ -26,6 +26,7 @@
 
 namespace OHOS {
 namespace EDM {
+using namespace Telephony;
 namespace {
 constexpr const char *PDP_PROFILE_BASE_URI = "datashare:///com.ohos.pdpprofileability";
 constexpr const char *PDP_PROFILE_URI = "datashare:///com.ohos.pdpprofileability/net/pdp_profile";
@@ -59,7 +60,7 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
         return -1;
     }
     DataShare::DataSharePredicates predicates;
-    predicates.EqualTo("mccmnc", mccmnc);
+    predicates.EqualTo(PdpProfileData::MCCMNC, mccmnc);
     Uri uri((OPKEY_URI));
     std::vector<std::string> columns;
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
@@ -91,13 +92,13 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
-    std::string mccmnc = apnInfo.at("mcc") + apnInfo.at("mnc");
-    values.Put("mccmnc", mccmnc);
+    std::string mccmnc = apnInfo.at(PdpProfileData::MCC) + apnInfo.at(PdpProfileData::MNC);
+    values.Put(PdpProfileData::MCCMNC, mccmnc);
     std::string opkey;
     if (GetOpkey(mccmnc, opkey) == ERR_OK && !opkey.empty()) {
-        values.Put("opkey", opkey);
+        values.Put(PdpProfileData::OPKEY, opkey);
     } else {
-        values.Put("opkey", mccmnc);
+        values.Put(PdpProfileData::OPKEY, mccmnc);
     }
     Uri uri((PDP_PROFILE_URI));
     return helper->Insert(uri, values) >= DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -121,21 +122,23 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
-    if (apnInfo.find("mcc") != apnInfo.end() || apnInfo.find("mnc") != apnInfo.end()) {
-        std::string mccmnc;
-        if (apnInfo.find("mcc") != apnInfo.end() && apnInfo.find("mnc") != apnInfo.end()) {
-            mccmnc = apnInfo.at("mcc") + apnInfo.at("mnc");
-        } else if (apnInfo.find("mcc") != apnInfo.end()) {
-            mccmnc = apnInfo.at("mcc") + ApnQuery(apnId)["mnc"];
-        } else {
-            mccmnc = ApnQuery(apnId)["mcc"] + apnInfo.at("mnc");
-        }
-        values.Put("mccmnc", mccmnc);
+
+    std::string mccmnc;
+    if (apnInfo.find(PdpProfileData::MCC) != apnInfo.end() && apnInfo.find(PdpProfileData::MNC) != apnInfo.end()) {
+        mccmnc = apnInfo.at(PdpProfileData::MCC) + apnInfo.at(PdpProfileData::MNC);
+    } else if (apnInfo.find(PdpProfileData::MCC) != apnInfo.end()) {
+        mccmnc = apnInfo.at(PdpProfileData::MCC) + ApnQuery(apnId)[PdpProfileData::MNC];
+    } else if (apnInfo.find(PdpProfileData::MNC) != apnInfo.end()) {
+        mccmnc = ApnQuery(apnId)[PdpProfileData::MCC] + apnInfo.at(PdpProfileData::MNC);
+    }
+
+    if (apnInfo.find(PdpProfileData::MCC) != apnInfo.end() || apnInfo.find(PdpProfileData::MNC) != apnInfo.end()) {
+        values.Put(PdpProfileData::MCCMNC, mccmnc);
         std::string opkey;
         if (GetOpkey(mccmnc, opkey) == ERR_OK && !opkey.empty()) {
-            values.Put("opkey", opkey);
+            values.Put(PdpProfileData::OPKEY, opkey);
         } else {
-            values.Put("opkey", mccmnc);
+            values.Put(PdpProfileData::OPKEY, mccmnc);
         }
     }
     DataShare::DataSharePredicates predicates;
@@ -249,36 +252,37 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
     return ERR_OK;
 }
 
-int32_t ApnUtils::MatchValidSimId(const std::string &apnId)
+int32_t ApnUtils::MatchValidSimId(const std::string &opkey, int32_t slotId)
+{
+    std::string sysOpkey = system::GetParameter(std::string("telephony.sim.opkey") + std::to_string(slotId), "");
+    if (opkey != sysOpkey) {
+        return -1;
+    }
+    if (!Telephony::CoreServiceClient::GetInstance().IsSimActive(slotId)) {
+        return -1;
+    }
+    int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
+    if (simId < 0) {
+        return -1;
+    }
+    return simId;
+}
+
+int32_t ApnUtils::GetValidSimId(const std::string &apnId)
 {
     std::string opkey;
-    if (GetOpkey(ApnQuery(apnId)["mccmnc"], opkey) != ERR_OK || opkey.empty()) {
+    if (GetOpkey(ApnQuery(apnId)[PdpProfileData::MCCMNC], opkey) != ERR_OK || opkey.empty()) {
         return -1;
     }
 
-    std::string opkey0 = system::GetParameter("telephony.sim.opkey0", "");
-    std::string opkey1 = system::GetParameter("telephony.sim.opkey1", "");
-    if (opkey != opkey0 && opkey != opkey1) {
-        return -1;
+    int32_t simId = MatchValidSimId(opkey, SIM_SLOT_ZERO);
+    if (simId >= 0) {
+        return simId;
     }
 
-    int32_t slot0SimId = -1;
-    int32_t slot1SimId = -1;
-    if (opkey == opkey0) {
-        if (Telephony::CoreServiceClient::GetInstance().IsSimActive(SIM_SLOT_ZERO)) {
-            slot0SimId = Telephony::CoreServiceClient::GetInstance().GetSimId(SIM_SLOT_ZERO);
-        }
-    }
-    if (opkey == opkey1) {
-        if (Telephony::CoreServiceClient::GetInstance().IsSimActive(SIM_SLOT_ONE)) {
-            slot1SimId = Telephony::CoreServiceClient::GetInstance().GetSimId(SIM_SLOT_ONE);
-        }
-    }
-    if (slot0SimId >= 0) {
-        return slot0SimId;
-    }
-    if (slot1SimId >= 0) {
-        return slot1SimId;
+    simId = MatchValidSimId(opkey, SIM_SLOT_ONE);
+    if (simId >= 0) {
+        return simId;
     }
     return -1;
 }
@@ -288,9 +292,9 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
     EDMLOGI("ApnUtils::ApnSetPrefer start");
 
     auto dataShareHelper = CreatePdpProfileAbilityHelper();
-    int32_t simId = MatchValidSimId(apnId);
+    int32_t simId = GetValidSimId(apnId);
     if (simId < 0) {
-        EDMLOGE("ApnUtils::ApnSetPrefer match failed");
+        EDMLOGE("ApnUtils::ApnSetPrefer get failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 

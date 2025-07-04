@@ -39,7 +39,8 @@ private:
     static void ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper,
         const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result);
     static int32_t GetOpkey(const std::string &mccmnc, std::string &opkey);
-    static int32_t MatchValidSimId(const std::string &apnId);
+    static int32_t GetValidSimId(const std::string &apnId);
+    static int32_t MatchValidSimId(const std::string &opkey, int32_t slotId);
 };
 } // namespace EDM
 } // namespace OHOS
