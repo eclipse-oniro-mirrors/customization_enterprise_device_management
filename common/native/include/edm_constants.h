@@ -64,6 +64,10 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    // 使能外设存储管控，true为使能，2B版本默认为true，2C版本默认为false
+    constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
+        "const.enterprise.external_storage_device.manage.enable";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
