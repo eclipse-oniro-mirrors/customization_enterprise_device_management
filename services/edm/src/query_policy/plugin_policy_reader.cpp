@@ -124,6 +124,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
+#include "disallow_export_recovery_key_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
@@ -566,6 +567,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
         case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
             obj = std::make_shared<DisallowDistributedTransmissionQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowExportRecoveryKeyQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
