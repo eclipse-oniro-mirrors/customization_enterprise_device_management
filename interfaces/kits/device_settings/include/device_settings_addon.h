@@ -60,6 +60,12 @@ private:
     static bool JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy);
     static int32_t ConvertPowerPolicyToJsStr(
         napi_env env, PowerScene &powerScene, PowerPolicy &powerPolicy, std::string &info);
+    static napi_value SetHomeWallPaper(napi_env env, napi_callback_info info);
+    static napi_value SetUnlockWallPaper(napi_env env, napi_callback_info info);
+    static napi_value SetWallPaper(napi_env env, napi_callback_info info, bool isHomeWallPaper);
+    static void NativeSetHomeWallPaper(napi_env env, void* data);
+    static void NativeSetUnlockWallPaper(napi_env env, void* data);
+    static void NativeSetWallPaper(napi_env env, void* data, bool isHomeWallPaper);
 };
 } // namespace EDM
 } // namespace OHOS

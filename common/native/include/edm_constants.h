@@ -257,6 +257,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
     const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
+    const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -358,6 +359,7 @@ namespace PolicyName {
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
+    const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
