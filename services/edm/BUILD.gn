@@ -229,9 +229,13 @@ ohos_shared_library("edmservice") {
     ]
 
     sources += [
+      "./src/query_policy/disable_print_query.cpp",
       "./src/query_policy/disable_sudo_query.cpp",
     ]
-    defines += [ "SUDO_EDM_ENABLE" ]
+    defines += [
+      "FEATURE_PC_ONLY",
+      "SUDO_EDM_ENABLE"
+    ]
   }
 
   if (netmanager_base_edm_enable) {

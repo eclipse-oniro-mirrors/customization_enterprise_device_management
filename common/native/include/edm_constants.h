@@ -64,6 +64,10 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    // 使能外设存储管控，true为使能，2B版本默认为true，2C版本默认为false
+    constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
+        "const.enterprise.external_storage_device.manage.enable";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
@@ -157,6 +161,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
         const char* const LABEL_DISALLOWED_POLICY_OTA = "otaUpdate";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
+        const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -253,6 +258,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
     const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
     const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION = "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
+    const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -355,6 +361,7 @@ namespace PolicyName {
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
+    const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -362,6 +369,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
+    const char* const POLICY_DISABLED_PRINT = "disabled_print";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

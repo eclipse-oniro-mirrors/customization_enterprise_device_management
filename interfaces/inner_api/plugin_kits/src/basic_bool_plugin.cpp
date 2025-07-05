@@ -29,7 +29,7 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
         currentData = data;
         return ERR_OK;
     }
-    ErrCode ret = SetOtherModulePolicy(data);
+    ErrCode ret = SetOtherModulePolicy(data, userId);
     if (FAILED(ret)) {
         return ret;
     }
@@ -42,7 +42,7 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
     return ERR_OK;
 }
 
-ErrCode BasicBoolPlugin::SetOtherModulePolicy(bool data)
+ErrCode BasicBoolPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     return ERR_OK;
 }
@@ -51,8 +51,8 @@ ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, bool &data,
 {
     EDMLOGI("BasicBoolPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
         adminName.c_str(), data, userId);
-    if (!mergeData) {
-        ErrCode ret = RemoveOtherModulePolicy();
+    if (!mergeData && data) {
+        ErrCode ret = RemoveOtherModulePolicy(userId);
         if (FAILED(ret)) {
             return ret;
         }
@@ -63,7 +63,7 @@ ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, bool &data,
     return ERR_OK;
 }
 
-ErrCode BasicBoolPlugin::RemoveOtherModulePolicy()
+ErrCode BasicBoolPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     return ERR_OK;
 }

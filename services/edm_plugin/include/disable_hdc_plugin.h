@@ -26,9 +26,9 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr) override;
 
 private:
-    ErrCode SetOtherModulePolicy(bool data) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 
-    ErrCode RemoveOtherModulePolicy() override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

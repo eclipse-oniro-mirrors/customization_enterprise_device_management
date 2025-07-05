@@ -26,7 +26,7 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr) override;
 
 private:
-    ErrCode SetOtherModulePolicy(bool data) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

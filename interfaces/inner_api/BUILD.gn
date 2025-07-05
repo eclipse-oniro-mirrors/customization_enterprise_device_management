@@ -63,6 +63,7 @@ ohos_shared_library("edmservice_kits") {
     "./device_info/src/device_info_proxy.cpp",
     "./device_settings/src/device_settings_proxy.cpp",
     "./device_settings/src/power_policy.cpp",
+    "./device_settings/src/wall_paper_param_serializer.cpp",
     "./location_manager/src/location_manager_proxy.cpp",
     "./network_manager/src/network_manager_proxy.cpp",
     "./restrictions/src/fingerprint_policy_serializer.cpp",

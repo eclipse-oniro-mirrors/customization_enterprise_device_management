@@ -132,6 +132,7 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/set_domain_account_policy_plugin.cpp",
+        "./src/disable_print_plugin.cpp",
         "./src/disable_sudo_plugin.cpp",
       ]
       defines += [
@@ -570,6 +571,7 @@ ohos_shared_library("need_extra_plugin") {
       "./src/get_device_info_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
+      "./src/set_wall_paper_plugin.cpp",
     ]
   }
 

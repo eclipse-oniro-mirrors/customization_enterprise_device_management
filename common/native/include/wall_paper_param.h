@@ -13,21 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VPN_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VPN_PLUGIN_H
-
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#ifndef COMMON_NATIVE_INCLUDE_WALL_PAPER_PARAM_H
+#define COMMON_NATIVE_INCLUDE_WALL_PAPER_PARAM_H
 
 namespace OHOS {
 namespace EDM {
-class DisallowVPNPlugin : public PluginSingleton<DisallowVPNPlugin, bool>, public BasicBoolPlugin {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPlugin, bool>> ptr) override;
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+struct WallPaperParam {
+    bool isHomeWallPaper = false;
+    int32_t fd = 0;
 };
-} // namespace EDM
-} // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VPN_PLUGIN_H
+}
+}
+#endif // COMMON_NATIVE_INCLUDE_WALL_PAPER_PARAM_H

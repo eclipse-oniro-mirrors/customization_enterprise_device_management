@@ -24,6 +24,7 @@
 #include "edm_log.h"
 #include "iplugin_manager.h"
 #include "os_account_manager.h"
+#include "parameters.h"
 #include "usb_interface_type.h"
 
 namespace OHOS {
@@ -53,6 +54,13 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy(bool &data, bool &cur
 {
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
             "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+    std::string value = system::GetParameter(
+        EdmConstants::CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE, "false");
+    if (value == "false") {
+        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy failed, interface unsupported");
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    
     if (HasConflictPolicy()) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }

@@ -27,9 +27,9 @@ protected:
 
     virtual ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
 
-    virtual ErrCode SetOtherModulePolicy(bool data);
+    virtual ErrCode SetOtherModulePolicy(bool data, int32_t userId);
 
-    virtual ErrCode RemoveOtherModulePolicy();
+    virtual ErrCode RemoveOtherModulePolicy(int32_t userId);
 
     std::string persistParam_;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_CAMERA_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_CAMERA_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_PRINT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_PRINT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableCameraPlugin : public PluginSingleton<DisableCameraPlugin, bool>, public BasicBoolPlugin  {
+class DisablePrintPlugin : public PluginSingleton<DisablePrintPlugin, bool>, public BasicBoolPlugin  {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrintPlugin, bool>> ptr) override;
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
@@ -33,4 +33,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_CAMERA_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_PRINT_PLUGIN_H

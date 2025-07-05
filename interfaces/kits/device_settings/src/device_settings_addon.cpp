@@ -74,7 +74,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerScene", nTimeOut),
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
         DECLARE_NAPI_FUNCTION("setValue", SetValue),
-        DECLARE_NAPI_FUNCTION("getValue", GetValue)
+        DECLARE_NAPI_FUNCTION("getValue", GetValue),
+        DECLARE_NAPI_FUNCTION("setHomeWallPaper", SetHomeWallPaper),
+        DECLARE_NAPI_FUNCTION("setUnlockWallPaper", SetUnlockWallPaper)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -481,6 +483,69 @@ int32_t DeviceSettingsAddon::ConvertPowerPolicyToJsStr(napi_env env, PowerScene 
     cJSON_Delete(json);
     cJSON_free(jsonStr);
     return ERR_OK;
+}
+
+napi_value DeviceSettingsAddon::SetHomeWallPaper(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetHomeWallPaper called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "SetHomeWallPaper");
+    return SetWallPaper(env, info, true);
+}
+
+napi_value DeviceSettingsAddon::SetUnlockWallPaper(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetUnlockWallPaper called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "SetUnlockWallPaper");
+    return SetWallPaper(env, info, false);
+}
+
+napi_value DeviceSettingsAddon::SetWallPaper(napi_env env, napi_callback_info info, bool isHomeWallPaper)
+{
+    auto convertFd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        int32_t fd = -1;
+        if (!ParseInt(env, fd, argv)) {
+            return false;
+        }
+        data.WriteFileDescriptor(fd);
+        return true;
+    };
+
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetWallPaper";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertFd2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;
+    if (isHomeWallPaper) {
+        return AddonMethodAdapter(env, info, addonMethodSign, NativeSetHomeWallPaper, NativeVoidCallbackComplete);
+    }
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeSetUnlockWallPaper, NativeVoidCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeSetHomeWallPaper(napi_env env, void* data)
+{
+    NativeSetWallPaper(env, data, true);
+}
+
+void DeviceSettingsAddon::NativeSetUnlockWallPaper(napi_env env, void* data)
+{
+    NativeSetWallPaper(env, data, false);
+}
+
+void DeviceSettingsAddon::NativeSetWallPaper(napi_env env, void* data, bool isHomeWallPaper)
+{
+    EDMLOGI("NativeSetWallPaper called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->data.WriteBool(isHomeWallPaper);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetWallPaper(asyncCallbackInfo->data);
+    if (FAILED(ret)) {
+        asyncCallbackInfo->ret = ret;
+    }
 }
 
 static napi_module g_deviceSettingsModule = {

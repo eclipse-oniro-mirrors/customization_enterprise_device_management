@@ -185,6 +185,12 @@ ErrCode UsbReadOnlyPlugin::DealReadPolicy(int32_t accessPolicy, const std::strin
     if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    std::string value = system::GetParameter(
+        EdmConstants::CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE, "false");
+    if (value == "true") {
+        EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: not need execute ReloadUsbDevice");
+        return ERR_OK;
+    }
     ErrCode reloadRet = ReloadUsbDevice();
     if (reloadRet != ERR_OK) {
         return reloadRet;

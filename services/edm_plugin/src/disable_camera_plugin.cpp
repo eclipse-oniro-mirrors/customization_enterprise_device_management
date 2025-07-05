@@ -42,7 +42,7 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
     persistParam_ = "persist.edm.camera_disable";
 }
 
-ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisableCameraPlugin OnSetPolicy %{public}d", data);
     auto cameraManager = CameraStandard::CameraManager::GetInstance();
@@ -58,7 +58,7 @@ ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data)
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-ErrCode DisableCameraPlugin::RemoveOtherModulePolicy()
+ErrCode DisableCameraPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     auto cameraManager = CameraStandard::CameraManager::GetInstance();
     if (cameraManager == nullptr) {

@@ -195,5 +195,12 @@ int32_t DeviceSettingsProxy::GetPowerPolicy(MessageParcel &data, PowerPolicy &po
     }
     return ERR_OK;
 }
+
+int32_t DeviceSettingsProxy::SetWallPaper(MessageParcel &data)
+{
+    EDMLOGD("DeviceSettingsProxy::SetWallPaper");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_WALL_PAPER);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

@@ -254,9 +254,13 @@ ohos_static_library("edmservice_static") {
     ]
 
     sources += [
+      "../../../../services/edm/src/query_policy/disable_print_query.cpp",
       "../../../../services/edm/src/query_policy/disable_sudo_query.cpp",
     ]
-    defines += [ "SUDO_EDM_ENABLE" ]
+    defines += [
+      "FEATURE_PC_ONLY",
+      "SUDO_EDM_ENABLE"
+    ]
   }
 
   if (netmanager_ext_edm_enable) {
