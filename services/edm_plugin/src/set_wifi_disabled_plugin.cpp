@@ -50,7 +50,7 @@ void SetWifiDisabledPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDi
     persistParam_ = "persist.edm.wifi_enable";
 }
 
-ErrCode SetWifiDisabledPlugin::SetOtherModulePolicy(bool isDisable)
+ErrCode SetWifiDisabledPlugin::SetOtherModulePolicy(bool isDisable, int32_t userId)
 {
     if (isDisable) {
         system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");

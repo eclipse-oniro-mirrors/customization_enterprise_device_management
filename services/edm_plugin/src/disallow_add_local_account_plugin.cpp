@@ -36,12 +36,12 @@ void DisallowAddLocalAccountPlugin::InitPlugin(
     ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);
 }
 
-ErrCode DisallowAddLocalAccountPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisallowAddLocalAccountPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     return SetGlobalOsAccountConstraints(data);
 }
 
-ErrCode DisallowAddLocalAccountPlugin::RemoveOtherModulePolicy()
+ErrCode DisallowAddLocalAccountPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     return SetGlobalOsAccountConstraints(false);
 }

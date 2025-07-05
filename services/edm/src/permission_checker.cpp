@@ -79,6 +79,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_VPN,
     EdmInterfaceCode::DISALLOWED_NOTIFICATION,
     EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
+    EdmInterfaceCode::DISABLED_PRINT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DESK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DIAGNOSIS,
