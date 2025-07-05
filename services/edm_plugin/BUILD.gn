@@ -165,6 +165,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/disallowed_bluetooth_protocols_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
         "./src/switch_bluetooth_plugin.cpp",
+        "./src/utils/bt_protocol_utils.cpp",
       ]
     }
 

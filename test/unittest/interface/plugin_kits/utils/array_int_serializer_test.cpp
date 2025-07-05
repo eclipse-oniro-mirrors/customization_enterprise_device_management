@@ -234,6 +234,38 @@ HWTEST_F(ArrayIntSerializerTest, TestMergePolicy, TestSize.Level1)
     serializer->MergePolicy(dataObj, result);
     ASSERT_TRUE(result.size() == 1);
 }
+
+/**
+ * @tc.name: TestSetIntersectionPolicyData001
+ * @tc.desc: Test ArrayIntSerializerTest::SetIntersectionPolicyData when data is empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayIntSerializerTest, TestSetIntersectionPolicyData001, TestSize.Level1)
+{
+    auto serializer = ArrayIntSerializer::GetInstance();
+    std::vector<int32_t> data;
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> res = serializer->SetIntersectionPolicyData(data, currentData);
+    ASSERT_TRUE(res.empty());
+}
+
+/**
+ * @tc.name: TestSetIntersectionPolicyData002
+ * @tc.desc: Test ArrayIntSerializerTest::SetIntersectionPolicyData func
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayIntSerializerTest, TestSetIntersectionPolicyData002, TestSize.Level1)
+{
+    auto serializer = ArrayIntSerializer::GetInstance();
+    std::vector<int32_t> data;
+    data.push_back(1);
+    data.push_back(2);
+    std::vector<int32_t> currentData;
+    currentData.push_back(2);
+    currentData.push_back(3);
+    std::vector<int32_t> res = serializer->SetIntersectionPolicyData(data, currentData);
+    ASSERT_TRUE(res.size() == 1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

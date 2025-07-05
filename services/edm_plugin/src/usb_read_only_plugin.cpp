@@ -283,7 +283,8 @@ ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std
     return ERR_OK;
 }
 
-ErrCode UsbReadOnlyPlugin::GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData)
+ErrCode UsbReadOnlyPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+    std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;
     IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);

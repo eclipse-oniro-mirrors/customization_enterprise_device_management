@@ -15,7 +15,6 @@
 
 #include "bluetooth_manager_addon.h"
 
-#include "bt_protocol_utils.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "errors.h"
@@ -345,6 +344,9 @@ void BluetoothManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
     napi_value nSpp;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(BtProtocol::SPP), &nSpp));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SPP", nSpp));
+    napi_value nOpp;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(BtProtocol::OPP), &nOpp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OPP", nOpp));
 }
 
 static napi_module g_bluetoothModule = {

@@ -38,7 +38,8 @@ public:
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+        std::string &othersMergePolicyData) override;
 
     void OnOtherServiceStart(int32_t systemAbilityId) override;
 

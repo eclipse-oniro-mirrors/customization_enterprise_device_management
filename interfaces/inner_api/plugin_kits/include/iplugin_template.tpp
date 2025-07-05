@@ -173,11 +173,11 @@ void IPluginTemplate<CT, DT>::SetOnHandlePolicyListener(BiFunction &&listener, F
 
 using AdminValueItemsMap = std::unordered_map<std::string, std::string>;
 template <class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode IPluginTemplate<CT, DT>::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;
-    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
     EDMLOGD("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
         (uint32_t)adminValues.size());
     if (adminValues.empty()) {

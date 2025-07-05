@@ -309,7 +309,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnAdminRemove(const std::string &adminName, c
     return RemoveOtherModulePolicy(needRemoveMergePolicy, userId, failedData);
 }
 
-ErrCode ManageKeepAliveAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode ManageKeepAliveAppsPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     std::unordered_map<std::string, std::string> adminValues;

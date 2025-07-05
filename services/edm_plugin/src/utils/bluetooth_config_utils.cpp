@@ -51,7 +51,7 @@ BluetoothConfigUtils::~BluetoothConfigUtils()
 bool BluetoothConfigUtils::UpdateProtocol(const std::string &userId, const std::string &protocol, bool isAdd)
 {
     EDMLOGI("BluetoothConfigUtils::BluetoothConfigUtils()");
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
     CheckProtocolDenyListExists();
@@ -90,7 +90,7 @@ bool BluetoothConfigUtils::UpdateProtocol(const std::string &userId, const std::
             cJSON_DeleteItemFromObject(denyList, userId.c_str());
         }
     }
-    return saveConfig();
+    return SaveConfig();
 }
 
 bool BluetoothConfigUtils::IsProtocolExist(const std::string &protocol, cJSON* userItem)
@@ -123,9 +123,9 @@ bool BluetoothConfigUtils::CreateBluetoothConfigDir(const std::string dir)
     return true;
 }
 
-bool BluetoothConfigUtils::queryProtocols(const std::string& userId, std::vector<int32_t> &protocols)
+bool BluetoothConfigUtils::QueryProtocols(const std::string& userId, std::vector<int32_t> &protocols)
 {
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
     cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
@@ -136,11 +136,10 @@ bool BluetoothConfigUtils::queryProtocols(const std::string& userId, std::vector
     if (!userItem) {
         return true;
     }
-    BtProtocolUtils btProtocolUtils;
     cJSON* protocolItem = nullptr;
     cJSON_ArrayForEach(protocolItem, userItem) {
         int32_t protocol = 0;
-        btProtocolUtils.StrToProtocolInt(protocolItem->valuestring, protocol);
+        BtProtocolUtils::StrToProtocolInt(protocolItem->valuestring, protocol);
         protocols.push_back(protocol);
     }
     return true;
@@ -149,7 +148,7 @@ bool BluetoothConfigUtils::queryProtocols(const std::string& userId, std::vector
 bool BluetoothConfigUtils::RemoveUserIdItem(const std::string &userId)
 {
     EDMLOGI("BluetoothConfigUtils::RemoveUserIdItem");
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
     cJSON* denyList = cJSON_GetObjectItem(root_, PROTOCOL_DENY_LIST);
@@ -157,20 +156,20 @@ bool BluetoothConfigUtils::RemoveUserIdItem(const std::string &userId)
         return true;
     }
     cJSON_DeleteItemFromObject(denyList, userId.c_str());
-    return saveConfig();
+    return SaveConfig();
 }
 
 bool BluetoothConfigUtils::RemoveProtocolDenyList()
 {
     EDMLOGI("BluetoothConfigUtils::RemoveProtocolDenyList");
-    if (!root_ && !loadConfig()) {
+    if (!root_ && !LoadConfig()) {
         return false;
     }
     cJSON_DeleteItemFromObject(root_, PROTOCOL_DENY_LIST);
-    return saveConfig();
+    return SaveConfig();
 }
 
-bool BluetoothConfigUtils::loadConfig()
+bool BluetoothConfigUtils::LoadConfig()
 {
     EDMLOGI("BluetoothConfigUtils::loadConfig");
     std::ifstream inFile(CONFIG_PATH, std::ios::binary);
@@ -196,7 +195,7 @@ bool BluetoothConfigUtils::loadConfig()
     return true;
 }
 
-bool BluetoothConfigUtils::saveConfig()
+bool BluetoothConfigUtils::SaveConfig()
 {
     EDMLOGI("BluetoothConfigUtils::saveConfig");
     if (!root_) {

@@ -69,7 +69,8 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyNumbersSuccess, TestSiz
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK || EdmReturnErrCode::ENTERPRISE_POLICES_DENIED);
     std::string policyData;
-    ret = plugin->GetOthersMergePolicyData(TEST_ADMIN_NAME, policyData);
+    int32_t userId100 = 100;
+    ret = plugin->GetOthersMergePolicyData(TEST_ADMIN_NAME, userId100, policyData);
     ASSERT_TRUE(ret == ERR_OK);
 }
 

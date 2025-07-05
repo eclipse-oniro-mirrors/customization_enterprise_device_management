@@ -34,7 +34,8 @@ public:
         const std::string &mergeData, int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+        std::string &othersMergePolicyData) override;
 
 private:
     ErrCode SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId);

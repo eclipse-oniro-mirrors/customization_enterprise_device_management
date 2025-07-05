@@ -58,7 +58,8 @@ void CheckPrivateFunction(const uint8_t* data, const size_t size, int32_t &pos)
     int32_t userId = CommonFuzzer::GetU32Data(data);
     plugin.AddCurrentAndMergePolicy(dataMap1, dataMap2, key, flag, v1);
     plugin.RemoveCurrentAndMergePolicy(dataMap1, dataMap2, key, flag, v1);
-    plugin.GetOthersMergePolicyData(adminName, policyData);
+    int32_t userId100 = 100;
+    plugin.GetOthersMergePolicyData(adminName, userId100, policyData);
     plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
     plugin.OnOtherServiceStart(userId);
 }

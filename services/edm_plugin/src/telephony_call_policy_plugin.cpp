@@ -198,7 +198,7 @@ ErrCode TelephonyCallPolicyPlugin::RemoveCurrentAndMergePolicy(
     return ERR_OK;
 }
 
-ErrCode TelephonyCallPolicyPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode TelephonyCallPolicyPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;

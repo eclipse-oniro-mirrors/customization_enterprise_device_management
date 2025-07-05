@@ -151,7 +151,7 @@ ErrCode FingerprintAuthPlugin::OnGetPolicy(std::string &policyData, MessageParce
     return ERR_OK;
 }
 
-ErrCode FingerprintAuthPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode FingerprintAuthPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     std::unordered_map<std::string, std::string> adminValues;

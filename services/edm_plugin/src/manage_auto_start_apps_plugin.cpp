@@ -180,7 +180,7 @@ ErrCode ManageAutoStartAppsPlugin::OnAdminRemove(const std::string &adminName, c
     return SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);
 }
 
-ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     std::unordered_map<std::string, std::string> adminValues;

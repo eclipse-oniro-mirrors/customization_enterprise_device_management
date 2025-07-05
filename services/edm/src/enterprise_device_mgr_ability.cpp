@@ -1164,7 +1164,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
     std::string mergedPolicyData;
-    plugin->GetOthersMergePolicyData(adminName, mergedPolicyData);
+    plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
     ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
     if (ret != ERR_OK) {
         EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
@@ -1417,7 +1417,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
     policyMgr_->GetPolicy("", policyName, oldCombinePolicy, userId);
     HandlePolicyData handlePolicyData{"", "", false};
     policyMgr_->GetPolicy(bundleName, policyName, handlePolicyData.policyData, userId);
-    plugin->GetOthersMergePolicyData(bundleName, handlePolicyData.mergePolicyData);
+    plugin->GetOthersMergePolicyData(bundleName, userId, handlePolicyData.mergePolicyData);
     ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(code, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("UpdateDevicePolicy: OnHandlePolicy failed");

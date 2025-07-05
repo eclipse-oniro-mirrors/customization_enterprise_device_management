@@ -41,7 +41,8 @@ public:
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
 
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &othersMergePolicyData) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+        std::string &othersMergePolicyData) override;
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
         bool isGlobalChanged, int32_t userId) override;

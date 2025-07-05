@@ -41,6 +41,16 @@ std::vector<int32_t> ArrayIntSerializer::SetDifferencePolicyData(std::vector<int
     return mergeData;
 }
 
+std::vector<int32_t> ArrayIntSerializer::SetIntersectionPolicyData(std::vector<int32_t> &data,
+    std::vector<int32_t> &currentData)
+{
+    std::vector<int32_t> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_intersection(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
+    return mergeData;
+}
+
 bool ArrayIntSerializer::Deserialize(const std::string &jsonString, std::vector<int32_t> &dataObj)
 {
     cJSON* json = cJSON_Parse(jsonString.c_str());

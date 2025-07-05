@@ -30,11 +30,11 @@ public:
     bool UpdateProtocol(const std::string &userId, const std::string &protocol, bool isAdd);
     bool RemoveUserIdItem(const std::string &userId);
     bool RemoveProtocolDenyList();
-    bool queryProtocols(const std::string& userId, std::vector<int32_t> &protocols);
+    bool QueryProtocols(const std::string& userId, std::vector<int32_t> &protocols);
 private:
     cJSON* root_;
-    bool loadConfig();
-    bool saveConfig();
+    bool LoadConfig();
+    bool SaveConfig();
     bool CreateBluetoothConfigDir(const std::string dir);
     void CheckProtocolDenyListExists();
     bool IsProtocolExist(const std::string &protocol, cJSON* userItem);
