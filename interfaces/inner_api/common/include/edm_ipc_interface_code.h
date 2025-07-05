@@ -156,6 +156,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLE_PRIVATE_SPACE = 1111,
 	DISALLOWED_EXPORT_RECOVERY_KEY = 1112,
     DISABLED_PRINT = 1113,
+    SET_WALL_PAPER = 1115,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

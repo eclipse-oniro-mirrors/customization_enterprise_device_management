@@ -91,6 +91,7 @@
             VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
             vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
             OHOS::EDM::TelephonyCallPolicySerializer::*;
+            vtable?for?OHOS::EDM::WallPaperParamSerializer;
         };
     local:
         *;

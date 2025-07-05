@@ -285,6 +285,45 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetPowerPolicyFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestSetWallPaperFail
+ * @tc.desc: Test SetWallPaper func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetWallPaperFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t fd = 100;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteFileDescriptor(fd);
+    data.WriteBool(true);
+    int32_t ret = deviceSettingsProxy->SetWallPaper(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetWallPaperSuc
+ * @tc.desc: Test SetWallPaper func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetWallPaperSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t fd = 100;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteFileDescriptor(fd);
+    data.WriteBool(true);
+    int32_t ret = deviceSettingsProxy->SetWallPaper(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
