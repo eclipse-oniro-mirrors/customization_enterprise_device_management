@@ -239,8 +239,10 @@ ohos_unittest("EdmPluginTest") {
       "./src/allowed_bluetooth_devices_plugin_test.cpp",
       "./src/disable_bluetooth_plugin_test.cpp",
       "./src/disallowed_bluetooth_devices_plugin_test.cpp",
+      "./src/disallowed_bluetooth_protocols_plugin_test.cpp",
       "./src/get_bluetooth_info_plugin_test.cpp",
       "./src/switch_bluetooth_plugin_test.cpp",
+      "./src/utils/bt_protocol_utils_test.cpp",
     ]
   }
 
@@ -640,8 +642,11 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_bluetooth_devices_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_bluetooth_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",
       "../../../../services/edm_plugin/src/switch_bluetooth_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/bluetooth_config_utils.cpp",
+      "../../../../services/edm_plugin/src/utils/bt_protocol_utils.cpp",
     ]
   }
 

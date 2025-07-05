@@ -144,7 +144,7 @@ ErrCode ManagedBrowserPolicyPlugin::UpdateCurrentAndMergePolicy(
     return ERR_OK;
 }
 
-ErrCode ManagedBrowserPolicyPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode ManagedBrowserPolicyPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;

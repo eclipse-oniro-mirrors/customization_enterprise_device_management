@@ -389,7 +389,7 @@ ErrCode SetWatermarkImagePlugin::OnAdminRemove(const std::string &adminName, con
     return ERR_OK;
 }
 
-ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     AdminValueItemsMap adminValues;

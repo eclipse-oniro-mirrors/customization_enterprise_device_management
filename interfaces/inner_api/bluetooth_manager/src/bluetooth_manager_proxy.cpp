@@ -182,8 +182,8 @@ int32_t BluetoothManagerProxy::GetDisallowedBluetoothProtocols(MessageParcel &da
         return ret;
     }
     if (!reply.ReadInt32Vector(&protocols)) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 } // namespace EDM
