@@ -41,7 +41,7 @@ void SetPermissionManagedStatePlugin::InitPlugin(
     ptr->InitAttribute(
         EdmInterfaceCode::PERMISSION_MANAGED_STATE,
         PolicyName::POLICY_PERMISSION_MANAGED_STATE_POLICY,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(PermissionManagedStateSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetPermissionManagedStatePlugin::OnSetPolicy, FuncOperateType::SET);

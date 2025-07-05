@@ -279,7 +279,7 @@ int32_t SecurityManagerProxy::SetPermissionManagedState(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SecurityManagerProxy::GetPermissionManagedState(MessageParcel &data, std::string &policy)
+int32_t SecurityManagerProxy::GetPermissionManagedState(MessageParcel &data, int32_t &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetPermissionManagedState");
     MessageParcel reply;
