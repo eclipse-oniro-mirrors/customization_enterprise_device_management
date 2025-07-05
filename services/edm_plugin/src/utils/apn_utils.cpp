@@ -109,7 +109,7 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
     EDMLOGI("ApnUtils::ApnDelete start");
     auto helper = CreatePdpProfileAbilityHelper();
     DataShare::DataSharePredicates predicates;
-    predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
+    predicates.EqualTo(PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
     return helper->Delete(uri, predicates) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -142,7 +142,7 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
         }
     }
     DataShare::DataSharePredicates predicates;
-    predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
+    predicates.EqualTo(PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
     return helper->Update(uri, predicates, values) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -179,7 +179,7 @@ void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper
             return;
         }
         int32_t apnIdIdx = -1;
-        queryResult->GetColumnIndex(Telephony::PdpProfileData::PROFILE_ID, apnIdIdx);
+        queryResult->GetColumnIndex(PdpProfileData::PROFILE_ID, apnIdIdx);
         int32_t apnId = -1;
         queryResult->GetInt(apnIdIdx, apnId);
         bool needInsert = !std::any_of(result.begin(), result.end(), [apnId](const auto &ele) {
@@ -212,7 +212,7 @@ int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> 
 {
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
-    predicates.EqualTo(Telephony::PdpProfileData::PROFILE_ID, apnId);
+    predicates.EqualTo(PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
     std::shared_ptr<DataShare::DataShareResultSet> queryResult = helper->Query(uri, predicates, columns);
     if (queryResult == nullptr) {
@@ -308,8 +308,8 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
     DataShare::DataShareValuesBucket values;
     double profileIdAsDouble = static_cast<double>(apnIdInt);
     double simIdAsDouble = static_cast<double>(simId);
-    values.Put(Telephony::PdpProfileData::PROFILE_ID, profileIdAsDouble);
-    values.Put(Telephony::PdpProfileData::SIM_ID, simIdAsDouble);
+    values.Put(PdpProfileData::PROFILE_ID, profileIdAsDouble);
+    values.Put(PdpProfileData::SIM_ID, simIdAsDouble);
     Uri preferApnUri(PDP_PROFILE_PREFER_URI);
     int32_t result = dataShareHelper->Update(preferApnUri, predicates, values);
     if (result < DataShare::E_OK) {
