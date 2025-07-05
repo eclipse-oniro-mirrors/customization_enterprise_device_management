@@ -108,9 +108,6 @@ static void GetApnId()
 
 static void AddApn()
 {
-    if (!HasSimCard()) {
-        return;
-    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -128,9 +125,6 @@ static void AddApn()
 
 static void DeleteApn()
 {
-    if (!HasSimCard()) {
-        return;
-    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -166,9 +160,6 @@ void SetApnPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnInfoForAdd, TestSize.Level1)
 {
-    if (!HasSimCard()) {
-        return;
-    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
     MessageParcel data;
@@ -198,9 +189,6 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForAdd, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
 {
-    if (!HasSimCard()) {
-        return;
-    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
@@ -220,9 +208,6 @@ HWTEST_F(SetApnPluginTest, TestUpdateApn, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
 {
-    if (!HasSimCard()) {
-        return;
-    }
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
     MessageParcel data;
