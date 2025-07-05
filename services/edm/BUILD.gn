@@ -206,6 +206,8 @@ ohos_shared_library("edmservice") {
     defines += [ "PASTEBOARD_EDM_ENABLE" ]
   }
 
+  sources += [ "./src/query_policy/permission_managed_state_query.cpp" ]
+
   if (os_account_edm_enable) {
     external_deps += [
       "os_account:libaccountkits",

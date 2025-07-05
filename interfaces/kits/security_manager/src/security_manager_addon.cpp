@@ -51,6 +51,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setWatermarkImage", SetWatermarkImage),
         DECLARE_NAPI_FUNCTION("cancelWatermarkImage", CancelWatermarkImage),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
+        DECLARE_NAPI_FUNCTION("setPermissionManagedState", SetPermissionManagedState),
+        DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -741,6 +743,134 @@ napi_value SecurityManagerAddon::CheckBuildWatermarkParam(napi_env env, napi_val
     napi_value ret;
     NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
     return ret;
+}
+
+bool SecurityManagerAddon::JsObjToManagedState(napi_env env, napi_value object, ManagedState &managedState)
+{
+    int32_t JsManagedState;
+    if (ParseInt(env, JsManagedState, object)) {
+        switch (JsManagedState) {
+            case static_cast<int32_t>(ManagedState::DEFAULT):
+                managedState = ManagedState::DEFAULT;
+                return true;
+            case static_cast<int32_t>(ManagedState::GRANTED):
+                managedState = ManagedState::GRANTED;
+                return true;
+            case static_cast<int32_t>(ManagedState::DENIED):
+                managedState = ManagedState::DENIED;
+                return true;
+            default:
+            EDMLOGE("SecurityManagerAddon::JsObjToManagedState switch fail.");
+                return false;
+        }
+    }
+    EDMLOGE("SecurityManagerAddon::JsObjToManagedState parse fail.");
+    return false;
+}
+
+bool SecurityManagerAddon::JsObjToApplicationInstance(napi_env env, napi_value object, MessageParcel &data)
+{
+    std::string appId;
+    int32_t accountId = 0;
+    int32_t appIndex = 0;
+    if (!JsObjectToString(env, object, "appId", true, appId) ||
+        !JsObjectToInt(env, object, "accountId", true, accountId) ||
+        !JsObjectToInt(env, object, "appIndex", true, appIndex)) {
+            EDMLOGE("SecurityManagerAddon::JsObjToApplicationInstance param error.");
+            return false;
+        }
+    data.WriteString(appId);
+    data.WriteInt32(accountId);
+    data.WriteInt32(appIndex);
+    return true;
+}
+
+napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetPermissionManagedState called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPermissionManagedState");
+    auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
+                                        const AddonMethodSign &methodSign) {
+        bool isUint = JsObjToApplicationInstance(env, argv, data);
+        if (!isUint) {
+            return false;
+        }
+        return true;
+    };
+    auto convertPermissionList = [](napi_env env, napi_value argv, MessageParcel &data,
+                                    const AddonMethodSign &methodSign) {
+        std::vector<std::string> strArrValue;
+        bool isStringArr = ParseStringArray(env, strArrValue, argv);
+        if (!isStringArr) {
+            return false;
+        }
+        data.WriteStringVector(strArrValue);
+        return true;
+    };
+    auto convertManagedStateData = [](napi_env env, napi_value argv, MessageParcel &data,
+                                    const AddonMethodSign &methodSign) {
+        ManagedState managedState;
+        bool isUint = JsObjToManagedState(env, argv, managedState);
+        if (!isUint) {
+            return false;
+        }
+        data.WriteInt32(static_cast<int32_t>(managedState));
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetPermissionManagedState";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
+                                EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertApplicationInstance,
+                                convertPermissionList, convertManagedStateData};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetPermissionManagedState(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_callback_info info)
+{
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPermissionManagedState");
+    auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
+                                        const AddonMethodSign &methodSign) {
+        bool isUint = JsObjToApplicationInstance(env, argv, data);
+        if (!isUint) {
+            return false;
+        }
+        return true;
+    };
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::STRING};
+    addonMethodSign.argsConvert = {nullptr, convertApplicationInstance, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t policy;
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->GetPermissionManagedState(adapterAddonData.data, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value permissionManagedState;
+    NAPI_CALL(env, napi_create_int32(env, policy, &permissionManagedState));
+    return permissionManagedState;
 }
 
 static napi_module g_securityModule = {

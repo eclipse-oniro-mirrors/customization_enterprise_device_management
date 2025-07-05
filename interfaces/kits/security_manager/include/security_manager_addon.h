@@ -25,6 +25,7 @@
 #include "napi_edm_error.h"
 #include "pixel_map.h"
 #include "security_manager_proxy.h"
+#include "permission_managed_state_info.h"
 #include "want.h"
 #include "watermark_param.h"
 
@@ -67,6 +68,10 @@ private:
         std::shared_ptr<WatermarkParam> &paramPtr);
     static void SetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
     static void GetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
+    static napi_value SetPermissionManagedState(napi_env env, napi_callback_info info);
+    static napi_value GetPermissionManagedState(napi_env env, napi_callback_info info);
+    static bool JsObjToManagedState(napi_env env, napi_value object, ManagedState &managedState);
+    static bool JsObjToApplicationInstance(napi_env env, napi_value object, MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS
