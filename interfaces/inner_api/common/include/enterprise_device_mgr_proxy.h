@@ -49,6 +49,7 @@ public:
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
         bool subscribe);
     ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
+    ErrCode IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);

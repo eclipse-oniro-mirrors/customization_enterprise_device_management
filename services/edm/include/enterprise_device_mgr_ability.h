@@ -52,6 +52,7 @@ public:
     ErrCode GetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
     ErrCode SetEnterpriseInfo(const AppExecFwk::ElementName &admin, const EntInfo &entInfo) override;
     ErrCode IsSuperAdmin(const std::string &bundleName, bool &isSuper) override;
+    ErrCode IsByodAdmin(const AppExecFwk::ElementName &admin, bool &isByod) override;
     ErrCode IsAdminEnabled(const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled) override;
     ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
     ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;

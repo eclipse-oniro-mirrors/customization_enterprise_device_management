@@ -1351,6 +1351,26 @@ ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, 
     return ERR_OK;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::IsByodAdmin(const AppExecFwk::ElementName &admin, bool &isByod)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::IsByodAdmin calling.");
+    isByod = false;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
+        EDMLOGE("IsByodAdmin::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    std::string bundleName = admin.GetBundleName();
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo)) ||
+        hapTokenInfo.bundleName != bundleName) {
+        EDMLOGE("IsByodAdmin::calling bundleName is not input bundleName.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    isByod = AdminManager::GetInstance()->IsByodAdmin(bundleName, GetCurrentUserId());
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::IsAdminEnabled(
     const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled)
 {

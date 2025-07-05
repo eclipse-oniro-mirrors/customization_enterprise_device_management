@@ -229,6 +229,20 @@ bool AdminManager::IsAdminExist()
     return AdminContainer::GetInstance()->IsAdminExist();
 }
 
+bool AdminManager::IsByodAdmin(const std::string &bundleName, int32_t userId)
+{
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
+    if (admin == nullptr) {
+        EDMLOGW("IsByodAdmin: admin == nullptr.");
+        return false;
+    }
+    if (admin->adminInfo_.adminType_ == AdminType::BYOD) {
+        EDMLOGI("IsByodAdmin: admin is BYOD.");
+        return true;
+    }
+    return false;
+}
+
 bool AdminManager::IsSuperOrSubSuperAdmin(const std::string &bundleName)
 {
     std::shared_ptr<Admin> superAdmin;
