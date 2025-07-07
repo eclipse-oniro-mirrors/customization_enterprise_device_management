@@ -237,9 +237,6 @@ ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, u
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
-            obj = std::make_shared<PermissionManagedStateQuery>();
-            return ERR_OK;
         case EdmInterfaceCode::DISABLE_BLUETOOTH:
 #ifdef BLUETOOTH_EDM_ENABLE
             obj = std::make_shared<DisableBluetoothQuery>();
@@ -261,6 +258,9 @@ ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, u
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
+            obj = std::make_shared<PermissionManagedStateQuery>();
+            return ERR_OK;
         default:
             break;
     }

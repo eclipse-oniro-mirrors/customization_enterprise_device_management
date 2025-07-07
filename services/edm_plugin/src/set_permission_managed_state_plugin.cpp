@@ -35,7 +35,8 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetPermissionManagedStatePlugin::GetPlugin());
 
 void SetPermissionManagedStatePlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<SetPermissionManagedStatePlugin, std::map<std::string, PermissionManagedStateInfo>>> ptr)
+    std::shared_ptr<IPluginTemplate<SetPermissionManagedStatePlugin,
+    std::map<std::string, PermissionManagedStateInfo>>> ptr)
 {
     EDMLOGI("SetPermissionManagedStatePlugin InitPlugin...");
     ptr->InitAttribute(
@@ -54,7 +55,6 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
     std::map<std::string, PermissionManagedStateInfo> &mergeData,
     int32_t userId)
 {
-    EDMLOGI("SetPermissionManagedStatePlugin OnSetPolicy.");
     if (data.empty()) {
         EDMLOGD("SetPermissionManagedStatePlugin data is empty.");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -62,73 +62,38 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
     std::map<std::string, PermissionManagedStateInfo> newDataHandle = data;
     std::map<std::string, PermissionManagedStateInfo> currentDataHandle = currentData;
     std::map<std::string, PermissionManagedStateInfo> mergeDataHandle = mergeData;
-
     for (const auto& pair : newDataHandle) {
-        auto it = mergeDataHandle.find(pair.first);
-        if (it != mergeDataHandle.end()) {
+        if (mergeDataHandle.find(pair.first) != mergeDataHandle.end()) {
             return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-        } else {
-            if (pair.second.managedState != static_cast<int32_t>(ManagedState::DEFAULT)) {
-                mergeDataHandle.insert({pair.first, pair.second});
-            }
+        }
+        if (pair.second.managedState != static_cast<int32_t>(ManagedState::DEFAULT)) {
+            mergeDataHandle.insert({pair.first, pair.second});
         }
     }
-
     PermissionManagedStateInfo info;
     int32_t permissionFlagParam = 0;
     for (const auto& pair : newDataHandle) {
-        // Update info fields
-        info.permissionNames = pair.second.permissionNames;
-        info.managedState = pair.second.managedState;
-        info.accountId = pair.second.accountId;
-        info.appId = pair.second.appId;
-        info.appIndex = pair.second.appIndex;
-
-        if (pair.second.managedState == static_cast<int32_t>(ManagedState::DEFAULT)) {
-            permissionFlagParam = static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL);
-            info.managedState = static_cast<int32_t>(ManagedState::DENIED);
-        } else {
-            permissionFlagParam = static_cast<int32_t>(PermissionFlag::PERMISSION_FIXED_BY_ADMIN_POLICY);
-        }
-
-        auto it = currentDataHandle.find(pair.first);
-        if (pair.second.managedState == static_cast<int32_t>(ManagedState::DEFAULT)) {
-            if (it != currentDataHandle.end()) {
+        info = pair.second;
+        if (currentDataHandle.find(pair.first) != currentDataHandle.end()) {
+            if (pair.second.managedState == static_cast<int32_t>(ManagedState::DEFAULT)) {
                 currentDataHandle.erase(pair.first);
+            } else {
+                currentDataHandle[pair.first] = pair.second;
             }
-        } else {
-            currentDataHandle[pair.first] = pair.second;
+        } else if (pair.second.managedState != static_cast<int32_t>(ManagedState::DEFAULT)) {
+            currentDataHandle.insert({pair.first, pair.second});
         }
     }
-
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
-        EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy appControlProxy failed.");
-        return false;
-    }
-    std::string bundleName = "";
-    ErrCode res = proxy -> GetBundleNameByAppId(info.appId, bundleName);
+    Security::AccessToken::AccessTokenID accessTokenId;
+    ErrCode res = GetAccessTokenId(userId, info.appId, info.appIndex, accessTokenId);
     if (res != ERR_OK) {
-        EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy GetBundleNameByAppId failed.");
-        return false;
-    }
-    Security::AccessToken::AccessTokenID accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(
-        userId,
-        bundleName,
-        info.appIndex
-    );
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy GetAccessTokenId failed.");
         return false;
     }
-
-    int32_t rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(
-        accessTokenId,
+    int32_t rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(accessTokenId,
         info.permissionNames,
         info.managedState,
-        permissionFlagParam
-    );
+        permissionFlagParam);
     if (rel != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -146,26 +111,10 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
     std::map<std::string, PermissionManagedStateInfo> currentDataHandle = data;
     std::map<std::string, PermissionManagedStateInfo> mergeDataHandle = mergeData;
 
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
-        EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove appControlProxy failed.");
-        return false;
-    }
-
     for (const auto &pair : data) {
-        std::string bundleName = "";
-        ErrCode res = proxy -> GetBundleNameByAppId(pair.second.appId, bundleName);
+        Security::AccessToken::AccessTokenID accessTokenId;
+        ErrCode res = GetAccessTokenId(userId, pair.second.appId, pair.second.appIndex, accessTokenId);
         if (res != ERR_OK) {
-            EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove GetBundleNameByAppId failed.");
-            return false;
-        }
-        Security::AccessToken::AccessTokenID accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(
-            userId,
-            bundleName,
-            pair.second.appIndex
-        );
-        if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
             EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove GetAccessTokenId failed.");
             return false;
         }
@@ -188,6 +137,32 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
     
     data = currentDataHandle;
     mergeData = mergeDataHandle;
+    return ERR_OK;
+}
+
+ErrCode SetPermissionManagedStatePlugin::GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+    Security::AccessToken::AccessTokenID &accessTokenId)
+{
+    std::string bundleName = "";
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("GetAccessTokenId: appControlProxy failed.");
+        return false;
+    }
+
+    ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
+    if (res != ERR_OK) {
+        EDMLOGE("GetAccessTokenId: GetBundleNameByAppId failed.");
+        return false;
+    }
+
+    accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
+    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
+        EDMLOGE("GetAccessTokenId: accessTokenId failed.");
+        return false;
+    }
+
     return ERR_OK;
 }
 } // namespace EDM

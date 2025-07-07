@@ -760,7 +760,7 @@ bool SecurityManagerAddon::JsObjToManagedState(napi_env env, napi_value object, 
                 managedState = ManagedState::DENIED;
                 return true;
             default:
-            EDMLOGE("SecurityManagerAddon::JsObjToManagedState switch fail.");
+                EDMLOGE("SecurityManagerAddon::JsObjToManagedState switch fail.");
                 return false;
         }
     }

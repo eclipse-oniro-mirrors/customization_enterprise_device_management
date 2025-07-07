@@ -66,7 +66,7 @@ bool PermissionManagedStateSerializer::Deserialize(const std::string &data,
 }
 
 bool PermissionManagedStateSerializer::Serialize(const std::map<std::string, PermissionManagedStateInfo> &result,
-  std::string &data)
+    std::string &data)
 {
     if (result.empty()) {
         return true;
@@ -126,12 +126,14 @@ bool PermissionManagedStateSerializer::GetPolicy(MessageParcel &data,
     return true;
 }
 
-bool PermissionManagedStateSerializer::WritePolicy(MessageParcel &reply, std::map<std::string, PermissionManagedStateInfo> &result)
+bool PermissionManagedStateSerializer::WritePolicy(MessageParcel &reply,
+    std::map<std::string, PermissionManagedStateInfo> &result)
 {
     return true;
 }
 
-bool PermissionManagedStateSerializer::MergePolicy(std::vector<std::map<std::string, PermissionManagedStateInfo>> &data,
+bool PermissionManagedStateSerializer::MergePolicy(std::vector<std::map<std::string,
+    PermissionManagedStateInfo>> &data,
     std::map<std::string, PermissionManagedStateInfo> &result)
 {
         for (auto policyMap : data) {

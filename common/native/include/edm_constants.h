@@ -257,7 +257,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
     const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
-    const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION = "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION =
+        "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
 } // namespace EdmPermission
 namespace PolicyName {

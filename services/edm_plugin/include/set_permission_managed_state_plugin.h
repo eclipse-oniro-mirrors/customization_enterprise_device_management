@@ -18,10 +18,12 @@
 
 #include "permission_managed_state_serializer.h"
 #include "plugin_singleton.h"
+#include "accesstoken_kit.h"
 
 namespace OHOS {
 namespace EDM {
-class SetPermissionManagedStatePlugin : public PluginSingleton<SetPermissionManagedStatePlugin, std::map<std::string, PermissionManagedStateInfo>> {
+class SetPermissionManagedStatePlugin : public PluginSingleton<SetPermissionManagedStatePlugin,
+        std::map<std::string, PermissionManagedStateInfo>> {
 public:
     void InitPlugin(
         std::shared_ptr<IPluginTemplate<SetPermissionManagedStatePlugin,
@@ -37,6 +39,9 @@ public:
         std::map<std::string, PermissionManagedStateInfo> &data,
         std::map<std::string, PermissionManagedStateInfo> &mergeData,
         int32_t userId);
+
+    ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+                         Security::AccessToken::AccessTokenID &accessTokenId);
 };
 } // namespace EDM
 } // namespace OHOS

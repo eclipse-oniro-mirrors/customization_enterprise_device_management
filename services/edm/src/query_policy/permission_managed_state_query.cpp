@@ -28,6 +28,32 @@
 
 namespace OHOS {
 namespace EDM {
+ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+    Security::AccessToken::AccessTokenID &accessTokenId)
+{
+    std::string bundleName = "";
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
+        return false;
+    }
+
+    ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
+    if (res != ERR_OK) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
+        return false;
+    }
+
+    accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
+    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
+        return false;
+    }
+
+    return ERR_OK;
+}
+
 std::string PermissionManagedStateQuery::GetPolicyName()
 {
     return PolicyName::POLICY_PERMISSION_MANAGED_STATE_POLICY;
@@ -48,25 +74,10 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
     info.appIndex = data.ReadInt32();
     info.permissionName = data.ReadString();
 
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
-        EDMLOGE("PermissionManagedStateQuery QueryPolicy appControlProxy failed.");
-        return false;
-    }
-    std::string bundleName = "";
-    ErrCode res = proxy -> GetBundleNameByAppId(info.appId, bundleName);
+    Security::AccessToken::AccessTokenID accessTokenId;
+    ErrCode res = GetAccessTokenId(userId, info.appId, info.appIndex, accessTokenId);
     if (res != ERR_OK) {
-        EDMLOGE("PermissionManagedStateQuery QueryPolicy GetBundleNameByAppId failed.");
-        return false;
-    }
-    Security::AccessToken::AccessTokenID accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(
-        userId,
-        bundleName,
-        info.appIndex
-    );
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
-        EDMLOGE("PermissionManagedStateQuery QueryPolicy accessTokenId failed.");
+        EDMLOGE("PermissionManagedStateQuery QueryPolicy GetAccessTokenId failed.");
         return false;
     }
 
@@ -74,8 +85,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
     int32_t ret = Security::AccessToken::AccessTokenKit::GetPermissionFlag(
         accessTokenId,
         info.permissionName,
-        permissionFlag
-    );
+        permissionFlag);
     if (ret != Security::AccessToken::RET_SUCCESS) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetPermissionFlag failed.");
         return false;
@@ -86,7 +96,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
         reply.WriteInt32(static_cast<int32_t>(ManagedState::DEFAULT));
     } else {
         int32_t permissionState = Security::AccessToken::AccessTokenKit::VerifyAccessToken(accessTokenId,
-                                                                                            info.permissionName);
+            info.permissionName);
         if (permissionState == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
             reply.WriteInt32(ERR_OK);
             reply.WriteInt32(static_cast<int32_t>(ManagedState::GRANTED));
