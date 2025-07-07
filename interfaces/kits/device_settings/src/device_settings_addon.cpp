@@ -75,8 +75,8 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
         DECLARE_NAPI_FUNCTION("setValue", SetValue),
         DECLARE_NAPI_FUNCTION("getValue", GetValue),
-        DECLARE_NAPI_FUNCTION("setHomeWallPaper", SetHomeWallPaper),
-        DECLARE_NAPI_FUNCTION("setUnlockWallPaper", SetUnlockWallPaper)
+        DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
+        DECLARE_NAPI_FUNCTION("setUnlockWallpaper", SetUnlockWallPaper)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
