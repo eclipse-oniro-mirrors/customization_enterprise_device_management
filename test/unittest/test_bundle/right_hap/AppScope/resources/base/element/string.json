@@ -1,6 +1,10 @@
 {
   "string": [
     {
+      "name": "app_name",
+      "value": "right"
+    },
+    {
       "name": "entry_MainAbility",
       "value": "bmsfirstright"
     },

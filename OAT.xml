@@ -56,6 +56,8 @@
                 <filteritem type="filepath" name="figure/en_enterprise_device_management.png" desc="self developed image"/>
                 <filteritem type="filepath" name="figure/enterprise_device_management.png" desc="self developed image"/>
                 <filteritem type="filepath" name="test/unittest/test_bundle/right_hap/src/main/js/resources/base/media/icon.png" desc="self developed image"/>
+                <filteritem type="filepath" name="test/unittest/test_bundle/right_hap/AppScope/resources/base/media/app_icon.png" desc="self developed image"/>
+                <filteritem type="filepath" name="test/unittest/test_bundle/right_hap/entry/src/main/resources/base/media/icon.png" desc="self developed image"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
