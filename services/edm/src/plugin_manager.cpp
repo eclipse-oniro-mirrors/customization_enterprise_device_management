@@ -413,8 +413,12 @@ void PluginManager::UnloadPlugin(const std::string &soName)
     for (const auto& code : *targetVec) {
         RemovePlugin(GetPluginByCode(code));
     }
+    if (soLoadStateMap_.find(soName) == soLoadStateMap_.end()) {
+        EDMLOGE("PluginManager::UnloadPlugin this so %{public}s not find", soName.c_str());
+        return;
+    }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
-    if (loadStatePtr->pluginHandles == nullptr) {
+    if (loadStatePtr == nullptr || loadStatePtr->pluginHandles == nullptr) {
         EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
         return;
     }
