@@ -133,10 +133,6 @@ ohos_shared_library("edmservice_kits") {
     sources += [ "./security_manager/src/clipboard_policy_serializer.cpp" ]
   }
 
-
-    sources += [ "./security_manager/src/permission_managed_state_serializer.cpp" ]
-
-
   if (enterprise_device_management_feature_pc_only) {
     defines += [ "FEATURE_PC_ONLY" ]
   }

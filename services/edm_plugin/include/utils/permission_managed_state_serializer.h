@@ -19,6 +19,8 @@
 #include <map>
 #include "permission_managed_state_info.h"
 #include "ipolicy_serializer.h"
+#include "accesstoken_kit.h"
+#include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,6 +31,7 @@ const std::string PERMISSION_NAMES = "permissionNames";
 const std::string ACCOUNT_ID = "accountId";
 const std::string APP_INDEX = "appIndex";
 const std::string MANAGED_STATE = "managedState";
+const std::string TOKEN_ID = "tokenId";
 
 /*
 * Policy data serializer of type int.
@@ -47,6 +50,9 @@ public:
 
     bool MergePolicy(std::vector<std::map<std::string, PermissionManagedStateInfo>> &data,
         std::map<std::string, PermissionManagedStateInfo> &result) override;
+
+    ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+        Security::AccessToken::AccessTokenID &accessTokenId);
 };
 } // namespace EDM
 } // namespace OHOS

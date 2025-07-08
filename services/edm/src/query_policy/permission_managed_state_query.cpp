@@ -14,8 +14,8 @@
  */
 
 #include "permission_managed_state_query.h"
+#include "permission_managed_state_info.h"
 
-#include "permission_managed_state_serializer.h"
 #include "edm_bundle_manager_impl.h"
 #include "edm_log.h"
 
@@ -31,24 +31,24 @@ namespace EDM {
 ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
     Security::AccessToken::AccessTokenID &accessTokenId)
 {
-    std::string bundleName = "";
+    std::string bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (proxy == nullptr) {
         EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
     if (res != ERR_OK) {
         EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
     if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     return ERR_OK;
@@ -75,10 +75,10 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
     info.permissionName = data.ReadString();
 
     Security::AccessToken::AccessTokenID accessTokenId;
-    ErrCode res = GetAccessTokenId(userId, info.appId, info.appIndex, accessTokenId);
+    ErrCode res = GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId);
     if (res != ERR_OK) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetAccessTokenId failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     uint32_t permissionFlag;
@@ -88,7 +88,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
         permissionFlag);
     if (ret != Security::AccessToken::RET_SUCCESS) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetPermissionFlag failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_ADMIN_POLICIES_CANCEL ||
         permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_DEFAULT_FLAG) {
@@ -107,7 +107,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
             return ERR_OK;
         }
     }
-    return false;
+    return EdmReturnErrCode::PARAM_ERROR;
 }
 } // namespace EDM
 } // namespace OHOS

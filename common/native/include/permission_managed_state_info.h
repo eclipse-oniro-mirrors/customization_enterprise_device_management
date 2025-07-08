@@ -35,6 +35,7 @@ struct PermissionManagedStateInfo {
     std::string appId;
     std::string permissionName;
     int32_t accountId = 0;
+    int32_t tokenId = 0;
     int32_t appIndex = 0;
     int32_t managedState = 0;
     std::vector<std::string> permissionNames;

@@ -39,9 +39,7 @@
 #include "clipboard_policy_serializer.h"
 #endif
 
-#include "permission_managed_state_info.h"
 #include "permission_managed_state_query.h"
-#include "permission_managed_state_serializer.h"
 
 #ifdef CAMERA_FRAMEWORK_EDM_ENABLE
 #include "disable_camera_query.h"
@@ -258,9 +256,6 @@ ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, u
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
-            obj = std::make_shared<PermissionManagedStateQuery>();
-            return ERR_OK;
         default:
             break;
     }
@@ -589,6 +584,9 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
+            obj = std::make_shared<PermissionManagedStateQuery>();
+            return ERR_OK;
         default:
             break;
     }

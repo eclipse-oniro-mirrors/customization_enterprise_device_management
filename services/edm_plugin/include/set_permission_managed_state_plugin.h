@@ -41,7 +41,9 @@ public:
         int32_t userId);
 
     ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
-                         Security::AccessToken::AccessTokenID &accessTokenId);
+        Security::AccessToken::AccessTokenID &accessTokenId);
+
+    ErrCode SetPermissionStatusWithPolicy(int32_t permissionFlag, PermissionManagedStateInfo info);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -56,7 +56,7 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
     int32_t userId)
 {
     if (data.empty()) {
-        EDMLOGD("SetPermissionManagedStatePlugin data is empty.");
+        EDMLOGE("SetPermissionManagedStatePlugin data is empty.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::map<std::string, PermissionManagedStateInfo> newDataHandle = data;
@@ -71,7 +71,7 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
         }
     }
     PermissionManagedStateInfo info;
-    int32_t permissionFlagParam = 0;
+    int32_t permissionFlagParam;
     for (const auto& pair : newDataHandle) {
         info = pair.second;
         if (currentDataHandle.find(pair.first) != currentDataHandle.end()) {
@@ -84,16 +84,13 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
             currentDataHandle.insert({pair.first, pair.second});
         }
     }
-    Security::AccessToken::AccessTokenID accessTokenId;
-    ErrCode res = GetAccessTokenId(userId, info.appId, info.appIndex, accessTokenId);
-    if (res != ERR_OK) {
-        EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy GetAccessTokenId failed.");
-        return false;
+    if (info.managedState == static_cast<int32_t>(ManagedState::DEFAULT)) {
+        permissionFlagParam = static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL);
+        info.managedState = static_cast<int32_t>(ManagedState::DENIED);
+    } else {
+        permissionFlagParam = static_cast<int32_t>(PermissionFlag::PERMISSION_FIXED_BY_ADMIN_POLICY);
     }
-    int32_t rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(accessTokenId,
-        info.permissionNames,
-        info.managedState,
-        permissionFlagParam);
+    ErrCode rel = SetPermissionStatusWithPolicy(permissionFlagParam, info);
     if (rel != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -113,10 +110,10 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
 
     for (const auto &pair : data) {
         Security::AccessToken::AccessTokenID accessTokenId;
-        ErrCode res = GetAccessTokenId(userId, pair.second.appId, pair.second.appIndex, accessTokenId);
+        ErrCode res = GetAccessTokenId(pair.second.accountId, pair.second.appId, pair.second.appIndex, accessTokenId);
         if (res != ERR_OK) {
             EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove GetAccessTokenId failed.");
-            return false;
+            return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
         }
         std::vector<std::string> permissionNamesParams;
         permissionNamesParams.push_back(pair.second.permissionName);
@@ -140,27 +137,42 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
     return ERR_OK;
 }
 
+ErrCode SetPermissionManagedStatePlugin::SetPermissionStatusWithPolicy(
+    int32_t permissionFlag,
+    PermissionManagedStateInfo info)
+{
+    Security::AccessToken::AccessTokenID accessTokenId;
+    ErrCode res = GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId);
+    if (res != ERR_OK) {
+        EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy GetAccessTokenId failed.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    int32_t rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(accessTokenId,
+        info.permissionNames, info.managedState, permissionFlag);
+    return rel;
+}
+
 ErrCode SetPermissionManagedStatePlugin::GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
     Security::AccessToken::AccessTokenID &accessTokenId)
 {
-    std::string bundleName = "";
+    std::string bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (proxy == nullptr) {
         EDMLOGE("GetAccessTokenId: appControlProxy failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
     if (res != ERR_OK) {
         EDMLOGE("GetAccessTokenId: GetBundleNameByAppId failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
     if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         EDMLOGE("GetAccessTokenId: accessTokenId failed.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
 
     return ERR_OK;
