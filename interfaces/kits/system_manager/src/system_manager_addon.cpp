@@ -55,7 +55,7 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedNearLinkProtocols", GetDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("setInstallLocalEnterpriseAppEnabled", SetInstallLocalEnterpriseAppEnabled),
-        DECLARE_NAPI_FUNCTION("GetInstallLocalEnterpriseAppEnabled", GetInstallLocalEnterpriseAppEnabled),
+        DECLARE_NAPI_FUNCTION("getInstallLocalEnterpriseAppEnabled", GetInstallLocalEnterpriseAppEnabled),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
