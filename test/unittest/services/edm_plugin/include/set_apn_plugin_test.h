@@ -24,15 +24,16 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class SetApnPluginTest : public testing::Test {
+public:
+    static void UpdateTestData(MessageParcel &data);
+    static bool HasValidSimCard(std::vector<int32_t> &slotIds);
+    static void GetApnId(const std::string &opkey, std::string &apnId);
 protected:
     static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
 private:
-    static bool HasValidSimCard(std::vector<int32_t> &slotIds);
     static void AddTestData(MessageParcel &data);
-    static void UpdateTestData(MessageParcel &data);
     static void GetApnId();
-    static void GetApnId(const std::string &opkey, std::string &apnId);
     static void AddApn();
     static void DeleteApn();
 };
