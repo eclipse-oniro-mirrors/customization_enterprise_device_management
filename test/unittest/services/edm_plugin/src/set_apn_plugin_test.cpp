@@ -39,7 +39,7 @@ constexpr int32_t OPKEY_QUERY_SIZE = 1;
 std::string g_testApnId = "-1";
 }
 
-static bool HasValidSimCard(std::vector<int32_t> &slotIds)
+bool SetApnPluginTest::HasValidSimCard(std::vector<int32_t> &slotIds)
 {
     if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
         return false;
@@ -59,7 +59,7 @@ static bool HasValidSimCard(std::vector<int32_t> &slotIds)
     return hasValidSimCard;
 }
 
-static void AddTestData(MessageParcel &data)
+static void SetApnPluginTest::AddTestData(MessageParcel &data)
 {
     data.WriteInt32(ADD_FIELD_SIZE);
     data.WriteString("profile_name");
@@ -81,7 +81,7 @@ static void AddTestData(MessageParcel &data)
     data.WriteString("TEST_ADD_MMS_IP_ADDRESS");
 }
 
-static void UpdateTestData(MessageParcel &data)
+static void SetApnPluginTest::UpdateTestData(MessageParcel &data)
 {
     data.WriteInt32(UPDATE_FIELD_SIZE);
     data.WriteString("profile_name");
@@ -90,7 +90,7 @@ static void UpdateTestData(MessageParcel &data)
     data.WriteString("TEST_UPDATE_APN");
 }
 
-static void GetApnId()
+static void SetApnPluginTest::GetApnId()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
@@ -109,7 +109,7 @@ static void GetApnId()
     }
 }
 
-static void GetApnId(const std::string &opkey, std::string &apnId)
+static void SetApnPluginTest::GetApnId(const std::string &opkey, std::string &apnId)
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
@@ -130,7 +130,7 @@ static void GetApnId(const std::string &opkey, std::string &apnId)
     }
 }
 
-static void AddApn()
+static void SetApnPluginTest::AddApn()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
@@ -147,7 +147,7 @@ static void AddApn()
     GetApnId();
 }
 
-static void DeleteApn()
+static void SetApnPluginTest::DeleteApn()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
