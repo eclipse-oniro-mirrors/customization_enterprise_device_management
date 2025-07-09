@@ -40,7 +40,7 @@ constexpr int32_t OPKEY_QUERY_SIZE = 1;
 std::string g_testApnId = "-1";
 
 static bool HasValidSimCard(std::vector<int32_t> &slotIds)
-{ 
+{
     if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
         return false;
     }
