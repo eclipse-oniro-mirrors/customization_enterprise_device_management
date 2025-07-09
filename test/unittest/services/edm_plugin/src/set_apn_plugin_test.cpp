@@ -35,25 +35,28 @@ const std::string QUERY_ID_FLAG = "QueryApnIds";
 const std::string QUERY_INFO_FLAG = "QueryApn";
 constexpr int32_t ADD_FIELD_SIZE = 8;
 constexpr int32_t UPDATE_FIELD_SIZE = 2;
+constexpr int32_t OPKEY_QUERY_SIZE = 1;
 }
 std::string g_testApnId = "-1";
 
-static bool HasSimCard()
-{
-    bool hasSimCard = false;
+static bool HasValidSimCard(std::vector<int32_t> &slotIds)
+{ 
     if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
-        return hasSimCard;
+        return false;
     }
     int32_t slotCount = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
-
-    for (int32_t i = 0; i<slotCount; i++) {
+    bool hasValidSimCard = false;
+    for (int32_t i = 0; i < slotCount; i++) {
+        if (!Telephony::CoreServiceClient::GetInstance().IsSimActive(i)) {
+            continue;
+        }
         int32_t id = Telephony::CoreServiceClient::GetInstance().GetSimId(i);
-        if (id > 0) {
-            hasSimCard = true;
-            break;
+        if (id >= 0) {
+            hasValidSimCard = true;
+            slotIds.push_back(i);
         }
     }
-    return hasSimCard;
+    return hasValidSimCard;
 }
 
 static void AddTestData(MessageParcel &data)
@@ -103,6 +106,27 @@ static void GetApnId()
     ret = reply.ReadInt32();
     if (ret == ERR_OK && reply.ReadInt32() > 0) {
         g_testApnId = reply.ReadString();
+    }
+}
+
+static void GetApnId(const std::string &opkey, std::string &apnId)
+{
+    std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
+    std::string policyData;
+    MessageParcel data;
+    data.WriteString(QUERY_ID_FLAG);
+    data.WriteInt32(OPKEY_QUERY_SIZE);
+    data.WriteString("opkey");
+    data.WriteString(opkey);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    if (ret != ERR_OK) {
+        EDMLOGE("SetApnPluginTest GetApnId failed");
+        return;
+    }
+    ret = reply.ReadInt32();
+    if (ret == ERR_OK && reply.ReadInt32() > 0) {
+        apnId = reply.ReadString();
     }
 }
 
@@ -237,15 +261,22 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
 {
-    if (!HasSimCard()) {
+    std::vector<int32_t> slotIds;
+    if (!HasValidSimCard(slotIds)) {
         return;
     }
+
+    std::string opkey = system::GetParameter(std::string("telephony.sim.opkey") + std::to_string(slotIds[0]), "");
+    std::string apnId;
+    GetApnId(opkey, apnId);
+    ASSERT_TRUE(apnId.empty() == false);
+
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;
     data.WriteString(SET_PREFER_FLAG);
-    data.WriteString(g_testApnId);
+    data.WriteString(apnId);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
