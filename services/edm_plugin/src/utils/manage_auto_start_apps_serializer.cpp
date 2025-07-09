@@ -103,7 +103,7 @@ bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::
             if (index != autoStartString.npos) {
                 appInfo.SetBundleName(autoStartString.substr(0, index));
                 appInfo.SetAbilityName(autoStartString.substr(index + 1));
-                appInfo.SetDisallowModify(false);
+                appInfo.SetDisallowModify(true);
                 dataObj.emplace_back(appInfo);
             } else {
                 EDMLOGE("ManageAutoStartAppsSerializer parse auto start app want failed");

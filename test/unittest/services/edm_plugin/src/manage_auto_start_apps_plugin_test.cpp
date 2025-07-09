@@ -211,7 +211,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestGetDisallowModifyFail, TestSize.Leve
     data.WriteString("com.test1");
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     bool disallowModify = reply.ReadBool();
-    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (!disallowModify));
+    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (disallowModify));
 }
 
 /**

@@ -156,7 +156,7 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
         }
         if (!hasSetAutoStart) {
             reply.WriteInt32(ERR_OK);
-            reply.WriteBool(false);
+            reply.WriteBool(true);
         }
     } else {
         EDMLOGE("ManageAutoStartAppsPlugin::OnGetPolicy type error");
@@ -305,9 +305,9 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         }
         ErrCode res;
         if (isSet) {
-            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, !item.GetDisallowModify());
+            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
         } else {
-            res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, !item.GetDisallowModify());
+            res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
         }
         if (res != ERR_OK) {
             EDMLOGW("OnRemovePolicy SetOrCancelApplicationAutoStartupByEDM err res: %{public}d bundleName: %{public}s "
