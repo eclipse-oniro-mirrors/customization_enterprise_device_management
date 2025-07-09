@@ -26,8 +26,15 @@ namespace TEST {
 class SetApnPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
-
     static void TearDownTestSuite(void);
+private:
+    static bool HasValidSimCard(std::vector<int32_t> &slotIds);
+    static void AddTestData(MessageParcel &data);
+    static void UpdateTestData(MessageParcel &data);
+    static void GetApnId();
+    static void GetApnId(const std::string &opkey, std::string &apnId);
+    static void AddApn();
+    static void DeleteApn();
 };
 } // namespace TEST
 } // namespace EDM
