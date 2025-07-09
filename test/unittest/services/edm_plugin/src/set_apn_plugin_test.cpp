@@ -36,8 +36,8 @@ const std::string QUERY_INFO_FLAG = "QueryApn";
 constexpr int32_t ADD_FIELD_SIZE = 8;
 constexpr int32_t UPDATE_FIELD_SIZE = 2;
 constexpr int32_t OPKEY_QUERY_SIZE = 1;
-}
 std::string g_testApnId = "-1";
+}
 
 static bool HasValidSimCard(std::vector<int32_t> &slotIds)
 {
