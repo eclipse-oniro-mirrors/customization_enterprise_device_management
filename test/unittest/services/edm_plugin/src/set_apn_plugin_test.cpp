@@ -59,7 +59,7 @@ bool SetApnPluginTest::HasValidSimCard(std::vector<int32_t> &slotIds)
     return hasValidSimCard;
 }
 
-static void SetApnPluginTest::AddTestData(MessageParcel &data)
+void SetApnPluginTest::AddTestData(MessageParcel &data)
 {
     data.WriteInt32(ADD_FIELD_SIZE);
     data.WriteString("profile_name");
@@ -81,7 +81,7 @@ static void SetApnPluginTest::AddTestData(MessageParcel &data)
     data.WriteString("TEST_ADD_MMS_IP_ADDRESS");
 }
 
-static void SetApnPluginTest::UpdateTestData(MessageParcel &data)
+void SetApnPluginTest::UpdateTestData(MessageParcel &data)
 {
     data.WriteInt32(UPDATE_FIELD_SIZE);
     data.WriteString("profile_name");
@@ -90,7 +90,7 @@ static void SetApnPluginTest::UpdateTestData(MessageParcel &data)
     data.WriteString("TEST_UPDATE_APN");
 }
 
-static void SetApnPluginTest::GetApnId()
+void SetApnPluginTest::GetApnId()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
@@ -109,7 +109,7 @@ static void SetApnPluginTest::GetApnId()
     }
 }
 
-static void SetApnPluginTest::GetApnId(const std::string &opkey, std::string &apnId)
+void SetApnPluginTest::GetApnId(const std::string &opkey, std::string &apnId)
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     std::string policyData;
@@ -130,7 +130,7 @@ static void SetApnPluginTest::GetApnId(const std::string &opkey, std::string &ap
     }
 }
 
-static void SetApnPluginTest::AddApn()
+void SetApnPluginTest::AddApn()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_APN_INFO);
@@ -147,7 +147,7 @@ static void SetApnPluginTest::AddApn()
     GetApnId();
 }
 
-static void SetApnPluginTest::DeleteApn()
+void SetApnPluginTest::DeleteApn()
 {
     std::shared_ptr<SetApnPlugin> plugin = std::make_shared<SetApnPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_APN_INFO);
