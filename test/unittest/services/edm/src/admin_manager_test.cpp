@@ -321,6 +321,49 @@ HWTEST_F(AdminManagerTest, TestIsSuperAdmin, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestIsByodAdmin001
+ * @tc.desc: Test AdminManager::IsByodAdmin function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestIsByodAdmin001, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    ASSERT_TRUE(!adminMgr_->IsByodAdmin(bundleName, DEFAULT_USER_ID));
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::BYOD, entInfo, permissions, false);
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    ASSERT_TRUE(adminMgr_->IsByodAdmin(bundleName, DEFAULT_USER_ID));
+}
+
+/**
+ * @tc.name: TestIsByodAdmin002
+ * @tc.desc: Test AdminManager::IsByodAdmin admin is normal
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestIsByodAdmin002, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_ENT_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
+    adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    ASSERT_TRUE(!adminMgr_->IsByodAdmin(bundleName, DEFAULT_USER_ID));
+}
+
+/**
  * @tc.name: TestIsSuperAdminExist
  * @tc.desc: Test AdminManager::IsSuperAdminExist function.
  * @tc.type: FUNC

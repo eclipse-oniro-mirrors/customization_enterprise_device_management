@@ -4000,6 +4000,44 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAndDisableBYODAdmin, TestSize
 }
 
 /**
+ * @tc.name: TestIsByodAdmin001
+ * @tc.desc: Test IsByodAdmin without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsByodAdmin001, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    bool isByod = false;
+    ErrCode ret = edmMgr_->IsByodAdmin(admin, isByod);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestIsByodAdmin002
+ * @tc.desc: Test IsByodAdmin with GetHapTokenInfoFaild.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsByodAdmin002, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    bool isByod = false;
+    ErrCode ret = edmMgr_->IsByodAdmin(admin, isByod);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
  * @tc.name: TestCheckAndGetAdminProvisionInfoWithAdminExists
  * @tc.desc: Test CheckAndGetAdminProvisionInfo With Admin Exists.
  * @tc.type: FUNC

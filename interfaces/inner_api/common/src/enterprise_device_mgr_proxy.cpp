@@ -213,6 +213,21 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bo
     return mgrService->IsSuperAdmin(bundleName, result);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::IsByodAdmin");
+    result = false;
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return mgrService->IsByodAdmin(admin, result);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsAdminEnabled");

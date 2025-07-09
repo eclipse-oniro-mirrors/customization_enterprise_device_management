@@ -39,6 +39,7 @@ public:
     bool IsByodAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
     bool IsAdminExist();
+    bool IsByodAdmin(const std::string &bundleName, int32_t userId);
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
     bool HasPermissionToHandlePolicy(std::shared_ptr<Admin> admin, const std::string &policyName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);

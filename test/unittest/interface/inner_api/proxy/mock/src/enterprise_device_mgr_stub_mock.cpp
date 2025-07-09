@@ -67,6 +67,13 @@ int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminFail(const std::string &bundl
     return ERR_OK;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeIsByodAdminFail(const AppExecFwk::ElementName &admin, bool &isByod)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsByodAdminFail";
+    isByod = false;
+    return ERR_OK;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeGetSuperAdmin(std::string &bundleName, std::string &abilityName)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetSuperAdmin";
