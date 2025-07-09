@@ -38,7 +38,7 @@ public:
     int32_t SetAutoUnlockAfterReboot(MessageParcel &data);
     int32_t GetAutoUnlockAfterReboot(MessageParcel &data, bool &authData);
     int32_t SetInstallLocalEnterpriseAppEnabled(MessageParcel &data);
-    int32_t IsInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
+    int32_t GetInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
     int32_t AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType);
     int32_t GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
 

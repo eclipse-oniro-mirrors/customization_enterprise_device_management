@@ -34,6 +34,8 @@ class EnterpriseDeviceMgrAbilityTest : public testing::Test {
 public:
     void SetUp() override;
     void TearDown() override;
+    static void SetUpTestSuite();
+    static void TearDownTestSuite();
     void PrepareBeforeHandleDevicePolicy();
     void GetPolicySuccess(int32_t userId, const std::string& adminName, const std::string& policyName);
     void GetPolicyFailed(int32_t userId, const std::string& adminName, const std::string& policyName);

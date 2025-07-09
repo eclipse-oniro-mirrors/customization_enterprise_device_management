@@ -55,7 +55,7 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedNearLinkProtocols", GetDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("setInstallLocalEnterpriseAppEnabled", SetInstallLocalEnterpriseAppEnabled),
-        DECLARE_NAPI_FUNCTION("isInstallLocalEnterpriseAppEnabled", IsInstallLocalEnterpriseAppEnabled),
+        DECLARE_NAPI_FUNCTION("getInstallLocalEnterpriseAppEnabled", GetInstallLocalEnterpriseAppEnabled),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -770,13 +770,13 @@ napi_value SystemManagerAddon::SetInstallLocalEnterpriseAppEnabled(napi_env env,
 #endif
 }
  
-napi_value SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled(napi_env env, napi_callback_info info)
 {
 #ifdef FEATURE_PC_ONLY
-    EDMLOGI("SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isInstallLocalEnterpriseAppEnabled");
+    EDMLOGI("SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getInstallLocalEnterpriseAppEnabled");
     AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "IsInstallLocalEnterpriseAppEnabled";
+    addonMethodSign.name = "GetInstallLocalEnterpriseAppEnabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
@@ -786,18 +786,18 @@ napi_value SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled(napi_env env, 
     }
     bool isAllowedInstall = false;
     int32_t ret =
-        SystemManagerProxy::GetSystemManagerProxy()->IsInstallLocalEnterpriseAppEnabled(adapterAddonData.data,
+        SystemManagerProxy::GetSystemManagerProxy()->GetInstallLocalEnterpriseAppEnabled(adapterAddonData.data,
             isAllowedInstall);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-        EDMLOGE("SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled failed!");
+        EDMLOGE("SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled failed!");
         return nullptr;
     }
     napi_value resultBool = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isAllowedInstall, &resultBool));
     return resultBool;
 #else
-    EDMLOGW("SystemManagerAddon::IsInstallLocalEnterpriseAppEnabled Unsupported Capabilities");
+    EDMLOGW("SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled Unsupported Capabilities");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif

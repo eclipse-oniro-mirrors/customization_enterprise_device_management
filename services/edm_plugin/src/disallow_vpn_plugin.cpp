@@ -42,7 +42,7 @@ void DisallowVPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPl
     persistParam_ = "persist.edm.vpn_disable";
 }
 
-ErrCode DisallowVPNPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisallowVPNPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowVPNPlugin SetOtherModulePolicy...");
     if (data) {

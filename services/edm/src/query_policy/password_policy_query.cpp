@@ -17,10 +17,14 @@
 
 #include "edm_log.h"
 #include "password_policy.h"
+#include "password_policy_utils.h"
 #include "password_policy_serializer.h"
 
 namespace OHOS {
 namespace EDM {
+ 
+constexpr int32_t WITHOUT_ADMIN = 1;
+
 std::string PasswordPolicyQuery::GetPolicyName()
 {
     return PolicyName::POLICY_PASSWORD_POLICY;
@@ -28,6 +32,9 @@ std::string PasswordPolicyQuery::GetPolicyName()
 
 std::string PasswordPolicyQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
+    if (permissionTag == EdmConstants::PERMISSION_TAG_SYSTEM_API) {
+        return "";
+    }
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY;
 }
 
@@ -35,9 +42,17 @@ ErrCode PasswordPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel 
     int32_t userId)
 {
     PasswordPolicy policy;
-    if (!PasswordSerializer::GetInstance()->Deserialize(policyData, policy)) {
-        EDMLOGD("PasswordPolicyPlugin Deserialize error!");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (data.ReadInt32() == WITHOUT_ADMIN) {
+        PasswordPolicyUtils passwordPolicyUtils;
+        if (!passwordPolicyUtils.GetPasswordPolicy(policy)) {
+            EDMLOGE("LocationPolicyPlugin set location failed. GetPasswordPolicy error.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    } else {
+        if (!PasswordSerializer::GetInstance()->Deserialize(policyData, policy)) {
+            EDMLOGD("PasswordPolicyPlugin Deserialize error!");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteString(policy.complexityReg);

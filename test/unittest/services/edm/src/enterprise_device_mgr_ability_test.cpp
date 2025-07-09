@@ -47,6 +47,8 @@ constexpr int32_t MAP_TESTPLUGIN_POLICYCODE = 12;
 constexpr int32_t HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE = 23;
 constexpr int32_t HANDLE_POLICY_JSON_BIFUNCTIONPLG_POLICYCODE = 30;
 constexpr int32_t HANDLE_POLICY_BIFUNCTION_UNSAVE_PLG_POLICYCODE = 31;
+constexpr int32_t BEGIN_POLICY_CODE = 10;
+constexpr int32_t END_POLICY_CODE = 33;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
 constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
@@ -118,10 +120,22 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
     edmMgr_->adminMgr_->ClearAdmins();
-    PluginManager::GetInstance()->instance_.reset();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
     edmMgr_.clear();
+}
+
+void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
+{
+    for (int32_t i = BEGIN_POLICY_CODE; i <= END_POLICY_CODE; i++) {
+        PluginManager::deviceCoreSoCodes_.push_back(i);
+    }
+}
+
+void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
+{
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 int32_t EnterpriseDeviceMgrAbilityTest::TestDump()
@@ -3262,6 +3276,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
     data.WriteInt32(1);
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
     PluginManager::GetInstance()->AddPlugin(plugin_);
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -3985,6 +4000,44 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAndDisableBYODAdmin, TestSize
 }
 
 /**
+ * @tc.name: TestIsByodAdmin001
+ * @tc.desc: Test IsByodAdmin without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsByodAdmin001, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    bool isByod = false;
+    ErrCode ret = edmMgr_->IsByodAdmin(admin, isByod);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestIsByodAdmin002
+ * @tc.desc: Test IsByodAdmin with GetHapTokenInfoFaild.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsByodAdmin002, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    bool isByod = false;
+    ErrCode ret = edmMgr_->IsByodAdmin(admin, isByod);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
  * @tc.name: TestCheckAndGetAdminProvisionInfoWithAdminExists
  * @tc.desc: Test CheckAndGetAdminProvisionInfo With Admin Exists.
  * @tc.type: FUNC
@@ -4063,6 +4116,43 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoGetHap
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestCheckDisableAdmin001
+ * @tc.desc: Test CheckDisableAdmin isDebug is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin001, TestSize.Level1)
+{
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, true);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestCheckDisableAdmin002
+ * @tc.desc: Test CheckDisableAdmin VerifyCallingPermission success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin002, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+    .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, false);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestCheckDisableAdmin003
+ * @tc.desc: Test CheckDisableAdmin with GetHapTokenInfoFailed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableAdmin003, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+    .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    bool result = edmMgr_->CheckDisableAdmin(ADMIN_PACKAGENAME, AdminType::BYOD, false);
+    ASSERT_FALSE(result);
 }
 
 /**
@@ -4292,7 +4382,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesTypeFailed,
     const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     int32_t userId = 100;
     int32_t policyType = 4;
-    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }

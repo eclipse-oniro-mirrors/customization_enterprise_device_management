@@ -63,11 +63,11 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
     EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
     EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
-    EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
+    EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION, EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY,
     EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-    EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
-    EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
+    EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS, EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
     EdmInterfaceCode::DISALLOWED_SUDO, EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
+    EdmInterfaceCode::DISABLED_PRINT,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -86,7 +86,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
-    EdmInterfaceCode::DISALLOWED_NFC, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
+    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
     EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE, EdmInterfaceCode::TELEPHONY_CALL_POLICY,
     EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL, EdmInterfaceCode::DISALLOW_VPN
 };
@@ -104,7 +104,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_SERIAL, EdmInterfaceCode::GET_DEVICE_NAME,
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
-    EdmInterfaceCode::GET_ADMINPROVISION_INFO
+    EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER
 };
 
 PluginManager::PluginManager()
@@ -115,6 +115,7 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
+    NotifyUnloadAllPlugin();
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
@@ -278,27 +279,28 @@ bool PluginManager::IsExtraPlugin(const std::string &soName)
         && soName != SONAME::OLD_EDM_PLUGIN_SO;
 }
 
-void PluginManager::LoadPluginByFuncCode(uint32_t funcCode)
+ErrCode PluginManager::LoadPluginByFuncCode(uint32_t funcCode)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
-    LoadPluginByCode(code);
+    return LoadPluginByCode(code);
 }
 
-void PluginManager::LoadPluginByCode(uint32_t code)
+ErrCode PluginManager::LoadPluginByCode(uint32_t code)
 {
     if (code > EdmInterfaceCode::POLICY_CODE_END) {
         LoadExtraPlugin();
-        return;
+        return ERR_OK;
     }
     std::string soName;
     if (!GetSoNameByCode(code, soName)) {
         EDMLOGE("PluginManager::LoadPluginByCode soname not found");
-        return;
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
         LoadExtraPlugin();
     }
     LoadPlugin(soName);
+    return ERR_OK;
 }
 
 void PluginManager::LoadPlugin(const std::string &soName)
@@ -411,8 +413,12 @@ void PluginManager::UnloadPlugin(const std::string &soName)
     for (const auto& code : *targetVec) {
         RemovePlugin(GetPluginByCode(code));
     }
+    if (soLoadStateMap_.find(soName) == soLoadStateMap_.end()) {
+        EDMLOGE("PluginManager::UnloadPlugin this so %{public}s not find", soName.c_str());
+        return;
+    }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
-    if (loadStatePtr->pluginHandles == nullptr) {
+    if (loadStatePtr == nullptr || loadStatePtr->pluginHandles == nullptr) {
         EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
         return;
     }
@@ -448,23 +454,26 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
     if (configs.empty()) {
         return;
     }
-    for (const auto &config : configs) {
-        for (const auto &typePermission : config.typePermissions) {
-            PermissionManager::GetInstance()->RemovePermission(typePermission.second,
-                typePermission.first, plugin->GetCode());
-        }
-        for (const auto &tagPermission : config.tagPermissions) {
-            for (const auto &typePermission : tagPermission.second) {
-                PermissionManager::GetInstance()->RemovePermission(typePermission.second,
-                    typePermission.first, plugin->GetCode());
-            }
-        }
-    }
     pluginsCode_.erase(plugin->GetCode());
     pluginsName_.erase(plugin->GetPolicyName());
     auto basicPlugin = GetPluginByCode(plugin->GetBasicPluginCode());
     if (basicPlugin != nullptr) {
         basicPlugin->ResetExtensionPlugin();
+    }
+}
+
+void PluginManager::NotifyUnloadAllPlugin()
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+    for (const auto& it : soLoadStateMap_) {
+        auto state = it.second;
+        if (state->pluginHasInit) {
+            state->pluginHasInit = false;
+            std::unique_lock<std::mutex> lock(state->waitMutex);
+            state->notifySignal = true;
+            state->lastCallTime = std::chrono::system_clock::time_point(std::chrono::milliseconds(0));
+            state->waitSignal.notify_one();
+        }
     }
 }
 

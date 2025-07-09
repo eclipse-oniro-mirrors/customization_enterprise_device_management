@@ -48,7 +48,7 @@ void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlug
     ptr->SetOnAdminRemoveListener(&DisableHdcPlugin::OnAdminRemove);
 }
 
-ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     std::string newPara = data ? "false" : "true";
     if (!system::SetParameter(PERSIST_HDC_CONTROL, newPara)) {
@@ -58,7 +58,7 @@ ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data)
     return ERR_OK;
 }
 
-ErrCode DisableHdcPlugin::RemoveOtherModulePolicy()
+ErrCode DisableHdcPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     if (!system::SetParameter(PERSIST_HDC_CONTROL, "true")) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

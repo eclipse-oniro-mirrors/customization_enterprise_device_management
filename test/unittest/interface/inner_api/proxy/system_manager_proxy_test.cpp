@@ -360,11 +360,11 @@ HWTEST_F(SystemManagerProxyTest, TestSetAutoUnlockAfterRebootFail, TestSize.Leve
 }
 
 /**
- * @tc.name: TestIsInstallLocalEnterpriseAppEnabledFail
- * @tc.desc: Test IsInstallLocalEnterpriseAppEnabled func.
+ * @tc.name: TestGetInstallLocalEnterpriseAppEnabledFail
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledFail, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     MessageParcel data;
@@ -372,16 +372,16 @@ HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledFail, Tes
     admin.SetBundleName(ADMIN_PACKAGENAME);
     data.WriteParcelable(&admin);
     bool isAllowed = true;
-    int32_t ret = systemmanagerProxy->IsInstallLocalEnterpriseAppEnabled(data, isAllowed);
+    int32_t ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabled(data, isAllowed);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
  
 /**
- * @tc.name: TestIsInstallLocalEnterpriseAppEnabledSuc
- * @tc.desc: Test IsInstallLocalEnterpriseAppEnabled func.
+ * @tc.name: TestGetInstallLocalEnterpriseAppEnabledSuc
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabled func.
  * @tc.type: FUNC
  */
-HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledSuc, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledSuc, TestSize.Level1)
 {
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
@@ -391,7 +391,7 @@ HWTEST_F(SystemManagerProxyTest, TestIsInstallLocalEnterpriseAppEnabledSuc, Test
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
     bool isAllowed = true;
-    int32_t ret = systemmanagerProxy->IsInstallLocalEnterpriseAppEnabled(data, isAllowed);
+    int32_t ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabled(data, isAllowed);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(isAllowed);
 }

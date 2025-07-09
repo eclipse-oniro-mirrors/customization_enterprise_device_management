@@ -61,6 +61,13 @@ bool EnterpriseDeviceMgrProxy::IsEdmEnabled()
     return edmParaValue == "true";
 }
 
+bool EnterpriseDeviceMgrProxy::IsEdmExtEnabled()
+{
+    std::string edmExtParaValue = system::GetParameter("persist.edm.edm_ext_enable", "false");
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetParameter %{public}s", edmExtParaValue.c_str());
+    return edmExtParaValue == "true";
+}
+
 ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
     int32_t userId)
 {
@@ -204,6 +211,21 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bo
     }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->IsSuperAdmin(bundleName, result);
+}
+
+ErrCode EnterpriseDeviceMgrProxy::IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::IsByodAdmin");
+    result = false;
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return mgrService->IsByodAdmin(admin, result);
 }
 
 ErrCode EnterpriseDeviceMgrProxy::IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result)
@@ -493,7 +515,12 @@ bool EnterpriseDeviceMgrProxy::GetPolicyData(AppExecFwk::ElementName *admin, int
 
 bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply)
 {
-    if (!IsEdmEnabled()) {
+    if (policyCode == EdmInterfaceCode::PASSWORD_POLICY) {
+        if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
+            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+            return false;
+        }
+    } else if (!IsEdmEnabled()) {
         reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
         return false;
     }

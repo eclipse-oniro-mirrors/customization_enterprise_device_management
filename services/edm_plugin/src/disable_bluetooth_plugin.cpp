@@ -50,7 +50,7 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
     persistParam_ = "persist.edm.prohibit_bluetooth";
 }
 
-ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     if (data && Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled() &&
         Bluetooth::BluetoothHost::GetDefaultHost().DisableBt() != Bluetooth::BT_NO_ERROR) {

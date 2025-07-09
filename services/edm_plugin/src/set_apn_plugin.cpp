@@ -20,7 +20,6 @@
 #include "iplugin_manager.h"
 #include "func_code_utils.h"
 #include "edm_ipc_interface_code.h"
-#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
@@ -69,29 +68,12 @@ ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
 {
     EDMLOGI("SetApnPlugin::HandleAdd start");
     ApnUtilsPassword apnUtilsPassword;
-    ErrCode ret = ERR_OK;
-    do {
-        std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
-        if (apnInfo.size() == 0) {
-            ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
-            break;
-        }
-        std::string opkey0 = system::GetParameter("telephony.sim.opkey0", "");
-        std::string opkey1 = system::GetParameter("telephony.sim.opkey1", "");
-        std::string mccmnc = apnInfo["mcc"] + apnInfo["mnc"];
-        if (mccmnc == opkey0) {
-            apnInfo["opkey"] = opkey0;
-        } else if (mccmnc == opkey1) {
-            apnInfo["opkey"] = opkey1;
-        } else {
-            EDMLOGE("mcc or mnc is invalid");
-            ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
-            break;
-        }
-        ret = ApnUtils::ApnInsert(apnInfo, apnUtilsPassword);
-    } while (0);
+    std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
+    if (apnInfo.size() == 0) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
 
-    return ret;
+    return ApnUtils::ApnInsert(apnInfo, apnUtilsPassword);
 }
 
 ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)

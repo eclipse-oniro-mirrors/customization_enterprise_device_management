@@ -64,6 +64,10 @@ namespace EdmConstants {
 
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
+    // 使能外设存储管控，true为使能，2B版本默认为true，2C版本默认为false
+    constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
+        "const.enterprise.external_storage_device.manage.enable";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
@@ -96,6 +100,10 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOW_NEAR_LINK = 18;
         constexpr uint32_t DISABLE_DEVELOPER_MODE = 20;
         constexpr uint32_t DISABLE_RESET_FACTORY = 21;
+        constexpr uint32_t DISABLE_OTA = 23;
+        constexpr uint32_t DISALLOWED_NFC = 24;
+        constexpr uint32_t DISALLOW_REMOTE_DESK = 25;
+        constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
     }
 
     namespace KeepAlive {
@@ -151,6 +159,9 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_TELEPHONY_CALL = "telephoneCall";
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
+        const char* const LABEL_DISALLOWED_POLICY_OTA = "otaUpdate";
+        const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
+        const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -246,6 +257,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
     const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
+    const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -266,8 +278,6 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_PRIVATE_SPACE = "disabled_private_space";
     const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
-    const char* const POLICY_DISABLED_REMOTE_DESK = "disabled_remote_desk";
-    const char* const POLICY_DISABLED_REMOTE_DIAGNOSIS = "disabled_remote_diagnosis";
     const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
@@ -285,6 +295,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION = "disallowed_distributed_transmission";
+    const char* const POLICY_DISALLOWED_EXPORT_RECOVERY_KEY = "disallowed_export_recovery_key";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
@@ -348,6 +359,7 @@ namespace PolicyName {
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
+    const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -355,7 +367,7 @@ namespace PolicyName {
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
     const char* const POLICY_ALLOW_ALL = "allow_all";
-    const char* const POLICY_DISALLOWED_NFC = "disallowed_nfc";
+    const char* const POLICY_DISABLED_PRINT = "disabled_print";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

@@ -110,10 +110,6 @@
 #include "disallow_power_long_press_query.h"
 #endif
 
-#ifdef NFC_EDM_ENABLE
-#include "disallowed_nfc_query.h"
-#endif
-
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "disallowed_airplane_mode_query.h"
 #endif
@@ -128,9 +124,11 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_modify_ethernet_ip_query.h"
+#include "disallow_export_recovery_key_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
+#include "disable_print_query.h"
 #endif
 
 #ifdef SUDO_EDM_ENABLE
@@ -146,8 +144,6 @@
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
-#include "disable_remote_desk_query.h"
-#include "disable_remote_diagnosis_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
 #include "disable_user_mtp_client_query.h"
@@ -403,12 +399,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLE_MTP_SERVER:
             obj = std::make_shared<DisableMtpServerQuery>();
             return ERR_OK;
-        case EdmInterfaceCode::DISABLE_REMOTE_DESK:
-            obj = std::make_shared<DisableRemoteDeskQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS:
-            obj = std::make_shared<DisableRemoteDiagnosisQuery>();
-            return ERR_OK;
         case EdmInterfaceCode::DISABLE_USER_MTP_CLIENT:
             obj = std::make_shared<DisableUserMtpClientQuery>();
             return ERR_OK;
@@ -578,6 +568,20 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
         case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
             obj = std::make_shared<DisallowDistributedTransmissionQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowExportRecoveryKeyQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLED_PRINT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisablePrintQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
@@ -614,13 +618,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
         case EdmInterfaceCode::DISABLE_SAMBA_SERVER:
 #ifdef SAMBA_EDM_ENABLE
             obj = std::make_shared<DisableSambaServerQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOWED_NFC:
-#ifdef NFC_EDM_ENABLE
-            obj = std::make_shared<DisallowedNFCQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

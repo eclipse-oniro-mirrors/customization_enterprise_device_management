@@ -242,6 +242,7 @@ napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, nap
         elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
+        return nullptr;
     }
 
     napi_value jsList = nullptr;
@@ -368,6 +369,7 @@ napi_value TelephonyManagerAddon::GetIncomingCallPolicyNumbers(napi_env env, nap
         elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
+        return nullptr;
     }
 
     napi_value jsList = nullptr;

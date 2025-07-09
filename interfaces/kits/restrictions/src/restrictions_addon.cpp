@@ -39,8 +39,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_CLIENT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SAMBA_SERVER, EdmInterfaceCode::DISABLE_SAMBA_SERVER},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MAINTENANCE_MODE, EdmInterfaceCode::DISABLE_MAINTENANCE_MODE},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DESK, EdmInterfaceCode::DISABLE_REMOTE_DESK},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DESK, EdmInterfaceCode::POLICY_CODE_END + 25},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_REMOTE_DIAGNOSIS, EdmInterfaceCode::POLICY_CODE_END + 26},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREENSHOT, EdmInterfaceCode::POLICY_CODE_END + 11},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD, EdmInterfaceCode::POLICY_CODE_END + 12},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISK_RECOVERY_KEY, EdmInterfaceCode::POLICY_CODE_END + 17},
@@ -50,17 +50,18 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_CAMERA, EdmInterfaceCode::DISABLE_CAMERA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DEVELOPER_MODE, POLICY_CODE_END + 20},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_RESET_FACTORY, POLICY_CODE_END + 21},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NFC, POLICY_CODE_END + 24},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SMS, EdmInterfaceCode::DISALLOWED_SMS},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MMS, EdmInterfaceCode::DISALLOWED_MMS},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BACKUP_AND_RESTORE,
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NFC, EdmInterfaceCode::DISALLOWED_NFC},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_AIRPLANE_MODE, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NOTIFICATION, EdmInterfaceCode::DISALLOWED_NOTIFICATION},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL}
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OTA, POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -99,6 +100,9 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY,
+        EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

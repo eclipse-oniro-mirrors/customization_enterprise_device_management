@@ -182,7 +182,7 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
 
     if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
         cJSON *policiesArray = nullptr;
-        CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
+        CJSON_CREATE_ARRAY_AND_CHECK_VOID(policiesArray);
         for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
             cJSON* itemJson = cJSON_CreateString(policy.c_str());
             if (itemJson == nullptr) {
@@ -313,8 +313,7 @@ void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, 
     if (stringInfo.empty() || stringInfo == "null") {
         return;
     }
-    cJSON *jsonInfo = nullptr;
-    ConvertStrToJson(stringInfo, jsonInfo);
+    cJSON *jsonInfo = cJSON_Parse(stringInfo.c_str());
     if (jsonInfo == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::SetAdminStringInfo failed: JSON parsing failed.");
         return;
@@ -382,8 +381,7 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
         return;
     }
 
-    cJSON* managedEventsJson = nullptr;
-    ConvertStrToJson(managedEventsStr, managedEventsJson);
+    cJSON* managedEventsJson = cJSON_Parse(managedEventsStr.c_str());
     if (managedEventsJson == nullptr) {
         return;
     }
@@ -401,17 +399,6 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
     }
     
     cJSON_Delete(managedEventsJson);
-}
-
-void AdminPoliciesStorageRdb::ConvertStrToJson(const std::string &str, cJSON *json)
-{
-    if (str.empty()) {
-        EDMLOGE("AdminPoliciesStorageRdb::ConvertStrToJson failed: str is empty.");
-        json = nullptr;
-        return;
-    }
-
-    json = cJSON_Parse(str.c_str());
 }
 } // namespace EDM
 } // namespace OHOS

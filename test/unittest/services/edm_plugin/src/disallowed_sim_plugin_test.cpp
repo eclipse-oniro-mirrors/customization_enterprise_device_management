@@ -54,9 +54,9 @@ void DisallowedSimPluginTest::TearDownTestSuite(void)
 HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim0Success, TestSize.Level1)
 {
     DisallowedSimPlugin plugin;
-    int32_t  policies = 0;
-    int32_t currentData = 0;
-    int32_t mergeData = 0;
+    uint32_t policies = 0;
+    uint32_t currentData = 0;
+    uint32_t mergeData = 0;
     ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -69,9 +69,9 @@ HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim0Success, TestSize.Level1)
 HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim1Success, TestSize.Level1)
 {
     DisallowedSimPlugin plugin;
-    int32_t  policies = 1;
-    int32_t currentData = 0;
-    int32_t mergeData = 0;
+    uint32_t policies = 1;
+    uint32_t currentData = 0;
+    uint32_t mergeData = 0;
     ErrCode ret = plugin.OnSetPolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -84,9 +84,9 @@ HWTEST_F(DisallowedSimPluginTest, TestDisallowedSim1Success, TestSize.Level1)
 HWTEST_F(DisallowedSimPluginTest, TestEnableSim0Success, TestSize.Level1)
 {
     DisallowedSimPlugin plugin;
-    int32_t  policies = 0;
-    int32_t currentData = 0;
-    int32_t mergeData = 0;
+    uint32_t policies = 0;
+    uint32_t currentData = 0;
+    uint32_t mergeData = 0;
     ErrCode ret = plugin.OnRemovePolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -99,9 +99,9 @@ HWTEST_F(DisallowedSimPluginTest, TestEnableSim0Success, TestSize.Level1)
 HWTEST_F(DisallowedSimPluginTest, TestEnableSim1Success, TestSize.Level1)
 {
     DisallowedSimPlugin plugin;
-    int32_t  policies = 1;
-    int32_t currentData = 0;
-    int32_t mergeData = 0;
+    uint32_t policies = 1;
+    uint32_t currentData = 0;
+    uint32_t mergeData = 0;
     ErrCode ret = plugin.OnRemovePolicy(policies, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }

@@ -28,6 +28,12 @@
 namespace OHOS {
 namespace EDM {
 
+enum class BtProtocol : uint32_t {
+    GATT = 0,
+    SPP = 1,
+    OPP = 2,
+};
+
 class BluetoothManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);

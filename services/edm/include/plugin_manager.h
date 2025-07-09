@@ -53,15 +53,17 @@ public:
     static std::shared_ptr<PluginManager> GetInstance();
     std::shared_ptr<IPlugin> GetPluginByFuncCode(std::uint32_t funcCode);
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
+    std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     bool AddPlugin(std::shared_ptr<IPlugin> plugin) override;
     bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
         ExecuteStrategy strategy) override;
     virtual ~PluginManager();
     
     void LoadAllPlugin();
-    void LoadPluginByCode(uint32_t code);
-    void LoadPluginByFuncCode(uint32_t funcCode);
+    ErrCode LoadPluginByCode(uint32_t code);
+    ErrCode LoadPluginByFuncCode(uint32_t funcCode);
     void DumpPlugin();
+    void NotifyUnloadAllPlugin();
 
 private:
     std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
@@ -90,7 +92,6 @@ private:
     void DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,
         std::map<std::string, std::shared_ptr<IPlugin>> pluginsName);
     void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);
-    std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> singleStrategy_ = std::make_shared<SingleExecuteStrategy>();

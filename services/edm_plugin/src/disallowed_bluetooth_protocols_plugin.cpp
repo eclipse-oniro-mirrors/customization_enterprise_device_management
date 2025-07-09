@@ -66,19 +66,20 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &da
         EDMLOGE("DisallowedBluetoothProtocolsPlugin OnSetPolicy userId is not exist");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    for (size_t i = 0; i < data.size(); ++i) {
+    std::vector<int32_t> afterHandle = ArrayIntSerializer::GetInstance()->SetUnionPolicyData(data, currentData);
+    std::vector<int32_t> afterMerge = ArrayIntSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    BluetoothConfigUtils bluetoothConfigUtils;
+    for (size_t i = 0; i < afterMerge.size(); ++i) {
         std::string protocol;
-        BtProtocolUtils btProtocolUtils;
-        if (!btProtocolUtils.IntToProtocolStr(data[i], protocol)) {
+        if (!BtProtocolUtils::IntToProtocolStr(afterMerge[i], protocol)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        BluetoothConfigUtils bluetoothConfigUtils;
         if (!bluetoothConfigUtils.UpdateProtocol(std::to_string(userId), protocol, true)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    currentData = data;
-    mergeData = currentData;
+    currentData = afterHandle;
+    mergeData = afterMerge;
     return ERR_OK;
 }
 
@@ -94,19 +95,26 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnRemovePolicy(std::vector<int32_t> 
         EDMLOGE("DisallowedBluetoothProtocolsPlugin OnRemovePolicy size is over limit");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    for (size_t i = 0; i < data.size(); ++i) {
+    std::vector<int32_t> needRemovePolicy =
+        ArrayIntSerializer::GetInstance()->SetIntersectionPolicyData(data, currentData);
+    std::vector<int32_t> afterHandle =
+        ArrayIntSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy, currentData);
+    std::vector<int32_t> afterMerge = ArrayIntSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    BluetoothConfigUtils bluetoothConfigUtils;
+    if (!bluetoothConfigUtils.RemoveUserIdItem(std::to_string(userId))) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (size_t i = 0; i < afterMerge.size(); ++i) {
         std::string protocol;
-        BtProtocolUtils btProtocolUtils;
-        if (!btProtocolUtils.IntToProtocolStr(data[i], protocol)) {
+        if (!BtProtocolUtils::IntToProtocolStr(afterMerge[i], protocol)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        BluetoothConfigUtils bluetoothConfigUtils;
-        if (!bluetoothConfigUtils.UpdateProtocol(std::to_string(userId), protocol, false)) {
+        if (!bluetoothConfigUtils.UpdateProtocol(std::to_string(userId), protocol, true)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    currentData = data;
-    mergeData = currentData;
+    currentData = afterHandle;
+    mergeData = afterMerge;
     return ERR_OK;
 }
 
@@ -116,7 +124,7 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnGetPolicy(std::string &policyData,
     EDMLOGI("DisallowedBluetoothProtocolsPlugin OnGetPolicy");
     std::vector<int32_t> protocols;
     BluetoothConfigUtils bluetoothConfigUtils;
-    if (!bluetoothConfigUtils.queryProtocols(std::to_string(userId), protocols)) {
+    if (!bluetoothConfigUtils.QueryProtocols(std::to_string(userId), protocols)) {
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -130,8 +138,17 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnAdminRemove(const std::string &adm
 {
     EDMLOGI("DisallowedBluetoothProtocolsPlugin OnAdminRemove");
     BluetoothConfigUtils bluetoothConfigUtils;
-    if (!bluetoothConfigUtils.RemoveProtocolDenyList()) {
+    if (!bluetoothConfigUtils.RemoveUserIdItem(std::to_string(userId))) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (size_t i = 0; i < mergeData.size(); ++i) {
+        std::string protocol;
+        if (!BtProtocolUtils::IntToProtocolStr(mergeData[i], protocol)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        if (!bluetoothConfigUtils.UpdateProtocol(std::to_string(userId), protocol, true)) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
     }
     NotifyBluetoothProtocolsChanged();
     return ERR_OK;
@@ -147,12 +164,17 @@ void DisallowedBluetoothProtocolsPlugin::OnChangedPolicyDone(bool isGlobalChange
 
 void DisallowedBluetoothProtocolsPlugin::NotifyBluetoothProtocolsChanged()
 {
-    EDMLOGD("DisallowedBluetoothProtocolsPlugin NotifyBluetoothProtocolsChanged.");
+    EDMLOGI("DisallowedBluetoothProtocolsPlugin NotifyBluetoothProtocolsChanged.");
     AAFwk::Want want;
     want.SetAction(EdmConstants::EDM_CONFIG_CHANGED_EVENT);
     EventFwk::CommonEventData eventData;
     eventData.SetWant(want);
-    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+    int32_t bluetoothUid = 1002;
+    EventFwk::CommonEventPublishInfo eventInfo;
+    std::vector<int32_t> subscriberUids;
+    subscriberUids.push_back(bluetoothUid);
+    eventInfo.SetSubscriberUid(subscriberUids);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData, eventInfo)) {
         EDMLOGE("NotifyBluetoothProtocolsChanged failed.");
     }
 }

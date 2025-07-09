@@ -46,14 +46,13 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_maintenance_mode_plugin_test.cpp",
     "./src/disable_mtp_client_plugin_test.cpp",
     "./src/disable_mtp_server_plugin_test.cpp",
-    "./src/disable_remote_desk_plugin_test.cpp",
-    "./src/disable_remote_diagnosis_plugin_test.cpp",
     "./src/disable_samba_client_plugin_test.cpp",
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_set_device_name_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
     "./src/disallow_distributed_transmission_plugin_test.cpp",
+    "./src/disallow_export_recovery_key_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
@@ -72,7 +71,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
-    "./src/disallowed_nfc_plugin_test.cpp",
   ]
 
   configs = [
@@ -241,8 +239,10 @@ ohos_unittest("EdmPluginTest") {
       "./src/allowed_bluetooth_devices_plugin_test.cpp",
       "./src/disable_bluetooth_plugin_test.cpp",
       "./src/disallowed_bluetooth_devices_plugin_test.cpp",
+      "./src/disallowed_bluetooth_protocols_plugin_test.cpp",
       "./src/get_bluetooth_info_plugin_test.cpp",
       "./src/switch_bluetooth_plugin_test.cpp",
+      "./src/utils/bt_protocol_utils_test.cpp",
     ]
   }
 
@@ -282,6 +282,7 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
       "./src/set_watermark_plugin_test.cpp",
+      "./src/disable_print_plugin_test.cpp",
       "./src/disable_sudo_plugin_test.cpp",
     ]
   }
@@ -416,14 +417,13 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
-    "../../../../services/edm_plugin/src/disable_remote_desk_plugin.cpp",
-    "../../../../services/edm_plugin/src/disable_remote_diagnosis_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_set_device_name_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_distributed_transmission_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_export_recovery_key_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_tethering_plugin.cpp",
@@ -450,7 +450,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
-    "../../../../services/edm_plugin/src/disallowed_nfc_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
@@ -643,8 +642,11 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_bluetooth_devices_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_bluetooth_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/get_bluetooth_info_plugin.cpp",
       "../../../../services/edm_plugin/src/switch_bluetooth_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/bluetooth_config_utils.cpp",
+      "../../../../services/edm_plugin/src/utils/bt_protocol_utils.cpp",
     ]
   }
 
@@ -717,9 +719,11 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [
+      "../../../../services/edm_plugin/src/disable_print_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_sudo_plugin.cpp"
     ]
-    defines += [ 
+    defines += [
+      "FEATURE_PC_ONLY",
       "SUDO_EDM_ENABLE"
     ]
   }

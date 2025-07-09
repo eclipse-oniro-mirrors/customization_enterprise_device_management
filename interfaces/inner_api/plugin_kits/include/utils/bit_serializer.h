@@ -16,18 +16,18 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_BIT_SERIALIZER_H
 #define SERVICES_EDM_INCLUDE_UTILS_BIT_SERIALIZER_H
 
-#include "int_serializer.h"
+#include "uint_serializer.h"
 #include "ipolicy_serializer.h"
 #include "singleton.h"
 
 namespace OHOS {
 namespace EDM {
 /*
- * Policy data serializer of type intBIT.
+ * Policy data serializer of type uintBIT.
  */
-class BitSerializer : public IntSerializer {
+class BitSerializer : public UIntSerializer {
 public:
-    bool MergePolicy(std::vector<int32_t> &data, int32_t &result) override;
+    bool MergePolicy(std::vector<uint32_t> &data, uint32_t &result) override;
 };
 } // namespace EDM
 } // namespace OHOS

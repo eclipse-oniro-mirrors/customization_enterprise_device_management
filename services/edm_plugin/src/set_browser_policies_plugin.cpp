@@ -231,7 +231,7 @@ void SetBrowserPoliciesPlugin::NotifyBrowserPolicyChanged()
     }
 }
 
-ErrCode SetBrowserPoliciesPlugin::GetOthersMergePolicyData(const std::string &adminName,
+ErrCode SetBrowserPoliciesPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
     EDMLOGD("SetBrowserPoliciesPlugin GetOthersMergePolicyData before.");

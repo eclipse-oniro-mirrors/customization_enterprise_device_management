@@ -44,6 +44,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED, "the upgrade packages do not exist or analyzing failed, $."},
     {EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED, "Add keep alive applications failed. $."},
     {EdmReturnErrCode::REPLACE_ADMIN_FAILED, "Replace admin failed. $."},
+    {EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed."},
     {EdmReturnErrCode::ENTERPRISE_POLICES_DENIED, "This function is prohibited by enterprise management policies."},
 };
 

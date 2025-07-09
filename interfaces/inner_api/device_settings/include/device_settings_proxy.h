@@ -39,6 +39,7 @@ public:
     int32_t GetPowerPolicy(const AppExecFwk::ElementName &admin, const PowerScene &powerScene,
         PowerPolicy &powerPolicy);
     int32_t GetPowerPolicy(MessageParcel &data, PowerPolicy &powerPolicy);
+    int32_t SetWallPaper(MessageParcel &data);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

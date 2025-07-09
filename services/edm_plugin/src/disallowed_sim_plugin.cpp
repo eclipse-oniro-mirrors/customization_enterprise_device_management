@@ -26,13 +26,13 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(Disallowed
 const std::string PARAM_DISABLE_SLOT0 = "persist.edm.disable_slot_0";
 const std::string PARAM_DISABLE_SLOT1 = "persist.edm.disable_slot_1";
 
-constexpr int32_t SOLT0_ID = 0;
-constexpr int32_t SOLT1_ID = 1;
+constexpr uint32_t SOLT0_ID = 0;
+constexpr uint32_t SOLT1_ID = 1;
 #define SOLT0_BIT (1 << 0)
 #define SOLT1_BIT (1 << 1)
 
 
-void DisallowedSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedSimPlugin, int32_t>> ptr)
+void DisallowedSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedSimPlugin, uint32_t>> ptr)
 {
     EDMLOGI("DisallowedSimPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_SIM, "disallowed_sim",
@@ -43,7 +43,7 @@ void DisallowedSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedS
     ptr->SetOnAdminRemoveListener(&DisallowedSimPlugin::OnAdminRemove);
 }
  
-ErrCode DisallowedSimPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId)
+ErrCode DisallowedSimPlugin::OnSetPolicy(uint32_t &data, uint32_t &currentData, uint32_t &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedSimPlugin OnSetPolicy slotId %{public}d", data);
     bool ret = false;
@@ -70,7 +70,7 @@ ErrCode DisallowedSimPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, in
     return ERR_OK;
 }
 
-ErrCode DisallowedSimPlugin::OnRemovePolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId)
+ErrCode DisallowedSimPlugin::OnRemovePolicy(uint32_t &data, uint32_t &currentData, uint32_t &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedSimPlugin OnRemovePolicy slotId %{public}d", data);
     bool ret = false;
@@ -109,8 +109,8 @@ ErrCode DisallowedSimPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     } else if (slotId == SOLT1_ID) {
         isDisable = system::GetBoolParameter(PARAM_DISABLE_SLOT1, false);
     } else {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(isDisable);
@@ -118,8 +118,8 @@ ErrCode DisallowedSimPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     return ERR_OK;
 }
 
-ErrCode DisallowedSimPlugin::OnAdminRemove(const std::string &adminName, int32_t &data,
-    int32_t &mergeData, int32_t userId)
+ErrCode DisallowedSimPlugin::OnAdminRemove(const std::string &adminName, uint32_t &data,
+    uint32_t &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedSimPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
         adminName.c_str(), data, userId);

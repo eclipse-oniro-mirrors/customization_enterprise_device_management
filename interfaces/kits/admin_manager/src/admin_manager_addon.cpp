@@ -515,6 +515,32 @@ napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
+napi_value AdminManager::IsByodAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsByodAdmin called");
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "IsByodAdmin");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    bool activeStatus = false;
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    ErrCode ret = proxy->IsByodAdmin(elementName, activeStatus);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, activeStatus, &result));
+    return result;
+}
+
 napi_value AdminManager::IsAdminEnabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("IsAdminEnabled called");
@@ -1159,6 +1185,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getEnterpriseInfo", GetEnterpriseInfo),
         DECLARE_NAPI_FUNCTION("setEnterpriseInfo", SetEnterpriseInfo),
         DECLARE_NAPI_FUNCTION("isSuperAdmin", IsSuperAdmin),
+        DECLARE_NAPI_FUNCTION("isByodAdmin", IsByodAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEvent", SubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),

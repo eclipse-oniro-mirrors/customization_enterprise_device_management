@@ -101,6 +101,7 @@ private:
     static napi_value GetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value SetEnterpriseInfo(napi_env env, napi_callback_info info);
     static napi_value IsSuperAdmin(napi_env env, napi_callback_info info);
+    static napi_value IsByodAdmin(napi_env env, napi_callback_info info);
     static napi_value IsAdminEnabled(napi_env env, napi_callback_info info);
     static napi_value CreateAdminTypeObject(napi_env env);
     static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);

@@ -50,7 +50,7 @@ void DisableUsbPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlug
     ptr->SetOtherServiceStartListener(&DisableUsbPlugin::OnOtherServiceStart);
 }
 
-ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data)
+ErrCode DisableUsbPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisableUsbPlugin OnSetPolicy...disable = %{public}d", data);
     bool hasConflict = false;
@@ -106,7 +106,7 @@ ErrCode DisableUsbPlugin::HasConflictPolicy(bool &hasConflict)
     return ERR_OK;
 }
 
-ErrCode DisableUsbPlugin::RemoveOtherModulePolicy()
+ErrCode DisableUsbPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     return UsbPolicyUtils::SetUsbDisabled(true);
 }

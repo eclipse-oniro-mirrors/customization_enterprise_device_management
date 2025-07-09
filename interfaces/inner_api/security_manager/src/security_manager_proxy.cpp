@@ -138,10 +138,12 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
     if (admin == nullptr) {
         data.WriteString(EdmConstants::PERMISSION_TAG_SYSTEM_API);
         data.WriteInt32(WITHOUT_ADMIN);
+        data.WriteInt32(WITHOUT_ADMIN);
     } else {
         data.WriteString(WITHOUT_PERMISSION_TAG);
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);
+        data.WriteInt32(HAS_ADMIN);
     }
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::PASSWORD_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;

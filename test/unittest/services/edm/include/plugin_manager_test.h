@@ -46,9 +46,9 @@ public:
         return ERR_OK;
     }
 
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &policyData) override
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId, std::string &policyData) override
     {
-        return IPlugin::GetOthersMergePolicyData(adminName, policyData);
+        return IPlugin::GetOthersMergePolicyData(adminName, userId, policyData);
     }
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
@@ -94,9 +94,9 @@ public:
         return ERR_OK;
     }
 
-    ErrCode GetOthersMergePolicyData(const std::string &adminName, std::string &policyData) override
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId, std::string &policyData) override
     {
-        return IPlugin::GetOthersMergePolicyData(adminName, policyData);
+        return IPlugin::GetOthersMergePolicyData(adminName, userId, policyData);
     }
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,

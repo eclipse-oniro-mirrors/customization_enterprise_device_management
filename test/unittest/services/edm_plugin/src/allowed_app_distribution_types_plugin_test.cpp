@@ -78,8 +78,10 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy002, TestSize.Lev
     policyData.push_back(APP_DISTRIBUTION_TYPE2);
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ErrCode ret1 = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret1 == ERR_OK);
+    ErrCode ret2 = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret2 == ERR_OK);
 }
 
 /**
@@ -139,16 +141,22 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy001, TestSize.
 HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy002, TestSize.Level1)
 {
     AllowedAppDistributionTypesPlugin plugin;
-    std::vector<int32_t> policyData;
-    policyData.push_back(APP_DISTRIBUTION_TYPE1);
-    policyData.push_back(APP_DISTRIBUTION_TYPE2);
+    std::vector<int32_t> policyData1;
+    policyData1.push_back(APP_DISTRIBUTION_TYPE1);
+    policyData1.push_back(APP_DISTRIBUTION_TYPE2);
     std::vector<int32_t> currentData;
     currentData.push_back(APP_DISTRIBUTION_TYPE1);
     currentData.push_back(APP_DISTRIBUTION_TYPE2);
     currentData.push_back(APP_DISTRIBUTION_TYPE3);
     std::vector<int32_t> mergeData;
-    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ErrCode ret1 = plugin.OnRemovePolicy(policyData1, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret1 == ERR_OK);
+    std::vector<int32_t> policyData2;
+    policyData2.push_back(APP_DISTRIBUTION_TYPE1);
+    policyData2.push_back(APP_DISTRIBUTION_TYPE2);
+    policyData2.push_back(APP_DISTRIBUTION_TYPE3);
+    ErrCode ret2 = plugin.OnRemovePolicy(policyData2, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret2 == ERR_OK);
 }
 
 /**
@@ -197,10 +205,13 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnAdminRemovePolicy001, Test
     std::vector<int32_t> policyData;
     policyData.push_back(APP_DISTRIBUTION_TYPE1);
     policyData.push_back(APP_DISTRIBUTION_TYPE2);
-    std::vector<int32_t> mergeData;
-    mergeData.push_back(APP_DISTRIBUTION_TYPE3);
-    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::vector<int32_t> mergeData1;
+    mergeData1.push_back(APP_DISTRIBUTION_TYPE3);
+    ErrCode ret1 = plugin.OnAdminRemove(adminName, policyData, mergeData1, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret1 == ERR_OK);
+    std::vector<int32_t> mergeData2;
+    ErrCode ret2 = plugin.OnAdminRemove(adminName, policyData, mergeData2, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret2 == ERR_OK);
 }
 }
 }

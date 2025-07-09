@@ -57,8 +57,6 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::INACTIVE_USER_FREEZE,
     EdmInterfaceCode::DISABLE_CAMERA,
     EdmInterfaceCode::PASSWORD_POLICY,
-    EdmInterfaceCode::DISABLE_REMOTE_DESK,
-    EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS,
     EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
     EdmInterfaceCode::DISABLE_SET_DEVICE_NAME,
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE,
@@ -77,10 +75,14 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_NEAR_LINK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY,
-    EdmInterfaceCode::DISALLOWED_NFC,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_NFC,
     EdmInterfaceCode::DISALLOW_VPN,
     EdmInterfaceCode::DISALLOWED_NOTIFICATION,
     EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
+    EdmInterfaceCode::DISABLED_PRINT,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DESK,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DIAGNOSIS,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
@@ -101,7 +103,9 @@ std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
     PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_ALLOWED_USB_DEVICES,
     PolicyName::POLICY_USB_READ_ONLY, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
     PolicyName::POLICY_GET_DEVICE_INFO, PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
-    PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST,
+    PolicyName::POLICY_POLICY_SCREEN_RECORD, PolicyName::POLICY_DISALLOWED_SMS,
+    PolicyName::POLICY_DISALLOWED_MMS, PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE,
+    PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST, PolicyName::POLICY_CLEAR_UP_APPLICATION_DATA,
     PolicyName::POLICY_ALLOW_ALL,
 };
 

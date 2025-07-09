@@ -37,8 +37,12 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 
 ErrCode NotifyUpdatePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
 {
+    if (policy.authInfoSize > EdmConstants::AUTH_INFO_MAX_SIZE) {
+        EDMLOGE("NotifyUpdatePackagesPlugin::OnSetPolicy authInfoSize error.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     if (memset_s(policy.authInfo, policy.authInfoSize, 0, policy.authInfoSize) != EOK) {
-        EDMLOGE("NotifyUpdatePackagesPlugin::OnSetPolicy memset_s faile.");
+        EDMLOGE("NotifyUpdatePackagesPlugin::OnSetPolicy memset_s fail.");
     }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }

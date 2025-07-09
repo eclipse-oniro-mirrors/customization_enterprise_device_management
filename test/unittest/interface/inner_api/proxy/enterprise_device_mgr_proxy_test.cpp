@@ -645,6 +645,22 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminReturnFail, TestSize.Leve
 }
 
 /**
+ * @tc.name: TestIsByodAdminReturnFail
+ * @tc.desc: Test IsByodAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsByodAdminReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, IsByodAdmin(_, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIsByodAdminFail));
+    bool ret = true;
+    AppExecFwk::ElementName admin;
+    enterpriseDeviceMgrProxyTest->IsByodAdmin(admin, ret);
+    EXPECT_FALSE(ret);
+}
+
+/**
  * @tc.name: TestGetEnabledSuperAdminReturnFail
  * @tc.desc: Test GetEnabledSuperAdmin func.
  * @tc.type: FUNC

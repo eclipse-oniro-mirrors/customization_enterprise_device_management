@@ -178,6 +178,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
 {
+    addSystemAbilityFuncMap_[BUNDLE_MGR_SERVICE_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        };
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart();
@@ -444,6 +448,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
         isModeOn ? IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING : IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING);
     std::vector<std::shared_ptr<Admin>> admins;
     int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        return;
+    }
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
     for (const auto& admin : admins) {
         EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
@@ -681,6 +688,7 @@ void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
 
 void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 {
+    AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
@@ -748,10 +756,11 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
 void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::CallOnOtherServiceStart %{public}d", interfaceCode);
-    PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, interfaceCode);
-    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
         return;
@@ -782,6 +791,7 @@ void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, 
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {
+    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
 }
 
 std::shared_ptr<IEdmBundleManager> EnterpriseDeviceMgrAbility::GetBundleMgr()
@@ -1112,6 +1122,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
         }
     }
     /* Get all request and registered permissions */
+    PluginManager::GetInstance()->LoadAllPlugin();
     std::vector<std::string> permissionList;
     if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(admin.GetBundleName(), type, userId,
         permissionList))) {
@@ -1153,7 +1164,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
     std::string mergedPolicyData;
-    plugin->GetOthersMergePolicyData(adminName, mergedPolicyData);
+    plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
     ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
     if (ret != ERR_OK) {
         EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
@@ -1294,14 +1305,34 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
     return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
 }
 
+bool EnterpriseDeviceMgrAbility::CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug)
+{
+    if (isDebug) {
+        return true;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
+        return true;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
+        EDMLOGE("DoDisableAdmin GetHapTokenInfo failed.");
+        return false;
+    }
+    if (adminType == AdminType::BYOD && GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        PERMISSION_GET_ADMINPROVISION_INFO) && hapTokenInfo.bundleName == bundleName) {
+        return true;
+    }
+    return false;
+}
+
 // non-thread-safe function
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType)
 {
     bool isDebug = GetPermissionChecker()->CheckIsDebug();
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!isDebug && !GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
-        EDMLOGW("DoDisableAdmin::DisableSuperAdmin check permission failed.");
+    if (!CheckDisableAdmin(bundleName, adminType, isDebug)) {
+        EDMLOGW("DoDisableAdmin::DisableSuperAdmin or DisableByodAdmin check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
@@ -1330,7 +1361,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     }
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
-    if (adminType == AdminType::BYOD) {
+    if (adminType != AdminType::NORMAL) {
         DelDisallowUninstallApp(bundleName);
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
@@ -1344,6 +1375,26 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
 ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, bool &isSuper)
 {
     isSuper = AdminManager::GetInstance()->IsSuperAdmin(bundleName);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::IsByodAdmin(const AppExecFwk::ElementName &admin, bool &isByod)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::IsByodAdmin calling.");
+    isByod = false;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, PERMISSION_GET_ADMINPROVISION_INFO)) {
+        EDMLOGE("IsByodAdmin::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    std::string bundleName = admin.GetBundleName();
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo)) ||
+        hapTokenInfo.bundleName != bundleName) {
+        EDMLOGE("IsByodAdmin::calling bundleName is not input bundleName.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    isByod = AdminManager::GetInstance()->IsByodAdmin(bundleName, GetCurrentUserId());
     return ERR_OK;
 }
 
@@ -1386,7 +1437,7 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
     policyMgr_->GetPolicy("", policyName, oldCombinePolicy, userId);
     HandlePolicyData handlePolicyData{"", "", false};
     policyMgr_->GetPolicy(bundleName, policyName, handlePolicyData.policyData, userId);
-    plugin->GetOthersMergePolicyData(bundleName, handlePolicyData.mergePolicyData);
+    plugin->GetOthersMergePolicyData(bundleName, userId, handlePolicyData.mergePolicyData);
     ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(code, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("UpdateDevicePolicy: OnHandlePolicy failed");
@@ -1408,7 +1459,10 @@ ErrCode EnterpriseDeviceMgrAbility::UpdateDevicePolicy(uint32_t code, const std:
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -1476,7 +1530,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1572,7 +1629,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
         EDMLOGW("CheckAndGetAdminProvisionInfo: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
+    if (loadRet != ERR_OK) {
+        return loadRet;
+    }
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

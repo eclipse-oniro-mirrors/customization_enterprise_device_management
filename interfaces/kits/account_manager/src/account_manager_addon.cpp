@@ -572,6 +572,7 @@ napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callba
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("NAPI_GetDomainAccountPolicy failed!");
+        return nullptr;
     }
     return ConvertDomainAccountPolicyToJs(env, domainAccountPolicy);
 #else

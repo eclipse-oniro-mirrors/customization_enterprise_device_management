@@ -66,6 +66,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_distributed_transmission_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
@@ -90,7 +91,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
     "../../../../services/edm/src/query_policy/disallowed_sms_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_mms_query.cpp",
-    "../../../../services/edm/src/query_policy/disallowed_nfc_query.cpp",
   ]
 
   public_configs = [
@@ -226,8 +226,6 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_remote_desk_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_remote_diagnosis_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
       "../../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
@@ -256,9 +254,13 @@ ohos_static_library("edmservice_static") {
     ]
 
     sources += [
+      "../../../../services/edm/src/query_policy/disable_print_query.cpp",
       "../../../../services/edm/src/query_policy/disable_sudo_query.cpp",
     ]
-    defines += [ "SUDO_EDM_ENABLE" ]
+    defines += [
+      "FEATURE_PC_ONLY",
+      "SUDO_EDM_ENABLE"
+    ]
   }
 
   if (netmanager_ext_edm_enable) {

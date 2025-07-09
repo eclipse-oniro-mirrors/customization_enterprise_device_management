@@ -79,8 +79,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
-      "./src/disable_remote_desk_plugin.cpp",
-      "./src/disable_remote_diagnosis_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_distributed_transmission_plugin.cpp",
@@ -104,6 +102,7 @@ ohos_shared_library("device_core_plugin") {
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
+      "./src/disallow_export_recovery_key_plugin.cpp",
       "./src/disallowed_nearlink_protocols_plugin.cpp",
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",
@@ -133,6 +132,7 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/set_domain_account_policy_plugin.cpp",
+        "./src/disable_print_plugin.cpp",
         "./src/disable_sudo_plugin.cpp",
       ]
       defines += [
@@ -165,6 +165,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/disallowed_bluetooth_protocols_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
         "./src/switch_bluetooth_plugin.cpp",
+        "./src/utils/bt_protocol_utils.cpp",
       ]
     }
 
@@ -384,10 +385,6 @@ ohos_shared_library("communication_plugin") {
         "./src/disallowed_sms_plugin.cpp",
       ]
     }
-
-    if (nfc_edm_enable) {
-      sources += [ "./src/disallowed_nfc_plugin.cpp" ]
-    }
   }
 
   deps = [
@@ -573,6 +570,7 @@ ohos_shared_library("need_extra_plugin") {
       "./src/get_device_info_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
+      "./src/set_wall_paper_plugin.cpp",
     ]
   }
 

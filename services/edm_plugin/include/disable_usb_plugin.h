@@ -26,8 +26,8 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableUsbPlugin, bool>> ptr) override;
 
 private:
-    ErrCode SetOtherModulePolicy(bool data) override;
-    ErrCode RemoveOtherModulePolicy() override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
     ErrCode HasConflictPolicy(bool &hasConflict);
     void OnOtherServiceStart(int32_t systemAbilityId);
 };
