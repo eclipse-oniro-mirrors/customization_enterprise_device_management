@@ -37,6 +37,9 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nClipboardPolicy = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nClipboardPolicy));
     CreateClipboardPolicyObject(env, nClipboardPolicy);
+    napi_value nPermissionManagedState = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPermissionManagedState));
+    CreatePermissionManagedStateObject(env, nPermissionManagedState);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
@@ -50,9 +53,10 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("setWatermarkImage", SetWatermarkImage),
         DECLARE_NAPI_FUNCTION("cancelWatermarkImage", CancelWatermarkImage),
-        DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_FUNCTION("setPermissionManagedState", SetPermissionManagedState),
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
+        DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
+        DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -575,6 +579,19 @@ napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callba
     return clipboardPolicy;
 }
 
+void SecurityManagerAddon::CreatePermissionManagedStateObject(napi_env env, napi_value value)
+{
+    napi_value nDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ManagedState::DEFAULT), &nDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+    napi_value nGranted;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ManagedState::GRANTED), &nGranted));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "GRANTED", nGranted));
+    napi_value nDenied;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ManagedState::DENIED), &nDenied));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DENIED", nDenied));
+}
+
 void SecurityManagerAddon::CreateClipboardPolicyObject(napi_env env, napi_value value)
 {
     napi_value nDefault;
@@ -776,8 +793,8 @@ bool SecurityManagerAddon::JsObjToApplicationInstance(napi_env env, napi_value o
     if (!JsObjectToString(env, object, "appId", true, appId) ||
         !JsObjectToInt(env, object, "accountId", true, accountId) ||
         !JsObjectToInt(env, object, "appIndex", true, appIndex)) {
-            EDMLOGE("SecurityManagerAddon::JsObjToApplicationInstance param error.");
-            return false;
+        EDMLOGE("SecurityManagerAddon::JsObjToApplicationInstance param error.");
+        return false;
         }
     data.WriteString(appId);
     data.WriteInt32(accountId);
@@ -791,21 +808,7 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
     HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPermissionManagedState");
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
                                         const AddonMethodSign &methodSign) {
-        bool isUint = JsObjToApplicationInstance(env, argv, data);
-        if (!isUint) {
-            return false;
-        }
-        return true;
-    };
-    auto convertPermissionList = [](napi_env env, napi_value argv, MessageParcel &data,
-                                    const AddonMethodSign &methodSign) {
-        std::vector<std::string> strArrValue;
-        bool isStringArr = ParseStringArray(env, strArrValue, argv);
-        if (!isStringArr) {
-            return false;
-        }
-        data.WriteStringVector(strArrValue);
-        return true;
+        return JsObjToApplicationInstance(env, argv, data);
     };
     auto convertManagedStateData = [](napi_env env, napi_value argv, MessageParcel &data,
                                     const AddonMethodSign &methodSign) {
@@ -822,7 +825,7 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
                                 EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {nullptr, convertApplicationInstance,
-                                convertPermissionList, convertManagedStateData};
+                                nullptr, convertManagedStateData};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -841,11 +844,7 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
     HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPermissionManagedState");
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
                                         const AddonMethodSign &methodSign) {
-        bool isUint = JsObjToApplicationInstance(env, argv, data);
-        if (!isUint) {
-            return false;
-        }
-        return true;
+        return JsObjToApplicationInstance(env, argv, data);
     };
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -859,6 +858,7 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     int32_t policy;

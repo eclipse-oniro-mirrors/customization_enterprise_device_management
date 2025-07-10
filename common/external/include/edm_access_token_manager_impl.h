@@ -16,6 +16,13 @@
 #ifndef COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
 #define COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
 
+#include "accesstoken_kit.h"
+#include "app_control/app_control_proxy.h"
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
+#include <system_ability_definition.h>
+
+#include "edm_sys_manager.h"
 #include "iedm_access_token_manager.h"
 
 namespace OHOS {
@@ -29,6 +36,8 @@ public:
     bool IsSystemAppOrNative() override;
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
         const std::string &permissionName) override;
+    bool GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+        Security::AccessToken::AccessTokenID &accessTokenId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -23,9 +23,9 @@
 #include "napi_edm_adapter.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
+#include "permission_managed_state_info.h"
 #include "pixel_map.h"
 #include "security_manager_proxy.h"
-#include "permission_managed_state_info.h"
 #include "want.h"
 #include "watermark_param.h"
 
@@ -59,6 +59,7 @@ private:
     static bool ParseCertBlob(napi_env env, napi_value object, AsyncCertCallbackInfo *asyncCertCallbackInfo);
     static napi_value SetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);
+    static void CreatePermissionManagedStateObject(napi_env env, napi_value value);
     static void CreateClipboardPolicyObject(napi_env env, napi_value value);
     static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,46 +14,14 @@
  */
 
 #include "permission_managed_state_query.h"
-#include "permission_managed_state_info.h"
 
-#include "edm_bundle_manager_impl.h"
-#include "edm_log.h"
-
-#include "app_control/app_control_proxy.h"
-#include <system_ability_definition.h>
-#include "edm_sys_manager.h"
-#include "bundle_mgr_proxy.h"
-#include "bundle_mgr_interface.h"
 #include "accesstoken_kit.h"
+
+#include "edm_access_token_manager_impl.h"
+#include "permission_managed_state_info.h"
 
 namespace OHOS {
 namespace EDM {
-ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
-    Security::AccessToken::AccessTokenID &accessTokenId)
-{
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
-    if (res != ERR_OK) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    return ERR_OK;
-}
-
 std::string PermissionManagedStateQuery::GetPolicyName()
 {
     return PolicyName::POLICY_PERMISSION_MANAGED_STATE_POLICY;
@@ -75,10 +43,10 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
     info.permissionName = data.ReadString();
 
     Security::AccessToken::AccessTokenID accessTokenId;
-    ErrCode res = GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId);
-    if (res != ERR_OK) {
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetAccessTokenId failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
     uint32_t permissionFlag;
@@ -88,7 +56,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
         permissionFlag);
     if (ret != Security::AccessToken::RET_SUCCESS) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetPermissionFlag failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_ADMIN_POLICIES_CANCEL ||
         permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_DEFAULT_FLAG) {
@@ -107,7 +75,7 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
             return ERR_OK;
         }
     }
-    return EdmReturnErrCode::PARAM_ERROR;
+    return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
 }
 } // namespace EDM
 } // namespace OHOS

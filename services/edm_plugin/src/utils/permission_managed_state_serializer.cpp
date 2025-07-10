@@ -13,23 +13,28 @@
  * limitations under the License.
  */
 
-#include <sstream>
-
 #include "permission_managed_state_serializer.h"
 
-#include "cJSON.h"
-#include "cjson_check.h"
-#include "edm_log.h"
-#include "app_control/app_control_proxy.h"
-#include <system_ability_definition.h>
-#include "edm_sys_manager.h"
-#include "bundle_mgr_proxy.h"
-#include "bundle_mgr_interface.h"
+#include <sstream>
+
 #include "accesstoken_kit.h"
-#include "edm_errors.h"
+#include "cJSON.h"
+
+#include "cjson_check.h"
+#include "edm_access_token_manager_impl.h"
+#include "edm_log.h"
+#include "edm_sys_manager.h"
 
 namespace OHOS {
 namespace EDM {
+
+const std::string APP_ID = "appId";
+const std::string PERMISSION_NAME = "permissionName";
+const std::string PERMISSION_NAMES = "permissionNames";
+const std::string ACCOUNT_ID = "accountId";
+const std::string APP_INDEX = "appIndex";
+const std::string MANAGED_STATE = "managedState";
+const std::string TOKEN_ID = "tokenId";
 
 bool PermissionManagedStateSerializer::Deserialize(const std::string &data,
     std::map<std::string, PermissionManagedStateInfo> &result)
@@ -92,8 +97,21 @@ bool PermissionManagedStateSerializer::Serialize(const std::map<std::string, Per
         cJSON_AddNumberToObject(item, MANAGED_STATE.c_str(), it.second.managedState);
         cJSON_AddNumberToObject(item, TOKEN_ID.c_str(), it.second.tokenId);
         cJSON *permissionNames = cJSON_CreateArray();
+        if (permissionNames == nullptr) {
+            cJSON_Delete(root);
+            return false;
+        }
         for (std::string permissionName: it.second.permissionNames) {
-            cJSON_AddItemToArray(permissionNames, cJSON_CreateString(permissionName.c_str()));
+            cJSON* permissionNameItem = cJSON_CreateString(permissionName.c_str());
+            if (permissionNameItem == nullptr) {
+                cJSON_Delete(root);
+                return false;
+            }
+            if (!cJSON_AddItemToArray(permissionNames, permissionNameItem)) {
+                cJSON_Delete(root);
+                cJSON_Delete(permissionNameItem);
+                return false;
+            }
         }
         cJSON_AddItemToObject(item, PERMISSION_NAMES.c_str(), permissionNames);
         if (!cJSON_AddItemToArray(root, item)) {
@@ -126,10 +144,10 @@ bool PermissionManagedStateSerializer::GetPolicy(MessageParcel &data,
     }
     info.managedState = data.ReadInt32();
     Security::AccessToken::AccessTokenID accessTokenId;
-    ErrCode res = GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId);
-    if (res != ERR_OK) {
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
         EDMLOGE("PermissionManagedStateSerializer GetAccessTokenId failed.");
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+        return false;
     }
     info.tokenId = accessTokenId;
     for (std::string permissionName : info.permissionNames) {
@@ -158,32 +176,6 @@ bool PermissionManagedStateSerializer::MergePolicy(std::vector<std::map<std::str
         }
     }
     return true;
-}
-
-ErrCode PermissionManagedStateSerializer::GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
-    Security::AccessToken::AccessTokenID &accessTokenId)
-{
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
-    if (res != ERR_OK) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
