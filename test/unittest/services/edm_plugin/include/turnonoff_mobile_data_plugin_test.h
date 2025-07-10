@@ -28,7 +28,6 @@
      static void SetUpTestSuite(void);
   
      static void TearDownTestSuite(void);
-     static bool HasSimCard();
  };
  } // namespace TEST
  } // namespace EDM
