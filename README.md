@@ -12,7 +12,7 @@ The Enterprise Device Management component provides the management application d
 
 In the architecture of the Enterprise Device Management component:
 
-- Edm Kit provides an MDM application development framework for developers, device management permission interfaces for system applications, and device management capability interfaces for third-party applications.
+- MDM Kit provides an MDM application development framework for developers, device management permission interfaces for system applications, and device management capability interfaces for third-party applications.
 - EnterpriseDeviceManagerService is a system service that manages MDM applications and device management and control policies in the enterprise context.
   - AdminManager maintains the application information of each device administrator.
   - PolicyManager manages and persists the governance policies set by the enterprise.
