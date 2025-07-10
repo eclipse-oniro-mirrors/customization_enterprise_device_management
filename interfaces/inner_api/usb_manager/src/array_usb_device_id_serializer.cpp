@@ -126,7 +126,7 @@ bool ArrayUsbDeviceIdSerializer::Serialize(const std::vector<UsbDeviceId> &dataO
     }
 
     jsonString = jsonStr;
-    free(jsonStr);
+    cJSON_free(jsonStr);
     cJSON_Delete(root);
     return true;
 }

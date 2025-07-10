@@ -149,12 +149,12 @@ bool PasswordPolicyUtils::SaveConfig()
     std::ofstream file(CONFIG_PATH);
     if (!file.is_open()) {
         EDMLOGI("PasswordPolicyUtils::SaveConfig open file is error");
-        free(jsonStr);
+        cJSON_free(jsonStr);
         return false;
     }
     file << jsonStr;
     file.close();
-    free(jsonStr);
+    cJSON_free(jsonStr);
     return true;
 }
 }  // namespace EDM

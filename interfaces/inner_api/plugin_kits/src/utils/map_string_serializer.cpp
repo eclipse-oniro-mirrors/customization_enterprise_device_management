@@ -69,7 +69,7 @@ bool MapStringSerializer::Serialize(const std::map<std::string, std::string> &da
     }
 
     jsonString = jsonStr;
-    free(jsonStr);
+    cJSON_free(jsonStr);
     cJSON_Delete(root);
     return true;
 }
