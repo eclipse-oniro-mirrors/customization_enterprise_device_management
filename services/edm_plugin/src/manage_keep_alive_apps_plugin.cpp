@@ -64,7 +64,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     std::vector<ManageKeepAliveAppInfo> mergeData;
     ManageKeepAliveAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
-    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageKeepAliveAppInfo> totalMergePolicyData;
     ManageKeepAliveAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
     ManageKeepAliveAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
@@ -271,7 +271,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
     } else if (type == EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APP_DISALLOW_MODIFY) {
         std::string bundleName = data.ReadString();
         std::string mergePolicyStr;
-        IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+        IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
         std::vector<ManageKeepAliveAppInfo> mergePolicyData;
         ManageKeepAliveAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
         bool hasSetKeepAlive = false;
@@ -313,7 +313,7 @@ ErrCode ManageKeepAliveAppsPlugin::GetOthersMergePolicyData(const std::string &a
     std::string &othersMergePolicyData)
 {
     std::unordered_map<std::string, std::string> adminValues;
-    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
     EDMLOGI("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
         (uint32_t)adminValues.size());
     if (adminValues.empty()) {
@@ -343,7 +343,7 @@ ErrCode ManageKeepAliveAppsPlugin::GetOthersMergePolicyData(const std::string &a
     }
 
     std::string mergePolicyStr;
-    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageKeepAliveAppInfo> mergePolicyData;
     if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
         return ERR_EDM_OPERATE_JSON;
