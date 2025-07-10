@@ -164,10 +164,6 @@ std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::str
 {
     EDMLOGI("ApnUtils::ApnQueryId start");
     auto helper = CreatePdpProfileAbilityHelper();
-    if (helper == nullptr) {
-        EDMLOGE("ApnQuery helper get failed");
-        return {};
-    }
     std::vector<std::string> result;
     ApnQueryVector(helper, apnInfo, result);
     return result;
@@ -176,6 +172,10 @@ std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::str
 void ApnUtils::ApnQueryVector(std::shared_ptr<DataShare::DataShareHelper> helper,
     const std::map<std::string, std::string> &apnInfo, std::vector<std::string> &result)
 {
+    if (helper == nullptr) {
+        EDMLOGE("ApnQueryVector helper get failed");
+        return;
+    }
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
     for (const auto & [key, value] : apnInfo) {
@@ -213,10 +213,6 @@ std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnQueryInfo start");
     auto helper = CreatePdpProfileAbilityHelper();
-    if (helper == nullptr) {
-        EDMLOGE("ApnQuery helper get failed");
-        return {};
-    }
 
     std::map<std::string, std::string> results;
     int32_t queryResult = ApnQueryResultSet(helper, apnId, results);
@@ -231,6 +227,10 @@ std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 int32_t ApnUtils::ApnQueryResultSet(std::shared_ptr<DataShare::DataShareHelper> helper, const std::string &apnId,
     std::map<std::string, std::string> &results)
 {
+    if (helper == nullptr) {
+        EDMLOGE("ApnQueryResultSet helper get failed");
+        return -1;
+    }
     std::vector<std::string> columns;
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(PdpProfileData::PROFILE_ID, apnId);
