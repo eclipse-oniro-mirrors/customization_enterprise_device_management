@@ -88,6 +88,10 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
 {
     EDMLOGI("ApnUtils::ApnInsert start");
     auto helper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnInsert helper get failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -108,6 +112,10 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnDelete start");
     auto helper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnDelete helper get failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(PdpProfileData::PROFILE_ID, apnId);
     Uri uri((PDP_PROFILE_URI));
@@ -118,6 +126,11 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
 {
     EDMLOGI("ApnUtils::ApnUpdate start");
     auto helper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnUpdate helper get failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
@@ -151,6 +164,10 @@ std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::str
 {
     EDMLOGI("ApnUtils::ApnQueryId start");
     auto helper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnQuery helper get failed");
+        return {};
+    }
     std::vector<std::string> result;
     ApnQueryVector(helper, apnInfo, result);
     return result;
@@ -196,6 +213,10 @@ std::map<std::string, std::string> ApnUtils::ApnQuery(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnQueryInfo start");
     auto helper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnQuery helper get failed");
+        return {};
+    }
 
     std::map<std::string, std::string> results;
     int32_t queryResult = ApnQueryResultSet(helper, apnId, results);
@@ -292,6 +313,11 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
     EDMLOGI("ApnUtils::ApnSetPrefer start");
 
     auto dataShareHelper = CreatePdpProfileAbilityHelper();
+    if (helper == nullptr) {
+        EDMLOGE("ApnSetPrefer helper get failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     int32_t simId = GetValidSimId(apnId);
     if (simId < 0) {
         EDMLOGE("ApnUtils::ApnSetPrefer get failed");
