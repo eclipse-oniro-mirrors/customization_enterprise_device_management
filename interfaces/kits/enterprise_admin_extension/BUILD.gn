@@ -46,12 +46,10 @@ ohos_shared_library("enterpriseadminextensionability_napi") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  external_deps = [ "napi:ace_napi" ]
-  if (defined(ark_hybrid) && ark_hybrid) {
-    external_deps += [ "runtime_core:libarkruntime" ]
-  } else {
-    external_deps += [ "ets_runtime:libark_jsruntime" ]
-  }
+  external_deps = [
+    "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
 
   relative_install_dir = "module/enterprise"
   part_name = "enterprise_device_management"
