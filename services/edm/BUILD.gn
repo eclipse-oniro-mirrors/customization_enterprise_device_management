@@ -114,6 +114,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/ipolicy_query.cpp",
       "./src/query_policy/is_app_kiosk_allowed_query.cpp",
       "./src/query_policy/ntp_server_query.cpp",
+      "./src/query_policy/permission_managed_state_query.cpp",
       "./src/query_policy/plugin_policy_reader.cpp",
       "./src/query_policy/snapshot_skip_query.cpp",
       "./src/strategy/enhance_execute_strategy.cpp",
@@ -205,8 +206,6 @@ ohos_shared_library("edmservice") {
     sources += [ "./src/query_policy/clipboard_policy_query.cpp" ]
     defines += [ "PASTEBOARD_EDM_ENABLE" ]
   }
-
-  sources += [ "./src/query_policy/permission_managed_state_query.cpp" ]
 
   if (os_account_edm_enable) {
     external_deps += [

@@ -764,7 +764,7 @@ napi_value SecurityManagerAddon::CheckBuildWatermarkParam(napi_env env, napi_val
 
 bool SecurityManagerAddon::JsObjToManagedState(napi_env env, napi_value object, ManagedState &managedState)
 {
-    int32_t JsManagedState;
+    int32_t JsManagedState = 0;
     if (ParseInt(env, JsManagedState, object)) {
         switch (JsManagedState) {
             case static_cast<int32_t>(ManagedState::DEFAULT):
@@ -795,7 +795,7 @@ bool SecurityManagerAddon::JsObjToApplicationInstance(napi_env env, napi_value o
         !JsObjectToInt(env, object, "appIndex", true, appIndex)) {
         EDMLOGE("SecurityManagerAddon::JsObjToApplicationInstance param error.");
         return false;
-        }
+    }
     data.WriteString(appId);
     data.WriteInt32(accountId);
     data.WriteInt32(appIndex);
@@ -815,6 +815,7 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
         ManagedState managedState;
         bool isUint = JsObjToManagedState(env, argv, managedState);
         if (!isUint) {
+            EDMLOGE("SecurityManagerAddon SetPermissionManagedState JsObjToManagedState fail.");
             return false;
         }
         data.WriteInt32(static_cast<int32_t>(managedState));
@@ -861,7 +862,7 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
-    int32_t policy;
+    int32_t policy = 0;
     int32_t retCode =
         SecurityManagerProxy::GetSecurityManagerProxy()->GetPermissionManagedState(adapterAddonData.data, policy);
     if (FAILED(retCode)) {

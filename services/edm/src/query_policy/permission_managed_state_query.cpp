@@ -46,36 +46,35 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
     if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetAccessTokenId failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    uint32_t permissionFlag;
-    int32_t ret = Security::AccessToken::AccessTokenKit::GetPermissionFlag(
-        accessTokenId,
-        info.permissionName,
-        permissionFlag);
+    uint32_t permissionFlag = 0;
+    int32_t ret = Security::AccessToken::AccessTokenKit::GetPermissionFlag(accessTokenId,
+        info.permissionName, permissionFlag);
     if (ret != Security::AccessToken::RET_SUCCESS) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetPermissionFlag failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_ADMIN_POLICIES_CANCEL ||
-        permissionFlag == Security::AccessToken::TypePermissionFlag::PERMISSION_DEFAULT_FLAG) {
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(ManagedState::DEFAULT));
-    } else {
+
+    if ((permissionFlag & Security::AccessToken::TypePermissionFlag::PERMISSION_FIXED_BY_ADMIN_POLICY) != 0) {
         int32_t permissionState = Security::AccessToken::AccessTokenKit::VerifyAccessToken(accessTokenId,
             info.permissionName);
         if (permissionState == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
             reply.WriteInt32(ERR_OK);
             reply.WriteInt32(static_cast<int32_t>(ManagedState::GRANTED));
             return ERR_OK;
-        } else if (permissionState == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+        }
+        if (permissionState == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
             reply.WriteInt32(ERR_OK);
             reply.WriteInt32(static_cast<int32_t>(ManagedState::DENIED));
             return ERR_OK;
         }
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(ManagedState::DEFAULT));
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

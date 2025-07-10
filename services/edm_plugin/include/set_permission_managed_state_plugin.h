@@ -39,11 +39,6 @@ public:
         std::map<std::string, PermissionManagedStateInfo> &data,
         std::map<std::string, PermissionManagedStateInfo> &mergeData,
         int32_t userId);
-
-    ErrCode GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
-        Security::AccessToken::AccessTokenID &accessTokenId);
-
-    ErrCode SetPermissionStatusWithPolicy(int32_t permissionFlag, PermissionManagedStateInfo info);
 };
 } // namespace EDM
 } // namespace OHOS

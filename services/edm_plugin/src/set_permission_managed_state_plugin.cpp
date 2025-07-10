@@ -19,6 +19,7 @@
 #include "permission_managed_state_info.h"
 
 #include "accesstoken_kit.h"
+#include "access_token_error.h"
 
 #include "edm_access_token_manager_impl.h"
 #include "edm_ipc_interface_code.h"
@@ -66,7 +67,7 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
         }
     }
     PermissionManagedStateInfo info;
-    int32_t permissionFlagParam;
+    int32_t permissionFlagParam = 0;
     for (const auto& pair : newDataHandle) {
         info = pair.second;
         if (currentDataHandle.find(pair.first) != currentDataHandle.end()) {
@@ -85,9 +86,13 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
     } else {
         permissionFlagParam = static_cast<int32_t>(PermissionFlag::PERMISSION_FIXED_BY_ADMIN_POLICY);
     }
-    ErrCode rel = SetPermissionStatusWithPolicy(permissionFlagParam, info);
+    ErrCode rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(info.tokenId,
+        info.permissionNames, info.managedState, permissionFlagParam);
     if (rel != ERR_OK) {
         EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy SetPermissionStatusWithPolicy failed.");
+        if (rel == Security::AccessToken::AccessTokenError::ERR_PARAM_INVALID) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     currentData = currentDataHandle;
@@ -109,9 +114,9 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
         info.managedState = static_cast<int32_t>(ManagedState::DENIED);
         std::vector<std::string> permissionNamesParams;
         permissionNamesParams.push_back(pair.second.permissionName);
-        ErrCode rel = SetPermissionStatusWithPolicy(
-            static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL),
-            info);
+        ErrCode rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(info.tokenId,
+            info.permissionNames, info.managedState,
+            static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL));
         if (rel != ERR_OK) {
             EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove SetPermissionStatusWithPolicy failed.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -126,20 +131,5 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
     mergeData = mergeDataHandle;
     return ERR_OK;
 }
-
-ErrCode SetPermissionManagedStatePlugin::SetPermissionStatusWithPolicy(
-    int32_t permissionFlag,
-    PermissionManagedStateInfo info)
-{
-    Security::AccessToken::AccessTokenID accessTokenId;
-    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
-        EDMLOGE("SetPermissionManagedStatePlugin OnSetPolicy GetAccessTokenId failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(accessTokenId,
-        info.permissionNames, info.managedState, permissionFlag);
-}
-
 } // namespace EDM
 } // namespace OHOS
