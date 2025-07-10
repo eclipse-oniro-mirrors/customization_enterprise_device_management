@@ -35,6 +35,7 @@
             VTT?for?OHOS::EDM::ClipboardSerializer;
             vtable?for?OHOS::EDM::ClipboardSerializer;
             OHOS::EDM::ClipboardSerializer::*;
+            vtable?for?OHOS::EDM::PermissionManagedStateSerializer;
             VTT?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
             vtable?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
             OHOS::EDM::ArrayUsbDeviceIdSerializer::*;

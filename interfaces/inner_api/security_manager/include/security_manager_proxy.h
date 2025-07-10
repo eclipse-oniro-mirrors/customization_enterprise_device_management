@@ -48,6 +48,8 @@ public:
     int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
     int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(MessageParcel &data, std::string &policy);
+    int32_t SetPermissionManagedState(MessageParcel &data);
+    int32_t GetPermissionManagedState(MessageParcel &data, int32_t &policy);
     int32_t SetWatermarkImage(const AppExecFwk::ElementName &admin, std::shared_ptr<WatermarkParam> param);
     int32_t CancelWatermarkImage(MessageParcel &data);
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,

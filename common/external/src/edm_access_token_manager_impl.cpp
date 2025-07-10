@@ -80,5 +80,31 @@ bool EdmAccessTokenManagerImpl::VerifyCallingPermission(Security::AccessToken::A
     EDMLOGW("EdmAccessTokenManagerImpl::verify AccessToken failed");
     return false;
 }
+
+bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+    Security::AccessToken::AccessTokenID &accessTokenId)
+{
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
+        return false;
+    }
+
+    ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
+    if (res != ERR_OK) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
+        return false;
+    }
+
+    accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
+    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
+        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
+        return false;
+    }
+
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

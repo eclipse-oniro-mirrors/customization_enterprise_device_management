@@ -270,5 +270,28 @@ int32_t SecurityManagerProxy::GetUserCertificates(MessageParcel &data, std::vect
     }
     return ret;
 }
+
+int32_t SecurityManagerProxy::SetPermissionManagedState(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetPermissionManagedState");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::PERMISSION_MANAGED_STATE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetPermissionManagedState(MessageParcel &data, int32_t &policy)
+{
+    EDMLOGD("SecurityManagerProxy::GetPermissionManagedState");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::PERMISSION_MANAGED_STATE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetPermissionManagedState fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadInt32();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -31,6 +31,8 @@ public:
     virtual bool IsSystemAppOrNative() = 0;
     virtual bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
         const std::string &permissionName) = 0;
+    virtual bool GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
+        Security::AccessToken::AccessTokenID &accessTokenId) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

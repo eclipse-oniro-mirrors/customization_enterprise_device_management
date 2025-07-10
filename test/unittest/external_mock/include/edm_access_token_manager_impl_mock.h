@@ -31,6 +31,8 @@ public:
     MOCK_METHOD(bool, IsSystemAppOrNative, (), (override));
     MOCK_METHOD(bool, VerifyCallingPermission, (Security::AccessToken::AccessTokenID tokenId,
         const std::string &permissionName), (override));
+    MOCK_METHOD(bool, GetAccessTokenId, (int32_t userId, const std::string &appId, int32_t appIndex,
+        Security::AccessToken::AccessTokenID &accessTokenId), (override));
 };
 } // namespace EDM
 } // namespace OHOS

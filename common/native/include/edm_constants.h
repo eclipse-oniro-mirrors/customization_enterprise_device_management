@@ -257,6 +257,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_APN = "ohos.permission.ENTERPRISE_MANAGE_APN";
     const char* const PERMISSION_ENTERPRISE_MANAGE_TELEPHONY = "ohos.permission.ENTERPRISE_MANAGE_TELEPHONY";
     const char* const PERMISSION_ENTERPRISE_SET_KIOSK = "ohos.permission.ENTERPRISE_SET_KIOSK";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION =
+        "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
 } // namespace EdmPermission
 namespace PolicyName {
@@ -321,6 +323,7 @@ namespace PolicyName {
     const char* const POLICY_OPERATE_DEVICE = "operate_device";
     const char* const POLICY_PASSWORD_POLICY = "password_policy";
     const char* const POLICY_POWER_POLICY = "power_policy";
+    const char* const POLICY_PERMISSION_MANAGED_STATE_POLICY = "permission_managed_state";
     const char* const POLICY_REBOOT = "reboot";
     const char* const POLICY_RESET_FACTORY = "reset_factory";
     const char* const POLICY_SCREEN_OFF_TIME = "screen_off_time";

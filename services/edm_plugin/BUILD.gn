@@ -480,6 +480,11 @@ ohos_shared_library("sys_service_plugin") {
       sources += [ "./src/clipboard_policy_plugin.cpp" ]
     }
 
+    sources += [
+      "./src/set_permission_managed_state_plugin.cpp",
+      "./src/utils/permission_managed_state_serializer.cpp"
+    ]
+
     if (useriam_edm_enable) {
       external_deps += [ "user_auth_framework:userauth_client" ]
       defines += [ "USERIAM_EDM_ENABLE" ]
