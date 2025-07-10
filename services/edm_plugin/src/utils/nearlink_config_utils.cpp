@@ -254,12 +254,12 @@ bool NearlinkConfigUtils::SaveConfig()
     }
     std::ofstream file(CONFIG_PATH);
     if (!file.is_open()) {
-        free(jsonStr);
+        cJSON_free(jsonStr);
         return false;
     }
     file << jsonStr;
     file.close();
-    free(jsonStr);
+    cJSON_free(jsonStr);
     return true;
 }
 

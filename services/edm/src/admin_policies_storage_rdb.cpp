@@ -176,7 +176,7 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
     char *permissionsStr = cJSON_PrintUnformatted(permissionsArray);
     if (permissionsStr != nullptr) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_PERMISSIONS, permissionsStr);
-        free(permissionsStr);
+        cJSON_free(permissionsStr);
     }
     cJSON_Delete(permissionsArray);
 
@@ -194,7 +194,7 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
         char *policiesStr = cJSON_PrintUnformatted(policiesArray);
         if (policiesStr != nullptr) {
             valuesBucket.PutString(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES, policiesStr);
-            free(policiesStr);
+            cJSON_free(policiesStr);
         }
         cJSON_Delete(policiesArray);
     }
@@ -265,7 +265,7 @@ bool AdminPoliciesStorageRdb::UpdateManagedEvents(int32_t userId, const std::str
     char *managedEventsStr = cJSON_PrintUnformatted(managedEventsArray);
     if (managedEventsStr != nullptr) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_SUBSCRIBE_EVENTS, managedEventsStr);
-        free(managedEventsStr);
+        cJSON_free(managedEventsStr);
     }
     cJSON_Delete(managedEventsArray);
 

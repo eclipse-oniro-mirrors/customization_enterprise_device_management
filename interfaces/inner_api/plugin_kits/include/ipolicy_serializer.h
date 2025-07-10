@@ -159,13 +159,13 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
 
         DT value;
         if (!serializerInner_->Deserialize(itemJson, value)) {
-            free(itemJson);
+            cJSON_free(itemJson);
             cJSON_Delete(root);
             return false;
         }
 
         dataObj.at(i) = value;
-        free(itemJson);
+        cJSON_free(itemJson);
     }
 
     cJSON_Delete(root);
@@ -207,7 +207,7 @@ bool ArraySerializer<DT, T_ARRAY>::Serialize(const T_ARRAY &dataObj, std::string
     }
     
     jsonString = jsonStr;
-    free(jsonStr);
+    cJSON_free(jsonStr);
     return true;
 }
 
