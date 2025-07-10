@@ -312,7 +312,7 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
 {
     EDMLOGI("ApnUtils::ApnSetPrefer start");
 
-    auto dataShareHelper = CreatePdpProfileAbilityHelper();
+    auto helper = CreatePdpProfileAbilityHelper();
     if (helper == nullptr) {
         EDMLOGE("ApnSetPrefer helper get failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -337,7 +337,7 @@ int32_t ApnUtils::ApnSetPrefer(const std::string &apnId)
     values.Put(PdpProfileData::PROFILE_ID, profileIdAsDouble);
     values.Put(PdpProfileData::SIM_ID, simIdAsDouble);
     Uri preferApnUri(PDP_PROFILE_PREFER_URI);
-    int32_t result = dataShareHelper->Update(preferApnUri, predicates, values);
+    int32_t result = helper->Update(preferApnUri, predicates, values);
     if (result < DataShare::E_OK) {
         EDMLOGE("SetPreferApn fail! result:%{public}d", result);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
