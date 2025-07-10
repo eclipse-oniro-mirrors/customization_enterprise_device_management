@@ -247,7 +247,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         autoStartAppsString.push_back(appWant);
     }
     parcelData.WriteStringVector(autoStartAppsString);
-    bool disallowModify = false;
+    bool disallowModify = true;
     if (argc >= ARGS_SIZE_FOUR) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
             "Parameter disallowModify error");
@@ -353,7 +353,7 @@ napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env
     std::string appWant = autoStartApp.GetBundleName() + "/" + autoStartApp.GetAbilityName();
     parcelData.WriteString(appWant);
 
-    bool isModifyAutoStartAppDisallowed = false;
+    bool isModifyAutoStartAppDisallowed = true;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->IsModifyAutoStartAppsDisallowed(
         parcelData, isModifyAutoStartAppDisallowed);
     if (FAILED(ret)) {
