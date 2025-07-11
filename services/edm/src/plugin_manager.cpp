@@ -116,7 +116,9 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGD("PluginManager::~PluginManager.");
+#ifndef EDM_FUZZ_TEST
     NotifyUnloadAllPlugin();
+#endif
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
