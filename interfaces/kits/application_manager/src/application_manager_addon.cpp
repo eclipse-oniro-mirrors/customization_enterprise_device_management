@@ -251,9 +251,9 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     if (argc >= ARGS_SIZE_FOUR) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
             "Parameter disallowModify error");
-        parcelData.WriteBool(disallowModify);
         EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
+    parcelData.WriteBool(disallowModify);
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
         parcelData, function == "AddAutoStartApps");
     if (FAILED(ret)) {
