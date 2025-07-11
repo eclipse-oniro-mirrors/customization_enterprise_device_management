@@ -38,24 +38,6 @@ void TurnOnOffMobileDataTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
-bool TurnOnOffMobileDataTest::HasSimCard()
-{
-    bool hasSimCard = false;
-    if (Telephony::CoreServiceClient::GetInstance().GetProxy() == nullptr) {
-        return hasSimCard;
-    }
-    int32_t slotCount = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
-
-    for (int32_t i = 0; i < slotCount; i++) {
-        int32_t id = Telephony::CoreServiceClient::GetInstance().GetSimId(i);
-        if (id > 0) {
-            hasSimCard = true;
-            break;
-        }
-    }
-    return hasSimCard;
-}
-
 /**
  * @tc.name: TestForceTurnOnMobileDataSuccess
  * @tc.desc: Test TurnOnMobileDataPlugin::OnSetPolicy function sucess.
@@ -63,16 +45,14 @@ bool TurnOnOffMobileDataTest::HasSimCard()
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestForceTurnOnMobileDataSuccess, TestSize.Level1)
 {
-    if (TurnOnOffMobileDataTest::HasSimCard()) {
-        std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
-        uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
-        HandlePolicyData handlePolicyData{"false", "", false};
-        MessageParcel data;
-        MessageParcel reply;
-        data.WriteBool(true);
-        ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
-    }
+    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
    
 /**
@@ -82,16 +62,33 @@ HWTEST_F(TurnOnOffMobileDataTest, TestForceTurnOnMobileDataSuccess, TestSize.Lev
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess, TestSize.Level1)
 {
-    if (TurnOnOffMobileDataTest::HasSimCard()) {
-        std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
-        uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
-        HandlePolicyData handlePolicyData{"false", "", false};
-        MessageParcel data;
-        MessageParcel reply;
-        data.WriteBool(false);
-        ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
-    }
+    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOnMobileDataSuccess_001
+ * @tc.desc: Test TurnOnMobileDataPlugin::OnSetPolicy function sucess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess_001, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    system::SetParameter("persist.edm.mobile_data_policy", "disallow");
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret != ERR_OK);
+    system::SetParameter("persist.edm.mobile_data_policy", "none");
 }
 
 /**
@@ -101,16 +98,33 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess, TestSize.Level1)
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess, TestSize.Level1)
 {
-    if (TurnOnOffMobileDataTest::HasSimCard()) {
-        std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
-        uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-            EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
-        HandlePolicyData handlePolicyData{"false", "", false};
-        MessageParcel data;
-        MessageParcel reply;
-        ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
-    }
+    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestTurnOffMobileDataSuccess_001
+ * @tc.desc: Test TurnOnMobileDataPlugin::OnSetPolicy function sucess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess_001, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    system::SetParameter("persist.edm.mobile_data_policy", "disallow");
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret != ERR_OK);
+    system::SetParameter("persist.edm.mobile_data_policy", "none");
 }
 } // namespace TEST
 } // namespace EDM
