@@ -424,6 +424,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "cellular_data:tel_cellular_data_api",
         "core_service:tel_core_service_api",
         "data_share:datashare_consumer",
+        "telephony_data:tel_telephony_data",
       ]
       sources += [
         "../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",
