@@ -26,6 +26,7 @@ group("fuzztest") {
     "allowedbluetoothdevicesplugin_fuzzer:AllowedBluetoothDevicesPluginFuzzTest",
     "allowedusbdevicesplugin_fuzzer:AllowedUsbDevicesPluginFuzzTest",
     "bundleinstallplugin_fuzzer:BundleInstallPluginFuzzTest",
+    "clearupapplicationdataplugin_fuzzer:ClearUpApplicationDataPluginFuzzTest",
     "disablednetworkinterfaceplugin_fuzzer:DisabledNetworkInterfacePluginFuzzTest",
     "disableusbplugin_fuzzer:DisableUsbPluginFuzzTest",
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
