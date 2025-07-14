@@ -151,7 +151,7 @@ ErrCode TelephonyCallPolicyPlugin::AddCurrentAndMergePolicy(
     }
     // 上限 1000
     if (CheckIsLimit(policyTye, flag, addList, allpolicies)) {
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::vector<std::string> &numberList = policies[policyTye].numberList;
@@ -178,7 +178,7 @@ ErrCode TelephonyCallPolicyPlugin::RemoveCurrentAndMergePolicy(
 {
     auto iter = policies.find(policyTye);
     if (iter == policies.end() || policies[policyTye].policyFlag != flag) {
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::vector<std::string> numberList = policies[policyTye].numberList;
