@@ -695,7 +695,8 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [
       "cellular_data:tel_cellular_data_api",
       "core_service:tel_core_service_api",
-      "call_manager:tel_call_manager_api"
+      "call_manager:tel_call_manager_api",
+      "telephony_data:tel_telephony_data",
     ]
     sources += [
       "../../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",

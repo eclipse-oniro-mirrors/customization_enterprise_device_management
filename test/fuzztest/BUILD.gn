@@ -30,6 +30,8 @@ group("fuzztest") {
     "disableusbplugin_fuzzer:DisableUsbPluginFuzzTest",
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
     "disallowedrunningbundlesplugin_fuzzer:DisallowedRunningBundlesPluginFuzzTest",
+    "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
+    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
     "disallowednearlinkprotocolsplugin_fuzzer:DisallowedNearlinkProtocolsPluginFuzzTest",
     "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
@@ -47,15 +49,19 @@ group("fuzztest") {
     "setbrowserpoliciesplugin_fuzzer:SetBrowserPoliciesPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
-    "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
-    "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
-    "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
-    "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
-    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
-    "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
-    "disallowpowerlongpressplugin_fuzzer:DisallowPowerLongPressPluginFuzzTest",
-    "setapnplugin_fuzzer:SetApnPluginFuzzTest",
   ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    deps += [
+      "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
+      "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
+      "disallowpowerlongpressplugin_fuzzer:DisallowPowerLongPressPluginFuzzTest",
+      "setapnplugin_fuzzer:SetApnPluginFuzzTest",
+      "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
+      "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+    ]
+  }
+
   defines = []
   if (os_account_edm_enable) {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]

@@ -90,6 +90,7 @@ ErrCode TelephonyCallPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
         mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
         mergePolicies[EdmConstants::CallPolicy::INCOMING].policyFlag == static_cast<int32_t>(PolicyFlag::TRUST_LIST),
         mergePolicies[EdmConstants::CallPolicy::INCOMING].numberList);
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->UnInit();
 
     return ERR_OK;
 }
@@ -257,6 +258,7 @@ ErrCode TelephonyCallPolicyPlugin::OnAdminRemove(const std::string &adminName,
         mergePolicies[EdmConstants::CallPolicy::OUTGOING].numberList,
         mergePolicies[EdmConstants::CallPolicy::INCOMING].policyFlag == static_cast<int32_t>(PolicyFlag::TRUST_LIST),
         mergePolicies[EdmConstants::CallPolicy::INCOMING].numberList);
+    DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->UnInit();
     return ERR_OK;
 }
 
@@ -276,6 +278,7 @@ void TelephonyCallPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
             policies[EdmConstants::CallPolicy::OUTGOING].numberList,
             policies[EdmConstants::CallPolicy::INCOMING].policyFlag == static_cast<int32_t>(PolicyFlag::TRUST_LIST),
             policies[EdmConstants::CallPolicy::INCOMING].numberList);
+        DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->UnInit();
     }
 }
 } // namespace EDM

@@ -63,7 +63,7 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     std::vector<ManageAutoStartAppInfo> mergeData;
     ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
-    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageAutoStartAppInfo> totalMergePolicyData;
     ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
     ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
@@ -142,7 +142,7 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
     } else if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY) {
         std::string uniqueKey = data.ReadString();
         std::string mergePolicyStr;
-        IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+        IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
         std::vector<ManageAutoStartAppInfo> mergePolicyData;
         ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
         bool hasSetAutoStart = false;
@@ -184,7 +184,7 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
     std::string &othersMergePolicyData)
 {
     std::unordered_map<std::string, std::string> adminValues;
-    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
     EDMLOGI("ManageAutoStartAppsPlugin::GetOthersMergePolicyData %{public}s value size %{public}d.",
         GetPolicyName().c_str(), (uint32_t)adminValues.size());
     if (adminValues.empty()) {
@@ -214,7 +214,7 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
     }
 
     std::string mergePolicyStr;
-    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr);
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageAutoStartAppInfo> mergePolicyData;
     if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
         return ERR_EDM_OPERATE_JSON;
