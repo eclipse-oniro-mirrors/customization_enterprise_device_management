@@ -286,6 +286,7 @@ ohos_shared_library("communication_plugin") {
         "cellular_data:tel_cellular_data_api",
         "core_service:tel_core_service_api",
         "data_share:datashare_consumer",
+        "telephony_data:tel_telephony_data",
       ]
       sources += [
         "./src/disallow_mobile_data_plugin.cpp",
