@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace EDM {
 
-static const char* NAMESPACE_NAME = "L@ohos/enterprise/securityManager/securityManager;";
+static const char* NAMESPACE_NAME = "@ohos.enterprise.securityManager.securityManager";
 
 ani_status SecurityManagerAni::Init(ani_env* env)
 {
@@ -51,7 +51,7 @@ ani_object SecurityManagerAni::GetPasswordPolicy(ani_env* env)
         return nullptr;
     }
 
-    const char *className = "L@ohos/enterprise/securityManager/securityManager/PasswordPolicyInner;";
+    const char *className = "@ohos.enterprise.securityManager.securityManager.PasswordPolicyInner";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EdmAniUtils::AniThrow(env, EdmReturnErrCode::PARAM_ERROR);

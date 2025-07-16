@@ -78,11 +78,11 @@ ani_object EdmAniUtils::WrapError(ani_env *env, const std::string &msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
         EDMLOGE("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
         ANI_OK) {
         EDMLOGE("Class_FindMethod failed %{public}d", status);
         return nullptr;
@@ -105,11 +105,11 @@ ani_object EdmAniUtils::CreateError(ani_env *env, ani_int code, const std::strin
         EDMLOGE("null env");
         return nullptr;
     }
-    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("@ohos.base.BusinessError", &cls)) != ANI_OK) {
         EDMLOGE("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "DLescompat/Error;:V", &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "dC{escompat.Error}:", &method)) != ANI_OK) {
         EDMLOGE("Class_FindMethod failed %{public}d", status);
         return nullptr;
     }
@@ -204,7 +204,7 @@ bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::Ele
 
 bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value)
 {
-    static const char *className = "Lstd/core/Long;";
+    static const char *className = "std.core.Long";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EDMLOGE("Find class '%{public}s' failed", className);
@@ -212,7 +212,7 @@ bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::strin
     }
 
     ani_method ctor;
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "J:V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
         EDMLOGE("Find method '<ctor>' failed");
         return false;
     }
