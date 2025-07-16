@@ -4387,18 +4387,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesTypeFailed,
 }
 
 /**
- * @tc.name: TestSetBundleInstallPoliciesSuc
- * @tc.desc: Test SetDelegatedPolicies success.
+ * @tc.name: TestSetBundleInstallPoliciesWithInvalidCallingUid
+ * @tc.desc: Test SetDelegatedPolicies with invalid calling uid.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesWithInvalidCallingUid, TestSize.Level1)
 {
     const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     int32_t userId = 100;
     int32_t policyType = 2;
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
 }
 } // namespace TEST
 } // namespace EDM
