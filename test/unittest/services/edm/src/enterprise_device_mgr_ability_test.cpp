@@ -59,6 +59,7 @@ constexpr uint32_t APP_START_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STA
 constexpr uint32_t APP_STOP_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STOP);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_FOUR = 4;
+constexpr int32_t TEST_SLEEP_TIME = 5;
 const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const std::string ADMIN_PACKAGENAME = "com.edm.test";
 const std::string ADMIN_PACKAGENAME_1 = "com.edm.test_1";
@@ -135,7 +136,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
 void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
 {
     PluginManager::GetInstance()->NotifyUnloadAllPlugin();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(TEST_SLEEP_TIME));
 }
 
 int32_t EnterpriseDeviceMgrAbilityTest::TestDump()

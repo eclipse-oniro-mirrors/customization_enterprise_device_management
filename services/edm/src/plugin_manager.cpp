@@ -110,12 +110,12 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
 
 PluginManager::PluginManager()
 {
-    EDMLOGD("PluginManager::PluginManager.");
+    EDMLOGI("PluginManager::PluginManager.");
 }
 
 PluginManager::~PluginManager()
 {
-    EDMLOGD("PluginManager::~PluginManager.");
+    EDMLOGI("PluginManager::~PluginManager.");
 #ifndef EDM_FUZZ_TEST
     NotifyUnloadAllPlugin();
 #endif
