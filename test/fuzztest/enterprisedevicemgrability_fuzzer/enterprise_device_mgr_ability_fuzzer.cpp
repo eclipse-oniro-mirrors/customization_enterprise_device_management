@@ -27,6 +27,8 @@
 #undef protected
 #undef private
 #include "ienterprise_device_mgr.h"
+#include "user_policy_manager.h"
+#include "permission_checker.h"
 #include "securec.h"
 #include "utils.h"
 
@@ -124,7 +126,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string newAdminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     uint32_t code = CommonFuzzer::GetU32Data(data);
-    int32_t fd = CommonFuzzer::GetU32Data(data);
     bool isAdminEnabled = CommonFuzzer::GetU32Data(data) % 2;
     std::vector<std::u16string> args;
     std::vector<std::string> policies;
@@ -140,7 +141,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventPackageChanged(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
     enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId, isAdminEnabled);
-    enterpriseDeviceMgrAbility->Dump(fd, args);
     enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
@@ -151,7 +151,28 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName);
     enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
     enterpriseDeviceMgrAbility->CheckDelegatedPolicies(adminPtr, policies);
+    enterpriseDeviceMgrAbility->CheckRunningMode(code);
+    enterpriseDeviceMgrAbility->CheckManagedEvent(code);
+    enterpriseDeviceMgrAbility->SetDelegatedPolicies(bundleName, policies, userId);
+    enterpriseDeviceMgrAbility->SetDelegatedPolicies(admin, bundleName, policies);
     enterpriseDeviceMgrAbility->OnStop();
+    UserPolicyManager userPolicyMgr(0);
+    PolicyItemsMap itemMap;
+    itemMap[adminName] = fuzzString;
+    userPolicyMgr.GetAllPolicyByAdmin(adminName, itemMap);
+    userPolicyMgr.DeleteCombinedPolicy(fuzzString);
+    userPolicyMgr.ReplacePolicyByAdminName(0, adminName, fuzzString);
+    userPolicyMgr.DumpAdminPolicy();
+    userPolicyMgr.DumpAdminList();
+    userPolicyMgr.DumpCombinedPolicy();
+    PermissionChecker::GetInstance()->CheckCallerPermission(adminPtr, fuzzString, isAdminEnabled);
+    PermissionChecker::GetInstance()->CheckCallingUid(fuzzString);
+    PermissionChecker::GetInstance()->GetAllPermissionsByAdmin(fuzzString, type, userId, policies);
+    FuncOperateType fType = GetData<FuncOperateType>();
+    PermissionChecker::GetInstance()->CheckHandlePolicyPermission(fType, bundleName, fuzzString, fuzzString, userId);
+    PermissionChecker::GetInstance()->CheckAndUpdatePermission(adminPtr, 0, fuzzString, userId);
+    PermissionChecker::GetInstance()->GetCurrentUserId();
+    PermissionChecker::GetInstance()->CheckSpecialPolicyCallQuery(userId);
     return 0;
 }
 } // namespace EDM

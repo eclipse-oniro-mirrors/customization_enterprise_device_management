@@ -22,6 +22,7 @@
 #include "message_parcel.h"
 #define private public
 #include "admin_manager.h"
+#include "admin_container.h"
 #undef private
 #include "ienterprise_device_mgr.h"
 
@@ -87,7 +88,14 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
     adminManager->GetSuperAdmin();
 
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
     Admin adminItem = admin;
+    Admin adminItem1(abilityInfo, role, entInfo, permissions, true);
+    adminItem1 = admin;
+    Admin adminItem2(bundleName, role, permissions);
+    adminItem1.SetParentAdminName(fuzzString);
+    adminItem1.GetParentAdminName();
+    adminItem2.CheckPermission(fuzzString);
     std::shared_ptr<Admin> getAdmin = std::make_shared<Admin>(admin);
     std::string policyName(reinterpret_cast<const char*>(data), size);
     adminManager->UpdateAdmin(getAdmin, userId, adminItem);
@@ -98,6 +106,11 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->Dump();
     adminManager->ClearAdmins();
     adminManager->InsertAdmins(userId, adminPtrVec);
+    adminManager->IsAdminExist();
+    adminManager->GetAdmins(adminPtrVec, userId);
+    adminManager->SetAdminValue(0, adminItem1);
+    adminManager->SetAdminValue(0, adminItem2);
+    AdminContainer::GetInstance()->UpdateAdmin(0, bundleName, 0x1FF, adminItem2);
 }
 
 // Fuzzer entry point.
