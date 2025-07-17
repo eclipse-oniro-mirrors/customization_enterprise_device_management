@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -42,7 +42,6 @@ ohos_shared_library("enterprise_admin_extension") {
 
   external_deps = [
     "ability_runtime:ability_context_native",
-    "ability_runtime:abilitykit_utils",
     "ability_runtime:app_context",
     "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
@@ -81,14 +80,12 @@ ohos_shared_library("enterprise_admin_extension_module") {
   deps = [ ":enterprise_admin_extension" ]
 
   external_deps = [
-    "ability_base:configuration",
     "ability_runtime:abilitykit_native",
     "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
     "ipc:ipc_napi",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "resource_management:global_resmgr",
   ]
 
   relative_install_dir = "extensionability/"
