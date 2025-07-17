@@ -48,6 +48,7 @@ group("fuzztest") {
     "powerpolicyplugin_fuzzer:PowerPolicyPluginFuzzTest",
     "setbrowserpoliciesplugin_fuzzer:SetBrowserPoliciesPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
+    "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
   ]
 
@@ -59,6 +60,12 @@ group("fuzztest") {
       "setapnplugin_fuzzer:SetApnPluginFuzzTest",
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+    ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    deps += [
+      "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",
     ]
   }
 
