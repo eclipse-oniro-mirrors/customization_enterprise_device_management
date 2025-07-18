@@ -46,7 +46,7 @@ ErrCode KioskFeaturePlugin::OnSetPolicy(std::vector<int32_t> &data, std::vector<
     }
     if (data.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         EDMLOGE("KioskFeaturePlugin OnSetPolicy size is over limit");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     for (size_t i = 0; i < data.size(); i++) {
         ErrCode ret = SetSpecifiedKioskFeatures(data[i]);
@@ -78,7 +78,7 @@ ErrCode KioskFeaturePlugin::SetSpecifiedKioskFeatures(int32_t data)
             break;
         default:
             EDMLOGE("KioskFeaturePlugin kiosk feature illegal. Value = %{public}d.", data);
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     return ERR_OK;
 }

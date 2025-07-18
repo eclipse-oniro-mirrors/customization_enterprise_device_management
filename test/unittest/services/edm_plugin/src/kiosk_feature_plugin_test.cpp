@@ -154,7 +154,7 @@ HWTEST_F(KioskFeaturePluginTest, TestSetSpecifiedKioskFeaturesNormal, TestSize.L
     ASSERT_TRUE(OHOS::system::GetBoolParameter(
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, false));
     ErrCode retInvalidCode = plugin->SetSpecifiedKioskFeatures(100);
-    EXPECT_TRUE(retInvalidCode == EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_TRUE(retInvalidCode == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
