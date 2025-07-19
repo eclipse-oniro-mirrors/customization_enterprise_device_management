@@ -542,7 +542,8 @@ void DeviceSettingsAddon::NativeSetWallPaper(napi_env env, void* data, bool isHo
     }
     AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->data.WriteBool(isHomeWallPaper);
-    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetWallPaper(asyncCallbackInfo->data);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetWallPaper(asyncCallbackInfo->data,
+        asyncCallbackInfo->innerCodeMsg);
     if (FAILED(ret)) {
         asyncCallbackInfo->ret = ret;
     }

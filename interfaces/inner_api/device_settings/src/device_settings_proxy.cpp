@@ -196,11 +196,16 @@ int32_t DeviceSettingsProxy::GetPowerPolicy(MessageParcel &data, PowerPolicy &po
     return ERR_OK;
 }
 
-int32_t DeviceSettingsProxy::SetWallPaper(MessageParcel &data)
+int32_t DeviceSettingsProxy::SetWallPaper(MessageParcel &data, std::string &errMsg)
 {
     EDMLOGD("DeviceSettingsProxy::SetWallPaper");
+    MessageParcel reply;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_WALL_PAPER);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+    if (ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+        reply.ReadString(errMsg);
+    }
+    return ret;
 }
 } // namespace EDM
 } // namespace OHOS
