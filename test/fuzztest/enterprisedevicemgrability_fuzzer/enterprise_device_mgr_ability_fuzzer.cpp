@@ -106,6 +106,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventServiceStart();
 
     int32_t userId = CommonFuzzer::GetU32Data(data);
+    int32_t accountId = CommonFuzzer::GetU32Data(data);
+    int32_t interfaceCode = CommonFuzzer::GetU32Data(data);
     enterpriseDeviceMgrAbility->SubscribeAppState();
     enterpriseDeviceMgrAbility->UnsubscribeAppState();
     AppExecFwk::ElementName admin;
@@ -127,6 +129,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string newAdminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     uint32_t code = CommonFuzzer::GetU32Data(data);
     bool isAdminEnabled = CommonFuzzer::GetU32Data(data) % 2;
+    bool isModeOn = CommonFuzzer::GetU32Data(data) % 2;
+    bool isByod = CommonFuzzer::GetU32Data(data) % 2;
     std::vector<std::u16string> args;
     std::vector<std::string> policies;
     Admin edmAdmin;
@@ -140,8 +144,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventUserSwitched(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventPackageChanged(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
+    enterpriseDeviceMgrAbility->OnCommonEventKioskMode(eventData, isModeOn);
     enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId, isAdminEnabled);
     enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName, userId);
+    enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
     enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
@@ -153,6 +159,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->CheckDelegatedPolicies(adminPtr, policies);
     enterpriseDeviceMgrAbility->CheckRunningMode(code);
     enterpriseDeviceMgrAbility->CheckManagedEvent(code);
+    enterpriseDeviceMgrAbility->ConnectAbility(accountId, adminPtr);
+    enterpriseDeviceMgrAbility->ConnectAbilityOnSystemAccountEvent(accountId, event);
+    enterpriseDeviceMgrAbility->ConnectAbilityOnSystemEvent(bundleName, event, userId);
+    enterpriseDeviceMgrAbility->CallOnOtherServiceStart(interfaceCode);
+    enterpriseDeviceMgrAbility->CallOnOtherServiceStart(interfaceCode, systemAbilityId);
+    enterpriseDeviceMgrAbility->IsByodAdmin(admin, isByod);
     enterpriseDeviceMgrAbility->SetDelegatedPolicies(bundleName, policies, userId);
     enterpriseDeviceMgrAbility->SetDelegatedPolicies(admin, bundleName, policies);
     enterpriseDeviceMgrAbility->OnStop();

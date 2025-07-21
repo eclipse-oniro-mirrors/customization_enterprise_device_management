@@ -375,6 +375,10 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
 void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet,
     std::shared_ptr<Admin> item)
 {
+    if (resultSet == nullptr || item == nullptr) {
+        EDMLOGE("AdminPoliciesStorageRdb::SetManagedEventStr failed.");
+        return;
+    }
     std::string managedEventsStr;
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, managedEventsStr);
     if (managedEventsStr.empty() || managedEventsStr == "null") {
