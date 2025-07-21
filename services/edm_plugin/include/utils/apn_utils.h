@@ -30,7 +30,6 @@ struct ApnUtilsPassword : ApnPassword {
     ~ApnUtilsPassword()
     {
         if (password != nullptr) {
-            memset_s(password, passwordSize, 0, passwordSize);
             password = nullptr;
         }
         passwordSize = 0;
