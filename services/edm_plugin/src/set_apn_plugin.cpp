@@ -86,7 +86,7 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
             return EdmReturnErrCode::PARAM_ERROR;
         }
         std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
-        if (apnInfo.size() == 0) {
+        if (apnInfo.size() == 0 && apnUtilsPassword.password == nullptr) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
         return ApnUtils::ApnUpdate(apnInfo, apnId, apnUtilsPassword);
@@ -148,7 +148,6 @@ std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &dat
         apnPassword.passwordSize = static_cast<int32_t>(pwdLen);
         apnPassword.password = const_cast<char *>(data.ReadCString());
     }
-    data.RewindRead(0);
     return result;
 }
 
