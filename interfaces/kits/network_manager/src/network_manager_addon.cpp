@@ -1667,7 +1667,8 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
         "apnInfo param error");
     std::map<std::string, std::string> apnInfoMapEx;
     KeyToField(apnInfoMap, apnInfoMapEx);
-    ASSERT_AND_THROW_PARAM_ERROR(env, apnInfoMapEx.size() != 0, "No parameters to update");
+    ASSERT_AND_THROW_PARAM_ERROR(env, apnInfoMapEx.size() != 0 || apnPassword.password != nullptr,
+        "No parameters to update");
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]) && !apnId.empty(),
         "apnId param error");
