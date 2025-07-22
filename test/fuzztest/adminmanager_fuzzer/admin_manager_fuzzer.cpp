@@ -78,6 +78,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->IsSuperAdminExist();
     adminManager->IsByodAdminExist();
     adminManager->IsSuperAdmin(bundleName);
+    adminManager->IsByodAdmin(bundleName, userId);
     adminManager->IsSuperOrSubSuperAdmin(bundleName);
     adminManager->GetEnabledAdmin(role, packageNameList, userId);
     adminManager->GetSubOrSuperOrByodAdminByPkgName(subAdminName, subOrSuperAdmin);
