@@ -17,6 +17,11 @@
 
 #include <system_ability_definition.h>
 
+#define protected public
+#define private public
+#include "manage_auto_start_apps_plugin.h"
+#undef protected
+#undef private
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
@@ -65,6 +70,24 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
+    ManageAutoStartAppsPlugin plugin;
+    uint32_t code = CommonFuzzer::GetU32Data(data);
+    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    MessageParcel requestData;
+    requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
+    MessageParcel reply;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = fuzzString;
+    handlePolicyData.mergePolicyData = fuzzString;
+    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % 2;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
+    plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
+    plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
     return 0;
 }
 } // namespace EDM
