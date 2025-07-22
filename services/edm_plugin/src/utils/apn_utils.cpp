@@ -94,7 +94,7 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo,
         values.Put(key, value);
     }
     if (apnUtilsPassword.password != nullptr) {
-        values.Put("auth_pwd", std::string(apnUtilsPassword.password));
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password, apnUtilsPassword.passwordSize));
     }
     std::string mccmnc = apnInfo.at(PdpProfileData::MCC) + apnInfo.at(PdpProfileData::MNC);
     values.Put(PdpProfileData::MCCMNC, mccmnc);
@@ -128,7 +128,7 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
         values.Put(key, value);
     }
     if (apnUtilsPassword.password != nullptr) {
-        values.Put("auth_pwd", std::string(apnUtilsPassword.password));
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password, apnUtilsPassword.passwordSize));
     }
     
     std::string mccmnc;
