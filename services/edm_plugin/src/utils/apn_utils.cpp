@@ -84,7 +84,8 @@ int32_t ApnUtils::GetOpkey(const std::string &mccmnc, std::string &opkey)
     return 0;
 }
 
-int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
+int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo,
+    const ApnUtilsPassword &apnUtilsPassword)
 {
     EDMLOGI("ApnUtils::ApnInsert start");
     auto helper = CreatePdpProfileAbilityHelper();
@@ -95,6 +96,9 @@ int32_t ApnUtils::ApnInsert(const std::map<std::string, std::string> &apnInfo)
     DataShare::DataShareValuesBucket values;
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
+    }
+    if (apnUtilsPassword.password != nullptr) {
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password, apnUtilsPassword.passwordSize));
     }
     std::string mccmnc = apnInfo.at(PdpProfileData::MCC) + apnInfo.at(PdpProfileData::MNC);
     values.Put(PdpProfileData::MCCMNC, mccmnc);
@@ -122,7 +126,8 @@ int32_t ApnUtils::ApnDelete(const std::string &apnId)
     return helper->Delete(uri, predicates) == DataShare::E_OK ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
-int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId)
+int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, const std::string &apnId,
+    const ApnUtilsPassword &apnUtilsPassword)
 {
     EDMLOGI("ApnUtils::ApnUpdate start");
     auto helper = CreatePdpProfileAbilityHelper();
@@ -135,7 +140,10 @@ int32_t ApnUtils::ApnUpdate(const std::map<std::string, std::string> &apnInfo, c
     for (const auto & [key, value] : apnInfo) {
         values.Put(key, value);
     }
-
+    if (apnUtilsPassword.password != nullptr) {
+        values.Put("auth_pwd", std::string(apnUtilsPassword.password, apnUtilsPassword.passwordSize));
+    }
+    
     std::string mccmnc;
     if (apnInfo.find(PdpProfileData::MCC) != apnInfo.end() && apnInfo.find(PdpProfileData::MNC) != apnInfo.end()) {
         mccmnc = apnInfo.at(PdpProfileData::MCC) + apnInfo.at(PdpProfileData::MNC);

@@ -395,7 +395,7 @@ int32_t NetworkManagerProxy::ForceTurnOnMobileData(const AppExecFwk::ElementName
 }
 
 int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin,
-    const std::map<std::string, std::string> &apnInfoMap)
+    const std::map<std::string, std::string> &apnInfoMap, ApnPassword &apnPassword)
 {
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -413,6 +413,12 @@ int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin,
     for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
     }
+    if (apnPassword.password == nullptr) {
+        data.WriteInt32(-1);
+    } else {
+        data.WriteInt32(static_cast<int32_t>(apnPassword.passwordSize));
+        data.WriteCString(apnPassword.password);
+    }
     std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SET_APN_INFO);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
@@ -426,7 +432,7 @@ int32_t NetworkManagerProxy::DeleteApn(MessageParcel &data)
 }
 
 int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
-    const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId)
+    const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId, ApnPassword &apnPassword)
 {
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -441,6 +447,12 @@ int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
     }
     for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.second);
+    }
+    if (apnPassword.password == nullptr) {
+        data.WriteInt32(-1);
+    } else {
+        data.WriteInt32(static_cast<int32_t>(apnPassword.passwordSize));
+        data.WriteCString(apnPassword.password);
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SET_APN_INFO);

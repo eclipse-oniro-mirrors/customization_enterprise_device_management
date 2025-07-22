@@ -23,6 +23,7 @@
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
 #include "iptables_utils.h"
+#include "apn_password.h"
 
 namespace OHOS {
 namespace EDM {
@@ -55,10 +56,11 @@ public:
     int32_t TurnOnMobileData(MessageParcel &data);
     int32_t TurnOffMobileData(MessageParcel &data);
     int32_t ForceTurnOnMobileData(const AppExecFwk::ElementName &admin);
-    int32_t AddApn(const AppExecFwk::ElementName &admin, const std::map<std::string, std::string> &apnInfoMap);
+    int32_t AddApn(const AppExecFwk::ElementName &admin, const std::map<std::string, std::string> &apnInfoMap,
+        ApnPassword &apnPassword);
     int32_t DeleteApn(MessageParcel &data);
     int32_t UpdateApn(const AppExecFwk::ElementName &admin,
-        const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId);
+        const std::map<std::string, std::string> &apnInfoMap, const std::string &apnId, ApnPassword &apnPassword);
     int32_t SetPreferApn(const AppExecFwk::ElementName &admin, const std::string &apnId);
     int32_t QueryApn(const AppExecFwk::ElementName &admin, const std::string &apnId,
         std::map<std::string, std::string> &apnInfoMap);

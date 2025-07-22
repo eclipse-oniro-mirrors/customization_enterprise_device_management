@@ -36,7 +36,7 @@ const std::set<std::string> REQUIRED_APN_INFO_KEYS = { "apnName", "mcc", "mnc", 
 const std::set<std::string> ALL_APN_INFO_KEYS = {
     "apnName", "mcc", "mnc",
     "apn", "type", "user",
-    "proxy", "mmsproxy", "authType",
+    "proxy", "mmsproxy", "authType", "password"
 };
 const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "apnName", "profile_name" },
@@ -48,7 +48,9 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "mcc", "mcc" },
     { "mnc", "mnc" },
     { "apn", "apn" },
+    { "password", "password" }
 };
+constexpr int32_t PASSWORD_KEY_LENGTH = 8;
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
@@ -1502,6 +1504,62 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters,
     }
 }
 
+static bool ParsePwd(napi_env env, napi_value args, ApnPassword &apnPassword)
+{
+    napi_valuetype valueType;
+    if (napi_typeof(env, args, &valueType) != napi_ok || valueType != napi_object) {
+        EDMLOGE("Parameter 'args' must be an object.");
+        return false;
+    }
+
+    bool hasProperty = false;
+    if (napi_has_named_property(env, args, "password", &hasProperty) != napi_ok || !hasProperty) {
+        return true;
+    }
+
+    napi_value pwdValue;
+    if (napi_get_named_property(env, args, "password", &pwdValue) != napi_ok) {
+        EDMLOGE("ParsePwd: napi_get_named_property failed.");
+        return false;
+    }
+
+    if (napi_get_value_string_utf8(env, pwdValue, nullptr, 0, &apnPassword.passwordSize) != napi_ok) {
+        EDMLOGE("ParsePwd: napi_get_value_string_utf8 failed.");
+        return false;
+    }
+
+    if (apnPassword.passwordSize > ApnPassword::MAX_PASSWORD_SIZE) {
+        EDMLOGE("ParsePwd: The password length exceeds the limit.");
+        return false;
+    }
+
+    apnPassword.password = static_cast<char *>(calloc(apnPassword.passwordSize + 1, 1));
+    if (!apnPassword.password) {
+        EDMLOGE("ParsePwd: calloc failed.");
+        return false;
+    }
+
+    if (napi_get_value_string_utf8(env, pwdValue, apnPassword.password, apnPassword.passwordSize + 1, nullptr)
+        != napi_ok) {
+        EDMLOGE("ParsePwd: napi_get_value_string_utf8 failed.");
+        return false;
+    }
+
+    napi_value pwdKey;
+    if (napi_create_string_utf8(env, "password", PASSWORD_KEY_LENGTH, &pwdKey) != napi_ok) {
+        EDMLOGE("ParsePwd: napi_create_string_utf8 failed.");
+        return false;
+    }
+
+    bool deleteSuccess = false;
+    if (napi_delete_property(env, args, pwdKey, &deleteSuccess) != napi_ok || !deleteSuccess) {
+        EDMLOGE("ParsePwd: napi_delete_property failed.");
+        return false;
+    }
+
+    return true;
+}
+
 napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddApn called");
@@ -1520,6 +1578,10 @@ napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
+    ApnPassword apnPassword;
+    if (!ParsePwd(env, argv[ARR_INDEX_ONE], apnPassword)) {
+        return nullptr;
+    }
     std::map<std::string, std::string> apnInfoMap;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
         "apnInfo name param error");
@@ -1531,7 +1593,7 @@ napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
     std::map<std::string, std::string> apnInfoMapTf;
     ParametersTransform(apnInfoMapEx, apnInfoMapTf);
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfoMapTf);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->AddApn(elementName, apnInfoMapTf, apnPassword);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1596,17 +1658,23 @@ napi_value NetworkManagerAddon::UpdateApn(napi_env env, napi_callback_info info)
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
+    ApnPassword apnPassword;
+    if (!ParsePwd(env, argv[ARR_INDEX_ONE], apnPassword)) {
+        return nullptr;
+    }
     std::map<std::string, std::string> apnInfoMap;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfoMap, argv[ARR_INDEX_ONE]),
         "apnInfo param error");
     std::map<std::string, std::string> apnInfoMapEx;
     KeyToField(apnInfoMap, apnInfoMapEx);
-    ASSERT_AND_THROW_PARAM_ERROR(env, apnInfoMapEx.size() != 0, "No parameters to update");
+    ASSERT_AND_THROW_PARAM_ERROR(env, apnInfoMapEx.size() != 0 || apnPassword.password != nullptr,
+        "No parameters to update");
     std::string apnId;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, apnId, argv[ARR_INDEX_TWO]) && !apnId.empty(),
         "apnId param error");
     
-    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMapEx, apnId);
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->UpdateApn(elementName, apnInfoMapEx, apnId,
+        apnPassword);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -1691,6 +1759,7 @@ napi_value NetworkManagerAddon::QueryApnIds(napi_env env, const OHOS::AppExecFwk
     std::map<std::string, std::string> apnInfo;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseMapStringAndString(env, apnInfo, param),
         "apnInfo param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, apnInfo.find("password") == apnInfo.end(), "pwd can't be used when querying");
     std::map<std::string, std::string> apnInfoEx;
     KeyToField(apnInfo, apnInfoEx);
 
