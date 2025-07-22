@@ -33,6 +33,29 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 24;
 constexpr int32_t WITHOUT_USERID = 0;
+constexpr int32_t EVEN_NUMBER = 2;
+
+void DoSomethingTest(const uint8_t* data, size_t size, int32_t pos, int32_t stringSize)
+{
+    ManageAutoStartAppsPlugin plugin;
+    uint32_t code = CommonFuzzer::GetU32Data(data);
+    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    MessageParcel requestData;
+    requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
+    MessageParcel reply;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = fuzzString;
+    handlePolicyData.mergePolicyData = fuzzString;
+    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
+    plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
+    plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -70,24 +93,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
-    ManageAutoStartAppsPlugin plugin;
-    uint32_t code = CommonFuzzer::GetU32Data(data);
-    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    MessageParcel requestData;
-    requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
-    MessageParcel reply;
-    int32_t userId = CommonFuzzer::GetU32Data(data);
-    std::string fuzzString(reinterpret_cast<const char*>(data), size);
-    std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
-    HandlePolicyData handlePolicyData;
-    handlePolicyData.policyData = fuzzString;
-    handlePolicyData.mergePolicyData = fuzzString;
-    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % 2;
-    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
-    plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
-    plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+    DoSomethingTest(data, size, pos, stringSize);
     return 0;
 }
 } // namespace EDM
