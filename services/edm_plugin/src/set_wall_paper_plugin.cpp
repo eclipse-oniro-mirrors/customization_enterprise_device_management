@@ -15,6 +15,9 @@
 
 #include "set_wall_paper_plugin.h"
 
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -36,6 +39,10 @@ void SetWallPaperPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetWallPaper
 ErrCode SetWallPaperPlugin::OnSetPolicy(WallPaperParam &data)
 {
     EDMLOGD("SetWallPaperPlugin start set wall paper.");
+    if (data.fd >= 0 && fcntl(data.fd, F_GETFL) != -1) {
+        close(data.fd);
+        data.fd = -1;
+    }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 } // namespace EDM
