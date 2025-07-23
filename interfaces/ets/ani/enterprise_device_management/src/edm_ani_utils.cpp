@@ -118,8 +118,7 @@ ani_object EdmAniUtils::CreateError(ani_env *env, ani_int code, const std::strin
         EDMLOGE("error null");
         return nullptr;
     }
-    ani_double dCode(code);
-    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+    if ((status = env->Object_New(cls, method, &obj, code, error)) != ANI_OK) {
         EDMLOGE("Object_New failed %{public}d", status);
         return nullptr;
     }
