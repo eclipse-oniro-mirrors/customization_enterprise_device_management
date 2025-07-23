@@ -37,6 +37,7 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 
 ErrCode NotifyUpdatePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
 {
+    UpdatePolicyUtils::ClosePackagesFileHandle(policy.packages);
     if (policy.authInfoSize > EdmConstants::AUTH_INFO_MAX_SIZE) {
         EDMLOGE("NotifyUpdatePackagesPlugin::OnSetPolicy authInfoSize error.");
         return EdmReturnErrCode::PARAM_ERROR;
