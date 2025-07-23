@@ -34,7 +34,6 @@
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 10;
-constexpr int32_t HAS_USERID = 1;
 constexpr int32_t EVEN_NUMBER = 2;
 
 // Fuzzer entry point.
