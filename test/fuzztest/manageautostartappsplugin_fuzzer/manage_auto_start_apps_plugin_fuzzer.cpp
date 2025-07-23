@@ -33,7 +33,6 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 24;
 constexpr int32_t WITHOUT_USERID = 0;
-constexpr int32_t EVEN_NUMBER = 2;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
