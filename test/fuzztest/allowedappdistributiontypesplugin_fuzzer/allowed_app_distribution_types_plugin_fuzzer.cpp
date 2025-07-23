@@ -33,7 +33,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 20;
+constexpr size_t MIN_SIZE = 12;
 constexpr int32_t WITHOUT_USERID = 0;
 
 // Fuzzer entry point.
@@ -46,7 +46,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 10;
+    int32_t stringSize = size / 7;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE;
@@ -73,12 +73,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     AllowedAppDistributionTypesPlugin plugin;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
-
+    int32_t intPos = 0;
     std::vector<int32_t> policyData;
-    policyData.push_back(CommonFuzzer::GetU32Data(data));
+    policyData.push_back(CommonFuzzer::GetU32Data(data, intPos, size));
     std::vector<int32_t> mergeData;
-    mergeData.push_back(CommonFuzzer::GetU32Data(data));
-    int32_t userId = CommonFuzzer::GetU32Data(data);
+    mergeData.push_back(CommonFuzzer::GetU32Data(data, intPos, size));
+    int32_t userId = CommonFuzzer::GetU32Data(data, intPos, size);
     plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
     return 0;
 }

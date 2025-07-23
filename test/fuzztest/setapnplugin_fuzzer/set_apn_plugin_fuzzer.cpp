@@ -33,7 +33,7 @@
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 70;
-constexpr size_t MAX_NUM_OF_GET_STRING = 13;
+constexpr size_t MAX_NUM_OF_GET_STRING = 16;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr uint32_t SET_FLAG_FACTOR = 3;
 constexpr uint32_t GET_FLAG_FACTOR = 2;

@@ -59,7 +59,7 @@ HWTEST_F(DisablePrintPluginTest, TestDisablePrintPluginTestSet, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin = DisablePrintPlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DISALLOWED_PRINT);
+        EdmInterfaceCode::DISABLED_PRINT);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
 
     ASSERT_TRUE(ret == ERR_OK);

@@ -300,7 +300,8 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetWallPaperFail, TestSize.Level1)
     data.WriteParcelable(&admin);
     data.WriteFileDescriptor(fd);
     data.WriteBool(true);
-    int32_t ret = deviceSettingsProxy->SetWallPaper(data);
+    std::string errMsg;
+    int32_t ret = deviceSettingsProxy->SetWallPaper(data, errMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -321,7 +322,8 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetWallPaperSuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     data.WriteFileDescriptor(fd);
     data.WriteBool(true);
-    int32_t ret = deviceSettingsProxy->SetWallPaper(data);
+    std::string errMsg;
+    int32_t ret = deviceSettingsProxy->SetWallPaper(data, errMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

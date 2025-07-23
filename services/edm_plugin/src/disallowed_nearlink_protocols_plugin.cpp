@@ -57,17 +57,17 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnSetPolicy userId = %{public}d", userId);
     if (data.empty()) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy data is empty");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (data.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy size is over limit");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     NearlinkConfigUtils nearlinkConfigUtils;
     for (size_t i = 0; i < data.size(); ++i) {
         std::string protocol;
         if (!NearlinkProtocolUtils::IntToProtocolStr(data[i], protocol)) {
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
         if (!nearlinkConfigUtils.UpdateProtocol(std::to_string(userId), protocol, true)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -85,17 +85,17 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(
     EDMLOGI("DisallowedNearlinkProtocolsPlugin OnRemovePolicy userId = %{public}d", userId);
     if (data.empty()) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnRemovePolicy data is empty");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (data.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnRemovePolicy size is over limit");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     NearlinkConfigUtils nearlinkConfigUtils;
     for (size_t i = 0; i < data.size(); ++i) {
         std::string protocol;
         if (!NearlinkProtocolUtils::IntToProtocolStr(data[i], protocol)) {
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
         if (!nearlinkConfigUtils.UpdateProtocol(std::to_string(userId), protocol, false)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;

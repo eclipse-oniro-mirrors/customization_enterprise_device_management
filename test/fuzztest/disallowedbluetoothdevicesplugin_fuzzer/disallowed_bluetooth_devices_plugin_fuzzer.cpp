@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 16;
+constexpr size_t MIN_SIZE = 8;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t HAS_ADMIN = 0;
 constexpr int32_t WITHOUT_ADMIN = 1;
@@ -42,7 +42,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 9;
+    int32_t stringSize = size / 8;
 
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {

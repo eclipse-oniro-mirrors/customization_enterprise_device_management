@@ -36,6 +36,8 @@ const std::string QUERY_INFO_FLAG = "QueryApn";
 constexpr int32_t ADD_FIELD_SIZE = 8;
 constexpr int32_t UPDATE_FIELD_SIZE = 2;
 constexpr int32_t OPKEY_QUERY_SIZE = 1;
+constexpr std::string_view PASSWORD = "password";
+constexpr int32_t PASSWORD_SIZE = static_cast<int32_t>(PASSWORD.size());
 std::string g_testApnId = "-1";
 }
 
@@ -79,6 +81,9 @@ void SetApnPluginTest::AddTestData(MessageParcel &data)
     data.WriteString("TEST_ADD_APN_TYPES");
     data.WriteString("TEST_ADD_PROXY_IP_ADDRESS");
     data.WriteString("TEST_ADD_MMS_IP_ADDRESS");
+
+    data.WriteInt32(PASSWORD_SIZE);
+    data.WriteString(std::string(PASSWORD));
 }
 
 void SetApnPluginTest::UpdateTestData(MessageParcel &data)

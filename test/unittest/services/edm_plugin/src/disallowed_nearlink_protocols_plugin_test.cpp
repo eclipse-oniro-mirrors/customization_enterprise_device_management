@@ -62,7 +62,7 @@ HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestSetDisallowedNearlinkProtoco
     std::vector<std::int32_t> currentData;
     std::vector<std::int32_t> mergeData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -95,7 +95,7 @@ HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestRemoveDisallowedNearlinkProt
     std::vector<std::int32_t> currentData;
     std::vector<std::int32_t> mergeData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**

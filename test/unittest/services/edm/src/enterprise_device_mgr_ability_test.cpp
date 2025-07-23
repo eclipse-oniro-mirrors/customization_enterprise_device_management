@@ -59,6 +59,7 @@ constexpr uint32_t APP_START_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STA
 constexpr uint32_t APP_STOP_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STOP);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_FOUR = 4;
+constexpr int32_t TEST_SLEEP_TIME = 5;
 const std::string PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const std::string ADMIN_PACKAGENAME = "com.edm.test";
 const std::string ADMIN_PACKAGENAME_1 = "com.edm.test_1";
@@ -135,7 +136,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
 void EnterpriseDeviceMgrAbilityTest::TearDownTestSuite()
 {
     PluginManager::GetInstance()->NotifyUnloadAllPlugin();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(TEST_SLEEP_TIME));
 }
 
 int32_t EnterpriseDeviceMgrAbilityTest::TestDump()
@@ -4387,18 +4388,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesTypeFailed,
 }
 
 /**
- * @tc.name: TestSetBundleInstallPoliciesSuc
- * @tc.desc: Test SetDelegatedPolicies success.
+ * @tc.name: TestSetBundleInstallPoliciesWithInvalidCallingUid
+ * @tc.desc: Test SetDelegatedPolicies with invalid calling uid.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesSuc, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesWithInvalidCallingUid, TestSize.Level1)
 {
     const std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     int32_t userId = 100;
     int32_t policyType = 2;
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
 }
 } // namespace TEST
 } // namespace EDM

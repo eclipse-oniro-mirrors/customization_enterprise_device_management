@@ -34,26 +34,22 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 20;
+constexpr size_t MIN_SIZE = 15;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t WIFI_LIST_SIZE = 1;
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (data == nullptr) {
-        return 0;
-    }
-    if (size < MIN_SIZE) {
+    if (data == nullptr || size < MIN_SIZE) {
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 10;
+    int32_t stringSize = size / 15;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::ALLOWED_WIFI_LIST;
         code = POLICY_FUNC_CODE(operateType, code);
-
         AppExecFwk::ElementName admin;
         admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
         admin.SetAbilityName(CommonFuzzer::GetString(data, pos, stringSize, size));
@@ -76,7 +72,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
-
     AllowWifiListPlugin plugin;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     WifiId wifiId1;

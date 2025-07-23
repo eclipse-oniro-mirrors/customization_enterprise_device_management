@@ -98,7 +98,7 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy003, TestSize.Lev
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -115,7 +115,7 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnSetPolicy004, TestSize.Lev
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
     ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -173,7 +173,7 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy003, TestSize.
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -190,7 +190,7 @@ HWTEST_F(AllowedAppDistributionTypesPluginTest, TestOnRemovePolicy004, TestSize.
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**

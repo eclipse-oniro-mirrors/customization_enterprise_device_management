@@ -115,7 +115,7 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
         std::vector<std::string> permissionNamesParams;
         permissionNamesParams.push_back(pair.second.permissionName);
         ErrCode rel = Security::AccessToken::AccessTokenKit::SetPermissionStatusWithPolicy(info.tokenId,
-            info.permissionNames, info.managedState,
+            permissionNamesParams, info.managedState,
             static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL));
         if (rel != ERR_OK) {
             EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove SetPermissionStatusWithPolicy failed.");

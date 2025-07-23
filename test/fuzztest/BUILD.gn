@@ -28,11 +28,14 @@ group("fuzztest") {
     "allowedusbdevicesplugin_fuzzer:AllowedUsbDevicesPluginFuzzTest",
     "allowedwifilistplugin_fuzzer:AllowedWifiListPluginFuzzTest",
     "bundleinstallplugin_fuzzer:BundleInstallPluginFuzzTest",
+    "clearupapplicationdataplugin_fuzzer:ClearUpApplicationDataPluginFuzzTest",
     "disablednetworkinterfaceplugin_fuzzer:DisabledNetworkInterfacePluginFuzzTest",
     "disableusbplugin_fuzzer:DisableUsbPluginFuzzTest",
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
     "disallowedbluetoothdevicesplugin_fuzzer:DisallowedBluetoothDevicesPluginFuzzTest",
     "disallowedrunningbundlesplugin_fuzzer:DisallowedRunningBundlesPluginFuzzTest",
+    "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
+    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
     "disallowedwifilistplugin_fuzzer:DisallowedWifiListPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
     "disallowednearlinkprotocolsplugin_fuzzer:DisallowedNearlinkProtocolsPluginFuzzTest",
@@ -50,16 +53,27 @@ group("fuzztest") {
     "powerpolicyplugin_fuzzer:PowerPolicyPluginFuzzTest",
     "setbrowserpoliciesplugin_fuzzer:SetBrowserPoliciesPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
+    "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
-    "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
-    "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
-    "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
-    "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
-    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
-    "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
-    "disallowpowerlongpressplugin_fuzzer:DisallowPowerLongPressPluginFuzzTest",
-    "setapnplugin_fuzzer:SetApnPluginFuzzTest",
   ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    deps += [
+      "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
+      "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
+      "disallowpowerlongpressplugin_fuzzer:DisallowPowerLongPressPluginFuzzTest",
+      "setapnplugin_fuzzer:SetApnPluginFuzzTest",
+      "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
+      "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+    ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    deps += [
+      "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",
+    ]
+  }
+
   defines = []
   if (os_account_edm_enable) {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]

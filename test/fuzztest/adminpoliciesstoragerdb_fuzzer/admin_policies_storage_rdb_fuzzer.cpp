@@ -77,6 +77,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::shared_ptr<NativeRdb::ResultSet> resultSet;
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
     adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
+    adminPoliciesStorageRdb->SetManagedEventStr(resultSet, item);
     adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }

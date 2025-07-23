@@ -57,7 +57,7 @@ ErrCode AllowedAppDistributionTypesPlugin::OnSetPolicy(std::vector<int32_t> &dat
     for (const auto &item : data) {
         if (item < static_cast<int32_t>(AppDistributionType::APP_GALLERY) ||
             item > static_cast<int32_t>(AppDistributionType::CROWDTESTING)) {
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
     }
     std::vector<int32_t> needAddData =
@@ -86,7 +86,7 @@ ErrCode AllowedAppDistributionTypesPlugin::OnRemovePolicy(std::vector<int32_t> &
     for (const auto &item : data) {
         if (item < static_cast<int32_t>(AppDistributionType::APP_GALLERY) ||
             item > static_cast<int32_t>(AppDistributionType::CROWDTESTING)) {
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
     }
     std::vector<int32_t> afterHandle =
