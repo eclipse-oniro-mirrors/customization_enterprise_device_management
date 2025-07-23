@@ -33,7 +33,7 @@ std::string DisallowedWifiListQuery::GetPermission(IPlugin::PermissionType, cons
 ErrCode DisallowedWifiListQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisallowedWifiListQuery OnGetPolicy, userId : %{public}d", userId);
+    EDMLOGI("DisallowedWifiListQuery OnGetPolicy");
     return ArrayWifiIdSerializer::GetInstance()->QueryWifiListPolicy(policyData, reply);
 }
 } // namespace EDM

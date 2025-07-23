@@ -44,7 +44,7 @@ int32_t BatteryUtils::GetCurrentUserId()
         EDMLOGE("BatteryUtils GetCurrentUserId failed");
         return -1;
     }
-    EDMLOGD("BatteryUtils GetCurrentUserId user id = %{public}d", ids.at(0));
+    EDMLOGD("BatteryUtils GetCurrentUserId");
     return (ids.at(0));
 }
 } // namespace EDM

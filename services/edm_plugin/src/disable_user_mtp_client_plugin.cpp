@@ -45,7 +45,7 @@ ErrCode DisableUserMtpClientPlugin::OnSetPolicy(bool &data, bool &currentData, b
     int32_t userId)
 {
     EDMLOGI("DisableUserMtpClientPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+            "mergeData: %{public}d", data, currentData, mergeData);
     std::string value = system::GetParameter(PERSIST_EDM_MTP_CLIENT_DISABLE, "false");
     if (value == "true") { // 设备级接口禁用，返回策略冲突
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
@@ -70,7 +70,7 @@ ErrCode DisableUserMtpClientPlugin::OnAdminRemove(const std::string &adminName, 
     int32_t userId)
 {
     EDMLOGI("DisableUserMtpClientPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d, userId: %{public}d", adminName.c_str(), data, mergeData, userId);
+            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
     // admin 移除时，综合策略为只读，则最终策略不变，仍未只读
     if (mergeData) {
         return ERR_OK;
@@ -89,7 +89,7 @@ ErrCode DisableUserMtpClientPlugin::OnAdminRemove(const std::string &adminName, 
 
 ErrCode DisableUserMtpClientPlugin::SetMtpClientPolicy(bool policy, int32_t userId)
 {
-    EDMLOGI("DisableUserMtpClientPlugin::SetMtpClientPolicy, userId: %{public}d, policy: %{public}d", userId, policy);
+    EDMLOGI("DisableUserMtpClientPlugin::SetMtpClientPolicy, policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_MTP_CLIENT_WRITE);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,

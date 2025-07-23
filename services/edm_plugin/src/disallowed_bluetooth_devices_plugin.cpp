@@ -48,7 +48,7 @@ void DisallowedBluetoothDevicesPlugin::InitPlugin(
 ErrCode DisallowedBluetoothDevicesPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
     std::vector<std::string> &failedData)
 {
-    EDMLOGI("DisallowedBluetoothDevicesPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedBluetoothDevicesPlugin OnSetPolicy");
     bool isDisabled = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
     if (isDisabled) {
         EDMLOGE("DisallowedBluetoothDevicesPlugin OnSetPolicy failed, because bluetooth disabled.");

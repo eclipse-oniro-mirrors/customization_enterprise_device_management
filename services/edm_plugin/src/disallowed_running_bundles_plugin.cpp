@@ -55,7 +55,7 @@ void DisallowedRunningBundlesPlugin::InitPlugin(
 ErrCode DisallowedRunningBundlesPlugin::SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
     std::vector<std::string> &failedData)
 {
-    EDMLOGI("DisallowedRunningBundlesPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedRunningBundlesPlugin OnSetPolicy");
     std::vector<AppExecFwk::AppRunningControlRule> controlRules;
     std::for_each(data.begin(), data.end(), [&](const std::string &str) {
         AppExecFwk::AppRunningControlRule controlRule;
@@ -79,7 +79,7 @@ ErrCode DisallowedRunningBundlesPlugin::SetOtherModulePolicy(const std::vector<s
 ErrCode DisallowedRunningBundlesPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
     std::vector<std::string> &failedData)
 {
-    EDMLOGD("DisallowedRunningBundlesPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGD("DisallowedRunningBundlesPlugin OnRemovePolicy");
     std::vector<AppExecFwk::AppRunningControlRule> controlRules;
     std::for_each(data.begin(), data.end(), [&](const std::string &str) {
         AppExecFwk::AppRunningControlRule controlRule;

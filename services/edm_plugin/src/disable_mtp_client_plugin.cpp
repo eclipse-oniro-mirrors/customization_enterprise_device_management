@@ -40,8 +40,8 @@ void DisableMtpClientPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableM
 
 ErrCode DisableMtpClientPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
 {
-    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, mergeData: %{public}d, "
-            "userId: %{public}d", data, currentData, mergeData, userId);
+    EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, mergeData: %{public}d",
+            data, currentData, mergeData);
     std::vector<AccountSA::OsAccountInfo> accounts;
     ErrCode ret = OHOS::AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accounts);
     EDMLOGI("DisableMtpClientPlugin::OnSetPolicy, QueryAllCreatedOsAccounts ret: %{public}d", ret);

@@ -74,7 +74,7 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
     int32_t userId = 0;
 #ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    EDMLOGI("NAPI_lockScreen called userId :%{public}d", userId);
+    EDMLOGI("NAPI_lockScreen called userId");
 #else
     EDMLOGI("NAPI_lockScreen don't call userId");
 #endif
@@ -165,7 +165,7 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     }
 #ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(param.userId);
-    EDMLOGI("NAPI_lockScreen called userId :%{public}d", param.userId);
+    EDMLOGI("NAPI_lockScreen called userId");
 #else
     EDMLOGI("NAPI_lockScreen don't call userId");
 #endif

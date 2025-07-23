@@ -264,8 +264,8 @@ bool UsbReadOnlyPlugin::IsStorageDisabledByDisallowedPolicy()
 ErrCode UsbReadOnlyPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
     const std::string &mergeData, int32_t userId)
 {
-    EDMLOGI("UsbReadOnlyPlugin OnAdminRemove adminName: %{public}s, userId: %{public}d, value: %{public}s",
-        adminName.c_str(), userId, policyData.c_str());
+    EDMLOGI("UsbReadOnlyPlugin OnAdminRemove adminName: %{public}s, value: %{public}s",
+        adminName.c_str(), policyData.c_str());
     int32_t adminPolicy = 0;
     int32_t mergePolicy = 0;
     if (!IntSerializer::GetInstance()->Deserialize(policyData, adminPolicy) ||

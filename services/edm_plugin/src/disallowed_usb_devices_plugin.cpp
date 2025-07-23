@@ -44,7 +44,7 @@ void DisallowedUsbDevicesPlugin::InitPlugin(
 ErrCode DisallowedUsbDevicesPlugin::OnSetPolicy(std::vector<USB::UsbDeviceType> &data,
     std::vector<USB::UsbDeviceType> &currentData, std::vector<USB::UsbDeviceType> &mergeData, int32_t userId)
 {
-    EDMLOGI("AllowUsbDevicesPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("AllowUsbDevicesPlugin OnSetPolicy");
     if (data.empty()) {
         EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
         return ERR_OK;
@@ -90,7 +90,7 @@ ErrCode DisallowedUsbDevicesPlugin::OnSetPolicy(std::vector<USB::UsbDeviceType> 
 ErrCode DisallowedUsbDevicesPlugin::OnRemovePolicy(std::vector<USB::UsbDeviceType> &data,
     std::vector<USB::UsbDeviceType> &currentData, std::vector<USB::UsbDeviceType> &mergeData, int32_t userId)
 {
-    EDMLOGD("DisallowedUsbDevicesPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGD("DisallowedUsbDevicesPlugin OnRemovePolicy");
     if (data.empty()) {
         EDMLOGW("DisallowedUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;

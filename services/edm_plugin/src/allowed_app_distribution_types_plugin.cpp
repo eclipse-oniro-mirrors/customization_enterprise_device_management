@@ -49,7 +49,7 @@ void AllowedAppDistributionTypesPlugin::InitPlugin(
 ErrCode AllowedAppDistributionTypesPlugin::OnSetPolicy(std::vector<int32_t> &data,
     std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGD("AllowedAppDistributionTypesPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGD("AllowedAppDistributionTypesPlugin OnSetPolicy");
     if (data.empty()) {
         EDMLOGW("AllowedAppDistributionTypesPlugin OnSetPolicy data is empty");
         return ERR_OK;
@@ -78,7 +78,7 @@ ErrCode AllowedAppDistributionTypesPlugin::OnSetPolicy(std::vector<int32_t> &dat
 ErrCode AllowedAppDistributionTypesPlugin::OnRemovePolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
     std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGD("AllowedAppDistributionTypesPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGD("AllowedAppDistributionTypesPlugin OnRemovePolicy");
     if (data.empty()) {
         EDMLOGW("AllowedAppDistributionTypesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;

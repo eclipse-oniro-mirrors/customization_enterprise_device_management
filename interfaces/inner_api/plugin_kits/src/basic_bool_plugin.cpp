@@ -49,8 +49,7 @@ ErrCode BasicBoolPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 
 ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
 {
-    EDMLOGI("BasicBoolPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
-        adminName.c_str(), data, userId);
+    EDMLOGI("BasicBoolPlugin OnAdminRemove adminName : %{public}s, data : %{public}d", adminName.c_str(), data);
     if (!mergeData && data) {
         ErrCode ret = RemoveOtherModulePolicy(userId);
         if (FAILED(ret)) {

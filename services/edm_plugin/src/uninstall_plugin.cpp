@@ -39,8 +39,8 @@ void UninstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<UninstallPlugin
 
 ErrCode UninstallPlugin::OnSetPolicy(UninstallParam &param, MessageParcel &reply)
 {
-    EDMLOGI("UninstallPlugin OnSetPolicy bundleName : %{public}s, userId : %{public}d, isKeepData : %{public}d",
-        param.bundleName.c_str(), param.userId, param.isKeepData);
+    EDMLOGI("UninstallPlugin OnSetPolicy bundleName : %{public}s, isKeepData : %{public}d",
+            param.bundleName.c_str(), param.isKeepData);
 
     const std::string bundleName = param.bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
