@@ -37,14 +37,14 @@ ErrCode PermissionManagedStateQuery::QueryPolicy(std::string &policyData, Messag
 {
     EDMLOGI("PermissionManagedStateQuery OnQueryPolicy");
     PermissionManagedStateInfo info;
-    info.appId = data.ReadString();
+    info.appIdentifier = data.ReadString();
     info.accountId = data.ReadInt32();
     info.appIndex = data.ReadInt32();
     info.permissionName = data.ReadString();
 
     Security::AccessToken::AccessTokenID accessTokenId;
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
+    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appIdentifier, info.appIndex, accessTokenId)) {
         EDMLOGE("PermissionManagedStateQuery QueryPolicy GetAccessTokenId failed.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }

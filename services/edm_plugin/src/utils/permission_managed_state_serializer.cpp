@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace EDM {
 
-const std::string APP_ID = "appId";
+const std::string APP_IDENTIFIER = "appIdentifier";
 const std::string PERMISSION_NAME = "permissionName";
 const std::string PERMISSION_NAMES = "permissionNames";
 const std::string ACCOUNT_ID = "accountId";
@@ -45,16 +45,16 @@ bool PermissionManagedStateSerializer::Deserialize(const std::string &data,
     }
     cJSON* item;
     cJSON_ArrayForEach(item, root) {
-        cJSON* appId = cJSON_GetObjectItem(item, APP_ID.c_str());
+        cJSON* appIdentifier = cJSON_GetObjectItem(item, APP_IDENTIFIER.c_str());
         cJSON* accountId = cJSON_GetObjectItem(item, ACCOUNT_ID.c_str());
         cJSON* appIndex = cJSON_GetObjectItem(item, APP_INDEX.c_str());
         cJSON* managedState = cJSON_GetObjectItem(item, MANAGED_STATE.c_str());
         cJSON* permissionName = cJSON_GetObjectItem(item, PERMISSION_NAME.c_str());
         cJSON* permissionNames = cJSON_GetObjectItem(item, PERMISSION_NAMES.c_str());
         cJSON* tokenId = cJSON_GetObjectItem(item, TOKEN_ID.c_str());
-        if (managedState == nullptr || appId == nullptr || permissionNames == nullptr ||
+        if (managedState == nullptr || appIdentifier == nullptr || permissionNames == nullptr ||
             accountId == nullptr || appIndex == nullptr || permissionName == nullptr || tokenId == nullptr ||
-            !cJSON_IsNumber(managedState) || !cJSON_IsString(appId) || !cJSON_IsArray(permissionNames) ||
+            !cJSON_IsNumber(managedState) || !cJSON_IsString(appIdentifier) || !cJSON_IsArray(permissionNames) ||
             !cJSON_IsNumber(accountId) || !cJSON_IsNumber(appIndex) || !cJSON_IsString(permissionName) ||
             !cJSON_IsNumber(tokenId)) {
             cJSON_Delete(root);
@@ -62,7 +62,7 @@ bool PermissionManagedStateSerializer::Deserialize(const std::string &data,
         }
 
         PermissionManagedStateInfo info;
-        info.appId = appId->valuestring;
+        info.appIdentifier = appIdentifier->valuestring;
         info.accountId = accountId->valueint;
         info.appIndex = appIndex->valueint;
         info.managedState = managedState->valueint;
@@ -90,7 +90,7 @@ bool PermissionManagedStateSerializer::Serialize(const std::map<std::string, Per
     for (auto& it : result) {
         cJSON* item = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
-        cJSON_AddStringToObject(item, APP_ID.c_str(), it.second.appId.c_str());
+        cJSON_AddStringToObject(item, APP_IDENTIFIER.c_str(), it.second.appIdentifier.c_str());
         cJSON_AddStringToObject(item, PERMISSION_NAME.c_str(), it.second.permissionName.c_str());
         cJSON_AddNumberToObject(item, ACCOUNT_ID.c_str(), it.second.accountId);
         cJSON_AddNumberToObject(item, APP_INDEX.c_str(), it.second.appIndex);
@@ -135,7 +135,7 @@ bool PermissionManagedStateSerializer::GetPolicy(MessageParcel &data,
     std::map<std::string, PermissionManagedStateInfo> &result)
 {
     PermissionManagedStateInfo info;
-    info.appId = data.ReadString();
+    info.appIdentifier = data.ReadString();
     info.accountId = data.ReadInt32();
     info.appIndex = data.ReadInt32();
     if (!data.ReadStringVector(&info.permissionNames)) {
@@ -145,7 +145,7 @@ bool PermissionManagedStateSerializer::GetPolicy(MessageParcel &data,
     info.managedState = data.ReadInt32();
     Security::AccessToken::AccessTokenID accessTokenId;
     EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
-    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appId, info.appIndex, accessTokenId)) {
+    if (!edmAccessTokenManagerImpl.GetAccessTokenId(info.accountId, info.appIdentifier, info.appIndex, accessTokenId)) {
         EDMLOGE("PermissionManagedStateSerializer GetAccessTokenId failed.");
         return false;
     }
