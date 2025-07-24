@@ -64,9 +64,10 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
             userId = GetCurrentUserId();
         }
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(want_,
-            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
-        manager->ConnectAbility(connection);
+        bool ret = manager->CreateAdminConnection(want_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
+        if (!ret) {
+            EDMLOGW("EnterpriseAdminConnection::OnAbilityDisconnectDone CreateAdminConnection failed.");
+        }
     }
 }
 

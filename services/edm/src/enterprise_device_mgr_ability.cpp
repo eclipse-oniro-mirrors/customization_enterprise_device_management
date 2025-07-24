@@ -169,9 +169,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate CreateUpdateConnection failed.");
+            }
         }
     }
 }
@@ -457,9 +458,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
         AAFwk::Want connectWant;
         connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateKioskConnection(
-            connectWant, code, currentUserId, bundleName, paramUserId);
-        manager->ConnectAbility(connection);
+        bool ret = manager->CreateKioskConnection(connectWant, code, currentUserId, bundleName, paramUserId);
+        if (!ret) {
+            EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode CreateKioskConnection failed.");
+        }
     }
 }
 
@@ -469,8 +471,7 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, c
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
-    return manager->ConnectAbility(connection);
+    return manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
@@ -494,9 +495,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
                 userId = currentUserId;
             }
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility CreateAccountConnection failed.");
+            }
         }
     }
 }
@@ -506,9 +508,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::sh
     AAFwk::Want want;
     want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
-    manager->ConnectAbility(connection);
+    bool ret = manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
+    if (!ret) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbility CreateAdminConnection failed.");
+    }
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
@@ -530,9 +533,11 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER && tmpUserId >= 0) {
                 currentUserId = tmpUserId;
             }
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateBundleConnection(
+                want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent CreateBundleConnection failed.");
+            }
         }
     }
 }

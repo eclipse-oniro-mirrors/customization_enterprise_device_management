@@ -30,44 +30,44 @@ using namespace OHOS::AAFwk;
 
 namespace OHOS {
 namespace EDM {
-sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
+bool EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
     uint32_t code, uint32_t userId, bool isOnAdminEnabled)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId,
         isOnAdminEnabled));
-    return connection;
+    return ConnectAbility(connection);
 }
 
-sptr<IEnterpriseConnection> EnterpriseConnManager::CreateBundleConnection(const AAFwk::Want &want,
+bool EnterpriseConnManager::CreateBundleConnection(const AAFwk::Want &want,
     uint32_t code, uint32_t userId, const std::string &bundleName, const int32_t accountId)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseBundleConnection(want,
         code, userId, bundleName, accountId));
-    return connection;
+    return ConnectAbility(connection);
 }
 
-sptr<IEnterpriseConnection> EnterpriseConnManager::CreateUpdateConnection(const AAFwk::Want &want,
+bool EnterpriseConnManager::CreateUpdateConnection(const AAFwk::Want &want,
     uint32_t userId, const UpdateInfo &updateInfo)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseUpdateConnection(want,
         static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE), userId, updateInfo));
-    return connection;
+    return ConnectAbility(connection);
 }
 
-sptr<IEnterpriseConnection> EnterpriseConnManager::CreateAccountConnection(const AAFwk::Want &want,
+bool EnterpriseConnManager::CreateAccountConnection(const AAFwk::Want &want,
     uint32_t code, uint32_t userId, const int32_t accountId)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseAccountConnection(want, code, userId,
         accountId));
-    return connection;
+    return ConnectAbility(connection);
 }
 
-sptr<IEnterpriseConnection> EnterpriseConnManager::CreateKioskConnection(
+bool EnterpriseConnManager::CreateKioskConnection(
     const AAFwk::Want &want, uint32_t code, uint32_t userId, const std::string &bundleName, int32_t accountId)
 {
     sptr<IEnterpriseConnection> connection(
         new (std::nothrow)EnterpriseKioskConnection(want, code, userId, bundleName, accountId));
-    return connection;
+    return ConnectAbility(connection);
 }
 
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
