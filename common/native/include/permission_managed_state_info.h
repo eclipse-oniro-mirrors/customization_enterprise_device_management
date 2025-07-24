@@ -32,7 +32,7 @@ enum class PermissionFlag: uint32_t {
 };
 
 struct PermissionManagedStateInfo {
-    std::string appId;
+    std::string appIdentifier;
     std::string permissionName;
     int32_t accountId = 0;
     int32_t tokenId = 0;
