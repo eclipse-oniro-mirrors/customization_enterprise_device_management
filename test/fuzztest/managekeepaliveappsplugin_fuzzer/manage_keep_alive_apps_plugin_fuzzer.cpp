@@ -33,7 +33,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 10;
+constexpr size_t MIN_SIZE = 13;
 constexpr int32_t EVEN_NUMBER = 2;
 
 // Fuzzer entry point.
@@ -46,7 +46,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = (size - pos) / 9;
+    int32_t stringSize = size / 12;
     ManageKeepAliveAppsPlugin plugin;
     uint32_t code = CommonFuzzer::GetU32Data(data);
     std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -55,11 +55,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     MessageParcel reply;
     int32_t userId = CommonFuzzer::GetU32Data(data);
     std::string fuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergeFuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
     HandlePolicyData handlePolicyData;
     handlePolicyData.policyData = fuzzString;
-    handlePolicyData.mergePolicyData = fuzzString;
+    handlePolicyData.mergePolicyData = mergeFuzzString;
     handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
