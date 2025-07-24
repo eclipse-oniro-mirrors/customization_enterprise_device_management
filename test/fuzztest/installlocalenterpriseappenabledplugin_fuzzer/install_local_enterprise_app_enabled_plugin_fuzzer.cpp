@@ -40,7 +40,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = (size - pos) / 9;
+    int32_t stringSize = size / 15;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::SET); operateType++) {
         uint32_t code = EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED;
@@ -56,7 +56,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             parcel.WriteParcelable(&admin);
             parcel.WriteString(WITHOUT_PERMISSION_TAG);
             std::vector<std::string> keepAliveAppsString;
-            std::string bundleName(reinterpret_cast<const char*>(data), size / 2);
+            std::string bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
             keepAliveAppsString.push_back(bundleName);
             parcel.WriteStringVector(keepAliveAppsString);
             parcel.WriteBool(true);
