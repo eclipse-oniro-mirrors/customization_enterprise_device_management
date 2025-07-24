@@ -51,6 +51,7 @@ group("fuzztest") {
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
     "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
+    "managekeepaliveappsplugin_fuzzer:ManageKeepAliveAppsPluginFuzzTest",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {
@@ -67,6 +68,7 @@ group("fuzztest") {
   if (enterprise_device_management_feature_pc_only) {
     deps += [
       "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",
+      "installlocalenterpriseappenabledplugin_fuzzer:InstallLocalEnterpriseAppEnabledPluginFuzzTest",
     ]
   }
 

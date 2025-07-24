@@ -53,6 +53,9 @@
 #include "get_mac_plugin.h"
 #include "global_proxy_plugin.h"
 #include "ienterprise_device_mgr.h"
+#ifdef FEATURE_PC_ONLY
+#include "install_local_enterprise_app_enabled_plugin.h"
+#endif
 #include "install_plugin.h"
 #include "iptables_rule_plugin.h"
 #include "is_wifi_active_plugin.h"
@@ -60,6 +63,7 @@
 #include "lock_screen_plugin.h"
 #include "manage_auto_start_apps_plugin.h"
 #include "manage_auto_start_apps_serializer.h"
+#include "manage_keep_alive_apps_plugin.h"
 #include "ntp_server_plugin.h"
 #include "operate_device_plugin.h"
 #include "password_policy_plugin.h"
@@ -157,6 +161,12 @@ const bool REGISTER_UNINSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(U
 const bool REGISTER_USB_READ_ONLY_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<UsbReadOnlyPlugin>());
 const bool REGISTER_USER_CERT_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
+const bool REGISTER_MANAGE_KEEP_ALIVE_APPS_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageKeepAliveAppsPlugin>());
+#ifdef FEATURE_PC_ONLY
+const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
+#endif
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)
 {
