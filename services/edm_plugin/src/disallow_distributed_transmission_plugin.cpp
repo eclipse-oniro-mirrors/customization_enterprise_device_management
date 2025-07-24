@@ -50,7 +50,7 @@ ErrCode DisallowDistributedTransmissionPlugin::OnSetPolicy(
     bool &data, bool &currentData, bool &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowDistributedTransmissionPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+            "mergeData: %{public}d", data, currentData, mergeData);
     if (mergeData) {
         currentData = data;
         return ERR_OK;
@@ -69,7 +69,7 @@ ErrCode DisallowDistributedTransmissionPlugin::OnAdminRemove(
     const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowDistributedTransmissionPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d, userId: %{public}d", adminName.c_str(), data, mergeData, userId);
+            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
     if (mergeData) {
         return ERR_OK;
     }
@@ -85,7 +85,7 @@ ErrCode DisallowDistributedTransmissionPlugin::OnAdminRemove(
 ErrCode DisallowDistributedTransmissionPlugin::SetDistributedTransmissionPolicy(bool policy, int32_t userId)
 {
     EDMLOGI("DisallowDistributedTransmissionPlugin::SetDistributedTransmissionPolicy, "
-            "userId: %{public}d, policy: %{public}d", userId, policy);
+            "policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_DISTRIBUTED_TRANSMISSION);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(

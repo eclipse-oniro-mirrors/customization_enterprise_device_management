@@ -43,7 +43,7 @@ ErrCode DisableSudoPlugin::OnSetPolicy(bool &data, bool &currentData, bool &merg
     int32_t userId)
 {
     EDMLOGI("DisableSudoPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+            "mergeData: %{public}d", data, currentData, mergeData);
     if (mergeData) {
         currentData = data;
         return ERR_OK;
@@ -63,7 +63,7 @@ ErrCode DisableSudoPlugin::OnAdminRemove(const std::string &adminName, bool &dat
     int32_t userId)
 {
     EDMLOGI("DisableSudoPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d, userId: %{public}d", adminName.c_str(), data, mergeData, userId);
+            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
     if (mergeData) {
         return ERR_OK;
     }
@@ -81,7 +81,7 @@ ErrCode DisableSudoPlugin::OnAdminRemove(const std::string &adminName, bool &dat
 
 ErrCode DisableSudoPlugin::SetSudoPolicy(bool policy, int32_t userId)
 {
-    EDMLOGI("DisableSudoPlugin::SetSudoPolicy, userId: %{public}d, policy: %{public}d", userId, policy);
+    EDMLOGI("DisableSudoPlugin::SetSudoPolicy, policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_SUDO);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,

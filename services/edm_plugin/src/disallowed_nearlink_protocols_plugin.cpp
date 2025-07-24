@@ -54,7 +54,7 @@ void DisallowedNearlinkProtocolsPlugin::InitPlugin(
 ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(
     std::vector<int32_t> &data, std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowedNearlinkProtocolsPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedNearlinkProtocolsPlugin OnSetPolicy");
     if (data.empty()) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy data is empty");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
@@ -82,7 +82,7 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(
 ErrCode DisallowedNearlinkProtocolsPlugin::OnRemovePolicy(
     std::vector<int32_t> &data, std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowedNearlinkProtocolsPlugin OnRemovePolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedNearlinkProtocolsPlugin OnRemovePolicy");
     if (data.empty()) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnRemovePolicy data is empty");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;

@@ -107,8 +107,7 @@ ErrCode BasicArrayStringPlugin::OnBasicRemovePolicy(std::vector<std::string> &da
 ErrCode BasicArrayStringPlugin::OnBasicAdminRemove(const std::string &adminName, std::vector<std::string> &data,
     std::vector<std::string> &mergeData, int32_t userId)
 {
-    EDMLOGI("BasicArrayStringPlugin OnAdminRemove adminName : %{public}s userId : %{public}d",
-        adminName.c_str(), userId);
+    EDMLOGI("BasicArrayStringPlugin OnAdminRemove adminName : %{public}s", adminName.c_str());
 
     std::vector<std::string> needRemoveMergePolicy =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(mergeData, data);

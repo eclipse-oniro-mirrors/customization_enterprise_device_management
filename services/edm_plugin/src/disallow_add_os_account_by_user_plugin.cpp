@@ -108,8 +108,7 @@ ErrCode DisallowAddOsAccountByUserPlugin::SetSpecificOsAccountConstraints(int32_
     constraints.emplace_back(CONSTRAINT_CREATE_OS_ACCOUNT);
     constraints.emplace_back(CONSTRAINT_CREATE_OS_ACCOUNT_DIRECTLY);
     EDMLOGI("DisallowAddOsAccountByUserPlugin SetSpecificOsAccountConstraints: "
-        "disallow: %{public}s, targetId: %{public}d",
-        disallow ? "true" : "false", userId);
+            "disallow: %{public}s", disallow ? "true" : "false");
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, disallow, userId,
         EdmConstants::DEFAULT_USER_ID, true);
     if (FAILED(ret)) {

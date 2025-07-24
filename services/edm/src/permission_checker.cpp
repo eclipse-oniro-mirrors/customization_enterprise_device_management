@@ -191,8 +191,7 @@ ErrCode PermissionChecker::GetAllPermissionsByAdmin(const std::string &bundleInf
 {
     permissionList.clear();
     AppExecFwk::BundleInfo bundleInfo;
-    EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s userid %{public}d",
-        bundleInfoName.c_str(), userId);
+    EDMLOGD("GetAllPermissionsByAdmin GetBundleInfo: bundleInfoName %{public}s", bundleInfoName.c_str());
     bool ret = GetExternalManagerFactory()->CreateBundleManager()->GetBundleInfo(bundleInfoName,
         AppExecFwk::BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION, bundleInfo, userId);
     if (!ret) {
@@ -293,7 +292,7 @@ int32_t PermissionChecker::GetCurrentUserId()
         EDMLOGE("PermissionChecker GetCurrentUserId failed");
         return -1;
     }
-    EDMLOGD("PermissionChecker GetCurrentUserId user id = %{public}d", ids.at(0));
+    EDMLOGD("PermissionChecker GetCurrentUserId");
     return (ids.at(0));
 }
 

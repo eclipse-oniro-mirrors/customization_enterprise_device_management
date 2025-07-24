@@ -285,10 +285,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEv
 {
     int userIdToAdd = data.GetCode();
     if (userIdToAdd < 0) {
-        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserAdded error userid:%{public}d", userIdToAdd);
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserAdded error");
         return;
     }
-    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserAdded %{public}d", userIdToAdd);
+    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserAdded");
     ConnectAbilityOnSystemAccountEvent(userIdToAdd, ManagedEvent::USER_ADDED);
 }
 
@@ -296,10 +296,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
 {
     int userIdToSwitch = data.GetCode();
     if (userIdToSwitch < 0) {
-        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error userid:%{public}d", userIdToSwitch);
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error");
         return;
     }
-    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched %{public}d", userIdToSwitch);
+    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched");
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin) {
         bool isInstall = GetBundleMgr()->IsBundleInstalled(superAdmin->adminInfo_.packageName_, userIdToSwitch);
@@ -316,7 +316,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
 {
     int userIdToRemove = data.GetCode();
     if (userIdToRemove < 0) {
-        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserRemoved error userid:%{public}d", userIdToRemove);
+        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserRemoved error");
         return;
     }
     EDMLOGI("OnCommonEventUserRemoved");
@@ -442,7 +442,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
 {
     AAFwk::Want want = data.GetWant();
     int32_t paramUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
-    EDMLOGE("OnCommonEventKioskMode userId:%{public}d", paramUserId);
     std::string bundleName = want.GetStringParam(WANT_BUNDLE_NAME);
     auto code = static_cast<uint32_t>(
         isModeOn ? IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING : IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING);
@@ -1089,7 +1088,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
     const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId)
 {
-    EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin user id = %{public}d", userId);
+    EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin");
     if (type != AdminType::NORMAL && type != AdminType::ENT && type != AdminType::BYOD) {
         EDMLOGE("EnterpriseDeviceMgrAbility::EnableAdmin admin type is invalid.");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -1192,16 +1191,16 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId)
 {
-    EDMLOGD("RemoveAdminAndAdminPolicy:admin: %{public}s, user id:%{public}d.", adminName.c_str(), userId);
+    EDMLOGD("RemoveAdminAndAdminPolicy:admin: %{public}s.", adminName.c_str());
     ErrCode removeAdminPolicyRet = RemoveAdminPolicy(adminName, userId);
     if (FAILED(removeAdminPolicyRet)) {
-        EDMLOGE("Remove admin %{public}s policy with user id = %{public}d fail.", adminName.c_str(), userId);
+        EDMLOGE("Remove admin %{public}s policy fail.", adminName.c_str());
         return removeAdminPolicyRet;
     }
 
     ErrCode removeAdminRet = RemoveAdmin(adminName, userId);
     if (FAILED(removeAdminRet)) {
-        EDMLOGE("Remove admin %{public}s with user id = %{public}d fail.", adminName.c_str(), userId);
+        EDMLOGE("Remove admin %{public}s fail.", adminName.c_str());
         return removeAdminRet;
     }
     return ERR_OK;
@@ -1284,7 +1283,7 @@ bool EnterpriseDeviceMgrAbility::ShouldUnsubscribeAppState(const std::string &ad
 
 ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(const AppExecFwk::ElementName &admin, int32_t userId)
 {
-    EDMLOGI("EnterpriseDeviceMgrAbility::DisableAdmin user id = %{public}d", userId);
+    EDMLOGI("EnterpriseDeviceMgrAbility::DisableAdmin");
     std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (deviceAdmin == nullptr) {
         EDMLOGE("DisableAdmin: %{public}s is not activated", admin.GetBundleName().c_str());
@@ -1419,7 +1418,7 @@ int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
         EDMLOGE("EnterpriseDeviceMgrAbility GetCurrentUserId failed");
         return -1;
     }
-    EDMLOGD("EnterpriseDeviceMgrAbility GetCurrentUserId user id = %{public}d", ids.at(0));
+    EDMLOGD("EnterpriseDeviceMgrAbility GetCurrentUserId");
     return (ids.at(0));
 }
 
@@ -1478,7 +1477,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     if (FAILED(systemCalling)) {
         return systemCalling;
     }
-    EDMLOGI("HandleDevicePolicy: HandleDevicePolicy userId = %{public}d", userId);
+    EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());

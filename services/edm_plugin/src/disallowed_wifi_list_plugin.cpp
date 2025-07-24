@@ -46,14 +46,14 @@ void DisallowWifiListPlugin::InitPlugin(
 ErrCode DisallowWifiListPlugin::OnSetPolicy(std::vector<WifiId> &data,
     std::vector<WifiId> &currentData, std::vector<WifiId> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowWifiListPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowWifiListPlugin OnSetPolicy");
     return WifiPolicyUtils::AddWifiListPolicy(data, currentData, mergeData, userId, false);
 }
 
 ErrCode DisallowWifiListPlugin::OnRemovePolicy(std::vector<WifiId> &data, std::vector<WifiId> &currentData,
     std::vector<WifiId> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowWifiListPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGI("DisallowWifiListPlugin OnRemovePolicy");
     return WifiPolicyUtils::RemoveWifiListPolicy(data, currentData, mergeData, userId, false);
 }
 

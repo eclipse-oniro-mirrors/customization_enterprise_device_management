@@ -49,7 +49,7 @@ void AllowUsbDevicesPlugin::InitPlugin(
 ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     std::vector<UsbDeviceId> &currentData, std::vector<UsbDeviceId> &mergeData, int32_t userId)
 {
-    EDMLOGI("AllowUsbDevicesPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("AllowUsbDevicesPlugin OnSetPolicy");
     if (data.empty()) {
         EDMLOGW("AllowUsbDevicesPlugin OnSetPolicy data is empty");
         return ERR_OK;
@@ -114,7 +114,7 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
 ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data, std::vector<UsbDeviceId> &currentData,
     std::vector<UsbDeviceId> &mergeData, int32_t userId)
 {
-    EDMLOGD("AllowUsbDevicesPlugin OnRemovePolicy userId : %{public}d:", userId);
+    EDMLOGD("AllowUsbDevicesPlugin OnRemovePolicy");
     if (data.empty()) {
         EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy data is empty:");
         return ERR_OK;

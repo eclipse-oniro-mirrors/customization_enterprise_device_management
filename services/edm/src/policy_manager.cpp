@@ -41,7 +41,7 @@ ErrCode PolicyManager::GetPolicy(const std::string &adminName, const std::string
 void PolicyManager::Init(std::vector<int32_t> userIds)
 {
     for (auto userId : userIds) {
-        EDMLOGI("PolicyManager::Init userId %{public}d", userId);
+        EDMLOGI("PolicyManager::Init");
         if (userId == EdmConstants::DEFAULT_USER_ID) {
             defaultPolicyMgr_ = std::make_shared<UserPolicyManager>(userId);
             defaultPolicyMgr_->Init();
@@ -77,7 +77,7 @@ ErrCode PolicyManager::ReplaceAllPolicy(int32_t userId, const std::string &admin
 
 std::shared_ptr<UserPolicyManager> PolicyManager::GetUserPolicyMgr(int32_t userId)
 {
-    EDMLOGD("PolicyManager::GetUserPolicyMgr by userId:%{public}d", userId);
+    EDMLOGD("PolicyManager::GetUserPolicyMgr");
     if (userId == EdmConstants::DEFAULT_USER_ID) {
         if (defaultPolicyMgr_ == nullptr) {
             defaultPolicyMgr_ = std::make_shared<UserPolicyManager>(userId);

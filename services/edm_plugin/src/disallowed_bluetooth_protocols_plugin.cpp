@@ -51,7 +51,7 @@ void DisallowedBluetoothProtocolsPlugin::InitPlugin(
 ErrCode DisallowedBluetoothProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
     std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowedBluetoothProtocolsPlugin OnSetPolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedBluetoothProtocolsPlugin OnSetPolicy");
     if (data.empty()) {
         EDMLOGE("DisallowedBluetoothProtocolsPlugin OnSetPolicy data is empty");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -86,7 +86,7 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnSetPolicy(std::vector<int32_t> &da
 ErrCode DisallowedBluetoothProtocolsPlugin::OnRemovePolicy(std::vector<int32_t> &data,
     std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowedBluetoothProtocolsPlugin OnRemovePolicy userId = %{public}d", userId);
+    EDMLOGI("DisallowedBluetoothProtocolsPlugin OnRemovePolicy");
     if (data.empty()) {
         EDMLOGE("DisallowedBluetoothProtocolsPlugin OnRemovePolicy data is empty");
         return EdmReturnErrCode::PARAM_ERROR;

@@ -33,7 +33,7 @@ std::string DisallowedBluetoothDevicesQuery::GetPermission(IPlugin::PermissionTy
 ErrCode DisallowedBluetoothDevicesQuery::QueryPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("DisallowedBluetoothDevicesQuery OnGetPolicy userId : %{public}d", userId);
+    EDMLOGI("DisallowedBluetoothDevicesQuery OnGetPolicy");
     return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM

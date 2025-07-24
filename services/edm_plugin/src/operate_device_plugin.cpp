@@ -39,8 +39,7 @@ void OperateDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevi
 
 ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParcel &reply)
 {
-    EDMLOGD("OperateDevicePlugin OnSetPolicy operate = %{public}s, userId = %{public}d", param.operate.c_str(),
-        param.userId);
+    EDMLOGD("OperateDevicePlugin OnSetPolicy operate = %{public}s", param.operate.c_str());
     if (param.operate == EdmConstants::DeviceControl::LOCK_SCREEN) {
         int32_t ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(param.userId);
         if (ret != ScreenLock::E_SCREENLOCK_OK) {

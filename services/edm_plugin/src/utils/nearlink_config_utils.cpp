@@ -53,7 +53,7 @@ NearlinkConfigUtils::~NearlinkConfigUtils()
 
 bool NearlinkConfigUtils::UpdateProtocol(const std::string &userId, const std::string &protocol, bool isAdd)
 {
-    EDMLOGI("NearlinkConfigUtils::UpdateProtocol() - userId: %s, isAdd: %d", userId.c_str(), isAdd);
+    EDMLOGI("NearlinkConfigUtils::UpdateProtocol() - isAdd: %d", isAdd);
 
     // 通用前置检查
     if (!root_ && !LoadConfig()) {
@@ -85,7 +85,7 @@ bool NearlinkConfigUtils::AddProtocol(
     const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem)
 {
     if (userItem && IsProtocolExist(protocol, userItem)) {
-        EDMLOGI("Protocol %s already exists for user %s", protocol.c_str(), userId.c_str());
+        EDMLOGI("Protocol %s already exists", protocol.c_str());
         return true;  // 协议已存在，无需添加
     }
 
@@ -115,7 +115,7 @@ bool NearlinkConfigUtils::RemoveProtocol(
     const std::string &protocol, const std::string &userId, cJSON *denyList, cJSON *userItem)
 {
     if (!userItem) {
-        EDMLOGI("User %s entry does not exist, nothing to remove", userId.c_str());
+        EDMLOGI("User entry does not exist, nothing to remove");
         return true;
     }
 
@@ -129,7 +129,7 @@ bool NearlinkConfigUtils::RemoveProtocol(
     }
 
     if (indexToRemove < 0) {
-        EDMLOGI("Protocol %s not found in user %s", protocol.c_str(), userId.c_str());
+        EDMLOGI("Protocol %s not found", protocol.c_str());
         return true;  // 协议不存在，无需删除
     }
 

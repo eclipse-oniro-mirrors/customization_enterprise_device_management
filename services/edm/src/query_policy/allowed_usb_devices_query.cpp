@@ -33,8 +33,7 @@ std::string AllowedUsbDevicesQuery::GetPermission(IPlugin::PermissionType, const
 ErrCode AllowedUsbDevicesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("AllowedUsbDevicesQuery OnGetPolicy policyData : %{public}s, userId : %{public}d", policyData.c_str(),
-        userId);
+    EDMLOGI("AllowedUsbDevicesQuery OnGetPolicy policyData : %{public}s", policyData.c_str());
     std::vector<UsbDeviceId> usbDeviceIds;
     if (!ArrayUsbDeviceIdSerializer::GetInstance()->Deserialize(policyData, usbDeviceIds)) {
         EDMLOGE("AllowedUsbDevicesQuery OnGetPolicy Deserialize error");

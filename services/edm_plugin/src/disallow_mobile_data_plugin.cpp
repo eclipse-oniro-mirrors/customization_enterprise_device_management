@@ -113,8 +113,8 @@ ErrCode DisallowMobileDataPlugin::OnHandleForceOpen(MessageParcel &data)
 ErrCode DisallowMobileDataPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
     const std::string &mergeData, int32_t userId)
 {
-    EDMLOGI("TurnOnOffMobileDataPlugin OnAdminRemove adminName : %{public}s, policyData : %{public}s,"
-        " userId : %{public}d", adminName.c_str(), policyData.c_str(), userId);
+    EDMLOGI("TurnOnOffMobileDataPlugin OnAdminRemove adminName : %{public}s, policyData : %{public}s",
+            adminName.c_str(), policyData.c_str());
     if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_NONE)) {
         EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

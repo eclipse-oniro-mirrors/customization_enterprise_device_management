@@ -121,8 +121,8 @@ ErrCode DisallowedSimPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
 ErrCode DisallowedSimPlugin::OnAdminRemove(const std::string &adminName, uint32_t &data,
     uint32_t &mergeData, int32_t userId)
 {
-    EDMLOGI("DisallowedSimPlugin OnAdminRemove adminName : %{public}s, data : %{public}d, userId : %{public}d",
-        adminName.c_str(), data, userId);
+    EDMLOGI("DisallowedSimPlugin OnAdminRemove adminName : %{public}s, data : %{public}d",
+            adminName.c_str(), data);
     if ((mergeData & SOLT0_BIT) == 0) {
         if (!system::SetParameter(PARAM_DISABLE_SLOT0, "false")) {
             EDMLOGE("DisallowedSimPlugin:OnAdminRemove slot0 SetParameter fail");

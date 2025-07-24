@@ -55,7 +55,7 @@ bool AdminContainer::DeleteAdmin(const std::string &packageName, int32_t userId)
     WriteLock lock(adminMutex_);
     auto iterMap = admins_.find(userId);
     if (iterMap == admins_.end()) {
-        EDMLOGI("DeleteAdmin::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGI("DeleteAdmin::get userId Admin failed.");
         return false;
     }
 
@@ -74,7 +74,7 @@ bool AdminContainer::GetAdminCopyByUserId(int32_t userId, std::vector<std::share
     admins.clear();
     auto iter = admins_.find(userId);
     if (iter == admins_.end()) {
-        EDMLOGW("GetAdminCopyByUserId::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("GetAdminCopyByUserId::get userId Admin failed.");
         return false;
     }
     for (const auto &item : iter->second) {
@@ -106,7 +106,7 @@ bool AdminContainer::GetAdminByUserId(int32_t userId, std::vector<std::shared_pt
     userAdmin.clear();
     auto iter = admins_.find(userId);
     if (iter == admins_.end()) {
-        EDMLOGW("GetAdminByUserId::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("GetAdminByUserId::get userId Admin failed.");
         return false;
     }
     userAdmin = iter->second;
@@ -135,7 +135,7 @@ void AdminContainer::UpdateAdmin(int32_t userId, const std::string &packageName,
     WriteLock lock(adminMutex_);
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(userId, userAdmin)) {
-        EDMLOGW("UpdateAdmin::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("UpdateAdmin::get userId Admin failed.");
         return;
     }
     for (const auto &item : userAdmin) {
@@ -181,7 +181,7 @@ void AdminContainer::UpdateParentAdminName(int32_t userId, const std::string &pa
     WriteLock lock(adminMutex_);
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(userId, userAdmin)) {
-        EDMLOGW("UpdateParentAdminName::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("UpdateParentAdminName::get userId Admin failed.");
         return;
     }
 

@@ -91,7 +91,7 @@ std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packag
     }
     std::vector<std::shared_ptr<Admin>> userAdmin;
     if (!GetAdminByUserId(userId, userAdmin)) {
-        EDMLOGW("GetAdminByPkgName::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("GetAdminByPkgName::get userId Admin failed.");
         return nullptr;
     }
     for (const auto &item : userAdmin) {
@@ -107,7 +107,7 @@ std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packag
 ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId)
 {
     if (!AdminContainer::GetInstance()->HasAdmin(userId)) {
-        EDMLOGW("DeleteAdmin::get userId Admin failed. userId = %{public}d", userId);
+        EDMLOGW("DeleteAdmin::get userId Admin failed.");
         return ERR_EDM_UNKNOWN_ADMIN;
     }
     auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
@@ -264,7 +264,7 @@ void AdminManager::GetEnabledAdmin(AdminType role, std::vector<std::string> &pac
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(userId, userAdmin);
     if (!ret) {
-        EDMLOGW("GetEnabledAdmin::not find enabled Admin. userId = %{public}d", userId);
+        EDMLOGW("GetEnabledAdmin::not find enabled Admin.");
         return;
     }
     EDMLOGD("AdminManager:GetEnabledAdmin adminType: %{public}d , admin size: %{public}zu", role, userAdmin.size());
@@ -340,7 +340,7 @@ ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInf
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(userId, userAdmin);
     if (!ret) {
-        EDMLOGW("GetEntInfo::not find Admin. userId = %{public}d", userId);
+        EDMLOGW("GetEntInfo::not find Admin.");
         return ERR_EDM_UNKNOWN_ADMIN;
     }
     for (const auto &item : userAdmin) {
@@ -357,7 +357,7 @@ ErrCode AdminManager::SetEntInfo(const std::string &packageName, const EntInfo &
     std::vector<std::shared_ptr<Admin>> userAdmin;
     bool ret = GetAdminByUserId(userId, userAdmin);
     if (!ret) {
-        EDMLOGW("SetEntInfo::not find Admin. userId = %{public}d", userId);
+        EDMLOGW("SetEntInfo::not find Admin.");
         return ERR_EDM_UNKNOWN_ADMIN;
     }
     auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
