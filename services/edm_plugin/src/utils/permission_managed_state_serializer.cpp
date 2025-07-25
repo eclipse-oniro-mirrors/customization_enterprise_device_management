@@ -90,6 +90,7 @@ bool PermissionManagedStateSerializer::Serialize(const std::map<std::string, Per
     for (auto& it : result) {
         cJSON* item = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
+        cJSON_AddItemToArray(root, item);
         cJSON_AddStringToObject(item, APP_IDENTIFIER.c_str(), it.second.appIdentifier.c_str());
         cJSON_AddStringToObject(item, PERMISSION_NAME.c_str(), it.second.permissionName.c_str());
         cJSON_AddNumberToObject(item, ACCOUNT_ID.c_str(), it.second.accountId);
@@ -105,16 +106,12 @@ bool PermissionManagedStateSerializer::Serialize(const std::map<std::string, Per
             cJSON* permissionNameItem = cJSON_CreateString(permissionName.c_str());
             if (permissionNameItem == nullptr) {
                 cJSON_Delete(root);
+                cJSON_Delete(permissionNames);
                 return false;
             }
-            if (!cJSON_AddItemToArray(permissionNames, permissionNameItem)) {
-                cJSON_Delete(root);
-                cJSON_Delete(permissionNameItem);
-                return false;
-            }
+            cJSON_AddItemToArray(permissionNames, permissionNameItem);
         }
-        cJSON_AddItemToObject(item, PERMISSION_NAMES.c_str(), permissionNames);
-        if (!cJSON_AddItemToArray(root, item)) {
+        if (!cJSON_AddItemToObject(item, PERMISSION_NAMES.c_str(), permissionNames)) {
             cJSON_Delete(root);
             cJSON_Delete(permissionNames);
             return false;
@@ -149,7 +146,7 @@ bool PermissionManagedStateSerializer::GetPolicy(MessageParcel &data,
         EDMLOGE("PermissionManagedStateSerializer GetAccessTokenId failed.");
         return false;
     }
-    info.tokenId = accessTokenId;
+    info.tokenId = static_cast<int32_t>(accessTokenId);
     for (std::string permissionName : info.permissionNames) {
         std::stringstream appPermissionKey;
         info.permissionName = permissionName;
