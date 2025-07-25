@@ -15,6 +15,7 @@
 
 #include "update_policy_utils.h"
 
+#include <fcntl.h>
 #include <unistd.h>
 
 #include "edm_log.h"
@@ -120,7 +121,7 @@ void UpdatePolicyUtils::ReadUpgradeResult(MessageParcel &data, UpgradeResult &re
 void UpdatePolicyUtils::ClosePackagesFileHandle(std::vector<Package> &packages)
 {
     for (auto &package : packages) {
-        if (package.fd >= 0) {
+        if (package.fd >= 0 && fcntl(package.fd, F_GETFL) != -1) {
             if (close(package.fd) != 0) {
                 EDMLOGW("ClosePackagesFileHandle failed");
             }

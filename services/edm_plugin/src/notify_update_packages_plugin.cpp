@@ -35,6 +35,7 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 
 ErrCode NotifyUpdatePackagesPlugin::OnSetPolicy(UpgradePackageInfo &policy)
 {
+    UpdatePolicyUtils::ClosePackagesFileHandle(policy.packages);
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 

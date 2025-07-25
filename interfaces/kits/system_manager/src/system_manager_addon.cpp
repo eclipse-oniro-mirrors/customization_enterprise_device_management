@@ -243,7 +243,6 @@ void SystemManagerAddon::NativeNotifyUpdatePackages(napi_env env, void *data)
     auto *asyncCallbackInfo = static_cast<AsyncNotifyUpdatePackagesCallbackInfo *>(data);
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
-        UpdatePolicyUtils::ClosePackagesFileHandle(asyncCallbackInfo->packageInfo.packages);
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
@@ -401,14 +400,12 @@ bool SystemManagerAddon::JsObjToUpgradePackageInfo(napi_env env, napi_value obje
 
     napi_value nPackages;
     if (!GetJsProperty(env, object, "packages", nPackages) || !ParsePackages(env, nPackages, packageInfo.packages)) {
-        UpdatePolicyUtils::ClosePackagesFileHandle(packageInfo.packages);
         return false;
     }
 
     napi_value nDescription;
     if (GetJsProperty(env, object, "description", nDescription) &&
         !ParseDescription(env, nDescription, packageInfo.description)) {
-        UpdatePolicyUtils::ClosePackagesFileHandle(packageInfo.packages);
         return false;
     }
     return true;
