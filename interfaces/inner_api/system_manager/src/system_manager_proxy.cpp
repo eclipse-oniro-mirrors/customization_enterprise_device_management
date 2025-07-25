@@ -103,7 +103,6 @@ int32_t SystemManagerProxy::NotifyUpdatePackages(const AppExecFwk::ElementName &
     if (ret == EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED) {
         errMsg = reply.ReadString();
     }
-    UpdatePolicyUtils::ClosePackagesFileHandle(packageInfo.packages);
     return ret;
 }
 
