@@ -89,7 +89,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/get_display_version_query.cpp",
     "../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
     "../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
-    "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
     "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../services/edm/src/query_policy/ipolicy_query.cpp",
     "../../../services/edm/src/query_policy/is_app_kiosk_allowed_query.cpp",
