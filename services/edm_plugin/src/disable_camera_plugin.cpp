@@ -51,6 +51,10 @@ ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, data);
+    int32_t retCode = cameraManager->DestroyStubObj();
+    if (retCode != ERR_OK) {
+        EDMLOGW("DisableCameraPlugin SetOtherModulePolicy DestroyStubObj failed, %{public}d", retCode);
+    }
     if (ret == ERR_OK || (!data && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
         return ERR_OK;
     }
@@ -66,6 +70,10 @@ ErrCode DisableCameraPlugin::RemoveOtherModulePolicy()
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     ErrCode ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, false);
+    int32_t retCode = cameraManager->DestroyStubObj();
+    if (retCode != ERR_OK) {
+        EDMLOGW("DisableCameraPlugin RemoveOtherModulePolicy DestroyStubObj failed, %{public}d", retCode);
+    }
     if (ret == ERR_OK || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
         return ERR_OK;
     }
