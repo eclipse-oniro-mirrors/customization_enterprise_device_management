@@ -60,7 +60,7 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
         DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
-        DECLARE_NAPI_PROPERTY("Protocol", nProtocol),
+        DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;

@@ -78,7 +78,7 @@ int32_t EnterpriseAdminConnection::GetCurrentUserId()
         EDMLOGE("EnterpriseAdminConnection GetCurrentUserId failed");
         return -1;
     }
-    EDMLOGD("EnterpriseAdminConnection GetCurrentUserId user id = %{public}d", ids.at(0));
+    EDMLOGD("EnterpriseAdminConnection GetCurrentUserId");
     return (ids.at(0));
 }
 }  // namespace EDM

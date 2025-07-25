@@ -36,8 +36,7 @@ std::string DisallowedRunningBundlesQuery::GetPermission(IPlugin::PermissionType
 ErrCode DisallowedRunningBundlesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("DisallowedRunningBundlesQuery OnGetPolicy policyData : %{public}s, userId : %{public}d",
-        policyData.c_str(), userId);
+    EDMLOGI("DisallowedRunningBundlesQuery OnGetPolicy policyData : %{public}s", policyData.c_str());
     return GetArrayStringPolicy(policyData, reply);
 }
 } // namespace EDM

@@ -26,7 +26,7 @@ namespace EDM {
 
 UserPolicyManager::UserPolicyManager(int32_t userId)
 {
-    EDMLOGD("UserPolicyManager::UserPolicyManager %{public}d", userId);
+    EDMLOGD("UserPolicyManager::UserPolicyManager");
     userIdState_ = userId;
 }
 
@@ -261,7 +261,7 @@ ErrCode UserPolicyManager::ReplacePolicyByAdminName(int32_t userId, const std::s
 
 void UserPolicyManager::DumpAdminPolicy()
 {
-    EDMLOGD("UserPolicyManager::DumpAdminPolicy %{public}d ", userIdState_);
+    EDMLOGD("UserPolicyManager::DumpAdminPolicy");
     std::for_each(adminPolicies_.begin(), adminPolicies_.end(), [](auto iter) {
         EDMLOGD("UserPolicyManager::AdminName: %{public}s\n", iter.first.c_str());
         std::unordered_map<std::string, std::string> map = iter.second;
@@ -272,7 +272,7 @@ void UserPolicyManager::DumpAdminPolicy()
 
 void UserPolicyManager::DumpAdminList()
 {
-    EDMLOGD("UserPolicyManager: DumpAdminList %{public}d ", userIdState_);
+    EDMLOGD("UserPolicyManager: DumpAdminList");
     std::for_each(policyAdmins_.begin(), policyAdmins_.end(), [](auto iter) {
         EDMLOGD("UserPolicyManager::PolicyName: %{public}s\n", iter.first.c_str());
         std::unordered_map<std::string, std::string> map = iter.second;
@@ -283,7 +283,7 @@ void UserPolicyManager::DumpAdminList()
 
 void UserPolicyManager::DumpCombinedPolicy()
 {
-    EDMLOGD("UserPolicyManager: DumpCombinedPolicy %{public}d ", userIdState_);
+    EDMLOGD("UserPolicyManager: DumpCombinedPolicy");
     std::for_each(combinedPolicies_.begin(), combinedPolicies_.end(),
         [](auto iter) { EDMLOGD("%{public}s : %{public}s\n", iter.first.c_str(), iter.second.c_str()); });
 }

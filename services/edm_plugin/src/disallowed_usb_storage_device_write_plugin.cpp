@@ -53,7 +53,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy(bool &data, bool &cur
     int32_t userId)
 {
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+            "mergeData: %{public}d", data, currentData, mergeData);
     std::string value = system::GetParameter(
         EdmConstants::CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE, "false");
     if (value == "false") {
@@ -85,7 +85,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnAdminRemove(const std::string &
     bool &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d, userId: %{public}d", adminName.c_str(), data, mergeData, userId);
+            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
     // admin 移除时，综合策略为只读，则最终策略不变，仍未只读
     if (mergeData) {
         return ERR_OK;
@@ -106,7 +106,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnAdminRemove(const std::string &
 ErrCode DisallowedUsbStorageDeviceWritePlugin::SetUsbStorageDeviceWritePolicy(bool policy, int32_t userId)
 {
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::SetUsbStorageDeviceWritePolicy, "
-            "userId: %{public}d, policy: %{public}d", userId, policy);
+            "policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_USB_STORAGE_DEVICE_WRITE);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,

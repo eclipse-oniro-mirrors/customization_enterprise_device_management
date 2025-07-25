@@ -33,7 +33,7 @@ std::string AllowedAppDistributionTypesQuery::GetPermission(IPlugin::PermissionT
 ErrCode AllowedAppDistributionTypesQuery::QueryPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("AllowedAppDistributionTypesQuery OnGetPolicy userId : %{public}d", userId);
+    EDMLOGI("AllowedAppDistributionTypesQuery OnGetPolicy");
     std::vector<int32_t> policy;
     ArrayIntSerializer::GetInstance()->Deserialize(policyData, policy);
     reply.WriteInt32(ERR_OK);

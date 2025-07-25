@@ -50,7 +50,7 @@ ErrCode DisallowExportRecoveryKeyPlugin::OnSetPolicy(
     bool &data, bool &currentData, bool &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowExportRecoveryKeyPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d,userId: %{public}d", data, currentData, mergeData, userId);
+            "mergeData: %{public}d", data, currentData, mergeData);
     if (mergeData) {
         currentData = data;
         return ERR_OK;
@@ -69,7 +69,7 @@ ErrCode DisallowExportRecoveryKeyPlugin::OnAdminRemove(
     const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowExportRecoveryKeyPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d, userId: %{public}d", adminName.c_str(), data, mergeData, userId);
+            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
     if (mergeData) {
         return ERR_OK;
     }
@@ -85,7 +85,7 @@ ErrCode DisallowExportRecoveryKeyPlugin::OnAdminRemove(
 ErrCode DisallowExportRecoveryKeyPlugin::SetExportRecoveryKeyPolicy(bool policy, int32_t userId)
 {
     EDMLOGI("DisallowExportRecoveryKeyPlugin::SetExportRecoveryKeyPolicy, "
-            "userId: %{public}d, policy: %{public}d", userId, policy);
+            "policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_RECOVERY_KEY);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(

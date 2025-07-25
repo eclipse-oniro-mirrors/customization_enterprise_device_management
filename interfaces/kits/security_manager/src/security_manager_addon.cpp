@@ -787,16 +787,16 @@ bool SecurityManagerAddon::JsObjToManagedState(napi_env env, napi_value object, 
 
 bool SecurityManagerAddon::JsObjToApplicationInstance(napi_env env, napi_value object, MessageParcel &data)
 {
-    std::string appId;
+    std::string appIdentifier;
     int32_t accountId = 0;
     int32_t appIndex = 0;
-    if (!JsObjectToString(env, object, "appId", true, appId) ||
+    if (!JsObjectToString(env, object, "appIdentifier", true, appIdentifier) ||
         !JsObjectToInt(env, object, "accountId", true, accountId) ||
         !JsObjectToInt(env, object, "appIndex", true, appIndex)) {
         EDMLOGE("SecurityManagerAddon::JsObjToApplicationInstance param error.");
         return false;
     }
-    data.WriteString(appId);
+    data.WriteString(appIdentifier);
     data.WriteInt32(accountId);
     data.WriteInt32(appIndex);
     return true;

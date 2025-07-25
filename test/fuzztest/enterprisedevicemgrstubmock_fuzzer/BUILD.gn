@@ -303,6 +303,9 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
+        "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
+        "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp"
       ]
     }
 
@@ -413,6 +416,8 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [
         "../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
         "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+        "../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
+        "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }

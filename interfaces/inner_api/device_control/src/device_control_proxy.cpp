@@ -71,7 +71,6 @@ int32_t DeviceControlProxy::LockScreen(AppExecFwk::ElementName &admin, int32_t u
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(userId);
-    EDMLOGD("DeviceControlProxy LockScreen userId = %{public}d.", userId);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
@@ -86,8 +85,7 @@ int32_t DeviceControlProxy::OperateDevice(AppExecFwk::ElementName &admin, const 
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
     MessageParcelUtils::WriteOperateDeviceParam(param, data);
-    EDMLOGD("DeviceControlProxy OperateDevice operate = %{public}s userId = %{public}d.", param.operate.c_str(),
-        param.userId);
+    EDMLOGD("DeviceControlProxy OperateDevice operate = %{public}s.", param.operate.c_str());
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
