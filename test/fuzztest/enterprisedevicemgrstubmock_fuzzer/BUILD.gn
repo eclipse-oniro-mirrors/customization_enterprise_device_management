@@ -173,6 +173,7 @@ ohos_static_library("edmservice_fuzz_static") {
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
+      "../../../services/edm_plugin/src/allowed_app_distribution_types_plugin.cpp",
       "../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
       "../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
@@ -198,6 +199,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/uninstall_plugin.cpp",
       "../../../services/edm_plugin/src/clear_up_application_data_plugin.cpp",
       "../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
+      "../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     ]
 
     if (os_account_edm_enable) {
@@ -251,10 +253,13 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
         "../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
         "../../../services/edm/src/query_policy/set_wifi_disabled_query.cpp",
+        "../../../services/edm_plugin/src/allowed_wifi_list_plugin.cpp",
+        "../../../services/edm_plugin/src/disallowed_wifi_list_plugin.cpp",
         "../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
         "../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
         "../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
         "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
       ]
       defines += [ "WIFI_EDM_ENABLE" ]
     }
