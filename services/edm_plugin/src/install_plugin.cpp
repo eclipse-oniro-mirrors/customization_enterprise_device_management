@@ -82,6 +82,8 @@ ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     reply.WriteInt32(ERR_OK);
     reply.WriteFileDescriptor(fd);
     reply.WriteString(bundlePath);
+    close(fd);
+    fd = -1;
     return ERR_OK;
 }
 
