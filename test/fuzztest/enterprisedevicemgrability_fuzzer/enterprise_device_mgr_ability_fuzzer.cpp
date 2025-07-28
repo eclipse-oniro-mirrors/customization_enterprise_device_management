@@ -167,7 +167,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->IsByodAdmin(admin, isByod);
     enterpriseDeviceMgrAbility->SetDelegatedPolicies(bundleName, policies, userId);
     enterpriseDeviceMgrAbility->SetDelegatedPolicies(admin, bundleName, policies);
-    enterpriseDeviceMgrAbility->OnStop();
     UserPolicyManager userPolicyMgr(0);
     PolicyItemsMap itemMap;
     itemMap[adminName] = fuzzString;
