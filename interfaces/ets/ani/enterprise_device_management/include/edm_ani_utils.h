@@ -36,8 +36,6 @@ public:
 private:
     static const std::unordered_map<int32_t, std::string> errMessageMap;
     static std::string FindErrMsg(int32_t errCode);
-    static ani_object WrapError(ani_env *env, const std::string &msg);
-    static ani_object CreateError(ani_env *env, ani_int code, const std::string &msg);
 };
 } // namespace EDM
 } // namespace OHOS
