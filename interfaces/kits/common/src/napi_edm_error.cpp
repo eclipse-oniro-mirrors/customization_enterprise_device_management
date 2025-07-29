@@ -97,9 +97,8 @@ std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode 
     auto iter = errMessageMap.find(returnCode);
     if (iter != errMessageMap.end()) {
         return std::make_pair(returnCode, iter->second);
-    } else {
-        return std::make_pair(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed.");
     }
+    return std::make_pair(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed.");
 }
 } // namespace EDM
 } // namespace OHOS
