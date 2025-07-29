@@ -54,6 +54,12 @@ napi_value CreateError(napi_env env, ErrCode errorCode)
     return CreateError(env, pair.first, pair.second);
 }
 
+napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode)
+{
+    auto pair = GetMessageWithUnknownCodeFromReturncode(errorCode);
+    return CreateError(env, pair.first, pair.second);
+}
+
 napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage)
 {
     auto pair = GetMessageFromReturncode(errorCode);
@@ -84,6 +90,15 @@ std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode)
     } else {
         return std::make_pair(EdmReturnErrCode::PARAM_ERROR, "some thing wrong happend");
     }
+}
+
+std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode returnCode)
+{
+    auto iter = errMessageMap.find(returnCode);
+    if (iter != errMessageMap.end()) {
+        return std::make_pair(returnCode, iter->second);
+    }
+    return std::make_pair(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed.");
 }
 } // namespace EDM
 } // namespace OHOS

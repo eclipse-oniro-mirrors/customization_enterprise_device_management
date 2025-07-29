@@ -835,7 +835,7 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
     }
     int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetPermissionManagedState(adapterAddonData.data);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateErrorWithUnknownCode(env, retCode));
     }
     return nullptr;
 }
