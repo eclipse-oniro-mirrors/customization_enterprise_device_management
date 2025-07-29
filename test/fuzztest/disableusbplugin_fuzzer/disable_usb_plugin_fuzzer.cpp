@@ -50,6 +50,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     bool hasConflict = false;
     plugin.HasConflictPolicy(hasConflict);
     plugin.RemoveOtherModulePolicy(userId);
+    int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
+    plugin.OnOtherServiceStart(systemAbilityId);
     return 0;
 }
 } // namespace EDM
