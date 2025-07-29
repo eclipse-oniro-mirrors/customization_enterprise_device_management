@@ -79,12 +79,12 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
 
 void PasswordPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
-    std::string policyData;
-    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_PASSWORD_POLICY,
-        policyData, EdmConstants::DEFAULT_USER_ID);
-    auto serializer_ = PasswordSerializer::GetInstance();
     PasswordPolicy policy;
-    serializer_->Deserialize(policyData, policy);
+    PasswordPolicyUtils passwordPolicyUtils;
+    if (!passwordPolicyUtils.GetPasswordPolicy(policy)) {
+        EDMLOGE("LocationPolicyPlugin set location failed. GetPasswordPolicy error.");
+        return;
+    }
     SetGlobalConfigParam(policy);
 }
 

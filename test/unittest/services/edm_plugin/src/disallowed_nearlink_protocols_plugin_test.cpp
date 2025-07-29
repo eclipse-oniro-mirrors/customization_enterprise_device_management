@@ -66,6 +66,21 @@ HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestSetDisallowedNearlinkProtoco
 }
 
 /**
+ * @tc.name: TestSetDisallowedNearlinkProtocolsParameterIsTooLong
+ * @tc.desc: Test DisallowedNearlinkProtocolsPluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestSetDisallowedNearlinkProtocolsParameterIsTooLong, TestSize.Level1)
+{
+    DisallowedNearlinkProtocolsPlugin plugin;
+    std::vector<std::int32_t> policyData = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+    std::vector<std::int32_t> currentData;
+    std::vector<std::int32_t> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
  * @tc.name: TestSetDisallowedNearlinkProtocolsWithDataAndCurrentData
  * @tc.desc: Test DisallowedNearlinkProtocolsPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
@@ -92,6 +107,22 @@ HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestRemoveDisallowedNearlinkProt
 {
     DisallowedNearlinkProtocolsPlugin plugin;
     std::vector<std::int32_t> policyData;
+    std::vector<std::int32_t> currentData;
+    std::vector<std::int32_t> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestRemoveDisallowedNearlinkProtocolsParameterIsTooLong
+ * @tc.desc: Test DisallowedNearlinkProtocolsPluginTest::OnRemovePolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedNearlinkProtocolsPluginTest, TestRemoveDisallowedNearlinkProtocolsParameterIsTooLong,
+    TestSize.Level1)
+{
+    DisallowedNearlinkProtocolsPlugin plugin;
+    std::vector<std::int32_t> policyData = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
     std::vector<std::int32_t> currentData;
     std::vector<std::int32_t> mergeData;
     ErrCode ret = plugin.OnRemovePolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);

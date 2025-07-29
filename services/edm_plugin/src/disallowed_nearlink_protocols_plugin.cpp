@@ -59,7 +59,7 @@ ErrCode DisallowedNearlinkProtocolsPlugin::OnSetPolicy(
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy data is empty");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (data.size() > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    if (data.size() > EdmConstants::DISALLOWED_NEARLINK_PROTOCOLS_MAX_SIZE) {
         EDMLOGE("DisallowedNearlinkProtocolsPlugin OnSetPolicy size is over limit");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
