@@ -40,6 +40,7 @@
 #include "disable_backup_and_restore_query.h"
 #include "disable_bluetooth_query.h"
 #include "disable_camera_query.h"
+#include "disallow_external_memory_card_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
 #include "disable_printer_query.h"
@@ -2001,6 +2002,46 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetDeviceNameQuery002, TestSize.Level
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableExternalMemoryCardQuery001
+ * @tc.desc: Test DisableExternalStorageCardQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableExternalMemoryCardQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableExternalStorageCardQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = true;
+    reply.ReadBool(result);
+    ASSERT_TRUE(!result);
+}
+
+/**
+ * @tc.name: TestDisableExternalMemoryCardQuery002
+ * @tc.desc: Test DisableExternalStorageCardQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableExternalMemoryCardQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableExternalStorageCardQuery>();
+    std::string policyData("true");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
 }
 
 #ifdef PRIVATE_SPACE_EDM_ENABLE

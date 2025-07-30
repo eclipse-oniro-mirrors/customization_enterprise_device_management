@@ -67,6 +67,7 @@ ohos_shared_library("device_core_plugin") {
     "window_manager:libwm",
     "window_manager:session_manager_lite",
     "window_manager:sms",
+    "storage_service:storage_manager_sa_proxy"
   ]
 
   if (enterprise_device_management_support_all) {
@@ -85,6 +86,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
+      "./src/disallow_external_storage_card_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/installed_bundle_info_list_plugin.cpp",

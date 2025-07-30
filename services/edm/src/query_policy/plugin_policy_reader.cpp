@@ -166,6 +166,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_external_storage_card_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -569,6 +570,9 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
     switch (code) {
         case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
             obj = std::make_shared<DisallowDistributedTransmissionQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
+            obj = std::make_shared<DisableExternalStorageCardQuery>();
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
 #ifdef FEATURE_PC_ONLY
