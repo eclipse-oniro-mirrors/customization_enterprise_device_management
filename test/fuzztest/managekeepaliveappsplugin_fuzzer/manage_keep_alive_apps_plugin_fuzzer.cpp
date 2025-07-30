@@ -16,13 +16,13 @@
 #include "manage_keep_alive_apps_plugin_fuzzer.h"
 
 #include <system_ability_definition.h>
-
+#include "common_fuzzer.h"
+#include "cJSON.h"  
 #define protected public
 #define private public
 #include "manage_keep_alive_apps_plugin.h"
 #undef protected
 #undef private
-#include "common_fuzzer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
@@ -33,8 +33,39 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 13;
+constexpr size_t MIN_SIZE = 14;
 constexpr int32_t EVEN_NUMBER = 2;
+
+std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t pos, size_t stringSize)
+{
+    cJSON* keepAlivePolicies = cJSON_CreateObject();
+    if (!keepAlivePolicies) {
+        return "";
+    }
+    cJSON* root = cJSON_CreateObject();
+    if (!root) {
+        cJSON_Delete(keepAlivePolicies);
+        return "";
+    }
+    cJSON_AddItemToObject(root, "bundleName", cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
+    cJSON_AddItemToObject(root, "disallowModify", cJSON_CreateBool(CommonFuzzer::GetBool(data, pos, size)));
+    cJSON* keepAliveArray = cJSON_CreateArray();
+    if (!keepAliveArray) {
+        cJSON_Delete(keepAlivePolicies);
+        cJSON_Delete(root);
+        return "";
+    }
+    cJSON_AddItemToArray(keepAlivePolicies, root);
+    char* buffer = cJSON_PrintUnformatted(keepAlivePolicies);
+    if (buffer == NULL) {
+        cJSON_Delete(keepAlivePolicies);
+        return "";
+    }
+    std::string json(buffer);
+    free(buffer);
+    cJSON_Delete(keepAlivePolicies);
+    return json;
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -46,18 +77,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 12;
+    int32_t stringSize = size / 13;
     ManageKeepAliveAppsPlugin plugin;
     uint32_t code = CommonFuzzer::GetU32Data(data);
-    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
     MessageParcel requestData;
     requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
     MessageParcel reply;
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    std::string fuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string mergeFuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string fuzzString = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string mergeFuzzString = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string currentPolicies = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string mergePolicies = InitKeepAlivePolicies(data, size, pos, stringSize);
     HandlePolicyData handlePolicyData;
     handlePolicyData.policyData = fuzzString;
     handlePolicyData.mergePolicyData = mergeFuzzString;

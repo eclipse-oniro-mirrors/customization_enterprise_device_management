@@ -60,6 +60,7 @@ ohos_fuzztest("ManageKeepAliveAppsPluginFuzzTest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -67,6 +68,7 @@ ohos_fuzztest("ManageKeepAliveAppsPluginFuzzTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "jsoncpp:jsoncpp",
   ]
  
   if (enterprise_device_management_support_all) {
