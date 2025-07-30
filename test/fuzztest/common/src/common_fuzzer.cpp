@@ -89,6 +89,7 @@ constexpr int32_t NUM_INDEX_SECOND = 2;
 constexpr int32_t NUM_INDEX_THIRD = 3;
 constexpr int32_t BYTE_SIZE = 8;
 constexpr int32_t MAX_STRING_SIZE = 1024;
+constexpr int32_t EVEN_NUMBER = 2;
 #ifdef OS_ACCOUNT_EDM_ENABLE
 const bool REGISTER_ADD_OS_ACCOUNT_PLUGIN = PluginManager::GetInstance()->AddPlugin(AddOsAccountPlugin::GetPlugin());
 #endif
@@ -241,7 +242,7 @@ bool CommonFuzzer::GetBool(const uint8_t* ptr, int32_t& pos, size_t size)
     }
     int32_t index = pos;
     pos += sizeof(bool);
-    return (ptr[index] % 2) != 0;
+    return (ptr[index] % EVEN_NUMBER) != 0;
 }
 } // namespace EDM
 } // namespace OHOS
