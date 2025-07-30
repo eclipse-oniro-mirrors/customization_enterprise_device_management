@@ -35,6 +35,8 @@ public:
 
     ErrCode CheckCallerPermission(std::shared_ptr<Admin> admin, const std::string &permission, bool isNeedSuperAdmin);
 
+    ErrCode CheckAuthorizeAdminPermission(std::shared_ptr<Admin> admin, const std::string &permission);
+
     ErrCode CheckCallingUid(const std::string &bundleName);
 
     ErrCode CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag);

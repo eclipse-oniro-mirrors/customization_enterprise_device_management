@@ -159,6 +159,23 @@ ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, c
     return ERR_OK;
 }
 
+ErrCode PermissionChecker::CheckAuthorizeAdminPermission(std::shared_ptr<Admin> admin, const std::string &permission)
+{
+    if (admin == nullptr) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetExternalManagerFactory()->CreateAccessTokenManager()->VerifyCallingPermission(tokenId, permission)) {
+        EDMLOGE("CheckCallerPermission verify calling permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (admin->GetAdminType() != AdminType::ENT) {
+        EDMLOGE("CheckCallerPermission caller not a super admin.");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    return ERR_OK;
+}
+
 ErrCode PermissionChecker::CheckCallingUid(const std::string &bundleName)
 {
     // super admin can be removed by itself

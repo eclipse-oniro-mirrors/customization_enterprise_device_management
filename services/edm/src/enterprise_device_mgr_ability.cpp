@@ -1830,8 +1830,8 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
-        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
+    ErrCode ret = GetPermissionChecker()->CheckAuthorizeAdminPermission(adminItem,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN);
     if (FAILED(ret)) {
         return ret;
     }
