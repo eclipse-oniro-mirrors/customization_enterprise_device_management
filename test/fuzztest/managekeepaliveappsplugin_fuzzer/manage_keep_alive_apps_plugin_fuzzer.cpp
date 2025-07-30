@@ -17,7 +17,7 @@
 
 #include <system_ability_definition.h>
 #include "common_fuzzer.h"
-#include "cJSON.h"  
+#include "cJSON.h"
 #define protected public
 #define private public
 #include "manage_keep_alive_apps_plugin.h"
@@ -47,7 +47,8 @@ std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t pos,
         cJSON_Delete(keepAlivePolicies);
         return "";
     }
-    cJSON_AddItemToObject(root, "bundleName", cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
+    cJSON_AddItemToObject(root, "bundleName",
+        cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
     cJSON_AddItemToObject(root, "disallowModify", cJSON_CreateBool(CommonFuzzer::GetBool(data, pos, size)));
     cJSON* keepAliveArray = cJSON_CreateArray();
     if (!keepAliveArray) {
