@@ -225,12 +225,15 @@ long CommonFuzzer::GetLong(const uint8_t* ptr, int32_t& pos, size_t size)
 
 std::string CommonFuzzer::GetString(const uint8_t* ptr, int32_t& pos, int32_t stringSize, size_t size)
 {
-    if (size <= pos || size - pos < stringSize) {
-        return nullptr;
+    if (size <= pos) {
+        return "";
     }
     stringSize = (stringSize > MAX_STRING_SIZE) ? MAX_STRING_SIZE : stringSize;
     std::string ret(reinterpret_cast<const char*>(ptr + pos), stringSize);
     pos += stringSize;
+    if (size - pos < stringSize) {
+        pos = 0;
+    }
     return ret;
 }
 } // namespace EDM

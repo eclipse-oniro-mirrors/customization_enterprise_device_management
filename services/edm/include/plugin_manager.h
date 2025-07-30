@@ -66,11 +66,11 @@ public:
     void NotifyUnloadAllPlugin();
 
 private:
-    std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
-    std::map<std::string, std::shared_ptr<IPlugin>> pluginsName_;
-    std::map<std::uint32_t, std::uint32_t> extensionPluginMap_;
-    std::map<std::uint32_t, ExecuteStrategy> executeStrategyMap_;
-    std::unordered_map<std::string, std::shared_ptr<SoLoadState>> soLoadStateMap_;
+    inline static std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode_;
+    inline static std::map<std::string, std::shared_ptr<IPlugin>> pluginsName_;
+    inline static std::map<std::uint32_t, std::uint32_t> extensionPluginMap_;
+    inline static std::map<std::uint32_t, ExecuteStrategy> executeStrategyMap_;
+    inline static std::unordered_map<std::string, std::shared_ptr<SoLoadState>> soLoadStateMap_;
     static std::vector<uint32_t> deviceCoreSoCodes_;
     static std::vector<uint32_t> communicationSoCodes_;
     static std::vector<uint32_t> sysServiceSoCodes_;
