@@ -17,7 +17,7 @@
 
 #include <system_ability_definition.h>
 #include "common_fuzzer.h"
-#include "cJSON.h"  
+#include "cJSON.h"
 #define protected public
 #define private public
 #include "manage_keep_alive_apps_plugin.h"
