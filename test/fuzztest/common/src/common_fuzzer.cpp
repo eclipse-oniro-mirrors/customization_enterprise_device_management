@@ -234,15 +234,5 @@ std::string CommonFuzzer::GetString(const uint8_t* ptr, int32_t& pos, int32_t st
     pos += stringSize;
     return ret;
 }
-
-bool CommonFuzzer::GetBool(const uint8_t* ptr, int32_t& pos, size_t size)
-{
-    if (size <= pos || size - pos < sizeof(bool)) {
-        return false;
-    }
-    int32_t index = pos;
-    pos += sizeof(bool);
-    return (ptr[index] % EVEN_NUMBER) != 0;
-}
 } // namespace EDM
 } // namespace OHOS
