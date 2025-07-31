@@ -35,57 +35,61 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 14;
 constexpr int32_t EVEN_NUMBER = 2;
-constexpr size_t BOOL_NUM = 4;
-constexpr size_t STRING_NUM = 6;
 
 std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
 {
-    cJSON* keepAlivePolicies = cJSON_CreateObject();
-    if (!keepAlivePolicies) {
+    cJSON* keepAliveItem = cJSON_CreateObject();
+    if (!keepAliveItem) {
         return "";
     }
-    cJSON* root = cJSON_CreateObject();
-    if (!root) {
-        cJSON_Delete(keepAlivePolicies);
-        return "";
-    }
-    cJSON_AddItemToObject(root, "bundleName",
+    cJSON_AddItemToObject(keepAliveItem, "bundleName",
         cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
-    cJSON_AddItemToObject(root, "disallowModify", cJSON_CreateBool(CommonFuzzer::GetBool(data, pos, size)));
-    cJSON* keepAliveArray = cJSON_CreateArray();
-    if (!keepAliveArray) {
-        cJSON_Delete(keepAlivePolicies);
-        cJSON_Delete(root);
+    cJSON_AddItemToObject(keepAliveItem, "disallowModify", cJSON_CreateBool(CommonFuzzer::GetU32Data(data) % EVEN_NUMBER));
+    cJSON* root = cJSON_CreateArray();
+    if (!root) {
+        cJSON_Delete(keepAliveItem);
         return "";
     }
-    if (!cJSON_AddItemToArray(keepAlivePolicies, root)) {
-        cJSON_Delete(keepAlivePolicies);
+    if (!cJSON_AddItemToArray(root, keepAliveItem)) {
         cJSON_Delete(root);
+        cJSON_Delete(keepAliveItem);
         return "";
     }
-    char* buffer = cJSON_PrintUnformatted(keepAlivePolicies);
+    char* buffer = cJSON_PrintUnformatted(root);
     if (buffer == nullptr) {
-        cJSON_Delete(keepAlivePolicies);
+        cJSON_Delete(root);
         return "";
     }
     std::string json(buffer);
     cJSON_free(buffer);
-    cJSON_Delete(keepAlivePolicies);
+    cJSON_Delete(root);
     return json;
 }
 
-// Fuzzer entry point.
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+void FuzzTestWithRandomString(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
 {
-    if (data == nullptr) {
-        return 0;
-    }
-    if (size < MIN_SIZE) {
-        return 0;
-    }
-    int32_t pos = 0;
-    int32_t stringSize = (size - BOOL_NUM) / STRING_NUM;
+    uint32_t code = CommonFuzzer::GetU32Data(data);
+    MessageParcel requestData;
+    requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
+    MessageParcel reply;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    std::string fuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergeFuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string currentPolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergePolicies = CommonFuzzer::GetString(data, pos, stringSize, size);
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = fuzzString;
+    handlePolicyData.mergePolicyData = mergeFuzzString;
+    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     ManageKeepAliveAppsPlugin plugin;
+    plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
+    plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
+    plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+}
+
+void FuzzTestWithRandomJsonString(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
+{
     uint32_t code = CommonFuzzer::GetU32Data(data);
     MessageParcel requestData;
     requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
@@ -100,9 +104,25 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     handlePolicyData.mergePolicyData = mergeFuzzString;
     handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    ManageKeepAliveAppsPlugin plugin;
     plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
     plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
     plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+}
+
+// Fuzzer entry point.
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    if (data == nullptr) {
+        return 0;
+    }
+    if (size < MIN_SIZE) {
+        return 0;
+    }
+    int32_t pos = 0;
+    int32_t stringSize = size / 12;
+    FuzzTestWithRandomJsonString(data, size, pos, stringSize);
+    FuzzTestWithRandomString(data, size, pos, stringSize);
     return 0;
 }
 } // namespace EDM
