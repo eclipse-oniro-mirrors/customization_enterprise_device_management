@@ -35,8 +35,8 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 14;
 constexpr int32_t EVEN_NUMBER = 2;
-constexpr size_t BOOL_BUM = 4;
-constexpr size_t STRING_BUM = 6;
+constexpr size_t BOOL_NUM = 4;
+constexpr size_t STRING_NUM = 6;
 
 std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
 {
@@ -84,7 +84,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = (size - BOOL_BUM) / STRING_BUM;
+    int32_t stringSize = (size - BOOL_NUM) / STRING_NUM;
     ManageKeepAliveAppsPlugin plugin;
     uint32_t code = CommonFuzzer::GetU32Data(data);
     MessageParcel requestData;
