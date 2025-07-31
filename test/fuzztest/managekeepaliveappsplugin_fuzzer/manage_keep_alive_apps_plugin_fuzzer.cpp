@@ -33,7 +33,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 14;
+constexpr size_t MIN_SIZE = 12;
 constexpr int32_t EVEN_NUMBER = 2;
 
 std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
