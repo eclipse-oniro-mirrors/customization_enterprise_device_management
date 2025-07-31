@@ -44,7 +44,8 @@ std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t& pos
     }
     cJSON_AddItemToObject(keepAliveItem, "bundleName",
         cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
-    cJSON_AddItemToObject(keepAliveItem, "disallowModify", cJSON_CreateBool(CommonFuzzer::GetU32Data(data) % EVEN_NUMBER));
+    cJSON_AddItemToObject(keepAliveItem, "disallowModify",
+        cJSON_CreateBool(CommonFuzzer::GetU32Data(data) % EVEN_NUMBER));
     cJSON* root = cJSON_CreateArray();
     if (!root) {
         cJSON_Delete(keepAliveItem);
