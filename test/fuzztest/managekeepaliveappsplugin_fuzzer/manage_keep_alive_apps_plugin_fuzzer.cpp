@@ -16,13 +16,13 @@
 #include "manage_keep_alive_apps_plugin_fuzzer.h"
 
 #include <system_ability_definition.h>
-
+#include "common_fuzzer.h"
+#include "cJSON.h"
 #define protected public
 #define private public
 #include "manage_keep_alive_apps_plugin.h"
 #undef protected
 #undef private
-#include "common_fuzzer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
@@ -33,23 +33,43 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 13;
+constexpr size_t MIN_SIZE = 12;
 constexpr int32_t EVEN_NUMBER = 2;
 
-// Fuzzer entry point.
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
 {
-    if (data == nullptr) {
-        return 0;
+    cJSON* keepAliveItem = cJSON_CreateObject();
+    if (!keepAliveItem) {
+        return "";
     }
-    if (size < MIN_SIZE) {
-        return 0;
+    cJSON_AddItemToObject(keepAliveItem, "bundleName",
+        cJSON_CreateString(CommonFuzzer::GetString(data, pos, stringSize, size).c_str()));
+    cJSON_AddItemToObject(keepAliveItem, "disallowModify",
+        cJSON_CreateBool(CommonFuzzer::GetU32Data(data) % EVEN_NUMBER));
+    cJSON* root = cJSON_CreateArray();
+    if (!root) {
+        cJSON_Delete(keepAliveItem);
+        return "";
     }
-    int32_t pos = 0;
-    int32_t stringSize = size / 12;
-    ManageKeepAliveAppsPlugin plugin;
+    if (!cJSON_AddItemToArray(root, keepAliveItem)) {
+        cJSON_Delete(root);
+        cJSON_Delete(keepAliveItem);
+        return "";
+    }
+    char* buffer = cJSON_PrintUnformatted(root);
+    if (buffer == nullptr) {
+        cJSON_Delete(root);
+        return "";
+    }
+    std::string json(buffer);
+    cJSON_free(buffer);
+    cJSON_Delete(root);
+    return json;
+}
+
+void FuzzTestWithRandomString(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
+{
     uint32_t code = CommonFuzzer::GetU32Data(data);
-    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
     MessageParcel requestData;
     requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
     MessageParcel reply;
@@ -63,9 +83,47 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     handlePolicyData.mergePolicyData = mergeFuzzString;
     handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    ManageKeepAliveAppsPlugin plugin;
     plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
     plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
     plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+}
+
+void FuzzTestWithRandomJsonString(const uint8_t* data, size_t size, int32_t& pos, size_t stringSize)
+{
+    uint32_t code = CommonFuzzer::GetU32Data(data);
+    MessageParcel requestData;
+    requestData.WriteString(CommonFuzzer::GetString(data, pos, stringSize, size));
+    MessageParcel reply;
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    std::string fuzzString = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string mergeFuzzString = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string currentPolicies = InitKeepAlivePolicies(data, size, pos, stringSize);
+    std::string mergePolicies = InitKeepAlivePolicies(data, size, pos, stringSize);
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = fuzzString;
+    handlePolicyData.mergePolicyData = mergeFuzzString;
+    handlePolicyData.isChanged = CommonFuzzer::GetU32Data(data) % EVEN_NUMBER;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    ManageKeepAliveAppsPlugin plugin;
+    plugin.OnHandlePolicy(code, requestData, reply, handlePolicyData, userId);
+    plugin.OnGetPolicy(fuzzString, requestData, reply, userId);
+    plugin.OnAdminRemove(adminName, currentPolicies, mergePolicies, userId);
+}
+
+// Fuzzer entry point.
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    if (data == nullptr) {
+        return 0;
+    }
+    if (size < MIN_SIZE) {
+        return 0;
+    }
+    int32_t pos = 0;
+    int32_t stringSize = size / 12;
+    FuzzTestWithRandomJsonString(data, size, pos, stringSize);
+    FuzzTestWithRandomString(data, size, pos, stringSize);
     return 0;
 }
 } // namespace EDM
