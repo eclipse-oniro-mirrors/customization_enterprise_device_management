@@ -68,7 +68,6 @@ ohos_fuzztest("ManageKeepAliveAppsPluginFuzzTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "jsoncpp:jsoncpp",
   ]
  
   if (enterprise_device_management_support_all) {

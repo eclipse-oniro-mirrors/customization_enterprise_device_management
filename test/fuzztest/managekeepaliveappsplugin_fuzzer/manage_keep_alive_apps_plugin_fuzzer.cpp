@@ -17,7 +17,7 @@
 
 #include <system_ability_definition.h>
 #include "common_fuzzer.h"
-#include "cJSON.h"
+#include "cJSON.h"  
 #define protected public
 #define private public
 #include "manage_keep_alive_apps_plugin.h"
@@ -56,14 +56,18 @@ std::string InitKeepAlivePolicies(const uint8_t* data, size_t size, int32_t pos,
         cJSON_Delete(root);
         return "";
     }
-    cJSON_AddItemToArray(keepAlivePolicies, root);
+    if (!cJSON_AddItemToArray(keepAlivePolicies, root)) {
+        cJSON_Delete(keepAlivePolicies);
+        cJSON_Delete(root);
+        return "";
+    }
     char* buffer = cJSON_PrintUnformatted(keepAlivePolicies);
     if (buffer == NULL) {
         cJSON_Delete(keepAlivePolicies);
         return "";
     }
     std::string json(buffer);
-    free(buffer);
+    cJSON_free(buffer);
     cJSON_Delete(keepAlivePolicies);
     return json;
 }
