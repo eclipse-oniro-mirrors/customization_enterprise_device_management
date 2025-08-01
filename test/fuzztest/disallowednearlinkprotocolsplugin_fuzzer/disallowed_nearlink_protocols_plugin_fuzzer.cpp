@@ -53,6 +53,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     plugin.OnSetPolicy(intDataVector, currentData, mergeData, userId);
     plugin.OnGetPolicy(policyData, requestData, reply, userId);
     plugin.OnAdminRemove(adminName, intDataVector, mergeData, userId);
+    plugin.OnRemovePolicy(intDataVector, currentData, mergeData, userId);
+    bool isGlobalChanged = CommonFuzzer::GetU32Data(data) % 2;
+    plugin.OnChangedPolicyDone(isGlobalChanged);
     return 0;
 }
 } // namespace EDM
