@@ -51,6 +51,12 @@ enum ApnGetFlag {
     QUERYINFO
 };
 
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
+
 static void GenerateSetData(const uint8_t* data, int32_t& pos, int32_t stringSize, size_t size, MessageParcel &parcel)
 {
     uint32_t flag = CommonFuzzer::GetU32Data(data) % SET_FLAG_FACTOR;

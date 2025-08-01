@@ -31,6 +31,7 @@
 #include "permission_checker.h"
 #include "securec.h"
 #include "utils.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
@@ -38,6 +39,13 @@ constexpr size_t MIN_SIZE = 64;
 const std::string FIRMWARE_EVENT_INFO_NAME = "version";
 const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
+const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
+
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
 
 EventFwk::CommonEventData getCommonEventData(const uint8_t* data, size_t size)
 {
@@ -89,7 +97,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t pos = 0;
     int32_t stringSize = (size - pos) / 5;
 
-    TEST::Utils::SetEdmInitialEnv();
+    TEST::Utils::SetUid();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     enterpriseDeviceMgrAbility->OnStart();
     EventFwk::CommonEventData eventData = getCommonEventData(data, size);
@@ -122,7 +130,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     const std::string policyValue(reinterpret_cast<const char*>(data), size);
     enterpriseDeviceMgrAbility->RemoveAdminItem(adminName, policyName, policyValue, userId);
     std::string bundleName(reinterpret_cast<const char*>(data), size);
-    TEST::Utils::ResetTokenTypeAndUid();
+    TEST::Utils::ResetUid();
     PluginManager::GetInstance()->DumpPlugin();
 
     std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -184,6 +192,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     PermissionChecker::GetInstance()->CheckAndUpdatePermission(adminPtr, 0, fuzzString, userId);
     PermissionChecker::GetInstance()->GetCurrentUserId();
     PermissionChecker::GetInstance()->CheckSpecialPolicyCallQuery(userId);
+
+    system::SetParameter(PARAM_EDM_ENABLE, "false");
     return 0;
 }
 } // namespace EDM

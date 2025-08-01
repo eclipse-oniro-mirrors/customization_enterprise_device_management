@@ -18,11 +18,18 @@
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 4;
 constexpr uint32_t MAX_EDM_INTERFACE_CODE = 1000;
+
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
