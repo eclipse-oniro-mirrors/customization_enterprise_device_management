@@ -504,10 +504,6 @@ void IptablesManager::SetDefaultFirewallDenyChain(Direction direction)
 
 void IptablesManager::ClearDefaultFirewallOutputDenyChain()
 {
-    if (!g_defaultFirewallOutputChainInit) {
-        EDMLOGW("g_defaultFirewallOutputChainInit is not init.");
-        return;
-    }
     auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_OUTPUT_CHAIN_NAME);
     if (executer == nullptr) {
         EDMLOGE("ClearDefaultFirewallOutputDenyChain:GetExecuter fail, this should not happen.");
@@ -519,10 +515,6 @@ void IptablesManager::ClearDefaultFirewallOutputDenyChain()
 
 void IptablesManager::ClearDefaultFirewallForwardDenyChain()
 {
-    if (!g_defaultFirewallForwardChainInit) {
-        EDMLOGW("g_defaultFirewallForwardChainInit is not init.");
-        return;
-    }
     auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DENY_FORWARD_CHAIN_NAME);
     if (executer == nullptr) {
         EDMLOGE("ClearDefaultFirewallForwardDenyChain:GetExecuter fail, this should not happen.");
@@ -561,27 +553,23 @@ void IptablesManager::SetDefaultDomainDenyChain(Direction direction)
 
 void IptablesManager::ClearDefaultDomainOutputDenyChain()
 {
-    if (g_defaultDomainOutputChainInit) {
-        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
-        if (executer == nullptr) {
-            EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
-        } else {
-            executer->Remove(nullptr);
-            g_defaultDomainOutputChainInit = false;
-        }
+    auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_OUTPUT_CHAIN_NAME);
+    if (executer == nullptr) {
+        EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
+    } else {
+        executer->Remove(nullptr);
+        g_defaultDomainOutputChainInit = false;
     }
 }
 
 void IptablesManager::ClearDefaultDomainForwardDenyChain()
 {
-    if (g_defaultDomainForwardChainInit) {
-        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME);
-        if (executer == nullptr) {
-            EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
-        } else {
-            executer->Remove(nullptr);
-            g_defaultDomainForwardChainInit = false;
-        }
+    auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_DEFAULT_DNS_DENY_FORWARD_CHAIN_NAME);
+    if (executer == nullptr) {
+        EDMLOGE("ClearDefaultDomainDenyChain:GetExecuter fail, this should not happen.");
+    } else {
+        executer->Remove(nullptr);
+        g_defaultDomainForwardChainInit = false;
     }
 }
 
