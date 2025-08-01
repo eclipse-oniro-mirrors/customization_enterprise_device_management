@@ -21,6 +21,8 @@
 using namespace OHOS;
 using namespace EDM;
 
+static const char* CLASS_NAME_BUSINESSERROR = "@ohos.base.BusinessError";
+
 const std::unordered_map<int32_t, std::string> EdmAniUtils::errMessageMap = {
     {EdmReturnErrCode::PERMISSION_DENIED,
         "Permission verification failed. The application does not have the permission required to call the API."},
@@ -55,76 +57,6 @@ std::string EdmAniUtils::FindErrMsg(int32_t errCode)
     return errMsg;
 }
 
-ani_object EdmAniUtils::WrapError(ani_env *env, const std::string &msg)
-{
-    ani_class cls {};
-    ani_method method {};
-    ani_object obj = nullptr;
-    ani_status status = ANI_ERROR;
-    if (env == nullptr) {
-        EDMLOGE("null env");
-        return nullptr;
-    }
-
-    ani_string aniMsg = nullptr;
-    if ((status = env->String_NewUTF8(msg.c_str(), msg.size(), &aniMsg)) != ANI_OK) {
-        EDMLOGE("String_NewUTF8 failed %{public}d", status);
-        return nullptr;
-    }
-
-    ani_ref undefRef;
-    if ((status = env->GetUndefined(&undefRef)) != ANI_OK) {
-        EDMLOGE("GetUndefined failed %{public}d", status);
-        return nullptr;
-    }
-
-    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
-        EDMLOGE("FindClass failed %{public}d", status);
-        return nullptr;
-    }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
-        ANI_OK) {
-        EDMLOGE("Class_FindMethod failed %{public}d", status);
-        return nullptr;
-    }
-
-    if ((status = env->Object_New(cls, method, &obj, aniMsg, undefRef)) != ANI_OK) {
-        EDMLOGE("Object_New failed %{public}d", status);
-        return nullptr;
-    }
-    return obj;
-}
-
-ani_object EdmAniUtils::CreateError(ani_env *env, ani_int code, const std::string &msg)
-{
-    ani_class cls {};
-    ani_method method {};
-    ani_object obj = nullptr;
-    ani_status status = ANI_ERROR;
-    if (env == nullptr) {
-        EDMLOGE("null env");
-        return nullptr;
-    }
-    if ((status = env->FindClass("@ohos.base.BusinessError", &cls)) != ANI_OK) {
-        EDMLOGE("FindClass failed %{public}d", status);
-        return nullptr;
-    }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "dC{escompat.Error}:", &method)) != ANI_OK) {
-        EDMLOGE("Class_FindMethod failed %{public}d", status);
-        return nullptr;
-    }
-    ani_object error = WrapError(env, msg);
-    if (error == nullptr) {
-        EDMLOGE("error null");
-        return nullptr;
-    }
-    if ((status = env->Object_New(cls, method, &obj, code, error)) != ANI_OK) {
-        EDMLOGE("Object_New failed %{public}d", status);
-        return nullptr;
-    }
-    return obj;
-}
-
 void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode)
 {
     std::string errMsg = FindErrMsg(errCode);
@@ -135,8 +67,37 @@ void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode)
 
 void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode, std::string errMsg)
 {
-    ani_object error = CreateError(env, errCode, errMsg);
-    env->ThrowError(static_cast<ani_error>(error));
+    ani_class cls {};
+    if (ANI_OK != env->FindClass(CLASS_NAME_BUSINESSERROR, &cls)) {
+        EDMLOGE("find class %{public}s failed", CLASS_NAME_BUSINESSERROR);
+        return;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":V", &ctor)) {
+        EDMLOGE("find method BusinessError constructor failed");
+        return;
+    }
+    ani_object error {};
+    if (ANI_OK != env->Object_New(cls, ctor, &error)) {
+        EDMLOGE("new object %{public}s failed", CLASS_NAME_BUSINESSERROR);
+        return;
+    }
+    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code", errCode)) {
+        EDMLOGE("set property BusinessError.code failed");
+        return;
+    }
+    ani_string messageRef {};
+    if (ANI_OK != env->String_NewUTF8(errMsg.c_str(), errMsg.size(), &messageRef)) {
+        EDMLOGE("new message string failed");
+        return;
+    }
+    if (ANI_OK != env->Object_SetPropertyByName_Ref(error, "message", static_cast<ani_ref>(messageRef))) {
+        EDMLOGE("set property BusinessError.message failed");
+        return;
+    }
+    if (ANI_OK != env->ThrowError(static_cast<ani_error>(error))) {
+        EDMLOGE("throwError ani_error object failed");
+    }
 }
 
 std::string EdmAniUtils::AniStrToString(ani_env *env, ani_ref aniStr)
