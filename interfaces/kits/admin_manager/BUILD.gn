@@ -21,7 +21,6 @@ ohos_shared_library("adminmanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/admin_manager_addon.cpp",
   ]
 
@@ -39,7 +38,6 @@ ohos_shared_library("adminmanager") {
     "ability_runtime:napi_base_context",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
     "samgr:samgr_proxy",

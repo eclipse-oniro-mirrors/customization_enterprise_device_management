@@ -20,7 +20,6 @@
 #include "ohos_account_kits.h"
 #endif
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 #include "napi_edm_adapter.h"
 
 using namespace OHOS::EDM;
@@ -44,7 +43,6 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disallowAddLocalAccount");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "DisallowAddLocalAccount";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -54,7 +52,6 @@ napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callb
 
 napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disallowAddOsAccountByUser");
     auto convertUserId2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         int32_t userId = 0;
@@ -99,7 +96,6 @@ napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_ca
 
 napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isAddOsAccountByUserDisallowed");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsAddOsAccountByUserDisallowed";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32};
@@ -121,7 +117,6 @@ napi_value AccountManagerAddon::IsAddOsAccountByUserDisallowed(napi_env env, nap
 
 napi_value AccountManagerAddon::AddOsAccount(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addOsAccount");
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGI("NAPI_AddOsAccount called");
     auto asyncCallbackInfo = new (std::nothrow) AsyncAddOsAccountCallbackInfo();
@@ -332,7 +327,6 @@ napi_value AccountManagerAddon::CreateJsDomainInfo(napi_env env, const OHOS::Acc
 napi_value AccountManagerAddon::DisallowAddOsAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DisallowAddOsAccount called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disallowAddOsAccount");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -378,7 +372,6 @@ napi_value AccountManagerAddon::DisallowAddOsAccount(napi_env env, napi_callback
 napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsAddOsAccountDisallowed called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isAddOsAccountDisallowed");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -424,7 +417,6 @@ napi_value AccountManagerAddon::IsAddOsAccountDisallowed(napi_env env, napi_call
 
 napi_value AccountManagerAddon::AddOsAccountAsync(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addOsAccountAsync");
 #ifdef OS_ACCOUNT_EDM_ENABLE
     EDMLOGI("NAPI_AddOsAccountAsync called");
     auto asyncCallbackInfo = new (std::nothrow) AsyncAddOsAccountCallbackInfo();
@@ -493,7 +485,6 @@ napi_value AccountManagerAddon::SetDomainAccountPolicy(napi_env env, napi_callba
 {
 #if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
     EDMLOGI("NAPI_SetDomainAccountPolicy called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDomainAccountPolicy");
     auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
@@ -543,7 +534,6 @@ napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callba
 {
 #if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
     EDMLOGI("NAPI_GetDomainAccountPolicy called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDomainAccountPolicy");
     auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         OHOS::AccountSA::DomainAccountInfo domainAccountInfo;

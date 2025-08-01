@@ -17,7 +17,6 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 #include "iptables_utils.h"
 #include "os_account_manager.h"
 
@@ -171,7 +170,6 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value NetworkManagerAddon::GetAllNetworkInterfaces(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllNetworkInterfaces");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAllNetworkInterfaces";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -211,14 +209,12 @@ void NetworkManagerAddon::GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSi
 napi_value NetworkManagerAddon::GetIpAddress(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::GetIpAddress called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getIpAddress");
     return GetIpOrMacAddress(env, info, EdmInterfaceCode::GET_IP_ADDRESS);
 }
 
 napi_value NetworkManagerAddon::GetMac(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::GetMac called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getMac");
     return GetIpOrMacAddress(env, info, EdmInterfaceCode::GET_MAC);
 }
 
@@ -289,7 +285,6 @@ void NetworkManagerAddon::SetNetworkInterfaceDisabledCommon(AddonMethodSign &add
 
 napi_value NetworkManagerAddon::SetNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setNetworkInterfaceDisabled");
     AddonMethodSign addonMethodSign;
     SetNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11);
     return AddonMethodAdapter(env, info, addonMethodSign, NativeSetNetworkInterfaceDisabled,
@@ -314,7 +309,6 @@ void NetworkManagerAddon::NativeSetNetworkInterfaceDisabled(napi_env env, void *
 
 napi_value NetworkManagerAddon::IsNetworkInterfaceDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isNetworkInterfaceDisabled");
     AddonMethodSign addonMethodSign;
     IsNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11);
     return AddonMethodAdapter(env, info, addonMethodSign, NativeIsNetworkInterfaceDisabled,
@@ -341,7 +335,6 @@ void NetworkManagerAddon::NativeIsNetworkInterfaceDisabled(napi_env env, void *d
 napi_value NetworkManagerAddon::AddIptablesFilterRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::AddIptablesFilterRule called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addIptablesFilterRule");
     auto convertAddFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         IPTABLES::AddFilter filter;
@@ -408,7 +401,6 @@ void NetworkManagerAddon::NativeAddIptalbsFilterRule(napi_env env, void *data)
 napi_value NetworkManagerAddon::RemoveIptablesFilterRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::RemoveIptablesFilterRule called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeIptablesFilterRule");
     auto convertRemoveFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         IPTABLES::RemoveFilter filter;
@@ -465,7 +457,6 @@ void NetworkManagerAddon::NativeRemoveIptalbsFilterRule(napi_env env, void *data
 
 napi_value NetworkManagerAddon::ListIptablesFilterRules(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "listIptablesFilterRules");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "ListIptablesFilterRules";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -489,7 +480,6 @@ void NetworkManagerAddon::NativeListIptablesFilterRules(napi_env env, void *data
 napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("AddFirewallRule start");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addFirewallRule");
     auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         IPTABLES::FirewallRule rule;
@@ -523,7 +513,6 @@ napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info
 napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_info info)
 {
     EDMLOGI("RemoveFirewallRule start");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeFirewallRule");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -554,7 +543,6 @@ napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_i
 
 napi_value NetworkManagerAddon::GetFirewallRules(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getFirewallRules");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetFirewallRules";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -657,7 +645,6 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
 
 napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDomainFilterRule");
     auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID};
@@ -690,7 +677,6 @@ napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_
 
 napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDomainFilterRule");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -722,7 +708,6 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
 
 napi_value NetworkManagerAddon::GetDomainFilterRules(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDomainFilterRules");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDomainFilterRules";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -792,7 +777,6 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
 
 napi_value NetworkManagerAddon::SetGlobalHttpProxy(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setGlobalHttpProxy");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     AddonMethodSign addonMethodSign;
     SetGlobalHttpProxyCommon(addonMethodSign);
@@ -940,7 +924,6 @@ napi_value NetworkManagerAddon::ConvertHttpProxyToJS(napi_env env, const OHOS::N
 
 napi_value NetworkManagerAddon::GetGlobalHttpProxy(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getGlobalHttpProxy");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
@@ -1048,7 +1031,6 @@ void NetworkManagerAddon::NativeHttpProxyCallbackComplete(napi_env env, napi_sta
 napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllNetworkInterfacesSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllNetworkInterfacesSync");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAllNetworkInterfacesSync";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -1078,14 +1060,12 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_c
 napi_value NetworkManagerAddon::GetIpAddressSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetIpAddressSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getIpAddressSync");
     return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_IP_ADDRESS);
 }
 
 napi_value NetworkManagerAddon::GetMacSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetMacSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getMacSync");
     return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_MAC);
 }
 
@@ -1116,7 +1096,6 @@ napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callbac
 napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetNetworkInterfaceDisabledSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setNetworkInterfaceDisabledSync");
     AddonMethodSign addonMethodSign;
     SetNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12);
     AdapterAddonData adapterAddonData{};
@@ -1139,7 +1118,6 @@ napi_value NetworkManagerAddon::SetNetworkInterfaceDisabledSync(napi_env env, na
 napi_value NetworkManagerAddon::IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsNetworkInterfaceDisabledSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isNetworkInterfaceDisabledSync");
     AddonMethodSign addonMethodSign;
     IsNetworkInterfaceDisabledCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12);
     AdapterAddonData adapterAddonData{};
@@ -1237,7 +1215,6 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxyCommonLogic(napi_env env, napi
 napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetGlobalHttpProxySync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setGlobalHttpProxySync");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     AddonMethodSign addonMethodSign;
     SetGlobalHttpProxyCommon(addonMethodSign);
@@ -1253,7 +1230,6 @@ napi_value NetworkManagerAddon::SetGlobalHttpProxySync(napi_env env, napi_callba
 napi_value NetworkManagerAddon::SetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetGlobalHttpProxyForAccountSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setGlobalHttpProxyForAccountSync");
 #if defined(FEATURE_PC_ONLY) && defined(NETMANAGER_BASE_EDM_ENABLE)
     AddonMethodSign addonMethodSign;
     SetGlobalHttpProxyCommonForAccount(addonMethodSign);
@@ -1312,7 +1288,6 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxyCommon(
 napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetGlobalHttpProxySync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getGlobalHttpProxySync");
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
@@ -1333,7 +1308,6 @@ napi_value NetworkManagerAddon::GetGlobalHttpProxySync(napi_env env, napi_callba
 napi_value NetworkManagerAddon::GetGlobalHttpProxyForAccountSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetGlobalHttpProxyForAccountSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getGlobalHttpProxyForAccountSync");
 #if defined(FEATURE_PC_ONLY) && defined(NETMANAGER_BASE_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};

@@ -21,7 +21,6 @@ ohos_shared_library("networkmanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/network_manager_addon.cpp"
   ]
 
@@ -37,7 +36,6 @@ ohos_shared_library("networkmanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

@@ -18,7 +18,6 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "errors.h"
-#include "hisysevent_adapter.h"
 #include "js_native_api.h"
 #include "napi_edm_adapter.h"
 #include "napi_edm_common.h"
@@ -56,7 +55,6 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
 napi_value BluetoothManagerAddon::GetBluetoothInfo(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetBluetoothInfo called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getBluetoothInfo");
     BluetoothInfo bluetoothInfo;
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetBluetoothInfo";
@@ -95,7 +93,6 @@ napi_value BluetoothManagerAddon::ConvertBluetoothInfo(napi_env env, BluetoothIn
 napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetBluetoothDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setBluetoothDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetBluetoothDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -117,7 +114,6 @@ napi_value BluetoothManagerAddon::SetBluetoothDisabled(napi_env env, napi_callba
 napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsBluetoothDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isBluetoothDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsBluetoothDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
@@ -142,14 +138,12 @@ napi_value BluetoothManagerAddon::IsBluetoothDisabled(napi_env env, napi_callbac
 napi_value BluetoothManagerAddon::GetAllowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAllowedBluetoothDevices");
     return GetBluetoothDevices(env, info, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
 }
 
 napi_value BluetoothManagerAddon::GetDisallowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedBluetoothDevices");
     return GetBluetoothDevices(env, info, EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
 }
 
@@ -188,14 +182,12 @@ napi_value BluetoothManagerAddon::GetBluetoothDevices(napi_env env, napi_callbac
 napi_value BluetoothManagerAddon::AddAllowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddAllowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAllowedBluetoothDevices");
     return AddOrRemoveBluetoothDevices(env, info, FuncOperateType::SET, EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
 }
 
 napi_value BluetoothManagerAddon::RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveAllowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAllowedBluetoothDevices");
     return AddOrRemoveBluetoothDevices(env, info, FuncOperateType::REMOVE,
         EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES);
 }
@@ -203,7 +195,6 @@ napi_value BluetoothManagerAddon::RemoveAllowedBluetoothDevices(napi_env env, na
 napi_value BluetoothManagerAddon::AddDisallowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddDisallowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedBluetoothDevices");
     return AddOrRemoveBluetoothDevices(env, info, FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
 }
@@ -211,7 +202,6 @@ napi_value BluetoothManagerAddon::AddDisallowedBluetoothDevices(napi_env env, na
 napi_value BluetoothManagerAddon::RemoveDisallowedBluetoothDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveDisallowedBluetoothDevices called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedBluetoothDevices");
     return AddOrRemoveBluetoothDevices(env, info, FuncOperateType::REMOVE,
         EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES);
 }
