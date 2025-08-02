@@ -60,8 +60,12 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy(bool &data, bool &cur
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy failed, interface unsupported");
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-    
-    if (HasConflictPolicy()) {
+    bool isConfilict = false;
+    if (FAILED(HasConflictPolicy(isConflict))) {
+        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy, HasConflictPolicy failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (isConfilict) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
@@ -116,7 +120,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::SetUsbStorageDeviceWritePolicy(bo
     return ret;
 }
 
-ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy()
+ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy(bool &isConflict)
 {
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy enter");
     auto policyManager = IPolicyManager::GetInstance();
@@ -125,7 +129,8 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy()
     if (disableUsb == "true") {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! disableUsb: %{public}s",
             disableUsb.c_str());
-        return true;
+        isConflict = true;
+        return ERR_OK;
     }
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
@@ -133,12 +138,16 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy()
         usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
                 "usbStoragePolicy: %{public}s", usbStoragePolicy.c_str());
-        return true;
+        isConfilict = true;
+        return ERR_OK;
     }
     std::string disallowUsbDevicePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy);
     std::vector<USB::UsbDeviceType> usbDeviceTypes;
-    ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(disallowUsbDevicePolicy, usbDeviceTypes);
+    if (!ArrayUsbDeviceTypeSerializer::GetInstance()->Deserialize(disallowUsbDevicePolicy, usbDeviceTypes)) {
+        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::Deserialize failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     bool isStorageUsbDisallowed = std::find_if(usbDeviceTypes.begin(), usbDeviceTypes.end(),
         [&](USB::UsbDeviceType disallowedType) {
             return disallowedType.baseClass == USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
@@ -146,11 +155,13 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy()
     if (isStorageUsbDisallowed) {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
                 "isStorageUsbDisallowed: %{public}d", isStorageUsbDisallowed);
-        return true;
+        isConflict = true;
+        return ERR_OK;
     }
 
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy end, no conflict");
-    return false;
+    isConfilict = false;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

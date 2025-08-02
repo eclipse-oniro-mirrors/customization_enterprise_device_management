@@ -28,7 +28,7 @@ public:
 
 private:
     ErrCode SetUsbStorageDeviceWritePolicy(bool policy, int32_t userId);
-    bool HasConflictPolicy();
+    ErrCode HasConflictPolicy(bool &isConflict);
 };
 } // namespace EDM
 } // namespace OHOS
