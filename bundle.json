@@ -49,7 +49,7 @@
       "standard"
     ],
     "hisysevent_config": [
-      "//base/customization/enterprise_device_management/common/native/src/hisysevent.yaml"
+      "//base/customization/enterprise_device_management/services/edm/src/hisysevent.yaml"
     ],
     "rom": "1800KB",
     "ram": "6293KB",

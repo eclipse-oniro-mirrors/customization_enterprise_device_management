@@ -132,6 +132,7 @@ private:
     ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void ReportFuncEvent(uint32_t code);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

@@ -20,7 +20,6 @@ ohos_shared_library("deviceinfo") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/device_info_addon.cpp"
   ]
 
@@ -34,7 +33,6 @@ ohos_shared_library("deviceinfo") {
   external_deps = [
     "ability_base:want",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

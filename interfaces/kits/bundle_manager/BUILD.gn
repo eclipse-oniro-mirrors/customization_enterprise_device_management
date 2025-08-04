@@ -21,7 +21,6 @@ ohos_shared_library("bundlemanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "../common/src/napi_edm_common.cpp",
     "../common/src/napi_edm_error.cpp",
     "./src/bundle_manager_addon.cpp",
@@ -38,7 +37,6 @@ ohos_shared_library("bundlemanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
     "os_account:os_account_innerkits",

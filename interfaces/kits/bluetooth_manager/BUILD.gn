@@ -20,7 +20,6 @@ ohos_shared_library("bluetoothmanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/bluetooth_manager_addon.cpp"
   ]
 
@@ -35,7 +34,6 @@ ohos_shared_library("bluetoothmanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

@@ -21,7 +21,6 @@ ohos_shared_library("wifimanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/wifi_manager_addon.cpp"
   ]
 
@@ -39,7 +38,6 @@ ohos_shared_library("wifimanager") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

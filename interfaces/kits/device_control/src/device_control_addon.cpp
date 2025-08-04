@@ -14,7 +14,6 @@
  */
 
 #include "device_control_addon.h"
-#include "hisysevent_adapter.h"
 #include "operate_device_param.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
@@ -46,7 +45,6 @@ void DeviceControlAddon::SetPolicyCommon(AddonMethodSign &addonMethodSign, const
 napi_value DeviceControlAddon::ResetFactory(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_resetFactory called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "resetFactory");
     AddonMethodSign addonMethodSign;
     SetPolicyCommon(addonMethodSign, "ResetFactory");
     return AddonMethodAdapter(env, info, addonMethodSign, NativeResetFactory, NativeVoidCallbackComplete);
@@ -55,7 +53,6 @@ napi_value DeviceControlAddon::ResetFactory(napi_env env, napi_callback_info inf
 napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_lockScreen called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "lockScreen");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -88,7 +85,6 @@ napi_value DeviceControlAddon::LockScreen(napi_env env, napi_callback_info info)
 napi_value DeviceControlAddon::Shutdown(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_shutdown called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "shutdown");
     AddonMethodSign addonMethodSign;
     SetPolicyCommon(addonMethodSign, "Shutdown");
     AdapterAddonData adapterAddonData{};
@@ -105,7 +101,6 @@ napi_value DeviceControlAddon::Shutdown(napi_env env, napi_callback_info info)
 napi_value DeviceControlAddon::Reboot(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_reboot called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "reboot");
     AddonMethodSign addonMethodSign;
     SetPolicyCommon(addonMethodSign, "Reboot");
     AdapterAddonData adapterAddonData{};
@@ -138,7 +133,6 @@ void DeviceControlAddon::NativeResetFactory(napi_env env, void *data)
 napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_OperateDevice called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "operateDevice");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;

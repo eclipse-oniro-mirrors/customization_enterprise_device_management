@@ -23,7 +23,6 @@
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 #include "pixel_map_napi.h"
 
 using namespace OHOS::EDM;
@@ -64,7 +63,6 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value SecurityManagerAddon::GetSecurityPatchTag(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getSecurityPatchTag");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetSecurityPatchTag";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -88,7 +86,6 @@ napi_value SecurityManagerAddon::GetSecurityPatchTag(napi_env env, napi_callback
 
 napi_value SecurityManagerAddon::GetDeviceEncryptionStatus(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDeviceEncryptionStatus");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDeviceEncryptionStatus";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
@@ -121,7 +118,6 @@ napi_value SecurityManagerAddon::ConvertDeviceEncryptionStatus(napi_env env,
 
 napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPasswordPolicy");
     auto convertpasswordPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
             PasswordPolicy policy;
@@ -166,7 +162,6 @@ napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_i
 napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetPasswordPolicy called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPasswordPolicy");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = { nullptr };
     napi_value thisArg = nullptr;
@@ -207,7 +202,6 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
 napi_value SecurityManagerAddon::GetSecurityStatus(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSecurityStatus called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getSecurityStatus");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = { nullptr };
     napi_value thisArg = nullptr;
@@ -298,7 +292,6 @@ napi_value SecurityManagerAddon::InstallUserCertificateSync(napi_env env, napi_v
 napi_value SecurityManagerAddon::InstallUserCertificate(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_InstallUserCertificate called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "installUserCertificate");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -343,7 +336,6 @@ void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data
 
 napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "uninstallUserCertificate");
     auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
             std::string alias;
@@ -377,7 +369,6 @@ void SecurityManagerAddon::NativeUninstallUserCertificate(napi_env env, void *da
 napi_value SecurityManagerAddon::GetUserCertificates(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetUserCertificates called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getUserCertificates");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetUserCertificates";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
@@ -418,7 +409,6 @@ bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncC
 napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetAppClipboardPolicy called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setAppClipboardPolicy");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -536,7 +526,6 @@ void SecurityManagerAddon::GetClipboardPolicyParamHandle(AddonMethodSign &addonM
 
 napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAppClipboardPolicy");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -613,7 +602,6 @@ void SecurityManagerAddon::CreateClipboardPolicyObject(napi_env env, napi_value 
 napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetWatermarkImage called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWatermarkImage");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -644,7 +632,6 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
 
 napi_value SecurityManagerAddon::CancelWatermarkImage(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "cancelWatermarkImage");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "CancelWatermarkImage";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
@@ -805,7 +792,6 @@ bool SecurityManagerAddon::JsObjToApplicationInstance(napi_env env, napi_value o
 napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetPermissionManagedState called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPermissionManagedState");
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
                                         const AddonMethodSign &methodSign) {
         return JsObjToApplicationInstance(env, argv, data);
@@ -842,7 +828,6 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
 
 napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getPermissionManagedState");
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
                                         const AddonMethodSign &methodSign) {
         return JsObjToApplicationInstance(env, argv, data);
