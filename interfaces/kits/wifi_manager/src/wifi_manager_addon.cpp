@@ -348,7 +348,6 @@ bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId 
     }
     wifiId.SetSsid(ssid);
     wifiId.SetBssid(bssid);
-    EDMLOGD("GetWifiIdFromNAPI ssid: %{public}s, bssid: %{public}s", ssid.c_str(), bssid.c_str());
     return true;
 }
 
