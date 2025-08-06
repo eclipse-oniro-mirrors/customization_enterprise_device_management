@@ -65,6 +65,10 @@ sptr<AppExecFwk::IAppControlMgr> BundleInstallPlugin::GetAppControlProxy()
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("BundleInstallPlugin GetAppControlProxy failed.");
+        return nullptr;
+    }
     return proxy->GetAppControlProxy();
 }
 } // namespace EDM
