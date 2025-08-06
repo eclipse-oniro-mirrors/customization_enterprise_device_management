@@ -1513,14 +1513,17 @@ void EnterpriseDeviceMgrAbility::ReportFuncEvent(uint32_t code)
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+    int32_t userId, int32_t hasUserId)
 {
-    bool isUserExist = false;
-    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
-    if (!isUserExist) {
-        EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
-        return EdmReturnErrCode::PARAM_ERROR;
+    if (hasUserId != 0) {
+        bool isUserExist = false;
+        GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+        if (!isUserExist) {
+            EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
     }
+
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
