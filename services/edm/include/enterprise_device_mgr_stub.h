@@ -41,7 +41,8 @@ private:
     std::vector<uint32_t> systemCodeList;
     void InitSystemCodeList();
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
-    ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId, int32_t hasUserId = 1);
     ErrCode CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t
         userId);
     #ifdef EDM_SUPPORT_ALL_ENABLE
