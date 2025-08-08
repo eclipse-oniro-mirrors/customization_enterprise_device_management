@@ -145,7 +145,7 @@ std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &dat
     }
     int32_t pwdLen = data.ReadInt32();
     if (pwdLen >= 0) {
-        apnPassword.passwordSize = static_cast<int32_t>(pwdLen);
+        apnPassword.passwordSize = static_cast<uint32_t>(pwdLen);
         apnPassword.password = const_cast<char *>(data.ReadCString());
     }
     return result;
