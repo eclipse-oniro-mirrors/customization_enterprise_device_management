@@ -60,12 +60,12 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy(bool &data, bool &cur
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy failed, interface unsupported");
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-    bool isConfilict = false;
+    bool isConflict = false;
     if (FAILED(HasConflictPolicy(isConflict))) {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::OnSetPolicy, HasConflictPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (isConfilict) {
+    if (isConflict) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
@@ -138,7 +138,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy(bool &isConflic
         usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
                 "usbStoragePolicy: %{public}s", usbStoragePolicy.c_str());
-        isConfilict = true;
+        isConflict = true;
         return ERR_OK;
     }
     std::string disallowUsbDevicePolicy;
@@ -160,7 +160,7 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy(bool &isConflic
     }
 
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy end, no conflict");
-    isConfilict = false;
+    isConflict = false;
     return ERR_OK;
 }
 } // namespace EDM

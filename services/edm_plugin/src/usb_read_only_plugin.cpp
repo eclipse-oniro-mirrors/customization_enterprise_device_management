@@ -106,11 +106,11 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
-    bool isDisallowed;
-    if (FAILED(IsStorageDisabledByDisallowedPolicy(isDisallowed))) {
+    bool isDisabled = false;
+    if (FAILED(IsStorageDisabledByDisallowedPolicy(isDisabled))) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (isDisallowed &&
+    if (isDisabled &&
         (accessPolicy == EdmConstants::STORAGE_USB_POLICY_READ_WRITE ||
         accessPolicy == EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
         EDMLOGE("UsbReadOnlyPlugin policy conflict! Storage is disabled by disallowed policy.");
