@@ -37,7 +37,9 @@ ErrCode IsAppKioskAllowedQuery::QueryPolicy(std::string &policyData, MessageParc
     std::string appIdentifier = data.ReadString();
     EDMLOGI("IsAppKioskAllowedQuery::QueryPolicy appIdentifier:%{public}s", appIdentifier.c_str());
     std::vector<std::string> appIdentifierList;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyData, appIdentifierList);
+    if (!ArrayStringSerializer::GetInstance()->Deserialize(policyData, appIdentifierList)) {
+        EDMLOGE("IsAppKioskAllowedQuery::QueryPolicy Deserialize failed");
+    }
     auto it = std::find(appIdentifierList.begin(), appIdentifierList.end(), appIdentifier);
     bool isAllowed = (it != appIdentifierList.end());
     reply.WriteInt32(ERR_OK);

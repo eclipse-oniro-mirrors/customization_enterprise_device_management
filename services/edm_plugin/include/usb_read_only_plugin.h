@@ -40,13 +40,13 @@ public:
 private:
     ErrCode SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId);
     ErrCode HasConflictPolicy(int32_t accessPolicy, const std::string &allowUsbDevice, bool &hasConflict);
-    void GetDisallowedUsbDeviceTypes(std::vector<USB::UsbDeviceType> &usbDeviceTypes);
+    bool GetDisallowedUsbDeviceTypes(std::vector<USB::UsbDeviceType> &usbDeviceTypes);
     ErrCode DealDisablePolicy(std::vector<USB::UsbDeviceType> usbDeviceTypes);
     ErrCode DealReadPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,
         std::vector<USB::UsbDeviceType> usbDeviceTypes);
     OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
     ErrCode ReloadUsbDevice();
-    bool IsStorageDisabledByDisallowedPolicy();
+    ErrCode IsStorageDisabledByDisallowedPolicy(bool &isDisallowed);
 };
 } // namespace EDM
 } // namespace OHOS

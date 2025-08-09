@@ -305,6 +305,7 @@ napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_e
         std::vector<int32_t> bluetoothProtocols;
         if (!ParseIntArray(env, bluetoothProtocols, argv)) {
             EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseIntArray fail");
+            return false;
         }
         data.WriteInt32Vector(bluetoothProtocols);
         return true;
