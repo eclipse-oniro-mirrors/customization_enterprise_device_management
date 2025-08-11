@@ -62,9 +62,7 @@ HWTEST_F(EnterpriseConnManagerTest, TestAdminConnectAbility, TestSize.Level1)
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
-    bool ret = manager->ConnectAbility(connection);
+    bool ret = manager->CreateAdminConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USERID);
     EXPECT_TRUE(!ret);
 }
 
@@ -80,9 +78,8 @@ HWTEST_F(EnterpriseConnManagerTest, TestBundleConnectAbility, TestSize.Level1)
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection = manager->CreateBundleConnection(connectWant,
+    bool ret = manager->CreateBundleConnection(connectWant,
         static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED), DEFAULT_USERID, "com.edm.test.bundle", DEFAULT_USERID);
-    bool ret = manager->ConnectAbility(connection);
     EXPECT_TRUE(!ret);
 
     ret = manager->ConnectAbility(nullptr);
@@ -102,9 +99,7 @@ HWTEST_F(EnterpriseConnManagerTest, TestUpdateConnectAbility, TestSize.Level1)
     connectWant.SetElementName(bundleName, abilityName);
     UpdateInfo updateInfo;
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection = manager->CreateUpdateConnection(connectWant,
-        DEFAULT_USERID, updateInfo);
-    bool ret = manager->ConnectAbility(connection);
+    bool ret = manager->CreateUpdateConnection(connectWant, DEFAULT_USERID, updateInfo);
     EXPECT_TRUE(!ret);
 }
 } // namespace TEST
