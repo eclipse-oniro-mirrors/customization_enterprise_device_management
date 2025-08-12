@@ -150,6 +150,36 @@ HWTEST_F(SetWatermarkImagePluginTest, TestCancelWatermarkImageEmpty, TestSize.Le
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
+
+/**
+ * @tc.name: TestCancelWatermarkImage
+ * @tc.desc: Test SetWatermarkImagePlugin::CancelWatermarkImage function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestCancelWatermarkImage, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::WATERMARK_IMAGE);
+    MessageParcel data;
+    data.WriteString("testBundleName");
+    data.WriteInt32(100);
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
+    currentData[{"testBundleName", 100}] = WatermarkImageType{"testFileName", 400, 400};
+    auto serializer = WatermarkImageSerializer::GetInstance();
+    serializer->Serialize(currentData, policyData.policyData);
+    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
+    std::string deviceType = system::GetParameter("const.product.devicetype", "");
+    if (deviceType != "2in1") {
+        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    } else {
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(policyData.policyData.empty());
+    }
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

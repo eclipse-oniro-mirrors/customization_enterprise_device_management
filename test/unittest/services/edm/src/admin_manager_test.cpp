@@ -583,6 +583,12 @@ HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsByParentName, TestSize.Level1)
     ASSERT_TRUE(std::find(subAdminNames.begin(), subAdminNames.end(), subAbilityInfo.bundleName) !=
         subAdminNames.end());
 }
+
+/**
+ * @tc.name: TestGetAdmins
+ * @tc.desc: Test AdminManager::TestGetAdmins.
+ * @tc.type: FUNC
+ */
 HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
 {
     ErrCode res;

@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "disallowed_usb_storage_device_write_plugin_test.h"
+#include "disallowed_usb_storage_device_write_plugin.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -57,7 +57,7 @@ HWTEST_F(DisableUsbStorageDeviceWritePluginTest, TestDisableUsbStorageDeviceWrit
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableUsbStorageDeviceWritePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = DisallowedUsbStorageDeviceWritePlugin::GetPlugin();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE);

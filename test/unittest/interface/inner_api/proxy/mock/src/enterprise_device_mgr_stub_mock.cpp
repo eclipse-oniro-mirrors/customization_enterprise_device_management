@@ -344,6 +344,21 @@ int EnterpriseDeviceMgrStubMock::InvokeDisallowedUsbDevicesSendRequestGetPolicy(
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock InvokeArrayIntSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<int32_t> inputData;
+    int32_t policyOne = 1;
+    int32_t policyTwo = 2;
+    inputData.push_back(policyOne);
+    inputData.push_back(policyTwo);
+    reply.WriteInt32Vector(inputData);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -361,21 +376,6 @@ int EnterpriseDeviceMgrStubMock::InvokeWifiListSendRequestGetPolicy(uint32_t cod
     std::for_each(wifiIds.begin(), wifiIds.end(), [&](const auto wifiId) {
         wifiId.Marshalling(reply);
     });
-    return 0;
-}
-
-int EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
-{
-    GTEST_LOG_(INFO) << "mock InvokeArrayIntSendRequestGetPolicy code :" << code;
-    code_ = code;
-    reply.WriteInt32(ERR_OK);
-    std::vector<int32_t> inputData;
-    int32_t policyOne = 1;
-    int32_t policyTwo = 2;
-    inputData.push_back(policyOne);
-    inputData.push_back(policyTwo);
-    reply.WriteInt32Vector(inputData);
     return 0;
 }
 
@@ -501,6 +501,16 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetInstalledBundleList(uint32_
     size_t dataSize = tempParcel.GetDataSize();
     reply.WriteInt32(static_cast<int32_t>(dataSize));
     reply.WriteRawData(reinterpret_cast<uint8_t *>(tempParcel.GetData()), dataSize);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestSizeError(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestSizeError code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(EDM_MAXREQUESTSIZE);
     return 0;
 }
 
