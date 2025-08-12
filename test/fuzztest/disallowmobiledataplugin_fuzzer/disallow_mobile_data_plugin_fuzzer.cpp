@@ -73,7 +73,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t stringSize = size / 15;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
-        uint32_t code = EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE;
+        uint32_t code = EdmInterfaceCode::DISALLOWED_MOBILE_DATA;
         code = POLICY_FUNC_CODE(operateType, code);
         AppExecFwk::ElementName admin;
         admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
