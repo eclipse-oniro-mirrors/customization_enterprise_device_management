@@ -291,7 +291,7 @@ int32_t ApnUtils::MatchValidSimId(const std::string &opkey, int32_t slotId)
         return -1;
     }
     int32_t simId = Telephony::CoreServiceClient::GetInstance().GetSimId(slotId);
-    if (simId < 0) {
+    if (simId <= 0) {
         return -1;
     }
     return simId;
@@ -304,13 +304,14 @@ int32_t ApnUtils::GetValidSimId(const std::string &apnId)
         return -1;
     }
 
-    int32_t simId = MatchValidSimId(opkey, SIM_SLOT_ZERO);
-    if (simId >= 0) {
+    int32_t slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
+    int32_t simId = MatchValidSimId(opkey, slotId);
+    if (simId > 0) {
         return simId;
     }
 
-    simId = MatchValidSimId(opkey, SIM_SLOT_ONE);
-    if (simId >= 0) {
+    simId = MatchValidSimId(opkey, slotId == SIM_SLOT_ONE ? SIM_SLOT_ZERO : SIM_SLOT_ONE);
+    if (simId > 0) {
         return simId;
     }
     return -1;
