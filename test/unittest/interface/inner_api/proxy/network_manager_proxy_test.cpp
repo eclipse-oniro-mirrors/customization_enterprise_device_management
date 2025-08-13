@@ -945,6 +945,23 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnFail, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestQueryApnSizeError
+ * @tc.desc: Test QueryApn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnSizeError, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSizeError));
+    std::map<std::string, std::string> apnInfoMap;
+    int32_t ret = networkManagerProxy->QueryApn(admin, "0", apnInfoMap);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
  * @tc.name: TestQueryApnIdsSuc
  * @tc.desc: Test QueryApnIds func.
  * @tc.type: FUNC
@@ -977,6 +994,25 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsFail, TestSize.Level1)
     int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestQueryApnIdsSizeError
+ * @tc.desc: Test QueryApnIds func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsSizeError, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSizeError));
+    std::map<std::string, std::string> apnInfoMap;
+    std::vector<std::string> apnIds;
+    int32_t ret = networkManagerProxy->QueryApnIds(admin, apnInfoMap, apnIds);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
