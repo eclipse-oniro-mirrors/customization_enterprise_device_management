@@ -66,7 +66,7 @@ ErrCode DisallowedSimPlugin::OnSetPolicy(uint32_t &data, uint32_t &currentData, 
         Telephony::CoreServiceClient::GetInstance().SetActiveSim(data, 0);
     }
     mergeData |= currentData;
-    
+
     return ERR_OK;
 }
 

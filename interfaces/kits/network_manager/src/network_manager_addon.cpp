@@ -49,7 +49,9 @@ const std::map<std::string, std::string> KEY_TO_FIELD = {
     { "apn", "apn" },
     { "password", "password" }
 };
+#ifdef CELLULAR_DATA_EDM_ENABLE
 constexpr int32_t PASSWORD_KEY_LENGTH = 8;
+#endif
 
 void NetworkManagerAddon::CreateFirewallActionObject(napi_env env, napi_value value)
 {
@@ -1478,6 +1480,7 @@ void ParametersTransform(const std::map<std::string, std::string> &parameters,
     }
 }
 
+#ifdef CELLULAR_DATA_EDM_ENABLE
 static bool ParsePwd(napi_env env, napi_value args, ApnPassword &apnPassword)
 {
     napi_valuetype valueType;
@@ -1533,6 +1536,7 @@ static bool ParsePwd(napi_env env, napi_value args, ApnPassword &apnPassword)
 
     return true;
 }
+#endif
 
 napi_value NetworkManagerAddon::AddApn(napi_env env, napi_callback_info info)
 {

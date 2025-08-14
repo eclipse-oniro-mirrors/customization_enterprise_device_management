@@ -23,7 +23,8 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstalledBundleInfoListPlugin::GetPlugin());
 
-void InstalledBundleInfoListPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstalledBundleInfoListPlugin, std::string>> ptr)
+void InstalledBundleInfoListPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstalledBundleInfoListPlugin,
+    std::string>> ptr)
 {
     EDMLOGI("InstalledBundleInfoListPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::GET_BUNDLE_INFO_LIST, PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST,

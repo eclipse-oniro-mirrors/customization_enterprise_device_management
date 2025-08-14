@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
- 
+
 #include "permission_managed_state_info.h"
 #include "permission_managed_state_serializer_test.h"
 #include "utils.h"
- 
+
 using namespace testing::ext;
- 
+
 namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string POLICY_DATA_ILLEGAL =
     "[{\"permissionName\":\"name0\",\"tokenId\":0,\"appIndex\":0,\"managedState\":0,"
     "\"permissionNames\":[\"name0\"]},{\"managedState\":0,\"permissionNames\":[\"name0\"]}]";
- 
+
 const std::string POLICY_DATA_ILLEGAL2 =
     "[{\"permissionName\":\"name0\",\"accountId\":0,\"managedState\":0,"
     "\"permissionNames\":[\"name0\"]}]";
@@ -34,19 +34,19 @@ const std::string POLICY_DATA1 =
     "[{\"appIdentifier\":\"0\",\"permissionName\":\"name0\",\"accountId\":0,\"tokenId\":0,\"appIndex\":0,"
     "\"managedState\":0,\"permissionNames\":[\"name0\"]},{\"appIdentifier\":\"1\",\"permissionName\":\"name1\","
     "\"accountId\":0,\"tokenId\":0,\"appIndex\":0,\"managedState\":0,\"permissionNames\":[\"name1\"]}]";
- 
+
 void PermissionManagedStateSerializerTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
- 
+
 void PermissionManagedStateSerializerTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
- 
+
 /**
  * @tc.name: TestDeserializeEmpty
  * @tc.desc: Test PermissionManagedStateSerializer::Deserialize when jsonString is empty
@@ -61,7 +61,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestDeserializeEmpty, TestSize.Le
     ASSERT_TRUE(ret);
     ASSERT_TRUE(result.empty());
 }
- 
+
 /**
  * @tc.name: TestDeserializeIllegal
  * @tc.desc: Test PermissionManagedStateSerializer::Deserialize when jsonString is illegal
@@ -76,7 +76,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestDeserializeIllegal, TestSize.
     ASSERT_FALSE(ret);
     ASSERT_TRUE(result.empty());
 }
- 
+
 /**
  * @tc.name: TestDeserializeIllegal2
  * @tc.desc: Test PermissionManagedStateSerializer::Deserialize when jsonString is illegal
@@ -91,7 +91,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestDeserializeIllegal2, TestSize
     ASSERT_FALSE(ret);
     ASSERT_TRUE(result.empty());
 }
- 
+
 /**
  * @tc.name: TestDeserializeSuc
  * @tc.desc: Test PermissionManagedStateSerializer::Deserialize
@@ -106,7 +106,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestDeserializeSuc, TestSize.Leve
     ASSERT_TRUE(ret);
     ASSERT_TRUE(result.size() == 2);
 }
- 
+
 /**
  * @tc.name: TestSerializeEmpty
  * @tc.desc: Test PermissionManagedStateSerializer::Serialize
@@ -121,7 +121,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestSerializeEmpty, TestSize.Leve
     ASSERT_TRUE(ret);
     ASSERT_TRUE(jsonString.empty());
 }
- 
+
 /**
  * @tc.name: TestSerializeSuc
  * @tc.desc: Test PermissionManagedStateSerializer::Serialize
@@ -145,7 +145,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestSerializeSuc, TestSize.Level1
     ASSERT_TRUE(ret);
     ASSERT_FALSE(jsonString.empty());
 }
- 
+
 /**
  * @tc.name: TestGetPolicySuc
  * @tc.desc: Test PermissionManagedStateSerializer::GetPolicy without permissions
@@ -163,7 +163,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestGetPolicyWithoutPermission, T
     bool ret = serializer->GetPolicy(data, result);
     ASSERT_FALSE(ret);
 }
- 
+
 /**
  * @tc.name: TestGetPolicySuc
  * @tc.desc: Test PermissionManagedStateSerializer::GetPolicy with invalid appIdentifier
@@ -182,7 +182,7 @@ HWTEST_F(PermissionManagedStateSerializerTest, TestGetPolicyWithInvalidAppIdenti
     bool ret = serializer->GetPolicy(data, result);
     ASSERT_FALSE(ret);
 }
- 
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -46,15 +46,15 @@ private:
     static napi_value AddAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value GetAllowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedBluetoothDevices(napi_env env, napi_callback_info info);
+    static napi_value TurnOnBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOffBluetooth(napi_env env, napi_callback_info info);
+    static napi_value TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen);
     static napi_value AddOrRemoveBluetoothDevices(napi_env env, napi_callback_info info,
         FuncOperateType operateType, EdmInterfaceCode code);
     static napi_value AddDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedBluetoothDevices(napi_env env, napi_callback_info info);
     static napi_value GetBluetoothDevices(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode);
-    static napi_value TurnOnBluetooth(napi_env env, napi_callback_info info);
-    static napi_value TurnOffBluetooth(napi_env env, napi_callback_info info);
-    static napi_value TurnOnOrOffBluetooth(napi_env env, napi_callback_info info, bool isOpen);
     static napi_value AddDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info);

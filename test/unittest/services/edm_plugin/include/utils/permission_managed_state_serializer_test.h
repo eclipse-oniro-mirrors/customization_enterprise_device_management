@@ -12,20 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef EDM_UNIT_TEST_UTILS_PERMISSION_MANAGED_STATE_SERIALIZER_TEST_H
 #define EDM_UNIT_TEST_UTILS_PERMISSION_MANAGED_STATE_SERIALIZER_TEST_H
- 
+
 #include <gtest/gtest.h>
 #include "permission_managed_state_serializer.h"
- 
+
 namespace OHOS {
 namespace EDM {
 namespace TEST {
 class PermissionManagedStateSerializerTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
- 
+
     static void TearDownTestSuite(void);
 };
 } // namespace TEST

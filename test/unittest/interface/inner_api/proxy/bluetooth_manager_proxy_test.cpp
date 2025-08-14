@@ -555,7 +555,6 @@ HWTEST_F(BluetoothManagerProxyTest, TestRemoveDisallowedBluetoothDevicesFail, Te
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
-
 /**
  * @tc.name: TestTurnOnBluetoothSuc
  * @tc.desc: Test TurnOnBluetoothSuc func.

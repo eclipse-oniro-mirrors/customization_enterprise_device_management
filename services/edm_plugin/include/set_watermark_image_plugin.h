@@ -32,13 +32,12 @@ public:
         HandlePolicyData &policyData, int32_t userId) override;
 
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
-        int32_t userId) override {};
+        int32_t userId) override{};
 
     ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
         int32_t userId) override;
 
-    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override {
-    };
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
     {
@@ -64,12 +63,12 @@ private:
         std::map<std::pair<std::string, int32_t>, WatermarkImageType> &mergeData);
     bool GetWatermarkParam(WatermarkParam &param, MessageParcel &data);
     bool SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg);
-    void SetProcessWatermark(const std::string &bundleName, const std::string &fileName, int32_t accountId,
-        bool enabled);
-    bool SetImageUint8(const void *pixels, int32_t size, const std::string &url);
+    void SetProcessWatermark(const std::string &bundleName, const std::string &fileName,
+        int32_t accountId, bool enabled);
+    bool SetImageUint8(const void* pixels, int32_t size, const std::string &url);
     std::shared_ptr<Media::PixelMap> GetImageFromUrlUint8(const WatermarkImageType &imageType);
-    std::shared_ptr<Media::PixelMap> CreatePixelMapFromUint8(const uint8_t *data, size_t size, int32_t width,
-        int32_t height);
+    std::shared_ptr<Media::PixelMap> CreatePixelMapFromUint8(const uint8_t* data, size_t size,
+        int32_t width, int32_t height);
     bool SubscribeAppState();
     bool UnsubscribeAppState();
     sptr<AppExecFwk::IAppMgr> GetAppManager();

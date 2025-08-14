@@ -18,17 +18,17 @@
 #include "wifi_device.h"
 #include "cellular_data_client.h"
 #include "telephony_errors.h"
- 
+
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
- 
+
 namespace OHOS {
 namespace EDM {
- 
+
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(TurnOnOffMobileDataPlugin::GetPlugin());
 const std::string PARAM_FORCE_OPEN_MOBILE_DATA = "persist.edm.mobile_data_policy";
- 
+
 void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnOnOffMobileDataPlugin, bool>> ptr)
 {
     EDMLOGI("TurnOnMobileDataPlugin InitPlugin...");
@@ -38,7 +38,7 @@ void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnO
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
 }
- 
+
 ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnSetPolicy isForce %{public}d", isForce);
@@ -76,7 +76,7 @@ ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    
+
     return ERR_OK;
 }
 
