@@ -633,7 +633,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
         default:
             break;
     }
-    return ERR_CANNOT_FIND_QUERY_FAILED;
+    return GetPolicyQueryNinth(obj, code);
 }
 
 ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
