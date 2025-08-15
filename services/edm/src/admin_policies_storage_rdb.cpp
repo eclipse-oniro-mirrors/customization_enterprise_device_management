@@ -352,7 +352,7 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
-    bool isPermissionStrNull;
+    bool isPermissionStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, isPermissionStrNull);
     if (!isPermissionStrNull) {
         std::string permissionStr;
@@ -368,7 +368,7 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     int isDebug = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
     item->adminInfo_.isDebug_ = isDebug != 0;
-    bool isPoliciesStrNull;
+    bool isPoliciesStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, isPoliciesStrNull);
     if (!isPoliciesStrNull) {
         std::string policiesStr;

@@ -65,7 +65,7 @@ private:
     bool SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg);
     void SetProcessWatermark(const std::string &bundleName, const std::string &fileName,
         int32_t accountId, bool enabled);
-    bool SetImageUint8(const void* pixels, int32_t size, const std::string &url);
+    bool SetImageUint8(const void *pixels, int32_t size, const std::string &url);
     std::shared_ptr<Media::PixelMap> GetImageFromUrlUint8(const WatermarkImageType &imageType);
     std::shared_ptr<Media::PixelMap> CreatePixelMapFromUint8(const uint8_t* data, size_t size,
         int32_t width, int32_t height);

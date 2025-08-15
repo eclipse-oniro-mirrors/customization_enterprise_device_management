@@ -34,7 +34,6 @@ public:
     int32_t SetBluetoothDisabled(MessageParcel &data);
     int32_t IsBluetoothDisabled(MessageParcel &data, bool &result);
     int32_t GetAllowedBluetoothDevices(const AppExecFwk::ElementName *admin, std::vector<std::string> &deviceIds);
-    int32_t AddOrRemoveAllowedBluetoothDevices(MessageParcel &data, bool isAdd);
     int32_t TurnOnOrOffBluetooth(MessageParcel &data);
     int32_t GetBluetoothDevices(MessageParcel &data, std::vector<std::string> &deviceIds, EdmInterfaceCode policyCode);
     int32_t AddOrRemoveBluetoothDevices(MessageParcel &data, FuncOperateType operateType, EdmInterfaceCode policyCode);
@@ -46,8 +45,6 @@ public:
 private:
     static std::shared_ptr<BluetoothManagerProxy> instance_;
     static std::once_flag flag_;
-    int32_t AddOrRemoveAllowedBluetoothDevices(const AppExecFwk::ElementName &admin,
-        const std::vector<std::string> &deviceIds, std::string function);
     int32_t GetBluetoothDevices(std::vector<std::string> &deviceIds, EdmInterfaceCode policyCode);
 };
 } // namespace EDM
