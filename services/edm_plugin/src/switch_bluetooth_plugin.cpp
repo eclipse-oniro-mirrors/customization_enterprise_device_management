@@ -17,12 +17,12 @@
 #include "bluetooth_def.h"
 #include "bluetooth_errorcode.h"
 #include "bluetooth_host.h"
-#include "parameters.h"
 
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {

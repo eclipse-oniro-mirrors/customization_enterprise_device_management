@@ -13,29 +13,28 @@
  * limitations under the License.
  */
 
- #include "disable_maintenance_mode_query.h"
+#include "disable_maintenance_mode_query.h"
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "parameters.h"
 
- #include "bool_serializer.h"
- #include "edm_constants.h"
- #include "edm_log.h"
- #include "parameters.h"
- 
- namespace OHOS {
- namespace EDM {
- std::string DisableMaintenanceModeQuery::GetPolicyName()
- {
-     return PolicyName::POLICY_DISABLED_MAINTENANCE_MODE;
- }
- 
- std::string DisableMaintenanceModeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
- {
-     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
- }
- 
- ErrCode DisableMaintenanceModeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-     int32_t userId)
- {
-     return GetBoolPolicy(policyData, reply);
- }
- } // namespace EDM
- } // namespace OHOS
+namespace OHOS {
+namespace EDM {
+std::string DisableMaintenanceModeQuery::GetPolicyName()
+{
+    return PolicyName::POLICY_DISABLED_MAINTENANCE_MODE;
+}
+
+std::string DisableMaintenanceModeQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisableMaintenanceModeQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
+} // namespace EDM
+} // namespace OHOS

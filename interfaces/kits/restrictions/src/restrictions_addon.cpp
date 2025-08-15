@@ -56,30 +56,30 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_AIRPLANE_MODE, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NOTIFICATION, EdmInterfaceCode::DISALLOWED_NOTIFICATION},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OTA, POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS,
         EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -94,13 +94,13 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
-        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY,
         EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
+        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
 };
 

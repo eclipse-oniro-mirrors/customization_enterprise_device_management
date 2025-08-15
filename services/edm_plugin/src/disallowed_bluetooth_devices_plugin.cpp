@@ -84,7 +84,8 @@ void DisallowedBluetoothDevicesPlugin::NotifyBluetoothDevicesChanged()
     }
 }
 
-void DisallowedBluetoothDevicesPlugin::OnAdminRemoveDone() {
+void DisallowedBluetoothDevicesPlugin::OnAdminRemoveDone()
+{
     EDMLOGI("DisallowedBluetoothDevicesPlugin OnAdminRemoveDone NotifyBluetoothDevicesChanged.");
     NotifyBluetoothDevicesChanged();
 }

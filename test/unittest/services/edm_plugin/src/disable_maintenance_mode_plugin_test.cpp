@@ -13,80 +13,80 @@
  * limitations under the License.
  */
 
- #include <gtest/gtest.h>
- #include "disable_maintenance_mode_plugin.h"
- #include "edm_ipc_interface_code.h"
- #include "iplugin_manager.h"
- #include "parameters.h"
- #include "plugin_singleton.h"
- #include "utils.h"
- 
- using namespace testing::ext;
- using namespace testing;
- 
- namespace OHOS {
- namespace EDM {
- namespace TEST {
- const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.maintenance_mode";
- class DisableMaintenanceModePluginTest : public testing::Test {
- protected:
-     static void SetUpTestSuite(void);
- 
-     static void TearDownTestSuite(void);
- };
- 
- void DisableMaintenanceModePluginTest::SetUpTestSuite(void)
- {
-     Utils::SetEdmServiceEnable();
-     Utils::SetEdmInitialEnv();
- }
- 
- void DisableMaintenanceModePluginTest::TearDownTestSuite(void)
- {
-     Utils::SetEdmServiceDisable();
-     Utils::ResetTokenTypeAndUid();
-     OHOS::system::SetParameter(PERSIST_EDM_MAINTENANCE_MODE, "false");
-     ASSERT_TRUE(Utils::IsOriginalUTEnv());
-     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
- }
- 
- /**
-  * @tc.name: TestDisableMaintenanceModePluginTestSetTrue
-  * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
-  * @tc.type: FUNC
-  */
- HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetTrue, TestSize.Level1)
- {
-     MessageParcel data;
-     MessageParcel reply;
-     data.WriteBool(true);
-     std::shared_ptr<IPlugin> plugin = DisableMaintenanceModePlugin::GetPlugin();
-     HandlePolicyData handlePolicyData{"false", "", false};
-     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-         EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
-     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-     ASSERT_TRUE(ret == ERR_OK);
-     ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
- }
- 
- /**
-  * @tc.name: TestDisableMaintenanceModePluginTestSetFalse
-  * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
-  * @tc.type: FUNC
-  */
- HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetFalse, TestSize.Level1)
- {
-     MessageParcel data;
-     MessageParcel reply;
-     data.WriteBool(false);
-     std::shared_ptr<IPlugin> plugin = DisableMaintenanceModePlugin::GetPlugin();
-     HandlePolicyData handlePolicyData{"false", "", false};
-     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-         EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
-     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-     ASSERT_TRUE(ret == ERR_OK);
-     ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
- }
- } // namespace TEST
- } // namespace EDM
- } // namespace OHOS
+#include <gtest/gtest.h>
+#include "disable_maintenance_mode_plugin.h"
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
+#include "parameters.h"
+#include "plugin_singleton.h"
+#include "utils.h"
+
+using namespace testing::ext;
+using namespace testing;
+
+namespace OHOS {
+namespace EDM {
+namespace TEST {
+const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.maintenance_mode";
+class DisableMaintenanceModePluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+};
+
+void DisableMaintenanceModePluginTest::SetUpTestSuite(void)
+{
+    Utils::SetEdmServiceEnable();
+    Utils::SetEdmInitialEnv();
+}
+
+void DisableMaintenanceModePluginTest::TearDownTestSuite(void)
+{
+    Utils::SetEdmServiceDisable();
+    Utils::ResetTokenTypeAndUid();
+    OHOS::system::SetParameter(PERSIST_EDM_MAINTENANCE_MODE, "false");
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+/**
+ * @tc.name: TestDisableMaintenanceModePluginTestSetTrue
+ * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetTrue, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    std::shared_ptr<IPlugin> plugin = DisableMaintenanceModePlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
+}
+
+/**
+ * @tc.name: TestDisableMaintenanceModePluginTestSetFalse
+ * @tc.desc: Test DisableMaintenanceModePluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableMaintenanceModePluginTest, TestDisableMaintenanceModePluginTestSetFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableMaintenanceModePlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISABLE_MAINTENANCE_MODE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
+}
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS

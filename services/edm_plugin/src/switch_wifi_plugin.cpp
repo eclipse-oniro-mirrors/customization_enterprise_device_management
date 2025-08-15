@@ -66,7 +66,7 @@ ErrCode SwitchWifiPlugin::OnTurnOffPolicy()
         EDMLOGE("SwitchWifiPlugin OnTurnOffPolicy failed, because wifi disabled");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
     }
-    
+
     if (!system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false")) {
         EDMLOGE("SwitchWifiPlugin:OnTurnOffPolicy SetParameter fail. ");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -86,7 +86,7 @@ ErrCode SwitchWifiPlugin::OnTurnOffPolicy()
 }
 
 ErrCode SwitchWifiPlugin::OnAdminRemove()
-{   
+{
     EDMLOGI("SwitchWifiPlugin OnAdminRemove");
     system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
     return ERR_OK;

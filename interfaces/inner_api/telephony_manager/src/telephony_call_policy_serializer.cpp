@@ -101,7 +101,7 @@ bool TelephonyCallPolicySerializer::Serialize(const std::map<std::string, Teleph
         }
         if (!cJSON_AddItemToObject(root, mapIt.first.c_str(), policyObject)) {
             cJSON_Delete(root);
-            cJSON_Delete(array);
+            cJSON_Delete(policyObject);
             return false;
         }
     }

@@ -87,6 +87,7 @@ public:
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
+
     virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
 protected:
     void OnStart() override;
