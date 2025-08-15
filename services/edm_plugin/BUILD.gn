@@ -338,8 +338,7 @@ ohos_shared_library("communication_plugin") {
       ]
       sources += [
         "./src/get_all_network_interfaces_plugin.cpp",
-        "./src/get_ip_address_plugin.cpp",
-        "./src/get_mac_plugin.cpp",
+        "./src/get_ip_or_mac_address_plugin.cpp",
         "./src/disallow_vpn_plugin.cpp"
       ]
     }
