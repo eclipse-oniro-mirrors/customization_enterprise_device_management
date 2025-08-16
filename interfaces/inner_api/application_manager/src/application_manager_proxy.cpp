@@ -293,7 +293,6 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &appIdentif
     return ERR_OK;
 }
 
-
 int32_t ApplicationManagerProxy::ClearUpApplicationData(
     const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param)
 {

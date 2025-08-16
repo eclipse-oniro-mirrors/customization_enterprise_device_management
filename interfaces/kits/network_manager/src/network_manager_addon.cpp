@@ -18,7 +18,6 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iptables_utils.h"
-#include "os_account_manager.h"
 
 using namespace OHOS::EDM;
 using namespace OHOS::EDM::IPTABLES;

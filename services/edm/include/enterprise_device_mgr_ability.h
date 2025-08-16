@@ -171,6 +171,7 @@ private:
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
+    ErrCode SetAdminEnabled(Admin edmAdmin, AppExecFwk::ElementName &admin, int32_t userId);
 
     static std::shared_mutex adminLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
