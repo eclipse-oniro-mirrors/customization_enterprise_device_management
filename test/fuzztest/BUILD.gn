@@ -25,6 +25,7 @@ group("fuzztest") {
     "adminserviceinterface_fuzzer:AdminServiceInterfaceFuzzTest",
     "allowedappdistributiontypesplugin_fuzzer:AllowedAppDistributionTypesPluginFuzzTest",
     "allowedbluetoothdevicesplugin_fuzzer:AllowedBluetoothDevicesPluginFuzzTest",
+    "allowedrunningbundlesplugin_fuzzer:AllowedRunningBundlesPluginFuzzTest",
     "allowedusbdevicesplugin_fuzzer:AllowedUsbDevicesPluginFuzzTest",
     "allowedwifilistplugin_fuzzer:AllowedWifiListPluginFuzzTest",
     "bundleinstallplugin_fuzzer:BundleInstallPluginFuzzTest",
