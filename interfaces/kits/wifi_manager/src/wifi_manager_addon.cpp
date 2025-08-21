@@ -338,10 +338,6 @@ bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId 
         EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
         return false;
     }
-    if (isAllowed && bssid.empty()) {
-        EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
-        return false;
-    }
     if (!bssid.empty() && bssid.size() != EdmConstants::WIFI_BSSID_LENGTH) {
         EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
         return false;

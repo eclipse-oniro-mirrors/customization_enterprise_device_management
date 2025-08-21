@@ -125,10 +125,6 @@ bool WifiPolicyUtils::CheckWifiId(std::vector<WifiId> &data, bool isAllowed)
             return false;
         }
         std::string bssid = wifiId.GetBssid();
-        if (isAllowed && bssid.empty()) {
-            EDMLOGE("CheckWifiList bssid parse error!");
-            return false;
-        }
         if (!bssid.empty() && bssid.size() != EdmConstants::WIFI_BSSID_LENGTH) {
             EDMLOGE("CheckWifiList bssid parse error!");
             return false;
