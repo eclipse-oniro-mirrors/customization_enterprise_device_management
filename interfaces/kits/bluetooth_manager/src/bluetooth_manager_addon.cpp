@@ -17,6 +17,7 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "edm_utils.h"
 #include "errors.h"
 #include "js_native_api.h"
 #include "napi_edm_adapter.h"
@@ -174,6 +175,7 @@ napi_value BluetoothManagerAddon::GetBluetoothDevices(napi_env env, napi_callbac
     for (size_t i = 0; i < deviceIds.size(); i++) {
         napi_value allowedDevices = nullptr;
         NAPI_CALL(env, napi_create_string_utf8(env, deviceIds[i].c_str(), NAPI_AUTO_LENGTH, &allowedDevices));
+        EdmUtils::ClearString(deviceIds[i]);
         NAPI_CALL(env, napi_set_element(env, result, i, allowedDevices));
     }
     return result;
