@@ -18,7 +18,6 @@
 #include "array_string_serializer.h"
 #include "edm_log.h"
 
-
 namespace OHOS {
 namespace EDM {
 std::string DisallowVPNQuery::GetPolicyName()

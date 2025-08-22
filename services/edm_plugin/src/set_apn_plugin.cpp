@@ -73,6 +73,10 @@ ErrCode SetApnPlugin::HandleAdd(MessageParcel &data)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
+    if (apnUtilsPassword.passwordSize > ApnPassword::MAX_PASSWORD_SIZE) {
+        EDMLOGE("SetApnPlugin::HandleAdd password size over");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
     return ApnUtils::ApnInsert(apnInfo, apnUtilsPassword);
 }
 
@@ -87,6 +91,10 @@ ErrCode SetApnPlugin::HandleUpdate(MessageParcel &data)
         }
         std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
         if (apnInfo.size() == 0 && apnUtilsPassword.password == nullptr) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        if (apnUtilsPassword.passwordSize > ApnPassword::MAX_PASSWORD_SIZE) {
+            EDMLOGE("SetApnPlugin::HandleUpdate password size over");
             return EdmReturnErrCode::PARAM_ERROR;
         }
         return ApnUtils::ApnUpdate(apnInfo, apnId, apnUtilsPassword);

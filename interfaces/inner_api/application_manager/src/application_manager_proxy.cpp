@@ -226,22 +226,6 @@ int32_t ApplicationManagerProxy::SetKioskFeatures(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::ClearUpApplicationData(
-    const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param)
-{
-    EDMLOGI("ApplicationManagerProxy::ClearUpApplicationData");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA);
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    MessageParcelUtils::WriteClearUpApplicationDataParam(param, data);
-    return proxy->HandleDevicePolicy(funcCode, data);
-}
-
 int32_t ApplicationManagerProxy::SetAllowedKioskApps(
     const AppExecFwk::ElementName &admin, const std::vector<std::string> &appIdentifiers)
 {
@@ -307,6 +291,22 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &appIdentif
     }
     reply.ReadBool(isAllowed);
     return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::ClearUpApplicationData(
+    const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param)
+{
+    EDMLOGI("ApplicationManagerProxy::ClearUpApplicationData");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    MessageParcelUtils::WriteClearUpApplicationDataParam(param, data);
+    return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin,

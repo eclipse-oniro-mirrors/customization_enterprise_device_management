@@ -52,11 +52,11 @@ public:
     static napi_value AddKeepAliveApps(napi_env env, napi_callback_info info);
     static napi_value RemoveKeepAliveApps(napi_env env, napi_callback_info info);
     static napi_value GetKeepAliveApps(napi_env env, napi_callback_info info);
-    static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value SetKioskFeatures(napi_env env, napi_callback_info info);
     static napi_value SetAllowedKioskApps(napi_env env, napi_callback_info info);
     static napi_value GetAllowedKioskApps(napi_env env, napi_callback_info info);
     static napi_value IsAppKioskAllowed(napi_env env, napi_callback_info info);
+    static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info);
     static napi_value IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info);
 

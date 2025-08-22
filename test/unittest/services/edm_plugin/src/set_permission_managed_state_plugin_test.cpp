@@ -43,7 +43,7 @@ void SetPermissionManagedStatePluginTest::TearDownTestSuite(void)
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
- 
+
 /**
  * @tc.name: TestOnSetPolicyEmpty
  * @tc.desc: Test SetPermissionManagedStatePluginTest::OnSetPolicy when data is empty.
@@ -58,7 +58,7 @@ HWTEST_F(SetPermissionManagedStatePluginTest, TestOnSetPolicyEmpty, TestSize.Lev
     ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
- 
+
 /**
  * @tc.name: TestOnSetPolicyWithInvalidInfo
  * @tc.desc: Test SetPermissionManagedStatePluginTest::OnSetPolicy with invalid info.
@@ -81,7 +81,7 @@ HWTEST_F(SetPermissionManagedStatePluginTest, TestOnSetPolicyWithInvalidInfo, Te
     ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
- 
+
 /**
  * @tc.name: TestOnAdminRemoveWithInvalidInfo
  * @tc.desc: Test SetPermissionManagedStatePluginTest::OnAdminRemove with invalid info.
@@ -103,7 +103,7 @@ HWTEST_F(SetPermissionManagedStatePluginTest, TestOnAdminRemoveWithInvalidInfo, 
     ErrCode ret = plugin.OnAdminRemove("", data, mergeData, 0);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
- 
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -32,4 +32,4 @@ protected:
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
- #endif // EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
+#endif // EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H

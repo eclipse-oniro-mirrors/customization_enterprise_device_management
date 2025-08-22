@@ -97,8 +97,8 @@ int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *ad
     return ERR_OK;
 }
 
-int32_t RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow,
-    uint32_t policyCode, std::string permissionTag, int32_t accountId)
+int32_t RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
+    bool disallow, uint32_t policyCode, std::string permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount");
     MessageParcel data;

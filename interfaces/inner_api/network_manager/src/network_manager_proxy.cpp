@@ -368,14 +368,16 @@ int32_t NetworkManagerProxy::GetDomainFilterRules(MessageParcel &data,
 int32_t NetworkManagerProxy::TurnOnMobileData(MessageParcel &data)
 {
     EDMLOGD("NetworkManagerProxy::TurnOnMobileData");
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t NetworkManagerProxy::TurnOffMobileData(MessageParcel &data)
 {
     EDMLOGD("NetworkManagerProxy::TurnOffMobileData");
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
@@ -496,7 +498,7 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
     int32_t size = reply.ReadInt32();
     if (size > EdmConstants::POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApn invalid size: %{public}d", size);
-        return ret;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::vector<std::string> keys;
     std::vector<std::string> values;
@@ -544,7 +546,7 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     int32_t size = reply.ReadInt32();
     if (size > EdmConstants::POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApnIds invalid size: %{public}d", size);
-        return ret;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     for (int32_t i = 0; i < size; i++) {
         std::string id = reply.ReadString();

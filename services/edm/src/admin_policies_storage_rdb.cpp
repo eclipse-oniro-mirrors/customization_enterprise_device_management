@@ -352,9 +352,13 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
     resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
-    std::string permissionStr;
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
-    SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
+    bool isPermissionStrNull = false;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, isPermissionStrNull);
+    if (!isPermissionStrNull) {
+        std::string permissionStr;
+        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
+        SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
+    }
     bool isManagedEventStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, isManagedEventStrNull);
     if (!isManagedEventStrNull) {
@@ -364,9 +368,13 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     int isDebug = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
     item->adminInfo_.isDebug_ = isDebug != 0;
-    std::string policiesStr;
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
-    SetAdminStringInfo(policiesStr, item->adminInfo_.accessiblePolicies_);
+    bool isPoliciesStrNull = false;
+    resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, isPoliciesStrNull);
+    if (!isPoliciesStrNull) {
+        std::string policiesStr;
+        resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
+        SetAdminStringInfo(policiesStr, item->adminInfo_.accessiblePolicies_);
+    }
     int32_t runningMode = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWELVE, runningMode);
     item->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);

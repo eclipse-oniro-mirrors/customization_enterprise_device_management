@@ -15,12 +15,10 @@
 #include "set_watermark_image_plugin.h"
 
 #include <fcntl.h>
+#include <fstream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <fstream>
-
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code_utils.h"

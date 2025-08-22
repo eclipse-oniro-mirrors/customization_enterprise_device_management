@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
- #include "disable_maintenance_mode_plugin.h"
+#include "disable_maintenance_mode_plugin.h"
 
- #include "bool_serializer.h"
- #include "edm_constants.h"
- #include "edm_ipc_interface_code.h"
- #include "iplugin_manager.h"
- 
- namespace OHOS {
- namespace EDM {
- const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMaintenanceModePlugin::GetPlugin());
- 
- void DisableMaintenanceModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMaintenanceModePlugin, bool>> ptr)
- {
-     EDMLOGI("DisableMaintenanceModePlugin InitPlugin...");
-     ptr->InitAttribute(EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, PolicyName::POLICY_DISABLED_MAINTENANCE_MODE,
-         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-     ptr->SetSerializer(BoolSerializer::GetInstance());
-     ptr->SetOnHandlePolicyListener(&DisableMaintenanceModePlugin::OnSetPolicy, FuncOperateType::SET);
-     ptr->SetOnAdminRemoveListener(&DisableMaintenanceModePlugin::OnAdminRemove);
-     persistParam_ = "persist.edm.maintenance_mode";
- }
- } // namespace EDM
- } // namespace OHOS
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
+
+namespace OHOS {
+namespace EDM {
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMaintenanceModePlugin::GetPlugin());
+
+void DisableMaintenanceModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMaintenanceModePlugin, bool>> ptr)
+{
+    EDMLOGI("DisableMaintenanceModePlugin InitPlugin...");
+    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, PolicyName::POLICY_DISABLED_MAINTENANCE_MODE,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
+    ptr->SetSerializer(BoolSerializer::GetInstance());
+    ptr->SetOnHandlePolicyListener(&DisableMaintenanceModePlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisableMaintenanceModePlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.maintenance_mode";
+}
+} // namespace EDM
+} // namespace OHOS

@@ -34,6 +34,7 @@
 #include "plugin_manager_test.h"
 #include "utils.h"
 #include "edm_log.h"
+#include "set_browser_policies_plugin.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -3265,14 +3266,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
-        EDM_MANAGE_DATETIME_PERMISSION;
-    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
-    PluginManager::GetInstance()->AddPlugin(plugin_);
+    auto browserPlugin = std::make_shared<SetBrowserPoliciesPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[WITHOUT_ADMIN_SUCCESS_POLICY_CODE] = browserPlugin;
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
 }

@@ -42,10 +42,10 @@ void DisablePrintPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrint
 
 ErrCode DisablePrintPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    EDMLOGI("DisablePrintPlugin::SetPrintPolicy, policy: %{public}d", policy);
+    EDMLOGI("DisablePrintPlugin::SetPrintPolicy, policy: %{public}d", data);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_PRINT);
-    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,
+    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
         EdmConstants::DEFAULT_USER_ID, true);
     EDMLOGI("DisablePrintPlugin::SetPrintPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
     return ret;

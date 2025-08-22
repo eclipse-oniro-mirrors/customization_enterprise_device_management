@@ -75,6 +75,9 @@
             OHOS::EDM::EdmSignatureInfo::*;
             VTT?for?OHOS::EDM::EdmSignatureInfo;
             vtable?for?OHOS::EDM::EdmSignatureInfo;
+            VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
+            OHOS::EDM::TelephonyCallPolicySerializer::*;
             VTT?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
             vtable?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
             OHOS::EDM::ManageKeepAliveAppsSerializer::*;
@@ -89,9 +92,6 @@
             "virtual thunk to OHOS::EDM::ManageAutoStartAppInfo::~ManageAutoStartAppInfo()";
             VTT?for?OHOS::EDM::ManageAutoStartAppInfo;
             vtable?for?OHOS::EDM::ManageAutoStartAppInfo;
-            VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
-            vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
-            OHOS::EDM::TelephonyCallPolicySerializer::*;
             vtable?for?OHOS::EDM::WallPaperParamSerializer;
         };
     local:
