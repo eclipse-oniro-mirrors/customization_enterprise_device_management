@@ -45,24 +45,20 @@ ErrCode UsbPolicyUtils::AddAllowedUsbDevices(std::vector<UsbDeviceId> data)
 {
     EDMLOGI("UsbPolicyUtils AddAllowedUsbDevices....data size = %{public}zu", data.size());
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::vector<OHOS::USB::UsbDevice> allDevices;
-    int32_t getRet = srvClient.GetDevices(allDevices);
-    if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("UsbPolicyUtils getDevices failed! USB interface not init!");
+    std::vector<OHOS::USB::UsbDevice> whiteList{};
+    for (auto &dev : data) {
+        USB::UsbDeviceId devId;
+        devId.productId = dev.GetProductId();
+        devId.vendorId = dev.GetVendorId();
+        whiteList.emplace_back(devId);
     }
-    if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGE("UsbPolicyUtils getDevices failed: %{public}d", getRet);
+    int32_t usbRet = srvClient.ManageDevicePolicy(whiteList);
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("UsbPolicyUtils ManageDevicePolicy failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGE("UsbPolicyUtils ManageDevicePolicy failed: %{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    EDMLOGI("UsbPolicyUtils AddAllowedUsbDevices getDevices size: %{public}zu", allDevices.size());
-    for (const auto &item : allDevices) {
-        bool isAllowed = (std::find_if(data.begin(), data.end(), [item](UsbDeviceId trustItem) {
-            return item.GetVendorId() == trustItem.GetVendorId() && item.GetProductId() == trustItem.GetProductId();
-        }) != data.end());
-        if (srvClient.ManageDevice(item.GetVendorId(), item.GetProductId(), !isAllowed) != ERR_OK) {
-            EDMLOGW("UsbPolicyUtils ManageDevice: vid:%{public}d pid:%{public}d, %{public}d failed!",
-                item.GetVendorId(), item.GetProductId(), isAllowed);
-        }
     }
     return ERR_OK;
 }
