@@ -18,6 +18,7 @@
 #include "edm_log.h"
 #include "message_parcel_utils.h"
 #include "securec.h"
+#include "edm_utils.h"
 
 #include "napi_edm_adapter.h"
 using namespace OHOS::EDM;
@@ -347,7 +348,9 @@ bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId 
         return false;
     }
     wifiId.SetSsid(ssid);
+    EdmUtils::ClearString(ssid);
     wifiId.SetBssid(bssid);
+    EdmUtils::ClearString(bssid);
     return true;
 }
 
@@ -533,6 +536,8 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
         !JsObjectToInt(env, object, "netId", false, config.networkId) ||
         !JsObjectToInt(env, object, "ipType", false, ipType) ||
         !ProcessIpType(ipType, env, object, config.wifiIpConfig)) {
+        EdmUtils::ClearString(config.ssid);
+        EdmUtils::ClearString(config.bssid);
         return false;
     }
     if (ret.size() != 0) {

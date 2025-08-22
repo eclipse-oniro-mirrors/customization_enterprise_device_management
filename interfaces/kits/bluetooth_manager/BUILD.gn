@@ -20,7 +20,8 @@ ohos_shared_library("bluetoothmanager") {
   ]
 
   sources = [
-    "./src/bluetooth_manager_addon.cpp"
+    "./src/bluetooth_manager_addon.cpp",
+    "../../../common/native/src/edm_utils.cpp"
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]
