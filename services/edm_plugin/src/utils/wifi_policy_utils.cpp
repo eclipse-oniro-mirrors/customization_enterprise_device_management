@@ -18,6 +18,7 @@
 #include "array_wifi_id_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "edm_utils.h"
 #include "ipolicy_manager.h"
 #include "wifi_device.h"
 
@@ -124,6 +125,7 @@ bool WifiPolicyUtils::CheckWifiId(std::vector<WifiId> &data, bool isAllowed)
             EDMLOGE("CheckWifiList ssid is empty or too large!");
             return false;
         }
+        EdmUtils::ClearString(ssid);
         std::string bssid = wifiId.GetBssid();
         if (isAllowed && bssid.empty()) {
             EDMLOGE("CheckWifiList bssid parse error!");
@@ -133,6 +135,7 @@ bool WifiPolicyUtils::CheckWifiId(std::vector<WifiId> &data, bool isAllowed)
             EDMLOGE("CheckWifiList bssid parse error!");
             return false;
         }
+        EdmUtils::ClearString(bssid);
     }
     return true;
 }

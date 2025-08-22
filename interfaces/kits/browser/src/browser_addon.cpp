@@ -343,7 +343,7 @@ napi_value BrowserAddon::CreateArrayBuffer(napi_env env, void* data, int32_t siz
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
-    if (size < 0) {
+    if (size < 0 || size > MAX_POLICY_FILE_SIZE) {
         EDMLOGE("BrowserAddon::CreateArrayBuffer size error.size:%{public}d", size);
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;

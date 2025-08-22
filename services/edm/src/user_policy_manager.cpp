@@ -303,7 +303,7 @@ ErrCode UserPolicyManager::SetPolicy(const std::string &adminName, const std::st
     }
     if (FAILED(err)) {
         EDMLOGW("Set or delete combined policy failed:%{public}d, merged policy:%{public}s\n",
-            err, mergedPolicy.c_str());
+            err, policyName.c_str());
     }
 
     if (!adminName.empty()) {
@@ -315,7 +315,7 @@ ErrCode UserPolicyManager::SetPolicy(const std::string &adminName, const std::st
     }
     if (FAILED(err)) {
         EDMLOGW("Set or delete admin policy failed:%{public}d, admin policy:%{public}s\n",
-            err, adminPolicy.c_str());
+            err, adminName.c_str());
     }
     return err;
 }
