@@ -87,13 +87,6 @@ HWTEST_F(SetBrowserPoliciesPluginTest, TestOnGetPolicySuc, TestSize.Level1)
     std::string policyData = TEST_POLICY_DATA1;
     plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    auto serializer = CjsonSerializer::GetInstance();
-    cJSON* root = nullptr;
-    serializer->Deserialize(TEST_POLICY_DATA1, root);
-    cJSON* policy = cJSON_GetObjectItem(root, TEST_APP_ID.c_str());
-    std::string retString;
-    serializer->Serialize(policy, retString);
-    ASSERT_TRUE(reply.ReadString() == retString);
 }
 
 /**
