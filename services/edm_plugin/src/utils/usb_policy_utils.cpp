@@ -45,7 +45,7 @@ ErrCode UsbPolicyUtils::AddAllowedUsbDevices(std::vector<UsbDeviceId> data)
 {
     EDMLOGI("UsbPolicyUtils AddAllowedUsbDevices....data size = %{public}zu", data.size());
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::vector<OHOS::USB::UsbDevice> whiteList{};
+    std::vector<OHOS::USB::UsbDeviceId> whiteList{};
     for (auto &dev : data) {
         USB::UsbDeviceId devId;
         devId.productId = dev.GetProductId();
