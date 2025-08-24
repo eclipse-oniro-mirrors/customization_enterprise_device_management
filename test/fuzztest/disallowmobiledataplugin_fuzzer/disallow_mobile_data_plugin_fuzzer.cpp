@@ -23,7 +23,9 @@
 #undef protected
 #undef private
 #include "common_fuzzer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "handle_policy_data.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
 #include "message_parcel.h"
@@ -33,6 +35,30 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 16;
 constexpr size_t WITHOUT_USERID = 0;
+
+void DoSomethingInterestingWithAPI(const uint8_t* data, size_t size, int32_t pos, int32_t stringSize)
+{
+    DisallowMobileDataPlugin plugin;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string mergeData = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
+    MessageParcel parcel;
+    int32_t forceOpen = CommonFuzzer::GetU32Data(data);
+    parcel.WriteInt32(forceOpen);
+    plugin.OnHandleForceOpen(parcel);
+
+    MessageParcel setParcel;
+    MessageParcel replyParcel;
+    uint32_t code = EdmInterfaceCode::DISALLOWED_MOBILE_DATA;
+    code = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET), code);
+    setParcel.WriteString(EdmConstants::MobileData::DISALLOW_FLAG);
+    bool isDisallow = CommonFuzzer::GetU32Data(data) % 2;
+    setParcel.WriteBool(isDisallow);
+    HandlePolicyData handlePolicyData;
+    plugin.OnHandlePolicy(code, setParcel, replyParcel, handlePolicyData, userId);
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -47,7 +73,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t stringSize = size / 15;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
-        uint32_t code = EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE;
+        uint32_t code = EdmInterfaceCode::DISALLOWED_MOBILE_DATA;
         code = POLICY_FUNC_CODE(operateType, code);
         AppExecFwk::ElementName admin;
         admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
@@ -74,16 +100,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         }
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
-    DisallowMobileDataPlugin plugin;
-    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string mergeData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    int32_t userId = CommonFuzzer::GetU32Data(data);
-    plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
-    MessageParcel parcel;
-    int32_t forceOpen = CommonFuzzer::GetU32Data(data);
-    parcel.WriteInt32(forceOpen);
-    plugin.OnHandleForceOpen(parcel);
+    DoSomethingInterestingWithAPI(data, size, pos, stringSize);
     return 0;
 }
 } // namespace EDM

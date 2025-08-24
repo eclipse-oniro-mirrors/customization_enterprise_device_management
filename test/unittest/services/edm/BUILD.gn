@@ -56,6 +56,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_stub.cpp",
+    "../../../../services/edm/src/hisysevent_adapter.cpp",
     "../../../../services/edm/src/permission_checker.cpp",
     "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
@@ -66,8 +67,8 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallow_external_memory_card_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
-    "../../../../services/edm/src/query_policy/disallow_distributed_transmission_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_distributed_transmission_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
@@ -92,6 +93,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
     "../../../../services/edm/src/query_policy/disallowed_sms_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_mms_query.cpp",
+    "../../../../services/edm_plugin/src/set_browser_policies_plugin.cpp",
   ]
 
   public_configs = [
@@ -211,6 +213,7 @@ ohos_static_library("edmservice_static") {
     "file_api:securitylabel",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
     "pasteboard:pasteboard_client",
@@ -231,9 +234,9 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
       "../../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
-      "../../../../services/edm/src/query_policy/disable_user_mtp_client_query.cpp",
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
       "../../../../services/edm/src/watermark/watermark_application_observer.cpp",
       "../../../../services/edm/src/watermark/watermark_observer_manager.cpp",
@@ -244,15 +247,7 @@ ohos_static_library("edmservice_static") {
     external_deps += [ "usb_manager:usbsrv_client" ]
   }
 
-  if (enterprise_device_management_feature_pc_only) {
-      sources += [
-        "../../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
-        "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
-      ]
-      defines += [ "FEATURE_PC_ONLY" ]
-  }
-
-    if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+  if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [
       "os_account:libaccountkits",
       "os_account:os_account_innerkits",
@@ -266,6 +261,14 @@ ohos_static_library("edmservice_static") {
       "FEATURE_PC_ONLY",
       "SUDO_EDM_ENABLE"
     ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "../../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
+        "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
   }
 
   if (netmanager_ext_edm_enable) {

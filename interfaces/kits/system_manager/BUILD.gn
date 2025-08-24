@@ -21,7 +21,6 @@ ohos_shared_library("systemmanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/system_manager_addon.cpp"
   ]
 
@@ -36,7 +35,6 @@ ohos_shared_library("systemmanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

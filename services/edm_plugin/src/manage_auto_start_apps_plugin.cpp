@@ -59,13 +59,19 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     bool disallowModify = false;
     data.ReadBool(disallowModify);
     std::vector<ManageAutoStartAppInfo> currentData;
-    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
+    bool isDeserializeOk = false;
+    isDeserializeOk = ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
     std::vector<ManageAutoStartAppInfo> mergeData;
-    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    isDeserializeOk = isDeserializeOk &&
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageAutoStartAppInfo> totalMergePolicyData;
-    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
+    isDeserializeOk = isDeserializeOk &&
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
+    if (!isDeserializeOk) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
+    }
     ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
         totalMergePolicyData);
     ErrCode res = EdmReturnErrCode::PARAM_ERROR;
@@ -81,8 +87,11 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     reply.WriteInt32(ERR_OK);
     std::string afterHandle;
     std::string afterMerge;
-    ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
-    ManageAutoStartAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    bool isSerializeOk = ManageAutoStartAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
+    isSerializeOk = isSerializeOk && ManageAutoStartAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    if (!isSerializeOk) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Serialize failed.");
+    }
     policyData.isChanged = (policyData.policyData != afterHandle || mergePolicyStr != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;

@@ -18,7 +18,6 @@
 #include "clear_up_application_data_param.h"
 #include "edm_constants.h"
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 #include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
@@ -48,11 +47,11 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addKeepAliveApps", AddKeepAliveApps),
         DECLARE_NAPI_FUNCTION("removeKeepAliveApps", RemoveKeepAliveApps),
         DECLARE_NAPI_FUNCTION("getKeepAliveApps", GetKeepAliveApps),
-        DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("setAllowedKioskApps", SetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("getAllowedKioskApps", GetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
+        DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
         DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
     };
@@ -63,7 +62,6 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsModifyKeepAliveAppsDisallowed called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isModifyKeepAliveAppsDisallowed");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -104,14 +102,12 @@ napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env
 napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddKeepAliveApps called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addKeepAliveApps");
     return AddOrRemoveKeepAliveApps(env, info, "AddKeepAliveApps");
 }
 
 napi_value ApplicationManagerAddon::RemoveKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_RemoveKeepAliveApps called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeKeepAliveApps");
     return AddOrRemoveKeepAliveApps(env, info, "RemoveKeepAliveApps");
 }
 
@@ -166,7 +162,6 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetKeepAliveApps called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getKeepAliveApps");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -201,13 +196,11 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addAutoStartApps");
     return AddOrRemoveAutoStartApps(env, info, "AddAutoStartApps");
 }
 
 napi_value ApplicationManagerAddon::RemoveAutoStartApps(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeAutoStartApps");
     return AddOrRemoveAutoStartApps(env, info, "RemoveAutoStartApps");
 }
 
@@ -265,7 +258,6 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAutoStartApps called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getAutoStartApps");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -325,7 +317,6 @@ void ApplicationManagerAddon::SetBaseDataForGetPolicy(int32_t userId, MessagePar
 napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info)
 {
     EDMLOGI("IsModifyAutoStartAppsDisallowed called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isModifyAutoStartAppsDisallowed");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -368,7 +359,6 @@ napi_value ApplicationManagerAddon::IsModifyAutoStartAppsDisallowed(napi_env env
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedRunningBundles called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedRunningBundles");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -432,13 +422,11 @@ void ApplicationManagerAddon::NativeGetDisallowedRunningBundles(napi_env env, vo
 
 napi_value ApplicationManagerAddon::AddDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedRunningBundles");
     return AddOrRemovellowedRunningBundles(env, info, "AddDisallowedRunningBundles", NativeAddDisallowedRunningBundles);
 }
 
 napi_value ApplicationManagerAddon::RemoveDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedRunningBundles");
     return AddOrRemovellowedRunningBundles(env, info, "RemoveDisallowedRunningBundles",
         NativeRemoveDisallowedRunningBundles);
 }
@@ -565,13 +553,11 @@ void ApplicationManagerAddon::NativeRemoveDisallowedRunningBundles(napi_env env,
 
 napi_value ApplicationManagerAddon::AddDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedRunningBundlesSync");
     return AddOrRemoveDisallowedRunningBundlesSync(env, info, true);
 }
 
 napi_value ApplicationManagerAddon::RemoveDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedRunningBundlesSync");
     return AddOrRemoveDisallowedRunningBundlesSync(env, info, false);
 }
 
@@ -630,7 +616,6 @@ napi_value ApplicationManagerAddon::AddOrRemoveDisallowedRunningBundlesSync(napi
 napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedRunningBundlesSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedRunningBundlesSync");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -690,7 +675,6 @@ void ApplicationManagerAddon::CreateKioskFeatureObject(napi_env env, napi_value 
 napi_value ApplicationManagerAddon::SetKioskFeatures(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetKioskFeatures called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setKioskFeatures");
     auto convertKioskFeature2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::vector<int32_t> kioskFeatures;
@@ -718,48 +702,6 @@ napi_value ApplicationManagerAddon::SetKioskFeatures(napi_env env, napi_callback
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("SetKioskFeatures failed!");
     }
-    return nullptr;
-}
-
-napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_callback_info info)
-{
-    EDMLOGI("NAPI_ClearUpApplicationData called");
-    size_t argc = ARGS_SIZE_FOUR;
-    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "Parameter admin error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "Parameter bundleName error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "Parameter appIndex error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number), "Parameter accountId error.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
-
-    ClearUpApplicationDataParam param;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]), "Parameter bundleName parse error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseInt(env, param.appIndex, argv[ARR_INDEX_TWO]), "Parameter appIndex parse error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseInt(env, param.userId, argv[ARR_INDEX_THREE]), "Parameter accountId parse error.");
-    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
-            "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
-    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    int32_t ret = applicationManagerProxy->ClearUpApplicationData(elementName, param);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
-    }
-
     return nullptr;
 }
 
@@ -839,6 +781,48 @@ napi_value ApplicationManagerAddon::IsAppKioskAllowed(napi_env env, napi_callbac
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isAllowed, &result));
     return result;
+}
+
+napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ClearUpApplicationData called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "Parameter admin error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "Parameter bundleName error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number), "Parameter appIndex error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number), "Parameter accountId error.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
+
+    ClearUpApplicationDataParam param;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseString(env, param.bundleName, argv[ARR_INDEX_ONE]), "Parameter bundleName parse error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseInt(env, param.appIndex, argv[ARR_INDEX_TWO]), "Parameter appIndex parse error.");
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseInt(env, param.userId, argv[ARR_INDEX_THREE]), "Parameter accountId parse error.");
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, "
+            "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->ClearUpApplicationData(elementName, param);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+
+    return nullptr;
 }
 
 static napi_module g_applicationManagerModule = {

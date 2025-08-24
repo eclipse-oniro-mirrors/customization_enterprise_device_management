@@ -24,6 +24,10 @@ namespace EDM {
 
 bool UIntSerializer::Deserialize(const std::string &jsonString, uint32_t &dataObj)
 {
+    dataObj = 0;
+    if (jsonString.empty()) {
+        return true;
+    }
     const char* begin = jsonString.data();
     const char* end = begin + jsonString.size();
     auto [ptr, ec] = std::from_chars(begin, end, dataObj);

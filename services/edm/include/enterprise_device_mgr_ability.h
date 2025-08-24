@@ -75,7 +75,8 @@ public:
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
-    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        int32_t hasUserId = 1) override;
     ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId)
         override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
@@ -86,6 +87,7 @@ public:
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
+
     virtual std::shared_ptr<PermissionChecker> GetPermissionChecker();
 protected:
     void OnStart() override;
@@ -132,6 +134,7 @@ private:
     ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void ReportFuncEvent(uint32_t code);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

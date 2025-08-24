@@ -49,7 +49,7 @@
       "standard"
     ],
     "hisysevent_config": [
-      "//base/customization/enterprise_device_management/common/native/src/hisysevent.yaml"
+      "//base/customization/enterprise_device_management/services/edm/src/hisysevent.yaml"
     ],
     "rom": "1800KB",
     "ram": "6293KB",
@@ -73,10 +73,10 @@
         "data_share",
         "distributed_notification_service",
         "drivers_interface_usb",
-        "graphic_2d",
-        "file_api",
         "ets_runtime",
         "eventhandler",
+        "file_api",
+        "graphic_2d",
         "netmanager_base",
         "netmanager_ext",
         "hilog",

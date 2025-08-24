@@ -195,7 +195,6 @@ int32_t SystemManagerProxy::GetInstallLocalEnterpriseAppEnabled(MessageParcel &d
     return ERR_OK;
 }
 
-
 int32_t SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType)
 {
     EDMLOGD("SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols");

@@ -21,7 +21,6 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 
 using namespace OHOS::EDM;
 
@@ -57,32 +56,32 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_AIRPLANE_MODE, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NOTIFICATION, EdmInterfaceCode::DISALLOWED_NOTIFICATION},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OTA, POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD,
         EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APN, EdmInterfaceCode::DISALLOW_MODIFY_APN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_POWER_LONG_PRESS,
         EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_BIOMETRICS_AND_SCREENLOCK,
         EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -97,13 +96,13 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT, EdmInterfaceCode::FINGERPRINT_AUTH},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MTP_CLIENT, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
-        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUDO, EdmInterfaceCode::DISALLOWED_SUDO},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY,
         EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
+        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
 };
 
@@ -134,13 +133,11 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 
 napi_value RestrictionsAddon::SetPrinterDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPrinterDisabled");
     return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::SetHdcDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setHdcDisabled");
     return SetPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
@@ -158,7 +155,6 @@ void RestrictionsAddon::SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign
 napi_value RestrictionsAddon::SetPolicyDisabled(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicyDisabled");
     AddonMethodSign addonMethodSign;
     SetPolicyDisabledCommon(addonMethodSign, policyCode);
     return AddonMethodAdapter(env, info, addonMethodSign, NativeSetPolicyDisabled, NativeVoidCallbackComplete);
@@ -178,13 +174,11 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isPrinterDisabled");
     return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_PRINTER);
 }
 
 napi_value RestrictionsAddon::IsHdcDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isHdcDisabled");
     return IsPolicyDisabled(env, info, EdmInterfaceCode::DISABLED_HDC);
 }
 
@@ -255,20 +249,17 @@ void RestrictionsAddon::NativeIsPolicyDisabled(napi_env env, void *data)
 
 napi_value RestrictionsAddon::DisableMicrophone(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "disableMicrophone");
     return SetPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
 napi_value RestrictionsAddon::IsMicrophoneDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isMicrophoneDisabled");
     return IsPolicyDisabledSync(env, info, EdmInterfaceCode::DISABLE_MICROPHONE);
 }
 
 napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("SetFingerprintAuthDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setFingerprintAuthDisabled");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -302,7 +293,6 @@ napi_value RestrictionsAddon::SetFingerprintAuthDisabled(napi_env env, napi_call
 napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsFingerprintAuthDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isFingerprintAuthDisabled");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -341,7 +331,6 @@ napi_value RestrictionsAddon::IsFingerprintAuthDisabled(napi_env env, napi_callb
 napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_SetPolicyDisabledSync called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setPolicyDisabledSync");
     AddonMethodSign addonMethodSign;
     SetPolicyDisabledCommon(addonMethodSign, policyCode);
 
@@ -359,7 +348,6 @@ napi_value RestrictionsAddon::SetPolicyDisabledSync(napi_env env, napi_callback_
 napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_IsPolicyDisabled called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isPolicyDisabledSync");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -394,7 +382,6 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
 napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDisallowedPolicy called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDisallowedPolicy");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -443,7 +430,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
 
 napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedPolicy");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -498,7 +484,6 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
 napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDisallowedPolicyForAccount called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setDisallowedPolicyForAccount");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -553,7 +538,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
 napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedPolicyForAccount called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedPolicyForAccount");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -618,20 +602,17 @@ OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(bool hasAdm
 
 napi_value RestrictionsAddon::AddDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "addDisallowedListForAccount");
     return AddOrRemoveDisallowedListForAccount(env, info, true);
 }
 
 napi_value RestrictionsAddon::RemoveDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "removeDisallowedListForAccount");
     return AddOrRemoveDisallowedListForAccount(env, info, false);
 }
 
 napi_value RestrictionsAddon::GetDisallowedListForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedListForAccount called");
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "getDisallowedListForAccount");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;

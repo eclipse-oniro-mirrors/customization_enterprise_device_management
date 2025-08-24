@@ -16,9 +16,9 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
-#include "hisysevent_adapter.h"
 #include "message_parcel_utils.h"
 #include "securec.h"
+#include "edm_utils.h"
 
 #include "napi_edm_adapter.h"
 using namespace OHOS::EDM;
@@ -180,13 +180,11 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
 
 napi_value WifiManagerAddon::IsWifiActive(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiActive");
     return IsWifiActiveHandler(env, info, NativeIsWifiActive);
 }
 
 napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setWifiDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
@@ -206,7 +204,6 @@ napi_value WifiManagerAddon::SetWifiDisabled(napi_env env, napi_callback_info in
 
 napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiDisabled");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "isWifiDisabled";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
@@ -231,7 +228,6 @@ napi_value WifiManagerAddon::IsWifiDisabled(napi_env env, napi_callback_info inf
 
 napi_value WifiManagerAddon::SetWifiProfile(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiProfile");
     return SetWifiProfileHandler(env, info, NativeSetWifiProfile);
 }
 
@@ -352,8 +348,9 @@ bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId 
         return false;
     }
     wifiId.SetSsid(ssid);
+    EdmUtils::ClearString(ssid);
     wifiId.SetBssid(bssid);
-    EDMLOGD("GetWifiIdFromNAPI ssid: %{public}s, bssid: %{public}s", ssid.c_str(), bssid.c_str());
+    EdmUtils::ClearString(bssid);
     return true;
 }
 
@@ -539,6 +536,8 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
         !JsObjectToInt(env, object, "netId", false, config.networkId) ||
         !JsObjectToInt(env, object, "ipType", false, ipType) ||
         !ProcessIpType(ipType, env, object, config.wifiIpConfig)) {
+        EdmUtils::ClearString(config.ssid);
+        EdmUtils::ClearString(config.bssid);
         return false;
     }
     if (ret.size() != 0) {
@@ -725,7 +724,6 @@ bool WifiManagerAddon::ProcessEapTlsConfig(napi_env env, napi_value object, Wifi
 
 napi_value WifiManagerAddon::IsWifiActiveSync(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "isWifiActiveSync");
     return IsWifiActiveHandler(env, info, nullptr);
 }
 
@@ -764,7 +762,6 @@ napi_value WifiManagerAddon::IsWifiActiveHandler(napi_env env,
 
 napi_value WifiManagerAddon::SetWifiProfileSync(napi_env env, napi_callback_info info)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "setWifiProfileSync");
     return SetWifiProfileHandler(env, info, nullptr);
 }
 

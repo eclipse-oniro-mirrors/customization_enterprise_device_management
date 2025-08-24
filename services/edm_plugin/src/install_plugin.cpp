@@ -26,7 +26,6 @@
 #include "directory_ex.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
-#include "install_param_serializer.h"
 #include "installer_callback.h"
 #include "iplugin_manager.h"
 

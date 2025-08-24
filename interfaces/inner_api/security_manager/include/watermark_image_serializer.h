@@ -26,9 +26,9 @@ namespace EDM {
 /*
  * Policy data serializer of watermark image.
  */
-class WatermarkImageSerializer
-    : public IPolicySerializer<std::map<std::pair<std::string, int32_t>, WatermarkImageType>>,
-      public DelayedSingleton<WatermarkImageSerializer> {
+class WatermarkImageSerializer :
+    public IPolicySerializer<std::map<std::pair<std::string, int32_t>, WatermarkImageType>>,
+    public DelayedSingleton<WatermarkImageSerializer> {
 public:
     bool Deserialize(const std::string &policy,
         std::map<std::pair<std::string, int32_t>, WatermarkImageType> &dataObj) override;
@@ -36,7 +36,8 @@ public:
     bool Serialize(const std::map<std::pair<std::string, int32_t>, WatermarkImageType> &dataObj,
         std::string &policy) override;
 
-    bool GetPolicy(MessageParcel &data, std::map<std::pair<std::string, int32_t>, WatermarkImageType> &result) override;
+    bool GetPolicy(MessageParcel &data,
+        std::map<std::pair<std::string, int32_t>, WatermarkImageType> &result) override;
 
     bool WritePolicy(MessageParcel &reply,
         std::map<std::pair<std::string, int32_t>, WatermarkImageType> &result) override;

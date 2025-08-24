@@ -20,7 +20,6 @@ ohos_shared_library("datetimemanager") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/datetime_manager_addon.cpp"
   ]
 
@@ -35,7 +34,6 @@ ohos_shared_library("datetimemanager") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]

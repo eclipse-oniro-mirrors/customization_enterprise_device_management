@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
-#define EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
+#ifndef COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
+#define COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
 
-#include <gtest/gtest.h>
-#include "iplugin_manager.h"
-#include "switch_bluetooth_plugin.h"
+#include <string>
 
 namespace OHOS {
 namespace EDM {
-namespace TEST {
-class SwitchBluetoothTest : public testing::Test {
-protected:
-    static void SetUpTestSuite(void);
-
-    static void TearDownTestSuite(void);
+enum class ReportType {
+    EDM_FUNC_FAILED = 0,
+    EDM_FUNC_EVENT,
 };
-} // namespace TEST
+class HiSysEventAdapter {
+public:
+    static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
+    static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
+        const int32_t &adminType, const std::string &extraInfo = "");
+};
 } // namespace EDM
 } // namespace OHOS
-#endif // EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
+#endif // COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H

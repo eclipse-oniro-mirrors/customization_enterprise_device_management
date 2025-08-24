@@ -21,7 +21,6 @@ ohos_shared_library("devicecontrol") {
   ]
 
   sources = [
-    "../../../common/native/src/hisysevent_adapter.cpp",
     "./src/device_control_addon.cpp"
   ]
 
@@ -35,7 +34,6 @@ ohos_shared_library("devicecontrol") {
   external_deps = [
     "ability_base:want",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
