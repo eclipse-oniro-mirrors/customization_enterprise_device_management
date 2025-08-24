@@ -60,12 +60,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string netInterface = CommonFuzzer::GetString(data, pos, stringSize, size);
     bool status = CommonFuzzer::GetU32Data(data) % 2;
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
 
     plugin.OnGetPolicy(policyData, requestData, reply, userId);
     plugin.OnSetPolicy(dataMap, currentData, mergeData, userId);
     plugin.IsNetInterfaceExist(netInterface);
     plugin.SetInterfaceDisabled(netInterface, status);
     plugin.OnAdminRemove(adminName, dataMap, mergeData, userId);
+    plugin.OnOtherServiceStart(systemAbilityId);
     return 0;
 }
 } // namespace EDM

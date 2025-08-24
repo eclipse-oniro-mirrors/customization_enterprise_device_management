@@ -94,7 +94,7 @@ bool ManageKeepAliveAppsSerializer::Deserialize(const std::string &policy, std::
     cJSON_ArrayForEach(mapItem, root) {
         cJSON* bundleName = cJSON_GetObjectItem(mapItem, BUNDLE_NAME);
         cJSON* disallowModify = cJSON_GetObjectItem(mapItem, DISALLOW_MODIFY);
-        if (bundleName == nullptr && disallowModify == nullptr) {
+        if (bundleName == nullptr && disallowModify == nullptr && cJSON_IsString(mapItem)) {
             bundleName = mapItem;
         } else if (!cJSON_IsString(bundleName) || !cJSON_IsBool(disallowModify)) {
             EDMLOGI("ManageKeepAliveAppsSerializer::cJSON_GetObjectItem get error type.");

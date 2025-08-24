@@ -108,7 +108,7 @@ ErrCode DisableUsbPlugin::HasConflictPolicy(bool &hasConflict)
 
 ErrCode DisableUsbPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
-    return UsbPolicyUtils::SetUsbDisabled(true);
+    return UsbPolicyUtils::SetUsbDisabled(false);
 }
 
 void DisableUsbPlugin::OnOtherServiceStart(int32_t systemAbilityId)

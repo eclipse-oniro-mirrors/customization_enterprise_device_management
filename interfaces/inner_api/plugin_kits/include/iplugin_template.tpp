@@ -303,7 +303,6 @@ void IPluginTemplate<CT, DT>::SetOnAdminRemoveListener(BiAdminFunction &&listene
     }
     auto adminRemove = [this](const std::string &adminName, const std::string &currentJsonData,
                            const std::string &mergeJsonData, int32_t userId) -> ErrCode {
-        EDMLOGI("currentJsonData = %{public}s, mergeJsonData=%{public}s", currentJsonData.c_str(), mergeJsonData.c_str());
         DT currentData;
         if (!serializer_->Deserialize(currentJsonData, currentData)) {
             return ERR_EDM_OPERATE_JSON;

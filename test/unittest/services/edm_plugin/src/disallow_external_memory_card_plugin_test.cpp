@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "disallow_external_memory_card_plugin.h"
+#include "disallow_external_storage_card_plugin.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -29,20 +29,20 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.memory_disable";
-class DisallowExternalMemoryCardPluginTest : public testing::Test {
+class DisallowExternalStorageCardPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void DisallowExternalMemoryCardPluginTest::SetUpTestSuite(void)
+void DisallowExternalStorageCardPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowExternalMemoryCardPluginTest::TearDownTestSuite(void)
+void DisallowExternalStorageCardPluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -52,11 +52,11 @@ void DisallowExternalMemoryCardPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisallowExternalMemoryCardPluginTestSetTrue
- * @tc.desc: Test DisallowExternalMemoryCardPluginTest::OnSetPolicy function.
+ * @tc.name: TestDisallowExternalStorageCardPluginTestSetTrue
+ * @tc.desc: Test DisallowExternalStorageCardPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowExternalMemoryCardPluginTest, TestDisallowExternalMemoryCardPluginTestSetTrue, TestSize.Level1)
+HWTEST_F(DisallowExternalStorageCardPluginTest, TestDisallowExternalStorageCardPluginTestSetTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -71,11 +71,11 @@ HWTEST_F(DisallowExternalMemoryCardPluginTest, TestDisallowExternalMemoryCardPlu
 }
 
 /**
- * @tc.name: TestDisallowExternalMemoryCardPluginTestSetFalse
- * @tc.desc: Test DisallowExternalMemoryCardPluginTest::OnSetPolicy function.
+ * @tc.name: TestDisallowExternalStorageCardPluginTestSetFalse
+ * @tc.desc: Test DisallowExternalStorageCardPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowExternalMemoryCardPluginTest, TestDisallowExternalMemoryCardPluginTestSetFalse, TestSize.Level1)
+HWTEST_F(DisallowExternalStorageCardPluginTest, TestDisallowExternalStorageCardPluginTestSetFalse, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;

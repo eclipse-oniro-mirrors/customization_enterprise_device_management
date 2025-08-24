@@ -34,6 +34,7 @@
 #include "plugin_manager_test.h"
 #include "utils.h"
 #include "edm_log.h"
+#include "set_browser_policies_plugin.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -226,8 +227,6 @@ void EnterpriseDeviceMgrAbilityTest::DisableSuperAdminSuc(const std::string &bun
 void EnterpriseDeviceMgrAbilityTest::AuthorizeAdminSuc(const AppExecFwk::ElementName &admin,
     const std::string &subSuperAdminBundleName)
 {
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
-        Return(ERR_OK)));
     GetBundleInfoMock(true, EDM_TEST_PERMISSION);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_TRUE(SUCCEEDED(edmMgr_->AuthorizeAdmin(admin, subSuperAdminBundleName)));
@@ -1153,7 +1152,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutSDA, TestSize.
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
 
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
@@ -1179,9 +1177,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminIpcFail, TestSize.Lev
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
         Return(ERR_OK)));
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(1)));
     ErrCode res = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
-    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    EXPECT_TRUE(res == ERR_OK);
 
     DisableSuperAdminSuc(admin.GetBundleName());
     std::shared_ptr<Admin> superAdmin;
@@ -1203,8 +1200,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestAuthorizeAdminWithoutReq, TestSize.
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
-        Return(ERR_OK)));
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
         Return(ERR_OK)));
     GetBundleInfoMock(false, "");
     ErrCode ret = edmMgr_->AuthorizeAdmin(admin, ADMIN_PACKAGENAME_1);
@@ -3271,14 +3266,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyInnerWithoutAdminSuc
 {
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
 
-    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, WITHOUT_ADMIN_SUCCESS_POLICY_CODE);
     MessageParcel data;
     MessageParcel reply;
     data.WriteInt32(1);
-    plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
-        EDM_MANAGE_DATETIME_PERMISSION;
-    PluginManager::GetInstance()->NotifyUnloadAllPlugin();
-    PluginManager::GetInstance()->AddPlugin(plugin_);
+    auto browserPlugin = std::make_shared<SetBrowserPoliciesPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[WITHOUT_ADMIN_SUCCESS_POLICY_CODE] = browserPlugin;
     edmMgr_->GetDevicePolicyInner(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
 }

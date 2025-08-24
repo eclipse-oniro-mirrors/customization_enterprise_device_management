@@ -29,4 +29,3 @@ public:
 } // namespace OHOS
 
 #endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
-  

@@ -57,18 +57,18 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISABLE_CAMERA, EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY,
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, EdmInterfaceCode::SWITCH_BLUETOOTH,
     EdmInterfaceCode::GET_BUNDLE_INFO_LIST, EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
-    EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::DISABLE_REMOTE_DESK,
-    EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
-    EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::ALLOWED_KIOSK_APPS,
-    EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
-    EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
+    EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
     EdmInterfaceCode::DISABLE_MTP_CLIENT, EdmInterfaceCode::DISABLE_MTP_SERVER,
-    EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION, EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY,
-    EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-    EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS, EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
-    EdmInterfaceCode::DISALLOWED_SUDO, EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
-    EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
-    EdmInterfaceCode::DISABLED_PRINT,
+    EdmInterfaceCode::SET_KIOSK_FEATURE, EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
+    EdmInterfaceCode::DISABLE_REMOTE_DESK, EdmInterfaceCode::DISABLE_REMOTE_DIAGNOSIS,
+    EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
+    EdmInterfaceCode::DISABLE_SET_DEVICE_NAME, EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
+    EdmInterfaceCode::ALLOWED_KIOSK_APPS, EdmInterfaceCode::DISALLOWED_SUDO,
+    EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
+    EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED, EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
+    EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY, EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE,
+    EdmInterfaceCode::DISABLED_PRINT, EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
+    EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -84,12 +84,12 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::ALLOWED_WIFI_LIST, EdmInterfaceCode::DISALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_SMS, EdmInterfaceCode::DISALLOWED_MMS,
     EdmInterfaceCode::SWITCH_WIFI, EdmInterfaceCode::DISALLOW_MODIFY_APN,
+    EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
-    EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
-    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
-    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE, EdmInterfaceCode::TELEPHONY_CALL_POLICY,
-    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL, EdmInterfaceCode::DISALLOW_VPN
+    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
+    EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
+    EdmInterfaceCode::DISALLOW_VPN,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -418,7 +418,7 @@ void PluginManager::UnloadPlugin(const std::string &soName)
         RemovePlugin(GetPluginByCode(code));
     }
     if (soLoadStateMap_.find(soName) == soLoadStateMap_.end()) {
-        EDMLOGE("PluginManager::UnloadPlugin this so %{public}s not find", soName.c_str());
+        EDMLOGE("PluginManager::UnloadPlugin this so:%{public}s not find", soName.c_str());
         return;
     }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];

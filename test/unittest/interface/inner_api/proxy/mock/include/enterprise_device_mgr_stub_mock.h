@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace EDM {
 constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
+constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string UPGRADE_VERSION = "version_1.0";
@@ -187,6 +188,9 @@ public:
         code_ = code;
         return ERR_PROXY_SENDREQUEST_FAIL;
     }
+
+    int InvokeSendRequestSizeError(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
     uint32_t code_ = 0;
 };
 } // namespace EDM

@@ -97,7 +97,12 @@ bool NearlinkConfigUtils::AddProtocol(
 
     if (!userItem) {
         // 新增用户条目
-        CJSON_CREATE_ARRAY_AND_CHECK(userItem, false);
+        userItem = cJSON_CreateArray();
+        if (userItem == nullptr) {
+            EDMLOGE("cJSON_CreateArray Error");
+            cJSON_Delete(protocols);
+            return false;
+        }
         CJSON_ADD_ITEM_TO_ARRAY_AND_CHECK_AND_CLEAR(protocols, userItem, false);
         if (!cJSON_AddItemToObject(denyList, userId.c_str(), userItem)) {
             EDMLOGE("cJSON_AddItemToObject Error");
@@ -223,7 +228,7 @@ bool NearlinkConfigUtils::LoadConfig()
     if (inFile.good()) {
         EDMLOGI("NearlinkConfigUtils::LoadConfig inFile.good");
         inFile.seekg(0, std::ios::end);
-        size_t size = inFile.tellg();
+        size_t size = static_cast<size_t>(inFile.tellg());
         if (size == 0) {
             inFile.close();
             CJSON_CREATE_OBJECT_AND_CHECK(root_, false);

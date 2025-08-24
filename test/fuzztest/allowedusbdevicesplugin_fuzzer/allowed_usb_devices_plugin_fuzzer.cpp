@@ -17,6 +17,8 @@
 
 #include <system_ability_definition.h>
 
+#include "allowed_usb_devices_plugin.h"
+#include "array_usb_device_id_serializer.h"
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code.h"
@@ -32,6 +34,22 @@ namespace EDM {
 constexpr size_t MIN_SIZE = 20;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t USB_DEVICE_ID_SIZE = 1;
+
+void DoSomethingInterestingWithAPI(const uint8_t* data, size_t size, int32_t pos, int32_t stringSize)
+{
+    AllowUsbDevicesPlugin plugin;
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::vector<UsbDeviceId> emptyData;
+    std::vector<UsbDeviceId> policyData = { GetData<UsbDeviceId>() };
+    std::vector<UsbDeviceId> mergeData = { GetData<UsbDeviceId>() };
+    int32_t userId = CommonFuzzer::GetU32Data(data);
+    plugin.OnAdminRemove(adminName, emptyData, mergeData, userId);
+    plugin.OnAdminRemove(adminName, policyData, emptyData, userId);
+    plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
+
+    int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
+    plugin.OnOtherServiceStart(systemAbilityId);
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -70,12 +88,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         CommonFuzzer::OnRemoteRequestFuzzerTest(code, data, size, parcel);
     }
 
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName("allowed_usb_devices");
-    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string policyData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string mergeData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    int32_t userId = CommonFuzzer::GetU32Data(data);
-    plugin->OnAdminRemove(adminName, policyData, mergeData, userId);
+    DoSomethingInterestingWithAPI(data, size, pos, stringSize);
     return 0;
 }
 } // namespace EDM

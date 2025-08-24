@@ -65,9 +65,11 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
     EdmInterfaceCode::IS_APP_KIOSK_ALLOWED,
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
-    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
-    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
     EdmInterfaceCode::DISALLOWED_SUDO,
+    EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP,
+    EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
+    EdmInterfaceCode::DISALLOW_VPN,
+    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
@@ -75,12 +77,10 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_NEAR_LINK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY,
-    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_NFC,
-    EdmInterfaceCode::DISALLOW_VPN,
     EdmInterfaceCode::DISALLOWED_NOTIFICATION,
-    EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::DISABLED_PRINT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_NFC,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DESK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DIAGNOSIS,
 };
@@ -154,6 +154,23 @@ ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, c
     }
     if (!isNeedSuperAdmin && admin->GetAdminType() == AdminType::BYOD) {
         EDMLOGE("CheckCallerPermission byod admin does not have permission to handle.");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    return ERR_OK;
+}
+
+ErrCode PermissionChecker::CheckAuthorizeAdminPermission(std::shared_ptr<Admin> admin, const std::string &permission)
+{
+    if (admin == nullptr) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetExternalManagerFactory()->CreateAccessTokenManager()->VerifyCallingPermission(tokenId, permission)) {
+        EDMLOGE("CheckAuthorizeAdminPermission verify calling permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (admin->GetAdminType() != AdminType::ENT) {
+        EDMLOGE("CheckAuthorizeAdminPermission caller not a super admin.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     return ERR_OK;

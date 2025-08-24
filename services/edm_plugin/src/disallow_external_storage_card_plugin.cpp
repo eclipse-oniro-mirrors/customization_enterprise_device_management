@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "disallow_external_memory_card_plugin.h"
+#include "disallow_external_storage_card_plugin.h"
 
 #include "bool_serializer.h"
 #include "edm_constants.h"

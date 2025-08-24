@@ -270,7 +270,10 @@ void TelephonyCallPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
         policyData, EdmConstants::DEFAULT_USER_ID);
     auto serializer_ = TelephonyCallPolicySerializer::GetInstance();
     std::map<std::string, TelephonyCallPolicyType> policies;
-    serializer_->Deserialize(policyData, policies);
+    if (!serializer_->Deserialize(policyData, policies)) {
+        EDMLOGE("TelephonyCallPolicyPlugin::OnOtherServiceStart Deserialize failed");
+        return;
+    }
     if (policies.size() > 0) {
         DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->Init(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
         DelayedSingleton<Telephony::CallManagerClient>::GetInstance()->SetCallPolicyInfo(

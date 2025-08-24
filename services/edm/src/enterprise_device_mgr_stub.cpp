@@ -80,7 +80,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
     if (POLICY_FLAG(code)) {
         EDMLOGD("POLICY_FLAG(code:%{public}x)\n", code);
-        int32_t hasUserId;
+        int32_t hasUserId = 0;
         int32_t userId = EdmConstants::DEFAULT_USER_ID;
         data.ReadInt32(hasUserId);
         if (hasUserId == 1) {
@@ -91,7 +91,7 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         }
         if (FUNC_TO_OPERATE(code) == static_cast<int>(FuncOperateType::GET)) {
             EDMLOGD("GetDevicePolicyInner");
-            return GetDevicePolicyInner(code, data, reply, userId);
+            return GetDevicePolicyInner(code, data, reply, userId, hasUserId);
         } else {
             EDMLOGD("HandleDevicePolicyInner");
             return HandleDevicePolicyInner(code, data, reply, userId);
@@ -128,9 +128,9 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
 }
 
 ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+    int32_t userId, int32_t hasUserId)
 {
-    ErrCode errCode = GetDevicePolicy(code, data, reply, userId);
+    ErrCode errCode = GetDevicePolicy(code, data, reply, userId, hasUserId);
     reply.WriteInt32(errCode);
     return ERR_OK;
 }

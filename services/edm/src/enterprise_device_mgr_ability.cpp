@@ -169,9 +169,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
             want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate CreateUpdateConnection failed.");
+            }
         }
     }
 }
@@ -456,9 +457,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
         AAFwk::Want connectWant;
         connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        sptr<IEnterpriseConnection> connection = manager->CreateKioskConnection(
-            connectWant, code, currentUserId, bundleName, paramUserId);
-        manager->ConnectAbility(connection);
+        bool ret = manager->CreateKioskConnection(connectWant, code, currentUserId, bundleName, paramUserId);
+        if (!ret) {
+            EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode CreateKioskConnection failed.");
+        }
     }
 }
 
@@ -468,8 +470,7 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, c
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection = manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
-    return manager->ConnectAbility(connection);
+    return manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
@@ -493,9 +494,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
                 userId = currentUserId;
             }
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility CreateAccountConnection failed.");
+            }
         }
     }
 }
@@ -505,9 +507,10 @@ void EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::sh
     AAFwk::Want want;
     want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    sptr<IEnterpriseConnection> connection =
-        manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
-    manager->ConnectAbility(connection);
+    bool ret = manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
+    if (!ret) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbility CreateAdminConnection failed.");
+    }
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
@@ -529,9 +532,11 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER && tmpUserId >= 0) {
                 currentUserId = tmpUserId;
             }
-            sptr<IEnterpriseConnection> connection =
-                manager->CreateBundleConnection(want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
-            manager->ConnectAbility(connection);
+            bool ret = manager->CreateBundleConnection(
+                want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
+            if (!ret) {
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent CreateBundleConnection failed.");
+            }
         }
     }
 }
@@ -943,13 +948,13 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(const AppExecFwk::Element
     AAFwk::Want want;
     want.SetElement(newAdmin);
     if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
-        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, DEFAULT_USER_ID, abilityInfo) ||
-        abilityInfo.empty()) {
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, EdmConstants::DEFAULT_USER_ID,
+        abilityInfo) || abilityInfo.empty()) {
         EDMLOGW("ReplaceSuperAdmin: QueryExtensionAbilityInfos_newAdmin failed");
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
 
-    if (FAILED(VerifyEnableAdminCondition(newAdmin, AdminType::ENT, DEFAULT_USER_ID, false))) {
+    if (FAILED(VerifyEnableAdminCondition(newAdmin, AdminType::ENT, EdmConstants::DEFAULT_USER_ID, false))) {
         EDMLOGW("ReplaceSuperAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
@@ -1001,7 +1006,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
     std::string combinedPolicyValue;
     policyMgr_->GetPolicy("", PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, combinedPolicyValue);
 
-    if (FAILED(policyMgr_->ReplaceAllPolicy(DEFAULT_USER_ID, adminName, newAdminName))) {
+    if (FAILED(policyMgr_->ReplaceAllPolicy(EdmConstants::DEFAULT_USER_ID, adminName, newAdminName))) {
         EDMLOGE("ReplaceSuperAdmin update device Policies Failed");
         AdminManager::GetInstance()->ReplaceSuperAdminByPackageName(newAdminName, *adminPtr);
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
@@ -1068,8 +1073,8 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
         if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
-            EDMLOGE("EnableAdmin: SetAdminValue failed.");
-            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+            EDMLOGE("ReplaceSuperAdmin: SetAdminValue failed.");
+            return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
@@ -1078,7 +1083,6 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
         DEFAULT_USER_ID, true);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
 
-    EDMLOGD("ReportEdmEventManagerAdmin ReplaceSuperAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdmin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::REPLACE),
         static_cast<int32_t>(AdminType::ENT), oldAdmin.GetBundleName().c_str());
@@ -1301,7 +1305,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
+    return DoDisableAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
 }
 
 bool EnterpriseDeviceMgrAbility::CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug)
@@ -1498,21 +1502,32 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         }
     }
 #endif
+    ReportFuncEvent(code);
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+void EnterpriseDeviceMgrAbility::ReportFuncEvent(uint32_t code)
 {
-    bool isUserExist = false;
-    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
-    if (!isUserExist) {
-        EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
-        return EdmReturnErrCode::PARAM_ERROR;
+    std::uint32_t ipcCode = FuncCodeUtils::GetPolicyCode(code);
+    std::string apiNameParam = std::to_string(ipcCode);
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, apiNameParam);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId, int32_t hasUserId)
+{
+    if (hasUserId != 0) {
+        bool isUserExist = false;
+        GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+        if (!isUserExist) {
+            EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
     }
+
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
@@ -1830,8 +1845,8 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
-    ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
-        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, true);
+    ErrCode ret = GetPermissionChecker()->CheckAuthorizeAdminPermission(adminItem,
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN);
     if (FAILED(ret)) {
         return ret;
     }
@@ -1935,9 +1950,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY, true);
-    if (FAILED(ret)) {
-        return ret;
-    }
+    if (FAILED(ret)) return ret;
     if (parentAdminName == bundleName) {
         EDMLOGE("SetDelegatedPolicies does not delegated policies to self.");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -1952,9 +1965,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
         return ret;
     }
     ret = CheckDelegatedPolicies(adminItem, policies);
-    if (FAILED(ret)) {
-        return ret;
-    }
+    if (FAILED(ret)) return ret;
     if (!GetBundleMgr()->IsBundleInstalled(bundleName, GetCurrentUserId())) {
         EDMLOGE("SetDelegatedPolicies the delegated application does not installed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;

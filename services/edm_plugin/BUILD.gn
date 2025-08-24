@@ -80,10 +80,10 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
+      "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_distributed_transmission_plugin.cpp",
-      "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
       "./src/disallow_external_storage_card_plugin.cpp",
@@ -94,12 +94,12 @@ ohos_shared_library("device_core_plugin") {
       "./src/ntp_server_plugin.cpp",
       "./src/power_policy_plugin.cpp",
       "./src/screen_off_time_plugin.cpp",
-      "./src/set_allowed_kiosk_apps_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
+      "./src/set_allowed_kiosk_apps_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -132,23 +132,22 @@ ohos_shared_library("device_core_plugin") {
     if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       external_deps += [ "os_account:domain_account_innerkits" ]
       sources += [
-        "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/set_domain_account_policy_plugin.cpp",
         "./src/disable_print_plugin.cpp",
         "./src/disable_sudo_plugin.cpp",
+        "./src/disallowed_usb_storage_device_write_plugin.cpp",
+        "./src/utils/array_usb_device_type_serializer.cpp",
       ]
       defines += [
-        "FEATURE_PC_ONLY",
-        "SUDO_EDM_ENABLE"
+        "SUDO_EDM_ENABLE",
+        "FEATURE_PC_ONLY"
       ]
-    }
-    
-    if (enterprise_device_management_feature_pc_only) {
-       sources += [ "./src/set_auto_unlock_after_reboot_plugin.cpp" ]
+      external_deps += [ "usb_manager:usbsrv_client" ]
     }
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
+        "./src/set_auto_unlock_after_reboot_plugin.cpp",
         "./src/install_local_enterprise_app_enabled_plugin.cpp",
       ]
     }
@@ -184,11 +183,6 @@ ohos_shared_library("device_core_plugin") {
       ]
     }
 
-    if (power_manager_edm_enable &&
-        !enterprise_device_management_feature_pc_only) {
-      sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
-    }
-
     if (screenlock_mgr_edm_enable) {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
       sources += [ "./src/lock_screen_plugin.cpp" ]
@@ -203,6 +197,10 @@ ohos_shared_library("device_core_plugin") {
 
     if (enterprise_device_management_feature_charging_type_setting) {
       defines += [ "FEATURE_CHARGING_TYPE_SETTING" ]
+    }
+
+    if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
+      sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
     }
   }
 
@@ -300,7 +298,19 @@ ohos_shared_library("communication_plugin") {
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
       ]
-      defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
+      defines += [
+        "CELLULAR_DATA_EDM_ENABLE",
+        "TELEPHONY_EDM_ENABLE",
+      ]
+    }
+
+    if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/disable_samba_client_plugin.cpp",
+        "./src/disable_samba_server_plugin.cpp",
+        "./src/disallow_modify_ethernet_ip_plugin.cpp",
+      ]
+      defines += [ "FEATURE_PC_ONLY" ]
     }
 
     if (netmanager_base_edm_enable) {
@@ -357,6 +367,14 @@ ohos_shared_library("communication_plugin") {
       ]
     }
 
+    if (os_account_edm_enable) {
+      external_deps += [
+        "os_account:domain_account_innerkits",
+        "os_account:os_account_innerkits",
+      ]
+      defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+    }
+
     if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
         usb_manager_edm_enable) {
       external_deps += [ "storage_service:storage_manager_sa_proxy" ]
@@ -372,14 +390,6 @@ ohos_shared_library("communication_plugin") {
         "./src/utils/managed_browser_policy_serializer.cpp",
       ]
       defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-    }
-
-    if (enterprise_device_management_feature_pc_only) {
-      sources += [
-        "./src/disable_samba_client_plugin.cpp",
-        "./src/disable_samba_server_plugin.cpp",
-        "./src/disallow_modify_ethernet_ip_plugin.cpp",
-      ]
     }
 
     if (!enterprise_device_management_feature_pc_only) {

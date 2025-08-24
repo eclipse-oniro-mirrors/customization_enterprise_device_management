@@ -31,6 +31,7 @@ struct AsyncBrowserCallbackInfo : AsyncCallbackInfo {
     std::string policies;
     napi_value value;
 };
+constexpr int32_t MAX_POLICY_FILE_SIZE = 134217728; // 128*1024*1024
 
 class BrowserAddon {
 public:

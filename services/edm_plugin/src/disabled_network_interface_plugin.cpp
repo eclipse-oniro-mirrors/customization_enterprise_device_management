@@ -167,7 +167,10 @@ void DisabledNetworkInterfacePlugin::OnOtherServiceStart(int32_t systemAbilityId
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLED_NETWORK_INTERFACE,
         policyData, EdmConstants::DEFAULT_USER_ID);
     std::map<std::string, std::string> policyMap;
-    MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap);
+    if (!MapStringSerializer::GetInstance()->Deserialize(policyData, policyMap)) {
+        EDMLOGE("DisabledNetworkInterfacePlugin Deserialize failed.");
+        return;
+    }
     std::vector<std::string> netList;
     for (const auto& iter : policyMap) {
         netList.emplace_back(iter.first);

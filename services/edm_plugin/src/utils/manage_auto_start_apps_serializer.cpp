@@ -97,7 +97,7 @@ bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::
         cJSON* abilityName = cJSON_GetObjectItem(mapItem, ABILITY_NAME);
         cJSON* disallowModify = cJSON_GetObjectItem(mapItem, DISALLOW_MODIFY);
         ManageAutoStartAppInfo appInfo;
-        if (bundleName == nullptr && disallowModify == nullptr && abilityName == nullptr) {
+        if (bundleName == nullptr && disallowModify == nullptr && abilityName == nullptr && cJSON_IsString(mapItem)) {
             std::string autoStartString = cJSON_GetStringValue(mapItem);
             size_t index = autoStartString.find("/");
             if (index != autoStartString.npos) {

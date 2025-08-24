@@ -33,16 +33,17 @@ namespace OHOS {
 namespace EDM {
 class EnterpriseConnManager : public DelayedSingleton<EnterpriseConnManager> {
 public:
-    sptr<IEnterpriseConnection> CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    bool CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         bool isOnAdminEnabled = true);
-    sptr<IEnterpriseConnection> CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    bool CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName, int32_t accountId);
-    sptr<IEnterpriseConnection> CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
+    bool CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
         const UpdateInfo &updateInfo);
-    sptr<IEnterpriseConnection> CreateAccountConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    bool CreateAccountConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const int32_t accountId);
-    sptr<IEnterpriseConnection> CreateKioskConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    bool CreateKioskConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName, int32_t accountId);
+private:
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };
 } // namespace EDM

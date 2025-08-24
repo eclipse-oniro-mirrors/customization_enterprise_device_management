@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
-#define COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
+#ifndef EDM_UNIT_TEST_UTILS_PERMISSION_MANAGED_STATE_SERIALIZER_TEST_H
+#define EDM_UNIT_TEST_UTILS_PERMISSION_MANAGED_STATE_SERIALIZER_TEST_H
 
-#include <string>
+#include <gtest/gtest.h>
+#include "permission_managed_state_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-enum class ReportType {
-    EDM_FUNC_FAILED = 0,
-    EDM_FUNC_EVENT,
+namespace TEST {
+class PermissionManagedStateSerializerTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
-class HiSysEventAdapter {
-public:
-    static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
-    static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
-        const int32_t &adminType, const std::string &extraInfo = "");
-};
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // COMMON_NATIVE_INCLUDE_HISYSEVENT_ADAPTER_H
+#endif // EDM_UNIT_TEST_UTILS_PERMISSION_MANAGED_STATE_SERIALIZER_TEST_H

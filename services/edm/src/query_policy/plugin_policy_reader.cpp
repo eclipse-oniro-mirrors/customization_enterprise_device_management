@@ -82,16 +82,16 @@
 #include "disallowed_sms_query.h"
 #endif
 
+#ifdef APN_EDM_ENABLE
+#include "disallow_modify_apn_query.h"
+#endif
+
 #ifdef MMS_EDM_ENABLE
 #include "disallowed_mms_query.h"
 #endif
 
 #ifdef BACKUP_AND_RESTORE_EDM_ENABLE
 #include "disable_backup_and_restore_query.h"
-#endif
-
-#ifdef APN_EDM_ENABLE
-#include "disallow_modify_apn_query.h"
 #endif
 
 #ifdef MOBILE_DATA_ENABLE
@@ -116,29 +116,29 @@
 #include "disallowed_airplane_mode_query.h"
 #endif
 
-#ifdef PRIVATE_SPACE_EDM_ENABLE
-#include "disable_private_space_query.h"
-#endif
-
 #ifdef NOTIFICATION_EDM_ENABLE
 #include "disallowed_notification_query.h"
 #endif
 
 #ifdef FEATURE_PC_ONLY
-#include "disallow_modify_ethernet_ip_query.h"
 #include "disallow_export_recovery_key_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
+#include "disallow_modify_ethernet_ip_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
 #include "disable_print_query.h"
+#endif
+
+#ifdef NETMANAGER_EXT_EDM_ENABLE
+#include "disallow_vpn_query.h"
 #endif
 
 #ifdef SUDO_EDM_ENABLE
 #include "disable_sudo_query.h"
 #endif
 
-#ifdef NETMANAGER_EXT_EDM_ENABLE
-#include "disallow_vpn_query.h"
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+#include "disable_private_space_query.h"
 #endif
 
 #include "allowed_app_distribution_types_query.h"
@@ -146,9 +146,9 @@
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
+#include "disable_user_mtp_client_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
-#include "disable_user_mtp_client_query.h"
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallowed_install_bundles_query.h"
@@ -246,13 +246,6 @@ ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, u
         case EdmInterfaceCode::DISABLE_CAMERA:
 #ifdef CAMERA_FRAMEWORK_EDM_ENABLE
             obj = std::make_shared<DisableCameraQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE:
-#ifdef BACKUP_AND_RESTORE_EDM_ENABLE
-            obj = std::make_shared<DisableBackupAndRestoreQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -417,23 +410,53 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISABLE_SAMBA_CLIENT:
+#ifdef SAMBA_EDM_ENABLE
+            obj = std::make_shared<DisableSambaClientQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowExportRecoveryKeyQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLE_SAMBA_SERVER:
+#ifdef SAMBA_EDM_ENABLE
+            obj = std::make_shared<DisableSambaServerQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::IS_APP_KIOSK_ALLOWED:
             obj = std::make_shared<IsAppKioskAllowedQuery>();
             return ERR_OK;
-        case EdmInterfaceCode::DISALLOWED_SMS:
-#ifdef SMS_EDM_ENABLE
-            obj = std::make_shared<DisallowedSMSQuery>();
+        case EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS:
+#ifdef POWER_MANAGER_EDM_ENABLE
+            obj = std::make_shared<DisallowPowerLongPressQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOWED_MMS:
-#ifdef MMS_EDM_ENABLE
-            obj = std::make_shared<DisallowedMMSQuery>();
+        case EdmInterfaceCode::DISABLE_PRIVATE_SPACE:
+#ifdef PRIVATE_SPACE_EDM_ENABLE
+            obj = std::make_shared<DisablePrivateSpaceQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        default:
+            break;
+    }
+    return GetPolicyQueryFifthPartOne(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryFifthPartOne(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
         case EdmInterfaceCode::GET_BUNDLE_INFO_LIST:
             obj = std::make_shared<InstalledBundleInfoListQuery>();
             return ERR_OK;
@@ -461,49 +484,30 @@ ErrCode PluginPolicyReader::GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &
         default:
             break;
     }
-    return GetPolicyQueryFifth(obj, code);
+    return GetPolicyQueryFifthPartTwo(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+
+ErrCode PluginPolicyReader::GetPolicyQueryFifthPartTwo(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
-        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
-#ifdef MOBILE_DATA_ENABLE
-            obj = std::make_shared<DisallowedMobileDataQuery>();
+        case EdmInterfaceCode::DISALLOWED_SMS:
+#ifdef SMS_EDM_ENABLE
+            obj = std::make_shared<DisallowedSMSQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
-#ifdef NET_MANAGER_BASE_EDM_ENABLE
-            obj = std::make_shared<DisallowedAirplaneModeQuery>();
+        case EdmInterfaceCode::DISALLOWED_MMS:
+#ifdef MMS_EDM_ENABLE
+            obj = std::make_shared<DisallowedMMSQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK:
-            obj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISABLE_SET_DEVICE_NAME:
-            obj = std::make_shared<DisableSetDeviceNameQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
-#ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
-#ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
-#ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
+        case EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE:
+#ifdef BACKUP_AND_RESTORE_EDM_ENABLE
+            obj = std::make_shared<DisableBackupAndRestoreQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -517,9 +521,12 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
-        case EdmInterfaceCode::DISALLOWED_SUDO:
-#ifdef SUDO_EDM_ENABLE
-            obj = std::make_shared<DisableSudoQuery>();
+        case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
+            obj = std::make_shared<DisallowDistributedTransmissionQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
+#ifdef NOTIFICATION_EDM_ENABLE
+            obj = std::make_shared<DisallowedNotificationQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -538,16 +545,28 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISABLE_PRIVATE_SPACE:
-#ifdef PRIVATE_SPACE_EDM_ENABLE
-            obj = std::make_shared<DisablePrivateSpaceQuery>();
+        case EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableUsbStorageDeviceWriteQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOWED_NOTIFICATION:
-#ifdef NOTIFICATION_EDM_ENABLE
-            obj = std::make_shared<DisallowedNotificationQuery>();
+        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
+            obj = std::make_shared<PermissionManagedStateQuery>();
+            return ERR_OK;
+        default:
+            break;
+    }
+    return GetPolicyQuerySeventh(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISABLED_PRINT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisablePrintQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -559,45 +578,27 @@ ErrCode PluginPolicyReader::GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        default:
-            break;
-    }
-    return GetPolicyQuerySeventh(obj, code);
-}
-
-ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
-{
-    switch (code) {
-        case EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION:
-            obj = std::make_shared<DisallowDistributedTransmissionQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
-            obj = std::make_shared<DisableExternalStorageCardQuery>();
-            return ERR_OK;
-        case EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY:
-#ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<DisallowExportRecoveryKeyQuery>();
+        case EdmInterfaceCode::DISALLOWED_MOBILE_DATA:
+#ifdef MOBILE_DATA_ENABLE
+            obj = std::make_shared<DisallowedMobileDataQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISABLED_PRINT:
-#ifdef FEATURE_PC_ONLY
-            obj = std::make_shared<DisablePrintQuery>();
+        case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
+#ifdef NET_MANAGER_BASE_EDM_ENABLE
+            obj = std::make_shared<DisallowedAirplaneModeQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::PERMISSION_MANAGED_STATE:
-            obj = std::make_shared<PermissionManagedStateQuery>();
-            return ERR_OK;
         default:
             break;
     }
-    return GetPolicyQueryEnd(obj, code);
+    return GetPolicyQueryEighth(obj, code);
 }
 
-ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOW_MODIFY_APN:
@@ -606,31 +607,26 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS:
-#ifdef POWER_MANAGER_EDM_ENABLE
-            obj = std::make_shared<DisallowPowerLongPressQuery>();
+#endif  
+        case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
+            obj = std::make_shared<DisableExternalStorageCardQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK:
+            obj = std::make_shared<DisableSetBiometricsAndScreenLockQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE:
             obj = std::make_shared<AllowedAppDistributionTypesQuery>();
             return ERR_OK;
-        case EdmInterfaceCode::DISABLE_SAMBA_CLIENT:
-#ifdef SAMBA_EDM_ENABLE
-            obj = std::make_shared<DisableSambaClientQuery>();
+        case EdmInterfaceCode::DISABLE_SET_DEVICE_NAME:
+            obj = std::make_shared<DisableSetDeviceNameQuery>();
             return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
-        case EdmInterfaceCode::DISABLE_SAMBA_SERVER:
-#ifdef SAMBA_EDM_ENABLE
-            obj = std::make_shared<DisableSambaServerQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
         case EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowModifyEthernetIpQuery>();
@@ -638,8 +634,34 @@ ErrCode PluginPolicyReader::GetPolicyQueryEnd(std::shared_ptr<IPolicyQuery> &obj
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        default:
+            break;
+    }
+    return GetPolicyQueryNinth(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOWED_SUDO:
+#ifdef SUDO_EDM_ENABLE
+            obj = std::make_shared<DisableSudoQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
     }
     return ERR_CANNOT_FIND_QUERY_FAILED;
 }
+
 } // namespace EDM
 } // namespace OHOS

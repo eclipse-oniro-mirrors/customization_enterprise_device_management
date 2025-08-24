@@ -37,10 +37,10 @@ public:
     bool UpdateEntInfo(int32_t userId, const std::string &packageName, const EntInfo &entInfo);
     bool UpdateManagedEvents(int32_t userId, const std::string &packageName,
         const std::vector<ManagedEvent> &managedEvents);
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> QueryAllAdmin();
     bool ReplaceAdmin(const std::string packageName, int32_t userId, const Admin &newAdmin);
     bool UpdateParentName(const std::string packageName, const std::string currentParentName,
         const std::string targetParentName);
+    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> QueryAllAdmin();
 
 private:
     NativeRdb::ValuesBucket CreateInsertValuesBucket(int32_t userId, const Admin &admin);

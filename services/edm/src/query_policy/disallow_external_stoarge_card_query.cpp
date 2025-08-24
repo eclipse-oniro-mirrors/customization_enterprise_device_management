@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "disallow_external_memory_card_query.h"
+#include "disallow_external_storage_card_query.h"
 
 #include "bool_serializer.h"
 #include "edm_constants.h"
