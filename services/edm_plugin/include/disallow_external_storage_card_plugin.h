@@ -29,6 +29,7 @@ public:
     ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
 
 private:
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
     OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
     ErrCode UnmountStorageDevice();
 };

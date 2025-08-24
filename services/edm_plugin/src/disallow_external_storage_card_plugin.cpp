@@ -44,22 +44,33 @@ void DisallowExternalStorageCardPlugin::InitPlugin(
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowExternalStorageCardPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowExternalStorageCardPlugin::OnAdminRemove);
-    persistParam_ = "persist.edm.memory_disable";
+    persistParam_ = "persist.edm.external_storage_card_disable";
 }
 
-ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
-    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
-        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
+    EDMLOGI("DisallowExternalStorageCardPlugin SetOtherModulePolicy");
     if (data == true) {
         ErrCode Ret = UnmountStorageDevice();
         if (Ret != ERR_OK) {
             EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy: unmount storage device failed ret: %{public}d", Ret);
             return Ret;
         }
+    }
+    return ERR_OK;
+}
+
+ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+{
+    EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
+
+    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
+        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (data == true) {
+        ErrCode Ret = SetOtherModulePolicy(data, userId);
+        return Ret
     }
     return ERR_OK;
 }

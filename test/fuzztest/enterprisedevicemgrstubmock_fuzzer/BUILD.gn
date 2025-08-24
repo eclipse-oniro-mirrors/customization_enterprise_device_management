@@ -69,7 +69,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
-    "../../../services/edm/src/query_policy/disallow_external_storage_card_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
@@ -340,6 +339,14 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [
         "../../../services/edm/src/query_policy/usb_read_only_query.cpp",
         "../../../services/edm_plugin/src/usb_read_only_plugin.cpp",
+      ]
+    }
+    
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [
+        "../../../services/edm/src/query_policy/disallow_external_storage_card_query.cpp",
+        "../../../services/edm_plugin/src/disallow_external_storage_card_plugin.cpp"
       ]
     }
 
