@@ -163,6 +163,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
+        const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -370,6 +371,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SECURITY_PATCH_TAG = "get_security_patch_tag";
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
+    const char* const POLICY_DISALLOWED_RANDOM_MAC_ADDRESS = "DISALLOWED_RANDOM_MAC_ADDRESS";
     const char* const POLICY_ALLOW_ALL = "allow_all";
     const char* const POLICY_DISABLED_PRINT = "disabled_print";
 } // namespace PolicyName

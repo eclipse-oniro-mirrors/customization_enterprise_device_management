@@ -166,6 +166,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_random_mac_address_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -606,7 +607,10 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
+#endif  
+        case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
+            obj = std::make_shared<DisableRandomMacAddressQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
