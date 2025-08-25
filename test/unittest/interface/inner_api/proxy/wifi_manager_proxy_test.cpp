@@ -254,7 +254,7 @@ HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListSuc, TestSize.Level1)
  * @tc.desc: Test AddAllowedWifiList success func without Bssid.
  * @tc.type: FUNC
  */
-HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListSuc, TestSize.Level1)
+HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListWithoutBssidSuc, TestSize.Level1)
 {
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
@@ -326,7 +326,7 @@ HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListSuc, TestSize.Level1)
  * @tc.desc: Test RemoveAllowedWifiList success without Bssid func.
  * @tc.type: FUNC
  */
-HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListSuc, TestSize.Level1)
+HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListWithoutBssidSuc, TestSize.Level1)
 {
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
