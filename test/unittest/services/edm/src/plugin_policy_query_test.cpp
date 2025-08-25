@@ -40,6 +40,7 @@
 #include "disable_backup_and_restore_query.h"
 #include "disable_bluetooth_query.h"
 #include "disable_camera_query.h"
+#include "disallow_random_mac_address_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
 #include "disable_printer_query.h"
