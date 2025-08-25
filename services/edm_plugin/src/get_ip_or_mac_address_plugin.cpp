@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "get_ip_address_plugin.h"
+#include "get_ip_or_mac_address_plugin.h"
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
@@ -21,14 +21,15 @@
 #include "interface_type.h"
 #include "string_serializer.h"
 #include "iplugin_manager.h"
+#include "network_address.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetIpOrMacAddressPlugin::GetPlugin());
 
-void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddressPlugin, std::string>> ptr)
+void GetIpOrMacAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpOrMacAddressPlugin, std::string>> ptr)
 {
-    EDMLOGI("GetIpAddressPlugin InitPlugin...");
+    EDMLOGI("GetIpOrMacAddressPlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
@@ -40,20 +41,25 @@ void GetIpAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpAddress
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
 
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, PolicyName::POLICY_GET_IP_ADDRESS, config, false);
+    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, PolicyName::POLICY_GET_IP_OR_MAC_ADDRESS, config, false);
     ptr->SetSerializer(StringSerializer::GetInstance());
 }
 
-ErrCode GetIpAddressPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+ErrCode GetIpOrMacAddressPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("GetIpAddressPlugin OnGetPolicy.");
+    EDMLOGI("GetIpOrMacAddressPlugin OnGetPolicy.");
     nmd::InterfaceConfigurationParcel config;
     std::string networkInterface;
     data.ReadString(networkInterface);
     DelayedSingleton<NetManagerStandard::EthernetClient>::GetInstance()->GetInterfaceConfig(networkInterface, config);
     reply.WriteInt32(ERR_OK);
-    reply.WriteString(config.ipv4Addr);
+    int32_t networkAddress = data.ReadInt32();
+    if (networkAddress == NetworkAddress::IPADDRESS) {
+        reply.WriteString(config.ipv4Addr);
+    } else if (networkAddress == NetworkAddress::MAC) {
+        reply.WriteString(config.hwAddr);
+    }
     return ERR_OK;
 }
 } // namespace EDM
