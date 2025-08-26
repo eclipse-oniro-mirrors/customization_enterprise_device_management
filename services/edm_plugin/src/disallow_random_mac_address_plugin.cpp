@@ -22,8 +22,6 @@
 #include "edm_log.h"
 #include "iplugin_manager.h"
 
-
-
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(

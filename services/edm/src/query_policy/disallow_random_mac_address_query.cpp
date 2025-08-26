@@ -19,7 +19,6 @@
 #include "edm_constants.h"
 #include "parameters.h"
 
-
 namespace OHOS {
 namespace EDM {
 std::string DisableRandomMacAddressQuery::GetPolicyName()
