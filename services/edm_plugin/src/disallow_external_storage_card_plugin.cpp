@@ -54,7 +54,8 @@ ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32
     if (data == true) {
         ErrCode Ret = UnmountStorageDevice();
         if (Ret != ERR_OK) {
-            EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy: unmount storage device failed ret: %{public}d", Ret);
+            EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy: unmount storage device failed.
+                ret: %{public}d", Ret);
             return Ret;
         }
     }
@@ -85,7 +86,8 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
     std::vector<StorageManager::VolumeExternal> volList;
     int32_t storageRet = storageMgrProxy->GetAllVolumes(volList);
     if (storageRet != ERR_OK) {
-        EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy GetAllVolumes failed! ret:%{public}d", storageRet);
+        EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy GetAllVolumes failed!
+            ret:%{public}d", storageRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (volList.empty()) {
