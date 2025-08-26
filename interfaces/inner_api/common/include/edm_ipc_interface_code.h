@@ -158,6 +158,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLED_PRINT = 1113,
     PERMISSION_MANAGED_STATE = 1114,
     SET_WALL_PAPER = 1115,
+    DISABLED_APP_CLONE = 1116,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
