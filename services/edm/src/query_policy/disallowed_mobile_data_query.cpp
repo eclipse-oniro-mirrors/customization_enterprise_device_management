@@ -34,6 +34,8 @@ std::string DisallowedMobileDataQuery::GetPermission(IPlugin::PermissionType per
 ErrCode DisallowedMobileDataQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
+    EDMLOGI("DisallowedMobileDataQuery QueryPolicy policyData : %{public}s", policyData.c_str());
+    policyData = (policyData == "disallow") ? "true" : "false";
     return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
