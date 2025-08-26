@@ -85,7 +85,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/disallow_distributed_transmission_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
-      "./src/disallow_external_storage_card_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/installed_bundle_info_list_plugin.cpp",

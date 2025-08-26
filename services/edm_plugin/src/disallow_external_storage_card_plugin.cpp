@@ -71,7 +71,7 @@ ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &current
     }
     if (data == true) {
         ErrCode Ret = SetOtherModulePolicy(data, userId);
-        return Ret
+        return Ret;
     }
     return ERR_OK;
 }
