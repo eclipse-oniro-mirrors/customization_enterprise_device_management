@@ -119,7 +119,6 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/permission_managed_state_query.cpp",
       "./src/query_policy/plugin_policy_reader.cpp",
       "./src/query_policy/snapshot_skip_query.cpp",
-      "./src/query_policy/disallow_external_storage_card_query.cpp",
       "./src/strategy/enhance_execute_strategy.cpp",
       "./src/strategy/replace_execute_strategy.cpp",
       "./src/strategy/single_execute_strategy.cpp",
@@ -205,6 +204,12 @@ ohos_shared_library("edmservice") {
       usb_manager_edm_enable) {
     sources += [ "./src/query_policy/usb_read_only_query.cpp" ]
     defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
+  }
+
+  if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+      usb_manager_edm_enable) {
+    sources += [ "./src/query_policy/disallow_external_storage_card_query.cpp" ]
+    defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
   }
 
   if (pasteboard_edm_enable) {

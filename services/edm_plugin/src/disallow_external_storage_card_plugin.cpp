@@ -23,6 +23,7 @@
 #include "iplugin_manager.h"
 #include "volume_external.h"
 #include "iservice_registry.h"
+#include "parameters.h"
 
 
 namespace OHOS {
