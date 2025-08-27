@@ -66,8 +66,8 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
             policyData.isChanged = true;
-            policyData.mergePolicyData = "true";
-            policyData.policyData = "true";
+            policyData.mergePolicyData = "disallow";
+            policyData.policyData = "disallow";
             return ERR_OK;
         }
         if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_NONE)) {
@@ -75,12 +75,19 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         policyData.isChanged = true;
-        policyData.mergePolicyData = "false";
-        policyData.policyData = "false";
+        policyData.mergePolicyData = "none";
+        policyData.policyData = "none";
         return ERR_OK;
     }
     if (flag == EdmConstants::MobileData::FORCE_FLAG) {
-        return OnHandleForceOpen(data);
+        int32_t ret = OnHandleForceOpen(data);
+        if (ret != ERR_OK) {
+            return ret;
+        }
+        policyData.isChanged = true;
+        policyData.mergePolicyData = "force_open";
+        policyData.policyData = "force_open";
+        return ERR_OK;
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -113,7 +120,7 @@ ErrCode DisallowMobileDataPlugin::OnHandleForceOpen(MessageParcel &data)
 ErrCode DisallowMobileDataPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
     const std::string &mergeData, int32_t userId)
 {
-    EDMLOGI("TurnOnOffMobileDataPlugin OnAdminRemove adminName : %{public}s, policyData : %{public}s",
+    EDMLOGI("DisallowMobileDataPlugin OnAdminRemove adminName : %{public}s, policyData : %{public}s",
             adminName.c_str(), policyData.c_str());
     if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_NONE)) {
         EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
