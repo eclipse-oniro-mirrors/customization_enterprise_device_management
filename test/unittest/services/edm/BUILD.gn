@@ -63,6 +63,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/policy_manager.cpp",
     "../../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/disable_app_clone_query.cpp",
     "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",

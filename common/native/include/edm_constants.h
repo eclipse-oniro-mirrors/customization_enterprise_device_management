@@ -163,6 +163,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
+        const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -271,6 +272,7 @@ namespace PolicyName {
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
     const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";
+    const char* const POLICY_DISABLED_APP_CLONE = "disabled_app_clone";
     const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";
     const char* const POLICY_DISABLE_CAMERA = "disable_camera";
     const char* const POLICY_DISABLED_HDC = "disabled_hdc";
