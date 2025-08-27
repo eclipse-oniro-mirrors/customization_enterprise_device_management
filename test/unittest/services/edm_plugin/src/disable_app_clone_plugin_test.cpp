@@ -14,59 +14,53 @@
  */
 
 #include <gtest/gtest.h>
-#include "disallow_external_storage_card_plugin.h"
-#include "edm_constants.h"
+
+#include "disable_app_clone_plugin.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
-#include "parameters.h"
-#include "plugin_singleton.h"
 #include "utils.h"
- 
+
 using namespace testing::ext;
 using namespace testing;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.memory_disable";
-class DisallowExternalStorageCardPluginTest : public testing::Test {
+class DisableAppClonePluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void DisallowExternalStorageCardPluginTest::SetUpTestSuite(void)
+void DisableAppClonePluginTest::SetUpTestSuite(void)
 {
-    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void DisallowExternalStorageCardPluginTest::TearDownTestSuite(void)
+void DisableAppClonePluginTest::TearDownTestSuite(void)
 {
-    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
-    OHOS::system::SetParameter(PERSIST_EDM_MAINTENANCE_MODE, "false");
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**
- * @tc.name: TestDisallowExternalStorageCardPluginTestOnSetPolicy
- * @tc.desc: Test DisallowExternalStorageCardPluginTest::OnSetPolicy function.
+ * @tc.name: TestOnSetPolicy
+ * @tc.desc: Test DisableAppClonePluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowExternalStorageCardPluginTest, TestDisallowExternalStorageCardPluginTestOnSetPolicy, TestSize.Level1)
+HWTEST_F(DisableAppClonePluginTest, TestOnSetPolicy, TestSize.Level1)
 {
-    DisallowExternalStorageCardPlugin plugin;
-    bool data = true;
-    bool currentData;
-    bool mergeData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    auto plugin = DisableAppClonePlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISABLED_APP_CLONE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    data = false;
-    ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 } // namespace TEST
 } // namespace EDM
