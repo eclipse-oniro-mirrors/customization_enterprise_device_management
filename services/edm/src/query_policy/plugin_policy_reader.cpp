@@ -609,7 +609,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
         case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
-            obj = std::make_shared<DisableRandomMacAddressQuery>();
+            obj = std::make_shared<DisallowRandomMacAddressQuery>();
             return ERR_OK;
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY

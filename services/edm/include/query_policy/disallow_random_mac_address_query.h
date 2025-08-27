@@ -21,9 +21,9 @@
 namespace OHOS {
 namespace EDM {
 
-class DisableRandomMacAddressQuery : public IPolicyQuery {
+class DisallowRandomMacAddressQuery : public IPolicyQuery {
 public:
-    ~DisableRandomMacAddressQuery() override = default;
+    ~DisallowRandomMacAddressQuery() override = default;
 
     std::string GetPolicyName() override;
 

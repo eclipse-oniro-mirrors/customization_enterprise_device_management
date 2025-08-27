@@ -21,18 +21,18 @@
 
 namespace OHOS {
 namespace EDM {
-std::string DisableRandomMacAddressQuery::GetPolicyName()
+std::string DisallowRandomMacAddressQuery::GetPolicyName()
 {
     return PolicyName::POLICY_DISALLOWED_RANDOM_MAC_ADDRESS;
 }
 
-std::string DisableRandomMacAddressQuery::GetPermission(
+std::string DisallowRandomMacAddressQuery::GetPermission(
     IPlugin::PermissionType, const std::string &permissionTag)
 {
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
-ErrCode DisableRandomMacAddressQuery::QueryPolicy(
+ErrCode DisallowRandomMacAddressQuery::QueryPolicy(
     std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     return GetBoolPolicy(policyData, reply);
