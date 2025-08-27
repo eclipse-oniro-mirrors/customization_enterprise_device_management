@@ -49,8 +49,7 @@
 #include "get_all_network_interfaces_plugin.h"
 #include "get_bluetooth_info_plugin.h"
 #include "get_device_info_plugin.h"
-#include "get_ip_address_plugin.h"
-#include "get_mac_plugin.h"
+#include "get_ip_or_mac_address_plugin.h"
 #include "global_proxy_plugin.h"
 #include "ienterprise_device_mgr.h"
 #ifdef FEATURE_PC_ONLY
@@ -134,14 +133,15 @@ const bool REGISTER_GET_ALL_NETWORK_INTERFACES_PLUGIN =
 const bool REGISTER_GET_BLUETOOTH_INFO_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
 const bool REGISTER_GET_DEVICE_INFO_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
-const bool REGISTER_GET_IP_ADDRESS_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetIpAddressPlugin::GetPlugin());
-const bool REGISTER_GET_MAC_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetMacPlugin::GetPlugin());
+const bool REGISTER_GET_IP_OR_MAC_ADDRESS_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(GetIpOrMacAddressPlugin::GetPlugin());
 const bool REGISTER_GLOBAL_PROXY_PLUGIN = PluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 const bool REGISTER_INSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const bool REGISTER_IPTABLES_RULE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<IptablesRulePlugin>());
 const bool REGISTER_IS_WIFI_ACTIVE_PLUGIN = PluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
-const bool REGISTER_LOCATION_POLICY_PLUGIN = PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
+const bool REGISTER_LOCATION_POLICY_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
 const bool REGISTER_LOCK_SCREEN_PLUGIN = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
 const bool REGISTER_MANAGE_AUTO_START_APPS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageAutoStartAppsPlugin>());

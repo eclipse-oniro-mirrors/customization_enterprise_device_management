@@ -18,6 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iptables_utils.h"
+#include "network_address.h"
 
 using namespace OHOS::EDM;
 using namespace OHOS::EDM::IPTABLES;
@@ -197,36 +198,47 @@ void NetworkManagerAddon::NativeGetAllNetworkInterfaces(napi_env env, void *data
         asyncCallbackInfo->arrayStringRet);
 }
 
-void NetworkManagerAddon::GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
-    int32_t policyCode)
+void NetworkManagerAddon::GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag)
 {
     addonMethodSign.name = "GetIpOrMacAddress";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.apiVersionTag = apiVersionTag;
-    addonMethodSign.policyCode = policyCode;
 }
 
 napi_value NetworkManagerAddon::GetIpAddress(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::GetIpAddress called");
-    return GetIpOrMacAddress(env, info, EdmInterfaceCode::GET_IP_ADDRESS);
+    return GetIpOrMacAddress(env, info, NetworkAddress::IPADDRESS);
 }
 
 napi_value NetworkManagerAddon::GetMac(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::GetMac called");
-    return GetIpOrMacAddress(env, info, EdmInterfaceCode::GET_MAC);
+    return GetIpOrMacAddress(env, info, NetworkAddress::MAC);
 }
 
-napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_info info, int policyCode)
+napi_value NetworkManagerAddon::GetIpOrMacAddress(napi_env env, napi_callback_info info, int32_t networkAddress)
 {
     AddonMethodSign addonMethodSign;
-    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11, policyCode);
-    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetIpOrMacAddress, NativeStringCallbackComplete);
+    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_11);
+    if (networkAddress == NetworkAddress::IPADDRESS) {
+        return AddonMethodAdapter(env, info, addonMethodSign, NativeGetIpAddress, NativeStringCallbackComplete);
+    }
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetMac, NativeStringCallbackComplete);
 }
 
-void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
+void NetworkManagerAddon::NativeGetIpAddress(napi_env env, void *data)
+{
+    NativeGetIpOrMacAddress(env, data, NetworkAddress::IPADDRESS);
+}
+
+void NetworkManagerAddon::NativeGetMac(napi_env env, void *data)
+{
+    NativeGetIpOrMacAddress(env, data, NetworkAddress::MAC);
+}
+
+void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data, int32_t networkAddress)
 {
     EDMLOGI("NAPI_NativeGetIpOrMacAddress called");
     if (data == nullptr) {
@@ -234,13 +246,14 @@ void NetworkManagerAddon::NativeGetIpOrMacAddress(napi_env env, void *data)
         return;
     }
     AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->data.WriteInt32(networkAddress);
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get GetNetworkManagerProxy");
         return;
     }
     asyncCallbackInfo->ret = networkManagerProxy->GetIpOrMacAddress(asyncCallbackInfo->data,
-        asyncCallbackInfo->policyCode, asyncCallbackInfo->stringRet);
+        EdmInterfaceCode::GET_IP_ADDRESS, asyncCallbackInfo->stringRet);
 }
 
 void NetworkManagerAddon::IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign,
@@ -1061,19 +1074,19 @@ napi_value NetworkManagerAddon::GetAllNetworkInterfacesSync(napi_env env, napi_c
 napi_value NetworkManagerAddon::GetIpAddressSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetIpAddressSync called");
-    return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_IP_ADDRESS);
+    return GetIpOrMacAddressSync(env, info, NetworkAddress::IPADDRESS);
 }
 
 napi_value NetworkManagerAddon::GetMacSync(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetMacSync called");
-    return GetIpOrMacAddressSync(env, info, EdmInterfaceCode::GET_MAC);
+    return GetIpOrMacAddressSync(env, info, NetworkAddress::MAC);
 }
 
-napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int policyCode)
+napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int32_t networkAddress)
 {
     AddonMethodSign addonMethodSign;
-    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12, policyCode);
+    GetIpOrMacAddressCommon(addonMethodSign, EdmConstants::PERMISSION_TAG_VERSION_12);
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -1083,8 +1096,10 @@ napi_value NetworkManagerAddon::GetIpOrMacAddressSync(napi_env env, napi_callbac
         EDMLOGE("can not get GetNetworkManagerProxy");
         return nullptr;
     }
+    adapterAddonData.data.WriteInt32(networkAddress);
     std::string ipOrMacInfo;
-    int32_t ret = networkManagerProxy->GetIpOrMacAddress(adapterAddonData.data, policyCode, ipOrMacInfo);
+    int32_t ret = networkManagerProxy->GetIpOrMacAddress(
+        adapterAddonData.data, EdmInterfaceCode::GET_IP_ADDRESS, ipOrMacInfo);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
