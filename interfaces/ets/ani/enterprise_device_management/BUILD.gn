@@ -16,6 +16,7 @@ import("//build/ohos.gni")
 
 
 ohos_shared_library("adminManager_ani") {
+  shlib_type = "ani"
   include_dirs = [ 
     "./include",
     "../../../../common/native/include",
@@ -66,6 +67,7 @@ ohos_prebuilt_etc("adminManager_etc") {
 }
 
 ohos_shared_library("securityManager_ani") {
+  shlib_type = "ani"
   include_dirs = [ 
     "./include",
     "../../../../common/native/include",
