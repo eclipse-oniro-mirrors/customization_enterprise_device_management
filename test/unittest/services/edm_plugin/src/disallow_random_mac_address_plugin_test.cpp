@@ -52,41 +52,21 @@ void DisallowRandomMacAddressPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisallowRandomMacAddressPluginTestSetTrue
+ * @tc.name: TestDisallowRandomMacAddressPluginTestOnSetPolicy
  * @tc.desc: Test DisallowRandomMacAddressPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetTrue, TestSize.Level1)
+HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestOnSetPolicy, TestSize.Level1)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowRandomMacAddressPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-       EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    DisallowRandomMacAddressPlugin plugin;
+    bool data = true;
+    bool currentData;
+    bool mergeData;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
-}
-
-/**
- * @tc.name: TestDisallowRandomMacAddressPluginTestSetFalse
- * @tc.desc: Test DisallowRandomMacAddressPluginTest::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetFalse, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisallowRandomMacAddressPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-       EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    data = false;
+    ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
 }
 } // namespace TEST
 } // namespace EDM
