@@ -13,26 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXTERNAL_STORAGE_CARD_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXTERNAL_STORAGE_CARD_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_APP_CLONE_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_APP_CLONE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
-#include "istorage_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowExternalStorageCardPlugin : public PluginSingleton<DisallowExternalStorageCardPlugin, bool>,
-public BasicBoolPlugin {
+class DisableAppClonePlugin : public PluginSingleton<DisableAppClonePlugin, bool>,
+    public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowExternalStorageCardPlugin, bool>> ptr) override;
-
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
-    ErrCode UnmountStorageDevice();
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableAppClonePlugin, bool>> ptr) override;
 };
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXTERNAL_STORAGE_CARD_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_APP_CLONE_PLUGIN_H

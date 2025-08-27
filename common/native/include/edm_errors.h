@@ -51,6 +51,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t CONFIGURATION_CONFLICT_FAILED = 9200010;
     constexpr uint32_t REPLACE_ADMIN_FAILED = 9200011;
     constexpr uint32_t PARAMETER_VERIFICATION_FAILED = 9200012;
+    constexpr uint32_t SET_OTHER_MODULE_FAILED = 9200013;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;

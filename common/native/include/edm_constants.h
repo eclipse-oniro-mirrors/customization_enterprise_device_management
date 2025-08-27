@@ -164,6 +164,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
+        const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -272,6 +273,7 @@ namespace PolicyName {
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
     const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";
+    const char* const POLICY_DISABLED_APP_CLONE = "disabled_app_clone";
     const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";
     const char* const POLICY_DISABLE_CAMERA = "disable_camera";
     const char* const POLICY_DISABLED_HDC = "disabled_hdc";
@@ -308,8 +310,7 @@ namespace PolicyName {
     const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
-    const char* const POLICY_GET_IP_ADDRESS = "get_ip_address";
-    const char* const POLICY_GET_MAC = "get_mac";
+    const char* const POLICY_GET_IP_OR_MAC_ADDRESS = "get_ip_or_mac_address";
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
     const char* const POLICY_INSTALL = "install";

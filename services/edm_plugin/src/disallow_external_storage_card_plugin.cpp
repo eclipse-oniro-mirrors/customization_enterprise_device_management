@@ -25,7 +25,6 @@
 #include "iservice_registry.h"
 #include "parameters.h"
 
-
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
@@ -54,25 +53,9 @@ ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32
     if (data == true) {
         ErrCode Ret = UnmountStorageDevice();
         if (Ret != ERR_OK) {
-            EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy: unmount storage device failed.
-                ret: %{public}d", Ret);
+            EDMLOGI("DisallowExternalStorageCardPlugin: unmount storage device failed ret: %{public}d", Ret);
             return Ret;
         }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
-
-    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
-        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    if (data == true) {
-        ErrCode Ret = SetOtherModulePolicy(data, userId);
-        return Ret;
     }
     return ERR_OK;
 }
@@ -86,9 +69,8 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
     std::vector<StorageManager::VolumeExternal> volList;
     int32_t storageRet = storageMgrProxy->GetAllVolumes(volList);
     if (storageRet != ERR_OK) {
-        EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy GetAllVolumes failed!
-            ret:%{public}d", storageRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        EDMLOGE("DisallowExternalStorageCardPlugin storageMgrProxy GetAllVolumes failed! ret:%{public}d", storageRet);
+        return EdmReturnErrCode::SET_OTHER_MODULE_FAILED;
     }
     if (volList.empty()) {
         return ERR_OK;
@@ -96,7 +78,7 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
     for (auto &vol : volList) {
         if (storageMgrProxy->Unmount(vol.GetId()) != ERR_OK) {
             EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy Unmount failed!");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::SET_OTHER_MODULE_FAILED;
         }
     }
     return ERR_OK;

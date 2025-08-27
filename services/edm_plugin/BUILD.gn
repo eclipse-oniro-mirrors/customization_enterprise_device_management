@@ -76,6 +76,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
+      "./src/disable_app_clone_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
@@ -199,6 +200,12 @@ ohos_shared_library("device_core_plugin") {
 
     if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
       sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
+    }
+
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
+      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
     }
   }
 
@@ -348,8 +355,7 @@ ohos_shared_library("communication_plugin") {
       ]
       sources += [
         "./src/get_all_network_interfaces_plugin.cpp",
-        "./src/get_ip_address_plugin.cpp",
-        "./src/get_mac_plugin.cpp",
+        "./src/get_ip_or_mac_address_plugin.cpp",
         "./src/disallow_vpn_plugin.cpp"
       ]
     }
@@ -378,12 +384,6 @@ ohos_shared_library("communication_plugin") {
       external_deps += [ "storage_service:storage_manager_sa_proxy" ]
       sources += [ "./src/usb_read_only_plugin.cpp" ]
       defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
-    }
-
-    if (storage_service_edm_enable) {
-      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
-      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
-      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
     if (common_event_service_edm_enable) {
