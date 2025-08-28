@@ -45,14 +45,14 @@ ErrCode UsbPolicyUtils::AddAllowedUsbDevices(std::vector<UsbDeviceId> data)
 {
     EDMLOGI("UsbPolicyUtils AddAllowedUsbDevices....data size = %{public}zu", data.size());
     auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-    std::vector<OHOS::USB::UsbDeviceId> whiteList{};
+    std::vector<OHOS::USB::UsbDeviceId> trustList{};
     for (auto &dev : data) {
         USB::UsbDeviceId devId;
         devId.productId = dev.GetProductId();
         devId.vendorId = dev.GetVendorId();
-        whiteList.emplace_back(devId);
+        trustList.emplace_back(devId);
     }
-    int32_t usbRet = srvClient.ManageDevicePolicy(whiteList);
+    int32_t usbRet = srvClient.ManageDevicePolicy(trustList);
     if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGW("UsbPolicyUtils ManageDevicePolicy failed! USB interface not init!");
     }
