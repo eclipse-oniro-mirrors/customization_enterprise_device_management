@@ -37,6 +37,7 @@
 #include "clipboard_policy.h"
 #include "clipboard_policy_query.h"
 #include "clipboard_policy_serializer.h"
+#include "disable_app_clone_query.h"
 #include "disable_backup_and_restore_query.h"
 #include "disable_bluetooth_query.h"
 #include "disable_camera_query.h"
@@ -1815,6 +1816,39 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSetDeviceNameQuery002, TestSize.Level
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableAppCloneQuery001
+ * @tc.desc: Test DisableAppCloneQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableAppCloneQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableAppCloneQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableAppCloneQuery2
+ * @tc.desc: Test DisableAppCloneQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableAppCloneQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableAppCloneQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISABLED_APP_CLONE);
 }
 
 #ifdef FEATURE_PC_ONLY

@@ -57,6 +57,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MOBILE_DATA, EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_AIRPLANE_MODE, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_NOTIFICATION, EdmInterfaceCode::DISALLOWED_NOTIFICATION},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_APP_CLONE, EdmInterfaceCode::DISABLED_APP_CLONE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_TELEPHONY_CALL, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VPN, EdmInterfaceCode::DISALLOW_VPN},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OTA, POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
