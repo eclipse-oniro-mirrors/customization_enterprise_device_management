@@ -28,7 +28,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.memory_disable";
+const std::string PERSIST_EDM_MAINTENANCE_MODE = "persist.edm.external_storage_card_disable";
 class DisallowExternalStorageCardPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);

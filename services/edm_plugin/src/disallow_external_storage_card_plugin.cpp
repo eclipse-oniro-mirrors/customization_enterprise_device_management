@@ -47,10 +47,25 @@ void DisallowExternalStorageCardPlugin::InitPlugin(
     persistParam_ = "persist.edm.external_storage_card_disable";
 }
 
+ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+{
+    EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
+
+    if (!system::SetParameter(persistParam_, data ? "true" : "false")) {
+        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (data) {
+        ErrCode Ret = SetOtherModulePolicy(data, userId);
+        return Ret;
+    }
+    return ERR_OK;
+}
+
 ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowExternalStorageCardPlugin SetOtherModulePolicy");
-    if (data == true) {
+    if (data) {
         ErrCode Ret = UnmountStorageDevice();
         if (Ret != ERR_OK) {
             EDMLOGI("DisallowExternalStorageCardPlugin: unmount storage device failed ret: %{public}d", Ret);
@@ -70,7 +85,7 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
     int32_t storageRet = storageMgrProxy->GetAllVolumes(volList);
     if (storageRet != ERR_OK) {
         EDMLOGE("DisallowExternalStorageCardPlugin storageMgrProxy GetAllVolumes failed! ret:%{public}d", storageRet);
-        return EdmReturnErrCode::SET_OTHER_MODULE_FAILED;
+        return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
     }
     if (volList.empty()) {
         return ERR_OK;
@@ -78,7 +93,7 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
     for (auto &vol : volList) {
         if (storageMgrProxy->Unmount(vol.GetId()) != ERR_OK) {
             EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy Unmount failed!");
-            return EdmReturnErrCode::SET_OTHER_MODULE_FAILED;
+            return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
         }
     }
     return ERR_OK;

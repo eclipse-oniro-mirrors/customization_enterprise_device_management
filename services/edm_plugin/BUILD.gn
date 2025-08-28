@@ -201,12 +201,6 @@ ohos_shared_library("device_core_plugin") {
     if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
       sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
     }
-
-    if (storage_service_edm_enable) {
-      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
-      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
-      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
-    }
   }
 
   deps = [
@@ -369,6 +363,12 @@ ohos_shared_library("communication_plugin") {
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
+    }
+
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
+      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
     if (os_account_edm_enable) {
