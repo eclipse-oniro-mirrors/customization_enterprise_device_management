@@ -72,7 +72,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
     ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(afterMerge);
     if (errCode != ERR_OK) {
         return errCode;
-    }f
+    }
     currentData = afterHandle;
     mergeData = afterMerge;
     return ERR_OK;
