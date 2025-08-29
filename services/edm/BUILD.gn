@@ -207,6 +207,11 @@ ohos_shared_library("edmservice") {
     defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
   }
 
+  if (storage_service_edm_enable) {
+    sources += [ "./src/query_policy/disallow_external_storage_card_query.cpp" ]
+    defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
+  }
+
   if (pasteboard_edm_enable) {
     sources += [ "./src/query_policy/clipboard_policy_query.cpp" ]
     defines += [ "PASTEBOARD_EDM_ENABLE" ]

@@ -141,6 +141,10 @@
 #include "disable_private_space_query.h"
 #endif
 
+#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+#include "disallow_external_storage_card_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_app_clone_query.h"
@@ -604,6 +608,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
         case EdmInterfaceCode::DISALLOW_MODIFY_APN:
 #ifdef APN_EDM_ENABLE
             obj = std::make_shared<DisallowModifyAPNQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
+#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+            obj = std::make_shared<DisableExternalStorageCardQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

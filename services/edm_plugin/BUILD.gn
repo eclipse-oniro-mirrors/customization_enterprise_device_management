@@ -365,6 +365,12 @@ ohos_shared_library("communication_plugin") {
       ]
     }
 
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
+      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
+    }
+
     if (os_account_edm_enable) {
       external_deps += [
         "os_account:domain_account_innerkits",
