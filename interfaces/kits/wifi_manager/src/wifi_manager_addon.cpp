@@ -335,11 +335,7 @@ bool WifiManagerAddon::GetWifiIdFromNAPI(napi_env env, napi_value value, WifiId 
         return false;
     }
     std::string bssid;
-    if (!JsObjectToString(env, value, "bssid", isAllowed, bssid)) {
-        EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
-        return false;
-    }
-    if (isAllowed && bssid.empty()) {
+    if (!JsObjectToString(env, value, "bssid", false, bssid)) {
         EDMLOGE("AddOrRemoveAllowedWifiList bssid parse error!");
         return false;
     }
