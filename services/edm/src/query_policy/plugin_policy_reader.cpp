@@ -171,6 +171,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_random_mac_address_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -612,6 +613,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
+            obj = std::make_shared<DisallowRandomMacAddressQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
 #ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
             obj = std::make_shared<DisableExternalStorageCardQuery>();
