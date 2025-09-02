@@ -60,12 +60,8 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
-    std::vector<UsbDeviceId> needAddData =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(currentData, data);
-    std::vector<UsbDeviceId> needAddMergeData =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needAddData);
     std::vector<UsbDeviceId> afterHandle =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(currentData, needAddData);
+        ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(currentData, data);
     std::vector<UsbDeviceId> afterMerge =
         ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
 
@@ -73,7 +69,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(needAddMergeData);
+    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(afterMerge);
     if (errCode != ERR_OK) {
         return errCode;
     }
