@@ -13,25 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
-
-#include "ipolicy_query.h"
+#ifndef INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_ADDRESS_H
+#define INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_ADDRESS_H
 
 namespace OHOS {
 namespace EDM {
-
-class DisableMaintenanceModeQuery : public IPolicyQuery {
-public:
-    ~DisableMaintenanceModeQuery() override = default;
-
-    std::string GetPolicyName() override;
-
-    std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
-
-    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+enum NetworkAddress : int32_t {
+    IPADDRESS = 0,
+    MAC = 1
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
+#endif // INTERFACES_INNER_API_NETWORK_MANAGER_INCLUDE_NETWORK_ADDRESS_H

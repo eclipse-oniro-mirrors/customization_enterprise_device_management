@@ -46,7 +46,9 @@ private:
     static napi_value GetAllNetworkInterfaces(napi_env env, napi_callback_info info);
     static napi_value GetIpAddress(napi_env env, napi_callback_info info);
     static napi_value GetMac(napi_env env, napi_callback_info info);
-    static napi_value GetIpOrMacAddress(napi_env env, napi_callback_info info, int policyCode);
+    static napi_value GetIpOrMacAddress(napi_env env, napi_callback_info info, int32_t networkAddress);
+    static void NativeGetIpAddress(napi_env env, void *data);
+    static void NativeGetMac(napi_env env, void *data);
     static napi_value SetNetworkInterfaceDisabled(napi_env env, napi_callback_info info);
     static napi_value IsNetworkInterfaceDisabled(napi_env env, napi_callback_info info);
     static napi_value AddIptablesFilterRule(napi_env env, napi_callback_info info);
@@ -59,7 +61,7 @@ private:
     static napi_value RemoveDomainFilterRule(napi_env env, napi_callback_info info);
     static napi_value GetDomainFilterRules(napi_env env, napi_callback_info info);
     static void NativeGetAllNetworkInterfaces(napi_env env, void *data);
-    static void NativeGetIpOrMacAddress(napi_env env, void *data);
+    static void NativeGetIpOrMacAddress(napi_env env, void *data, int32_t networkAddress);
     static void NativeSetNetworkInterfaceDisabled(napi_env env, void *data);
     static void NativeIsNetworkInterfaceDisabled(napi_env env, void *data);
     static void NativeAddIptalbsFilterRule(napi_env env, void *data);
@@ -92,7 +94,7 @@ private:
     static napi_value GetAllNetworkInterfacesSync(napi_env env, napi_callback_info info);
     static napi_value GetIpAddressSync(napi_env env, napi_callback_info info);
     static napi_value GetMacSync(napi_env env, napi_callback_info info);
-    static napi_value GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int policyCode);
+    static napi_value GetIpOrMacAddressSync(napi_env env, napi_callback_info info, int32_t networkAddress);
     static napi_value SetNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value IsNetworkInterfaceDisabledSync(napi_env env, napi_callback_info info);
     static napi_value SetGlobalHttpProxySync(napi_env env, napi_callback_info info);
@@ -104,8 +106,7 @@ private:
     static napi_value GetGlobalHttpProxyCommon(napi_env env, napi_value *argv, size_t argc, bool hasAdmin,
         OHOS::AppExecFwk::ElementName &elementName, int32_t accountId);
     static void SetNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
-    static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag,
-        int32_t policyCode);
+    static void GetIpOrMacAddressCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void IsNetworkInterfaceDisabledCommon(AddonMethodSign &addonMethodSign, const std::string &apiVersionTag);
     static void SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodSign);
     static void SetGlobalHttpProxyCommonForAccount(AddonMethodSign &addonMethodSign);

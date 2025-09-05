@@ -62,12 +62,8 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
-    std::vector<UsbDeviceId> needAddData =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(currentData, data);
-    std::vector<UsbDeviceId> needAddMergeData =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needAddData);
     std::vector<UsbDeviceId> afterHandle =
-        ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(currentData, needAddData);
+        ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(currentData, data);
     std::vector<UsbDeviceId> afterMerge =
         ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
 
@@ -75,7 +71,7 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
         EDMLOGE("AllowUsbDevicesPlugin OnSetPolicy union data size=[%{public}zu] is too large", mergeData.size());
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(needAddMergeData);
+    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(afterMerge);
     if (errCode != ERR_OK) {
         return errCode;
     }
@@ -129,37 +125,9 @@ ErrCode AllowUsbDevicesPlugin::OnRemovePolicy(std::vector<UsbDeviceId> &data, st
     std::vector<UsbDeviceId> afterMerge =
         ArrayUsbDeviceIdSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
 
-    if (afterMerge.empty()) {
-        auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-        std::vector<OHOS::USB::UsbDevice> allDevices;
-        int32_t getRet = srvClient.GetDevices(allDevices);
-        if (getRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-            EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy: getDevices failed! USB interface not init!");
-        }
-        if (getRet != ERR_OK && getRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-            EDMLOGE("AllowUsbDevicesPlugin OnRemovePolicy getDevices failed: %{public}d", getRet);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: clear to empty, enable all.");
-        std::for_each(allDevices.begin(), allDevices.end(), [&](const auto usbDevice) {
-            if (srvClient.ManageDevice(usbDevice.GetVendorId(), usbDevice.GetProductId(), false) != ERR_OK) {
-                EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy ManageDevice vid: %{public}d, pid: %{public}d failed!",
-                    usbDevice.GetVendorId(), usbDevice.GetProductId());
-            }
-        });
-    } else {
-        std::vector<UsbDeviceId> needRemovePolicy =
-            ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(afterHandle, currentData);
-        std::vector<UsbDeviceId> needRemoveMergePolicy =
-            ArrayUsbDeviceIdSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needRemovePolicy);
-        EDMLOGI("AllowUsbDevicesPlugin OnRemovePolicy: remove data size: %{public}zu", needRemoveMergePolicy.size());
-        auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
-        std::for_each(needRemoveMergePolicy.begin(), needRemoveMergePolicy.end(), [&](const auto usbDeviceId) {
-            if (srvClient.ManageDevice(usbDeviceId.GetVendorId(), usbDeviceId.GetProductId(), true) != ERR_OK) {
-                EDMLOGW("AllowUsbDevicesPlugin OnRemovePolicy ManageDevice vid: %{public}d, pid: %{public}d failed!",
-                    usbDeviceId.GetVendorId(), usbDeviceId.GetProductId());
-            }
-        });
+    ErrCode errCode = UsbPolicyUtils::AddAllowedUsbDevices(afterMerge);
+    if (errCode != ERR_OK) {
+        return errCode;
     }
     currentData = afterHandle;
     mergeData = afterMerge;

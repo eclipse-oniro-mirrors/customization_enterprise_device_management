@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,29 @@
  * limitations under the License.
  */
 
-#include "allowed_bluetooth_devices_query.h"
+#include "disable_app_clone_query.h"
 
-#include "array_string_serializer.h"
+#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-std::string AllowedBluetoothDevicesQuery::GetPolicyName()
+std::string DisableAppCloneQuery::GetPolicyName()
 {
-    return PolicyName::POLICY_ALLOWED_BLUETOOTH_DEVICES;
+    return PolicyName::POLICY_DISABLED_APP_CLONE;
 }
 
-std::string AllowedBluetoothDevicesQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+std::string DisableAppCloneQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH;
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
-ErrCode AllowedBluetoothDevicesQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+ErrCode DisableAppCloneQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetArrayStringPolicy(policyData, reply);
+    return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

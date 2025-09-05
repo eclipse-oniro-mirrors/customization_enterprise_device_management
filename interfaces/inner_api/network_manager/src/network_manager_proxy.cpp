@@ -25,6 +25,7 @@ namespace EDM {
 std::shared_ptr<NetworkManagerProxy> NetworkManagerProxy::instance_ = nullptr;
 std::once_flag NetworkManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+constexpr int32_t POLICIES_MAX_SIZE = 200;
 
 NetworkManagerProxy::NetworkManagerProxy() {}
 
@@ -496,7 +497,7 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
     }
 
     int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::POLICIES_MAX_SIZE) {
+    if (size > POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApn invalid size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -544,7 +545,7 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     }
     
     int32_t size = reply.ReadInt32();
-    if (size > EdmConstants::POLICIES_MAX_SIZE) {
+    if (size > POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApnIds invalid size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

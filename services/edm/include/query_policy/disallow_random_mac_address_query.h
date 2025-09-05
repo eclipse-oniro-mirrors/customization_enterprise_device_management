@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
+#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_RANDOM_MAC_ADDRESS_QUERY_H
+#define SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_RANDOM_MAC_ADDRESS_QUERY_H
 
 #include "ipolicy_query.h"
 
 namespace OHOS {
 namespace EDM {
 
-class DisableMaintenanceModeQuery : public IPolicyQuery {
+class DisallowRandomMacAddressQuery : public IPolicyQuery {
 public:
-    ~DisableMaintenanceModeQuery() override = default;
+    ~DisallowRandomMacAddressQuery() override = default;
 
     std::string GetPolicyName() override;
 
@@ -34,4 +34,4 @@ public:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALBE_MAINTENANCE_MODE_QUERY_H
+#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_DISALLOW_RANDOM_MAC_ADDRESS_QUERY_H

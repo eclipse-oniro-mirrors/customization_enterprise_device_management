@@ -76,6 +76,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
+      "./src/disable_app_clone_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
@@ -85,6 +86,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/disallow_distributed_transmission_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
+      "./src/disallow_random_mac_address_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/installed_bundle_info_list_plugin.cpp",
@@ -348,8 +350,7 @@ ohos_shared_library("communication_plugin") {
       ]
       sources += [
         "./src/get_all_network_interfaces_plugin.cpp",
-        "./src/get_ip_address_plugin.cpp",
-        "./src/get_mac_plugin.cpp",
+        "./src/get_ip_or_mac_address_plugin.cpp",
         "./src/disallow_vpn_plugin.cpp"
       ]
     }
@@ -363,6 +364,12 @@ ohos_shared_library("communication_plugin") {
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
+    }
+
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
+      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
     if (os_account_edm_enable) {

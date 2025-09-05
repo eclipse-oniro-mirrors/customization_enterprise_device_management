@@ -16,7 +16,6 @@
 #include "array_int_serializer.h"
 #include "cJSON.h"
 #include "cjson_check.h"
-#include "edm_constants.h"
 
 namespace OHOS {
 namespace EDM {
