@@ -94,6 +94,48 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     return ERR_OK;
 }
 
+int32_t ApplicationManagerProxy::DealAllowedRunningBundles(AppExecFwk::ElementName &admin,
+    std::vector<std::string> &bundles, int32_t userId, bool isAdd)
+{
+    EDMLOGD("ApplicationManagerProxy::AddAllowedRunningBundles");
+    EDMLOGE("AddAllowedRunningBundles data size=[%{public}zu]", bundles.size());
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOW_RUNNING_BUNDLES);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::PERMISSION_TAG_NORMAL);
+    data.WriteStringVector(bundles);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetAllowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
+    std::vector<std::string> &bundles)
+{
+    EDMLOGD("ApplicationManagerProxy::GetAllowedRunningBundles");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(EdmConstants::PERMISSION_TAG_NORMAL);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    proxy->GetPolicy(EdmInterfaceCode::ALLOW_RUNNING_BUNDLES, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&bundles);
+    return ERR_OK;
+}
+
 int32_t ApplicationManagerProxy::AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd)
 {
     EDMLOGD("ApplicationManagerProxy::AddOrRemoveAutoStartApps");

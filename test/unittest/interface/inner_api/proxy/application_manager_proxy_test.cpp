@@ -158,6 +158,98 @@ HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundlesFail, TestSize.
 }
 
 /**
+ * @tc.name: TestAddAllowedRunningBundlesSuc
+ * @tc.desc: Test DealAllowedRunningBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, DealAddAllowedRunningBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->DealAllowedRunningBundles(admin, bundles, DEFAULT_USER_ID, true);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddAllowedRunningBundlesFail
+ * @tc.desc: Test DealAllowedRunningBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, DealAddAllowedRunningBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    ErrCode ret = applicationManagerProxy_->DealAllowedRunningBundles(admin, bundles, DEFAULT_USER_ID, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedRunningBundlesSuc
+ * @tc.desc: Test DealAllowedRunningBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, DealRemoveAllowedRunningBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->DealAllowedRunningBundles(admin, bundles, DEFAULT_USER_ID, false);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedRunningBundlesFail
+ * @tc.desc: Test DealAllowedRunningBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, DealRemoveAllowedRunningBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    ErrCode ret = applicationManagerProxy_->DealAllowedRunningBundles(admin, bundles, DEFAULT_USER_ID, false);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllowedRunningBundlesSuc
+ * @tc.desc: Test GetAllowedRunningBundles success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAllowedRunningBundlesSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundles.size() == 1);
+    ASSERT_TRUE(bundles[0] == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetAllowedRunningBundlesFail
+ * @tc.desc: Test GetAllowedRunningBundles without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAllowedRunningBundlesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestAddAutoStartAppsFail
  * @tc.desc: Test AddAutoStartApps without enable edm service func.
  * @tc.type: FUNC
