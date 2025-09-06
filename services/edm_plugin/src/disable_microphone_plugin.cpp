@@ -54,6 +54,7 @@ ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow, int32_t u
     }
     int32_t ret = audioGroupManager
         ->SetMicrophoneMutePersistent(isDisallow, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
+    audioGroupManager->CleanUpResource();
     if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || (!isDisallow && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
         return ERR_OK;
     }
@@ -71,6 +72,7 @@ ErrCode DisableMicrophonePlugin::RemoveOtherModulePolicy(int32_t userId)
     }
     ErrCode ret =
         audioGroupManager->SetMicrophoneMutePersistent(false, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
+    audioGroupManager->CleanUpResource();
     if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
         return ERR_OK;
     }
