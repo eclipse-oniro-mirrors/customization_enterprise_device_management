@@ -54,7 +54,7 @@ ErrCode DisallowRandomMacAddressPlugin::SetOtherModulePolicy(bool data, int32_t 
     }
     ErrCode ret = wifiDevice->SetRandomMacDisabled(data);
     if (ret != ERR_OK) {
-        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device set random mac failed ret: %{public}d", Ret);
+        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device set random mac failed ret: %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -70,7 +70,7 @@ ErrCode DisallowRandomMacAddressPlugin::RemoveOtherModulePolicy(int32_t userId)
     }
     ErrCode ret = wifiDevice->SetRandomMacDisabled(false);
     if (ret != ERR_OK) {
-        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device remove random mac failed ret: %{public}d", Ret);
+        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device remove random mac failed ret: %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
