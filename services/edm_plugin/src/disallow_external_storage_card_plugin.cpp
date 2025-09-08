@@ -47,18 +47,25 @@ void DisallowExternalStorageCardPlugin::InitPlugin(
     persistParam_ = "persist.edm.external_storage_card_disable";
 }
 
-ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId)
 {
     EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
-
+    if (mergePolicy) {
+        currentData = data;
+        return ERR_OK;
+    }
     if (!system::SetParameter(persistParam_, data ? "true" : "false")) {
         EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (data) {
         ErrCode Ret = SetOtherModulePolicy(data, userId);
-        return Ret;
+        if (FAILED(Ret)) {
+            return Ret;
+        }
     }
+    currentData = data;
+    mergePolicy = data;
     return ERR_OK;
 }
 

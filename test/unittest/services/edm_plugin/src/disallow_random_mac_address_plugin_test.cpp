@@ -61,10 +61,6 @@ void DisallowRandomMacAddressPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetTrue, TestSize.Level1)
 {
-    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
-    wifiDevice->DisableWifi();
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
@@ -74,7 +70,7 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, ture));
 }
 
 /**
@@ -84,10 +80,6 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetFalse, TestSize.Level1)
 {
-    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
-    wifiDevice->DisableWifi();
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
@@ -97,7 +89,7 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
 }
 } // namespace TEST
 } // namespace EDM

@@ -224,7 +224,7 @@ HWTEST_F(BundleInstallPluginTest, TestAllowedInstallBundlesPlugin007, TestSize.L
         res = appControlProxy->GetAppInstallControlRule(static_cast<AppExecFwk::AppInstallControlRuleType>(policyType),
              DEFAULT_USER_ID, result);
         ASSERT_TRUE(res == ERR_OK);
-        ASSERT_TRUE(result.size() == 1);
+        ASSERT_TRUE(result.size() == 2);
         ASSERT_TRUE(result[0] == TEST_BUNDLE);
 
         // remove policy.

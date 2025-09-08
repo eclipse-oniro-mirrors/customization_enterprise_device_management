@@ -38,6 +38,7 @@ protected:
         std::vector<std::string> &failedData);
 
     uint32_t maxListSize_ = 0;
+    uint32_t overMaxReturnErrCode_ = EdmReturnErrCode::PARAM_ERROR;
 };
 } // namespace EDM
 } // namespace OHOS

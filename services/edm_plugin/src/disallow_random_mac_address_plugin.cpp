@@ -41,6 +41,7 @@ void DisallowRandomMacAddressPlugin::InitPlugin(
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowRandomMacAddressPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowRandomMacAddressPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.random_mac_address_disable";
 }
 
 ErrCode DisallowRandomMacAddressPlugin::SetOtherModulePolicy(bool data, int32_t userId)
@@ -54,7 +55,7 @@ ErrCode DisallowRandomMacAddressPlugin::SetOtherModulePolicy(bool data, int32_t 
     ErrCode ret = wifiDevice->SetRandomMacDisabled(data);
     if (ret != ERR_OK) {
         EDMLOGI("DisallowRandomMacAddressPlugin: wifi device set random mac failed ret: %{public}d", ret);
-        return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }
@@ -65,7 +66,7 @@ ErrCode DisallowRandomMacAddressPlugin::RemoveOtherModulePolicy(int32_t userId)
     auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     if (wifiDevice == nullptr) {
         EDMLOGE("wifiDevice GetInstance null");
-        return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     ErrCode ret = wifiDevice->SetRandomMacDisabled(false);
     if (ret != ERR_OK) {

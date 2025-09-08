@@ -477,9 +477,11 @@ ohos_shared_library("sys_service_plugin") {
     if (ability_runtime_edm_enable) {
       external_deps += [ "ability_runtime:ability_manager" ]
       sources += [
+        "./src/allowed_running_bundles_plugin.cpp",
         "./src/disallowed_running_bundles_plugin.cpp",
         "./src/manage_auto_start_apps_plugin.cpp",
         "./src/manage_keep_alive_apps_plugin.cpp",
+        "./src/utils/bms_utils.cpp",
         "./src/utils/manage_keep_alive_apps_info.cpp",
         "./src/utils/manage_auto_start_app_info.cpp",
         "./src/utils/manage_auto_start_apps_serializer.cpp",
