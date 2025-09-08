@@ -41,7 +41,6 @@ void DisallowRandomMacAddressPlugin::InitPlugin(
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowRandomMacAddressPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowRandomMacAddressPlugin::OnAdminRemove);
-    persistParam_ = "persist.edm.random_mac_address_disable";
 }
 
 ErrCode DisallowRandomMacAddressPlugin::SetOtherModulePolicy(bool data, int32_t userId)

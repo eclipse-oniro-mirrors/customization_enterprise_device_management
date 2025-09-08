@@ -60,7 +60,7 @@ void DisallowRandomMacAddressPluginTest::TearDownTestSuite(void)
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetTrue, TestSize.Level1)
-{   
+{
     auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     wifiDevice->DisableWifi();
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -83,7 +83,7 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetFalse, TestSize.Level1)
-{   
+{
     auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     wifiDevice->DisableWifi();
     std::this_thread::sleep_for(std::chrono::seconds(3));
