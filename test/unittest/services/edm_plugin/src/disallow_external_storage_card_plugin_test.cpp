@@ -52,20 +52,38 @@ void DisallowExternalStorageCardPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisallowExternalStorageCardPluginTestOnSetPolicy
+ * @tc.name: DisallowExternalStorageCardPluginTestSetTrue
  * @tc.desc: Test DisallowExternalStorageCardPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowExternalStorageCardPluginTest, TestDisallowExternalStorageCardPluginTestOnSetPolicy, TestSize.Level1)
+HWTEST_F(DisallowExternalStorageCardPluginTest, DisallowExternalStorageCardPluginTestSetTrue, TestSize.Level1)
 {
-    DisallowExternalStorageCardPlugin plugin;
-    bool data = true;
-    bool currentData;
-    bool mergeData;
-    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    std::shared_ptr<IPlugin> plugin = DisallowExternalStorageCardPlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"true", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+       EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    data = false;
-    ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: DisallowExternalStorageCardPluginTestSetFalse
+ * @tc.desc: Test DisallowExternalStorageCardPluginTest::OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowExternalStorageCardPluginTest, DisallowExternalStorageCardPluginTestSetFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisallowExternalStorageCardPlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+       EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
