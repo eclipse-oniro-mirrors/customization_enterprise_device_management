@@ -67,6 +67,7 @@ ohos_shared_library("device_core_plugin") {
     "window_manager:libwm",
     "window_manager:session_manager_lite",
     "window_manager:sms",
+    "wifi:StaService",
   ]
 
   if (enterprise_device_management_support_all) {
