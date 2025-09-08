@@ -52,7 +52,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_set_device_name_plugin_test.cpp",
-    "./src/disallow_random_mac_address_plugin_test.cpp",
+    "./src/disallow_external_storage_card_plugin_test.cpp",
     "./src/disallow_export_recovery_key_plugin_test.cpp",
     "./src/disallow_distributed_transmission_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
@@ -172,6 +172,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/set_wifi_profile_plugin_test.cpp",
       "./src/switch_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
+      "./src/disallow_random_mac_address_plugin_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
@@ -410,7 +411,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_app_clone_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_backup_and_restore_plugin.cpp",
-    "../../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_external_storage_card_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
@@ -542,6 +543,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/switch_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
+      "../../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }

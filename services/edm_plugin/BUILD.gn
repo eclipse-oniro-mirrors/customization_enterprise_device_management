@@ -67,7 +67,6 @@ ohos_shared_library("device_core_plugin") {
     "window_manager:libwm",
     "window_manager:session_manager_lite",
     "window_manager:sms",
-    "wifi:StaService",
   ]
 
   if (enterprise_device_management_support_all) {
@@ -87,7 +86,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/disallow_distributed_transmission_plugin.cpp",
       "./src/disallowed_install_bundles_plugin.cpp",
       "./src/disallowed_uninstall_bundles_plugin.cpp",
-      "./src/disallow_random_mac_address_plugin.cpp",
       "./src/inactive_user_freeze_plugin.cpp",
       "./src/install_plugin.cpp",
       "./src/installed_bundle_info_list_plugin.cpp",
@@ -276,6 +274,7 @@ ohos_shared_library("communication_plugin") {
         "./src/switch_wifi_plugin.cpp",
         "./src/utils/wifi_device_config_serializer.cpp",
         "./src/utils/wifi_policy_utils.cpp",
+        "./src/disallow_random_mac_address_plugin.cpp",
       ]
       defines += [ "WIFI_EDM_ENABLE" ]
     }
@@ -365,6 +364,12 @@ ohos_shared_library("communication_plugin") {
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
+    }
+
+    if (storage_service_edm_enable) {
+      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      sources += [ "./src/disallow_external_storage_card_plugin.cpp" ]
+      defines += [ "EXTERNAL_STORAGE_SERVICE_EDM_ENABLE" ]
     }
 
     if (os_account_edm_enable) {

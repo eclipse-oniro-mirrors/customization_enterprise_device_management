@@ -68,6 +68,7 @@
 #include "array_wifi_id_serializer.h"
 #include "disallowed_wifi_list_query.h"
 #include "set_wifi_disabled_query.h"
+#include "disallow_random_mac_address_query.h"
 #endif
 
 #ifdef USB_STORAGE_SERVICE_EDM_ENABLE
@@ -141,6 +142,10 @@
 #include "disable_private_space_query.h"
 #endif
 
+#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+#include "disallow_external_storage_card_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "disable_app_clone_query.h"
@@ -167,7 +172,6 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
-#include "disallow_random_mac_address_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -610,8 +614,19 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
         case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
+#ifdef WIFI_EDM_ENABLE
             obj = std::make_shared<DisallowRandomMacAddressQuery>();
             return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
+#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+            obj = std::make_shared<DisableExternalStorageCardQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<GetAutoUnlockAfterRebootQuery>();
