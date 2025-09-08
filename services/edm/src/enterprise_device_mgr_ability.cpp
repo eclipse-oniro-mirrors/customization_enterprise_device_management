@@ -948,13 +948,13 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(const AppExecFwk::Element
     AAFwk::Want want;
     want.SetElement(newAdmin);
     if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
-        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, DEFAULT_USER_ID, abilityInfo) ||
-        abilityInfo.empty()) {
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, EdmConstants::DEFAULT_USER_ID,
+        abilityInfo) || abilityInfo.empty()) {
         EDMLOGW("ReplaceSuperAdmin: QueryExtensionAbilityInfos_newAdmin failed");
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
 
-    if (FAILED(VerifyEnableAdminCondition(newAdmin, AdminType::ENT, DEFAULT_USER_ID, false))) {
+    if (FAILED(VerifyEnableAdminCondition(newAdmin, AdminType::ENT, EdmConstants::DEFAULT_USER_ID, false))) {
         EDMLOGW("ReplaceSuperAdmin: VerifyEnableAdminCondition failed.");
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
     }
@@ -1006,7 +1006,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
     std::string combinedPolicyValue;
     policyMgr_->GetPolicy("", PolicyName::POLICY_DISALLOWED_UNINSTALL_BUNDLES, combinedPolicyValue);
 
-    if (FAILED(policyMgr_->ReplaceAllPolicy(DEFAULT_USER_ID, adminName, newAdminName))) {
+    if (FAILED(policyMgr_->ReplaceAllPolicy(EdmConstants::DEFAULT_USER_ID, adminName, newAdminName))) {
         EDMLOGE("ReplaceSuperAdmin update device Policies Failed");
         AdminManager::GetInstance()->ReplaceSuperAdminByPackageName(newAdminName, *adminPtr);
         return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
@@ -1073,8 +1073,8 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
         if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
-            EDMLOGE("EnableAdmin: SetAdminValue failed.");
-            return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+            EDMLOGE("ReplaceSuperAdmin: SetAdminValue failed.");
+            return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
     }
     system::SetParameter(PARAM_EDM_ENABLE, "true");
@@ -1083,7 +1083,6 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
         DEFAULT_USER_ID, true);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
 
-    EDMLOGD("ReportEdmEventManagerAdmin ReplaceSuperAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdmin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::REPLACE),
         static_cast<int32_t>(AdminType::ENT), oldAdmin.GetBundleName().c_str());
@@ -1306,7 +1305,7 @@ ErrCode EnterpriseDeviceMgrAbility::DisableSuperAdmin(const std::string &bundleN
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::DisableSuperAdmin bundle name = %{public}s", bundleName.c_str());
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    return DoDisableAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
+    return DoDisableAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
 }
 
 bool EnterpriseDeviceMgrAbility::CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug)
@@ -1951,9 +1950,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
         GetCurrentUserId());
     ErrCode ret = GetPermissionChecker()->CheckCallerPermission(adminItem,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY, true);
-    if (FAILED(ret)) {
-        return ret;
-    }
+    if (FAILED(ret)) return ret;
     if (parentAdminName == bundleName) {
         EDMLOGE("SetDelegatedPolicies does not delegated policies to self.");
         return EdmReturnErrCode::PARAM_ERROR;
@@ -1968,9 +1965,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
         return ret;
     }
     ret = CheckDelegatedPolicies(adminItem, policies);
-    if (FAILED(ret)) {
-        return ret;
-    }
+    if (FAILED(ret)) return ret;
     if (!GetBundleMgr()->IsBundleInstalled(bundleName, GetCurrentUserId())) {
         EDMLOGE("SetDelegatedPolicies the delegated application does not installed.");
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;

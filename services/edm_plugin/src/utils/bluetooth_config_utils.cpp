@@ -38,6 +38,7 @@ BluetoothConfigUtils::BluetoothConfigUtils()
     if (std::find(files.begin(), files.end(), BLUETOOTH_DIR) == files.end()) {
         CreateBluetoothConfigDir(CONFIG_SYSTEM_ALL_DIR + SEPARATOR + BLUETOOTH_DIR);
     }
+    LoadConfig();
 }
 
 BluetoothConfigUtils::~BluetoothConfigUtils()
