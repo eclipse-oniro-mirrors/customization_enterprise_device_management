@@ -199,7 +199,8 @@ ErrCode ManageKeepAliveAppsPlugin::SetOtherModulePolicy(const std::vector<std::s
     }
 
     std::vector<std::string> disallowedRunningBundles;
-    ErrCode ret = appControlProxy->GetAppRunningControlRule(userId, disallowedRunningBundles);
+    bool isAllowRunningRule = false;
+    ErrCode ret = appControlProxy->GetAppRunningControlRule(userId, disallowedRunningBundles, isAllowRunningRule);
     if (ret != ERR_OK) {
         EDMLOGE("ManageKeepAliveAppsPlugin AddKeepAliveApps GetAppRunningControlRule failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

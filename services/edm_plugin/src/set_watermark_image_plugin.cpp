@@ -254,7 +254,7 @@ bool SetWatermarkImagePlugin::SetWatermarkToRS(const std::string &name, std::sha
 void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName, const std::string &fileName,
     int32_t accountId, bool enabled)
 {
-    EDMLOGI("SetProcessWatermark start");
+    EDMLOGI("SetProcessWatermark start, bundleName %{public}s", bundleName.c_str());
     if (fileName.empty()) {
         return;
     }
@@ -269,14 +269,16 @@ void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName,
         EDMLOGE("GetRunningProcessInformation fail!");
         return;
     }
-    if (infos.empty() || infos[0].pid_ == 0) {
-        EDMLOGD("GetRunning Process Information pid empty");
-        return;
-    }
-
-    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(infos[0].pid_, fileName, enabled);
-    if (ret != Rosen::WMError::WM_OK) {
-        EDMLOGE("SetProcessWatermark fail!code: %{public}d", ret);
+    for (const auto& info : infos) {
+        if (info.pid_ == 0) {
+            EDMLOGD("GetRunning Process Information pid empty");
+            return;
+        }
+        EDMLOGI("SetProcessWatermark pid %{public}d", info.pid_);
+        Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(info.pid_, fileName, enabled);
+        if (ret != Rosen::WMError::WM_OK) {
+            EDMLOGE("SetProcessWatermark fail!code: %{public}d", ret);
+        }
     }
 }
 

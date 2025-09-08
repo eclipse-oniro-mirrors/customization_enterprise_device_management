@@ -295,6 +295,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
+    const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";
     const char* const POLICY_DISALLOWED_BLUETOOTH_PROTOCOLS = "disallowed_bluetooth_protocols";
     const char* const POLICY_DISALLOWED_NEARLINK_PROTOCOLS = "disallowed_nearlink_protocols";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
