@@ -14,6 +14,8 @@
  */
 
 #include <gtest/gtest.h>
+#include <chrono>
+#include <thread>
 #include "disallow_random_mac_address_plugin.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
@@ -21,6 +23,7 @@
 #include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
+#include "wifi_device.h"
  
 using namespace testing::ext;
 using namespace testing;
@@ -57,7 +60,11 @@ void DisallowRandomMacAddressPluginTest::TearDownTestSuite(void)
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetTrue, TestSize.Level1)
-{
+{   
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    wifiDevice->DisableWifi();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
@@ -76,7 +83,11 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginTestSetFalse, TestSize.Level1)
-{
+{   
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    wifiDevice->DisableWifi();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
