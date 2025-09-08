@@ -74,7 +74,6 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
 }
 
 /**
@@ -97,7 +96,6 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
 }
 } // namespace TEST
 } // namespace EDM

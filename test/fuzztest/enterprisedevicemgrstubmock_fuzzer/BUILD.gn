@@ -306,12 +306,15 @@ ohos_static_library("edmservice_fuzz_static") {
     if (ability_runtime_edm_enable) {
       external_deps += [ "ability_runtime:ability_manager" ]
       sources += [
+        "../../../services/edm/src/query_policy/allowed_running_bundles_query.cpp",
         "../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp",
+        "../../../services/edm_plugin/src/allowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/bms_utils.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
-        "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp"
       ]

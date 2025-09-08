@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_RUNNING_BUNDLES_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_RUNNING_BUNDLES_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_RUNNING_BUNDLES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_RUNNING_BUNDLES_PLUGIN_H
 
 #include <vector>
 
@@ -25,10 +25,10 @@
 
 namespace OHOS {
 namespace EDM {
-class DisallowedRunningBundlesPlugin : public PluginSingleton<DisallowedRunningBundlesPlugin,
+class AllowedRunningBundlesPlugin : public PluginSingleton<AllowedRunningBundlesPlugin,
     std::vector<std::string>>, public BasicArrayStringPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedRunningBundlesPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<AllowedRunningBundlesPlugin,
         std::vector<std::string>>> ptr) override;
 
 private:
@@ -41,4 +41,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_RUNNING_BUNDLES_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_ALLOWED_RUNNING_BUNDLES_PLUGIN_H

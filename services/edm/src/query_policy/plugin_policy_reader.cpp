@@ -56,6 +56,7 @@
 #endif
 
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
+#include "allowed_running_bundles_query.h"
 #include "disallowed_running_bundles_query.h"
 #endif
 
@@ -669,6 +670,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
 #ifdef WIFI_EDM_ENABLE
             obj = std::make_shared<DisallowRandomMacAddressQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::ALLOW_RUNNING_BUNDLES:
+#ifdef ABILITY_RUNTIME_EDM_ENABLE
+            obj = std::make_shared<AllowedRunningBundlesQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
