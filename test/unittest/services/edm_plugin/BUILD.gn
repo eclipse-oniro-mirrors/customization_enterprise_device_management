@@ -52,7 +52,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_set_device_name_plugin_test.cpp",
-    "./src/disallow_external_storage_card_plugin_test.cpp",
     "./src/disallow_export_recovery_key_plugin_test.cpp",
     "./src/disallow_distributed_transmission_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
@@ -219,6 +218,10 @@ ohos_unittest("EdmPluginTest") {
       usb_manager_edm_enable) {
     external_deps += [ "storage_service:storage_manager_sa_proxy" ]
     sources += [ "./src/usb_read_only_plugin_test.cpp" ]
+  }
+
+  if (storage_service_edm_enable) {
+    sources += [ "./src/disallow_external_storage_card_plugin_test.cpp" ]
   }
 
   if (audio_framework_edm_enable) {
@@ -410,7 +413,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_app_clone_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_backup_and_restore_plugin.cpp",
-    "../../../../services/edm_plugin/src/disallow_external_storage_card_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
@@ -614,6 +616,11 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "storage_service:storage_manager_sa_proxy" ]
     sources +=
         [ "../../../../services/edm_plugin/src/usb_read_only_plugin.cpp" ]
+  }
+
+  if (storage_service_edm_enable) {
+    sources +=
+        [  "../../../../services/edm_plugin/src/disallow_external_storage_card_plugin.cpp" ]
   }
 
   if (audio_framework_edm_enable) {
