@@ -250,6 +250,30 @@ HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListSuc, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestAddAllowedWifiListWithoutBssidSuc
+ * @tc.desc: Test AddAllowedWifiList success func without Bssid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestAddAllowedWifiListWithoutBssidSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.name: TestAddAllowedWifiListFail
  * @tc.desc: Test AddAllowedWifiList without enable edm service func.
  * @tc.type: FUNC
@@ -289,6 +313,30 @@ HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListSuc, TestSize.Level1)
     WifiId id1;
     id1.SetSsid("wifi_name");
     id1.SetBssid("68:77:24:77:A6:D6");
+    data.WriteUint32(1);
+    id1.Marshalling(data);
+
+    int32_t ret = wifiManagerProxy->AddOrRemoveWifiList(data, FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_WIFI_LIST);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveAllowedWifiListWithoutBssidSuc
+ * @tc.desc: Test RemoveAllowedWifiList success without Bssid func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WifiManagerProxyTest, TestRemoveAllowedWifiListWithoutBssidSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    WifiId id1;
+    id1.SetSsid("wifi_name");
     data.WriteUint32(1);
     id1.Marshalling(data);
 
