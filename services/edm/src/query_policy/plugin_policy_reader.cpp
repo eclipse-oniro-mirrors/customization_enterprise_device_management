@@ -613,13 +613,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
-#ifdef WIFI_EDM_ENABLE
-            obj = std::make_shared<DisallowRandomMacAddressQuery>();
-            return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
         case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
 #ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
             obj = std::make_shared<DisableExternalStorageCardQuery>();
@@ -669,6 +662,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
+#ifdef WIFI_EDM_ENABLE
+            obj = std::make_shared<DisallowRandomMacAddressQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
