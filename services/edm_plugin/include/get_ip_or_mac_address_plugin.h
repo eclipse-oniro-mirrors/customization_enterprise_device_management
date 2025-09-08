@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_IP_OR_MAC_ADDRESS_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_GET_IP_OR_MAC_ADDRESS_PLUGIN_H
 
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class GetMacPlugin : public PluginSingleton<GetMacPlugin, std::string> {
+class GetIpOrMacAddressPlugin : public PluginSingleton<GetIpOrMacAddressPlugin, std::string> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetMacPlugin, std::string>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<GetIpOrMacAddressPlugin, std::string>> ptr) override;
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_MAC_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_IP_OR_MAC_ADDRESS_PLUGIN_H

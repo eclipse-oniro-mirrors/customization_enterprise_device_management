@@ -307,8 +307,7 @@ namespace PolicyName {
     const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
-    const char* const POLICY_GET_IP_ADDRESS = "get_ip_address";
-    const char* const POLICY_GET_MAC = "get_mac";
+    const char* const POLICY_GET_IP_OR_MAC_ADDRESS = "get_ip_or_mac_address";
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
     const char* const POLICY_INSTALL = "install";
