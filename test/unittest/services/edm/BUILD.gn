@@ -65,6 +65,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disable_app_clone_query.cpp",
     "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_random_mac_address_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_external_storage_card_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
@@ -141,7 +142,10 @@ ohos_static_library("edmservice_static") {
   }
 
   if (ability_runtime_edm_enable) {
-    sources += [ "../../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp" ]
+    sources += [
+      "../../../../services/edm/src/query_policy/allowed_running_bundles_query.cpp",
+      "../../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp"
+    ]
   }
 
   if (bluetooth_edm_enable) {
@@ -363,6 +367,10 @@ ohos_unittest("EdmServicesUnitTest") {
 
   if (netmanager_ext_edm_enable) {
     defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
+  }
+
+  if (ability_runtime_edm_enable) {
+    defines += [ "ABILITY_RUNTIME_EDM_ENABLE" ]
   }
 
   configs = [

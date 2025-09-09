@@ -27,6 +27,8 @@ ohos_unittest("EdmPluginTest") {
     "../../common/mock/include",
     "../../external_mock/include",
     "../../../../common/native/include/plugin_kits",
+    "../../../../services/edm/include",
+    "../../../../services/edm/include/database",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/utils",
     "../../../../services/edm_plugin/include/network",
@@ -52,6 +54,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_set_device_name_plugin_test.cpp",
+    "./src/disallow_random_mac_address_plugin_test.cpp",
     "./src/disallow_export_recovery_key_plugin_test.cpp",
     "./src/disallow_distributed_transmission_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
@@ -129,6 +132,7 @@ ohos_unittest("EdmPluginTest") {
 
   if (ability_runtime_edm_enable) {
     sources += [
+      "./src/allowed_running_bundles_plugin_test.cpp",
       "./src/disallowed_running_bundles_plugin_test.cpp",
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
@@ -403,8 +407,13 @@ ohos_static_library("edm_all_plugin_static") {
   visibility = [ ":*" ]
   testonly = true
   sources = [
+    "../../../../services/edm/src/database/edm_rdb_data_manager.cpp",
+    "../../../../services/edm/src/database/edm_rdb_open_callback.cpp",
+    "../../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
+    "../../../../services/edm/src/policy_manager.cpp",
+    "../../../../services/edm/src/user_policy_manager.cpp",
     "../../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
@@ -412,6 +421,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_app_clone_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_backup_and_restore_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
@@ -585,9 +595,11 @@ ohos_static_library("edm_all_plugin_static") {
   if (ability_runtime_edm_enable) {
     external_deps += [ "ability_runtime:ability_manager" ]
     sources += [
+      "../../../../services/edm_plugin/src/allowed_running_bundles_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/bms_utils.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
       "../../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",

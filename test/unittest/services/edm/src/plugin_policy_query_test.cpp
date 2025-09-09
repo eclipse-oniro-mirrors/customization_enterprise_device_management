@@ -29,6 +29,7 @@
 
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_bluetooth_devices_query.h"
+#include "allowed_running_bundles_query.h"
 #include "allowed_usb_devices_query.h"
 #include "allowed_wifi_list_query.h"
 #include "cJSON.h"
@@ -41,6 +42,7 @@
 #include "disable_backup_and_restore_query.h"
 #include "disable_bluetooth_query.h"
 #include "disable_camera_query.h"
+#include "disallow_random_mac_address_query.h"
 #include "disallow_external_storage_card_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
@@ -2142,6 +2144,91 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedNotificationQuery002, TestSize.Lev
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disallowed_notification");
+}
+#endif
+
+#ifdef ABILITY_RUNTIME_EDM_ENABLE
+/**
+ * @tc.name: TestAllowedRunningBundlesQueryPolicyName
+ * @tc.desc: Test DisallowedNotificationQuery GetPolicyName function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedRunningBundlesQueryPolicyName, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedRunningBundlesQuery>();
+    ASSERT_EQ(queryObj->GetPolicyName(), PolicyName::POLICY_ALLOW_RUNNING_BUNDLES);
+}
+
+/**
+ * @tc.name: TestAllowedRunningBundlesQueryPermission
+ * @tc.desc: Test DisallowedNotificationQuery GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedRunningBundlesQueryPermission, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedRunningBundlesQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
+}
+
+/**
+ * @tc.name: TestAllowedRunningBundlesQueryPolicy
+ * @tc.desc: Test DisallowedNotificationQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestAllowedRunningBundlesQueryPolicy, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedRunningBundlesQuery>();
+    std::string policyValue{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisallowedRunningBundlesQueryPolicyName
+ * @tc.desc: Test DisallowedNotificationQuery GetPolicyName function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedRunningBundlesQueryPolicyName, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedRunningBundlesQuery>();
+    ASSERT_EQ(queryObj->GetPolicyName(), PolicyName::POLICY_DISALLOW_RUNNING_BUNDLES);
+}
+
+/**
+ * @tc.name: TestDisallowedRunningBundlesQueryPermission
+ * @tc.desc: Test DisallowedNotificationQuery GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedRunningBundlesQueryPermission, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedRunningBundlesQuery>();
+    ASSERT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, TEST_PERMISSION_TAG_VERSION_11),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY);
+    ASSERT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, TEST_PERMISSION_TAG_VERSION_12),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
+}
+
+/**
+ * @tc.name: TestDisallowedRunningBundlesQueryPolicy
+ * @tc.desc: Test DisallowedNotificationQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedRunningBundlesQueryPolicy, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedRunningBundlesQuery>();
+    std::string policyValue{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_TRUE(ret == ERR_OK);
 }
 #endif
 

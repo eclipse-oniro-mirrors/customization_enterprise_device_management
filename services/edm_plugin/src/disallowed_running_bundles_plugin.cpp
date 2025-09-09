@@ -19,6 +19,7 @@
 
 #include "app_control/app_control_proxy.h"
 #include "array_string_serializer.h"
+#include "bms_utils.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
@@ -56,54 +57,29 @@ ErrCode DisallowedRunningBundlesPlugin::SetOtherModulePolicy(const std::vector<s
     std::vector<std::string> &failedData)
 {
     EDMLOGI("DisallowedRunningBundlesPlugin OnSetPolicy");
-    std::vector<AppExecFwk::AppRunningControlRule> controlRules;
-    std::for_each(data.begin(), data.end(), [&](const std::string &str) {
-        AppExecFwk::AppRunningControlRule controlRule;
-        controlRule.appId = str;
-        controlRules.push_back(controlRule);
-    });
-
-    auto appControlProxy = GetAppControlProxy();
-    if (!appControlProxy) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicy GetAppControlProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (HasConflictPolicy(userId)) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    ErrCode res = appControlProxy->AddAppRunningControlRule(controlRules, userId);
-    if (res != ERR_OK) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnSetPolicyDone Faild %{public}d:", res);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
+    return BmsUtils::DealAppRunningRules(data, userId, false, true);
 }
 
 ErrCode DisallowedRunningBundlesPlugin::RemoveOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
     std::vector<std::string> &failedData)
 {
     EDMLOGD("DisallowedRunningBundlesPlugin OnRemovePolicy");
-    std::vector<AppExecFwk::AppRunningControlRule> controlRules;
-    std::for_each(data.begin(), data.end(), [&](const std::string &str) {
-        AppExecFwk::AppRunningControlRule controlRule;
-        controlRule.appId = str;
-        controlRules.push_back(controlRule);
-    });
-    auto appControlProxy = GetAppControlProxy();
-    if (!appControlProxy) {
-        EDMLOGE("DisallowedRunningBundlesPlugin OnRemovePolicy GetAppControlProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    ErrCode res = appControlProxy->DeleteAppRunningControlRule(controlRules, userId);
-    if (res != ERR_OK) {
-        EDMLOGE("DisallowedRunningBundlesPlugin DeleteAppInstallControlRule OnRemovePolicy faild %{public}d:", res);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
+    return BmsUtils::DealAppRunningRules(data, userId, false, false);
 }
 
-sptr<AppExecFwk::IAppControlMgr> DisallowedRunningBundlesPlugin::GetAppControlProxy()
+bool DisallowedRunningBundlesPlugin::HasConflictPolicy(int32_t userId)
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    return proxy->GetAppControlProxy();
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string policyValue;
+    policyManager->GetPolicy("", PolicyName::POLICY_ALLOW_RUNNING_BUNDLES, policyValue, userId);
+    if (!policyValue.empty()) {
+        EDMLOGE("DisallowedRunningBundlesPlugin policy conflict!");
+        return true;
+    }
+    return false;
 }
 } // namespace EDM
 } // namespace OHOS
