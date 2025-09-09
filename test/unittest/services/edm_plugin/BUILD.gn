@@ -54,7 +54,10 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
     "./src/disable_set_device_name_plugin_test.cpp",
+<<<<<<< HEAD
     "./src/disallow_random_mac_address_plugin_test.cpp",
+=======
+>>>>>>> 533fce6b6f6118b2c3f51895adee9264d3242d96
     "./src/disallow_export_recovery_key_plugin_test.cpp",
     "./src/disallow_distributed_transmission_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
@@ -421,7 +424,10 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_install_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_app_clone_plugin.cpp",
+<<<<<<< HEAD
     "../../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
+=======
+>>>>>>> 533fce6b6f6118b2c3f51895adee9264d3242d96
     "../../../../services/edm_plugin/src/disable_backup_and_restore_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
