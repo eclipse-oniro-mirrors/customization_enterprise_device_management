@@ -399,19 +399,6 @@ void IPluginTemplate<CT, DT>::SetOtherServiceStartListener(IntConsumer &&listene
 }
 
 template <class CT, class DT>
-ErrCode IPluginTemplate<CT, DT>::WritePolicyToParcel(const std::string &policyData, MessageParcel &reply)
-{
-    DT currentData;
-    if (!serializer_->Deserialize(policyData, currentData)) {
-        return ERR_EDM_OPERATE_JSON;
-    }
-    if (!serializer_->WritePolicy(reply, currentData)) {
-        return ERR_EDM_OPERATE_PARCEL;
-    }
-    return ERR_OK;
-}
-
-template <class CT, class DT>
 bool IPluginTemplate<CT, DT>::GetMergePolicyData(DT &policyData)
 {
     AdminValueItemsMap adminValues;

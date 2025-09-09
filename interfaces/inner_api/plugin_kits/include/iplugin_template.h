@@ -52,8 +52,6 @@ public:
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &removedJsonData, int32_t userId) override;
 
-    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override;
-
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
     void OnOtherServiceStart(int32_t systemAbilityId) override;

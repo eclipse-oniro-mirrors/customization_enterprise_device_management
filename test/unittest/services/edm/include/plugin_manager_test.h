@@ -62,11 +62,6 @@ public:
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &policyData, int32_t userId) override {}
 
-    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override
-    {
-        return IPlugin::WritePolicyToParcel(policyData, reply);
-    }
-
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
     {
         return ERR_OK;
@@ -109,11 +104,6 @@ public:
     }
 
     void OnAdminRemoveDone(const std::string &adminName, const std::string &policyData, int32_t userId) override {}
-
-    ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply) override
-    {
-        return IPlugin::WritePolicyToParcel(policyData, reply);
-    }
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
     {
