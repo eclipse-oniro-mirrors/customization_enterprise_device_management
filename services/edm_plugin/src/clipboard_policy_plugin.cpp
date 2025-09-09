@@ -190,7 +190,7 @@ ErrCode ClipboardPolicyPlugin::HandlePasteboardPolicy(std::map<int32_t, Clipboar
     if (!removeVector.empty()) {
         rmRet = pasteboardClient->RemoveGlobalShareOption(removeVector);
     }
-    pasteboardClient->DetachPasteboardClient();
+    pasteboardClient->DetachPasteboard();
     if (setRet != ERR_OK || rmRet != ERR_OK) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
