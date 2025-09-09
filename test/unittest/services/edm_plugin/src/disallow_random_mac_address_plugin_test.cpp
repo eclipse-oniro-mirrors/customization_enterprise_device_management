@@ -14,8 +14,6 @@
  */
 
 #include <gtest/gtest.h>
-#include <chrono>
-#include <thread>
 #include "disallow_random_mac_address_plugin.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
@@ -23,7 +21,6 @@
 #include "parameters.h"
 #include "plugin_singleton.h"
 #include "utils.h"
-#include "wifi_device.h"
  
 using namespace testing::ext;
 using namespace testing;
@@ -70,7 +67,7 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, ture));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
 }
 
 /**
@@ -89,7 +86,7 @@ HWTEST_F(DisallowRandomMacAddressPluginTest, TestDisallowRandomMacAddressPluginT
        EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_MAINTENANCE_MODE, true));
 }
 } // namespace TEST
 } // namespace EDM
