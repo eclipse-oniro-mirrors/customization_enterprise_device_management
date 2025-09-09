@@ -56,6 +56,7 @@
 #endif
 
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
+#include "allowed_running_bundles_query.h"
 #include "disallowed_running_bundles_query.h"
 #endif
 
@@ -171,6 +172,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_random_mac_address_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -612,6 +614,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS:
+            obj = std::make_shared<DisallowRandomMacAddressQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
 #ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
             obj = std::make_shared<DisableExternalStorageCardQuery>();
@@ -661,6 +666,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::ALLOW_RUNNING_BUNDLES:
+#ifdef ABILITY_RUNTIME_EDM_ENABLE
+            obj = std::make_shared<AllowedRunningBundlesQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

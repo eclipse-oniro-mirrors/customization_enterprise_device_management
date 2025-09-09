@@ -120,6 +120,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/permission_managed_state_query.cpp",
       "./src/query_policy/plugin_policy_reader.cpp",
       "./src/query_policy/snapshot_skip_query.cpp",
+      "./src/query_policy/disallow_random_mac_address_query.cpp",
       "./src/strategy/enhance_execute_strategy.cpp",
       "./src/strategy/replace_execute_strategy.cpp",
       "./src/strategy/single_execute_strategy.cpp",
@@ -166,7 +167,10 @@ ohos_shared_library("edmservice") {
   }
 
   if (ability_runtime_edm_enable) {
-    sources += [ "./src/query_policy/disallowed_running_bundles_query.cpp" ]
+    sources += [
+      "./src/query_policy/allowed_running_bundles_query.cpp",
+      "./src/query_policy/disallowed_running_bundles_query.cpp"
+    ]
     defines += [ "ABILITY_RUNTIME_EDM_ENABLE" ]
   }
 

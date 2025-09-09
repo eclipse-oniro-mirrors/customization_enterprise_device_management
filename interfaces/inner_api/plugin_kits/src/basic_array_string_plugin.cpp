@@ -29,7 +29,7 @@ ErrCode BasicArrayStringPlugin::OnBasicSetPolicy(std::vector<std::string> &data,
     }
     if (data.size() > maxListSize_) {
         EDMLOGE("BasicArrayStringPlugin OnSetPolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return overMaxReturnErrCode_;
     }
     std::vector<std::string> needAddData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(currentData, data);
@@ -41,7 +41,7 @@ ErrCode BasicArrayStringPlugin::OnBasicSetPolicy(std::vector<std::string> &data,
         ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
     if (afterMerge.size() > maxListSize_) {
         EDMLOGE("BasicArrayStringPlugin OnSetPolicy merge data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return overMaxReturnErrCode_;
     }
 
     std::vector<std::string> failedData;
@@ -80,7 +80,7 @@ ErrCode BasicArrayStringPlugin::OnBasicRemovePolicy(std::vector<std::string> &da
     }
     if (data.size() > maxListSize_) {
         EDMLOGE("BasicArrayStringPlugin OnRemovePolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return overMaxReturnErrCode_;
     }
     std::vector<std::string> needRemovePolicy =
         ArrayStringSerializer::GetInstance()->SetIntersectionPolicyData(data, currentData);

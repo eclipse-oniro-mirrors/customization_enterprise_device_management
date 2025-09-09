@@ -70,6 +70,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disable_app_clone_query.cpp",
     "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_random_mac_address_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
@@ -180,6 +181,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/allowed_install_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_install_plugin.cpp",
       "../../../services/edm_plugin/src/disable_maintenance_mode_plugin.cpp",
+      "../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
       "../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
@@ -304,12 +306,15 @@ ohos_static_library("edmservice_fuzz_static") {
     if (ability_runtime_edm_enable) {
       external_deps += [ "ability_runtime:ability_manager" ]
       sources += [
+        "../../../services/edm/src/query_policy/allowed_running_bundles_query.cpp",
         "../../../services/edm/src/query_policy/disallowed_running_bundles_query.cpp",
+        "../../../services/edm_plugin/src/allowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/bms_utils.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
-        "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp"
       ]

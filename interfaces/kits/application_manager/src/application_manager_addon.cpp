@@ -43,6 +43,9 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundlesSync", AddDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundlesSync", RemoveDisallowedRunningBundlesSync),
         DECLARE_NAPI_FUNCTION("getDisallowedRunningBundlesSync", GetDisallowedRunningBundlesSync),
+        DECLARE_NAPI_FUNCTION("addAllowedRunningBundles", AddAllowedRunningBundles),
+        DECLARE_NAPI_FUNCTION("removeAllowedRunningBundles", RemoveAllowedRunningBundles),
+        DECLARE_NAPI_FUNCTION("getAllowedRunningBundles", GetAllowedRunningBundles),
         DECLARE_NAPI_FUNCTION("setKioskFeatures", SetKioskFeatures),
         DECLARE_NAPI_FUNCTION("addKeepAliveApps", AddKeepAliveApps),
         DECLARE_NAPI_FUNCTION("removeKeepAliveApps", RemoveKeepAliveApps),
@@ -422,12 +425,13 @@ void ApplicationManagerAddon::NativeGetDisallowedRunningBundles(napi_env env, vo
 
 napi_value ApplicationManagerAddon::AddDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
-    return AddOrRemovellowedRunningBundles(env, info, "AddDisallowedRunningBundles", NativeAddDisallowedRunningBundles);
+    return AddOrRemoveDisallowedRunningBundles(env, info, "AddDisallowedRunningBundles",
+        NativeAddDisallowedRunningBundles);
 }
 
 napi_value ApplicationManagerAddon::RemoveDisallowedRunningBundles(napi_env env, napi_callback_info info)
 {
-    return AddOrRemovellowedRunningBundles(env, info, "RemoveDisallowedRunningBundles",
+    return AddOrRemoveDisallowedRunningBundles(env, info, "RemoveDisallowedRunningBundles",
         NativeRemoveDisallowedRunningBundles);
 }
 
@@ -485,7 +489,7 @@ bool ApplicationManagerAddon::CheckAddDisallowedRunningBundlesParamType(napi_env
         MatchValueType(env, argv[ARR_INDEX_THREE], napi_function);
 }
 
-napi_value ApplicationManagerAddon::AddOrRemovellowedRunningBundles(napi_env env, napi_callback_info info,
+napi_value ApplicationManagerAddon::AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
     const std::string &workName, napi_async_execute_callback execute)
 {
     size_t argc = ARGS_SIZE_FOUR;
@@ -655,6 +659,97 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIds, result);
+    return result;
+}
+
+napi_value ApplicationManagerAddon::AddAllowedRunningBundles(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveAllowedRunningBundles(env, info, true);
+}
+
+napi_value ApplicationManagerAddon::RemoveAllowedRunningBundles(napi_env env, napi_callback_info info)
+{
+    return AddOrRemoveAllowedRunningBundles(env, info, false);
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveAllowedRunningBundles(napi_env env, napi_callback_info info,
+    bool isAdd)
+{
+    EDMLOGI("NAPI_AddOrRemoveAllowedRunningBundles called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "parameter appIdentifies error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter accountId error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    std::vector<std::string> appIdentifies;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, appIdentifies, argv[ARR_INDEX_ONE]),
+        "parameter appIdentifies parse error");
+    EDMLOGD("AddOrRemoveAllowedRunningBundles: "
+        "elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+ 
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    if (applicationManagerProxy == nullptr) {
+        EDMLOGE("can not get applicationManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    int32_t ret = applicationManagerProxy->DealAllowedRunningBundles(elementName, appIdentifies, accountId, isAdd);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetAllowedRunningBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAllowedRunningBundles called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    EDMLOGD("GetAllowedRunningBundles: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error");
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    if (applicationManagerProxy == nullptr) {
+        EDMLOGE("can not get applicationManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    std::vector<std::string> appIdentifies;
+    int32_t ret = applicationManagerProxy->GetAllowedRunningBundles(elementName, accountId, appIdentifies);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    ConvertStringVectorToJS(env, appIdentifies, result);
     return result;
 }
 

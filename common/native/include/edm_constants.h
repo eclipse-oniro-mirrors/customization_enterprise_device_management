@@ -163,6 +163,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
+        const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
     } // namespace Restrictions
@@ -294,6 +295,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
+    const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";
     const char* const POLICY_DISALLOWED_BLUETOOTH_PROTOCOLS = "disallowed_bluetooth_protocols";
     const char* const POLICY_DISALLOWED_NEARLINK_PROTOCOLS = "disallowed_nearlink_protocols";
     const char* const POLICY_DISALLOWED_TETHERING = "disallowed_tethering";
@@ -372,6 +374,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SECURITY_PATCH_TAG = "get_security_patch_tag";
     const char* const POLICY_POLICY_SCREEN_SHOT = "policy_screen_shot";
     const char* const POLICY_POLICY_SCREEN_RECORD = "policy_screen_record";
+    const char* const POLICY_DISALLOWED_RANDOM_MAC_ADDRESS = "disallowed_random_mac_address";
     const char* const POLICY_DISALLOWED_EXTERNAL_STORAGE_CARD = "disallowed_external_storage_card";
     const char* const POLICY_ALLOW_ALL = "allow_all";
     const char* const POLICY_DISABLED_PRINT = "disabled_print";
