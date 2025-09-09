@@ -25,6 +25,10 @@ class DisallowRandomMacAddressPlugin : public PluginSingleton<DisallowRandomMacA
 public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRandomMacAddressPlugin, bool>> ptr) override;
+
+private:
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

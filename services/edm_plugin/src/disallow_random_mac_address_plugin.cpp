@@ -21,6 +21,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iplugin_manager.h"
+#include "wifi_device.h"
 
 namespace OHOS {
 namespace EDM {
@@ -41,6 +42,38 @@ void DisallowRandomMacAddressPlugin::InitPlugin(
     ptr->SetOnHandlePolicyListener(&DisallowRandomMacAddressPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowRandomMacAddressPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.random_mac_address_disable";
+}
+
+ErrCode DisallowRandomMacAddressPlugin::SetOtherModulePolicy(bool data, int32_t userId)
+{
+    EDMLOGI("DisallowRandomMacAddressPlugin SetOtherModulePolicy");
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (wifiDevice == nullptr) {
+        EDMLOGE("wifiDevice GetInstance null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = wifiDevice->SetRandomMacDisabled(data);
+    if (ret != ERR_OK) {
+        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device set random mac failed ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode DisallowRandomMacAddressPlugin::RemoveOtherModulePolicy(int32_t userId)
+{
+    EDMLOGI("DisallowRandomMacAddressPlugin RemoveOtherModulePolicy");
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (wifiDevice == nullptr) {
+        EDMLOGE("wifiDevice GetInstance null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = wifiDevice->SetRandomMacDisabled(false);
+    if (ret != ERR_OK) {
+        EDMLOGI("DisallowRandomMacAddressPlugin: wifi device remove random mac failed ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

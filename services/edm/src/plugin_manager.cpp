@@ -68,7 +68,6 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED, EdmInterfaceCode::DISALLOWED_NEARLINK_PROTOCOLS,
     EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY, EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE,
     EdmInterfaceCode::DISABLED_PRINT, EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
-    EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS,
     EdmInterfaceCode::DISABLED_APP_CLONE
 };
 
@@ -90,7 +89,8 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
     EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
-    EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD
+    EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
+    EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
