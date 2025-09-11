@@ -122,11 +122,6 @@ ErrCode IPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t 
     return ERR_OK;
 }
 
-ErrCode IPlugin::WritePolicyToParcel(const std::string &policyJsonData, MessageParcel &reply)
-{
-    return reply.WriteString(policyJsonData) ? ERR_OK : ERR_EDM_OPERATE_PARCEL;
-}
-
 void IPlugin::SetExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin)
 {
     extensionPlugin_ = extensionPlugin;

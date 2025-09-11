@@ -51,9 +51,6 @@ HWTEST_F(IPluginTest, TestIsGlobalPolicy, TestSize.Level1)
     int32_t userId100 = 100;
     ErrCode err = iplugin1.GetOthersMergePolicyData("com.edm.test.demo", userId100, mergeJsonData);
     EXPECT_TRUE(err == ERR_OK);
-    MessageParcel reply;
-    err = iplugin1.WritePolicyToParcel("name:test", reply);
-    EXPECT_TRUE(err == ERR_OK);
 }
 
 /**

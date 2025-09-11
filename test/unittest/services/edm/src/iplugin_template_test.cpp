@@ -317,26 +317,6 @@ HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWritePolicyToParcel
- * @tc.desc: Test PluginTemplate WritePolicyToParcel func.
- * @tc.type: FUNC
- */
-HWTEST_F(PluginTemplateTest, TestWritePolicyToParcel, TestSize.Level1)
-{
-    int policyCode = 22;
-    MessageParcel reply;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyFunctionPlg::GetPlugin());
-    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, policyCode);
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
-    std::string policyData = "testValue";
-    ErrCode ret = plugin->WritePolicyToParcel(policyData, reply);
-    ASSERT_TRUE(ret == ERR_OK);
-    std::string temp;
-    reply.ReadString(temp);
-    ASSERT_TRUE(temp == policyData);
-}
-
-/**
  * @tc.name: TestHandlePolicyReplyFunctionPlg
  * @tc.desc: Test PluginTemplate TestHandlePolicyReplyFunctionPlg func.
  * @tc.type: FUNC

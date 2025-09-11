@@ -100,7 +100,6 @@ public:
         const std::string &mergeJsonData, int32_t userId) = 0;
     virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
         int32_t userId) = 0;
-    virtual ErrCode WritePolicyToParcel(const std::string &policyData, MessageParcel &reply);
     virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) = 0;
     virtual void OnOtherServiceStart(int32_t systemAbilityId) {};
