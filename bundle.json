@@ -90,6 +90,7 @@
         "pasteboard",
         "power_manager",
         "relational_store",
+        "runtime_core",
         "resource_management",
         "safwk",
         "samgr",
@@ -136,7 +137,8 @@
           "//base/customization/enterprise_device_management/interfaces/inner_api:edmservice_kits",
           "//base/customization/enterprise_device_management/common/native:edm_commom",
           "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits",
-          "//base/customization/enterprise_device_management/interfaces/kits/telephony_manager:telephonymanager"
+          "//base/customization/enterprise_device_management/interfaces/kits/telephony_manager:telephonymanager",
+          "//base/customization/enterprise_device_management/interfaces/ets/ani:ani_edm_package"
         ],
         "service_group":[
           "//base/customization/enterprise_device_management/services/edm:edmservice",
