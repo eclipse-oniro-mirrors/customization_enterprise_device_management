@@ -24,13 +24,23 @@ namespace OHOS {
 namespace EDM {
 void WatermarkApplicationObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
 {
+    HandleWatermark(processData, true);
+}
+
+void WatermarkApplicationObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
+{
+    HandleWatermark(processData, false);
+}
+
+void WatermarkApplicationObserver::HandleWatermark(const AppExecFwk::ProcessData &processData, bool enabled)
+{
     int32_t accountId = -1;
     ErrCode ret = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(processData.uid, accountId);
     if (ret != ERR_OK) {
         EDMLOGE("OnProcessCreated GetOsAccountLocalIdFromUid error");
         return;
     }
-    SetProcessWatermarkOnAppStart(processData.bundleName, accountId, processData.pid, true);
+    SetProcessWatermarkOnAppStart(processData.bundleName, accountId, processData.pid, enabled);
 }
 
 void WatermarkApplicationObserver::SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId,
@@ -51,9 +61,11 @@ void WatermarkApplicationObserver::SetProcessWatermarkOnAppStart(const std::stri
     if (iter == currentData.end() || iter->second.fileName.empty()) {
         return;
     }
+    EDMLOGE("SetProcessWatermarkOnAppStart bundleName %{public}s, pid %{public}d, enabled %{public}d",
+        bundleName.c_str(), pid, enabled);
     Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, iter->second.fileName, enabled);
     if (ret != Rosen::WMError::WM_OK) {
-        EDMLOGE("SetAllWatermarkImage SetProcessWatermarkOnAppStart error");
+        EDMLOGE("SetProcessWatermarkOnAppStart error");
     }
 }
 } // namespace EDM
