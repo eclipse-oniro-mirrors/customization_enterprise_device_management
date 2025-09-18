@@ -109,6 +109,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->InsertAdmins(userId, adminPtrVec);
     adminManager->IsAdminExist();
     adminManager->GetAdmins(adminPtrVec, userId);
+    adminManager->GetSubSuperAdmins(userId, adminPtrVec);
     adminManager->SetAdminValue(0, adminItem1);
     adminManager->SetAdminValue(0, adminItem2);
     AdminContainer::GetInstance()->UpdateAdmin(0, bundleName, 0x1FF, adminItem2);

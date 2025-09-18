@@ -46,6 +46,7 @@ public:
     void DisableSuperAdminSuc(const std::string &bundleName);
 
     void GetBundleInfoMock(bool ret, const std::string& permission);
+    void GetBundleInfoV9Mock(bool ret, std::string extensionAdminName);
     void QueryExtensionAbilityInfosMock(bool ret, const std::string& bundleName, bool isExtensionInfoEmpty = false);
     int HandleDevicePolicyFuncTest001(void);
     int HandleDevicePolicyFuncTest002(void);

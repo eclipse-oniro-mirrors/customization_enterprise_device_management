@@ -427,7 +427,8 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::Com
     std::string bundleName = data.GetWant().GetElement().GetBundleName();
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
-    if (admin != nullptr && admin->GetAdminType() == AdminType::ENT) {
+    if (admin != nullptr &&
+        (admin->GetAdminType() == AdminType::ENT || admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN)) {
         OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
             IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
     }
@@ -467,6 +468,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
     uint32_t code, int32_t userId, bool isAdminEnabled)
 {
+    if (abilityName.empty()) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::OnAdminEnabled ignore bundlename is %{public}s", bundleName.c_str());
+        return false;
+    }
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
@@ -748,6 +753,12 @@ void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin != nullptr && !hasConnect_) {
         hasConnect_ = OnAdminEnabled(superAdmin->adminInfo_.packageName_, superAdmin->adminInfo_.className_,
+            IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
+    }
+    std::vector<std::shared_ptr<Admin>> subSuperAdmins;
+    AdminManager::GetInstance()->GetSubSuperAdmins(EdmConstants::DEFAULT_USER_ID, subSuperAdmins);
+    for (auto &admin : subSuperAdmins) {
+        OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
             IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, EdmConstants::DEFAULT_USER_ID, false);
     }
 }
@@ -1860,16 +1871,39 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     EntInfo entInfo;
     AppExecFwk::ExtensionAbilityInfo abilityInfo;
     abilityInfo.bundleName = bundleName;
+    abilityInfo.name = GetExtensionEnterpriseAdminName(bundleName, EdmConstants::DEFAULT_USER_ID);
     Admin subAdmin(abilityInfo, AdminType::SUB_SUPER_ADMIN, entInfo, permissionList, adminItem->adminInfo_.isDebug_);
     subAdmin.SetParentAdminName(admin.GetBundleName());
     ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, subAdmin);
     if (ret != ERR_OK) {
         return ret;
     }
+    OnAdminEnabled(abilityInfo.bundleName, abilityInfo.name, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
+        EdmConstants::DEFAULT_USER_ID, true);
     EDMLOGD("ReportEdmEventManagerAdmin AuthorizeAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
         static_cast<int32_t>(AdminType::SUB_SUPER_ADMIN), admin.GetBundleName().c_str());
     return ret;
+}
+
+std::string EnterpriseDeviceMgrAbility::GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = GetBundleMgr()->GetBundleInfoV9(bundleName,
+        static_cast<uint32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) |
+        static_cast<uint32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY),
+        bundleInfo, userId);
+    if (!ret) {
+        return "";
+    }
+    for (const auto &hapModuleInfo : bundleInfo.hapModuleInfos) {
+        for (const auto &extensionInfo : hapModuleInfo.extensionInfos) {
+            if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
+                return extensionInfo.name;
+            }
+        }
+    }
+    return "";
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(std::string &bundleName, std::string &abilityName)

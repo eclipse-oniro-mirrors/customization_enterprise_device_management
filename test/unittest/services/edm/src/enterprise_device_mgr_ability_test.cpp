@@ -258,6 +258,28 @@ void EnterpriseDeviceMgrAbilityTest::GetBundleInfoMock(bool ret, const std::stri
         .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(ret)));
 }
 
+void EnterpriseDeviceMgrAbilityTest::GetBundleInfoV9Mock(bool ret, std::string extensionAdminName)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!extensionAdminName.empty()) {
+        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+        AppExecFwk::ExtensionAbilityInfo extensionInfo;
+        extensionInfo.type = AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN;
+        extensionInfo.name = extensionAdminName;
+        extensionInfos.emplace_back(extensionInfo);
+
+        std::vector<AppExecFwk::HapModuleInfo> hapModuleInfos;
+        AppExecFwk::HapModuleInfo hapModuleInfo;
+        hapModuleInfo.extensionInfos = extensionInfos;
+        hapModuleInfos.emplace_back(hapModuleInfo);
+
+        bundleInfo.hapModuleInfos = hapModuleInfos;
+    }
+    EXPECT_CALL(*bundleMgrMock_, GetBundleInfoV9)
+        .Times(testing::AtLeast(1))
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(ret)));
+}
+
 /**
  * @tc.name: TestHandleDevicePolicyWithUserNotExsist
  * @tc.desc: Test HandleDevicePolicy function with userId is not exist.
@@ -4393,6 +4415,36 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetBundleInstallPoliciesWithInvalid
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetBundleInstallPolicies(bundles, userId, policyType);
     ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestGetExtensionEnterpriseAdminNameFail
+ * @tc.desc: Test GetExtensionEnterpriseAdminName query not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetExtensionEnterpriseAdminNameFail, TestSize.Level1)
+{
+    int32_t userId = 100;
+    std::string bundleName = ADMIN_PACKAGENAME_1;
+    bool expectRet = false;
+    GetBundleInfoV9Mock(expectRet, "");
+    std::string ret = edmMgr_->GetExtensionEnterpriseAdminName(bundleName, userId);
+    EXPECT_EQ(ret, "");
+}
+
+/**
+ * @tc.name: TestGetExtensionEnterpriseAdminNameSucc
+ * @tc.desc: Test GetExtensionEnterpriseAdminName query found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetExtensionEnterpriseAdminNameSucc, TestSize.Level1)
+{
+    int32_t userId = 100;
+    std::string bundleName = ADMIN_PACKAGENAME_1;
+    bool expectRet = true;
+    GetBundleInfoV9Mock(expectRet, "extensionName");
+    std::string ret = edmMgr_->GetExtensionEnterpriseAdminName(bundleName, userId);
+    EXPECT_EQ(ret, "extensionName");
 }
 } // namespace TEST
 } // namespace EDM
