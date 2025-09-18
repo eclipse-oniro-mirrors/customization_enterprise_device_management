@@ -179,6 +179,95 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestWriteVectorToParcelIntelligent, T
     int32_t size = 0;
     ASSERT_TRUE(reply.ReadInt32(size) && (size != 0));
 }
+
+/**
+ * @tc.name: TestAssembleBundleResourceInfoNormal
+ * @tc.desc: Test InstalledBundleInfoListQuery::AssembleBundleResourceInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoNormal, TestSize.Level1)
+{
+    std::string commonNameA = "nameA";
+    std::string commonNameB = "nameB";
+    std::string commonResourceLableA = "resourceInfoLableA";
+    std::string commonResourceLableB = "resourceInfoLableB";
+    EdmBundleInfo edmBundleInfoA;
+    edmBundleInfoA.applicationInfo.name = commonNameA;
+    edmBundleInfoA.applicationInfo.label = "";
+
+    EdmBundleInfo edmBundleInfoB;
+    edmBundleInfoB.applicationInfo.name = commonNameB;
+    edmBundleInfoB.applicationInfo.label = "";
+
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    edmBundleInfos.emplace_back(edmBundleInfoA);
+    edmBundleInfos.emplace_back(edmBundleInfoB);
+
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> bundleResourceInfos;
+    OHOS::AppExecFwk::BundleResourceInfo bundleResourceInfoA;
+    bundleResourceInfoA.bundleName = commonNameA;
+    bundleResourceInfoA.label = commonResourceLableA;
+    OHOS::AppExecFwk::BundleResourceInfo bundleResourceInfoB;
+    bundleResourceInfoB.bundleName = commonNameB;
+    bundleResourceInfoB.label = commonResourceLableB;
+    bundleResourceInfos.emplace_back(bundleResourceInfoA);
+    bundleResourceInfos.emplace_back(bundleResourceInfoB);
+    
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
+    ASSERT_EQ(edmBundleInfos[0].applicationInfo.label, commonResourceLableA);
+    ASSERT_EQ(edmBundleInfos[1].applicationInfo.label, commonResourceLableB);
+}
+
+/**
+ * @tc.name: TestAssembleBundleResourceInfoNotMatch
+ * @tc.desc: Test InstalledBundleInfoListQuery::AssembleBundleResourceInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoNotMatch, TestSize.Level1)
+{
+    std::string commonNameA = "nameA";
+    std::string commonNameB = "nameB";
+    std::string commonResourceLableA = "resourceInfoLableA";
+    std::string commonResourceLableB = "resourceInfoLableB";
+    EdmBundleInfo edmBundleInfoA;
+    edmBundleInfoA.applicationInfo.name = commonNameA;
+    edmBundleInfoA.applicationInfo.label = "";
+
+    EdmBundleInfo edmBundleInfoB;
+    edmBundleInfoB.applicationInfo.name = commonNameB;
+    edmBundleInfoB.applicationInfo.label = "";
+
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    edmBundleInfos.emplace_back(edmBundleInfoA);
+    edmBundleInfos.emplace_back(edmBundleInfoB);
+
+
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> bundleResourceInfos;
+    OHOS::AppExecFwk::BundleResourceInfo bundleResourceInfoA;
+    bundleResourceInfoA.bundleName = "nameC";
+    bundleResourceInfoA.label = commonResourceLableA;
+    bundleResourceInfos.emplace_back(bundleResourceInfoA);
+    
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
+    ASSERT_EQ(edmBundleInfos[0].applicationInfo.label, "");
+}
+
+/**
+ * @tc.name: TestAssembleBundleResourceInfoEmpty
+ * @tc.desc: Test InstalledBundleInfoListQuery::AssembleBundleResourceInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoEmpty, TestSize.Level1)
+{
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> bundleResourceInfos;
+
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
+    ASSERT_TRUE(edmBundleInfos.empty());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

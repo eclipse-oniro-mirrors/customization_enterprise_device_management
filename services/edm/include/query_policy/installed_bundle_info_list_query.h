@@ -17,6 +17,7 @@
 #define SERVICES_EDM_INCLUDE_QUERY_INSTALLED_BUNDLE_INFO_LIST_QUERY_H
 
 #include "bundle_info.h"
+#include "bundle_resource_info.h"
 #include "edm_bundle_info.h"
 #include "ipolicy_query.h"
 
@@ -41,6 +42,10 @@ private:
     bool ConvertResourceInfo(OHOS::AppExecFwk::Resource &resource, EdmResource &edmResource);
     bool WriteVectorToParcelIntelligent(std::vector<EdmBundleInfo> &parcelableVector, MessageParcel &reply);
     bool WriteParcelableIntoAshmem(MessageParcel &tempParcel, MessageParcel &reply);
+    bool GetBundleInfosData(std::vector<OHOS::AppExecFwk::BundleInfo> &bundleInfos,
+        std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos, int32_t userId);
+    void AssembleBundleResourceInfo(std::vector<EdmBundleInfo> &edmBundleInfos,
+        std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos);
     int32_t AllocatAshmemNum();
 
     std::mutex bundleAshmemMutex_;
