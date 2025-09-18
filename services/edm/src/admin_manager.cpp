@@ -148,7 +148,7 @@ ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userI
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     AdminContainer::GetInstance()->UpdateAdmin(userId, getAdmin->adminInfo_.packageName_,
-        ADMIN_TYPE | ENTI_NFO | PERMISSION | ACCESSIBLE_POLICIES | RUNNING_MODE, adminItem);
+        ADMIN_TYPE | CLASS_NAME | ENTI_NFO | PERMISSION | ACCESSIBLE_POLICIES | RUNNING_MODE, adminItem);
     return ERR_OK;
 }
 
@@ -313,6 +313,23 @@ void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_
     std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
         return admin->adminInfo_.adminType_ == AdminType::NORMAL;
     });
+}
+
+void AdminManager::GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins)
+{
+    if (subAdmins.size() > 0) {
+        subAdmins.clear();
+    }
+    std::vector<std::shared_ptr<Admin>> userAdmin;
+    if (!GetAdminByUserId(userId, userAdmin)) {
+        EDMLOGE("GetSubSuperAdmins::not find Admin under user id = %{public}d", userId);
+        return;
+    }
+    for (const auto &admin : userAdmin) {
+        if (admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN) {
+            subAdmins.push_back(admin);
+        }
+    }
 }
 
 ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins)

@@ -64,6 +64,19 @@ bool EdmBundleManagerImpl::GetBundleInfo(const std::string &bundleName, const Ap
     return false;
 }
 
+bool EdmBundleManagerImpl::GetBundleInfoV9(const std::string &bundleName, int32_t flag,
+    AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy && proxy->GetBundleInfoV9(bundleName, flag, bundleInfo, userId) == ERR_OK) {
+        EDMLOGI("EdmBundleManagerImpl::GetBundleInfoV9 success.");
+        return true;
+    }
+    EDMLOGE("EdmBundleManagerImpl::GetBundleInfoV9 GetBundleMgr failed.");
+    return false;
+}
+
 bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int32_t userId, int32_t appIndex)
 {
     bool isInstalled = false;
