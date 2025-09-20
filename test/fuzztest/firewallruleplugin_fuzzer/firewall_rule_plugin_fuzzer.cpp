@@ -24,6 +24,7 @@
 #include "ienterprise_device_mgr.h"
 #include "iptables_utils.h"
 #include "message_parcel.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -31,6 +32,12 @@ constexpr size_t MIN_SIZE = 16;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t MAX_ENUM_LENGTH = 2;
 constexpr int32_t MAX_PROTOCOL_LENGTH = 4;
+
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

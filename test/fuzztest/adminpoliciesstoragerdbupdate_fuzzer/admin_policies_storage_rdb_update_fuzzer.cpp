@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "admin_policies_storage_rdb_fuzzer.h"
+#include "admin_policies_storage_rdb_update_fuzzer.h"
 
 #include "cJSON.h"
 #include "common_fuzzer.h"
@@ -58,26 +58,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_size = size;
     g_pos = 0;
     int32_t pos = 0;
-    int32_t stringSize = size / 9;
+    int32_t stringSize = size / 13;
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
     Admin admin;
     InitAdminParam(admin, data, pos, size, stringSize);
-    adminPoliciesStorageRdb->InsertAdmin(userId, admin);
-    adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
+    adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
     std::string packageName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string currentParentName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string targetParentName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string stringInfo = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string info = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::vector<std::string> infos = {info};
-    adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
+    EntInfo entInfo;
+    entInfo.enterpriseName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    entInfo.description = CommonFuzzer::GetString(data, pos, stringSize, size);
+    adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
     ManagedEvent event = GetData<ManagedEvent>();
-    std::vector<ManagedEvent> managedEvents = {event};
-    adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, infos);
-    std::shared_ptr<NativeRdb::ResultSet> resultSet;
+    std::vector<ManagedEvent> managedEvents;
+    managedEvents.push_back(event);
+    adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
+    adminPoliciesStorageRdb->ReplaceAdmin(packageName, userId, admin);
+    adminPoliciesStorageRdb->UpdateParentName(packageName, currentParentName, targetParentName);
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
-    adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
-    adminPoliciesStorageRdb->SetManagedEventStr(resultSet, item);
-    adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }
 } // namespace EDM

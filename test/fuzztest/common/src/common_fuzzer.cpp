@@ -170,7 +170,7 @@ const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)
 {
-    TEST::Utils::SetEdmInitialEnv();
+    TEST::Utils::SetUid();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     enterpriseDeviceMgrAbility->OnStart();
 
@@ -178,7 +178,7 @@ void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data,
     MessageOption option;
 
     enterpriseDeviceMgrAbility->OnRemoteRequest(code, parcel, reply, option);
-    TEST::Utils::ResetTokenTypeAndUid();
+    TEST::Utils::ResetUid();
 }
 
 void CommonFuzzer::SetParcelContent(MessageParcel& parcel, const uint8_t* data, size_t size)

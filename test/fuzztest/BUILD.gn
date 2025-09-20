@@ -57,6 +57,7 @@ group("fuzztest") {
     "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
     "managekeepaliveappsplugin_fuzzer:ManageKeepAliveAppsPluginFuzzTest",
+    "adminpoliciesstoragerdbupdate_fuzzer:AdminPoliciesStorageRdbUpdateFuzzTest",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {

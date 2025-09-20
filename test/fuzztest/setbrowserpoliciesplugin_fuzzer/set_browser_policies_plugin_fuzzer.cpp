@@ -78,6 +78,12 @@ void SetParcelContent(MessageParcel &parcel, uint32_t operateType,
     }
 }
 
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
+
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
