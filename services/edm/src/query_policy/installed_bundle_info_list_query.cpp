@@ -21,6 +21,7 @@
 
 #include "bundle_info.h"
 #include "bundle_mgr_proxy.h"
+#include "bundle_resource_proxy.h"
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
@@ -44,24 +45,15 @@ ErrCode InstalledBundleInfoListQuery::QueryPolicy(std::string &policyData, Messa
     int32_t userId)
 {
     EDMLOGI("InstalledBundleInfoListQuery QueryPolicy");
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (!proxy) {
-        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy GetAppControlProxy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-
-    const int32_t bundleFlags =
-        static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
-        static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
     std::vector<OHOS::AppExecFwk::BundleInfo> bundleInfos;
-    ErrCode getResult = proxy->GetBundleInfosV9(bundleFlags, bundleInfos, userId);
-    if (FAILED(getResult)) {
-        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy getResult failed.");
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> bundleResourceInfos;
+    bool queryResult = GetBundleInfosData(bundleInfos, bundleResourceInfos, userId);
+    if (!queryResult) {
+        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy from bms failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (bundleInfos.empty()) {
-        EDMLOGI("InstalledBundleInfoListQuery QueryPolicy getResult empty.");
+    if (bundleInfos.empty() || bundleResourceInfos.empty()) {
+        EDMLOGI("InstalledBundleInfoListQuery QueryPolicy queryResult empty.");
         return ERR_OK;
     }
     std::vector<EdmBundleInfo> edmBundleInfos;
@@ -74,12 +66,45 @@ ErrCode InstalledBundleInfoListQuery::QueryPolicy(std::string &policyData, Messa
         }
         edmBundleInfos.emplace_back(edmBundleInfo);
     }
+    AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
     bool writeRet = WriteVectorToParcelIntelligent(edmBundleInfos, reply);
     if (!writeRet) {
         EDMLOGE("InstalledBundleInfoListQuery QueryPolicy WriteVectorToParcelIntelligent failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool InstalledBundleInfoListQuery::GetBundleInfosData(std::vector<OHOS::AppExecFwk::BundleInfo> &bundleInfos,
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos, int32_t userId)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (!proxy) {
+        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy getBundleMgr failed.");
+        return false;
+    }
+    int32_t bundleFlags =
+        static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
+        static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
+    ErrCode getResult = proxy->GetBundleInfosV9(bundleFlags, bundleInfos, userId);
+    if (FAILED(getResult)) {
+        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy getResult failed.");
+        return false;
+    }
+    auto bundleResourceProxy = proxy->GetBundleResourceProxy();
+    if (!bundleResourceProxy) {
+        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy GetBundleResourceProxy failed.");
+        return false;
+    }
+    uint32_t bundleResourceFlags =
+        static_cast<uint32_t>(OHOS::AppExecFwk::ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL);
+    ErrCode resourceResult = bundleResourceProxy->GetAllBundleResourceInfo(bundleResourceFlags, bundleResourceInfos);
+    if (FAILED(resourceResult)) {
+        EDMLOGE("InstalledBundleInfoListQuery QueryPolicy resourceResult failed.");
+        return false;
+    }
+    return true;
 }
 
 bool InstalledBundleInfoListQuery::ConvertBundleInfoList(OHOS::AppExecFwk::BundleInfo &bundleInfo,
@@ -244,6 +269,22 @@ int32_t InstalledBundleInfoListQuery::AllocatAshmemNum()
 {
     std::lock_guard<std::mutex> lock(bundleAshmemMutex_);
     return ashmemNum_++;
+}
+
+void InstalledBundleInfoListQuery::AssembleBundleResourceInfo(std::vector<EdmBundleInfo> &edmBundleInfos,
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos)
+{
+    std::unordered_map<std::string, std::string> labelMap;
+    for (const auto &item : bundleResourceInfos) {
+        labelMap[item.bundleName] = item.label;
+    }
+    for (auto &item: edmBundleInfos) {
+        if (labelMap.find(item.applicationInfo.name) != labelMap.end()) {
+            item.applicationInfo.label = labelMap[item.applicationInfo.name];
+        } else {
+            EDMLOGW("not find label info %{public}s", item.applicationInfo.name.c_str());
+        }
+    }
 }
 
 } // namespace EDM
