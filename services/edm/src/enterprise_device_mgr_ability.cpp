@@ -1093,11 +1093,19 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
     OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
         DEFAULT_USER_ID, true);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
+    AfterEnableAdminReportEdmEvent(newAdmin, oldAdmin);
+    return ERR_OK;
+}
 
+void EnterpriseDeviceMgrAbility::AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
+    const AppExecFwk::ElementName &oldAdmin)
+{
+    DelDisallowUninstallApp(oldAdmin.GetBundleName());
+    AddDisallowUninstallApp(newAdmin.GetBundleName());
+    EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdmin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::REPLACE),
         static_cast<int32_t>(AdminType::ENT), oldAdmin.GetBundleName().c_str());
-    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
