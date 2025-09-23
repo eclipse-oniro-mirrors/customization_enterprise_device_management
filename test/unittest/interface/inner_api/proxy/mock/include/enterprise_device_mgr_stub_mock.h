@@ -71,6 +71,7 @@ public:
         (override));
     MOCK_METHOD(int, SetBundleInstallPolicies, ((const std::vector<std::string> &), int32_t, int32_t),
         (override));
+    MOCK_METHOD(int, UnloadInstallMarketAppsPlugin, (), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

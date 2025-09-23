@@ -72,6 +72,7 @@ public:
         const std::vector<std::string> &policies, int32_t userId) override;
     ErrCode SetBundleInstallPolicies(const std::vector<std::string> &bundles, int32_t userId,
         int32_t policyType) override;
+    ErrCode UnloadInstallMarketAppsPlugin() override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -135,6 +136,9 @@ private:
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     void ReportFuncEvent(uint32_t code);
+    void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
+    void InitAgTask();
+    void GetAgCommonEventName();
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

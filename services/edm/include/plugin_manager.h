@@ -92,6 +92,8 @@ private:
     void DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,
         std::map<std::string, std::shared_ptr<IPlugin>> pluginsName);
     void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);
+    bool ExtraHasPersistPlugin(std::vector<uint32_t> targetVec);
+    bool HasPersistPlugin(std::vector<uint32_t> targetVec);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> singleStrategy_ = std::make_shared<SingleExecuteStrategy>();

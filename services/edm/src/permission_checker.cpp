@@ -73,6 +73,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
     EdmInterfaceCode::DISABLED_APP_CLONE,
     EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
+    EdmInterfaceCode::INSTALL_MARKET_APPS,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,
@@ -362,6 +363,8 @@ bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
             return uid == EdmConstants::USERIAM_SERVICE_UID;
         } else if (code == EdmInterfaceCode::DISABLE_USB) {
             return uid == EdmConstants::USB_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::INSTALL_MARKET_APPS) {
+            return uid == EdmConstants::SAMGR_SERVICE_UID;
         }
     }
     return false;
