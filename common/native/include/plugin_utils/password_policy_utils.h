@@ -35,7 +35,7 @@ public:
 private:
     cJSON *root_;
     bool CreateConfigDir(const std::string &dir);
-    bool LoadConfig();
+    bool LoadConfig(std::string &jsonStr);
     bool SaveConfig();
 };
 }  // namespace EDM
