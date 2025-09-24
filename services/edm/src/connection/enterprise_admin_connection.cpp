@@ -57,7 +57,7 @@ void EnterpriseAdminConnection::OnAbilityConnectDone(
 void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode)
 {
     EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
-    if (AdminManager::GetInstance()->IsSuperAdmin(want_.GetElement().GetBundleName())) {
+    if (AdminManager::GetInstance()->IsSuperOrSubSuperAdmin(want_.GetElement().GetBundleName())) {
         int32_t userId = EdmConstants::DEFAULT_USER_ID;
         auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
         if (superAdmin && superAdmin->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
