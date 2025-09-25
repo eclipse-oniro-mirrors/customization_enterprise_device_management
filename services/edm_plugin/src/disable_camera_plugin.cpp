@@ -15,7 +15,6 @@
 
 #include "disable_camera_plugin.h"
 
-#include "camera_manager.h"
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
