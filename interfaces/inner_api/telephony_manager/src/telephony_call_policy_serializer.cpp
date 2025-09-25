@@ -18,6 +18,7 @@
 #include <unordered_set>
 #include "cJSON.h"
 #include "cjson_check.h"
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
@@ -33,6 +34,7 @@ bool TelephonyCallPolicySerializer::Deserialize(const std::string &policy,
     }
     cJSON* root = cJSON_Parse(policy.c_str());
     if (root == nullptr) {
+        EDMLOGE("TelephonyCallPolicySerializer policy isn't in json format.");
         return false;
     }
     cJSON* mapItem;
@@ -41,6 +43,7 @@ bool TelephonyCallPolicySerializer::Deserialize(const std::string &policy,
         cJSON* numberList = cJSON_GetObjectItem(mapItem, NUMBER_LIST);
         if (!cJSON_IsArray(numberList) || !cJSON_IsNumber(policyFlag)) {
             cJSON_Delete(root);
+            EDMLOGE("The format of numberList or policyFlag is incorrect.");
             return false;
         }
         std::vector<std::string> numberVector;
@@ -49,6 +52,7 @@ bool TelephonyCallPolicySerializer::Deserialize(const std::string &policy,
             char* policyValue = cJSON_GetStringValue(vectorItem);
             if (policyValue == nullptr) {
                 cJSON_Delete(root);
+                EDMLOGE("policyValue is nullptr.");
                 return false;
             }
             numberVector.push_back(std::string(policyValue));
