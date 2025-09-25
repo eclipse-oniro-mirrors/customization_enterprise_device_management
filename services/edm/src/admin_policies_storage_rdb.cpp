@@ -154,15 +154,15 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
     NativeRdb::ValuesBucket &valuesBucket)
 {
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminInfo_.adminType_));
-
     if (!admin.adminInfo_.entInfo_.enterpriseName.empty()) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.adminInfo_.entInfo_.enterpriseName);
     }
-
     if (!admin.adminInfo_.entInfo_.description.empty()) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.adminInfo_.entInfo_.description);
     }
-
+    if (!admin.adminInfo_.className_.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.adminInfo_.className_);
+    }
     cJSON *permissionsArray = nullptr;
     CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
     for (const auto &permission : admin.adminInfo_.permission_) {

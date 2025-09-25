@@ -28,6 +28,8 @@ public:
         int32_t flag, int32_t userId, std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) override;
     bool GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override;
+    bool GetBundleInfoV9(const std::string &bundleName, int32_t flag,
+        AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override;
     bool IsBundleInstalled(const std::string &bundleName, int32_t userId, int32_t appIndex = 0) override;
     std::string GetApplicationInfo(const std::string &appName, int userId) override;
     int32_t GetTokenId(const std::string &appName, int userId) override;

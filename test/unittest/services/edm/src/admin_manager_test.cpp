@@ -548,6 +548,67 @@ HWTEST_F(AdminManagerTest, TestSaveAuthorizedAdmin, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestGetSubSuperAdminsBasic
+ * @tc.desc: Test AdminManager::GetSubSuperAdmins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsBasic, TestSize.Level1)
+{
+    std::vector<std::shared_ptr<Admin>> subAdmins;
+    adminMgr_->GetSubSuperAdmins(DEFAULT_USER_ID, subAdmins);
+    EXPECT_EQ(subAdmins.size(), 0);
+}
+
+/**
+ * @tc.name: TestGetSubSuperAdminsNoSubSuperAdmin
+ * @tc.desc: Test AdminManager::GetSubSuperAdmins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsNoSubSuperAdmin, TestSize.Level1)
+{
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo("test", "this is test");
+    std::vector<std::string> permissions{"ohos.permission.EDM_TEST_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::ENT, entInfo, permissions, false);
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    EXPECT_EQ(res, ERR_OK);
+    std::vector<std::shared_ptr<Admin>> subAdmins;
+    adminMgr_->GetSubSuperAdmins(DEFAULT_USER_ID, subAdmins);
+    EXPECT_EQ(subAdmins.size(), 0);
+}
+
+/**
+ * @tc.name: TestGetSubSuperAdminsWithSubSuperAdmin
+ * @tc.desc: Test AdminManager::GetSubSuperAdmins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetSubSuperAdminsWithSubSuperAdmin, TestSize.Level1)
+{
+    AppExecFwk::ExtensionAbilityInfo abilityInfo;
+    abilityInfo.bundleName = "com.edm.test.demo";
+    abilityInfo.name = "testDemo";
+    EntInfo entInfo("test", "this is test");
+    std::vector<std::string> permissions{"ohos.permission.EDM_TEST_PERMISSION"};
+    Admin edmAdmin(abilityInfo, AdminType::ENT, entInfo, permissions, false);
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    EXPECT_EQ(res, ERR_OK);
+
+    AppExecFwk::ExtensionAbilityInfo subAbilityInfo;
+    subAbilityInfo.bundleName = "com.edm.test.demo1";
+    subAbilityInfo.name = "com.edm.test.demo1.extensionAdminName";
+    Admin subSuperAdmin(subAbilityInfo, AdminType::SUB_SUPER_ADMIN, entInfo, permissions, false);
+    subSuperAdmin.SetParentAdminName(abilityInfo.bundleName);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, subSuperAdmin);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<std::shared_ptr<Admin>> subAdmins;
+    adminMgr_->GetSubSuperAdmins(DEFAULT_USER_ID, subAdmins);
+    EXPECT_EQ(subAdmins.size(), 1);
+}
+
+/**
  * @tc.name: TestGetSubSuperAdminsByParentName
  * @tc.desc: Test AdminManager::GetSubSuperAdminsByParentName.
  * @tc.type: FUNC
