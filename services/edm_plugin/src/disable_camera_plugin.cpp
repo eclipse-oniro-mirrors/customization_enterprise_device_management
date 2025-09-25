@@ -46,7 +46,7 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
 ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisableCameraPlugin OnSetPolicy %{public}d", data);
-    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(persssionName, data);
+    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(permissionName, data);
     if (ret == ERR_OK) {
         EDMLOGE("DisableCameraPlugin SetOtherModulePolicy SetDisablePolicy success, %{public}d", ret);
         return ERR_OK;
@@ -57,7 +57,7 @@ ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 
 ErrCode DisableCameraPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
-    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(persssionName, false);
+    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(permissionName, false);
     if (ret == ERR_OK) {
         EDMLOGE("DisableCameraPlugin RemoveOtherModulePolicy SetDisablePolicy success, %{public}d", ret);
         return ERR_OK;
