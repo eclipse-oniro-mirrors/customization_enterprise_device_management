@@ -44,8 +44,8 @@
 
 ## 相关仓
 
-[**customization_enterprise_device_management**](https://gitee.com/openharmony/customization_enterprise_device_management)
+[**customization_enterprise_device_management**](https://gitcode.com/openharmony/customization_enterprise_device_management)
 
-[customization_config_policy](https://gitee.com/openharmony/customization_config_policy)
+[customization_config_policy](https://gitcode.com/openharmony/customization_config_policy)
 
-[admin_provisioning](https://gitee.com/openharmony/applications_admin_provisioning)
+[admin_provisioning](https://gitcode.com/openharmony/applications_admin_provisioning)
