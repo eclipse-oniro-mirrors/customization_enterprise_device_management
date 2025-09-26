@@ -15,6 +15,8 @@
 
 #include "watermark_application_observer.h"
 
+#include <mutex>
+#include <thread>
 #include "managed_event.h"
 #include "os_account_manager.h"
 #include "window_manager.h"
@@ -22,6 +24,7 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t RETRY_SECONDS = 5;
 void WatermarkApplicationObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
 {
     HandleWatermark(processData, true);
@@ -61,11 +64,24 @@ void WatermarkApplicationObserver::SetProcessWatermarkOnAppStart(const std::stri
     if (iter == currentData.end() || iter->second.fileName.empty()) {
         return;
     }
-    EDMLOGE("SetProcessWatermarkOnAppStart bundleName %{public}s, pid %{public}d, enabled %{public}d",
+    EDMLOGI("SetProcessWatermarkOnAppStart bundleName %{public}s, pid %{public}d, enabled %{public}d",
         bundleName.c_str(), pid, enabled);
     Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, iter->second.fileName, enabled);
     if (ret != Rosen::WMError::WM_OK) {
         EDMLOGE("SetProcessWatermarkOnAppStart error");
+        std::string fileName = iter->second.fileName;
+        std::thread retryTask([=]() {
+            auto nextRun = std::chrono::steady_clock::now();
+            std::condition_variable cv;
+            std::mutex mutex_;
+            nextRun += std::chrono::seconds(RETRY_SECONDS);
+            std::unique_lock<std::mutex> lock(mutex_);
+            cv.wait_until(lock, nextRun);
+            EDMLOGI("SetProcessWatermarkOnAppStart retry start, bundleName %{public}s",
+                bundleName.c_str());
+            Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, fileName, enabled);
+        });
+        retryTask.detach();
     }
 }
 } // namespace EDM
