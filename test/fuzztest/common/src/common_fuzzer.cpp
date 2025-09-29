@@ -103,7 +103,8 @@ const bool REGISTER_DISABLE_BLUETOOTH_PLUGIN =
 const bool REGISTER_DISABLE_HDC_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
 const bool REGISTER_DISABLE_MICROPHONE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
-const bool REGISTER_DISABLE_HDC_REMOTE_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableHdcRemotePlugin::GetPlugin());
+const bool REGISTER_DISABLE_HDC_REMOTE_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(DisableHdcRemotePlugin::GetPlugin());
 const bool REGISTER_DISABLE_PRINTER_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisablePrinterPlugin::GetPlugin());
 const bool REGISTER_DISABLE_USB_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
 const bool REGISTER_DISABLED_NETWORK_INTERFACE_PLUGIN =

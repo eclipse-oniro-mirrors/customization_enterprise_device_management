@@ -27,7 +27,8 @@ std::string DisableHdcRemoteQuery::GetPolicyName()
     return PolicyName::POLICY_DISABLED_HDC_REMOTE;
 }
  
-std::string DisableHdcRemoteQuery::GetPermission(IPlugin::PermissionType permissionType, const std::string &permissionTag)
+std::string DisableHdcRemoteQuery::GetPermission(IPlugin::PermissionType permissionType,
+    const std::string &permissionTag)
 {
     if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
         return EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY;
@@ -38,7 +39,8 @@ std::string DisableHdcRemoteQuery::GetPermission(IPlugin::PermissionType permiss
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
  
-ErrCode DisableHdcRemoteQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode DisableHdcRemoteQuery::QueryPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
     return GetBoolPolicy(policyData, reply);
 }
