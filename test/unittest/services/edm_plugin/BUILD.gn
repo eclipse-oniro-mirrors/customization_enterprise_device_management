@@ -234,6 +234,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_hdc_plugin_test.cpp",
       "./src/disable_microphone_plugin_test.cpp",
       "./src/disable_printer_plugin_test.cpp",
+      "./src/disable_hdc_remote_plugin_test.cpp",
     ]
   }
 
@@ -641,6 +642,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_printer_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
     ]
   }
 

@@ -193,6 +193,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_hdc_query.cpp",
       "./src/query_policy/disable_microphone_query.cpp",
       "./src/query_policy/disable_printer_query.cpp",
+      "./src/query_policy/disable_hdc_remote_query.cpp",
     ]
     defines += [ "AUDIO_FRAMEWORK_EDM_ENABLE" ]
   }

@@ -46,6 +46,7 @@
 #include "disallow_external_storage_card_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
+#include "disable_hdc_remote_query.h"
 #include "disable_printer_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -2232,6 +2233,63 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedRunningBundlesQueryPolicy, TestSiz
 }
 #endif
 
+/**
+ * @tc.name: TestDisableHdcRemoteQuery001
+ * @tc.desc: Test DisableHdcRemote::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableHdcRemoteQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    ASSERT_EQ(OHOS::system::GetBoolParameter("persist.edm.hdc_remote_disable", false),
+        reply.ReadBool());
+}
+ 
+/**
+ * @tc.name: TestDisableHdcRemoteQuery002
+ * @tc.desc: Test DisableHdcRemote::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableHdcRemoteQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+/**
+ * @tc.name: TestDisableHdcRemoteQuery003
+ * @tc.desc: Test DisableHdcRemote GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableHdcRemoteQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_RESTRICT_POLICY);
+    
+    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_hdc_remote");
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

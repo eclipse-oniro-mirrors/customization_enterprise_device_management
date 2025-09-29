@@ -166,6 +166,7 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_hdc_query.cpp",
       "../../../../services/edm/src/query_policy/disable_microphone_query.cpp",
       "../../../../services/edm/src/query_policy/disable_printer_query.cpp",
+      "../../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
     ]
   }
 

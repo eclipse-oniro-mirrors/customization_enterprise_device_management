@@ -77,6 +77,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_install_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
       "./src/disable_app_clone_plugin.cpp",
+      "./src/disable_hdc_remote_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",

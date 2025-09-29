@@ -360,9 +360,11 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disable_hdc_query.cpp",
         "../../../services/edm/src/query_policy/disable_microphone_query.cpp",
         "../../../services/edm/src/query_policy/disable_printer_query.cpp",
+        "../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
         "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
+        "../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
       ]
     }
 
