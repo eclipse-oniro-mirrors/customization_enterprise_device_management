@@ -46,7 +46,6 @@
 #include "disallow_external_storage_card_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
-#include "disable_hdc_remote_query.h"
 #include "disable_printer_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -95,6 +94,7 @@
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "disable_print_query.h"
+#include "disable_hdc_remote_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -2233,6 +2233,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedRunningBundlesQueryPolicy, TestSiz
 }
 #endif
 
+#ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestDisableHdcRemoteQuery001
  * @tc.desc: Test DisableHdcRemote::QueryPolicy function.
@@ -2279,17 +2280,14 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery002, TestSize.Level1)
 HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery003, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableHdcRemoteQuery>();
-    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
-    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
-        == TEST_PERMISSION_ENTERPRISE_RESTRICT_POLICY);
-    
-    permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_hdc_remote");
 }
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

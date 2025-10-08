@@ -30,9 +30,6 @@ std::string DisableHdcRemoteQuery::GetPolicyName()
 std::string DisableHdcRemoteQuery::GetPermission(IPlugin::PermissionType permissionType,
     const std::string &permissionTag)
 {
-    if (permissionTag == EdmConstants::PERMISSION_TAG_VERSION_11) {
-        return EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY;
-    }
     if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
         return EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS;
     }

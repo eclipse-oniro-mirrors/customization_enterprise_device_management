@@ -360,11 +360,9 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disable_hdc_query.cpp",
         "../../../services/edm/src/query_policy/disable_microphone_query.cpp",
         "../../../services/edm/src/query_policy/disable_printer_query.cpp",
-        "../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
         "../../../services/edm_plugin/src/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/disable_printer_plugin.cpp",
-        "../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
       ]
     }
 
@@ -439,6 +437,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
         "../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
+        "../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
+        "../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }

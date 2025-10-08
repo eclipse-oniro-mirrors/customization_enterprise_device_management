@@ -58,7 +58,6 @@ group("fuzztest") {
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
     "managekeepaliveappsplugin_fuzzer:ManageKeepAliveAppsPluginFuzzTest",
     "adminpoliciesstoragerdbupdate_fuzzer:AdminPoliciesStorageRdbUpdateFuzzTest",
-    "disablehdcremoteplugin_fuzzer:DisableHdcRemotePluginFuzzTest",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {
@@ -76,6 +75,7 @@ group("fuzztest") {
     deps += [
       "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",
       "installlocalenterpriseappenabledplugin_fuzzer:InstallLocalEnterpriseAppEnabledPluginFuzzTest",
+      "disablehdcremoteplugin_fuzzer:DisableHdcRemotePluginFuzzTest",
     ]
   }
 

@@ -28,19 +28,12 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdc
 void DisableHdcRemotePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcRemotePlugin, bool>> ptr)
 {
     EDMLOGI("DisableHdcRemotePlugin InitPlugin...");
-    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
-    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
-    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
-    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY);
-    typePermissionsForTag12.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+    std::map<IPlugin::PermissionType, std::string> typePermissions;
+    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    typePermissionsForTag12.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
-    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
-    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
- 
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC_REMOTE, PolicyName::POLICY_DISABLED_HDC_REMOTE, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableHdcRemotePlugin::OnSetPolicy, FuncOperateType::SET);
