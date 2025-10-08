@@ -16,4 +16,3 @@ persist.edm.location_policy=none
 persist.edm.mic_disable=false
 persist.edm.is_local_install_enable=false
 persist.edm.disallow_virtual_service=none
-persist.edm.hdc_remote_disable=false
