@@ -41,7 +41,10 @@ PasswordPolicyUtils::PasswordPolicyUtils()
     if (std::find(files.begin(), files.end(), SECURITY_DIR) == files.end()) {
         CreateConfigDir(CONFIG_SYSTEM_ALL_DIR + SEPARATOR + SECURITY_DIR);
     }
-    LoadConfig();
+    std::string jsonStr;
+    if (LoadConfig(jsonStr)) {
+        root_ = cJSON_Parse(jsonStr.c_str());
+    }
 }
  
 bool PasswordPolicyUtils::CreateConfigDir(const std::string &dir)
@@ -75,9 +78,8 @@ bool PasswordPolicyUtils::UpdatePasswordPolicy(PasswordPolicy &policy)
 {
     EDMLOGI("PasswordPolicyUtils::UpdatePasswordPolicy()");
     // 通用前置检查
-    if (!root_ && !LoadConfig()) {
-        EDMLOGE("Failed to load config before update protocol");
-        return false;
+    if (root_ == nullptr) {
+        CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
     }
     cJSON_DeleteItemFromObject(root_, COMPLEXITY_REG.c_str());
     cJSON_DeleteItemFromObject(root_, VALIDITY_PERIOD.c_str());
@@ -92,9 +94,17 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
 {
     EDMLOGI("PasswordPolicyUtils::GetPasswordPolicy()");
     // 通用前置检查
-    if (!root_ && !LoadConfig()) {
-        EDMLOGE("Failed to load config before update protocol");
-        return false;
+    if (root_ == nullptr) {
+        std::string jsonStr;
+        if (!LoadConfig(jsonStr)) {
+            EDMLOGW("Failed to load config before update protocol");
+            return true;
+        }
+        root_ = cJSON_Parse(jsonStr.c_str());
+        if (root_ == nullptr) {
+            EDMLOGE("Failed to load config, root is null");
+            return false;
+        }
     }
     cJSON *complexityReg = cJSON_GetObjectItem(root_, COMPLEXITY_REG.c_str());
     cJSON *validityPeriod = cJSON_GetObjectItem(root_, VALIDITY_PERIOD.c_str());
@@ -108,7 +118,7 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
     return true;
 }
  
-bool PasswordPolicyUtils::LoadConfig()
+bool PasswordPolicyUtils::LoadConfig(std::string &jsonStr)
 {
     EDMLOGI("PasswordPolicyUtils::LoadConfig");
     std::ifstream inFile(CONFIG_PATH, std::ios::binary);
@@ -117,21 +127,19 @@ bool PasswordPolicyUtils::LoadConfig()
         inFile.seekg(0, std::ios::end);
         size_t size = static_cast<size_t>(inFile.tellg());
         if (size == 0) {
+            EDMLOGW("PasswordPolicyUtils::LoadConfig config is empty");
             inFile.close();
-            CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
-            return true;
+            return false;
         }
         inFile.seekg(0, std::ios::beg);
-        std::string jsonStr(size, ' ');
+        jsonStr.assign(size, ' ');
         inFile.read(&jsonStr[0], size);
         inFile.close();
-        root_ = cJSON_Parse(jsonStr.c_str());
-        return root_ != nullptr;
+        return true;
     }
     EDMLOGI("PasswordPolicyUtils::LoadConfig inFile fail");
     inFile.close();
-    CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
-    return true;
+    return false;
 }
  
 bool PasswordPolicyUtils::SaveConfig()
