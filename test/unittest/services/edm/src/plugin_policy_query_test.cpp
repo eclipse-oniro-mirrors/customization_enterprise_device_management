@@ -2283,8 +2283,6 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery003, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
-        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_hdc_remote");
 }
 #endif

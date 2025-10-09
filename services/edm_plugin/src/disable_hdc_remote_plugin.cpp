@@ -31,8 +31,6 @@ void DisableHdcRemotePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableH
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC_REMOTE, PolicyName::POLICY_DISABLED_HDC_REMOTE, config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
