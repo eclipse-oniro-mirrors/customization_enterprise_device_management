@@ -28,11 +28,8 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdc
 void DisableHdcRemotePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcRemotePlugin, bool>> ptr)
 {
     EDMLOGI("DisableHdcRemotePlugin InitPlugin...");
-    std::map<IPlugin::PermissionType, std::string> typePermissions;
-    typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC_REMOTE, PolicyName::POLICY_DISABLED_HDC_REMOTE, config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC_REMOTE, PolicyName::POLICY_DISABLED_HDC_REMOTE,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisableHdcRemotePlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisableHdcRemotePlugin::OnAdminRemove);
