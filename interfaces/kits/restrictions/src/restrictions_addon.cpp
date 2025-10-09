@@ -95,7 +95,6 @@ std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
     EdmInterfaceCode::DISABLED_HDC,
     EdmInterfaceCode::DISABLE_USB,
     EdmInterfaceCode::DISABLE_WIFI,
-    EdmInterfaceCode::DISABLED_HDC_REMOTE,
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAccount = {
