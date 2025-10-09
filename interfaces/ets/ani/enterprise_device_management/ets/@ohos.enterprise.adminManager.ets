@@ -43,8 +43,8 @@ export default namespace adminManager {
                 return getEnterpriseInfoSync(admin);
             }).then((content: NullishType) => {
                 resolve(content as EnterpriseInfo);
-            }, (err: BusinessError): void => {
-                reject(err);
+            }, (err: Error): void => {
+                reject(err as BusinessError);
             });
         });
     }
@@ -54,8 +54,8 @@ export default namespace adminManager {
             return getEnterpriseInfoSync(admin);
         }).then((content: NullishType) => {
             callback(null, content as EnterpriseInfo);
-        }).catch((err: BusinessError) : void => {
-            callback(err, undefined);
+        }).catch((err: Error) : void => {
+            callback(err as BusinessError, undefined);
         });
     }
 
@@ -65,8 +65,8 @@ export default namespace adminManager {
                 return getSuperAdminSync();
             }).then((content: NullishType) => {
                 resolve(content as Want);
-            }, (err: BusinessError): void => {
-                reject(err);
+            }, (err: Error): void => {
+                reject(err as BusinessError);
             });
         });
     }
