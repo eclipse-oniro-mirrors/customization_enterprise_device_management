@@ -35,13 +35,5 @@ void DisableHdcRemotePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableH
     ptr->SetOnAdminRemoveListener(&DisableHdcRemotePlugin::OnAdminRemove);
     persistParam_ = "persist.edm.hdc_remote_disable";
 }
- 
-ErrCode DisableHdcRemotePlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    if (!system::SetParameter("persist.edm.hdc_remote_disable", "false")) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-}
 } // namespace EDM
 } // namespace OHOS
