@@ -24,9 +24,6 @@ namespace EDM {
 class DisableHdcRemotePlugin : public PluginSingleton<DisableHdcRemotePlugin, bool>, public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcRemotePlugin, bool>> ptr) override;
- 
-private:
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
