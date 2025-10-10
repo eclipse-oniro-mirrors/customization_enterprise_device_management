@@ -58,7 +58,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallow_distributed_transmission_plugin_test.cpp",
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
-    "./src/disallowed_unmuteDevice_plugin_test.cpp",
+    "./src/disallow_unmute_device_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
     "./src/kiosk_feature_plugin_test.cpp",
     "./src/managed_browser_policy_plugin_test.cpp",
