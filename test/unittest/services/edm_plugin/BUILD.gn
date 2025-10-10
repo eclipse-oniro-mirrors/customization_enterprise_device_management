@@ -435,6 +435,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disallow_export_recovery_key_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_distributed_transmission_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_unmute_device_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_tethering_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
