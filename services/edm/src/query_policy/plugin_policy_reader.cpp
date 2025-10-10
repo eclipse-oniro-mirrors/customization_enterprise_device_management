@@ -129,6 +129,7 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
 #include "disable_print_query.h"
+#include "disable_hdc_remote_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -684,6 +685,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISABLED_APP_CLONE:
             obj = std::make_shared<DisableAppCloneQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISABLED_HDC_REMOTE:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableHdcRemoteQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }

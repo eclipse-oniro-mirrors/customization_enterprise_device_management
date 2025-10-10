@@ -46,7 +46,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
-        code == EdmInterfaceCode::SET_WIFI_PROFILE) {
+        code == EdmInterfaceCode::SET_WIFI_PROFILE ||
+        code == EdmInterfaceCode::DISABLED_HDC_REMOTE) {
         return 0;
     }
     code = POLICY_FUNC_CODE(operateType, code);

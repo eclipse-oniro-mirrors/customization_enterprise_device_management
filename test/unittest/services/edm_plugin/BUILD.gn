@@ -285,6 +285,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
       "./src/disallowed_nearlink_protocols_plugin_test.cpp",
       "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
+      "./src/disable_hdc_remote_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -705,6 +706,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
       "../../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
     ]
   }
 

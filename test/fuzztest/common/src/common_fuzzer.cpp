@@ -54,6 +54,7 @@
 #include "ienterprise_device_mgr.h"
 #ifdef FEATURE_PC_ONLY
 #include "install_local_enterprise_app_enabled_plugin.h"
+#include "disable_hdc_remote_plugin.h"
 #endif
 #include "install_plugin.h"
 #include "iptables_rule_plugin.h"
@@ -166,6 +167,8 @@ const bool REGISTER_MANAGE_KEEP_ALIVE_APPS_PLUGIN =
 #ifdef FEATURE_PC_ONLY
 const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
+const bool REGISTER_DISABLE_HDC_REMOTE_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(DisableHdcRemotePlugin::GetPlugin());
 #endif
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)

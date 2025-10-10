@@ -166,6 +166,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
+        const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -368,6 +369,7 @@ namespace PolicyName {
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
+    const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -66,6 +66,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD,
         EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRIVATE_SPACE, EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_HDC_REMOTE, EdmInterfaceCode::DISABLED_HDC_REMOTE},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {

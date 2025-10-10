@@ -75,6 +75,7 @@ group("fuzztest") {
     deps += [
       "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",
       "installlocalenterpriseappenabledplugin_fuzzer:InstallLocalEnterpriseAppEnabledPluginFuzzTest",
+      "disablehdcremoteplugin_fuzzer:DisableHdcRemotePluginFuzzTest",
     ]
   }
 
