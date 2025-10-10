@@ -28,13 +28,6 @@ void DisallowUnmuteDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disa
     ptr)
 {
     EDMLOGI("DisallowUnmuteDevicePlugin InitPlugin...");
-    // std::map<IPlugin::PermissionType, std::string> typePermissions;
-    // typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-    //     EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    // IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    // ptr->InitAttribute(EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, PolicyName::POLICY_DISALLOW_UNMUTE_DEVICE,
-    //     config, true);
-
     ptr->InitAttribute(EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, PolicyName::POLICY_DISALLOW_UNMUTE_DEVICE,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
 
