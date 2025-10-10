@@ -167,6 +167,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
         const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
+        const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -294,6 +295,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_ADD_LOCAL_ACCOUNT = "disallow_add_local_account";
     const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
+    const char* const POLICY_DISALLOW_UNMUTE_DEVICE = "disallow_unmute_device";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";

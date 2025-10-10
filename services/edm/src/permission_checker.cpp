@@ -73,6 +73,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_PRIVATE_SPACE,
     EdmInterfaceCode::DISABLED_APP_CLONE,
     EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
+    EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_SHOT,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_SCREEN_RECORD,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DISK_RECOVERY_KEY,
@@ -111,6 +112,7 @@ std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
     PolicyName::POLICY_DISALLOWED_MMS, PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE,
     PolicyName::POLICY_INSTALLED_BUNDLE_INFO_LIST, PolicyName::POLICY_CLEAR_UP_APPLICATION_DATA,
     PolicyName::POLICY_ALLOW_ALL, PolicyName::POLICY_DISABLED_HDC_REMOTE,
+    PolicyName::POLICY_DISALLOW_UNMUTE_DEVICE,
 };
 
 std::shared_ptr<PermissionChecker> PermissionChecker::GetInstance()
