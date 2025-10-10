@@ -18,7 +18,6 @@
 
 #include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
-#include "privacy_kit.h"
 
 namespace OHOS {
 namespace EDM {
