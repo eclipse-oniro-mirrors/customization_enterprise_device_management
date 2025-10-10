@@ -27,8 +27,8 @@ class DomainChainRule final: public ChainRule {
 public:
     explicit DomainChainRule(DomainFilterRule domainFilterRule);
     explicit DomainChainRule(const std::string& rule);
-    DomainFilterRule ToFilterRule(Direction direction);
-    [[nodiscard]] std::string Parameter() const override;
+    DomainFilterRule ToFilterRule(Direction direction, Family family);
+    [[nodiscard]] std::string Parameter(bool isRemove = false) override;
 
 private:
     static std::string DomainToFormatData(const std::string& domainName);
@@ -37,7 +37,6 @@ private:
     static uint8_t CharToHex(const char& hexChar);
 
 private:
-    std::string appUid_;
     std::string domainName_;
 };
 } // namespace IPTABLES

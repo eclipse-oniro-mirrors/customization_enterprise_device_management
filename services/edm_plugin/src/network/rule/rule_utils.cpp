@@ -71,7 +71,7 @@ Protocol RuleUtils::StringProtocol(const std::string &protocol)
         return Protocol::TCP;
     } else if (protocol == PROTOCOL_UDP) {
         return Protocol::UDP;
-    } else if (protocol == PROTOCOL_ICMP) {
+    } else if (protocol == PROTOCOL_ICMP || protocol == PROTOCOL_ICMPV6) {
         return Protocol::ICMP;
     } else {
         return Protocol::INVALID;

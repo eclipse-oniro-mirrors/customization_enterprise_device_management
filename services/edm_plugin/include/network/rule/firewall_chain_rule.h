@@ -28,8 +28,8 @@ public:
     explicit FirewallChainRule();
     explicit FirewallChainRule(FirewallRule firewallTuple);
     explicit FirewallChainRule(const std::string &rule);
-    FirewallRule ToFilterRule(Direction direction);
-    [[nodiscard]] std::string Parameter() const override;
+    FirewallRule ToFilterRule(Direction direction, Family family);
+    [[nodiscard]] std::string Parameter(bool isRemove = false) override;
 
 private:
     static std::string IpToParameter(const std::string &ip, const std::string &ipType);
@@ -39,7 +39,6 @@ private:
 private:
     std::string srcPort_;
     std::string destPort_;
-    std::string appUid_;
     std::string state_;
 };
 } // namespace IPTABLES

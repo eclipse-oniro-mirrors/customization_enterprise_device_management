@@ -30,7 +30,7 @@ public:
     explicit ChainRule(const std::string &rule);
 
     virtual uint32_t RuleNum();
-    [[nodiscard]] virtual std::string Parameter() const = 0;
+    [[nodiscard]] virtual std::string Parameter(bool isRemove = false) = 0;
     virtual std::string Target();
 
 protected:
@@ -50,6 +50,8 @@ protected:
 
     std::string srcAddr_;
     std::string destAddr_;
+
+    std::string appUid_;
 
     std::string otherOptions_;
 };

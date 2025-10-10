@@ -21,6 +21,7 @@
 #include "firewall_rule_serializer.h"
 #include "iptables_manager.h"
 #include "iplugin_manager.h"
+#include "iptables_factory.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
@@ -42,33 +43,57 @@ void FirewallRulePlugin::InitPlugin(
 ErrCode FirewallRulePlugin::OnSetPolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IPTABLES::IptablesManager::GetInstance()->HasInit()) {
-        IPTABLES::IptablesManager::GetInstance()->Init();
+    IPTABLES::Family family = std::get<FIREWALL_FAMILY_IND>(rule);
+    std::shared_ptr<IptablesManager> iptablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(family);
+    if (!iptablesManager->HasInit()) {
+        iptablesManager->Init();
     }
-    return IPTABLES::IptablesManager::GetInstance()->AddFirewallRule(ruleParcel);
+    return iptablesManager->AddFirewallRule(ruleParcel);
 }
 
 ErrCode FirewallRulePlugin::OnRemovePolicy(IPTABLES::FirewallRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IPTABLES::IptablesManager::GetInstance()->HasInit()) {
-        IPTABLES::IptablesManager::GetInstance()->Init();
+    IPTABLES::Family family = std::get<FIREWALL_FAMILY_IND>(rule);
+    std::shared_ptr<IptablesManager> iptablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(family);
+    if (!iptablesManager->HasInit()) {
+        iptablesManager->Init();
     }
-    return IptablesManager::GetInstance()->RemoveFirewallRule(ruleParcel);
+    return iptablesManager->RemoveFirewallRule(ruleParcel);
 }
 
 ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     reply.WriteInt32(ERR_OK);
-    if (!IptablesManager::GetInstance()->HasInit()) {
-        IptablesManager::GetInstance()->Init();
+    std::shared_ptr<IptablesManager> ipv4tablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(IPTABLES::Family::IPV4);
+    std::shared_ptr<IptablesManager> ipv6tablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(IPTABLES::Family::IPV6);
+    if (!ipv4tablesManager->HasInit() && !ipv6tablesManager->HasInit()) {
+        ipv4tablesManager->Init();
+        ipv6tablesManager->Init();
         reply.WriteInt32(0);
     } else {
         std::vector<FirewallRuleParcel> list;
-        ErrCode ret = IptablesManager::GetInstance()->GetFirewallRules(list);
+        ErrCode ret;
+        if (ipv4tablesManager->HasInit()) {
+            ErrCode retIpv4 = ipv4tablesManager->GetFirewallRules(list);
+            if (retIpv4 != ERR_OK) {
+                EDMLOGE("IPV4 FirewallRulePlugin OnGetPolicy fail");
+                ret = retIpv4;
+            }
+        }
+        if (ipv6tablesManager->HasInit()) {
+            ErrCode retIpv6 = ipv6tablesManager->GetFirewallRules(list);
+            if (retIpv6 != ERR_OK) {
+                EDMLOGE("IPV6 FirewallRulePlugin OnGetPolicy fail");
+                ret = retIpv6;
+            }
+        }
         if (ret != ERR_OK) {
-            EDMLOGE("FirewallRulePlugin OnGetPolicy fail");
             return ret;
         }
         reply.WriteInt32(list.size());

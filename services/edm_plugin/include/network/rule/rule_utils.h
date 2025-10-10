@@ -32,6 +32,7 @@ const char* const PROTOCOL_ALL = "all";
 const char* const PROTOCOL_TCP = "tcp";
 const char* const PROTOCOL_UDP = "udp";
 const char* const PROTOCOL_ICMP = "icmp";
+const char* const PROTOCOL_ICMPV6 = "ipv6-icmp";
 
 
 const char* const EDM_DENY_OUTPUT_CHAIN_NAME = "edm_deny_output";

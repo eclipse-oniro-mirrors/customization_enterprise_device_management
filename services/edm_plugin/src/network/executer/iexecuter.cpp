@@ -43,15 +43,15 @@ IExecuter::IExecuter(std::string chainName) : chainName_(std::move(chainName))
     tableName_ = "filter";
 }
 
-ErrCode IExecuter::CreateChain()
+ErrCode IExecuter::CreateChain(NetsysNative::IptablesType ipType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_ << NEW_OPTION << chainName_;
     std::string result;
-    return ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+    return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
 }
 
-ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule)
+ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType)
 {
     if (rule == nullptr) {
         EDMLOGE("Add: error param.");
@@ -60,24 +60,25 @@ ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule)
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_;
     oss << APPEND_OPTION << chainName_;
-    return ExecWithOption(oss, rule);
+    return ExecWithOption(oss, rule, ipType);
 }
 
-ErrCode IExecuter::Remove(const std::shared_ptr<ChainRule>& rule)
+ErrCode IExecuter::Remove(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_;
-    if (rule == nullptr || rule->Parameter().empty()) {
+    if (rule == nullptr || rule->Parameter(true).empty()) {
         oss << FLUSH_OPTION << chainName_;
     } else {
         oss << DELETE_OPTION << chainName_;
-        return ExecWithOption(oss, rule);
+        return ExecWithOption(oss, rule, ipType);
     }
     std::string result;
-    return ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+    return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
 }
 
-ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr<ChainRule>& rule)
+ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr<ChainRule>& rule,
+    NetsysNative::IptablesType ipType)
 {
     oss << rule->Parameter();
     // for interception rules, log needs to be recorded.
@@ -92,7 +93,7 @@ ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr
     } else {
         oss << JUMP_OPTION << rule->Target();
         std::string result;
-        return ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+        return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     }
 
     std::string logRule = oss.str();
@@ -103,19 +104,19 @@ ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr
 
     std::string result;
     // "-j LOG" must be before "-j REJECT"/"-j DROP"
-    ErrCode ret = ExecuterUtils::GetInstance()->Execute(logRule, result);
+    ErrCode ret = ExecuterUtils::GetInstance()->Execute(logRule, result, ipType);
     if (ret != ERR_OK) {
         EDMLOGE("ExecWithOption: exec interception rule log fail.");
     }
-    return ExecuterUtils::GetInstance()->Execute(interceptRule, result);
+    return ExecuterUtils::GetInstance()->Execute(interceptRule, result, ipType);
 }
 
-ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList)
+ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList, NetsysNative::IptablesType ipType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_ << " -n -v -L " << chainName_ << " --line-number";
     std::string result;
-    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     if (ret != ERR_OK) {
         return ret;
     }
@@ -143,6 +144,26 @@ ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList)
         ruleList.emplace_back(ruleLines[i]);
     }
     return ERR_OK;
+}
+
+bool IExecuter::ChainInit(NetsysNative::IptablesType ipType)
+{
+    std::ostringstream oss;
+    oss << SELECT_TABLE_OPTION << tableName_ << " -L " << chainName_;
+    std::string result;
+    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
+    if (result.empty()) {
+        EDMLOGE("IExecuter::The chain is not initialized: %{public}d, %{public}s", ret, result.c_str());
+        return false;
+    } else {
+        EDMLOGE("IExecuter::The chain initialization has been completed: %{public}d, %{public}s", ret, result.c_str());
+    }
+    return true;
+}
+
+ErrCode IExecuter::ClearDefaultDenyChain(NetsysNative::IptablesType ipType)
+{
+    return Remove(nullptr, ipType);
 }
 } // namespace IPTABLES
 } // namespace EDM

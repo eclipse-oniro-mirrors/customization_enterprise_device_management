@@ -28,10 +28,11 @@ namespace TEST {
 
 class ExecuterUtilsMock final: public IPTABLES::ExecuterUtils {
 public:
-    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result), (override));
+    MOCK_METHOD(ErrCode, Execute, (const std::string &rule, std::string &result, NetsysNative::IptablesType ipType),
+        (override));
 };
 
-ErrCode PrintExecRule(const std::string &rule, std::string &result);
+ErrCode PrintExecRule(const std::string &rule, std::string &result, NetsysNative::IptablesType ipType);
 
 } // namespace TEST
 } // namespace IPTABLES

@@ -31,6 +31,8 @@ enum class Action { INVALID = -1, ALLOW, DENY, REJECT };
 
 enum class Protocol { INVALID = -1, ALL, TCP, UDP, ICMP };
 
+enum class Family { IPV4 = 1, IPV6 = 2 };
+
 struct Firewall {
     std::string srcAddr;
     std::string destAddr;
@@ -73,6 +75,7 @@ public:
     static bool ProcessFirewallMethod(int32_t type, AddMethod &method);
     static bool ProcessFirewallDirection(int32_t type, Direction &direction);
     static void ProcessFirewallProtocol(int32_t type, Protocol &protocol);
+    static void ProcessFirewallFamily(int32_t type, Family &family);
 };
 } // namespace IPTABLES
 } // namespace EDM

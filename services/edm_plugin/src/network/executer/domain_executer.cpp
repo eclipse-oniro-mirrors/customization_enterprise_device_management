@@ -14,6 +14,7 @@
  */
 
 #include "domain_executer.h"
+#include "domain_chain_rule.h"
 
 #include <iostream>
 #include <sstream>
@@ -35,18 +36,42 @@ DomainExecuter::DomainExecuter(std::string actualChainName, const std::string& c
 }
 
 
-ErrCode DomainExecuter::Init()
+ErrCode DomainExecuter::Init(NetsysNative::IptablesType ipType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << " -p udp --dport 53"
         << JUMP_OPTION << chainName_;
     std::string result;
-    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     if (ret != ERR_OK) {
         EDMLOGE("DomainExecuter:Init error.ret:%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool DomainExecuter::SetDefaultOutputDenyChain(Direction direction, Family family)
+{
+    if (direction == Direction::OUTPUT) {
+        DomainFilterRule domainFilterRule{Action::DENY, "", "", Direction::OUTPUT, family};
+        std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
+        NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(static_cast<int32_t>(family));
+        Add(chainRule, ipType);
+        return true;
+    }
+    return false;
+}
+
+bool DomainExecuter::SetDefaultForwardDenyChain(Direction direction, Family family)
+{
+    if (direction == Direction::FORWARD) {
+        DomainFilterRule domainFilterRule{Action::DENY, "", "", Direction::FORWARD, family};
+        std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
+        NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(static_cast<int32_t>(family));
+        Add(chainRule, ipType);
+        return true;
+    }
+    return false;
 }
 } // namespace IPTABLES
 } // namespace EDM

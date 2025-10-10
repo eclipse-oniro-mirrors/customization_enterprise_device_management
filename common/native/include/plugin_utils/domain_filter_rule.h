@@ -29,8 +29,9 @@ const int32_t DOMAIN_ACTION_IND = 0;
 const int32_t DOMAIN_APPUID_IND = 1;
 const int32_t DOMAIN_DOMAINNAME_IND = 2;
 const int32_t DOMAIN_DIRECTION_IND = 3;
+const int32_t DOMAIN_FAMILY_IND = 4;
 
-using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/, Direction>;
+using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/, Direction, Family>;
 
 class DomainFilterRuleParcel {
 public:
@@ -42,6 +43,9 @@ public:
     bool Marshalling(MessageParcel& parcel) const;
 
     static bool Unmarshalling(MessageParcel& parcel, DomainFilterRuleParcel& domainFilterRuleParcel);
+
+    bool CheckAddDomainParams() const;
+    bool CheckRemoveDomainParams() const;
 
 private:
     DomainFilterRule rule_;

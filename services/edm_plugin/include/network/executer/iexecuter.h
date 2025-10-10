@@ -23,6 +23,8 @@
 #include "chain_rule.h"
 #include "edm_errors.h"
 #include "executer_utils.h"
+#include "i_netsys_service.h"
+#include "iptables_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,14 +34,21 @@ class IExecuter {
 public:
     explicit IExecuter(std::string chainName);
 
-    virtual ErrCode CreateChain();
-    virtual ErrCode Init() = 0;
-    virtual ErrCode Add(const std::shared_ptr<ChainRule> &rule);
-    virtual ErrCode Remove(const std::shared_ptr<ChainRule> &rule);
-    virtual ErrCode GetAll(std::vector<std::string> &ruleList);
+    virtual ErrCode CreateChain(NetsysNative::IptablesType ipType);
+    virtual ErrCode Init(NetsysNative::IptablesType ipType) = 0;
+    virtual ErrCode Add(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType);
+    virtual ErrCode Remove(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType);
+    virtual ErrCode GetAll(std::vector<std::string> &ruleList, NetsysNative::IptablesType ipType);
+    virtual bool ChainInit(NetsysNative::IptablesType ipType);
+
+    virtual bool SetDefaultOutputDenyChain(Direction direction, Family family) = 0;
+    virtual bool SetDefaultForwardDenyChain(Direction direction, Family family) = 0;
+
+    ErrCode ClearDefaultDenyChain(NetsysNative::IptablesType ipType);
 
 private:
-    virtual ErrCode ExecWithOption(std::ostringstream &oss, const std::shared_ptr<ChainRule> &rule);
+    virtual ErrCode ExecWithOption(std::ostringstream &oss, const std::shared_ptr<ChainRule> &rule,
+        NetsysNative::IptablesType ipType);
 
 protected:
     IExecuter() = default;

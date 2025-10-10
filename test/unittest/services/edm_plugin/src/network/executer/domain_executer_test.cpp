@@ -62,11 +62,39 @@ HWTEST_F(DomainExecuterTest, TestInit, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     DomainExecuter initOk{"actualChainName", "chainName"};
-    EXPECT_TRUE(initOk.Init() == ERR_OK);
+    EXPECT_TRUE(initOk.Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     DomainExecuter initFail{"actualChainName", "chainName"};
-    EXPECT_FALSE(initFail.Init() == ERR_OK);
+    EXPECT_FALSE(initFail.Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDefaultOutputDenyChain
+ * @tc.desc: Test SetDefaultOutputDenyChain func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DomainExecuterTest, TestSetDefaultOutputDenyChain, TestSize.Level1)
+{
+    DomainExecuter initOk{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk.SetDefaultOutputDenyChain(Direction::OUTPUT, Family::IPV4) == true);
+
+    DomainExecuter initFail{"actualChainName", "chainName"};
+    EXPECT_TRUE(initFail.SetDefaultOutputDenyChain(Direction::INPUT, Family::IPV4) == false);
+}
+
+/**
+ * @tc.name: TestSetDefaultForwardDenyChain
+ * @tc.desc: Test SetDefaultForwardDenyChain func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DomainExecuterTest, TestSetDefaultForwardDenyChain, TestSize.Level1)
+{
+    DomainExecuter initOk{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk.SetDefaultForwardDenyChain(Direction::FORWARD, Family::IPV4) == true);
+
+    DomainExecuter initFail{"actualChainName", "chainName"};
+    EXPECT_TRUE(initFail.SetDefaultForwardDenyChain(Direction::INPUT, Family::IPV4) == false);
 }
 } // namespace TEST
 } // namespace IPTABLES

@@ -33,9 +33,10 @@ const int32_t FIREWALL_DESTADDR_IND = 4;
 const int32_t FIREWALL_SRCPORT_IND = 5;
 const int32_t FIREWALL_DESTPORT_IND = 6;
 const int32_t FIREWALL_APPUID_IND = 7;
+const int32_t FIREWALL_FAMILY_IND = 8;
 
 using FirewallRule = std::tuple<Direction, Action, Protocol, std::string /*srcAddr*/, std::string /*destAddr*/,
-    std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/>;
+    std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/, Family>;
 class FirewallRuleParcel {
 public:
     FirewallRuleParcel() = default;
@@ -46,6 +47,9 @@ public:
     bool Marshalling(MessageParcel& parcel) const;
 
     static bool Unmarshalling(MessageParcel& parcel, FirewallRuleParcel& firewallRuleParcel);
+
+    bool CheckAddFirewallParams() const;
+    bool CheckRemoveFirewallParams() const;
 
 private:
     FirewallRule rule_;

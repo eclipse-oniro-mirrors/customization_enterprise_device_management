@@ -450,7 +450,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
-        "", "", "", "", ""};
+        "", "", "", "", "", IPTABLES::Family::IPV4};
     MessageParcel data;
     data.WriteParcelable(&admin);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
@@ -471,7 +471,7 @@ HWTEST_F(NetworkManagerProxyTest, TestAddFirewallRuleFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
-        "", "", "", "", ""};
+        "", "", "", "", "", IPTABLES::Family::IPV4};
     MessageParcel data;
     data.WriteParcelable(&admin);
     IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
@@ -494,7 +494,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
-        "", "", "", "", ""};
+        "", "", "", "", "", IPTABLES::Family::IPV4};
     int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -510,7 +510,7 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveFirewallRuleFail, TestSize.Level1)
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
-        "", "", "", "", ""};
+        "", "", "", "", "", IPTABLES::Family::IPV4};
     int32_t ret = networkManagerProxy->RemoveFirewallRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
@@ -567,7 +567,8 @@ HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT,
+        IPTABLES::Family::IPV4};
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
     MessageParcel data;
     data.WriteParcelable(&admin);
@@ -587,7 +588,8 @@ HWTEST_F(NetworkManagerProxyTest, TestAddDomainFilterRuleFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT,
+        IPTABLES::Family::IPV4};
     IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
     MessageParcel data;
     data.WriteParcelable(&admin);
@@ -609,7 +611,8 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleSuc, TestSize.Level1
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT,
+        IPTABLES::Family::IPV4};
     int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -624,7 +627,8 @@ HWTEST_F(NetworkManagerProxyTest, TestRemoveDomainFilterRuleFail, TestSize.Level
     Utils::SetEdmServiceDisable();
     AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT,
+        IPTABLES::Family::IPV4};
     int32_t ret = networkManagerProxy->RemoveDomainFilterRule(admin, rule);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }

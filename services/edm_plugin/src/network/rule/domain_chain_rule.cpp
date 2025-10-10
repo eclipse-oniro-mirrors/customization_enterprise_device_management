@@ -33,10 +33,10 @@ const uint32_t FOUR_BIT = 4;
 const uint8_t HEX_TEM_NUM = 10;
 
 DomainChainRule::DomainChainRule(DomainFilterRule domainFilterRule) : ChainRule(),
-    appUid_(std::get<DOMAIN_APPUID_IND>(domainFilterRule)),
     domainName_(std::get<DOMAIN_DOMAINNAME_IND>(domainFilterRule))
 {
     target_ = RuleUtils::EnumToString(std::get<DOMAIN_ACTION_IND>(domainFilterRule));
+    appUid_ = std::get<DOMAIN_APPUID_IND>(domainFilterRule);
 }
 
 DomainChainRule::DomainChainRule(const std::string &rule) : ChainRule(rule)
@@ -47,11 +47,13 @@ DomainChainRule::DomainChainRule(const std::string &rule) : ChainRule(rule)
     domainName_ = FormatDataToDomain(formatDomain);
 }
 
-std::string DomainChainRule::Parameter() const
+std::string DomainChainRule::Parameter(bool isRemove)
 {
     // domain type policy uses fixed port and protocol
     std::ostringstream parameter;
-    parameter << " -p udp --dport 53";
+    if (!isRemove) {
+        parameter << " -p udp --dport 53";
+    }
     if (!appUid_.empty()) {
         parameter << " -m owner --uid-owner " << appUid_;
     }
@@ -61,10 +63,10 @@ std::string DomainChainRule::Parameter() const
     return parameter.str();
 }
 
-DomainFilterRule DomainChainRule::ToFilterRule(Direction direction)
+DomainFilterRule DomainChainRule::ToFilterRule(Direction direction, Family family)
 {
     Action action = RuleUtils::StringToAction(target_);
-    return {action, appUid_, domainName_, direction};
+    return {action, appUid_, domainName_, direction, family};
 }
 
 std::string DomainChainRule::DomainToFormatData(const std::string &domainName)

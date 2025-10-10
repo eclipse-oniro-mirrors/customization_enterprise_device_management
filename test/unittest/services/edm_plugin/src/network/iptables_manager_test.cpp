@@ -45,7 +45,7 @@ void IptablesManagerTest::SetUp()
     executerUtilsMock = std::make_shared<ExecuterUtilsMock>();
     ExecuterUtils::instance_ = executerUtilsMock;
 
-    iptablesManager = IptablesManager::GetInstance();
+    iptablesManager = std::make_shared<Ipv4tablesManager>();
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
     iptablesManager->Init();
 }
@@ -54,7 +54,6 @@ void IptablesManagerTest::TearDown()
 {
     ExecuterUtils::instance_ = nullptr;
     ExecuterFactory::instance_ = nullptr;
-    IptablesManager::instance_ = nullptr;
 }
 
 /**
@@ -65,8 +64,8 @@ void IptablesManagerTest::TearDown()
 HWTEST_F(IptablesManagerTest, TestInit, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    iptablesManager->Init();
-    EXPECT_EQ(iptablesManager->HasInit(), true);
+    iptablesManager->Init(NetsysNative::IptablesType::IPTYPE_IPV4);
+    EXPECT_EQ(iptablesManager->HasInit(NetsysNative::IptablesType::IPTYPE_IPV4), true);
 }
 
 /**
@@ -79,34 +78,36 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<FirewallRule> validRules{
-        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
-        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80:90", "", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80:90", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "99", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901:1000", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", "", Family::IPV4},
+        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80:90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80:90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "99", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901:1000", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555", Family::IPV4}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
-        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
+        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, ERR_OK);
     }
 }
@@ -121,19 +122,18 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<FirewallRule> invalidRules{
-        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
-        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
-        {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "80", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "", "90", ""},
-        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""},
-        {Direction::INVALID, Action::DENY, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""},
-        {Direction::INVALID, Action::REJECT, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", ""}};
+        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999", Family::IPV4},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999", Family::IPV4},
+        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::DENY, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::REJECT, Protocol::INVALID, "192.168.1.1", "192.168.2.1", "", "", "",
+            Family::IPV4}};
     for (const auto &item : invalidRules) {
         FirewallRuleParcel invalidFirewallRule{item};
-        ErrCode ret = iptablesManager->RemoveFirewallRule(invalidFirewallRule);
+        ErrCode ret = iptablesManager->RemoveFirewallRule(invalidFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -150,34 +150,36 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallError, TestSize.Level1)
     ExecuterFactory::instance_ = std::make_shared<ExecuterFactory>();
 
     std::vector<FirewallRule> validRules{
-        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
-        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", "", Family::IPV4},
+        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555", Family::IPV4}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
-        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
+        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
 }
@@ -194,12 +196,12 @@ HWTEST_F(IptablesManagerTest, TestAddFilewallParamError, TestSize.Level1)
     ExecuterFactory::instance_ = std::make_shared<ExecuterFactory>();
 
     std::vector<FirewallRule> validRules{
-        {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555"},
-        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555"},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "123"}};
+        {Direction::OUTPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555", Family::IPV4},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "5555", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "123", Family::IPV4}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
-        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule);
+        ErrCode ret = iptablesManager->AddFirewallRule(validFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -213,35 +215,39 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallSuccess, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    std::vector<FirewallRule> validRules{{Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "", ""},
-        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", ""},
-        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", ""},
-        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", ""},
-        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", ""},
-        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555"}};
+    std::vector<FirewallRule> validRules{
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80", "90", "",
+            Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.100", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::OUTPUT, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "192.168.1.1/20", "", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::ALLOW, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::DENY, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::FORWARD, Action::REJECT, Protocol::INVALID, "", "192.168.1.1/20", "", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80", "", "", Family::IPV4},
+        {Direction::INPUT, Action::DENY, Protocol::INVALID, "", "", "80-90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::REJECT, Protocol::INVALID, "", "", "80-90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "80,90", "", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901-1000", "", Family::IPV4},
+        {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "901,1000", "", Family::IPV4},
+        {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "5555", Family::IPV4}};
     for (const auto &item : validRules) {
         FirewallRuleParcel validFirewallRule{item};
-        ErrCode ret = iptablesManager->RemoveFirewallRule(validFirewallRule);
+        ErrCode ret = iptablesManager->RemoveFirewallRule(validFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, ERR_OK);
     }
 }
@@ -256,23 +262,21 @@ HWTEST_F(IptablesManagerTest, TestRemoveFilewallFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<FirewallRule> invalidRules{
-        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
-        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999"},
-        {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "80", "", ""},
-        {Direction::INPUT, Action::ALLOW, Protocol::ALL, "", "", "", "90", ""},
-        {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::ALL, "", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::UDP, "", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::TCP, "", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::ICMP, "", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "80", "", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "901", ""},
-        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "901", "5555"}};
+        {Direction::INPUT, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999", Family::IPV4},
+        {Direction::FORWARD, Action::INVALID, Protocol::INVALID, "", "", "", "", "9999", Family::IPV4},
+        {Direction::INVALID, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::ALL, "", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::UDP, "", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::TCP, "", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::ICMP, "", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "192.168.1.1", "", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "192.168.1.1", "", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "80", "", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "901", "", Family::IPV4},
+        {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "901", "5555", Family::IPV4}};
     for (const auto &item : invalidRules) {
         FirewallRuleParcel invalidFirewallRule{item};
-        ErrCode ret = iptablesManager->RemoveFirewallRule(invalidFirewallRule);
+        ErrCode ret = iptablesManager->RemoveFirewallRule(invalidFirewallRule, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -305,7 +309,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest1, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
-    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    ErrCode ret = iptablesManager->GetFirewallRules(list, Family::IPV4);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -338,7 +342,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest2, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
-    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    ErrCode ret = iptablesManager->GetFirewallRules(list, Family::IPV4);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -371,7 +375,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest3, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
-    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    ErrCode ret = iptablesManager->GetFirewallRules(list, Family::IPV4);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -404,7 +408,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest4, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
-    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    ErrCode ret = iptablesManager->GetFirewallRules(list, Family::IPV4);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -437,7 +441,7 @@ HWTEST_F(IptablesManagerTest, GetFirewallRulesTest5, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<FirewallRuleParcel> list;
-    ErrCode ret = iptablesManager->GetFirewallRules(list);
+    ErrCode ret = iptablesManager->GetFirewallRules(list, Family::IPV4);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -452,17 +456,17 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
-        {Action::ALLOW, "1000", "www.example.com", Direction::INVALID},
-        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "", "www.example.com", Direction::FORWARD},
+        {Action::ALLOW, "1000", "www.example.com", Direction::INVALID, Family::IPV4},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD, Family::IPV4},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
-        ErrCode ret = iptablesManager->AddDomainFilterRule(validDomainFilterRuleParcel);
+        ErrCode ret = iptablesManager->AddDomainFilterRule(validDomainFilterRuleParcel, Family::IPV4);
         EXPECT_EQ(ret, ERR_OK);
     }
 }
@@ -485,24 +489,24 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterFail, TestSize.Level1)
     }
 
     std::vector<DomainFilterRule> invalidRules{
-        {Action::ALLOW, "1000", "", Direction::OUTPUT},
-        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT},
-        {Action::INVALID, "1000", invalidDomainName, Direction::OUTPUT},
-        {Action::ALLOW, "1000", "", Direction::FORWARD},
-        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
-        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD},
-        {Action::ALLOW, "1000", "", Direction::INVALID},
-        {Action::INVALID, "1000", "www.example.com", Direction::INVALID},
-        {Action::DENY, "1000", "www.ex||ample.com", Direction::INVALID},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::INVALID},
-        {Action::INVALID, "1000", invalidDomainName, Direction::INVALID}};
+        {Action::ALLOW, "1000", "", Direction::OUTPUT, Family::IPV4},
+        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT, Family::IPV4},
+        {Action::INVALID, "1000", invalidDomainName, Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "1000", "", Direction::FORWARD, Family::IPV4},
+        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD, Family::IPV4},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD, Family::IPV4},
+        {Action::INVALID, "1000", invalidDomainName, Direction::FORWARD, Family::IPV4},
+        {Action::ALLOW, "1000", "", Direction::INVALID, Family::IPV4},
+        {Action::INVALID, "1000", "www.example.com", Direction::INVALID, Family::IPV4},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::INVALID, Family::IPV4},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::INVALID, Family::IPV4},
+        {Action::INVALID, "1000", invalidDomainName, Direction::INVALID, Family::IPV4}};
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
-        ErrCode ret = iptablesManager->AddDomainFilterRule(invalidDomainFilterRuleParcel);
+        ErrCode ret = iptablesManager->AddDomainFilterRule(invalidDomainFilterRuleParcel, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -519,16 +523,16 @@ HWTEST_F(IptablesManagerTest, TestAddDomainFilterError, TestSize.Level1)
     ExecuterFactory::instance_ = std::make_shared<ExecuterFactory>();
 
     std::vector<DomainFilterRule> validRules{
-        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "", "www.example.com", Direction::FORWARD},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD, Family::IPV4},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
-        ErrCode ret = iptablesManager->AddDomainFilterRule(validDomainFilterRuleParcel);
+        ErrCode ret = iptablesManager->AddDomainFilterRule(validDomainFilterRuleParcel, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
 }
@@ -543,24 +547,24 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterSuccess, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> validRules{
-        {Action::INVALID, "", "", Direction::INVALID},
-        {Action::INVALID, "", "", Direction::OUTPUT},
-        {Action::ALLOW, "", "", Direction::INVALID},
-        {Action::ALLOW, "", "", Direction::OUTPUT},
-        {Action::DENY, "", "", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "", "www.example.com", Direction::OUTPUT},
-        {Action::INVALID, "", "", Direction::FORWARD},
-        {Action::ALLOW, "", "", Direction::FORWARD},
-        {Action::DENY, "", "", Direction::FORWARD},
-        {Action::ALLOW, "", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "", "www.example.com", Direction::FORWARD},
+        {Action::INVALID, "", "", Direction::INVALID, Family::IPV4},
+        {Action::INVALID, "", "", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "", Direction::INVALID, Family::IPV4},
+        {Action::ALLOW, "", "", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "", "", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::INVALID, "", "", Direction::FORWARD, Family::IPV4},
+        {Action::ALLOW, "", "", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "", "", Direction::FORWARD, Family::IPV4},
+        {Action::ALLOW, "", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "", "www.example.com", Direction::FORWARD, Family::IPV4},
     };
     for (const auto &item : validRules) {
         DomainFilterRuleParcel validDomainFilterRuleParcel{item};
-        ErrCode ret = iptablesManager->RemoveDomainFilterRules(validDomainFilterRuleParcel);
+        ErrCode ret = iptablesManager->RemoveDomainFilterRules(validDomainFilterRuleParcel, Family::IPV4);
         EXPECT_EQ(ret, ERR_OK);
     }
 }
@@ -575,22 +579,22 @@ HWTEST_F(IptablesManagerTest, TestRemoveDomainFilterFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::vector<DomainFilterRule> invalidRules{
-        {Action::ALLOW, "1000", "", Direction::OUTPUT},
-        {Action::DENY, "1000", "", Direction::OUTPUT},
-        {Action::INVALID, "", "www.example.com", Direction::OUTPUT},
-        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT},
-        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT},
-        {Action::ALLOW, "1000", "", Direction::FORWARD},
-        {Action::DENY, "1000", "", Direction::FORWARD},
-        {Action::INVALID, "", "www.example.com", Direction::FORWARD},
-        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD},
-        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD},
-        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD},
+        {Action::ALLOW, "1000", "", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "", Direction::OUTPUT, Family::IPV4},
+        {Action::INVALID, "", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::INVALID, "1000", "www.example.com", Direction::OUTPUT, Family::IPV4},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::OUTPUT, Family::IPV4},
+        {Action::ALLOW, "1000", "", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "1000", "", Direction::FORWARD, Family::IPV4},
+        {Action::INVALID, "", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::INVALID, "1000", "www.example.com", Direction::FORWARD, Family::IPV4},
+        {Action::DENY, "1000", "www.ex||ample.com", Direction::FORWARD, Family::IPV4},
+        {Action::ALLOW, "1000", "www.ex/ample.com", Direction::FORWARD, Family::IPV4},
     };
     for (const auto &item : invalidRules) {
         DomainFilterRuleParcel invalidDomainFilterRuleParcel{item};
-        ErrCode ret = iptablesManager->RemoveDomainFilterRules(invalidDomainFilterRuleParcel);
+        ErrCode ret = iptablesManager->RemoveDomainFilterRules(invalidDomainFilterRuleParcel, Family::IPV4);
         EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     }
 }
@@ -620,7 +624,7 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules1, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
 
     std::vector<DomainFilterRuleParcel> list;
-    ErrCode ret = iptablesManager->GetDomainFilterRules(list);
+    ErrCode ret = iptablesManager->GetDomainFilterRules(list, Family::IPV4);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -651,7 +655,7 @@ HWTEST_F(IptablesManagerTest, TestGetDomainFilterRules2, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
     std::vector<DomainFilterRuleParcel> list;
-    ErrCode ret = iptablesManager->GetDomainFilterRules(list);
+    ErrCode ret = iptablesManager->GetDomainFilterRules(list, Family::IPV4);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
@@ -833,10 +837,10 @@ HWTEST_F(IptablesManagerTest, TestExistOutputAllowFirewallRule, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistOutputAllowFirewallRule());
+    EXPECT_TRUE(iptablesManager->ExistOutputAllowFirewallRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(2).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistOutputAllowFirewallRule());
+    EXPECT_FALSE(iptablesManager->ExistOutputAllowFirewallRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 }
 
 /**
@@ -855,10 +859,10 @@ HWTEST_F(IptablesManagerTest, TestExistOutputAllowDomainRule, TestSize.Level1)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistOutputAllowDomainRule());
+    EXPECT_TRUE(iptablesManager->ExistOutputAllowDomainRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistOutputAllowDomainRule());
+    EXPECT_FALSE(iptablesManager->ExistOutputAllowDomainRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 }
 
 /**
@@ -877,10 +881,10 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowFirewallRule, TestSize.Level1
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistForwardAllowFirewallRule());
+    EXPECT_TRUE(iptablesManager->ExistForwardAllowFirewallRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK))).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistForwardAllowFirewallRule());
+    EXPECT_FALSE(iptablesManager->ExistForwardAllowFirewallRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 }
 
 /**
@@ -900,10 +904,10 @@ HWTEST_F(IptablesManagerTest, TestExistForwardAllowDomainRule, TestSize.Level1)
         .Times(1)
         .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
 
-    EXPECT_TRUE(iptablesManager->ExistForwardAllowDomainRule());
+    EXPECT_TRUE(iptablesManager->ExistForwardAllowDomainRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 
     EXPECT_CALL(*executerUtilsMock, Execute).Times(1).WillOnce(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ExistForwardAllowDomainRule());
+    EXPECT_FALSE(iptablesManager->ExistForwardAllowDomainRule(NetsysNative::IptablesType::IPTYPE_IPV4));
 }
 
 /**
@@ -924,48 +928,10 @@ HWTEST_F(IptablesManagerTest, TestChainExistRule, TestSize.Level1)
     std::vector<std::string> chainNameList = {EDM_ALLOW_INPUT_CHAIN_NAME, EDM_DENY_INPUT_CHAIN_NAME,
         EDM_ALLOW_OUTPUT_CHAIN_NAME, EDM_DENY_OUTPUT_CHAIN_NAME, EDM_ALLOW_FORWARD_CHAIN_NAME,
         EDM_DENY_FORWARD_CHAIN_NAME};
-    EXPECT_TRUE(iptablesManager->ChainExistRule(chainNameList));
+    EXPECT_TRUE(iptablesManager->ChainExistRule(chainNameList, NetsysNative::IptablesType::IPTYPE_IPV4));
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Return(ERR_OK)));
-    EXPECT_FALSE(iptablesManager->ChainExistRule(chainNameList));
-}
-
-/**
- * @tc.name: TestStaticAttribute
- * @tc.desc: Test attribute.
- * @tc.type: FUNC
- */
-HWTEST_F(IptablesManagerTest, TestStaticAttribute, TestSize.Level1)
-{
-    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Return(ERR_OK)));
-
-    IptablesManager::g_defaultFirewallOutputChainInit = false;
-    IptablesManager::SetDefaultFirewallDenyChain(IPTABLES::Direction::OUTPUT);
-    EXPECT_TRUE(IptablesManager::g_defaultFirewallOutputChainInit);
-
-    IptablesManager::ClearDefaultFirewallOutputDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultFirewallOutputChainInit);
-
-    IptablesManager::g_defaultFirewallForwardChainInit = false;
-    IptablesManager::SetDefaultFirewallDenyChain(IPTABLES::Direction::FORWARD);
-    EXPECT_TRUE(IptablesManager::g_defaultFirewallForwardChainInit);
-
-    IptablesManager::ClearDefaultFirewallForwardDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultFirewallForwardChainInit);
-
-    IptablesManager::g_defaultDomainOutputChainInit = false;
-    IptablesManager::SetDefaultDomainDenyChain(IPTABLES::Direction::OUTPUT);
-    EXPECT_TRUE(IptablesManager::g_defaultDomainOutputChainInit);
-
-    IptablesManager::ClearDefaultDomainOutputDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultDomainOutputChainInit);
-
-    IptablesManager::g_defaultDomainForwardChainInit = false;
-    IptablesManager::SetDefaultDomainDenyChain(IPTABLES::Direction::FORWARD);
-    EXPECT_TRUE(IptablesManager::g_defaultDomainForwardChainInit);
-
-    IptablesManager::ClearDefaultDomainForwardDenyChain();
-    EXPECT_FALSE(IptablesManager::g_defaultDomainForwardChainInit);
+    EXPECT_FALSE(iptablesManager->ChainExistRule(chainNameList, NetsysNative::IptablesType::IPTYPE_IPV4));
 }
 } // namespace TEST
 } // namespace IPTABLES
