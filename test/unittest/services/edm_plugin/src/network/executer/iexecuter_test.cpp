@@ -44,9 +44,18 @@ namespace TEST {
 
 class IExecuterMock final: public IExecuter {
 public:
-    ErrCode Init() override
+    ErrCode Init(NetsysNative::IptablesType ipType) override
     {
         return ERR_OK;
+    }
+
+    bool SetDefaultOutputDenyChain(Direction direction, Family family)
+    {
+        return true;
+    }
+    bool SetDefaultForwardDenyChain(Direction direction, Family family)
+    {
+        return true;
     }
 };
 
@@ -72,11 +81,11 @@ void IExecuterTest::SetUp()
 HWTEST_F(IExecuterTest, TestInit, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
-    EXPECT_TRUE(executer->Init() == ERR_OK);
+    EXPECT_TRUE(executer->Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 }
 
 /**
- * @tc.name: TestInit
+ * @tc.name: TestCreateChain
  * @tc.desc: Test CreateChain func.
  * @tc.type: FUNC
  */
@@ -85,10 +94,10 @@ HWTEST_F(IExecuterTest, TestCreateChain, TestSize.Level1)
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->CreateChain() == ERR_OK);
+    EXPECT_TRUE(executer->CreateChain(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_FALSE(executer->CreateChain() == ERR_OK);
+    EXPECT_FALSE(executer->CreateChain(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 }
 
 /**
@@ -99,28 +108,29 @@ HWTEST_F(IExecuterTest, TestCreateChain, TestSize.Level1)
 HWTEST_F(IExecuterTest, TestAdd, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Add(nullptr) != ERR_OK);
+    EXPECT_TRUE(executer->Add(nullptr, ipType) != ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_TRUE(executer->Add(nullptr) != ERR_OK);
+    EXPECT_TRUE(executer->Add(nullptr, ipType) != ERR_OK);
 
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Add(rule) == ERR_OK);
+    EXPECT_TRUE(executer->Add(rule, ipType) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_FALSE(executer->Add(rule) == ERR_OK);
+    EXPECT_FALSE(executer->Add(rule, ipType) == ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Add(rule) == ERR_OK);
+    EXPECT_TRUE(executer->Add(rule, ipType) == ERR_OK);
 }
 
 /**
@@ -131,28 +141,29 @@ HWTEST_F(IExecuterTest, TestAdd, TestSize.Level1)
 HWTEST_F(IExecuterTest, TestRemove, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Remove(nullptr) == ERR_OK);
+    EXPECT_TRUE(executer->Remove(nullptr, ipType) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_TRUE(executer->Remove(nullptr) != ERR_OK);
+    EXPECT_TRUE(executer->Remove(nullptr, ipType) != ERR_OK);
 
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Remove(rule) == ERR_OK);
+    EXPECT_TRUE(executer->Remove(rule, ipType) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_FALSE(executer->Remove(rule) == ERR_OK);
+    EXPECT_FALSE(executer->Remove(rule, ipType) == ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->Remove(rule) == ERR_OK);
+    EXPECT_TRUE(executer->Remove(rule, ipType) == ERR_OK);
 }
 
 /**
@@ -164,12 +175,13 @@ HWTEST_F(IExecuterTest, TestGetAll, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
     std::vector<std::string> list;
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->GetAll(list) == ERR_OK);
+    EXPECT_TRUE(executer->GetAll(list, ipType) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_TRUE(executer->GetAll(list) != ERR_OK);
+    EXPECT_TRUE(executer->GetAll(list, ipType) != ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
     std::string result =
@@ -179,7 +191,7 @@ HWTEST_F(IExecuterTest, TestGetAll, TestSize.Level1)
         "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
     EXPECT_CALL(*executerUtilsMock, Execute)
         .WillRepeatedly(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
-    EXPECT_TRUE(executer->GetAll(list) == ERR_OK);
+    EXPECT_TRUE(executer->GetAll(list, ipType) == ERR_OK);
     EXPECT_TRUE(list.size() == 1);
 }
 
@@ -192,22 +204,23 @@ HWTEST_F(IExecuterTest, TestExecWithOption, TestSize.Level1)
 {
     std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
     std::ostringstream oss{};
-    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", IPTABLES::Direction::OUTPUT};
+    DomainFilterRule domainFilterRule{Action::ALLOW, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     std::shared_ptr<ChainRule> rule = std::make_shared<DomainChainRule>(domainFilterRule);
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->ExecWithOption(oss, rule) == ERR_OK);
+    EXPECT_TRUE(executer->ExecWithOption(oss, rule, ipType) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
-    EXPECT_TRUE(executer->ExecWithOption(oss, rule) != ERR_OK);
+    EXPECT_TRUE(executer->ExecWithOption(oss, rule, ipType) != ERR_OK);
 
-    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT};
+    domainFilterRule = {Action::DENY, "9999", "www.example.com", Direction::OUTPUT, Family::IPV4};
     rule = std::make_shared<DomainChainRule>(domainFilterRule);
     EXPECT_CALL(*executerUtilsMock, Execute)
         .Times(2)
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)))
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
-    EXPECT_TRUE(executer->ExecWithOption(oss, rule) == ERR_OK);
+    EXPECT_TRUE(executer->ExecWithOption(oss, rule, ipType) == ERR_OK);
 }
 } // namespace TEST
 } // namespace IPTABLES

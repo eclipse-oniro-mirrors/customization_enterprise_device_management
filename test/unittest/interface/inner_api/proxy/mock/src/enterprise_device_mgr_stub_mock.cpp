@@ -185,7 +185,8 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule(uint32_t c
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "321", "www.example.com", IPTABLES::Direction::OUTPUT,
+        IPTABLES::Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ruleParcel.Marshalling(reply);
     return 0;
@@ -199,7 +200,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetDomainFilterRules(uint32_t 
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(1);
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::INVALID,
-        "", "", "", "", ""};
+        "", "", "", "", "", IPTABLES::Family::IPV4};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ruleParcel.Marshalling(reply);
     return 0;

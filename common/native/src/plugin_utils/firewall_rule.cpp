@@ -14,10 +14,12 @@
  */
 
 #include "firewall_rule.h"
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
+
 FirewallRuleParcel::FirewallRuleParcel(FirewallRule rule) : rule_(std::move(rule)) {}
 
 bool FirewallRuleParcel::Marshalling(MessageParcel& parcel) const
@@ -30,6 +32,7 @@ bool FirewallRuleParcel::Marshalling(MessageParcel& parcel) const
     parcel.WriteString(std::get<FIREWALL_SRCPORT_IND>(rule_));
     parcel.WriteString(std::get<FIREWALL_DESTPORT_IND>(rule_));
     parcel.WriteString(std::get<FIREWALL_APPUID_IND>(rule_));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_FAMILY_IND>(rule_)));
     return true;
 }
 
@@ -46,13 +49,37 @@ bool FirewallRuleParcel::Unmarshalling(MessageParcel& parcel, FirewallRuleParcel
     std::string srcPort = parcel.ReadString();
     std::string destPort = parcel.ReadString();
     std::string appUid = parcel.ReadString();
-    firewallRuleParcel.rule_ = {direction, action, protocol, srcAddr, destAddr, srcPort, destPort, appUid};
+    IPTABLES::Family family = IPTABLES::Family::IPV4;
+    IptablesUtils::ProcessFirewallFamily(parcel.ReadInt32(), family);
+    firewallRuleParcel.rule_ = {direction, action, protocol, srcAddr, destAddr, srcPort, destPort, appUid, family};
     return true;
 }
 
 FirewallRule FirewallRuleParcel::GetRule() const
 {
     return rule_;
+}
+
+bool FirewallRuleParcel::CheckAddFirewallParams() const
+{
+    IPTABLES::Direction direction = std::get<FIREWALL_DICECTION_IND>(rule_);
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
+        !std::get<FIREWALL_APPUID_IND>(rule_).empty()) {
+        EDMLOGE("AddFirewallRule: illegal parameter: appUid");
+        return false;
+    }
+    return true;
+}
+
+bool FirewallRuleParcel::CheckRemoveFirewallParams() const
+{
+    IPTABLES::Direction direction = std::get<FIREWALL_DICECTION_IND>(rule_);
+    if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
+        !std::get<FIREWALL_APPUID_IND>(rule_).empty()) {
+        EDMLOGE("RemoveFirewallRule: illegal parameter: appUid");
+        return false;
+    }
+    return true;
 }
 } // namespace IPTABLES
 } // namespace EDM

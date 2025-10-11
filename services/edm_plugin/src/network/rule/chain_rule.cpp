@@ -37,15 +37,16 @@ ChainRule::ChainRule(const std::string& rule)
     iss >> in;
     std::string out;
     iss >> out;
-    std::string defaultIp = "0.0.0.0/0";
+    std::string defaultIpv4 = "0.0.0.0/0";
+    std::string defaultIpv6 = "::/0";
     std::string source;
     iss >> source;
-    if (source != defaultIp) {
+    if (source != defaultIpv4 && source != defaultIpv6) {
         srcAddr_ = source;
     }
     std::string destination;
     iss >> destination;
-    if (destination != defaultIp) {
+    if (destination != defaultIpv4 && destination != defaultIpv6) {
         destAddr_ = destination;
     }
     std::getline(iss, otherOptions_);

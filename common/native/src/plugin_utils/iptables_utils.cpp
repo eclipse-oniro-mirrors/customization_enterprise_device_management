@@ -105,6 +105,13 @@ void IptablesUtils::ProcessFirewallProtocol(int32_t type, Protocol &protocol)
         protocol = Protocol(type);
     }
 }
+
+void IptablesUtils::ProcessFirewallFamily(int32_t type, Family &family)
+{
+    if (type >= static_cast<int32_t>(Family::IPV4) && type <= static_cast<int32_t>(Family::IPV6)) {
+        family = Family(type);
+    }
+}
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

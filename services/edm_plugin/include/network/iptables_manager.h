@@ -27,6 +27,7 @@
 #include "domain_filter_rule.h"
 #include "edm_errors.h"
 #include "firewall_rule.h"
+#include "i_netsys_service.h"
 
 namespace OHOS {
 namespace EDM {
@@ -34,17 +35,31 @@ namespace IPTABLES {
 
 class IptablesManager {
 public:
-    static std::shared_ptr<IptablesManager> GetInstance();
-    ErrCode AddFirewallRule(const FirewallRuleParcel &firewall);
-    ErrCode RemoveFirewallRule(const FirewallRuleParcel &firewall);
-    ErrCode GetFirewallRules(std::vector<FirewallRuleParcel> &list);
+    ErrCode AddFirewallRule(const FirewallRuleParcel &firewall, Family family);
+    ErrCode RemoveFirewallRule(const FirewallRuleParcel &firewall, Family family);
+    ErrCode GetFirewallRules(std::vector<FirewallRuleParcel> &list, Family family);
+    ErrCode AddDomainFilterRule(const DomainFilterRuleParcel &domainFilter, Family family);
+    ErrCode RemoveDomainFilterRules(const DomainFilterRuleParcel &domainFilter, Family family);
+    ErrCode GetDomainFilterRules(std::vector<DomainFilterRuleParcel> &list, Family family);
 
-    ErrCode AddDomainFilterRule(const DomainFilterRuleParcel &DomainFilter);
-    ErrCode RemoveDomainFilterRules(const DomainFilterRuleParcel &DomainFilter);
-    ErrCode GetDomainFilterRules(std::vector<DomainFilterRuleParcel> &list);
+    virtual ErrCode AddFirewallRule(const FirewallRuleParcel &firewall) = 0;
+    virtual ErrCode RemoveFirewallRule(const FirewallRuleParcel &firewall) = 0;
+    virtual ErrCode GetFirewallRules(std::vector<FirewallRuleParcel> &list) = 0;
+    virtual ErrCode AddDomainFilterRule(const DomainFilterRuleParcel &domainFilter) = 0;
+    virtual ErrCode RemoveDomainFilterRules(const DomainFilterRuleParcel &domainFilter) = 0;
+    virtual ErrCode GetDomainFilterRules(std::vector<DomainFilterRuleParcel> &list) = 0;
 
-    static void Init();
-    static bool HasInit();
+    bool HasInit(NetsysNative::IptablesType ipType);
+    void Init(NetsysNative::IptablesType ipType);
+    virtual bool HasInit() = 0;
+    virtual void Init() = 0;
+
+protected:
+    bool g_chainInit = false;
+    bool g_defaultFirewallOutputChainInit = false;
+    bool g_defaultFirewallForwardChainInit = false;
+    bool g_defaultDomainOutputChainInit = false;
+    bool g_defaultDomainForwardChainInit = false;
 
 private:
     ErrCode GetRemoveChainName(Direction direction, Action action, std::vector<std::string> &chainNameList);
@@ -55,34 +70,18 @@ private:
     void GetDomainRemoveOutputChainName(Action action, std::vector<std::string>& chainNameList);
     void GetDomainRemoveForwardChainName(Action action, std::vector<std::string>& chainNameList);
 
-    bool ExistOutputAllowFirewallRule();
-    bool ExistForwardAllowFirewallRule();
-    bool ExistOutputAllowDomainRule();
-    bool ExistForwardAllowDomainRule();
-    bool CheckRemoveDomainParams(Direction direction, Action action, std::string appUid, std::string domainName);
-    bool CheckRemoveFirewallParams(Direction direction, FirewallRule rule);
-    bool CheckAddFirewallParams(Direction direction, FirewallRule rule);
+    bool ExistOutputAllowFirewallRule(NetsysNative::IptablesType ipType);
+    bool ExistForwardAllowFirewallRule(NetsysNative::IptablesType ipType);
+    bool ExistOutputAllowDomainRule(NetsysNative::IptablesType ipType);
+    bool ExistForwardAllowDomainRule(NetsysNative::IptablesType ipType);
     bool GetFirewallChainName(Direction direction, Action action, std::string& chainName);
+    bool GetDomainChainName(Direction direction, Action action, std::string& chainName);
 
-    bool ChainExistRule(const std::vector<std::string> &chainNames);
+    bool ChainExistRule(const std::vector<std::string> &chainNames, NetsysNative::IptablesType ipType);
     void ConvertFirewallRuleList(std::vector<FirewallRuleParcel>& list,
-        std::vector<std::string> ruleList, Direction direction);
-
-    static void SetDefaultFirewallDenyChain(Direction direction);
-    static void ClearDefaultFirewallOutputDenyChain();
-    static void ClearDefaultFirewallForwardDenyChain();
-    static void SetDefaultDomainDenyChain(Direction direction);
-    static void ClearDefaultDomainOutputDenyChain();
-    static void ClearDefaultDomainForwardDenyChain();
-
-    static bool g_chainInit;
-    static bool g_defaultFirewallOutputChainInit;
-    static bool g_defaultFirewallForwardChainInit;
-    static bool g_defaultDomainOutputChainInit;
-    static bool g_defaultDomainForwardChainInit;
-
-    static std::shared_ptr<IptablesManager> instance_;
-    static std::mutex mutexLock_;
+        std::vector<std::string> ruleList, Direction direction, Family family);
+    void ConvertDomainFilterRuleList(std::vector<DomainFilterRuleParcel>& list,
+        std::vector<std::string> ruleList, Direction direction, Family family);
 };
 } // namespace IPTABLES
 } // namespace EDM

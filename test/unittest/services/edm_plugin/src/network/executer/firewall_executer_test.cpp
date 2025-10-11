@@ -62,11 +62,11 @@ HWTEST_F(FirewallExecuterTest, TestInit, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     FirewallExecuter initOk{"actualChainName", "chainName"};
-    EXPECT_TRUE(initOk.Init() == ERR_OK);
+    EXPECT_TRUE(initOk.Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
     FirewallExecuter initFail{"actualChainName", "chainName"};
-    EXPECT_FALSE(initFail.Init() == ERR_OK);
+    EXPECT_FALSE(initFail.Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 }
 } // namespace TEST
 } // namespace IPTABLES

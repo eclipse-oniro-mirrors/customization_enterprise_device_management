@@ -13,21 +13,33 @@
  * limitations under the License.
  */
 
-#include "executer_utils_mock.h"
-
-#include "edm_log.h"
+#include "iptables_factory.h"
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
-namespace TEST {
 
-ErrCode PrintExecRule(const std::string &rule, std::string &result, NetsysNative::IptablesType ipType)
+std::shared_ptr<IptablesFactory> IptablesFactory::instance_ = nullptr;
+std::mutex IptablesFactory::mutexLock_;
+
+std::shared_ptr<IptablesFactory> IptablesFactory::GetInstance()
 {
-    EDMLOGI("PrintExecRule %{public}s, %{public}d", rule.c_str(), static_cast<int32_t>(ipType));
-    return ERR_OK;
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(mutexLock_);
+        if (instance_ == nullptr) {
+            instance_ = std::make_shared<IptablesFactory>();
+        }
+    }
+    return instance_;
 }
-} // namespace TEST
+
+std::shared_ptr<IptablesManager> IptablesFactory::CreateIptablesManagerForFamily(Family family)
+{
+    if (family == Family::IPV6) {
+        return ipv6tablesManager_;
+    }
+    return ipv4tablesManager_;
+}
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

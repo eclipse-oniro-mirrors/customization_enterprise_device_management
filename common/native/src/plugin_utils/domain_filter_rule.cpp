@@ -14,10 +14,13 @@
  */
 
 #include "domain_filter_rule.h"
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
+
+const int32_t MAX_DOMAIN_LENGTH = 255;
 
 DomainFilterRuleParcel::DomainFilterRuleParcel(DomainFilterRule rule) : rule_(std::move(rule)) {}
 
@@ -27,6 +30,7 @@ bool DomainFilterRuleParcel::Marshalling(MessageParcel& parcel) const
     parcel.WriteString(std::get<DOMAIN_APPUID_IND>(rule_));
     parcel.WriteString(std::get<DOMAIN_DOMAINNAME_IND>(rule_));
     parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_DIRECTION_IND>(rule_)));
+    parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_FAMILY_IND>(rule_)));
     return true;
 }
 
@@ -34,17 +38,72 @@ bool DomainFilterRuleParcel::Unmarshalling(MessageParcel& parcel, DomainFilterRu
 {
     IPTABLES::Action action = IPTABLES::Action::INVALID;
     IPTABLES::Direction direction = IPTABLES::Direction::INVALID;
+    IPTABLES::Family family = IPTABLES::Family::IPV4;
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
     std::string appUid = parcel.ReadString();
     std::string domainName = parcel.ReadString();
     IptablesUtils::ProcessFirewallDirection(parcel.ReadInt32(), direction);
-    domainFilterRuleParcel.rule_ = {action, appUid, domainName, direction};
+    IptablesUtils::ProcessFirewallFamily(parcel.ReadInt32(), family);
+    domainFilterRuleParcel.rule_ = {action, appUid, domainName, direction, family};
     return true;
 }
 
 DomainFilterRule DomainFilterRuleParcel::GetRule() const
 {
     return rule_;
+}
+
+bool DomainFilterRuleParcel::CheckAddDomainParams() const
+{
+    IPTABLES::Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule_);
+    std::string appUid = std::get<DOMAIN_APPUID_IND>(rule_);
+    std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule_);
+    if (direction == Direction::FORWARD && !appUid.empty()) {
+        EDMLOGE("AddDomainFilterRule: illegal parameter: appUid");
+        return false;
+    }
+    if (domainName.empty() || domainName.length() > MAX_DOMAIN_LENGTH) {
+        EDMLOGE("AddDomainFilterRule: illegal parameter: domainName");
+        return false;
+    }
+    auto index = domainName.find_first_of("|/");
+    if (index != std::string ::npos) {
+        EDMLOGE("AddDomainFilterRule: illegal parameter: domainName");
+        return false;
+    }
+    return true;
+}
+
+bool DomainFilterRuleParcel::CheckRemoveDomainParams() const
+{
+    IPTABLES::Direction direction = std::get<DOMAIN_DIRECTION_IND>(rule_);
+    std::string appUid = std::get<DOMAIN_APPUID_IND>(rule_);
+    std::string domainName = std::get<DOMAIN_DOMAINNAME_IND>(rule_);
+    IPTABLES::Action action = std::get<DOMAIN_ACTION_IND>(rule_);
+    if (direction == Direction::FORWARD && !appUid.empty()) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
+        return false;
+    }
+    if (domainName.empty() && !appUid.empty()) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: appUid");
+        return false;
+    }
+    if (!domainName.empty() && domainName.length() > MAX_DOMAIN_LENGTH) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
+        return false;
+    }
+    auto index = domainName.find_first_of("|/");
+    if (index != std::string ::npos) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: domainName");
+        return false;
+    }
+
+    if (action == Action::INVALID && (!appUid.empty() || !domainName.empty())) {
+        EDMLOGE("RemoveDomainFilterRules: illegal parameter: Too many parameters set");
+        return false;
+    }
+
+    return true;
 }
 } // namespace IPTABLES
 } // namespace EDM

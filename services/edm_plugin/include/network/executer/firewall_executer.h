@@ -25,8 +25,10 @@ namespace IPTABLES {
 
 class FirewallExecuter final: public IExecuter {
 public:
-    ErrCode Init() override;
+    ErrCode Init(NetsysNative::IptablesType ipType) override;
     explicit FirewallExecuter(std::string actualChainName, const std::string &chainName);
+    bool SetDefaultOutputDenyChain(Direction direction, Family family) override;
+    bool SetDefaultForwardDenyChain(Direction direction, Family family) override;
 
 private:
     std::string actualChainName_;
