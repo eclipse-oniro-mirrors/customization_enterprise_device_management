@@ -598,6 +598,7 @@ ohos_shared_library("need_extra_plugin") {
     sources += [
       "./src/get_adminprovision_info_plugin.cpp",
       "./src/get_device_info_plugin.cpp",
+      "./src/install_market_apps_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
       "./src/set_wall_paper_plugin.cpp",

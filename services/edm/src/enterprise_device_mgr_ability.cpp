@@ -85,6 +85,12 @@ const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_di
 const std::string POLICY_ALLOW_ALL = "allow_all";
 const int32_t INVALID_SYSTEM_ABILITY_ID = -1;
 const int32_t MAX_POLICY_TYPE = 3;
+const int32_t UPDATE_APPS_STATE_ON_AG_CHANGE = 1;
+const int32_t UPDATE_APPS_STATE_ON_BMS_CHANGE = 2;
+const int32_t INIT_AG_TASK = 3;
+const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
+const int32_t AG_COMMON_EVENT_SIZE = 2;
+const int32_t WITHOUT_ADMIN = 1;
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
@@ -114,6 +120,7 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventPackageAdded(data);
+            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_BMS_CHANGE);
         };
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
@@ -139,6 +146,90 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventKioskMode(data, false);
         };
+}
+
+void EnterpriseDeviceMgrAbility::InitAgTask()
+{
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin == nullptr) {
+        EDMLOGE("current super admin is nullptr");
+        return;
+    }
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
+    MessageParcel reply;
+    MessageParcel messageData;
+    messageData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> bundleNames = {};
+    messageData.WriteStringVector(bundleNames);
+    messageData.WriteInt32(INIT_AG_TASK);
+
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
+    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
+    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
+}
+
+void EnterpriseDeviceMgrAbility::GetAgCommonEventName()
+{
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
+    MessageParcel reply;
+    MessageParcel messageData;
+    messageData.WriteString(WITHOUT_PERMISSION_TAG);
+    messageData.WriteInt32(WITHOUT_ADMIN);
+
+    GetDevicePolicyFromPlugin(funcCode, messageData, reply, EdmConstants::DEFAULT_USER_ID);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("failed to get ag common event");
+        return;
+    }
+    std::vector<std::string> agCommonEventList = {};
+    if (!reply.ReadStringVector(&agCommonEventList)) {
+        EDMLOGE("failed to read ag common event");
+        return;
+    }
+
+    if (agCommonEventList.size() != AG_COMMON_EVENT_SIZE) {
+        EDMLOGE("ag common event size is abnormally");
+        return;
+    }
+    commonEventFuncMap_[agCommonEventList[0]] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_AG_CHANGE);
+        };
+    commonEventFuncMap_[agCommonEventList[1]] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_AG_CHANGE);
+        };
+}
+
+void EnterpriseDeviceMgrAbility::UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event)
+{
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin == nullptr) {
+        EDMLOGE("current super admin is nullptr");
+        return;
+    }
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
+    MessageParcel reply;
+    MessageParcel messageData;
+    messageData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> bundleNames = {};
+    messageData.WriteStringVector(bundleNames);
+    // event用于区分BMS和AG的安装事件
+    messageData.WriteInt32(event);
+    // data.GetCode()用于状态机更新状态
+    messageData.WriteInt32(data.GetCode());
+    messageData.WriteString(data.GetWant().GetStringParam(WANT_BUNDLE_NAME));
+
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
+    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
+    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
@@ -269,6 +360,7 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
     EnterpriseDeviceMgrAbility &listener)
 {
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    GetAgCommonEventName();
     AddCommonEventFuncMap();
     for (auto &item : commonEventFuncMap_) {
         if (item.first == SYSTEM_UPDATE_FOR_POLICY) {
@@ -627,22 +719,25 @@ int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16s
 
 void EnterpriseDeviceMgrAbility::OnStart()
 {
-    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
-    InitAllAdmins();
-    InitAllPolices();
-    RemoveAllDebugAdmin();
-    if (!registerToService_) {
-        if (!Publish(this)) {
-            EDMLOGE("EnterpriseDeviceMgrAbility: res == false");
-            return;
+    {
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+        EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
+        InitAllAdmins();
+        InitAllPolices();
+        RemoveAllDebugAdmin();
+        if (!registerToService_) {
+            if (!Publish(this)) {
+                EDMLOGE("EnterpriseDeviceMgrAbility: res == false");
+                return;
+            }
+            registerToService_ = true;
         }
-        registerToService_ = true;
+        WatermarkObserverManager::GetInstance();
+        AddOnAddSystemAbilityFuncMap();
+        AddSystemAbilityListeners();
+        CheckAndUpdateByodSettingsData();
     }
-    WatermarkObserverManager::GetInstance();
-    AddOnAddSystemAbilityFuncMap();
-    AddSystemAbilityListeners();
-    CheckAndUpdateByodSettingsData();
+    InitAgTask();
 }
 
 void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
@@ -2129,6 +2224,24 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDelegatedPolicies(std::shared_ptr<Admin
             return ret;
         }
     }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::UnloadInstallMarketAppsPlugin()
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::UnloadInstallMarketAppsPlugin on start.");
+#ifndef EDM_FUZZ_TEST
+    if (IPCSkeleton::GetCallingUid() != EDM_UID) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::UnloadInstallMarketAppsPlugin check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+#endif
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(INSTALL_MARKET_APPS_PLUGIN_CODE);
+    if (plugin == nullptr) {
+        EDMLOGE("get Plugin fail %{public}d", INSTALL_MARKET_APPS_PLUGIN_CODE);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    plugin->SetPluginUnloadFlag(true);
     return ERR_OK;
 }
 
