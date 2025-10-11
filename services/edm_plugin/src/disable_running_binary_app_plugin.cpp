@@ -27,7 +27,7 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableRunningBinaryAppPlugin::GetPlugin());
 const std::string DEFAULT = 0;
 const std::string DISALLOW = 0;
-const std::string FORCE = 0;
+const std::string FORCE_OPEN = 0;
 const std::string PARAM_EDM_RUNNING_BINARY_APP_POLICY = "persist.edm.running_binary_app_disable";
 
 void DisableRunningBinaryAppPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin,
@@ -57,7 +57,7 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
             system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, DISALLOW);
             break;
         case static_cast<int32_t>(ManagedPolicy::FORCE):
-            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, FORCE);
+            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, FORCE_OPEN);
             break;
         default:
             EDMLOGD("DisableRunningBinaryAppPlugin location policy illegal. Value = %{public}d.", data);
