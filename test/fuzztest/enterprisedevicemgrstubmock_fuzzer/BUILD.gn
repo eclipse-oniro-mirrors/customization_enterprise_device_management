@@ -55,6 +55,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_market_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",

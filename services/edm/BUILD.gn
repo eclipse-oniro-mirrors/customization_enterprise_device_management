@@ -85,6 +85,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/enterprise_bundle_connection.cpp",
       "./src/connection/enterprise_conn_manager.cpp",
       "./src/connection/enterprise_kiosk_connection.cpp",
+      "./src/connection/enterprise_market_connection.cpp",
       "./src/connection/enterprise_update_connection.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",

@@ -62,6 +62,8 @@ public:
 
     void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override {}
 
+    void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

@@ -1682,6 +1682,37 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     return getRet;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bundleName, int32_t status)
+{
+    EDMLOGI("EnterpriseMgrAbility::ReportAgInstallStatus start, bundleName %{public}s status %{public}d",
+        bundleName.c_str(), status);
+#ifndef EDM_FUZZ_TEST
+    if (IPCSkeleton::GetCallingUid() != EDM_UID) {
+        EDMLOGE("ReportAgInstallStatus::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+#endif
+    std::vector<std::shared_ptr<Admin>> admins;
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        return ERR_OK;
+    }
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        EDMLOGI("ReportAgInstallStatus packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        bool ret = manager->CreateMarketConnection(connectWant,
+            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED),
+            currentUserId, bundleName, status);
+        if (!ret) {
+            EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus CreateMarketConnection failed.");
+        }
+    }
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType adminType, std::vector<std::string> &enabledAdminList)
 {
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
