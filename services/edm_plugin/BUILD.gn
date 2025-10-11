@@ -81,6 +81,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_mtp_server_plugin.cpp",
       "./src/disable_printer_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
+      "./src/disallow_unmute_device_plugin.cpp",
       "./src/disable_running_binary_app_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
