@@ -50,7 +50,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/disable_mtp_client_plugin_test.cpp",
     "./src/disable_mtp_server_plugin_test.cpp",
     "./src/disable_user_mtp_client_plugin_test.cpp",
-    "./src/disable_running_binary_app_plugin_test.cpp",
     "./src/disable_samba_client_plugin_test.cpp",
     "./src/disable_samba_server_plugin_test.cpp",
     "./src/disable_set_biometrics_and_screenLock_plugin_test.cpp",
@@ -288,6 +287,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_nearlink_protocols_plugin_test.cpp",
       "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
       "./src/disable_hdc_remote_plugin_test.cpp",
+      "./src/disable_running_binary_app_plugin_test.cpp",
+
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
