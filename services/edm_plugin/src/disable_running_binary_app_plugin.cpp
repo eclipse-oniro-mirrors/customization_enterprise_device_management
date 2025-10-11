@@ -30,7 +30,8 @@ const std::string DISALLOW = 0;
 const std::string FORCE = 0;
 const std::string PARAM_EDM_RUNNING_BINARY_APP_POLICY = "persist.edm.running_binary_app_disable";
 
-void DisableRunningBinaryAppPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin, int32_t>> ptr)
+void DisableRunningBinaryAppPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin,
+    int32_t>> ptr)
 {
     EDMLOGI("DisableRunningBinaryAppPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP, PolicyName::POLICY_DISABLE_RUNNING_BINARY_APP,
@@ -40,7 +41,8 @@ void DisableRunningBinaryAppPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<D
     ptr->SetOnAdminRemoveListener(&DisableRunningBinaryAppPlugin::OnAdminRemove);
 }
 
-ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId)
+ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData,
+    int32_t userId)
 {
     EDMLOGD("DisableRunningBinaryAppPlugin set policy value = %{public}d.", data);
     if (mergeData != static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE)) {
@@ -66,8 +68,8 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
     return ERR_OK;
 }
 
-ErrCode DisableRunningBinaryAppPlugin::OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mergeData,
-    int32_t userId)
+ErrCode DisableRunningBinaryAppPlugin::OnAdminRemove(const std::string &adminName, int32_t &policyData,
+    int32_t &mergeData, int32_t userId)
 {
     if (policyData == static_cast<int32_t>(ManagedPolicy::DEFAULT)) {
         return ERR_OK;

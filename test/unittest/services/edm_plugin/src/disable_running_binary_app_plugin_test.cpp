@@ -62,7 +62,6 @@ HWTEST_F(DisableRunningBinaryAppPluginTest, TestDisableRunningBinaryAppPluginTes
     mergeData = 0;
     ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-
 }
 } // namespace TEST
 } // namespace EDM

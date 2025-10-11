@@ -896,7 +896,8 @@ napi_value SecurityManagerAddon::GetExtensionsFromExternalSourcesPolicy(napi_env
     }
     std::string policy;
     int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->GetExtensionsFromExternalSourcesPolicy(adapterAddonData.data, policy);
+        SecurityManagerProxy::GetSecurityManagerProxy()->
+            GetExtensionsFromExternalSourcesPolicy(adapterAddonData.data, policy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
