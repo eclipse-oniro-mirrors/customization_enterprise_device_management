@@ -29,13 +29,13 @@ std::string DisableRunningBinaryAppQuery::GetPolicyName()
 
 std::string DisableRunningBinaryAppQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY;
 }
 
 ErrCode DisableRunningBinaryAppQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    return GetBoolPolicy(policyData, reply);
+    return GetIntPolicy(policyData, reply);
 }
 } // namespace EDM
 } // namespace OHOS

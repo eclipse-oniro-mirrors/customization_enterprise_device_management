@@ -108,7 +108,8 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_SERIAL, EdmInterfaceCode::GET_DEVICE_NAME,
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
-    EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER
+    EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER,
+    EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
 };
 
 PluginManager::PluginManager()

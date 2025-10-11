@@ -22,9 +22,13 @@
 namespace OHOS {
 namespace EDM {
 class DisableRunningBinaryAppPlugin :
-    public PluginSingleton<DisableRunningBinaryAppPlugin, bool>, public BasicBoolPlugin {
+    public PluginSingleton<DisableRunningBinaryAppPlugin, int32_t> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin, bool>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin, int32_t>> ptr) override;
+
+    ErrCode OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId);
+    
+    ErrCode OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mrgeData, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS
