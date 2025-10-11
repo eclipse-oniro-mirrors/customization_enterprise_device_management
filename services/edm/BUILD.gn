@@ -102,7 +102,6 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",
       "./src/query_policy/disable_user_mtp_client_query.cpp",
-      "./src/query_policy/disable_running_binary_app_query.cpp",
       "./src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
       "./src/query_policy/disable_set_device_name_query.cpp",
       "./src/query_policy/disallow_distributed_transmission_query.cpp",
@@ -162,6 +161,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
       "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",
       "./src/query_policy/disable_hdc_remote_query.cpp",
+      "./src/query_policy/disable_running_binary_app_query.cpp",
     ]
     defines += [
       "SAMBA_EDM_ENABLE",

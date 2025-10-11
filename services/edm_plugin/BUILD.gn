@@ -82,7 +82,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_printer_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallow_unmute_device_plugin.cpp",
-      "./src/disable_running_binary_app_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_distributed_transmission_plugin.cpp",
@@ -151,6 +150,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/set_auto_unlock_after_reboot_plugin.cpp",
         "./src/install_local_enterprise_app_enabled_plugin.cpp",
         "./src/disable_hdc_remote_plugin.cpp",
+        "./src/disable_running_binary_app_plugin.cpp",
       ]
     }
 

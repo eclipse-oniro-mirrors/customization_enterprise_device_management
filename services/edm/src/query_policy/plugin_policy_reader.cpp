@@ -521,9 +521,6 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifthPartTwo(std::shared_ptr<IPolicyQu
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-        case EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP:
-            obj = std::make_shared<DisableRunningBinaryAppQuery>();
-            return ERR_OK;
         default:
             break;
     }
@@ -604,6 +601,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+
+        case EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableRunningBinaryAppQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
         default:
             break;
     }

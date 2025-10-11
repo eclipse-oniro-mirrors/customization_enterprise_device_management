@@ -429,7 +429,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disable_mtp_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_mtp_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_user_mtp_client_plugin.cpp",
-    "../../../../services/edm_plugin/src/disable_running_binary_app_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_client_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_samba_server_plugin.cpp",
     "../../../../services/edm_plugin/src/disable_set_biometrics_and_screenLock_plugin.cpp",
@@ -711,6 +710,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
       "../../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
+      "../../../../services/edm_plugin/src/disable_running_binary_app_plugin.cpp",
     ]
   }
 
