@@ -56,6 +56,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
+        DECLARE_NAPI_PROPERTY("setExtensionsFromExternalSourcesPolicy", SetExtensionsFromExternalSourcesPolicy),
+        DECLARE_NAPI_PROPERTY("getExtensionsFromExternalSourcesPolicy", GetExtensionsFromExternalSourcesPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -857,6 +859,88 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
     napi_value permissionManagedState;
     NAPI_CALL(env, napi_create_int32(env, policy, &permissionManagedState));
     return permissionManagedState;
+}
+
+napi_value SecurityManagerAddon::SetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetExtensionsFromExternalSourcesPolicy called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    AddonMethodSign addonMethodSign;
+    if (argc == ARGS_SIZE_THREE) {
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+        EDMLOGI(" SetExtensionsFromExternalSourcesPolicy argc == ARGS_SIZE_THREE");
+        SetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::SET_HAS_TOKEN_ID);
+    } else if (argc > ARGS_SIZE_THREE) {
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
+            EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+        EDMLOGI(" SetExtensionsFromExternalSourcesPolicy argc > ARGS_SIZE_THREE");
+        SetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
+    } else {
+        EDMLOGI(" argc < ARGS_SIZE_THREE Parameter error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter error"));
+        return nullptr;
+    }
+    addonMethodSign.name = "SetExtensionsFromExternalSourcesPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetExtensionsFromExternalSourcesPolicy(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    AddonMethodSign addonMethodSign;
+    if (argc == ARGS_SIZE_ONE) {
+        EDMLOGI(" GetExtensionsFromExternalSourcesPolicy argc == ARGS_SIZE_ONE");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_NO_TOKEN_ID);
+    } else if (argc == ARGS_SIZE_TWO) {
+        EDMLOGI(" GetExtensionsFromExternalSourcesPolicy argc == ARGS_SIZE_TWO");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_TOKEN_ID);
+    } else if (argc >= ARGS_SIZE_THREE) {
+        EDMLOGI(" GetExtensionsFromExternalSourcesPolicy argc >= ARGS_SIZE_THREE");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_BUNDLE_NAME);
+    } else {
+        EDMLOGI(" argc < ARGS_SIZE_ONE Parameter error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter error"));
+        return nullptr;
+    }
+    addonMethodSign.name = "GetExtensionsFromExternalSourcesPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::string policy;
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->GetExtensionsFromExternalSourcesPolicy(adapterAddonData.data, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value clipboardPolicy;
+    NAPI_CALL(env, napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &clipboardPolicy));
+    return clipboardPolicy;
 }
 
 static napi_module g_securityModule = {

@@ -293,5 +293,28 @@ int32_t SecurityManagerProxy::GetPermissionManagedState(MessageParcel &data, int
     policy = reply.ReadInt32();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::SetExtensionsFromExternalSourcesPolicy(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetExtensionsFromExternalSourcesPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetExtensionsFromExternalSourcesPolicy(MessageParcel &data, std::string &policy)
+{
+    EDMLOGD("SecurityManagerProxy::GetExtensionsFromExternalSourcesPolicy");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadString();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

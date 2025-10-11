@@ -155,6 +155,7 @@
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
 #include "disable_user_mtp_client_query.h"
+#include "disable_running_binary_app_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
 #include "disallow_distributed_transmission_query.h"
@@ -519,6 +520,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryFifthPartTwo(std::shared_ptr<IPolicyQu
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP:
+            obj = std::make_shared<DisableRunningBinaryAppQuery>();
+            return ERR_OK;
         default:
             break;
     }
