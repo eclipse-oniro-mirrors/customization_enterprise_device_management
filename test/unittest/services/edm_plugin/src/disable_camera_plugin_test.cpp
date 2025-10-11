@@ -65,6 +65,14 @@ HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestSet, TestSize.Level
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
+
+    MessageParcel dataFalse;
+    dataFalse.WriteBool(false);
+    HandlePolicyData handlePolicyDataFalse{"true", "", false};
+    ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyDataFalse.policyData == "false");
+    ASSERT_FALSE(handlePolicyDataFalse.isChanged);
 }
 
 } // namespace TEST
