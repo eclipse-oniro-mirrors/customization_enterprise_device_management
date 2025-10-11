@@ -159,6 +159,7 @@
 #include "disable_set_device_name_query.h"
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
+#include "disallow_unmute_device_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
@@ -692,6 +693,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE:
+            obj = std::make_shared<DisallowUnmuteDeviceQuery>();
+            return ERR_OK;
         default:
             break;
     }

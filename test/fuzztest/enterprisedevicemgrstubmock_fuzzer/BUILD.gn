@@ -83,6 +83,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_unmute_device_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
