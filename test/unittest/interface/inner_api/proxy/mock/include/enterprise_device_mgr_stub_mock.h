@@ -70,6 +70,7 @@ public:
     MOCK_METHOD(int, SetDelegatedPolicies, (const std::string &, (const std::vector<std::string> &), int32_t),
         (override));
     MOCK_METHOD(int, SetBundleInstallPolicies, ((const std::vector<std::string> &), int32_t, int32_t),
+        (override));
     MOCK_METHOD(int, UnloadInstallMarketAppsPlugin, (), (override));
     MOCK_METHOD(int, ReportAgInstallStatus, (const std::string &, int32_t),
         (override));
