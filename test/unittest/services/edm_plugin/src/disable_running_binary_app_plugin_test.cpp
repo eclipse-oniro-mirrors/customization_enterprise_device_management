@@ -52,17 +52,17 @@ void DisableRunningBinaryAppPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(DisableRunningBinaryAppPluginTest, TestDisableRunningBinaryAppPluginTestSet, TestSize.Level1)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableRunningBinaryAppPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    int32_t data = 1;
+    int32_t currentData = 0;
+    int32_t mergeData = 0;
+    DisableRunningBinaryAppPlugin plugin;
+    ErrCode ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
-    ASSERT_TRUE(handlePolicyData.isChanged);
+    data = 0;
+    mergeData = 0;
+    ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+
 }
 } // namespace TEST
 } // namespace EDM
