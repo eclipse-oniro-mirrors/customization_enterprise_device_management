@@ -167,7 +167,6 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
         const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
-        const char* const LABEL_DISALLOWED_POLICY_RUNNING_BINARY_APP = "runningBinaryApp";
     } // namespace Restrictions
 
     namespace SecurityManager {
