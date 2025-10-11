@@ -56,8 +56,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
-        DECLARE_NAPI_PROPERTY("setExtensionsFromExternalSourcesPolicy", SetExtensionsFromExternalSourcesPolicy),
-        DECLARE_NAPI_PROPERTY("getExtensionsFromExternalSourcesPolicy", GetExtensionsFromExternalSourcesPolicy),
+        DECLARE_NAPI_FUNCTION("setExtensionsFromExternalSourcesPolicy", SetExtensionsFromExternalSourcesPolicy),
+        DECLARE_NAPI_FUNCTION("getExtensionsFromExternalSourcesPolicy", GetExtensionsFromExternalSourcesPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;

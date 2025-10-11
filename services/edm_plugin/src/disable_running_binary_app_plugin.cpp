@@ -45,7 +45,7 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
     int32_t userId)
 {
     EDMLOGD("DisableRunningBinaryAppPlugin set policy value = %{public}d.", data);
-    if (mergeData != static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE)) {
+    if (mergeData != static_cast<int32_t>(ManagedPolicy::DEFAULT)) {
         EDMLOGE("DisableRunningBinaryAppPlugin set failed, anaother admin has already set policy.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -60,7 +60,7 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
             system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, FORCE_OPEN);
             break;
         default:
-            EDMLOGD("DisableRunningBinaryAppPlugin location policy illegal. Value = %{public}d.", data);
+            EDMLOGD("DisableRunningBinaryAppPlugin policy illegal. Value = %{public}d.", data);
             return EdmReturnErrCode::PARAM_ERROR;
     }
     currentData = data;

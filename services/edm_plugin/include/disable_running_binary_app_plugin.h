@@ -28,7 +28,7 @@ public:
 
     ErrCode OnSetPolicy(int32_t &data, int32_t &currentData, int32_t &mergeData, int32_t userId);
     
-    ErrCode OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mrgeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, int32_t &policyData, int32_t &mergeData, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

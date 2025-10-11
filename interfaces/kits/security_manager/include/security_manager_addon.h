@@ -74,7 +74,7 @@ private:
     static bool JsObjToManagedState(napi_env env, napi_value object, ManagedState &managedState);
     static bool JsObjToApplicationInstance(napi_env env, napi_value object, MessageParcel &data);
     static void SetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info);
-    static void GetClipboardPolicyParamHandle(napi_env env, napi_callback_info info);
+    static void GetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

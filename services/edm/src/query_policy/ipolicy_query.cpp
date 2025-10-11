@@ -52,7 +52,7 @@ ErrCode IPolicyQuery::GetBoolPolicy(const std::string &policyData, MessageParcel
 
 ErrCode IPolicyQuery::GetIntPolicy(const std::string &policyData, MessageParcel &reply)
 {
-    bool policy = 0;
+    int policy = 0;
     IntSerializer::GetInstance()->Deserialize(policyData, policy);
     EDMLOGI("IPolicyQuery GetIntPolicy paramKey result %{public}d", policy);
     reply.WriteInt32(ERR_OK);
