@@ -14,6 +14,8 @@
  */
 #include "allowed_bluetooth_devices_plugin.h"
 
+#include <regex>
+
 #include "array_string_serializer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -48,6 +50,16 @@ ErrCode AllowedBluetoothDevicesPlugin::SetOtherModulePolicy(const std::vector<st
     std::vector<std::string> &failedData)
 {
     EDMLOGI("AllowedBluetoothDevicesPlugin OnSetPolicy");
+    std::regex deviceIdRegex("^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$");
+    for (const auto &item : data) {
+        if (!regex_match(item, deviceIdRegex)) {
+            failedData.push_back(item);
+        }
+    }
+    if (failedData.size() == data.size()) {
+        EDMLOGI("AllowedBluetoothDevicesPlugin OnSetPolicy add data illegal");
+        return ERR_OK;
+    }
     bool isDisabled = system::GetBoolParameter(PERSIST_BLUETOOTH_CONTROL, false);
     if (isDisabled) {
         EDMLOGE("AllowedBluetoothDevicesPlugin OnSetPolicy failed, because bluetooth disabled.");

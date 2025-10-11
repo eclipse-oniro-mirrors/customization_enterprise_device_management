@@ -46,6 +46,9 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::REPLACE_ADMIN_FAILED, "Replace admin failed. $."},
     {EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed. $"},
     {EdmReturnErrCode::ENTERPRISE_POLICES_DENIED, "This function is prohibited by enterprise management policies."},
+    {EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT,
+        "The enterprise management policy has been successfully set, " \
+        "but the function has not taken effect in real time."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

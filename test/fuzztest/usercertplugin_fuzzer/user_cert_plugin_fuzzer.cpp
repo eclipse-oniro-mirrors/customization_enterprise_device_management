@@ -29,6 +29,12 @@ namespace EDM {
 constexpr size_t MIN_SIZE = 24;
 constexpr size_t WITHOUT_USERID = 0;
 
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
+
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {

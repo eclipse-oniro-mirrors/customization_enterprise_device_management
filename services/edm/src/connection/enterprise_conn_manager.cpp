@@ -70,6 +70,14 @@ bool EnterpriseConnManager::CreateKioskConnection(
     return ConnectAbility(connection);
 }
 
+bool EnterpriseConnManager::CreateMarketConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    const std::string &bundleName, int32_t status)
+{
+    sptr<IEnterpriseConnection> connection(
+        new (std::nothrow)EnterpriseMarketConnection(want, code, userId, bundleName, status));
+    return ConnectAbility(connection);
+}
+
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

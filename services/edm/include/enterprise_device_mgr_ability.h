@@ -80,6 +80,7 @@ public:
         int32_t hasUserId = 1) override;
     ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId)
         override;
+    ErrCode ReportAgInstallStatus(const std::string &bundleName, int32_t status) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
@@ -135,6 +136,8 @@ private:
     ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
+        const AppExecFwk::ElementName &oldAdmin);
     void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();

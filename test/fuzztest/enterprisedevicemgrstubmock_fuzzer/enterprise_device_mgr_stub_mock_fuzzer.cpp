@@ -18,10 +18,17 @@
 #include "common_fuzzer.h"
 #include "func_code.h"
 #include "message_parcel.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 6;
+
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -35,7 +42,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     uint32_t code = (CommonFuzzer::GetU32Data(data)) % INTERFACE_CODE_DIVISOR;
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
-        code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB) {
+        code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
+        code == EdmInterfaceCode::DISABLED_HDC_REMOTE) {
         return 0;
     }
     uint32_t funcFlag = data[4] % BINARY_DECISION_DIVISOR;

@@ -40,6 +40,9 @@ public:
     static void SetEdmServiceDisable();
     static void SetBluetoothEnable();
     static void SetBluetoothDisable();
+    static void SetEdmPermissions();
+    static void SetUid();
+    static void ResetUid();
 
 private:
     static uint64_t selfTokenId_;

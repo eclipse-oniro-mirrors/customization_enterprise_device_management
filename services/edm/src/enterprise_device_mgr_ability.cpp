@@ -1188,11 +1188,19 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
     OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
         DEFAULT_USER_ID, true);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
+    AfterEnableAdminReportEdmEvent(newAdmin, oldAdmin);
+    return ERR_OK;
+}
 
+void EnterpriseDeviceMgrAbility::AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
+    const AppExecFwk::ElementName &oldAdmin)
+{
+    DelDisallowUninstallApp(oldAdmin.GetBundleName());
+    AddDisallowUninstallApp(newAdmin.GetBundleName());
+    EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(newAdmin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::REPLACE),
         static_cast<int32_t>(AdminType::ENT), oldAdmin.GetBundleName().c_str());
-    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
@@ -1767,6 +1775,37 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), info, false);
     return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bundleName, int32_t status)
+{
+    EDMLOGI("EnterpriseMgrAbility::ReportAgInstallStatus start, bundleName %{public}s status %{public}d",
+        bundleName.c_str(), status);
+#ifndef EDM_FUZZ_TEST
+    if (IPCSkeleton::GetCallingUid() != EDM_UID) {
+        EDMLOGE("ReportAgInstallStatus::VerifyCallingPermission check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+#endif
+    std::vector<std::shared_ptr<Admin>> admins;
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        return ERR_OK;
+    }
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        EDMLOGI("ReportAgInstallStatus packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        bool ret = manager->CreateMarketConnection(connectWant,
+            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED),
+            currentUserId, bundleName, status);
+        if (!ret) {
+            EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus CreateMarketConnection failed.");
+        }
+    }
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetEnabledAdmin(AdminType adminType, std::vector<std::string> &enabledAdminList)

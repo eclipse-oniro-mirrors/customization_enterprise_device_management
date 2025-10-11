@@ -99,6 +99,12 @@ void Utils::SetNativeTokenTypeAndPermissions(const char* permissions[], int size
 
 void Utils::SetEdmInitialEnv()
 {
+    SetEdmPermissions();
+    seteuid(Utils::EDM_UID);
+}
+
+void Utils::SetEdmPermissions()
+{
     selfTokenId_ = GetSelfTokenID();
     const char* permissions[] = {
         EDM_MANAGE_DATETIME_PERMISSION.c_str(),
@@ -148,7 +154,16 @@ void Utils::SetEdmInitialEnv()
         PERMISSION_MANAGE_VPN.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
+}
+
+void Utils::SetUid()
+{
     seteuid(Utils::EDM_UID);
+}
+
+void Utils::ResetUid()
+{
+    seteuid(Utils::ROOT_UID);
 }
 
 void Utils::ResetTokenTypeAndUid()

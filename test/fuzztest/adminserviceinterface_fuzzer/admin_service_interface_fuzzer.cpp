@@ -19,11 +19,18 @@
 #include "common_fuzzer.h"
 #include "func_code.h"
 #include "message_parcel.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 5;
 constexpr uint32_t MIN_INTERAFCE_CODE = 1000;
+
+extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+{
+    TEST::Utils::SetEdmPermissions();
+    return 0;
+}
 
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -43,7 +50,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
-        code < MIN_INTERAFCE_CODE) {
+        code == EdmInterfaceCode::DISABLED_HDC_REMOTE || code < MIN_INTERAFCE_CODE) {
         return 0;
     }
     uint32_t operateType = data[4] % OPERATE_TYPE_DIVISOR;

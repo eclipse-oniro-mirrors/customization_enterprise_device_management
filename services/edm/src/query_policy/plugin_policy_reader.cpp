@@ -129,6 +129,7 @@
 #include "disallow_modify_ethernet_ip_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
 #include "disable_print_query.h"
+#include "disable_hdc_remote_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -158,6 +159,7 @@
 #include "disable_set_device_name_query.h"
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
+#include "disallow_unmute_device_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
@@ -683,6 +685,16 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
 #endif
         case EdmInterfaceCode::DISABLED_APP_CLONE:
             obj = std::make_shared<DisableAppCloneQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISABLED_HDC_REMOTE:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableHdcRemoteQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE:
+            obj = std::make_shared<DisallowUnmuteDeviceQuery>();
             return ERR_OK;
         default:
             break;

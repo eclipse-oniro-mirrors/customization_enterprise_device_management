@@ -55,6 +55,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_market_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
@@ -83,6 +84,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_unmute_device_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
@@ -437,6 +439,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/disable_usb_storage_device_write_query.cpp",
         "../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
+        "../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
+        "../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
@@ -517,6 +521,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",

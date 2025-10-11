@@ -20,33 +20,32 @@
 #include "ipolicy_serializer.h"
 
 namespace OHOS {
-    namespace EDM {
-    
-    struct TelephonyCallPolicyType {
-        std::vector<std::string> numberList;
-        int32_t policyFlag = 0;
-    };
-    
-    /*
-     * Policy data serializer of type std::map<std::string, TelephonyCallPolicyType>.
-     */
-    class TelephonyCallPolicySerializer : public IPolicySerializer<std::map<std::string, TelephonyCallPolicyType>>,
-        public DelayedSingleton<TelephonyCallPolicySerializer> {
-    public:
-        cJSON* CreateArray(const std::vector<std::string> &numberList);
+namespace EDM {
 
-        bool Deserialize(const std::string &policy, std::map<std::string, TelephonyCallPolicyType> &dataObj) override;
-    
-        bool Serialize(const std::map<std::string, TelephonyCallPolicyType> &dataObj, std::string &policy) override;
-    
-        bool GetPolicy(MessageParcel &data, std::map<std::string, TelephonyCallPolicyType> &result) override;
-    
-        bool WritePolicy(MessageParcel &reply, std::map<std::string, TelephonyCallPolicyType> &result) override;
-    
-        bool MergePolicy(std::vector<std::map<std::string, TelephonyCallPolicyType>> &data,
-            std::map<std::string, TelephonyCallPolicyType> &result) override;
-    };
-    } // namespace EDM
-    } // namespace OHOS
+struct TelephonyCallPolicyType {
+    std::vector<std::string> numberList;
+    int32_t policyFlag = 0;
+};
+
+/*
+ * Policy data serializer of type std::map<std::string, TelephonyCallPolicyType>.
+ */
+class TelephonyCallPolicySerializer : public IPolicySerializer<std::map<std::string, TelephonyCallPolicyType>>,
+    public DelayedSingleton<TelephonyCallPolicySerializer> {
+public:
+    cJSON* CreateArray(const std::vector<std::string> &numberList);
+    bool Deserialize(const std::string &policy, std::map<std::string, TelephonyCallPolicyType> &dataObj) override;
+
+    bool Serialize(const std::map<std::string, TelephonyCallPolicyType> &dataObj, std::string &policy) override;
+
+    bool GetPolicy(MessageParcel &data, std::map<std::string, TelephonyCallPolicyType> &result) override;
+
+    bool WritePolicy(MessageParcel &reply, std::map<std::string, TelephonyCallPolicyType> &result) override;
+
+    bool MergePolicy(std::vector<std::map<std::string, TelephonyCallPolicyType>> &data,
+        std::map<std::string, TelephonyCallPolicyType> &result) override;
+};
+} // namespace EDM
+} // namespace OHOS
 
 #endif // INTERFACES_INNER_API_TELEPHONY_CALL_POLICY_SERIALIZER_H

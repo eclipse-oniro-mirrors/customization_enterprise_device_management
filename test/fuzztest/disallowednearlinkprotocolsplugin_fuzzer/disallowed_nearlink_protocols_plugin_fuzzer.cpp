@@ -19,6 +19,7 @@
 
 #include "common_fuzzer.h"
 #include "message_parcel.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace EDM {

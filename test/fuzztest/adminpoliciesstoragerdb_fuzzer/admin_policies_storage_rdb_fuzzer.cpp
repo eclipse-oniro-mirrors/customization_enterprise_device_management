@@ -30,6 +30,21 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 64;
 
+void InitAdminParam(Admin &admin, const uint8_t* data, int32_t& pos, size_t& size, int32_t stringSize)
+{
+    AdminInfo fuzzAdminInfo;
+    fuzzAdminInfo.packageName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
+    fuzzAdminInfo.className_ = CommonFuzzer::GetString(data, pos, stringSize, size);
+    fuzzAdminInfo.entInfo_.enterpriseName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    fuzzAdminInfo.entInfo_.description = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string permission = CommonFuzzer::GetString(data, pos, stringSize, size);
+    fuzzAdminInfo.permission_.push_back(permission);
+    ManagedEvent event = GetData<ManagedEvent>();
+    fuzzAdminInfo.managedEvents_.push_back(event);
+    fuzzAdminInfo.parentAdminName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
+    admin.adminInfo_ = fuzzAdminInfo;
+}
+
 // Fuzzer entry point.
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -42,38 +57,22 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_data = data;
     g_size = size;
     g_pos = 0;
+    int32_t pos = 0;
+    int32_t stringSize = size / 9;
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    std::string fuzzString(reinterpret_cast<const char*>(data), size);
-    ManagedEvent event = GetData<ManagedEvent>();
     Admin admin;
-    AdminInfo fuzzAdminInfo;
-    EntInfo entInfo;
-    entInfo.enterpriseName = fuzzString;
-    entInfo.description = fuzzString;
-    fuzzAdminInfo.packageName_ = fuzzString;
-    fuzzAdminInfo.className_ = fuzzString;
-    fuzzAdminInfo.entInfo_ = entInfo;
-    fuzzAdminInfo.permission_ = { fuzzString };
-    fuzzAdminInfo.managedEvents_ = { event };
-    fuzzAdminInfo.parentAdminName_ = fuzzString;
-    admin.adminInfo_ = fuzzAdminInfo;
-    std::vector<std::string> permissions = { fuzzString };
+    InitAdminParam(admin, data, pos, size, stringSize);
     adminPoliciesStorageRdb->InsertAdmin(userId, admin);
-    adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
     adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
-    std::string packageName(reinterpret_cast<const char*>(data), size);
-    std::string currentParentName = fuzzString;
-    std::string targetParentName = fuzzString;
-    std::string stringInfo = fuzzString;
-    std::vector<std::string> info = { fuzzString };
+    std::string packageName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string stringInfo = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string info = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::vector<std::string> infos = {info};
     adminPoliciesStorageRdb->DeleteAdmin(userId, packageName);
-    adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo);
+    ManagedEvent event = GetData<ManagedEvent>();
     std::vector<ManagedEvent> managedEvents = {event};
-    adminPoliciesStorageRdb->UpdateManagedEvents(userId, packageName, managedEvents);
-    adminPoliciesStorageRdb->ReplaceAdmin(packageName, userId, admin);
-    adminPoliciesStorageRdb->UpdateParentName(packageName, currentParentName, targetParentName);
-    adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, info);
+    adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, infos);
     std::shared_ptr<NativeRdb::ResultSet> resultSet;
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
     adminPoliciesStorageRdb->SetAdminItems(resultSet, item);

@@ -77,6 +77,8 @@ public:
     void OnKioskModeEntering(const std::string &bundleName, int32_t accountId);
 
     void OnKioskModeExiting(const std::string &bundleName, int32_t accountId);
+
+    void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status);
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 

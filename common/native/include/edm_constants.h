@@ -167,6 +167,8 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
+        const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
+        const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -294,6 +296,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_ADD_LOCAL_ACCOUNT = "disallow_add_local_account";
     const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
+    const char* const POLICY_DISALLOW_UNMUTE_DEVICE = "disallow_unmute_device";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";
@@ -369,6 +372,7 @@ namespace PolicyName {
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
+    const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -85,6 +85,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/enterprise_bundle_connection.cpp",
       "./src/connection/enterprise_conn_manager.cpp",
       "./src/connection/enterprise_kiosk_connection.cpp",
+      "./src/connection/enterprise_market_connection.cpp",
       "./src/connection/enterprise_update_connection.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",
@@ -106,6 +107,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_set_device_name_query.cpp",
       "./src/query_policy/disallow_distributed_transmission_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
+      "./src/query_policy/disallow_unmute_device_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
       "./src/query_policy/disallowed_tethering_query.cpp",
       "./src/query_policy/disallowed_uninstall_bundles_query.cpp",
@@ -159,6 +161,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_modify_ethernet_ip_query.cpp",
       "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
       "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",
+      "./src/query_policy/disable_hdc_remote_query.cpp",
     ]
     defines += [
       "SAMBA_EDM_ENABLE",

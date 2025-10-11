@@ -792,12 +792,12 @@ napi_value AdminManager::SetDelegatedPolicies(napi_env env, napi_callback_info i
         std::string bundleName;
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ZERO]),
             "parameter bundleName error");
-        std::vector<std::string> policies;
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_ONE]),
-            "parameter policies error");
         int32_t userId = 0;
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]),
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]),
             "Parameter user id error");
+        std::vector<std::string> policies;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, policies, argv[ARR_INDEX_TWO]),
+            "parameter policies error");
         int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->SetDelegatedPolicies(bundleName, policies, userId);
         if (FAILED(ret)) {
             napi_throw(env, CreateError(env, ret));
