@@ -89,6 +89,11 @@ public:
      */
     virtual void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) = 0;
 
+    /**
+     * Called when a Market hap installation succeeds or fails.
+     */
+    virtual void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -101,7 +106,8 @@ public:
         COMMAND_ON_ACCOUNT_SWITCHED = 9,
         COMMAND_ON_ACCOUNT_REMOVED = 10,
         COMMAND_ON_KIOSK_MODE_ENTERING = 11,
-        COMMAND_ON_KIOSK_MODE_EXITING = 12
+        COMMAND_ON_KIOSK_MODE_EXITING = 12,
+        COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13
     };
 };
 } // namespace EDM

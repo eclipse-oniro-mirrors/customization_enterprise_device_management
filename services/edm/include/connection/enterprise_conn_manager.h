@@ -25,6 +25,7 @@
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
 #include "enterprise_kiosk_connection.h"
+#include "enterprise_market_connection.h"
 #include "enterprise_update_connection.h"
 #include "ienterprise_connection.h"
 #include "singleton.h"
@@ -43,6 +44,8 @@ public:
         const int32_t accountId);
     bool CreateKioskConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName, int32_t accountId);
+    bool CreateMarketConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const std::string &bundleName, int32_t status);
 private:
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };
