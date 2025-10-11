@@ -608,6 +608,7 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
