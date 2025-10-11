@@ -50,6 +50,7 @@
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
+#include "disable_running_binary_app_query.h"
 #include "disable_samba_client_query.h"
 #include "disable_samba_server_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
@@ -2284,6 +2285,40 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableHdcRemoteQuery003, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_hdc_remote");
+}
+
+/**
+ * @tc.name: DisableRunningBinaryAppQuery001
+ * @tc.desc: Test DisableRunningBinaryAppPluginTest::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, DisableRunningBinaryAppQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisableRunningBinaryAppQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: DisableRunningBinaryAppQuery002
+ * @tc.desc: Test DisableRunningBinaryAppQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, DisableRunningBinaryAppQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisableRunningBinaryAppQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
+    ASSERT_TRUE(queryObj->GetPolicyName() == "disable_running_binary_app");
 }
 #endif
 } // namespace TEST
