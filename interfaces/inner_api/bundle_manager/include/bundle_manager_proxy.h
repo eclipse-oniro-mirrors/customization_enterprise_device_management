@@ -43,6 +43,7 @@ public:
     int32_t AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data, FuncOperateType operateType);
     int32_t GetInstallationAllowedAppDistributionTypes(MessageParcel &data,
         std::vector<int32_t> &installationAllowedAppDistributionTypes);
+    int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;

@@ -116,6 +116,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
             RemoveInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("getInstallationAllowedAppDistributionTypes",
             GetInstallationAllowedAppDistributionTypes),
+        DECLARE_NAPI_FUNCTION("installMarketApps", InstallMarketApps),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
@@ -827,6 +828,30 @@ napi_value BundleManagerAddon::GetInstallationAllowedAppDistributionTypes(napi_e
         NAPI_CALL(env, napi_set_element(env, result, i, allowedType));
     }
     return result;
+}
+
+napi_value BundleManagerAddon::InstallMarketApps(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "InstallMarketApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return nullptr;
+    }
+    std::vector<std::string> installMarketApps;
+    int32_t retCode = bundleManagerProxy->InstallMarketApps(adapterAddonData.data,
+        installMarketApps);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
 }
 
 napi_value BundleManagerAddon::GetAllowedInstallBundlesSync(napi_env env, napi_callback_info info)

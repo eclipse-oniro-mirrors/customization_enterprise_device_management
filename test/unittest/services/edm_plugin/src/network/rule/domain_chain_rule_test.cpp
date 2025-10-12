@@ -39,16 +39,16 @@ class DomainChainRuleTest : public testing::Test {};
  */
 HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4};
     DomainChainRule domainChainRule{domainFilterRule};
 
-    EXPECT_EQ(domainChainRule.ToFilterRule(Direction::OUTPUT), domainFilterRule);
+    EXPECT_EQ(domainChainRule.ToFilterRule(Direction::OUTPUT, Family::IPV4), domainFilterRule);
 
     std::string rule =
         "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
         "udp dpt:53 owner UID match 9696 STRING match  \"|03777777076578616d706c6503636f6d|\" ALGO name bm TO 65535";
     DomainChainRule domainChainRule1{rule};
-    EXPECT_EQ(domainChainRule1.ToFilterRule(Direction::OUTPUT), domainFilterRule);
+    EXPECT_EQ(domainChainRule1.ToFilterRule(Direction::OUTPUT, Family::IPV4), domainFilterRule);
 }
 
 /**
@@ -58,18 +58,18 @@ HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
  */
 HWTEST_F(DomainChainRuleTest, TestParameter, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4};
     std::string parameter =
         " -p udp --dport 53 -m owner --uid-owner 9696 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule{domainFilterRule};
-    EXPECT_EQ(domainChainRule.Parameter(), parameter);
+    EXPECT_EQ(domainChainRule.Parameter(false), parameter);
 
-    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com", Direction::OUTPUT};
+    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4};
     std::string parameter1 = " -p udp --dport 53 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule1{domainFilterRule1};
-    EXPECT_EQ(domainChainRule1.Parameter(), parameter1);
+    EXPECT_EQ(domainChainRule1.Parameter(false), parameter1);
 }
 
 /**

@@ -34,6 +34,7 @@ std::once_flag BundleManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string SEPARATOR = "/";
+const int32_t SET_MARKET_APPS = 0;
 
 bool BundleManagerProxy::GetData(void *&buffer, size_t size, const void *data)
 {
@@ -180,6 +181,16 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     }
     reply.ReadStringVector(&bundles);
     return ERR_OK;
+}
+
+int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps)
+{
+    EDMLOGD("BundleManagerProxy::InstallMarketApps");
+    data.WriteInt32(SET_MARKET_APPS);
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::INSTALL_MARKET_APPS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,

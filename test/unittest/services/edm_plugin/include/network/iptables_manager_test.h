@@ -18,6 +18,7 @@
 #define private public
 #define protected public
 #include "iptables_manager.h"
+#include "ipv4tables_manager.h"
 #undef protected
 #undef private
 

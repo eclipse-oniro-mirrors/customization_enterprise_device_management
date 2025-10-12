@@ -76,7 +76,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
                 static_cast<IPTABLES::Action>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
             IPTABLES::Protocol protocolEnum =
                 static_cast<IPTABLES::Protocol>(CommonFuzzer::GetU32Data(data) % MAX_PROTOCOL_LENGTH);
-            firewall = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, uid};
+            IPTABLES::Family familyEnum =
+                static_cast<IPTABLES::Family>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH + 1);
+            firewall = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, uid, familyEnum};
             IPTABLES::FirewallRuleParcel firewallRuleParcel{firewall};
             firewallRuleParcel.Marshalling(parcel);
         } else {

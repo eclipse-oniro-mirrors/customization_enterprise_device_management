@@ -109,6 +109,7 @@ ohos_unittest("EdmPluginTest") {
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
     "netmanager_base:netsys_controller",
+    "netmanager_base:net_native_manager_if",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "data_share:datashare_consumer",
@@ -443,6 +444,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/get_device_info_plugin.cpp",
     "../../../../services/edm_plugin/src/inactive_user_freeze_plugin.cpp",
     "../../../../services/edm_plugin/src/install_plugin.cpp",
+    "../../../../services/edm_plugin/src/install_market_apps_plugin.cpp",
     "../../../../services/edm_plugin/src/installed_bundle_info_list_plugin.cpp",
     "../../../../services/edm_plugin/src/kiosk_feature_plugin.cpp",
     "../../../../services/edm_plugin/src/managed_browser_policy_plugin.cpp",
@@ -583,7 +585,10 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/network/executer/executer_utils.cpp",
       "../../../../services/edm_plugin/src/network/executer/firewall_executer.cpp",
       "../../../../services/edm_plugin/src/network/executer/iexecuter.cpp",
+      "../../../../services/edm_plugin/src/network/executer/iptables_factory.cpp",
       "../../../../services/edm_plugin/src/network/iptables_manager.cpp",
+      "../../../../services/edm_plugin/src/network/ipv4tables_manager.cpp",
+      "../../../../services/edm_plugin/src/network/ipv6tables_manager.cpp",
       "../../../../services/edm_plugin/src/network/rule/chain_rule.cpp",
       "../../../../services/edm_plugin/src/network/rule/domain_chain_rule.cpp",
       "../../../../services/edm_plugin/src/network/rule/firewall_chain_rule.cpp",
@@ -753,7 +758,9 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
   }
 
   if (netmanager_ext_edm_enable) {
-    external_deps += [ "netmanager_ext:net_vpn_manager_if" ]
+    external_deps += [
+      "netmanager_ext:net_vpn_manager_if" 
+    ]
     sources += [
       "../../../../services/edm_plugin/src/disallow_vpn_plugin.cpp",
     ]

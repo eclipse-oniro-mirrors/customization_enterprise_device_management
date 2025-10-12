@@ -21,6 +21,7 @@
 #include "domain_filter_rule_serializer.h"
 #include "iptables_manager.h"
 #include "iplugin_manager.h"
+#include "iptables_factory.h"
 
 using namespace OHOS::EDM::IPTABLES;
 
@@ -42,19 +43,25 @@ void DomainFilterRulePlugin::InitPlugin(
 ErrCode DomainFilterRulePlugin::OnSetPolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IptablesManager::GetInstance()->HasInit()) {
-        IptablesManager::GetInstance()->Init();
+    IPTABLES::Family family = std::get<DOMAIN_FAMILY_IND>(rule);
+    std::shared_ptr<IptablesManager> iptablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(family);
+    if (!iptablesManager->HasInit()) {
+        iptablesManager->Init();
     }
-    return IptablesManager::GetInstance()->AddDomainFilterRule(ruleParcel);
+    return iptablesManager->AddDomainFilterRule(ruleParcel);
 }
 
 ErrCode DomainFilterRulePlugin::OnRemovePolicy(IPTABLES::DomainFilterRuleParcel &ruleParcel)
 {
     auto rule = ruleParcel.GetRule();
-    if (!IptablesManager::GetInstance()->HasInit()) {
-        IptablesManager::GetInstance()->Init();
+    IPTABLES::Family family = std::get<DOMAIN_FAMILY_IND>(rule);
+    std::shared_ptr<IptablesManager> iptablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(family);
+    if (!iptablesManager->HasInit()) {
+        iptablesManager->Init();
     }
-    return IptablesManager::GetInstance()->RemoveDomainFilterRules(ruleParcel);
+    return iptablesManager->RemoveDomainFilterRules(ruleParcel);
 }
 
 ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -62,14 +69,32 @@ ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParc
 {
     EDMLOGI("DomainFilterRulePlugin OnGetPolicy.");
     reply.WriteInt32(ERR_OK);
-    if (!IptablesManager::GetInstance()->HasInit()) {
-        IptablesManager::GetInstance()->Init();
-        reply.WriteInt32(ERR_OK);
+    std::shared_ptr<IptablesManager> ipv4tablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(IPTABLES::Family::IPV4);
+    std::shared_ptr<IptablesManager> ipv6tablesManager =
+        IPTABLES::IptablesFactory::GetInstance()->CreateIptablesManagerForFamily(IPTABLES::Family::IPV6);
+    if (!ipv4tablesManager->HasInit() && !ipv6tablesManager->HasInit()) {
+        ipv4tablesManager->Init();
+        ipv6tablesManager->Init();
+        reply.WriteInt32(0);
     } else {
         std::vector<DomainFilterRuleParcel> list;
-        ErrCode ret = IptablesManager::GetInstance()->GetDomainFilterRules(list);
+        ErrCode ret;
+        if (ipv4tablesManager->HasInit()) {
+            ErrCode retIpv4 = ipv4tablesManager->GetDomainFilterRules(list);
+            if (retIpv4 != ERR_OK) {
+                EDMLOGE("IPV4 DomainFilterRulePlugin OnGetPolicy fail");
+                ret = retIpv4;
+            }
+        }
+        if (ipv6tablesManager->HasInit()) {
+            ErrCode retIpv6 = ipv6tablesManager->GetDomainFilterRules(list);
+            if (retIpv6 != ERR_OK) {
+                EDMLOGE("IPV6 DomainFilterRulePlugin OnGetPolicy fail");
+                ret = retIpv6;
+            }
+        }
         if (ret != ERR_OK) {
-            EDMLOGE("DomainFilterRulePlugin OnGetPolicy fail");
             return ret;
         }
         reply.WriteInt32(list.size());

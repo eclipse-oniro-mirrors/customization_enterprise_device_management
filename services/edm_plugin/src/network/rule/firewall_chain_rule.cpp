@@ -34,13 +34,17 @@ FirewallChainRule::FirewallChainRule(): ChainRule()
 
 FirewallChainRule::FirewallChainRule(FirewallRule firewallTuple) : ChainRule(),
     srcPort_(std::get<FIREWALL_SRCPORT_IND>(firewallTuple)),
-    destPort_(std::get<FIREWALL_DESTPORT_IND>(firewallTuple)),
-    appUid_(std::get<FIREWALL_APPUID_IND>(firewallTuple))
+    destPort_(std::get<FIREWALL_DESTPORT_IND>(firewallTuple))
 {
     target_ = RuleUtils::EnumToString(std::get<FIREWALL_ACTION_IND>(firewallTuple));
     prot_ = RuleUtils::EnumToString(std::get<FIREWALL_PROT_IND>(firewallTuple));
+    if (static_cast<int32_t>(std::get<FIREWALL_FAMILY_IND>(firewallTuple)) == static_cast<int32_t>(Family::IPV6)
+        && prot_ == PROTOCOL_ICMP) {
+        prot_ = PROTOCOL_ICMPV6;
+    }
     srcAddr_ = std::get<FIREWALL_SRCADDR_IND>(firewallTuple);
     destAddr_ = std::get<FIREWALL_DESTADDR_IND>(firewallTuple);
+    appUid_ = std::get<FIREWALL_APPUID_IND>(firewallTuple);
 }
 
 FirewallChainRule::FirewallChainRule(const std::string &rule) : ChainRule(rule)
@@ -68,25 +72,31 @@ FirewallChainRule::FirewallChainRule(const std::string &rule) : ChainRule(rule)
     GetOption(otherOptions_, "owner UID match", appUid_);
 }
 
-std::string FirewallChainRule::Parameter() const
+std::string FirewallChainRule::Parameter(bool isRemove)
 {
     std::ostringstream parameterString;
-    if (!prot_.empty()) {
+    if (!isRemove) {
         parameterString << " -p ";
-        parameterString << prot_;
+        if (!prot_.empty()) {
+            parameterString << prot_;
+        } else {
+            parameterString << PROTOCOL_ALL;
+        }
     }
     parameterString << IpToParameter(srcAddr_, "-s");
     parameterString << IpToParameter(destAddr_, "-d");
 
-    std::string splitStr = ",";
-    auto sidx = srcPort_.find(splitStr);
-    auto didx = destPort_.find(splitStr);
-    std::string portOption = SPACE_OPTION;
-    if (sidx != std::string::npos || didx != std::string::npos) {
-        portOption = " -m multiport ";
+    if (prot_ == PROTOCOL_TCP || prot_ == PROTOCOL_UDP) {
+        std::string splitStr = ",";
+        auto sidx = srcPort_.find(splitStr);
+        auto didx = destPort_.find(splitStr);
+        std::string portOption = SPACE_OPTION;
+        if (sidx != std::string::npos || didx != std::string::npos) {
+            portOption = " -m multiport ";
+        }
+        parameterString << PortToParameter(srcPort_, "--sport", portOption);
+        parameterString << PortToParameter(destPort_, "--dport", portOption);
     }
-    parameterString << PortToParameter(srcPort_, "--sport", portOption);
-    parameterString << PortToParameter(destPort_, "--dport", portOption);
     if (!appUid_.empty()) {
         parameterString << " -m owner --uid-owner " << appUid_;
     }
@@ -127,11 +137,11 @@ std::string FirewallChainRule::PortToParameter(const std::string &port, const st
     return parameterString.str();
 }
 
-FirewallRule FirewallChainRule::ToFilterRule(Direction direction)
+FirewallRule FirewallChainRule::ToFilterRule(Direction direction, Family family)
 {
     Action action = RuleUtils::StringToAction(target_);
     Protocol protocl = RuleUtils::StringProtocol(prot_);
-    return {direction, action, protocl, srcAddr_, destAddr_, srcPort_, destPort_, appUid_};
+    return {direction, action, protocl, srcAddr_, destAddr_, srcPort_, destPort_, appUid_, family};
 }
 
 } // namespace IPTABLES

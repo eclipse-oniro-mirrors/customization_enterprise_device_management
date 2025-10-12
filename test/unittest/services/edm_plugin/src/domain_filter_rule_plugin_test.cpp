@@ -23,6 +23,7 @@
 #include "executer_factory.h"
 #include "executer_utils.h"
 #include "iptables_manager.h"
+#include "ipv4tables_manager.h"
 #undef protected
 #undef private
 
@@ -53,7 +54,7 @@ void DomainFilterRulePluginTest::SetUp()
     executerUtilsMock = std::make_shared<ExecuterUtilsMock>();
     ExecuterUtils::instance_ = executerUtilsMock;
 
-    iptablesManager = IptablesManager::GetInstance();
+    iptablesManager = std::make_shared<Ipv4tablesManager>();
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 }
 
@@ -61,7 +62,6 @@ void DomainFilterRulePluginTest::TearDown()
 {
     ExecuterUtils::instance_ = nullptr;
     ExecuterFactory::instance_ = nullptr;
-    IptablesManager::instance_ = nullptr;
 }
 
 /**
@@ -109,7 +109,8 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestS
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
+        Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -124,7 +125,8 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccess, TestSize.Level1
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
+        Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -140,7 +142,8 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestFail, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
+        Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
@@ -156,7 +159,8 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestSuccess, TestSize.Lev
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
+        Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -172,7 +176,8 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestFail, TestSize.Level1
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(-1)));
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
-    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "1000", "www.example.com", IPTABLES::Direction::INVALID};
+    IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "1000", "www.example.com", IPTABLES::Direction::INVALID,
+        Family::IPV4};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);

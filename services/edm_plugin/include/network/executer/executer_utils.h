@@ -21,6 +21,7 @@
 #include <string>
 
 #include "edm_errors.h"
+#include "i_netsys_service.h"
 
 namespace OHOS {
 namespace EDM {
@@ -35,7 +36,7 @@ public:
     ExecuterUtils& operator=(ExecuterUtils&&) = delete;
     virtual ~ExecuterUtils() = default;
 
-    virtual ErrCode Execute(const std::string& rule, std::string& result);
+    virtual ErrCode Execute(const std::string& rule, std::string& result, NetsysNative::IptablesType ipType);
 
     static std::shared_ptr<ExecuterUtils> GetInstance();
 

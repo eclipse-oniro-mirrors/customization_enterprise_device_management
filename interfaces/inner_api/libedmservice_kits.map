@@ -93,6 +93,8 @@
             VTT?for?OHOS::EDM::ManageAutoStartAppInfo;
             vtable?for?OHOS::EDM::ManageAutoStartAppInfo;
             vtable?for?OHOS::EDM::WallPaperParamSerializer;
+            OHOS::EDM::InstallMarketAppsSerializer::*;
+            vtable?for?OHOS::EDM::InstallMarketAppsSerializer;
         };
     local:
         *;

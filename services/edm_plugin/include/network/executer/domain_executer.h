@@ -26,7 +26,9 @@ namespace IPTABLES {
 class DomainExecuter final: public IExecuter {
 public:
     explicit DomainExecuter(std::string actualChainName, const std::string &chainName);
-    ErrCode Init() override;
+    ErrCode Init(NetsysNative::IptablesType ipType) override;
+    bool SetDefaultOutputDenyChain(Direction direction, Family family) override;
+    bool SetDefaultForwardDenyChain(Direction direction, Family family) override;
 
 private:
     std::string actualChainName_;

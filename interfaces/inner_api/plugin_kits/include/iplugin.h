@@ -120,6 +120,15 @@ public:
     std::shared_ptr<IPluginExecuteStrategy> GetExecuteStrategy();
     void SetPluginType(IPlugin::PluginType type);
     IPlugin::PluginType GetPluginType();
+    bool GetPluginUnloadFlag()
+    {
+        return this->pluginUnloadFlag_;
+    }
+
+    void SetPluginUnloadFlag(bool flag)
+    {
+        this->pluginUnloadFlag_ = flag;
+    }
     virtual ~IPlugin();
 
 protected:
@@ -133,6 +142,7 @@ protected:
     bool needSave_ = true;
     bool isGlobal_ = true;
     IPlugin::PluginType type_ = PluginType::BASIC;
+    bool pluginUnloadFlag_ = true;
 
 private:
     std::string CheckAndGetPermissionFromConfig(PermissionType permissionType, const std::string &permissionTag,

@@ -59,19 +59,20 @@ HWTEST_F(ExecuterUtilsTest, TestExecute, TestSize.Level1)
 
     std::string rule = "-t filter -N edm_unit_test_output";
     std::string result;
-    ErrCode ret = executerUtils->Execute(rule, result);
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
+    ErrCode ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     rule = "-t filter -I OUTPUT -j edm_unit_test_output";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     rule = "-t filter -F edm_unit_test_output";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     rule = "-t filter -n -v -L edm_unit_test_output --line-number";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     std::istringstream iss(result);
@@ -83,15 +84,15 @@ HWTEST_F(ExecuterUtilsTest, TestExecute, TestSize.Level1)
     ASSERT_TRUE(ruleLines.size() == 2);
 
     rule = "-t filter -D OUTPUT -j edm_unit_test_output";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     rule = "-t filter -X edm_unit_test_output";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(ret == ERR_OK);
 
     rule = "-t filter -n -v -L edm_unit_test_output --line-number";
-    ret = executerUtils->Execute(rule, result);
+    ret = executerUtils->Execute(rule, result, ipType);
     ASSERT_TRUE(result.empty());
 }
 } // namespace TEST

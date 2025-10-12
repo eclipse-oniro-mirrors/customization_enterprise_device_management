@@ -54,6 +54,8 @@ public:
 
     void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override;
 
+    void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override;
+
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

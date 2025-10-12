@@ -76,6 +76,9 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         case COMMAND_ON_KIOSK_MODE_EXITING:
             OnKioskModeExitingInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED:
+            OnMarketAppsInstallStatusChangedInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -168,6 +171,14 @@ void EnterpriseAdminStub::OnKioskModeExitingInner(MessageParcel& data, MessagePa
     std::string bundleName = data.ReadString();
     int32_t accountId = data.ReadInt32();
     OnKioskModeExiting(bundleName, accountId);
+}
+
+void EnterpriseAdminStub::OnMarketAppsInstallStatusChangedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnMarketAppsInstallStatusChangedInner");
+    std::string bundleName = data.ReadString();
+    int32_t status = data.ReadInt32();
+    OnMarketAppsInstallStatusChanged(bundleName, status);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

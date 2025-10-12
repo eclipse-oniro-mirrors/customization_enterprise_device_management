@@ -41,7 +41,6 @@ private:
     static std::shared_ptr<ExecuterFactory> instance_;
     static std::mutex mutexLock_;
 
-    std::unordered_map<std::string, std::shared_ptr<IExecuter>> executerMap_;
     std::vector<std::string> chainNames_;
     std::vector<std::shared_ptr<IExecuter>> executerVector_;
     

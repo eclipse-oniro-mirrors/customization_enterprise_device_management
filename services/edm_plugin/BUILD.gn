@@ -335,7 +335,10 @@ ohos_shared_library("communication_plugin") {
         "./src/network/executer/executer_utils.cpp",
         "./src/network/executer/firewall_executer.cpp",
         "./src/network/executer/iexecuter.cpp",
+        "./src/network/executer/iptables_factory.cpp",
         "./src/network/iptables_manager.cpp",
+        "./src/network/ipv4tables_manager.cpp",
+        "./src/network/ipv6tables_manager.cpp",
         "./src/network/rule/chain_rule.cpp",
         "./src/network/rule/domain_chain_rule.cpp",
         "./src/network/rule/firewall_chain_rule.cpp",
@@ -596,6 +599,7 @@ ohos_shared_library("need_extra_plugin") {
     sources += [
       "./src/get_adminprovision_info_plugin.cpp",
       "./src/get_device_info_plugin.cpp",
+      "./src/install_market_apps_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
       "./src/set_wall_paper_plugin.cpp",

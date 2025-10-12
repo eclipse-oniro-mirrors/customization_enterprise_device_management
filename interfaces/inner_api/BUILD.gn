@@ -52,6 +52,7 @@ ohos_shared_library("edmservice_kits") {
     "./bundle_manager/src/bundle_manager_proxy.cpp",
     "./bundle_manager/src/edm_application_info.cpp",
     "./bundle_manager/src/edm_bundle_info.cpp",
+    "./bundle_manager/src/install_market_apps_serializer.cpp",
     "./bundle_manager/src/install_param_serializer.cpp",
     "./common/src/domain_account_policy.cpp",
     "./common/src/edm_load_callback.cpp",

@@ -110,6 +110,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER,
+    EdmInterfaceCode::INSTALL_MARKET_APPS
 };
 
 PluginManager::PluginManager()
@@ -414,9 +415,16 @@ void PluginManager::UnloadPlugin(const std::string &soName)
     } else {
         targetVec = &extraPluginCodeList;
         GetExtraPluginCodeList(targetVec);
+        if (ExtraHasPersistPlugin(*targetVec)) {
+            return;
+        }
         extensionPluginMap_.clear();
         executeStrategyMap_.clear();
     }
+    if (HasPersistPlugin(*targetVec)) {
+        return;
+    }
+
     for (const auto& code : *targetVec) {
         RemovePlugin(GetPluginByCode(code));
     }
@@ -436,6 +444,41 @@ void PluginManager::UnloadPlugin(const std::string &soName)
         EDMLOGI("PluginManager::UnloadPlugin %{public}s close lib success", soName.c_str());
     }
     soLoadStateMap_.erase(soName);
+}
+
+bool PluginManager::ExtraHasPersistPlugin(std::vector<uint32_t> targetVec)
+{
+    for (const auto& code : targetVec) {
+        auto plugin = GetPluginByCode(code);
+        if (plugin != nullptr && !plugin->GetPluginUnloadFlag()) {
+            EDMLOGW("PluginManager::UnloadPlugin this plugin:%{public}d need persist", code);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PluginManager::HasPersistPlugin(std::vector<uint32_t> targetVec)
+{
+    for (const auto& code : targetVec) {
+        std::uint32_t extensionCode;
+        auto it = extensionPluginMap_.find(code);
+        if (it != extensionPluginMap_.end()) {
+            extensionCode = it->second;
+            auto extensionPlugin = GetPluginByCode(extensionCode);
+            if (extensionPlugin != nullptr && !extensionPlugin->GetPluginUnloadFlag()) {
+                EDMLOGW("PluginManager::UnloadPlugin this extension plugin:%{public}d need persist", extensionCode);
+                return true;
+            }
+        }
+
+        auto plugin = GetPluginByCode(code);
+        if (plugin != nullptr && !plugin->GetPluginUnloadFlag()) {
+            EDMLOGW("PluginManager::UnloadPlugin this plugin:%{public}d need persist", code);
+            return true;
+        }
+    }
+    return false;
 }
 
 void PluginManager::GetExtraPluginCodeList(std::vector<uint32_t>* targetVec)

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "firewall_executer.h"
+#include "firewall_chain_rule.h"
 
 #include <sstream>
 #include <utility>
@@ -32,17 +33,53 @@ FirewallExecuter::FirewallExecuter(std::string actualChainName, const std::strin
 {
 }
 
-ErrCode FirewallExecuter::Init()
+ErrCode FirewallExecuter::Init(NetsysNative::IptablesType ipType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_ << INSERT_OPTION << actualChainName_ << JUMP_OPTION << chainName_;
     std::string result;
-    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result);
+    ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     if (ret != ERR_OK) {
         EDMLOGE("FirewallExecuter:Init error.ret:%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool FirewallExecuter::SetDefaultOutputDenyChain(Direction direction, Family family)
+{
+    if (direction == Direction::OUTPUT || direction == Direction::INPUT) {
+        FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", "", family};
+        FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", "", family};
+
+        std::vector<std::shared_ptr<ChainRule>> chainRuleVector{std::make_shared<FirewallChainRule>(),
+            std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
+
+        NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(static_cast<int32_t>(family));
+        for (const auto& chainRule : chainRuleVector) {
+            Add(chainRule, ipType);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool FirewallExecuter::SetDefaultForwardDenyChain(Direction direction, Family family)
+{
+    if (direction == Direction::FORWARD) {
+        FirewallRule firewallRule1{Direction::FORWARD, Action::DENY, Protocol::UDP, "", "", "", "", "", family};
+        FirewallRule firewallRule2{Direction::FORWARD, Action::DENY, Protocol::TCP, "", "", "", "", "", family};
+
+        std::vector<std::shared_ptr<ChainRule>> chainRuleVector{std::make_shared<FirewallChainRule>(),
+            std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
+
+        NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(static_cast<int32_t>(family));
+        for (const auto& chainRule : chainRuleVector) {
+            Add(chainRule, ipType);
+        }
+        return true;
+    }
+    return false;
 }
 } // namespace IPTABLES
 } // namespace EDM

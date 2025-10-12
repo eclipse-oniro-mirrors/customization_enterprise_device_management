@@ -587,6 +587,42 @@ HWTEST_F(BundleManagerProxyTest, TestGetInstallationAllowedAppDistributionTypesF
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(allowedAppDistributionTypes.empty());
 }
+
+/**
+ * @tc.name: TestInstallMarketAppsSuc
+ * @tc.desc: Test install market apps func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallMarketAppsSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::vector<std::string> allowedAppDistributionTypes;
+    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallMarketAppsFail
+ * @tc.desc: Test install market apps func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallMarketAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> allowedAppDistributionTypes;
+    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

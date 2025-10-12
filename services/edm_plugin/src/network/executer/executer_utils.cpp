@@ -35,10 +35,10 @@ std::shared_ptr<ExecuterUtils> ExecuterUtils::GetInstance()
     return instance_;
 }
 
-ErrCode ExecuterUtils::Execute(const std::string& rule, std::string &result)
+ErrCode ExecuterUtils::Execute(const std::string& rule, std::string &result, NetsysNative::IptablesType ipType)
 {
     EDMLOGD("ExecuterUtils Execute:%{public}s", rule.c_str());
-    ErrCode ret = NetManagerStandard::NetsysController::GetInstance().SetIptablesCommandForRes(rule, result);
+    ErrCode ret = NetManagerStandard::NetsysController::GetInstance().SetIptablesCommandForRes(rule, result, ipType);
     if (ret != ERR_OK) {
         if (!result.empty()) {
             EDMLOGE("ExecuterUtils Execute fail:%{public}d, %{public}s", ret, result.c_str());
