@@ -150,6 +150,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/set_auto_unlock_after_reboot_plugin.cpp",
         "./src/install_local_enterprise_app_enabled_plugin.cpp",
         "./src/disable_hdc_remote_plugin.cpp",
+        "./src/disable_running_binary_app_plugin.cpp",
       ]
     }
 

@@ -383,6 +383,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_EXTERNAL_STORAGE_CARD = "disallowed_external_storage_card";
     const char* const POLICY_ALLOW_ALL = "allow_all";
     const char* const POLICY_DISABLED_PRINT = "disabled_print";
+    const char* const POLICY_DISABLE_RUNNING_BINARY_APP = "disable_running_binary_app";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

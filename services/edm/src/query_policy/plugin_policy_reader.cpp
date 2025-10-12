@@ -155,6 +155,7 @@
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
 #include "disable_user_mtp_client_query.h"
+#include "disable_running_binary_app_query.h"
 #include "disable_set_biometrics_and_screenLock_query.h"
 #include "disable_set_device_name_query.h"
 #include "disallow_distributed_transmission_query.h"
@@ -596,6 +597,13 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
         case EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE:
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
             obj = std::make_shared<DisallowedAirplaneModeQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisableRunningBinaryAppQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

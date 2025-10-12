@@ -44,6 +44,8 @@ protected:
 
     virtual ErrCode GetBoolPolicy(const std::string &policyData, MessageParcel &reply);
 
+    virtual ErrCode GetIntPolicy(const std::string &policyData, MessageParcel &reply);
+
     virtual ErrCode GetArrayStringPolicy(const std::string &policyData, MessageParcel &reply);
 
     virtual ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;

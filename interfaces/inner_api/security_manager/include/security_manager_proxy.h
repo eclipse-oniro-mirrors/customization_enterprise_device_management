@@ -55,6 +55,8 @@ public:
     int32_t InstallUserCertificate(const AppExecFwk::ElementName &admin,
         const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);
     int32_t GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList);
+    int32_t SetExternalSourceExtensionsPolicy(MessageParcel &data);
+    int32_t GetExternalSourceExtensionsPolicy(MessageParcel &data, std::string &policy);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;
