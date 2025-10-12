@@ -601,7 +601,6 @@ ErrCode PluginPolicyReader::GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> 
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
-
         case EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisableRunningBinaryAppQuery>();
