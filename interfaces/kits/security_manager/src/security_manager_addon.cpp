@@ -56,8 +56,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
-        DECLARE_NAPI_FUNCTION("setExtensionsFromExternalSourcesPolicy", SetExtensionsFromExternalSourcesPolicy),
-        DECLARE_NAPI_FUNCTION("getExtensionsFromExternalSourcesPolicy", GetExtensionsFromExternalSourcesPolicy),
+        DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
+        DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -861,13 +861,13 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
     return permissionManagedState;
 }
 
-napi_value SecurityManagerAddon::SetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info)
+napi_value SecurityManagerAddon::SetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetExtensionsFromExternalSourcesPolicy called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsConvert = {nullptr, nullptr};
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
-    addonMethodSign.name = "SetExtensionsFromExternalSourcesPolicy";
+    addonMethodSign.name = "SetExternalSourceExtensionsPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -875,19 +875,19 @@ napi_value SecurityManagerAddon::SetExtensionsFromExternalSourcesPolicy(napi_env
         return nullptr;
     }
     int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->SetExtensionsFromExternalSourcesPolicy(adapterAddonData.data);
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetExternalSourceExtensionsPolicy(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
     }
     return nullptr;
 }
 
-napi_value SecurityManagerAddon::GetExtensionsFromExternalSourcesPolicy(napi_env env, napi_callback_info info)
+napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info)
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsConvert = {nullptr};
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
-    addonMethodSign.name = "GetExtensionsFromExternalSourcesPolicy";
+    addonMethodSign.name = "GetExternalSourceExtensionsPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -895,9 +895,8 @@ napi_value SecurityManagerAddon::GetExtensionsFromExternalSourcesPolicy(napi_env
         return nullptr;
     }
     std::string policy;
-    int32_t retCode =
-        SecurityManagerProxy::GetSecurityManagerProxy()->
-            GetExtensionsFromExternalSourcesPolicy(adapterAddonData.data, policy);
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
+        GetExternalSourceExtensionsPolicy(adapterAddonData.data, policy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;

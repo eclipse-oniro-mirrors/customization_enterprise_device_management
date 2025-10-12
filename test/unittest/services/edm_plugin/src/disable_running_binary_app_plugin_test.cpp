@@ -50,7 +50,7 @@ void DisableRunningBinaryAppPluginTest::TearDownTestSuite(void)
  * @tc.desc: Test DisableRunningBinaryAppPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableRunningBinaryAppPluginTest, TestDisableRunningBinaryAppPluginTestSet, TestSize.Level1)
+HWTEST_F(DisableRunningBinaryAppPluginTest, TestOnSetPolicySuccess, TestSize.Level1)
 {
     int32_t data = 1;
     int32_t currentData = 0;
@@ -61,6 +61,21 @@ HWTEST_F(DisableRunningBinaryAppPluginTest, TestDisableRunningBinaryAppPluginTes
     data = 0;
     mergeData = 0;
     ret = plugin.OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableRunningBinaryAppPluginTestSet
+ * @tc.desc: Test DisableRunningBinaryAppPluginTest::OnAdminRemove function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableRunningBinaryAppPluginTest, TestOnAdminRemoveSuccess, TestSize.Level1)
+{
+    std::string adminName = "100";
+    int32_t policyData = 0;
+    int32_t mergeData = 0;
+    DisableRunningBinaryAppPlugin plugin;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

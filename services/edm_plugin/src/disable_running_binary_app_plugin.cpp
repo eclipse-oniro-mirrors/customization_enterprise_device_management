@@ -25,9 +25,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableRunningBinaryAppPlugin::GetPlugin());
-const std::string DEFAULT = 0;
-const std::string DISALLOW = 0;
-const std::string FORCE_OPEN = 0;
 const std::string PARAM_EDM_RUNNING_BINARY_APP_POLICY = "persist.edm.running_binary_app_disable";
 
 void DisableRunningBinaryAppPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableRunningBinaryAppPlugin,
@@ -47,21 +44,21 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
     EDMLOGD("DisableRunningBinaryAppPlugin set policy value = %{public}d.", data);
     if (mergeData != static_cast<int32_t>(ManagedPolicy::DEFAULT)) {
         EDMLOGE("DisableRunningBinaryAppPlugin set failed, anaother admin has already set policy.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     switch (data) {
         case static_cast<int32_t>(ManagedPolicy::DEFAULT):
-            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, DEFAULT);
+            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
             break;
         case static_cast<int32_t>(ManagedPolicy::DISALLOW):
-            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, DISALLOW);
+            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, std::to_string(static_cast<int32_t>(ManagedPolicy::DISALLOW)));
             break;
-        case static_cast<int32_t>(ManagedPolicy::FORCE):
-            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, FORCE_OPEN);
+        case static_cast<int32_t>(ManagedPolicy::FORCE_OPEN):
+            system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, std::to_string(static_cast<int32_t>(ManagedPolicy::FORCE_OPEN)));
             break;
         default:
             EDMLOGD("DisableRunningBinaryAppPlugin policy illegal. Value = %{public}d.", data);
-            return EdmReturnErrCode::PARAM_ERROR;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     currentData = data;
     mergeData = data;
@@ -74,7 +71,7 @@ ErrCode DisableRunningBinaryAppPlugin::OnAdminRemove(const std::string &adminNam
     if (policyData == static_cast<int32_t>(ManagedPolicy::DEFAULT)) {
         return ERR_OK;
     }
-    system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, DEFAULT);
+    system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY, std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
     return ERR_OK;
 }
 } // namespace EDM

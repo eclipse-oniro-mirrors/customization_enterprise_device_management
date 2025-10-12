@@ -72,7 +72,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disable_maintenance_mode_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_mtp_server_query.cpp",
-    "../../services/edm/src/query_policy/disable_running_binary_app_query.cpp",
+    "../../../services/edm/src/query_policy/disable_running_binary_app_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_client_query.cpp",
     "../../../services/edm/src/query_policy/disable_samba_server_query.cpp",
     "../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",

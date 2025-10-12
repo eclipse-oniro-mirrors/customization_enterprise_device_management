@@ -294,17 +294,17 @@ int32_t SecurityManagerProxy::GetPermissionManagedState(MessageParcel &data, int
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::SetExtensionsFromExternalSourcesPolicy(MessageParcel &data)
+int32_t SecurityManagerProxy::SetExternalSourceExtensionsPolicy(MessageParcel &data)
 {
-    EDMLOGD("SecurityManagerProxy::SetExtensionsFromExternalSourcesPolicy");
+    EDMLOGD("SecurityManagerProxy::SetExternalSourceExtensionsPolicy");
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SecurityManagerProxy::GetExtensionsFromExternalSourcesPolicy(MessageParcel &data, std::string &policy)
+int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &data, std::string &policy)
 {
-    EDMLOGD("SecurityManagerProxy::GetExtensionsFromExternalSourcesPolicy");
+    EDMLOGD("SecurityManagerProxy::GetExternalSourceExtensionsPolicy");
     MessageParcel reply;
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP, data, reply);
     int32_t ret = ERR_INVALID_VALUE;

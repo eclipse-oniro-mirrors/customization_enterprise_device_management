@@ -101,7 +101,8 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::FINGERPRINT_AUTH, EdmInterfaceCode::PASSWORD_POLICY,
     EdmInterfaceCode::CLIPBOARD_POLICY, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
     EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA, EdmInterfaceCode::DISALLOWED_NOTIFICATION,
-    EdmInterfaceCode::PERMISSION_MANAGED_STATE, EdmInterfaceCode::ALLOW_RUNNING_BUNDLES
+    EdmInterfaceCode::PERMISSION_MANAGED_STATE, EdmInterfaceCode::ALLOW_RUNNING_BUNDLES,
+    EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
@@ -109,7 +110,6 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER,
-    EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
 };
 
 PluginManager::PluginManager()
