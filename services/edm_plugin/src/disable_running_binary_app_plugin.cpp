@@ -49,15 +49,15 @@ ErrCode DisableRunningBinaryAppPlugin::OnSetPolicy(int32_t &data, int32_t &curre
     switch (data) {
         case static_cast<int32_t>(ManagedPolicy::DEFAULT):
             system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY,
-                    std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
+                std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
             break;
         case static_cast<int32_t>(ManagedPolicy::DISALLOW):
             system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY,
-                    std::to_string(static_cast<int32_t>(ManagedPolicy::DISALLOW)));
+                std::to_string(static_cast<int32_t>(ManagedPolicy::DISALLOW)));
             break;
         case static_cast<int32_t>(ManagedPolicy::FORCE_OPEN):
             system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY,
-                    std::to_string(static_cast<int32_t>(ManagedPolicy::FORCE_OPEN)));
+                std::to_string(static_cast<int32_t>(ManagedPolicy::FORCE_OPEN)));
             break;
         default:
             EDMLOGD("DisableRunningBinaryAppPlugin policy illegal. Value = %{public}d.", data);
@@ -75,7 +75,7 @@ ErrCode DisableRunningBinaryAppPlugin::OnAdminRemove(const std::string &adminNam
         return ERR_OK;
     }
     system::SetParameter(PARAM_EDM_RUNNING_BINARY_APP_POLICY,
-            std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
+        std::to_string(static_cast<int32_t>(ManagedPolicy::DEFAULT)));
     return ERR_OK;
 }
 } // namespace EDM
