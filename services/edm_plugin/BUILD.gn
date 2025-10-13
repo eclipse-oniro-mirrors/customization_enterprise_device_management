@@ -76,6 +76,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/allowed_app_distribution_types_plugin.cpp",
       "./src/allowed_install_bundles_plugin.cpp",
       "./src/bundle_install_plugin.cpp",
+      "./src/disable_camera_plugin.cpp",
       "./src/disable_hdc_plugin.cpp",
       "./src/disable_app_clone_plugin.cpp",
       "./src/disable_maintenance_mode_plugin.cpp",
@@ -168,11 +169,6 @@ ohos_shared_library("device_core_plugin") {
         "./src/switch_bluetooth_plugin.cpp",
         "./src/utils/bt_protocol_utils.cpp",
       ]
-    }
-
-    if (camera_framework_edm_enable) {
-      external_deps += [ "camera_framework:camera_framework" ]
-      sources += [ "./src/disable_camera_plugin.cpp" ]
     }
 
     if (power_manager_edm_enable) {
