@@ -48,8 +48,11 @@ public:
 
     static bool Unmarshalling(MessageParcel& parcel, FirewallRuleParcel& firewallRuleParcel);
 
-    bool CheckAddFirewallParams() const;
-    bool CheckRemoveFirewallParams() const;
+    bool CheckFirewallParams() const;
+
+private:
+    bool IpAddressIsLegal(const std::string &ip, Family family) const;
+    bool IpIsLegal(const std::string &ip, Family family, bool notIpSegment) const;
 
 private:
     FirewallRule rule_;

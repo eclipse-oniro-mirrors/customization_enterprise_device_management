@@ -15,10 +15,21 @@
 
 #include "firewall_rule.h"
 #include "edm_log.h"
+#include <regex>
 
 namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
+
+const char* const IP_PATTERN =
+    "((2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)\\.){3}(2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)";
+
+const char* const IP_MASK_PATTERN =
+    "((2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)\\.){3}(2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)/(3[0-2]|[1-2]\\d|\\d)";
+
+const char* const IPV6_PATTERN = "([\\da-fA-F]{0,4}:){2,7}([\\da-fA-F]{0,4})";
+
+const char* const IPV6_MASK_PATTERN = "([\\da-fA-F]{0,4}:){2,7}([\\da-fA-F]{0,4})/(1[0-2][0-8]|[1-9]\\d|[1-9])";
 
 FirewallRuleParcel::FirewallRuleParcel(FirewallRule rule) : rule_(std::move(rule)) {}
 
@@ -60,26 +71,59 @@ FirewallRule FirewallRuleParcel::GetRule() const
     return rule_;
 }
 
-bool FirewallRuleParcel::CheckAddFirewallParams() const
+bool FirewallRuleParcel::CheckFirewallParams() const
 {
     IPTABLES::Direction direction = std::get<FIREWALL_DICECTION_IND>(rule_);
+    std::string srcAddr = std::get<FIREWALL_SRCADDR_IND>(rule_);
+    std::string destAddr = std::get<FIREWALL_DESTADDR_IND>(rule_);
+    IPTABLES::Family family = std::get<FIREWALL_FAMILY_IND>(rule_);
     if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
         !std::get<FIREWALL_APPUID_IND>(rule_).empty()) {
-        EDMLOGE("AddFirewallRule: illegal parameter: appUid");
+        EDMLOGE("FirewallRuleParcel CheckFirewallParams: illegal parameter: appUid");
+        return false;
+    }
+    if (!srcAddr.empty() && !IpAddressIsLegal(srcAddr, family)) {
+        EDMLOGE("FirewallRuleParcel CheckFirewallParams: illegal parameter: srcAddr");
+        return false;
+    }
+    if (!destAddr.empty() && !IpAddressIsLegal(destAddr, family)) {
+        EDMLOGE("FirewallRuleParcel CheckFirewallParams: illegal parameter: destAddr");
         return false;
     }
     return true;
 }
 
-bool FirewallRuleParcel::CheckRemoveFirewallParams() const
+bool FirewallRuleParcel::IpAddressIsLegal(const std::string &ip, Family family) const
 {
-    IPTABLES::Direction direction = std::get<FIREWALL_DICECTION_IND>(rule_);
-    if ((direction == Direction::INPUT || direction == Direction::FORWARD) &&
-        !std::get<FIREWALL_APPUID_IND>(rule_).empty()) {
-        EDMLOGE("RemoveFirewallRule: illegal parameter: appUid");
-        return false;
+    EDMLOGD("FirewallRuleParcel IpAddressIsLegal: family is %{public}d", static_cast<int32_t>(family));
+    std::string splitStr = "-";
+    auto idx = ip.find(splitStr);
+    if (idx == std::string::npos && IpIsLegal(ip, family, true)) {
+        return true;
     }
-    return true;
+    if (idx != std::string::npos) {
+        std::string ipStart = ip.substr(0, idx);
+        std::string ipEnd = ip.substr(idx + splitStr.length());
+        EDMLOGD("FirewallRuleParcel IpAddressIsLegal: ipAddress consists of ranges");
+        if (IpIsLegal(ipStart, family, false) && IpIsLegal(ipEnd, family, false)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FirewallRuleParcel::IpIsLegal(const std::string &ip, Family family, bool notIpSegment) const
+{
+    if (family == IPTABLES::Family::IPV4 && (std::regex_match(ip, std::regex(IP_PATTERN)) ||
+        (notIpSegment && std::regex_match(ip, std::regex(IP_MASK_PATTERN))))) {
+        return true;
+    }
+    if (family == IPTABLES::Family::IPV6 && (std::regex_match(ip, std::regex(IPV6_PATTERN)) ||
+        (notIpSegment && std::regex_match(ip, std::regex(IPV6_MASK_PATTERN))))) {
+        return true;
+    }
+    EDMLOGD("FirewallRuleParcel IpIsLegal: Ip is illegal.");
+    return false;
 }
 } // namespace IPTABLES
 } // namespace EDM

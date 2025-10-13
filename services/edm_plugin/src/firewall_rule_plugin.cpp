@@ -78,23 +78,11 @@ ErrCode FirewallRulePlugin::OnGetPolicy(std::string &policyData, MessageParcel &
         reply.WriteInt32(0);
     } else {
         std::vector<FirewallRuleParcel> list;
-        ErrCode ret;
         if (ipv4tablesManager->HasInit()) {
-            ErrCode retIpv4 = ipv4tablesManager->GetFirewallRules(list);
-            if (retIpv4 != ERR_OK) {
-                EDMLOGE("IPV4 FirewallRulePlugin OnGetPolicy fail");
-                ret = retIpv4;
-            }
+            ipv4tablesManager->GetFirewallRules(list);
         }
         if (ipv6tablesManager->HasInit()) {
-            ErrCode retIpv6 = ipv6tablesManager->GetFirewallRules(list);
-            if (retIpv6 != ERR_OK) {
-                EDMLOGE("IPV6 FirewallRulePlugin OnGetPolicy fail");
-                ret = retIpv6;
-            }
-        }
-        if (ret != ERR_OK) {
-            return ret;
+            ipv6tablesManager->GetFirewallRules(list);
         }
         reply.WriteInt32(list.size());
         for (auto const &item : list) {
