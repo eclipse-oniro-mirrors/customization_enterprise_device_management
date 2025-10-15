@@ -153,10 +153,10 @@ bool IExecuter::ChainInit(NetsysNative::IptablesType ipType)
     std::string result;
     ErrCode ret = ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     if (result.empty()) {
-        EDMLOGE("IExecuter::The chain is not initialized: %{public}d, %{public}s", ret, result.c_str());
+        EDMLOGD("IExecuter::The chain is not initialized: %{public}d, %{public}s", ret, result.c_str());
         return false;
     } else {
-        EDMLOGE("IExecuter::The chain initialization has been completed: %{public}d, %{public}s", ret, result.c_str());
+        EDMLOGD("IExecuter::The chain initialization has been completed: %{public}d, %{public}s", ret, result.c_str());
     }
     return true;
 }

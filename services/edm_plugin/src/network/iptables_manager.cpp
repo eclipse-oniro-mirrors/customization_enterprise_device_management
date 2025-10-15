@@ -34,7 +34,7 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall, Fam
     auto rule = firewall.GetRule();
     std::string chainName;
     Direction direction = std::get<FIREWALL_DICECTION_IND>(rule);
-    if (!firewall.CheckAddFirewallParams()) {
+    if (!firewall.CheckFirewallParams()) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     Action action = std::get<FIREWALL_ACTION_IND>(rule);
@@ -77,7 +77,7 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall, 
     auto rule = firewall.GetRule();
     Direction direction = std::get<FIREWALL_DICECTION_IND>(rule);
     Action action = std::get<FIREWALL_ACTION_IND>(rule);
-    if (!firewall.CheckRemoveFirewallParams()) {
+    if (!firewall.CheckFirewallParams()) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> chainNameList;
@@ -445,7 +445,7 @@ bool IptablesManager::HasInit(NetsysNative::IptablesType ipType)
 {
     if (!g_chainInit) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_ALLOW_INPUT_CHAIN_NAME);
-        if (executer->ChainInit(ipType)) {
+        if (executer != nullptr && executer->ChainInit(ipType)) {
             g_chainInit = true;
         }
     }
@@ -557,7 +557,7 @@ bool IptablesManager::ChainExistRule(const std::vector<std::string>& chainNames,
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
         if (executer == nullptr) {
             EDMLOGE("ChainExistRule executer null");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return false;
         }
         executer->GetAll(ruleList, ipType);
         if (!ruleList.empty()) {

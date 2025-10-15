@@ -79,23 +79,11 @@ ErrCode DomainFilterRulePlugin::OnGetPolicy(std::string &policyData, MessageParc
         reply.WriteInt32(0);
     } else {
         std::vector<DomainFilterRuleParcel> list;
-        ErrCode ret;
         if (ipv4tablesManager->HasInit()) {
-            ErrCode retIpv4 = ipv4tablesManager->GetDomainFilterRules(list);
-            if (retIpv4 != ERR_OK) {
-                EDMLOGE("IPV4 DomainFilterRulePlugin OnGetPolicy fail");
-                ret = retIpv4;
-            }
+            ipv4tablesManager->GetDomainFilterRules(list);
         }
         if (ipv6tablesManager->HasInit()) {
-            ErrCode retIpv6 = ipv6tablesManager->GetDomainFilterRules(list);
-            if (retIpv6 != ERR_OK) {
-                EDMLOGE("IPV6 DomainFilterRulePlugin OnGetPolicy fail");
-                ret = retIpv6;
-            }
-        }
-        if (ret != ERR_OK) {
-            return ret;
+            ipv6tablesManager->GetDomainFilterRules(list);
         }
         reply.WriteInt32(list.size());
         for (auto const &item : list) {
