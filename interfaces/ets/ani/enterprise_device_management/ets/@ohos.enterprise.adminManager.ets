@@ -41,7 +41,7 @@ export default namespace adminManager {
         return new Promise<EnterpriseInfo>((resolve, reject) => {
             taskpool.execute((): EnterpriseInfo => {
                 return getEnterpriseInfoSync(admin);
-            }).then((content: NullishType) => {
+            }).then((content: Any) => {
                 resolve(content as EnterpriseInfo);
             }, (err: Error): void => {
                 reject(err as BusinessError);
@@ -52,7 +52,7 @@ export default namespace adminManager {
     function getEnterpriseInfo(admin: Want, callback: AsyncCallback<EnterpriseInfo>): void {
         taskpool.execute((): EnterpriseInfo => {
             return getEnterpriseInfoSync(admin);
-        }).then((content: NullishType) => {
+        }).then((content: Any) => {
             callback(null, content as EnterpriseInfo);
         }).catch((err: Error) : void => {
             callback(err as BusinessError, undefined);
@@ -63,7 +63,7 @@ export default namespace adminManager {
         return new Promise<Want>((resolve, reject) => {
             taskpool.execute((): Want => {
                 return getSuperAdminSync();
-            }).then((content: NullishType) => {
+            }).then((content: Any) => {
                 resolve(content as Want);
             }, (err: Error): void => {
                 reject(err as BusinessError);
