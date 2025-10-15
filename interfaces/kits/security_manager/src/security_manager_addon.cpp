@@ -24,6 +24,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "pixel_map_napi.h"
+#include "managed_policy.h"
 
 using namespace OHOS::EDM;
 
@@ -864,8 +865,23 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
 napi_value SecurityManagerAddon::SetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetExtensionsFromExternalSourcesPolicy called");
+    auto convertManagedPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        int32_t policyInt;
+        bool isUnit = ParseInt(env, policyInt, argv);
+        if (!isUnit) {
+            return false;
+        }
+        if (policyInt >= static_cast<int32_t>(ManagedPolicy::DEFAULT) &&
+            policyInt <= static_cast<int32_t>(ManagedPolicy::FORCE_OPEN)) {
+            data.WriteInt32(policyInt);
+            return true;
+        }
+        return false;
+    };
+
     AddonMethodSign addonMethodSign;
-    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.argsConvert = {nullptr, convertManagedPolicy2Data};
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
     addonMethodSign.name = "SetExternalSourceExtensionsPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
@@ -901,9 +917,9 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
     }
-    napi_value extensionsFromExternalSources;
-    NAPI_CALL(env, napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &extensionsFromExternalSources));
-    return extensionsFromExternalSources;
+    napi_value externalSourceExtensions;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(retCode), &externalSourceExtensions));
+    return externalSourceExtensions;
 }
 
 static napi_module g_securityModule = {
