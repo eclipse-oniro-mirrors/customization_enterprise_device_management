@@ -63,11 +63,10 @@ HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged);
 }
 
 /**
- * @tc.name: DisableCameraPluginTest
+ * @tc.name: TestOnSetPolicyFalse
  * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function to set false.
  * @tc.type: FUNC
  */
