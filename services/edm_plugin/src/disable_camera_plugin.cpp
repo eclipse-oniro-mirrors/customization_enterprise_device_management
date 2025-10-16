@@ -15,15 +15,15 @@
 
 #include "disable_camera_plugin.h"
 
-#include "camera_manager.h"
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace EDM {
-constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
+const std::string permissionName = "ohos.permission.CAMERA";
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableCameraPlugin::GetPlugin());
 
 void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr)
@@ -45,39 +45,23 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
 ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisableCameraPlugin OnSetPolicy %{public}d", data);
-    auto cameraManager = CameraStandard::CameraManager::GetInstance();
-    if (cameraManager == nullptr) {
-        EDMLOGE("DisableCameraPlugin CameraManager nullptr");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    int32_t ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, data);
-    int32_t retCode = cameraManager->DestroyStubObj();
-    if (retCode != ERR_OK) {
-        EDMLOGW("DisableCameraPlugin SetOtherModulePolicy DestroyStubObj failed, %{public}d", retCode);
-    }
-    if (ret == ERR_OK || (!data && ret == ERR_PRIVACY_POLICY_CHECK_FAILED)) {
+    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(permissionName, data);
+    if (ret == ERR_OK) {
+        EDMLOGI("DisableCameraPlugin SetOtherModulePolicy SetDisablePolicy success, %{public}d", ret);
         return ERR_OK;
     }
-    EDMLOGE("DisableCameraPlugin SetOtherModulePolicy MuteCameraPersist failed, %{public}d", ret);
+    EDMLOGE("DisableCameraPlugin SetOtherModulePolicy SetDisablePolicy failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 ErrCode DisableCameraPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
-    auto cameraManager = CameraStandard::CameraManager::GetInstance();
-    if (cameraManager == nullptr) {
-        EDMLOGE("DisableCameraPlugin CameraManager nullptr");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    ErrCode ret = cameraManager->MuteCameraPersist(CameraStandard::PolicyType::EDM, false);
-    int32_t retCode = cameraManager->DestroyStubObj();
-    if (retCode != ERR_OK) {
-        EDMLOGW("DisableCameraPlugin RemoveOtherModulePolicy DestroyStubObj failed, %{public}d", retCode);
-    }
-    if (ret == ERR_OK || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
+    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(permissionName, false);
+    if (ret == ERR_OK) {
+        EDMLOGI("DisableCameraPlugin RemoveOtherModulePolicy SetDisablePolicy success, %{public}d", ret);
         return ERR_OK;
     }
-    EDMLOGE("DisableCameraPlugin RemoveOtherModulePolicy MuteCameraPersist failed, %{public}d", ret);
+    EDMLOGE("DisableCameraPlugin RemoveOtherModulePolicy SetDisablePolicy failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

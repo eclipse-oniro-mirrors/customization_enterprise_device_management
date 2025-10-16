@@ -18,6 +18,9 @@
 #define protected public
 #include "disable_camera_plugin.h"
 #undef protected
+#include "edm_ipc_interface_code.h"
+#include "iplugin_manager.h"
+#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -46,20 +49,67 @@ void DisableCameraPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableCameraPluginTestGet
- * @tc.desc: Test DisableCameraPluginTest::OnGetPolicy function.
+ * @tc.name: TestOnSetPolicyTrue
+ * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function to set true.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestGet, TestSize.Level1)
+HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::string policyData = "true";
-    DisableCameraPlugin plugin;
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, 100);
+    data.WriteBool(true);
+    std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_FALSE(reply.ReadBool());
+}
+
+/**
+ * @tc.name: TestOnSetPolicyFalse
+ * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function to set false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveTrue
+ * @tc.desc: Test DisableCameraPluginTest::OnAdminRemove function when policy is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnAdminRemoveTrue, TestSize.Level1)
+{
+    DisableCameraPlugin plugin;
+    std::string adminName{"testAdminName"};
+    bool policyData = true;
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveFalse
+ * @tc.desc: Test DisableCameraPluginTest::OnAdminRemove function when policy is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnAdminRemoveFalse, TestSize.Level1)
+{
+    DisableCameraPlugin plugin;
+    std::string adminName{"testAdminName"};
+    bool policyData = false;
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 } // namespace TEST
