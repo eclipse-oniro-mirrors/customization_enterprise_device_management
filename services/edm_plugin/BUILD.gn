@@ -297,6 +297,7 @@ ohos_shared_library("communication_plugin") {
         "./src/set_apn_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
+        "./src/hang_up_calling_plugin.cpp",
       ]
       defines += [
         "CELLULAR_DATA_EDM_ENABLE",
