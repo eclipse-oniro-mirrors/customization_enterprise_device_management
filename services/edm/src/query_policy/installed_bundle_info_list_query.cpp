@@ -276,11 +276,11 @@ void InstalledBundleInfoListQuery::AssembleBundleResourceInfo(std::vector<EdmBun
 {
     std::unordered_map<std::string, std::string> labelMap;
     for (const auto &item : bundleResourceInfos) {
-        labelMap[item.bundleName] = item.label;
+        labelMap[item.bundleName + "_" + std::to_string(item.appIndex)] = item.label;
     }
     for (auto &item: edmBundleInfos) {
-        if (labelMap.find(item.applicationInfo.name) != labelMap.end()) {
-            item.applicationInfo.label = labelMap[item.applicationInfo.name];
+        if (labelMap.find(item.applicationInfo.name + "_" + std::to_string(item.appIndex)) != labelMap.end()) {
+            item.applicationInfo.label = labelMap[item.applicationInfo.name + "_" + std::to_string(item.appIndex)];
         } else {
             EDMLOGW("not find label info %{public}s", item.applicationInfo.name.c_str());
         }
