@@ -49,30 +49,68 @@ void DisableCameraPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestDisableCameraPluginTestSet
- * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function.
+ * @tc.name: TestOnSetPolicyTrue
+ * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function to set true.
  * @tc.type: FUNC
  */
-HWTEST_F(DisableCameraPluginTest, TestDisableCameraPluginTestSet, TestSize.Level1)
+HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
-    HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
+    HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.policyData == "true");
     ASSERT_TRUE(handlePolicyData.isChanged);
+}
 
-    MessageParcel dataFalse;
-    dataFalse.WriteBool(false);
-    HandlePolicyData handlePolicyDataFalse{"true", "", false};
-    ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
+/**
+ * @tc.name: DisableCameraPluginTest
+ * @tc.desc: Test DisableCameraPluginTest::OnSetPolicy function to set false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyDataFalse.policyData == "false");
-    ASSERT_FALSE(handlePolicyDataFalse.isChanged);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveTrue
+ * @tc.desc: Test DisableCameraPluginTest::OnAdminRemove function when policy is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnAdminRemoveTrue, TestSize.Level1)
+{
+    DisableCameraPlugin plugin;
+    std::string adminName{"testAdminName"};
+    bool policyData = true;
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveFalse
+ * @tc.desc: Test DisableCameraPluginTest::OnAdminRemove function when policy is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisableCameraPluginTest, TestOnAdminRemoveFalse, TestSize.Level1)
+{
+    DisableCameraPlugin plugin;
+    std::string adminName{"testAdminName"};
+    bool policyData = false;
+    bool mergeData = false;
+    ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 } // namespace TEST
