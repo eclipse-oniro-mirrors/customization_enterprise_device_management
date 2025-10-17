@@ -21,32 +21,32 @@
 
 namespace OHOS {
 namespace EDM {
-Admin::Admin(const Admin& other)
+Admin::Admin(const AdminInfo& other)
 {
-    adminInfo_.packageName_ = other.adminInfo_.packageName_;
-    adminInfo_.className_ = other.adminInfo_.className_;
-    adminInfo_.entInfo_ = other.adminInfo_.entInfo_;
-    adminInfo_.permission_ = other.adminInfo_.permission_;
-    adminInfo_.managedEvents_ = other.adminInfo_.managedEvents_;
-    adminInfo_.parentAdminName_ = other.adminInfo_.parentAdminName_;
-    adminInfo_.accessiblePolicies_ = other.adminInfo_.accessiblePolicies_;
-    adminInfo_.adminType_ = other.adminInfo_.adminType_;
-    adminInfo_.isDebug_ = other.adminInfo_.isDebug_;
-    adminInfo_.runningMode_ = other.adminInfo_.runningMode_;
+    adminInfo_.packageName_ = other.packageName_;
+    adminInfo_.className_ = other.className_;
+    adminInfo_.entInfo_ = other.entInfo_;
+    adminInfo_.permission_ = other.permission_;
+    adminInfo_.managedEvents_ = other.managedEvents_;
+    adminInfo_.parentAdminName_ = other.parentAdminName_;
+    adminInfo_.accessiblePolicies_ = other.accessiblePolicies_;
+    adminInfo_.adminType_ = other.adminType_;
+    adminInfo_.isDebug_ = other.isDebug_;
+    adminInfo_.runningMode_ = other.runningMode_;
 }
 
-Admin& Admin::operator=(const Admin& other)
+Admin& Admin::operator=(const AdminInfo& other)
 {
-    adminInfo_.packageName_ = other.adminInfo_.packageName_;
-    adminInfo_.className_ = other.adminInfo_.className_;
-    adminInfo_.entInfo_ = other.adminInfo_.entInfo_;
-    adminInfo_.permission_ = other.adminInfo_.permission_;
-    adminInfo_.managedEvents_ = other.adminInfo_.managedEvents_;
-    adminInfo_.parentAdminName_ = other.adminInfo_.parentAdminName_;
-    adminInfo_.accessiblePolicies_ = other.adminInfo_.accessiblePolicies_;
-    adminInfo_.adminType_ = other.adminInfo_.adminType_;
-    adminInfo_.isDebug_ = other.adminInfo_.isDebug_;
-    adminInfo_.runningMode_ = other.adminInfo_.runningMode_;
+    adminInfo_.packageName_ = other.packageName_;
+    adminInfo_.className_ = other.className_;
+    adminInfo_.entInfo_ = other.entInfo_;
+    adminInfo_.permission_ = other.permission_;
+    adminInfo_.managedEvents_ = other.managedEvents_;
+    adminInfo_.parentAdminName_ = other.parentAdminName_;
+    adminInfo_.accessiblePolicies_ = other.accessiblePolicies_;
+    adminInfo_.adminType_ = other.adminType_;
+    adminInfo_.isDebug_ = other.isDebug_;
+    adminInfo_.runningMode_ = other.runningMode_;
     return *this;
 }
 

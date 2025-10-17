@@ -297,7 +297,7 @@ ErrCode PermissionChecker::CheckAndUpdatePermission(std::shared_ptr<Admin> admin
         }
         Admin updateAdmin(admin->adminInfo_.packageName_, admin->GetAdminType(), permissionList);
         updateAdmin.SetAccessiblePolicies(admin->adminInfo_.accessiblePolicies_);
-        if (FAILED(AdminManager::GetInstance()->UpdateAdmin(admin, userId, updateAdmin))) {
+        if (FAILED(AdminManager::GetInstance()->UpdateAdmin(admin, userId, updateAdmin.adminInfo_))) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }

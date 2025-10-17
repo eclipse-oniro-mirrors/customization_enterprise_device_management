@@ -62,9 +62,9 @@ void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
     return AdminContainer::GetInstance()->GetAdminCopyBySubscribeEvent(event, subscribeAdmins);
 }
 
-ErrCode AdminManager::SetAdminValue(int32_t userId, const Admin &adminItem)
+ErrCode AdminManager::SetAdminValue(int32_t userId, const AdminInfo &adminItem)
 {
-    std::shared_ptr<Admin> getAdmin = GetAdminByPkgName(adminItem.adminInfo_.packageName_, userId);
+    std::shared_ptr<Admin> getAdmin = GetAdminByPkgName(adminItem.packageName_, userId);
     if (getAdmin != nullptr) {
         return UpdateAdmin(getAdmin, userId, adminItem);
     }
@@ -123,18 +123,18 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     return ERR_OK;
 }
 
-ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const Admin &adminItem)
+ErrCode AdminManager::UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const AdminInfo &adminItem)
 {
     if (getAdmin == nullptr) {
         EDMLOGW("UpdateAdmin::get null admin, never get here");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (getAdmin->GetAdminType() != AdminType::NORMAL && getAdmin->GetAdminType() != adminItem.GetAdminType()) {
+    if (getAdmin->GetAdminType() != AdminType::NORMAL && getAdmin->GetAdminType() != adminItem.adminType_) {
         EDMLOGE("AdminManager::UpdateAdmin sub-super or delegated admin can not update to another type.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    if (getAdmin->GetAdminType() == AdminType::NORMAL && adminItem.GetAdminType() != AdminType::NORMAL &&
-        adminItem.GetAdminType() != AdminType::ENT) {
+    if (getAdmin->GetAdminType() == AdminType::NORMAL && adminItem.adminType_ != AdminType::NORMAL &&
+        adminItem.adminType_ != AdminType::ENT) {
         EDMLOGE("AdminManager::UpdateAdmin normal admin can not update to sub-super admin or delegated admin.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
@@ -352,45 +352,20 @@ ErrCode AdminManager::GetSubSuperAdminsByParentName(const std::string &parentNam
     return ERR_OK;
 }
 
-ErrCode AdminManager::GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId)
+ErrCode AdminManager::SetEntInfo(std::shared_ptr<Admin> admin, const EntInfo &entInfo, int32_t userId)
 {
-    std::vector<std::shared_ptr<Admin>> userAdmin;
-    bool ret = GetAdminByUserId(userId, userAdmin);
-    if (!ret) {
-        EDMLOGW("GetEntInfo::not find Admin.");
-        return ERR_EDM_UNKNOWN_ADMIN;
-    }
-    for (const auto &item : userAdmin) {
-        if (item->adminInfo_.packageName_ == packageName) {
-            entInfo = item->adminInfo_.entInfo_;
-            return ERR_OK;
-        }
-    }
-    return ERR_EDM_UNKNOWN_ADMIN;
-}
-
-ErrCode AdminManager::SetEntInfo(const std::string &packageName, const EntInfo &entInfo, int32_t userId)
-{
-    std::vector<std::shared_ptr<Admin>> userAdmin;
-    bool ret = GetAdminByUserId(userId, userAdmin);
-    if (!ret) {
-        EDMLOGW("SetEntInfo::not find Admin.");
-        return ERR_EDM_UNKNOWN_ADMIN;
-    }
     auto adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     if (adminPoliciesStorageRdb == nullptr) {
         EDMLOGE("AdminManager::SetEntInfo get adminPoliciesStorageRdb failed.");
         return ERR_GET_STORAGE_RDB_FAILED;
     }
-    for (auto &item : userAdmin) {
-        if (item->adminInfo_.packageName_ == packageName &&
-            adminPoliciesStorageRdb->UpdateEntInfo(userId, packageName, entInfo)) {
-            Admin tempAdmin;
-            tempAdmin.adminInfo_.entInfo_ = entInfo;
-            AdminContainer::GetInstance()->UpdateAdmin(userId, packageName, ENTI_NFO, tempAdmin);
-            return ERR_OK;
-        }
+    if (adminPoliciesStorageRdb->UpdateEntInfo(userId, admin->adminInfo_.packageName_, entInfo)) {
+        Admin tempAdmin;
+        tempAdmin.adminInfo_.entInfo_ = entInfo;
+        AdminContainer::GetInstance()->UpdateAdmin(userId, admin->adminInfo_.packageName_, ENTI_NFO, tempAdmin);
+        return ERR_OK;
     }
+    
     return ERR_EDM_UNKNOWN_ADMIN;
 }
 

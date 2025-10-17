@@ -39,7 +39,7 @@ AdminContainer::~AdminContainer()
     admins_.clear();
 }
 
-void AdminContainer::SetAdminByUserId(int32_t userId, const Admin &adminItem)
+void AdminContainer::SetAdminByUserId(int32_t userId, const AdminInfo &adminItem)
 {
     WriteLock lock(adminMutex_);
     std::vector<std::shared_ptr<Admin>> userAdmin;

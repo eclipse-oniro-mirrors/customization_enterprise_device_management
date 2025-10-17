@@ -1178,7 +1178,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
             EDMLOGE("ReplaceSuperAdmin: delete admin failed");
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
-        if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin))) {
+        if (FAILED(AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_))) {
             EDMLOGE("ReplaceSuperAdmin: SetAdminValue failed.");
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
@@ -1247,7 +1247,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     Admin edmAdmin(abilityInfo.at(0), type, entInfo, permissionList, isDebug);
-    if (FAILED(AdminManager::GetInstance()->SetAdminValue(userId, edmAdmin))) {
+    if (FAILED(AdminManager::GetInstance()->SetAdminValue(userId, edmAdmin.adminInfo_))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     AfterEnableAdmin(admin, type, userId);
@@ -1849,16 +1849,14 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseInfo(const AppExecFwk::ElementN
 {
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     auto adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),  GetCurrentUserId());
-    if (adminItem != nullptr && adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
+    if (adminItem == nullptr) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    if (adminItem->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
         EDMLOGE("GetEnterpriseInfo delegated admin does not have permission to get enterprise info.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
-    int32_t userId = (adminItem != nullptr && (adminItem->GetAdminType() == AdminType::ENT ||
-        adminItem->GetAdminType() == AdminType::SUB_SUPER_ADMIN)) ? EdmConstants::DEFAULT_USER_ID : GetCurrentUserId();
-    ErrCode code = AdminManager::GetInstance()->GetEntInfo(admin.GetBundleName(), entInfo, userId);
-    if (code != ERR_OK) {
-        return EdmReturnErrCode::ADMIN_INACTIVE;
-    }
+    entInfo = adminItem->adminInfo_.entInfo_;
     EDMLOGD(
         "EnterpriseDeviceMgrAbility::GetEnterpriseInfo: entInfo->enterpriseName %{public}s, "
         "entInfo->description:%{public}s",
@@ -1882,7 +1880,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseInfo(const AppExecFwk::ElementN
     if (adminItem->GetAdminType() == AdminType::ENT || adminItem->GetAdminType() == AdminType::SUB_SUPER_ADMIN) {
         userId = EdmConstants::DEFAULT_USER_ID;
     }
-    ErrCode code = AdminManager::GetInstance()->SetEntInfo(admin.GetBundleName(), entInfo, userId);
+    ErrCode code = AdminManager::GetInstance()->SetEntInfo(adminItem, entInfo, userId);
     return (code != ERR_OK) ? EdmReturnErrCode::ADMIN_INACTIVE : ERR_OK;
 }
 
@@ -1904,7 +1902,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetAdminRunningMode(const AppExecFwk::Elemen
         return EdmReturnErrCode::PARAM_ERROR;
     }
     adminItem->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);
-    return AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, *adminItem);
+    return AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminItem->adminInfo_);
 }
 
 bool EnterpriseDeviceMgrAbility::CheckRunningMode(uint32_t runningMode)
@@ -2008,7 +2006,7 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     abilityInfo.name = GetExtensionEnterpriseAdminName(bundleName, EdmConstants::DEFAULT_USER_ID);
     Admin subAdmin(abilityInfo, AdminType::SUB_SUPER_ADMIN, entInfo, permissionList, adminItem->adminInfo_.isDebug_);
     subAdmin.SetParentAdminName(admin.GetBundleName());
-    ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, subAdmin);
+    ret = AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, subAdmin.adminInfo_);
     if (ret != ERR_OK) {
         return ret;
     }
@@ -2103,7 +2101,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &bund
     virtualAdmin.SetAccessiblePolicies(setPolicies);
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
-    return AdminManager::GetInstance()->SetAdminValue(userId, virtualAdmin);
+    return AdminManager::GetInstance()->SetAdminValue(userId, virtualAdmin.adminInfo_);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin,
@@ -2149,7 +2147,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const AppExecFwk::Eleme
     Admin virtualAdmin(abilityInfo, AdminType::VIRTUAL_ADMIN, entInfo, {}, adminItem->adminInfo_.isDebug_);
     virtualAdmin.SetParentAdminName(parentAdminName);
     virtualAdmin.SetAccessiblePolicies(policies);
-    ret = AdminManager::GetInstance()->SetAdminValue(GetCurrentUserId(), virtualAdmin);
+    ret = AdminManager::GetInstance()->SetAdminValue(GetCurrentUserId(), virtualAdmin.adminInfo_);
     if (ret == ERR_OK) {
         HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
             static_cast<int32_t>(AdminType::VIRTUAL_ADMIN), parentAdminName);

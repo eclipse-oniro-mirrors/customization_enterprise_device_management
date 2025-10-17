@@ -34,7 +34,7 @@ public:
         std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
-    ErrCode UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const Admin &adminItem);
+    ErrCode UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const AdminInfo &adminItem);
     bool IsSuperAdminExist();
     bool IsByodAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
@@ -45,9 +45,8 @@ public:
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     std::shared_ptr<Admin> GetSuperAdmin();
     void Init();
-    ErrCode SetAdminValue(int32_t userId, const Admin &adminItem);
-    ErrCode GetEntInfo(const std::string &packageName, EntInfo &entInfo, int32_t userId);
-    ErrCode SetEntInfo(const std::string &packageName, const EntInfo &entInfo, int32_t userId);
+    ErrCode SetAdminValue(int32_t userId, const AdminInfo &adminItem);
+    ErrCode SetEntInfo(std::shared_ptr<Admin> admin, const EntInfo &entInfo, int32_t userId);
     ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
     ErrCode GetPoliciesByVirtualAdmin(const std::string &bundleName, const std::string &parentName,

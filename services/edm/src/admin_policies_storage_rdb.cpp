@@ -72,7 +72,7 @@ std::shared_ptr<AdminPoliciesStorageRdb> AdminPoliciesStorageRdb::GetInstance()
     return instance_;
 }
 
-bool AdminPoliciesStorageRdb::InsertAdmin(int32_t userId, const Admin &admin)
+bool AdminPoliciesStorageRdb::InsertAdmin(int32_t userId, const AdminInfo &admin)
 {
     EDMLOGD("AdminPoliciesStorageRdb::Insert data start.");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
@@ -86,7 +86,7 @@ bool AdminPoliciesStorageRdb::InsertAdmin(int32_t userId, const Admin &admin)
         CreateInsertValuesBucket(userId, admin));
 }
 
-bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const Admin &admin)
+bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const AdminInfo &admin)
 {
     EDMLOGD("AdminPoliciesStorageRdb::Insert data start.");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
@@ -98,7 +98,7 @@ bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const Admin &admin)
     //     where user_id=? and package_name=?
     NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
-    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.adminInfo_.packageName_);
+    predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.packageName_);
     NativeRdb::ValuesBucket valuesBucket;
     CreateUpdateValuesBucket(userId, admin, valuesBucket);
     return edmRdbDataManager->Update(valuesBucket, predicates);
@@ -116,7 +116,7 @@ bool AdminPoliciesStorageRdb::ReplaceAdmin(const std::string packageName, int32_
     NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
     predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
-    return edmRdbDataManager->Update(CreateInsertValuesBucket(userId, newAdmin), predicates);
+    return edmRdbDataManager->Update(CreateInsertValuesBucket(userId, newAdmin.adminInfo_), predicates);
 }
 
 bool AdminPoliciesStorageRdb::UpdateParentName(const std::string packageName, const std::string currentParentName,
@@ -137,35 +137,35 @@ bool AdminPoliciesStorageRdb::UpdateParentName(const std::string packageName, co
     return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
-NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_t userId, const Admin &admin)
+NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_t userId, const AdminInfo &admin)
 {
     NativeRdb::ValuesBucket valuesBucket;
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<int>(admin.adminInfo_.runningMode_));
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<int>(admin.runningMode_));
     CreateUpdateValuesBucket(userId, admin, valuesBucket);
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, userId);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.adminInfo_.packageName_);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.adminInfo_.className_);
-    valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, admin.adminInfo_.parentAdminName_);
-    valuesBucket.PutBool(EdmRdbFiledConst::FILED_IS_DEBUG, admin.adminInfo_.isDebug_);
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.packageName_);
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.className_);
+    valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, admin.parentAdminName_);
+    valuesBucket.PutBool(EdmRdbFiledConst::FILED_IS_DEBUG, admin.isDebug_);
     return valuesBucket;
 }
 
-void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Admin &admin,
+void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const AdminInfo &admin,
     NativeRdb::ValuesBucket &valuesBucket)
 {
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminInfo_.adminType_));
-    if (!admin.adminInfo_.entInfo_.enterpriseName.empty()) {
-        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.adminInfo_.entInfo_.enterpriseName);
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminType_));
+    if (!admin.entInfo_.enterpriseName.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.entInfo_.enterpriseName);
     }
-    if (!admin.adminInfo_.entInfo_.description.empty()) {
-        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.adminInfo_.entInfo_.description);
+    if (!admin.entInfo_.description.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_DESC, admin.entInfo_.description);
     }
-    if (!admin.adminInfo_.className_.empty()) {
-        valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.adminInfo_.className_);
+    if (!admin.className_.empty()) {
+        valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.className_);
     }
     cJSON *permissionsArray = nullptr;
     CJSON_CREATE_ARRAY_AND_CHECK_VOID(permissionsArray);
-    for (const auto &permission : admin.adminInfo_.permission_) {
+    for (const auto &permission : admin.permission_) {
         cJSON* itemJson = cJSON_CreateString(permission.c_str());
         if (itemJson == nullptr) {
             cJSON_Delete(permissionsArray);
@@ -180,10 +180,10 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
     }
     cJSON_Delete(permissionsArray);
 
-    if (admin.adminInfo_.adminType_ == AdminType::VIRTUAL_ADMIN) {
+    if (admin.adminType_ == AdminType::VIRTUAL_ADMIN) {
         cJSON *policiesArray = nullptr;
         CJSON_CREATE_ARRAY_AND_CHECK_VOID(policiesArray);
-        for (const auto &policy : admin.adminInfo_.accessiblePolicies_) {
+        for (const auto &policy : admin.accessiblePolicies_) {
             cJSON* itemJson = cJSON_CreateString(policy.c_str());
             if (itemJson == nullptr) {
                 cJSON_Delete(policiesArray);
@@ -200,7 +200,7 @@ void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const Adm
     }
 
     // Add running mode if not default
-    RunningMode runningMode = admin.adminInfo_.runningMode_;
+    RunningMode runningMode = admin.runningMode_;
     if (runningMode != RunningMode::DEFAULT) {
         valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<uint32_t>(runningMode));
     }

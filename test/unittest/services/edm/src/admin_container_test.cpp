@@ -66,14 +66,14 @@ HWTEST_F(AdminContainerTest, TestGetAdminByUserId, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
     Admin admin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, admin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, admin.adminInfo_);
     adminContainer_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     ASSERT_TRUE(userAdmin.size() == 1);
 
     admin.adminInfo_.adminType_ = AdminType::ENT;
     admin.adminInfo_.packageName_ = "com.edm.test.demo1";
     admin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION", "ohos.permission.EDM_TEST_ENT_PERMISSION"};
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, admin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, admin.adminInfo_);
     adminContainer_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     ASSERT_TRUE(userAdmin.size() == 2);
 }
@@ -94,21 +94,21 @@ HWTEST_F(AdminContainerTest, TestGetAdminCopyBySubscribeEvent, TestSize.Level1)
     std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
     edmAdmin.adminInfo_.managedEvents_ = {ManagedEvent::BUNDLE_ADDED, ManagedEvent::BUNDLE_REMOVED};
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     edmAdmin.adminInfo_.packageName_ = "com.edm.test.demo1";
     edmAdmin.adminInfo_.className_ = "testDemo1";
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan1";
     edmAdmin.adminInfo_.managedEvents_ = {};
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     edmAdmin.adminInfo_.packageName_ = "com.edm.test.demo2";
     edmAdmin.adminInfo_.className_ = "testDemo2";
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company2";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan2";
     edmAdmin.adminInfo_.managedEvents_ = {ManagedEvent::BUNDLE_REMOVED};
-    adminContainer_->SetAdminByUserId(TEST_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(TEST_USER_ID, edmAdmin.adminInfo_);
 
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subscribeAdmins;
     adminContainer_->GetAdminCopyBySubscribeEvent(ManagedEvent::BUNDLE_ADDED, subscribeAdmins);
@@ -141,7 +141,7 @@ HWTEST_F(AdminContainerTest, TestUpdateAdmin, TestSize.Level1)
     edmAdmin.adminInfo_.accessiblePolicies_ = {"ploicy1"};
     edmAdmin.adminInfo_.adminType_ = AdminType::ENT;
     edmAdmin.adminInfo_.runningMode_ = RunningMode::DEFAULT;
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     EntInfo entInfo2;
     entInfo2.enterpriseName = "company2";
@@ -196,13 +196,13 @@ HWTEST_F(AdminContainerTest, TestDeleteAdmin, TestSize.Level1)
     entInfo.description = "technology company in wuhan";
     permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     edmAdmin.adminInfo_.adminType_ = AdminType::ENT;
     edmAdmin.adminInfo_.packageName_ = "com.edm.test.demo1";
     edmAdmin.adminInfo_.permission_ = {"ohos.permission.EDM_TEST_PERMISSION",
         "ohos.permission.EDM_TEST_ENT_PERMISSION"};
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     res = adminContainer_->DeleteAdmin("com.edm.test.demo", DEFAULT_USER_ID);
     ASSERT_TRUE(res);
@@ -232,7 +232,7 @@ HWTEST_F(AdminContainerTest, TestSetAdminByUserId, TestSize.Level0)
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions {"ohos.permission.EDM_TEST_ENT_PERMISSION"};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin);
+    adminContainer_->SetAdminByUserId(DEFAULT_USER_ID, edmAdmin.adminInfo_);
     std::vector<std::shared_ptr<Admin>> userAdmin;
     adminContainer_->GetAdminCopyByUserId(DEFAULT_USER_ID, userAdmin);
     ASSERT_EQ(userAdmin.size(), 1);
