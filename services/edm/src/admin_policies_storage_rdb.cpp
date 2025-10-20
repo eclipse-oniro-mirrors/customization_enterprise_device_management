@@ -104,7 +104,7 @@ bool AdminPoliciesStorageRdb::UpdateAdmin(int32_t userId, const AdminInfo &admin
     return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
-bool AdminPoliciesStorageRdb::ReplaceAdmin(const std::string packageName, int32_t userId, const Admin &newAdmin)
+bool AdminPoliciesStorageRdb::ReplaceAdmin(const std::string packageName, int32_t userId, const AdminInfo &newAdminInfo)
 {
     EDMLOGD("AdminPoliciesStorageRdb::ReplaceAdmin data start.");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
@@ -116,7 +116,7 @@ bool AdminPoliciesStorageRdb::ReplaceAdmin(const std::string packageName, int32_
     NativeRdb::AbsRdbPredicates predicates(EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME);
     predicates.EqualTo(EdmRdbFiledConst::FILED_USER_ID, std::to_string(userId));
     predicates.EqualTo(EdmRdbFiledConst::FILED_PACKAGE_NAME, packageName);
-    return edmRdbDataManager->Update(CreateInsertValuesBucket(userId, newAdmin.adminInfo_), predicates);
+    return edmRdbDataManager->Update(CreateInsertValuesBucket(userId, newAdminInfo), predicates);
 }
 
 bool AdminPoliciesStorageRdb::UpdateParentName(const std::string packageName, const std::string currentParentName,
@@ -145,6 +145,7 @@ NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, userId);
     valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.packageName_);
     valuesBucket.PutString(EdmRdbFiledConst::FILED_CLASS_NAME, admin.className_);
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminType_));
     valuesBucket.PutString(EdmRdbFiledConst::FILED_PARENT_ADMIN, admin.parentAdminName_);
     valuesBucket.PutBool(EdmRdbFiledConst::FILED_IS_DEBUG, admin.isDebug_);
     return valuesBucket;
@@ -153,7 +154,6 @@ NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_
 void AdminPoliciesStorageRdb::CreateUpdateValuesBucket(int32_t userId, const AdminInfo &admin,
     NativeRdb::ValuesBucket &valuesBucket)
 {
-    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ADMIN_TYPE, static_cast<int>(admin.adminType_));
     if (!admin.entInfo_.enterpriseName.empty()) {
         valuesBucket.PutString(EdmRdbFiledConst::FILED_ENT_NAME, admin.entInfo_.enterpriseName);
     }
@@ -275,11 +275,11 @@ bool AdminPoliciesStorageRdb::UpdateManagedEvents(int32_t userId, const std::str
     return edmRdbDataManager->Update(valuesBucket, predicates);
 }
 
-std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesStorageRdb::QueryAllAdmin()
+std::unordered_map<int32_t, std::vector<AdminInfo>> AdminPoliciesStorageRdb::QueryAllAdmin()
 {
     EDMLOGD("AdminPoliciesStorageRdb::QueryAllAdmin.");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins;
+    std::unordered_map<int32_t, std::vector<AdminInfo>> admins;
     if (edmRdbDataManager == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::QueryAllAdmin get edmRdbDataManager failed.");
         return admins;
@@ -292,14 +292,14 @@ std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> AdminPoliciesSt
     }
     int resultSetNum = resultSet->GoToFirstRow();
     while (resultSetNum == NativeRdb::E_OK) {
-        std::shared_ptr<Admin> item = std::make_shared<Admin>();
+        AdminInfo item;
         int32_t userId = 0;
         resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_ONE, userId);
         SetAdminItems(resultSet, item);
         if (admins.find(userId) != admins.end()) {
             admins[userId].push_back(item);
         } else {
-            std::vector<std::shared_ptr<Admin>> adminItems{item};
+            std::vector<AdminInfo> adminItems{item};
             admins[userId] = adminItems;
         }
         resultSetNum = resultSet->GoToNextRow();
@@ -339,51 +339,51 @@ void AdminPoliciesStorageRdb::SetAdminStringInfo(const std::string &stringInfo, 
 }
 
 void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet,
-    std::shared_ptr<Admin> item)
+    AdminInfo &adminInfo)
 {
-    if (resultSet == nullptr || item == nullptr) {
+    if (resultSet == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::SetAdminItems failed.");
         return;
     }
     int32_t adminType = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWO, adminType);
-    item->adminInfo_.adminType_ = static_cast<AdminType>(adminType);
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_THREE, item->adminInfo_.packageName_);
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, item->adminInfo_.className_);
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, item->adminInfo_.entInfo_.enterpriseName);
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, item->adminInfo_.entInfo_.description);
+    adminInfo.adminType_ = static_cast<AdminType>(adminType);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_THREE, adminInfo.packageName_);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FOUR, adminInfo.className_);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_FIVE, adminInfo.entInfo_.enterpriseName);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SIX, adminInfo.entInfo_.description);
     bool isPermissionStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, isPermissionStrNull);
     if (!isPermissionStrNull) {
         std::string permissionStr;
         resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_SEVEN, permissionStr);
-        SetAdminStringInfo(permissionStr, item->adminInfo_.permission_);
+        SetAdminStringInfo(permissionStr, adminInfo.permission_);
     }
     bool isManagedEventStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_EIGHT, isManagedEventStrNull);
     if (!isManagedEventStrNull) {
-        SetManagedEventStr(resultSet, item);
+        SetManagedEventStr(resultSet, adminInfo);
     }
-    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_NINE, item->adminInfo_.parentAdminName_);
+    resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_NINE, adminInfo.parentAdminName_);
     int isDebug = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TEN, isDebug);
-    item->adminInfo_.isDebug_ = isDebug != 0;
+    adminInfo.isDebug_ = isDebug != 0;
     bool isPoliciesStrNull = false;
     resultSet->IsColumnNull(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, isPoliciesStrNull);
     if (!isPoliciesStrNull) {
         std::string policiesStr;
         resultSet->GetString(EdmRdbFiledConst::FILED_COLUMN_INDEX_ELEVEN, policiesStr);
-        SetAdminStringInfo(policiesStr, item->adminInfo_.accessiblePolicies_);
+        SetAdminStringInfo(policiesStr, adminInfo.accessiblePolicies_);
     }
     int32_t runningMode = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWELVE, runningMode);
-    item->adminInfo_.runningMode_ = static_cast<RunningMode>(runningMode);
+    adminInfo.runningMode_ = static_cast<RunningMode>(runningMode);
 }
 
 void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet,
-    std::shared_ptr<Admin> item)
+    AdminInfo &adminInfo)
 {
-    if (resultSet == nullptr || item == nullptr) {
+    if (resultSet == nullptr) {
         EDMLOGE("AdminPoliciesStorageRdb::SetManagedEventStr failed.");
         return;
     }
@@ -406,7 +406,7 @@ void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::Resu
     cJSON* element = nullptr;
     cJSON_ArrayForEach(element, managedEventsJson) {
         if (cJSON_IsNumber(element)) {
-            item->adminInfo_.managedEvents_.push_back(static_cast<ManagedEvent>(element->valueint));
+            adminInfo.managedEvents_.push_back(static_cast<ManagedEvent>(element->valueint));
         }
     }
     

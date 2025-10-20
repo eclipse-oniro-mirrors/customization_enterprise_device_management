@@ -146,26 +146,26 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDoneWithoutAdminEnab
  */
 HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityDisconnectDoneWithSuperAdmin, TestSize.Level1)
 {
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    abilityInfo.bundleName = "com.edm.test.demo";
-    abilityInfo.name = "com.edm.test.demo.Ability";
+    std::string bundleName = "com.edm.test.demo";
+    std::string abilityName = "com.edm.test.demo.Ability";
     EntInfo entInfo;
     entInfo.enterpriseName = "company";
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
-    Admin edmAdmin(abilityInfo, AdminType::ENT, entInfo, permissions, false);
-    AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
+    AdminInfo adminInfo = {.packageName_ = bundleName, .className_ = abilityName,
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::ENT, .isDebug_ = false};
+    AdminManager::GetInstance()->SetAdminValue(DEFAULT_USER_ID, adminInfo);
 
     AAFwk::Want connectWant;
-    connectWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
+    connectWant.SetElementName(bundleName, abilityName);
     enterpriseAdminConnectionTest = std::make_shared<EnterpriseAdminConnection>(connectWant,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true);
     AppExecFwk::ElementName admin;
-    admin.SetBundleName(abilityInfo.bundleName);
-    admin.SetAbilityName(abilityInfo.name);
+    admin.SetBundleName(bundleName);
+    admin.SetAbilityName(abilityName);
     int32_t resultCode = 0;
     enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
-    EXPECT_TRUE(AdminManager::GetInstance()->IsSuperAdmin(abilityInfo.bundleName));
+    EXPECT_TRUE(AdminManager::GetInstance()->IsSuperAdmin(bundleName));
 
     AdminManager::GetInstance()->DeleteAdmin(admin.GetBundleName(), DEFAULT_USER_ID);
 }

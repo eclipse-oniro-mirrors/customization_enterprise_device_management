@@ -22,7 +22,6 @@
 #include "edm_log.h"
 #include "func_code_utils.h"
 #include "ipc_skeleton.h"
-#include "permission_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -126,6 +125,44 @@ std::shared_ptr<PermissionChecker> PermissionChecker::GetInstance()
     return instance_;
 }
 
+PermissionChecker::PermissionChecker()
+{
+    permissions_ = {
+        // api 9
+        EdmPermission::PERMISSION_ENTERPRISE_SET_DATETIME, EdmPermission::PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT,
+        EdmPermission::PERMISSION_SET_ENTERPRISE_INFO, EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN,
+        // api 10
+        EdmPermission::PERMISSION_ENTERPRISE_SET_SCREEN_OFF_TIME, EdmPermission::PERMISSION_ENTERPRISE_RESTRICT_POLICY,
+        EdmPermission::PERMISSION_ENTERPRISE_GET_SETTINGS, EdmPermission::PERMISSION_ENTERPRISE_RESET_DEVICE,
+        EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY,
+        EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO, EdmPermission::PERMISSION_ENTERPRISE_GET_NETWORK_INFO,
+        EdmPermission::PERMISSION_ENTERPRISE_SET_NETWORK, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK,
+        EdmPermission::PERMISSION_ENTERPRISE_INSTALL_BUNDLE, EdmPermission::PERMISSION_ENTERPRISE_SET_BROWSER_POLICY,
+        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, EdmPermission::PERMISSION_ENTERPRISE_SET_WIFI,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_CERTIFICATE,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SET_APP_RUNNING_POLICY,
+        // api 11
+        EdmPermission::PERMISSION_ENTERPRISE_LOCK_DEVICE, EdmPermission::PERMISSION_ENTERPRISE_REBOOT,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_LOCATION,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM,
+        // api 12
+        EdmPermission::PERMISSION_ENTERPRISE_OPERATE_DEVICE,
+        // api 14
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DELEGATED_POLICY,
+        // api 15
+        EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS, EdmPermission::PERMISSION_GET_ADMINPROVISION_INFO,
+        // api 20
+        EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APN,
+        EdmPermission::PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY,
+        EdmPermission::PERMISSION_ENTERPRISE_SET_KIOSK, EdmPermission::PERMISSION_ENTERPRISE_SET_WALLPAPER,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION,
+        // api 23
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN,
+    };
+}
+
 std::shared_ptr<IExternalManagerFactory> PermissionChecker::GetExternalManagerFactory()
 {
     return externalManagerFactory_;
@@ -136,51 +173,18 @@ bool PermissionChecker::IsAllowDelegatedPolicy(const std::string &policy)
     return allowDelegatedPolicies_.find(policy) != allowDelegatedPolicies_.end();
 }
 
-ErrCode PermissionChecker::CheckCallerPermission(std::shared_ptr<Admin> admin, const std::string &permission,
-    bool isNeedSuperAdmin)
+bool PermissionChecker::CheckCallerPermission(const std::string &bundleName, const std::string &permission)
 {
-    if (admin == nullptr) {
-        return EdmReturnErrCode::ADMIN_INACTIVE;
-    }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!GetExternalManagerFactory()->CreateAccessTokenManager()->VerifyCallingPermission(tokenId, permission)) {
         EDMLOGE("CheckCallerPermission verify calling permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
+        return false;
     }
-    if (FAILED(CheckCallingUid(admin->adminInfo_.packageName_))) {
+    if (FAILED(CheckCallingUid(bundleName))) {
         EDMLOGE("CheckCallerPermission check calling uid failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
+        return false;
     }
-    if (isNeedSuperAdmin && admin->GetAdminType() != AdminType::ENT) {
-        EDMLOGE("CheckCallerPermission caller not a super admin.");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
-    if (!isNeedSuperAdmin && admin->GetAdminType() == AdminType::VIRTUAL_ADMIN) {
-        EDMLOGE("CheckCallerPermission delegated admin does not have permission to handle.");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
-    if (!isNeedSuperAdmin && admin->GetAdminType() == AdminType::BYOD) {
-        EDMLOGE("CheckCallerPermission byod admin does not have permission to handle.");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
-    return ERR_OK;
-}
-
-ErrCode PermissionChecker::CheckAuthorizeAdminPermission(std::shared_ptr<Admin> admin, const std::string &permission)
-{
-    if (admin == nullptr) {
-        return EdmReturnErrCode::ADMIN_INACTIVE;
-    }
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetExternalManagerFactory()->CreateAccessTokenManager()->VerifyCallingPermission(tokenId, permission)) {
-        EDMLOGE("CheckAuthorizeAdminPermission verify calling permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-    if (admin->GetAdminType() != AdminType::ENT) {
-        EDMLOGE("CheckAuthorizeAdminPermission caller not a super admin.");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
-    return ERR_OK;
+    return true;
 }
 
 ErrCode PermissionChecker::CheckCallingUid(const std::string &bundleName)
@@ -210,8 +214,8 @@ ErrCode PermissionChecker::CheckSystemCalling(IPlugin::ApiType apiType, const st
     return ERR_OK;
 }
 
-ErrCode PermissionChecker::GetAllPermissionsByAdmin(const std::string &bundleInfoName, AdminType adminType,
-    int32_t userId, std::vector<std::string> &permissionList)
+ErrCode PermissionChecker::GetAllPermissionsByAdmin(const std::string &bundleInfoName, int32_t userId,
+    std::vector<std::string> &permissionList)
 {
     permissionList.clear();
     AppExecFwk::BundleInfo bundleInfo;
@@ -222,12 +226,24 @@ ErrCode PermissionChecker::GetAllPermissionsByAdmin(const std::string &bundleInf
         EDMLOGW("GetAllPermissionsByAdmin: GetBundleInfo failed %{public}d", ret);
         return ERR_EDM_PARAM_ERROR;
     }
-    PermissionManager::GetInstance()->GetAdminGrantedPermission(bundleInfo.reqPermissions, adminType, permissionList);
+    GetAdminGrantedPermission(bundleInfo.reqPermissions, permissionList);
     return ERR_OK;
 }
 
-ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateType,
-    const std::string &bundleName, const std::string &policyName, const std::string &permissionName, int32_t userId)
+void PermissionChecker::GetAdminGrantedPermission(const std::vector<std::string> &permissions,
+    std::vector<std::string> &reqPermission)
+{
+    reqPermission.clear();
+    for (const auto &item : permissions) {
+        if (permissions_.find(item) != permissions_.end()) {
+            reqPermission.emplace_back(item);
+            EDMLOGI("reqPermission.emplace_back:%{public}s:", item.c_str());
+        }
+    }
+}
+
+ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateType, std::shared_ptr<Admin> deviceAdmin,
+    const std::string &policyName, const std::string &permissionName, int32_t userId)
 {
     if (operateType == FuncOperateType::SET && permissionName.empty()) {
         EDMLOGE("CheckHandlePolicyPermission failed, set policy need permission.");
@@ -237,7 +253,6 @@ ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateTy
         EDMLOGE("CheckHandlePolicyPermission: GetPermission failed!");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, GetCurrentUserId());
     if (deviceAdmin == nullptr) {
         EDMLOGE("CheckHandlePolicyPermission: get admin failed");
         return EdmReturnErrCode::ADMIN_INACTIVE;
@@ -246,63 +261,21 @@ ErrCode PermissionChecker::CheckHandlePolicyPermission(FuncOperateType operateTy
         EDMLOGE("CheckHandlePolicyPermission: CheckCallingUid failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    if (operateType == FuncOperateType::SET && deviceAdmin->GetAdminType() == AdminType::NORMAL &&
+    if (operateType == FuncOperateType::SET && !deviceAdmin->IsAllowedAcrossAccountSetPolicy() &&
         userId != GetCurrentUserId()) {
         EDMLOGE("CheckHandlePolicyPermission: this admin does not have permission to handle policy of other account.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     if (!permissionName.empty()) {
         EDMLOGI("CheckHandlePolicyPermission: permissionName:%{public}s", permissionName.c_str());
-        auto ret = CheckAndUpdatePermission(deviceAdmin, IPCSkeleton::GetCallingTokenID(), permissionName, userId);
-        if (FAILED(ret)) {
-            return ret;
+        if (!VerifyCallingPermission(IPCSkeleton::GetCallingTokenID(), permissionName)) {
+            EDMLOGE("CheckHandlePolicyPermission: verify calling permission failed.");
+            return EdmReturnErrCode::PERMISSION_DENIED;
         }
     }
-    if (permissionName.empty() && deviceAdmin->GetAdminType() == AdminType::BYOD) {
-        return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-    if (!AdminManager::GetInstance()->HasPermissionToHandlePolicy(deviceAdmin, policyName)) {
+    if (!deviceAdmin->HasPermissionToHandlePolicy(policyName, operateType)) {
         EDMLOGE("CheckHandlePolicyPermission: this admin does not have permission to handle the policy.");
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
-    return ERR_OK;
-}
-
-ErrCode PermissionChecker::CheckAndUpdatePermission(std::shared_ptr<Admin> admin,
-    Security::AccessToken::AccessTokenID tokenId, const std::string &permission, int32_t userId)
-{
-    if (admin == nullptr) {
-        EDMLOGE("CheckHandlePolicyPermission: this admin does not have permission to handle the policy.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    bool callingPermission = VerifyCallingPermission(tokenId, permission);
-    bool adminPermission = admin->CheckPermission(permission);
-    EDMLOGI("CheckAndUpdatePermission::callingPermission: %{public}d.adminPermission:%{public}d", callingPermission,
-        adminPermission);
-    if (callingPermission != adminPermission) {
-        std::vector<std::string> permissionList;
-        if (FAILED(GetAllPermissionsByAdmin(admin->adminInfo_.packageName_,
-            admin->GetAdminType(), userId, permissionList))) {
-            EDMLOGE("CheckAndUpdatePermission get all permission that admin request failed.");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        auto hasPermission = std::find(permissionList.begin(), permissionList.end(), permission);
-        if (!callingPermission && hasPermission != permissionList.end()) {
-            EDMLOGE("CheckAndUpdatePermission access token check abnormally.");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        if (!adminPermission && hasPermission == permissionList.end()) {
-            EDMLOGE("CheckAndUpdatePermission this admin does not have the permission.");
-            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-        }
-        Admin updateAdmin(admin->adminInfo_.packageName_, admin->GetAdminType(), permissionList);
-        updateAdmin.SetAccessiblePolicies(admin->adminInfo_.accessiblePolicies_);
-        if (FAILED(AdminManager::GetInstance()->UpdateAdmin(admin, userId, updateAdmin.adminInfo_))) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-    }
-    if (!callingPermission) {
-        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     return ERR_OK;
 }
@@ -383,10 +356,20 @@ bool PermissionChecker::CheckIsSystemAppOrNative()
     return GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppOrNative();
 }
 
+bool PermissionChecker::CheckIsSystemApp()
+{
+    return GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
+}
+
 bool PermissionChecker::VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
     const std::string &permissionName)
 {
     return GetExternalManagerFactory()->CreateAccessTokenManager()->VerifyCallingPermission(tokenId, permissionName);
+}
+
+std::string PermissionChecker::GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId)
+{
+    return GetExternalManagerFactory()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -38,6 +38,7 @@ public:
         const std::string &permissionName) override;
     bool GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
         Security::AccessToken::AccessTokenID &accessTokenId) override;
+    std::string GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId) override;
 };
 } // namespace EDM
 } // namespace OHOS

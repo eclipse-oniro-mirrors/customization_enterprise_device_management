@@ -34,14 +34,13 @@ public:
         std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
-    ErrCode UpdateAdmin(std::shared_ptr<Admin> getAdmin, int32_t userId, const AdminInfo &adminItem);
+    ErrCode UpdateAdmin(int32_t userId, const AdminInfo &adminInfo, uint32_t code);
     bool IsSuperAdminExist();
     bool IsByodAdminExist();
     bool IsSuperAdmin(const std::string &bundleName);
     bool IsAdminExist();
     bool IsByodAdmin(const std::string &bundleName, int32_t userId);
     bool IsSuperOrSubSuperAdmin(const std::string &bundleName);
-    bool HasPermissionToHandlePolicy(std::shared_ptr<Admin> admin, const std::string &policyName);
     void GetEnabledAdmin(AdminType role, std::vector<std::string> &packageNameList, int32_t userId);
     std::shared_ptr<Admin> GetSuperAdmin();
     void Init();
@@ -53,16 +52,20 @@ public:
         std::vector<std::string> &policies);
     void GetVirtualAdminsByPolicy(const std::string &policyName, const std::string &parentName,
         std::vector<std::string> &bundleNames);
-    ErrCode GetSubOrSuperOrByodAdminByPkgName(const std::string &subAdminName,
+    ErrCode GetAllowedAcrossAccountSetPolicyAdmin(const std::string &subAdminName,
         std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
     void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
     void GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
-    ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const Admin &newAdmin);
+    ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const AdminInfo &newAdminInfo);
     ~AdminManager();
     void Dump();
     void ClearAdmins();
     void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
+    bool IsExistTargetAdmin(bool isDebug);
+    int32_t GetSuperDeviceAdminAndDeviceAdminCount();
+    ErrCode UpdateAdminPermission(const std::string &bundleName, int32_t userId,
+        std::vector<std::string> permissionList);
 
 private:
     AdminManager();

@@ -30,7 +30,7 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 64;
 
-void InitAdminParam(Admin &admin, const uint8_t* data, int32_t& pos, size_t& size, int32_t stringSize)
+void InitAdminParam(AdminInfo &adminInfo, const uint8_t* data, int32_t& pos, size_t& size, int32_t stringSize)
 {
     AdminInfo fuzzAdminInfo;
     fuzzAdminInfo.packageName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -42,7 +42,7 @@ void InitAdminParam(Admin &admin, const uint8_t* data, int32_t& pos, size_t& siz
     ManagedEvent event = GetData<ManagedEvent>();
     fuzzAdminInfo.managedEvents_.push_back(event);
     fuzzAdminInfo.parentAdminName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
-    admin.adminInfo_ = fuzzAdminInfo;
+    adminInfo = fuzzAdminInfo;
 }
 
 // Fuzzer entry point.
@@ -61,10 +61,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t stringSize = size / 9;
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    Admin admin;
+    AdminInfo admin;
     InitAdminParam(admin, data, pos, size, stringSize);
-    adminPoliciesStorageRdb->InsertAdmin(userId, admin.adminInfo_);
-    adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin.adminInfo_);
+    adminPoliciesStorageRdb->InsertAdmin(userId, admin);
+    adminPoliciesStorageRdb->CreateInsertValuesBucket(userId, admin);
     std::string packageName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string stringInfo = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string info = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -75,8 +75,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     adminPoliciesStorageRdb->SetAdminStringInfo(stringInfo, infos);
     std::shared_ptr<NativeRdb::ResultSet> resultSet;
     std::shared_ptr<Admin> item = std::make_shared<Admin>(admin);
-    adminPoliciesStorageRdb->SetAdminItems(resultSet, item);
-    adminPoliciesStorageRdb->SetManagedEventStr(resultSet, item);
+    adminPoliciesStorageRdb->SetAdminItems(resultSet, item->adminInfo_);
+    adminPoliciesStorageRdb->SetManagedEventStr(resultSet, item->adminInfo_);
     adminPoliciesStorageRdb->QueryAllAdmin();
     return 0;
 }
