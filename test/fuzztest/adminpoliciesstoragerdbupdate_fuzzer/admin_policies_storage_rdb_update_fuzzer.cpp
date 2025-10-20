@@ -63,7 +63,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t userId = CommonFuzzer::GetU32Data(data);
     Admin admin;
     InitAdminParam(admin, data, pos, size, stringSize);
-    adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
+    adminPoliciesStorageRdb->UpdateAdmin(userId, admin.adminInfo_);
     std::string packageName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string currentParentName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string targetParentName = CommonFuzzer::GetString(data, pos, stringSize, size);

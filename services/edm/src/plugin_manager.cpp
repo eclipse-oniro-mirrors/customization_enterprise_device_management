@@ -359,7 +359,6 @@ void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
             UnloadPlugin(soName);
-            loadStatePtr->pluginHasInit = false;
         }
     }
 }

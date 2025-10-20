@@ -72,7 +72,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     uint32_t fuzzEvent = GetData<uint32_t>();
     std::vector<uint32_t> events = { fuzzEvent };
     adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
-    adminManager->SetAdminValue(userId, admin);
+    adminManager->SetAdminValue(userId, admin.adminInfo_);
     adminManager->GetAdminByPkgName(packageName, userId);
     adminManager->DeleteAdmin(packageName, userId);
     adminManager->IsSuperAdminExist();
@@ -83,8 +83,6 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->GetEnabledAdmin(role, packageNameList, userId);
     adminManager->GetSubOrSuperOrByodAdminByPkgName(subAdminName, subOrSuperAdmin);
     adminManager->GetSubSuperAdminsByParentName(parentName, subAdmins);
-    adminManager->GetEntInfo(packageName, entInfo, userId);
-    adminManager->SetEntInfo(packageName, entInfo, userId);
     adminManager->SaveSubscribeEvents(events, bundleName, userId);
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
     adminManager->GetSuperAdmin();
@@ -99,7 +97,8 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminItem2.CheckPermission(fuzzString);
     std::shared_ptr<Admin> getAdmin = std::make_shared<Admin>(admin);
     std::string policyName(reinterpret_cast<const char*>(data), size);
-    adminManager->UpdateAdmin(getAdmin, userId, adminItem);
+    adminManager->SetEntInfo(getAdmin, entInfo, userId);
+    adminManager->UpdateAdmin(getAdmin, userId, adminItem.adminInfo_);
     adminManager->ReplaceSuperAdminByPackageName(parentName, adminItem);
     adminManager->GetPoliciesByVirtualAdmin(bundleName, parentName, subAdmins);
     adminManager->GetVirtualAdminsByPolicy(policyName, parentName, packageNameList);
@@ -110,8 +109,8 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->IsAdminExist();
     adminManager->GetAdmins(adminPtrVec, userId);
     adminManager->GetSubSuperAdmins(userId, adminPtrVec);
-    adminManager->SetAdminValue(0, adminItem1);
-    adminManager->SetAdminValue(0, adminItem2);
+    adminManager->SetAdminValue(0, adminItem1.adminInfo_);
+    adminManager->SetAdminValue(0, adminItem2.adminInfo_);
     AdminContainer::GetInstance()->UpdateAdmin(0, bundleName, 0x1FF, adminItem2);
 }
 

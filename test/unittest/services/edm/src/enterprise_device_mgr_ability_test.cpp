@@ -2043,12 +2043,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserAdded, TestSize.Le
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
     edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
     edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
-    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin.adminInfo_);
 
     EventFwk::CommonEventData data;
     std::string action = "usual.event.USER_ADDED";
@@ -2083,12 +2083,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserSwitched, TestSize
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
     edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
     edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
-    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin.adminInfo_);
 
     EventFwk::CommonEventData data;
     std::string action = "usual.event.USER_SWITCHED";
@@ -2123,12 +2123,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventUserRemoved, TestSize.
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
     edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
     edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan";
-    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(ERROR_USER_ID, edmAdmin.adminInfo_);
 
     EventFwk::CommonEventData data;
     std::string action = "usual.event.USER_REMOVED";
@@ -2175,13 +2175,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     entInfo.description = "technology company in wuhan";
     std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
     Admin edmAdmin(abilityInfo, AdminType::NORMAL, entInfo, permissions, false);
-    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
 
     edmAdmin.adminInfo_.packageName_ = ADMIN_PACKAGENAME_1;
     edmAdmin.adminInfo_.className_ = ADMIN_PACKAGENAME_ABILITY_1;
     edmAdmin.adminInfo_.entInfo_.enterpriseName = "company1";
     edmAdmin.adminInfo_.entInfo_.description = "technology company in wuhan1";
-    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin);
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, edmAdmin.adminInfo_);
     const std::vector<uint32_t> events = {BUNDLE_ADDED_EVENT, BUNDLE_REMOVED_EVENT};
     edmMgr_->adminMgr_->SaveSubscribeEvents(events, abilityInfo.bundleName, DEFAULT_USER_ID);
 

@@ -49,7 +49,7 @@ public:
 
     static std::shared_ptr<AdminContainer> GetInstance();
 
-    void SetAdminByUserId(int32_t userId, const Admin &adminItem);
+    void SetAdminByUserId(int32_t userId, const AdminInfo &adminItem);
 
     bool DeleteAdmin(const std::string &packageName, int32_t userId);
 
