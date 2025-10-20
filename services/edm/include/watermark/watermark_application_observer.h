@@ -28,7 +28,8 @@ namespace EDM {
 class WatermarkApplicationObserver : public AppExecFwk::ApplicationStateObserverStub {
 public:
     void OnProcessCreated(const AppExecFwk::ProcessData &processData) override;
-    void OnProcessDied(const AppExecFwk::ProcessData &processData) override {};
+    void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
+    void HandleWatermark(const AppExecFwk::ProcessData &processData, bool enabled);
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId,
         int32_t pid, bool enabled);
 };
