@@ -80,7 +80,8 @@ public:
         int32_t hasUserId = 1) override;
     ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId)
         override;
-    ErrCode ReportAgInstallStatus(const std::string &bundleName, int32_t status) override;
+    ErrCode ReportAgInstallStatus(const std::string &bundleName,
+        const std::string &mediaBundleName, int32_t status) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,

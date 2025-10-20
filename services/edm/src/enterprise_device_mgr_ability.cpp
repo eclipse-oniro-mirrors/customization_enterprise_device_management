@@ -1777,7 +1777,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
     return getRet;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bundleName, int32_t status)
+ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bundleName,
+    const std::string &mediaBundleName, int32_t status)
 {
     EDMLOGI("EnterpriseMgrAbility::ReportAgInstallStatus start, bundleName %{public}s status %{public}d",
         bundleName.c_str(), status);
@@ -1794,6 +1795,9 @@ ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bun
     }
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
     for (const auto& admin : admins) {
+        if (admin->adminInfo_.packageName_ != mediaBundleName) {
+            continue;
+        }
         EDMLOGI("ReportAgInstallStatus packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
         AAFwk::Want connectWant;
         connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
