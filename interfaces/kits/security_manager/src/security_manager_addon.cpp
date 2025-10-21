@@ -872,12 +872,8 @@ napi_value SecurityManagerAddon::SetExternalSourceExtensionsPolicy(napi_env env,
         if (!isUnit) {
             return false;
         }
-        if (policyInt >= static_cast<int32_t>(ManagedPolicy::DEFAULT) &&
-            policyInt <= static_cast<int32_t>(ManagedPolicy::FORCE_OPEN)) {
-            data.WriteInt32(policyInt);
-            return true;
-        }
-        return false;
+        data.WriteInt32(policyInt);
+        return true;
     };
 
     AddonMethodSign addonMethodSign;
@@ -910,7 +906,7 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
     if (result == nullptr) {
         return nullptr;
     }
-    std::string policy;
+    int32_t policy;
     int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
         GetExternalSourceExtensionsPolicy(adapterAddonData.data, policy);
     if (FAILED(retCode)) {
@@ -918,7 +914,7 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
         return nullptr;
     }
     napi_value externalSourceExtensions;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(retCode), &externalSourceExtensions));
+    NAPI_CALL(env, napi_create_int32(env, policy, &externalSourceExtensions));
     return externalSourceExtensions;
 }
 

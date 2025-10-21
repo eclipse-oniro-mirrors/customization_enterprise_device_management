@@ -56,7 +56,7 @@ public:
         const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg);
     int32_t GetUserCertificates(MessageParcel &data, std::vector<std::string> &uriList);
     int32_t SetExternalSourceExtensionsPolicy(MessageParcel &data);
-    int32_t GetExternalSourceExtensionsPolicy(MessageParcel &data, std::string &policy);
+    int32_t GetExternalSourceExtensionsPolicy(MessageParcel &data, int32_t &policy);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;
