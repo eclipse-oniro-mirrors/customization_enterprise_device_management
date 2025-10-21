@@ -222,6 +222,53 @@ HWTEST_F(IExecuterTest, TestExecWithOption, TestSize.Level1)
         .WillOnce(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
     EXPECT_TRUE(executer->ExecWithOption(oss, rule, ipType) == ERR_OK);
 }
+
+/**
+ * @tc.name: TestChainInit
+ * @tc.desc: Test ChainInit func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExecuterTest, TestChainInit, TestSize.Level1)
+{
+    std::string result =
+        "Chain edm_deny_output (1 references)\n"
+        "num   pkts bytes target     prot opt in     out     source               destination\n"
+        "1        0     0 DROP       udp  --  *      *       0.0.0.0/0            10.1.1.1             "
+        "source IP range 192.168.1.1-192.188.22.66 udp spt:8080 dpt:8080";
+    std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(result), Return(ERR_OK)));
+    EXPECT_EQ(executer->ChainInit(ipType), true);
+}
+
+/**
+ * @tc.name: TestChainInit1
+ * @tc.desc: Test ChainInit1 func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExecuterTest, TestChainInit1, TestSize.Level1)
+{
+    std::string resultEmpty = "";
+    std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
+    EXPECT_CALL(*executerUtilsMock, Execute)
+        .WillOnce(DoAll(Invoke(PrintExecRule), SetArgReferee<1>(resultEmpty), Return(ERR_OK)));
+    EXPECT_EQ(executer->ChainInit(ipType), false);
+}
+
+/**
+ * @tc.name: TestClearDefaultDenyChain
+ * @tc.desc: Test ClearDefaultDenyChain func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExecuterTest, TestClearDefaultDenyChain, TestSize.Level1)
+{
+    std::shared_ptr<IExecuter> executer = std::make_shared<IExecuterMock>();
+    NetsysNative::IptablesType ipType = NetsysNative::IptablesType::IPTYPE_IPV4;
+    EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
+    EXPECT_TRUE(executer->ClearDefaultDenyChain(ipType) == ERR_OK);
+}
 } // namespace TEST
 } // namespace IPTABLES
 } // namespace EDM

@@ -561,7 +561,7 @@ bool IptablesManager::ChainExistRule(const std::vector<std::string>& chainNames,
         }
         executer->GetAll(ruleList, ipType);
         if (!ruleList.empty()) {
-            EDMLOGI("AddDomainFilterRule: %{public}zu", ruleList.size());
+            EDMLOGI("ChainExistRule: ruleList size is %{public}zu", ruleList.size());
             return true;
         }
     }

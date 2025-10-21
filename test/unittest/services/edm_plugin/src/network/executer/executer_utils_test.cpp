@@ -49,6 +49,16 @@ void ExecuterUtilsTest::TearDownTestSuite(void)
 }
 
 /**
+ * @tc.name: TestGetInstance
+ * @tc.desc: Test GetInstance func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ExecuterUtilsTest, TestGetInstance, TestSize.Level1)
+{
+    ASSERT_TRUE(ExecuterUtils::GetInstance() != nullptr);
+}
+
+/**
  * @tc.name: TestExecute
  * @tc.desc: Test Execute func.
  * @tc.type: FUNC

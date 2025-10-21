@@ -109,6 +109,12 @@ HWTEST_F(FirewallChainRuleTest, TestParameter, TestSize.Level1)
 
     FirewallChainRule firewallChainRule2{firewallRule};
     EXPECT_EQ(firewallChainRule2.Parameter(false), parameter);
+
+    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4};
+    parameter = "";
+
+    FirewallChainRule firewallChainRule3{firewallRule};
+    EXPECT_EQ(firewallChainRule3.Parameter(true), parameter);
 }
 
 /**

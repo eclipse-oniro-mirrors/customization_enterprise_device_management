@@ -68,6 +68,34 @@ HWTEST_F(FirewallExecuterTest, TestInit, TestSize.Level1)
     FirewallExecuter initFail{"actualChainName", "chainName"};
     EXPECT_FALSE(initFail.Init(NetsysNative::IptablesType::IPTYPE_IPV4) == ERR_OK);
 }
+
+/**
+ * @tc.name: TestSetDefaultOutputDenyChain
+ * @tc.desc: Test SetDefaultOutputDenyChain func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FirewallExecuterTest, TestSetDefaultOutputDenyChain, TestSize.Level1)
+{
+    FirewallExecuter initOk{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk.SetDefaultOutputDenyChain(Direction::OUTPUT, Family::IPV4) == true);
+
+    FirewallExecuter initFail{"actualChainName", "chainName"};
+    EXPECT_TRUE(initFail.SetDefaultOutputDenyChain(Direction::FORWARD, Family::IPV4) == false);
+}
+
+/**
+ * @tc.name: TestSetDefaultForwardDenyChain
+ * @tc.desc: Test SetDefaultForwardDenyChain func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(FirewallExecuterTest, TestSetDefaultForwardDenyChain, TestSize.Level1)
+{
+    FirewallExecuter initOk{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk.SetDefaultForwardDenyChain(Direction::FORWARD, Family::IPV4) == true);
+
+    FirewallExecuter initFail{"actualChainName", "chainName"};
+    EXPECT_TRUE(initFail.SetDefaultForwardDenyChain(Direction::INPUT, Family::IPV4) == false);
+}
 } // namespace TEST
 } // namespace IPTABLES
 } // namespace EDM
