@@ -862,7 +862,17 @@ napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
 
 napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
 {
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGW("AdminManager::StartAdminProvision Unsupported Capabilities.");
+    return nullptr;
+#else
     EDMLOGI("NAPI_StartAdminProvision called.");
+    return AssertStartAdminProvision(env, info);
+#endif
+}
+
+napi_value AdminManager::AssertStartAdminProvision(napi_env env, napi_callback_info info)
+{
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
