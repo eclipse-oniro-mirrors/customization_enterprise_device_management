@@ -336,7 +336,7 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
 }
 
 int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
-    std::vector<EdmBundleInfo> &bundleInfos)
+    uint32_t bundleInfoGetFlag, std::vector<EdmBundleInfo> &bundleInfos)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -346,6 +346,7 @@ int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
+    data.WriteUint32(bundleInfoGetFlag);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_BUNDLE_INFO_LIST, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);

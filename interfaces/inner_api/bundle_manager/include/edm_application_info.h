@@ -57,6 +57,7 @@ struct EdmApplicationInfo : public Parcelable {
     std::string description;
     std::string label;
     std::string icon;
+    std::string iconData;
     std::string process;
     std::string codePath;
     std::string appDistributionType = EdmConstants::APP_DISTRIBUTION_TYPE_NONE;

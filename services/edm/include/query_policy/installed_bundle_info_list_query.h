@@ -35,15 +35,21 @@ public:
     ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
-    bool ConvertBundleInfoList(OHOS::AppExecFwk::BundleInfo &BundleInfo, EdmBundleInfo &edmBundleInfo);
-    bool ConvertApplicationInfo(OHOS::AppExecFwk::ApplicationInfo &applicationInfo,
+    void ConvertBundleInfoListData(uint32_t edmBundleFlag,
+        const std::vector<OHOS::AppExecFwk::BundleInfo> &bmsBundleInfos, std::vector<EdmBundleInfo> &edmBundleInfos);
+    void ConvertBundleInfoListItem(uint32_t edmBundleFlag, const OHOS::AppExecFwk::BundleInfo &bmsBundleInfo,
+        EdmBundleInfo &edmBundleInfo);
+    void ConvertApplicationInfo(const OHOS::AppExecFwk::ApplicationInfo &applicationInfo,
         EdmApplicationInfo &edmApplicationInfo);
-    bool ConvertSignatureInfo(OHOS::AppExecFwk::SignatureInfo &signatureInfo, EdmSignatureInfo &edmSignatureInfo);
-    bool ConvertResourceInfo(OHOS::AppExecFwk::Resource &resource, EdmResource &edmResource);
+    void ConvertSignatureInfo(const OHOS::AppExecFwk::SignatureInfo &signatureInfo, EdmSignatureInfo &edmSignatureInfo);
+    void ConvertResourceInfo(const OHOS::AppExecFwk::Resource &resource, EdmResource &edmResource);
     bool WriteVectorToParcelIntelligent(std::vector<EdmBundleInfo> &parcelableVector, MessageParcel &reply);
     bool WriteParcelableIntoAshmem(MessageParcel &tempParcel, MessageParcel &reply);
-    bool GetBundleInfosData(std::vector<OHOS::AppExecFwk::BundleInfo> &bundleInfos,
-        std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos, int32_t userId);
+    bool GetBundleResourceInfosData(uint32_t edmBundleFlag,
+        std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos);
+    bool GetBundleInfosData(uint32_t edmBundleFlag, std::vector<OHOS::AppExecFwk::BundleInfo> &bundleInfos,
+        int32_t userId);
+    bool GetAdditionalResourceInfosData(uint32_t edmBundleFlag, std::vector<EdmBundleInfo> &edmBundleInfos);
     void AssembleBundleResourceInfo(std::vector<EdmBundleInfo> &edmBundleInfos,
         std::vector<OHOS::AppExecFwk::BundleResourceInfo> &bundleResourceInfos);
     int32_t AllocatAshmemNum();

@@ -439,7 +439,7 @@ HWTEST_F(BundleManagerProxyTest, GetInstalledBundleInfoListFailed, TestSize.Leve
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
-    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, bundleInfos);
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, 0, bundleInfos);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     ASSERT_TRUE(bundleInfos.size() == 0);
 }
@@ -456,7 +456,7 @@ HWTEST_F(BundleManagerProxyTest, GetInstalledBundleInfoListSuccess, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetInstalledBundleList));
-    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, bundleInfos);
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleInfoList(admin, DEFAULT_USER_ID, 0, bundleInfos);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(bundleInfos.size() == 1);
 }

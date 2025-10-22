@@ -46,6 +46,8 @@ struct AsyncUninstallCallbackInfo : AsyncCallbackInfo {
 struct AsyncBundleInfoCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     int32_t userId = 0;
+    uint32_t bundleInfoGetFlag = static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO) |
+        static_cast<uint32_t>(BundleInfoGetFlag::WITH_SIGNATURE_INFO);
     std::vector<EdmBundleInfo> bundleInfos;
 };
 
@@ -112,6 +114,7 @@ private:
     static bool CheckAndParseUninstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
     static void CreateAppDistributionTypeObject(napi_env env, napi_value value);
+    static void CreateBundleInfoGetFlagObject(napi_env env, napi_value value);
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);

@@ -67,17 +67,18 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestQueryPolicy, TestSize.Level1)
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
     std::string policyValue{"InstalledBundleInfoListQuery"};
     MessageParcel data;
+    data.WriteUint32(static_cast<uint32_t>(BundleInfoGetFlag::DEFAULT));
     MessageParcel reply;
     ErrCode ret = queryObj->QueryPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
- * @tc.name: TestConvertBundleInfoList
- * @tc.desc: Test InstalledBundleInfoListQuery::ConvertBundleInfoList func.
+ * @tc.name: TestConvertBundleInfoListItem
+ * @tc.desc: Test InstalledBundleInfoListQuery::ConvertBundleInfoListItem func.
  * @tc.type: FUNC
  */
-HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertBundleInfoList, TestSize.Level1)
+HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertBundleInfoListItem, TestSize.Level1)
 {
     OHOS::AppExecFwk::BundleInfo bundleInfo;
     bundleInfo.name = "com.test.bundlename";
@@ -86,8 +87,9 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertBundleInfoList, TestSize.L
     bundleInfo.applicationInfo = appInfo;
     
     OHOS::EDM::EdmBundleInfo edmBundleInfo;
+    uint32_t edmBundleFlag = static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO);
     std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
-    queryObj->ConvertBundleInfoList(bundleInfo, edmBundleInfo);
+    queryObj->ConvertBundleInfoListItem(edmBundleFlag, bundleInfo, edmBundleInfo);
     ASSERT_TRUE(bundleInfo.name == edmBundleInfo.name);
     ASSERT_TRUE(bundleInfo.applicationInfo.iconPath == edmBundleInfo.applicationInfo.icon);
 }
@@ -192,11 +194,11 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoNormal,
     std::string commonResourceLableA = "resourceInfoLableA";
     std::string commonResourceLableB = "resourceInfoLableB";
     EdmBundleInfo edmBundleInfoA;
-    edmBundleInfoA.applicationInfo.name = commonNameA;
+    edmBundleInfoA.name = commonNameA;
     edmBundleInfoA.applicationInfo.label = "";
 
     EdmBundleInfo edmBundleInfoB;
-    edmBundleInfoB.applicationInfo.name = commonNameB;
+    edmBundleInfoB.name = commonNameB;
     edmBundleInfoB.applicationInfo.label = "";
 
     std::vector<EdmBundleInfo> edmBundleInfos;
@@ -231,11 +233,11 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoNotMatc
     std::string commonResourceLableA = "resourceInfoLableA";
     std::string commonResourceLableB = "resourceInfoLableB";
     EdmBundleInfo edmBundleInfoA;
-    edmBundleInfoA.applicationInfo.name = commonNameA;
+    edmBundleInfoA.name = commonNameA;
     edmBundleInfoA.applicationInfo.label = "";
 
     EdmBundleInfo edmBundleInfoB;
-    edmBundleInfoB.applicationInfo.name = commonNameB;
+    edmBundleInfoB.name = commonNameB;
     edmBundleInfoB.applicationInfo.label = "";
 
     std::vector<EdmBundleInfo> edmBundleInfos;
@@ -267,6 +269,72 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoEmpty, 
     std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
     queryObj->AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
     ASSERT_TRUE(edmBundleInfos.empty());
+}
+
+/**
+ * @tc.name: TestAssembleBundleResourceInfoNormalWithIconData
+ * @tc.desc: Test InstalledBundleInfoListQuery::AssembleBundleResourceInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, TestAssembleBundleResourceInfoNormalWithIconData, TestSize.Level1)
+{
+    std::string commonNameA = "nameA";
+    std::string commonNameB = "nameB";
+    std::string commonResourceLableA = "resourceInfoLableA";
+    std::string commonResourceLableB = "resourceInfoLableB";
+    std::string commonResourceIconDataA = "resourceInfoIconDataA";
+    std::string commonResourceIconDataB = "resourceInfoIconDataB";
+    EdmBundleInfo edmBundleInfoA;
+    edmBundleInfoA.name = commonNameA;
+    edmBundleInfoA.applicationInfo.label = "";
+    edmBundleInfoA.applicationInfo.iconData = "";
+
+    EdmBundleInfo edmBundleInfoB;
+    edmBundleInfoB.name = commonNameB;
+    edmBundleInfoB.applicationInfo.label = "";
+    edmBundleInfoB.applicationInfo.iconData = "";
+
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    edmBundleInfos.emplace_back(edmBundleInfoA);
+    edmBundleInfos.emplace_back(edmBundleInfoB);
+
+    std::vector<OHOS::AppExecFwk::BundleResourceInfo> bundleResourceInfos;
+    OHOS::AppExecFwk::BundleResourceInfo bundleResourceInfoA;
+    bundleResourceInfoA.bundleName = commonNameA;
+    bundleResourceInfoA.label = commonResourceLableA;
+    bundleResourceInfoA.icon = commonResourceIconDataA;
+    OHOS::AppExecFwk::BundleResourceInfo bundleResourceInfoB;
+    bundleResourceInfoB.bundleName = commonNameB;
+    bundleResourceInfoB.label = commonResourceLableB;
+    bundleResourceInfoB.icon = commonResourceIconDataB;
+    bundleResourceInfos.emplace_back(bundleResourceInfoA);
+    bundleResourceInfos.emplace_back(bundleResourceInfoB);
+    
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->AssembleBundleResourceInfo(edmBundleInfos, bundleResourceInfos);
+    ASSERT_EQ(edmBundleInfos[0].applicationInfo.label, commonResourceLableA);
+    ASSERT_EQ(edmBundleInfos[1].applicationInfo.label, commonResourceLableB);
+    ASSERT_EQ(edmBundleInfos[0].applicationInfo.iconData, commonResourceIconDataA);
+    ASSERT_EQ(edmBundleInfos[1].applicationInfo.iconData, commonResourceIconDataB);
+}
+
+/**
+ * @tc.name: TestConvertBundleInfoListData
+ * @tc.desc: Test InstalledBundleInfoListQuery::TestConvertBundleInfoListData func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertBundleInfoListData, TestSize.Level1)
+{
+    std::vector<OHOS::AppExecFwk::BundleInfo> bundleInfos;
+    OHOS::AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "bundleName";
+    bundleInfos.emplace_back(bundleInfo);
+
+    std::vector<EdmBundleInfo> edmBundleInfos;
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertBundleInfoListData(0, bundleInfos, edmBundleInfos);
+    ASSERT_EQ(bundleInfos.size(), edmBundleInfos.size());
+    ASSERT_EQ(bundleInfos[0].name, edmBundleInfos[0].name);
 }
 } // namespace TEST
 } // namespace EDM
