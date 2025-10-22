@@ -865,19 +865,8 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
 napi_value SecurityManagerAddon::SetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetExtensionsFromExternalSourcesPolicy called");
-    auto convertManagedPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
-        int32_t policyInt;
-        bool isUnit = ParseInt(env, policyInt, argv);
-        if (!isUnit) {
-            return false;
-        }
-        data.WriteInt32(policyInt);
-        return true;
-    };
-
     AddonMethodSign addonMethodSign;
-    addonMethodSign.argsConvert = {nullptr, convertManagedPolicy2Data};
+    addonMethodSign.argsConvert = {nullptr, nullptr};
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
     addonMethodSign.name = "SetExternalSourceExtensionsPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
