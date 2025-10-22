@@ -302,7 +302,7 @@ int32_t SecurityManagerProxy::SetExternalSourceExtensionsPolicy(MessageParcel &d
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &data, std::string &policy)
+int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &data, int32_t &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetExternalSourceExtensionsPolicy");
     MessageParcel reply;
@@ -313,7 +313,7 @@ int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &d
         EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    policy = reply.ReadString();
+    policy = reply.ReadInt32();
     return ERR_OK;
 }
 } // namespace EDM

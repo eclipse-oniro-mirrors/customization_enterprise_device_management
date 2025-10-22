@@ -24,6 +24,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "pixel_map_napi.h"
+#include "managed_policy.h"
 
 using namespace OHOS::EDM;
 
@@ -894,16 +895,16 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
     if (result == nullptr) {
         return nullptr;
     }
-    std::string policy;
+    int32_t policy;
     int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
         GetExternalSourceExtensionsPolicy(adapterAddonData.data, policy);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
     }
-    napi_value extensionsFromExternalSources;
-    NAPI_CALL(env, napi_create_string_utf8(env, policy.c_str(), NAPI_AUTO_LENGTH, &extensionsFromExternalSources));
-    return extensionsFromExternalSources;
+    napi_value externalSourceExtensions;
+    NAPI_CALL(env, napi_create_int32(env, policy, &externalSourceExtensions));
+    return externalSourceExtensions;
 }
 
 static napi_module g_securityModule = {
