@@ -136,6 +136,7 @@ private:
         std::shared_ptr<Admin> adminPtr);
     ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
+    void UpdateFreezeExemptedApps(const std::string &bundleName, int32_t userId, int32_t appIndex);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);

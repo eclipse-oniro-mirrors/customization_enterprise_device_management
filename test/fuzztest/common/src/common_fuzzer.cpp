@@ -64,6 +64,7 @@
 #include "manage_auto_start_apps_plugin.h"
 #include "manage_auto_start_apps_serializer.h"
 #include "manage_keep_alive_apps_plugin.h"
+#include "manage_freeze_exempted_apps_plugin.h"
 #include "ntp_server_plugin.h"
 #include "operate_device_plugin.h"
 #include "password_policy_plugin.h"
@@ -164,6 +165,8 @@ const bool REGISTER_USB_READ_ONLY_PLUGIN =
 const bool REGISTER_USER_CERT_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<UserCertPlugin>());
 const bool REGISTER_MANAGE_KEEP_ALIVE_APPS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageKeepAliveAppsPlugin>());
+const bool REGISTER_MANAGE_FREEZE_EXEMPTED_APPS_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageFreezeExemptedAppsPlugin>());
 #ifdef FEATURE_PC_ONLY
 const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());

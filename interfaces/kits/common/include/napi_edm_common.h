@@ -20,6 +20,7 @@
 
 #include "napi/native_api.h"
 #include "want.h"
+#include "application_instance.h"
 
 namespace OHOS {
 namespace EDM {
@@ -68,11 +69,20 @@ bool ParseUint(napi_env env, uint32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseString(napi_env env, std::string &param, napi_value args);
 bool ParseCallback(napi_env env, napi_ref &param, napi_value args);
+napi_value ParseApplicationInstanceArray(napi_env env, std::vector<ApplicationInstance> &applicationInstanceArray,
+    napi_value args);
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args);
 napi_value ParseElementArray(napi_env env, std::vector<AppExecFwk::ElementName> &elementArray, napi_value args);
 bool ParseIntArray(napi_env env, std::vector<int32_t> &intArray, napi_value args);
 bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::vector<char> &ret);
 bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr);
+bool GetAppIdentifierFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAppIdentifier);
+bool GetAccountIdFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAccountId);
+bool GetAppIndexFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAppIndex);
+bool GetAppInstanceFromNAPI(napi_env env, napi_value value, ApplicationInstance &result);
 bool JsObjectToInt(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int32_t &result);
 bool JsObjectToUint(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, uint32_t &result);
 bool JsObjectToLong(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp, int64_t &result);
@@ -94,6 +104,8 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
+void ConvertApplicationInstanceVectorToJS(napi_env env,
+    const std::vector<ApplicationMsg> &ApplicationInstanceVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId);
 bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName);

@@ -221,6 +221,110 @@ bool GetStringFromNAPI(napi_env env, napi_value value, std::string &resultStr)
     return true;
 }
 
+bool GetAppIdentifierFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAppIdentifier)
+{
+    if (napi_get_named_property(env, value, "appIdentifier", &jsAppIdentifier) != napi_ok) {
+        EDMLOGE("GetAppIdentifierFromNAPI can not get appIdentifier property");
+        return false;
+    }
+    if (napi_typeof(env, jsAppIdentifier, &type) != napi_ok || type != napi_string) {
+        EDMLOGE("GetAppIdentifierFromNAPI appIdentifier type error, not a string");
+        return false;
+    }
+    size_t size = 0;
+    if (napi_get_value_string_utf8(env, jsAppIdentifier, nullptr, NAPI_RETURN_ZERO, &size) != napi_ok || size == 0) {
+        EDMLOGE("GetAppIdentifierFromNAPI can not get string size");
+        return false;
+    }
+    result.appIdentifier.resize(size);
+    if (napi_get_value_string_utf8(env, jsAppIdentifier, result.appIdentifier.data(),
+        (size + NAPI_RETURN_ONE), &size) != napi_ok) {
+        EDMLOGE("GetAppIdentifierFromNAPI can not get appIdentifier string value");
+        return false;
+    }
+    if (result.appIdentifier.empty()) {
+        EDMLOGE("GetAppIdentifierFromNAPI appIdentifier is empty");
+        return false;
+    }
+    return true;
+}
+
+bool GetAccountIdFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAccountId)
+{
+    if (napi_get_named_property(env, value, "accountId", &jsAccountId) != napi_ok) {
+        EDMLOGE("GetAccountIdFromNAPI can not get accountId property");
+        return false;
+    }
+    if (napi_typeof(env, jsAccountId, &type) != napi_ok || (type != napi_number && type != napi_undefined)) {
+        EDMLOGE("GetAccountIdFromNAPI accountId type error, not a number");
+        return false;
+    }
+    if (type == napi_undefined) {
+        EDMLOGE("GetAccountIdFromNAPI accountId undefined");
+        return false;
+    }
+    if (napi_get_value_int32(env, jsAccountId, &result.accountId) != napi_ok) {
+        EDMLOGE("GetAccountIdFromNAPI get accountId failed");
+        return false;
+    }
+    if (std::to_string(result.accountId).empty()) {
+        EDMLOGE("GetAccountIdFromNAPI accountId is empty");
+        return false;
+    }
+    return true;
+}
+
+bool GetAppIndexFromNAPI(napi_env env, napi_value value, ApplicationInstance &result,
+    napi_valuetype type, napi_value &jsAppIndex)
+{
+    if (napi_get_named_property(env, value, "appIndex", &jsAppIndex) != napi_ok) {
+        EDMLOGE("GetAppIndexFromNAPI can not get appIndex property");
+        return false;
+    }
+    if (napi_typeof(env, jsAppIndex, &type) != napi_ok || (type != napi_number && type != napi_undefined)) {
+        EDMLOGE("GetAppIndexFromNAPI appIndex type error, not a number");
+        return false;
+    }
+    if (type == napi_undefined) {
+        EDMLOGE("GetAppIndexFromNAPI appIndex undefined");
+        return false;
+    }
+    if (napi_get_value_int32(env, jsAppIndex, &result.appIndex) != napi_ok) {
+        EDMLOGE("GetAppIndexFromNAPI get appIndex failed");
+        return false;
+    }
+    if (std::to_string(result.appIndex).empty()) {
+        EDMLOGE("GetAppIndexFromNAPI appIndex is empty");
+        return false;
+    }
+    return true;
+}
+
+bool GetAppInstanceFromNAPI(napi_env env, napi_value value, ApplicationInstance &result)
+{
+    napi_value jsAppIdentifier;
+    napi_value jsAccountId;
+    napi_value jsAppIndex;
+    napi_valuetype type = napi_undefined;
+
+    if (!GetAppIdentifierFromNAPI(env, value, result, type, jsAppIdentifier)) {
+        return false;
+    }
+    if (!GetAccountIdFromNAPI(env, value, result, type, jsAccountId)) {
+        return false;
+    }
+    if (!GetAppIndexFromNAPI(env, value, result, type, jsAppIndex)) {
+        return false;
+    }
+    if (result.accountId < 0 || result.appIndex < 0) {
+        EDMLOGE("GetAppInstanceFromNAPI accountId or appIndex invalid");
+        return false;
+    }
+    return true;
+}
+
 bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::vector<char> &ret)
 {
     napi_valuetype valuetype;
@@ -245,6 +349,43 @@ bool ParseCharArray(napi_env env, napi_value args, size_t maxLength, std::vector
     ret = buf;
     memset_s(buf.data(), buf.size(), '\0', buf.size());
     return true;
+}
+
+napi_value ParseApplicationInstanceArray(napi_env env, std::vector<ApplicationInstance> &applicationInstanceArray,
+                                         napi_value args)
+{
+    EDMLOGD("begin to parse applicationInstance array");
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        EDMLOGE("napi object is not array.");
+        return nullptr;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
+    EDMLOGD("length=%{public}ud", arrayLength);
+    for (uint32_t j = 0; j < arrayLength; j++) {
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_get_element(env, args, j, &value));
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, value, &valueType));
+        if (valueType != napi_object) {
+            applicationInstanceArray.clear();
+            return nullptr;
+        }
+        ApplicationInstance appInstance;
+        if (!GetAppInstanceFromNAPI(env, value, appInstance)) {
+            return nullptr;
+        }
+        applicationInstanceArray.push_back(appInstance);
+    }
+    // create result code
+    napi_value result;
+    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    return result;
 }
 
 napi_value ParseStringArray(napi_env env, std::vector<std::string> &stringArray, napi_value args)
@@ -613,6 +754,32 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
         napi_value obj = nullptr;
         napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &obj);
         napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
+void ConvertApplicationInstanceVectorToJS(napi_env env,
+    const std::vector<ApplicationMsg> &applicationInstanceVector, napi_value result)
+{
+    EDMLOGD("ApplicationInstance vector size: %{public}zu", applicationInstanceVector.size());
+    size_t idx = 0;
+    for (const auto &item : applicationInstanceVector) {
+        napi_value jsObj = nullptr;
+        napi_create_object(env, &jsObj);
+
+        napi_value jsAppIdentifier = nullptr;
+        napi_create_string_utf8(env, item.bundleName.c_str(), NAPI_AUTO_LENGTH, &jsAppIdentifier);
+        napi_set_named_property(env, jsObj, "bundleName", jsAppIdentifier);
+
+        napi_value jsAccountId = nullptr;
+        napi_create_int32(env, item.accountId, &jsAccountId);
+        napi_set_named_property(env, jsObj, "accountId", jsAccountId);
+
+        napi_value jsAppIndex = nullptr;
+        napi_create_int32(env, item.appIndex, &jsAppIndex);
+        napi_set_named_property(env, jsObj, "appIndex", jsAppIndex);
+
+        napi_set_element(env, result, idx, jsObj);
         idx++;
     }
 }

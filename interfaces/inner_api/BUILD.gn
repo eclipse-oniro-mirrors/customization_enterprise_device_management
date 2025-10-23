@@ -47,6 +47,7 @@ ohos_shared_library("edmservice_kits") {
   sources = [
     "./account_manager/src/account_manager_proxy.cpp",
     "./application_manager/src/application_manager_proxy.cpp",
+    "./application_manager/src/application_instance.cpp",
     "./bluetooth_manager/src/bluetooth_manager_proxy.cpp",
     "./browser/src/browser_proxy.cpp",
     "./bundle_manager/src/bundle_manager_proxy.cpp",
@@ -95,6 +96,7 @@ ohos_shared_library("edmservice_kits") {
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",

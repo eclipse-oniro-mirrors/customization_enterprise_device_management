@@ -62,6 +62,9 @@ public:
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info);
     static napi_value IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info);
+    static napi_value AddFreezeExemptedApps(napi_env env, napi_callback_info info);
+    static napi_value RemoveFreezeExemptedApps(napi_env env, napi_callback_info info);
+    static napi_value GetFreezeExemptedApps(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
@@ -70,6 +73,7 @@ private:
     static napi_value AddOrRemoveDisallowedRunningBundlesSync(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value AddOrRemoveAllowedRunningBundles(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value AddOrRemoveKeepAliveApps(napi_env env, napi_callback_info info, std::string function);
+    static napi_value AddOrRemoveFreezeExemptedApps(napi_env env, napi_callback_info info, std::string function);
 
     static void CreateKioskFeatureObject(napi_env env, napi_value value);
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);

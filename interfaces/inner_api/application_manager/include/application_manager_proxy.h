@@ -18,6 +18,7 @@
 
 #include "clear_up_application_data_param.h"
 #include "enterprise_device_mgr_proxy.h"
+#include "application_instance.h"
 
 namespace OHOS {
 namespace EDM {
@@ -50,6 +51,12 @@ public:
     int32_t IsModifyKeepAliveAppsDisallowed(const AppExecFwk::ElementName &admin, std::string &keepAliveApp,
         int32_t userId, bool &disallowModify);
     int32_t IsModifyAutoStartAppsDisallowed(MessageParcel &data, bool &isDisallowModify);
+    int32_t AddFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+        const std::vector<ApplicationInstance> &freezeExemptedApps, std::string &retMessage);
+    int32_t RemoveFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+        const std::vector<ApplicationInstance> &freezeExemptedApps);
+    int32_t GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+        std::vector<ApplicationMsg> &freezeExemptedApps);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
