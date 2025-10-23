@@ -66,6 +66,7 @@ constexpr const char* LABEL_ID = "labelId";
 constexpr const char* DESCRIPTION = "description";
 constexpr const char* DESCRIPTION_ID = "descriptionId";
 constexpr const char* ICON = "icon";
+constexpr const char* ICON_DATA = "iconData";
 constexpr const char* ICON_ID = "iconId";
 constexpr const char* DEBUG = "debug";
 constexpr const char* APP_INDEX = "appIndex";
@@ -88,6 +89,10 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nAppDistributionType = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nAppDistributionType));
     CreateAppDistributionTypeObject(env, nAppDistributionType);
+    napi_value nBundleInfoGetFlag = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nBundleInfoGetFlag));
+    CreateBundleInfoGetFlagObject(env, nBundleInfoGetFlag);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("addAllowedInstallBundles", AddAllowedInstallBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedInstallBundles", RemoveAllowedInstallBundles),
@@ -118,6 +123,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
             GetInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("installMarketApps", InstallMarketApps),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
+        DECLARE_NAPI_PROPERTY("BundleInfoGetFlag", nBundleInfoGetFlag),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -762,6 +768,31 @@ void BundleManagerAddon::CreateAppDistributionTypeObject(napi_env env, napi_valu
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CROWDTESTING", nCrowdTesting));
 }
 
+void BundleManagerAddon::CreateBundleInfoGetFlagObject(napi_env env, napi_value value)
+{
+    napi_value nGetBundleInfoDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(BundleInfoGetFlag::DEFAULT), &nGetBundleInfoDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nGetBundleInfoDefault));
+    napi_value nGetBundleInfoWithApplicationInfo;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO),
+        &nGetBundleInfoWithApplicationInfo));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WITH_APPLICATION_INFO",
+        nGetBundleInfoWithApplicationInfo));
+    napi_value nGetBundleInfoWithSignInfo;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(BundleInfoGetFlag::WITH_SIGNATURE_INFO), &nGetBundleInfoWithSignInfo));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WITH_SIGNATURE_INFO",
+        nGetBundleInfoWithSignInfo));
+    napi_value nGetBundleInfoWithIconData;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_ICON_INFO),
+        &nGetBundleInfoWithIconData));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WITH_APPLICATION_ICON_INFO",
+        nGetBundleInfoWithIconData));
+}
+
 napi_value BundleManagerAddon::AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddInstallationAllowedAppDistributionTypes called");
@@ -924,8 +955,8 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
 napi_value BundleManagerAddon::GetInstalledBundleList(napi_env env, napi_callback_info info)
 {
     EDMLOGI("GetInstalledBundleList called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -942,6 +973,12 @@ napi_value BundleManagerAddon::GetInstalledBundleList(napi_env env, napi_callbac
         "parameter accountId error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_ONE]),
         "parameter accountId parse error");
+    if (argc >= ARGS_SIZE_THREE) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARGS_SIZE_TWO], napi_number),
+            "parameter bundleInfoGetFlag error");
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseUint(env, asyncCallbackInfo->bundleInfoGetFlag, argv[ARGS_SIZE_TWO]),
+            "parameter bundleInfoGetFlag parse error");
+    }
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetInstalledBundleList",
         NativeGetInstalledBundleList, NativeGetInstalledBundleListComplete);
@@ -963,7 +1000,7 @@ void BundleManagerAddon::NativeGetInstalledBundleList(napi_env env, void *data)
         return;
     }
     asyncCallbackInfo->ret = proxy->GetInstalledBundleInfoList(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->userId, asyncCallbackInfo->bundleInfos);
+        asyncCallbackInfo->userId, asyncCallbackInfo->bundleInfoGetFlag, asyncCallbackInfo->bundleInfos);
 }
 
 void BundleManagerAddon::NativeGetInstalledBundleListComplete(napi_env env, napi_status status, void *data)
@@ -1120,6 +1157,10 @@ void BundleManagerAddon::ConvertApplicationInfo(napi_env env, napi_value objAppI
     napi_value nIconId;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, appInfo.iconId, &nIconId));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ICON_ID, nIconId));
+
+    napi_value nIconData;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.iconData.c_str(), NAPI_AUTO_LENGTH, &nIconData));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, ICON_DATA, nIconData));
 
     napi_value nProcess;
     NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, appInfo.process.c_str(), NAPI_AUTO_LENGTH, &nProcess));

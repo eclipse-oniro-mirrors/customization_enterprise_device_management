@@ -26,6 +26,13 @@
 
 namespace OHOS {
 namespace EDM {
+enum class BundleInfoGetFlag : uint32_t {
+    DEFAULT = 0x00000000,
+    WITH_APPLICATION_INFO = 0x00000001,
+    WITH_SIGNATURE_INFO = 0x00000002,
+    WITH_APPLICATION_ICON_INFO = 0x00000004
+};
+
 struct EdmSignatureInfo : public Parcelable {
     std::string appId;
     std::string fingerprint;
