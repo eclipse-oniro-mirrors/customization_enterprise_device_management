@@ -69,7 +69,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY, EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE,
     EdmInterfaceCode::DISABLED_PRINT, EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
     EdmInterfaceCode::DISABLED_APP_CLONE, EdmInterfaceCode::DISABLED_HDC_REMOTE,
-    EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP
+    EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
+    EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
