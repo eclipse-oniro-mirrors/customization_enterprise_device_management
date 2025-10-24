@@ -86,6 +86,31 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
+napi_value AdminManager::EnableDeviceAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_EnableDeviceAdmin called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncEnableAdminCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncEnableAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+    EDMLOGD("EnableDeviceAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s", asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "EnableDeviceAdmin",
+        NativeEnableDeviceAdmin, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
 int32_t AdminManager::JsAdminTypeToAdminType(int32_t jsAdminType)
 {
     if (jsAdminType == JS_BYOD_TYPE) {
@@ -169,6 +194,17 @@ void AdminManager::NativeEnableAdmin(napi_env env, void *data)
 #endif
     asyncCallbackInfo->ret = proxy->EnableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
         ParseAdminType(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
+}
+
+void AdminManager::NativeEnableDeviceAdmin(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncEnableAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncEnableAdminCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    asyncCallbackInfo->ret = proxy->EnableDeviceAdmin(asyncCallbackInfo->elementName);
 }
 
 bool AdminManager::CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,
@@ -269,6 +305,47 @@ void AdminManager::NativeDisableAdmin(napi_env env, void *data)
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
 
     asyncCallbackInfo->ret = proxy->DisableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->userId);
+}
+
+napi_value AdminManager::DisableDeviceAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_DisableDeviceAdmin called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncDisableAdminCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncDisableAdminCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+
+    EDMLOGD(
+        "DisableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "DisableDeviceAdmin",
+        NativeDisableDeviceAdmin, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void AdminManager::NativeDisableDeviceAdmin(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeDisableDeviceAdmin called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncDisableAdminCallbackInfo *asyncCallbackInfo = static_cast<AsyncDisableAdminCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+
+    asyncCallbackInfo->ret = proxy->DisableDeviceAdmin(asyncCallbackInfo->elementName);
 }
 
 napi_value AdminManager::DisableSuperAdmin(napi_env env, napi_callback_info info)
@@ -1178,6 +1255,8 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAdmins", GetAdmins),
         DECLARE_NAPI_FUNCTION("replaceSuperAdmin", ReplaceSuperAdmin),
         DECLARE_NAPI_FUNCTION("setAdminRunningMode", SetAdminRunningMode),
+        DECLARE_NAPI_FUNCTION("enableDeviceAdmin", EnableDeviceAdmin),
+        DECLARE_NAPI_FUNCTION("disableDeviceAdmin", DisableDeviceAdmin),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),

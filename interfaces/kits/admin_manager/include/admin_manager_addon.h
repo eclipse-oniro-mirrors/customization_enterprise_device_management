@@ -118,6 +118,8 @@ private:
     static napi_value GetAdmins(napi_env env, napi_callback_info info);
     static napi_value ReplaceSuperAdmin(napi_env env, napi_callback_info info);
     static napi_value SetAdminRunningMode(napi_env env, napi_callback_info info);
+    static napi_value EnableDeviceAdmin(napi_env env, napi_callback_info info);
+    static napi_value DisableDeviceAdmin(napi_env env, napi_callback_info info);
 
     static void NativeEnableAdmin(napi_env env, void *data);
     static void NativeDisableSuperAdmin(napi_env env, void *data);
@@ -129,6 +131,8 @@ private:
     static void NativeSubscribeManagedEvent(napi_env env, void *data);
     static void NativeGetEnterpriseInfoComplete(napi_env env, napi_status status, void *data);
     static void NativeAuthorizeAdmin(napi_env env, void *data);
+    static void NativeEnableDeviceAdmin(napi_env env, void *data);
+    static void NativeDisableDeviceAdmin(napi_env env, void *data);
 
     static void ConvertEnterpriseInfo(napi_env env, napi_value objEntInfo, EntInfo &entInfo);
     static bool ParseEnterpriseInfo(napi_env env, EntInfo &enterpriseInfo, napi_value args);

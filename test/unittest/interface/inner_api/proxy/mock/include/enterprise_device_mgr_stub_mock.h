@@ -74,6 +74,8 @@ public:
     MOCK_METHOD(int, UnloadInstallMarketAppsPlugin, (), (override));
     MOCK_METHOD(int, ReportAgInstallStatus, (const std::string &, const std::string &, int32_t),
         (override));
+    MOCK_METHOD(int, EnableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
+    MOCK_METHOD(int, DisableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
