@@ -216,6 +216,7 @@ namespace EdmConstants {
 } // namespace EdmConstants
 
 namespace EdmPermission {
+    const char* const PERMISSION_DENIED = "PERMISSION_DENIED";
     // api 9
     const char* const PERMISSION_ENTERPRISE_SET_DATETIME = "ohos.permission.ENTERPRISE_SET_DATETIME";
     const char* const PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT =
@@ -259,6 +260,7 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    const char* const PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PROVISIONING_MESSAGE";
     // api 20
     const char* const PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
@@ -268,6 +270,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION =
         "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
+    // api 23
+    const char* const PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN = "ohos.permission.ENTERPRISE_MANAGE_DEVICE_ADMIN";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

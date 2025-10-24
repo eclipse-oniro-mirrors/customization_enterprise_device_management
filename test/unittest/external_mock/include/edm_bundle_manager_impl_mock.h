@@ -41,6 +41,7 @@ public:
         AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId), (override));
     MOCK_METHOD(ErrCode, DeleteAppInstallControlRule, (AppExecFwk::AppInstallControlRuleType controlRuleType,
         std::vector<std::string> &data, int32_t userId), (override));
+    MOCK_METHOD(bool, SetDisallowedUninstall, (const std::string &bundleName, bool state), (override));
 };
 } // namespace EDM
 } // namespace OHOS

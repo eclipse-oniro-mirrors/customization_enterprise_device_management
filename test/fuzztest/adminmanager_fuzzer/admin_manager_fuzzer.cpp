@@ -31,7 +31,7 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 64;
 
-void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
+void InitAdminParam(AdminInfo &adminInfo, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
 {
     AdminInfo fuzzAdminInfo;
     fuzzAdminInfo.packageName_ = fuzzString;
@@ -40,7 +40,7 @@ void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, Manag
     fuzzAdminInfo.permission_ = { fuzzString };
     fuzzAdminInfo.managedEvents_ = { event };
     fuzzAdminInfo.parentAdminName_ = fuzzString;
-    admin.adminInfo_ = fuzzAdminInfo;
+    adminInfo = fuzzAdminInfo;
 }
 
 void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
@@ -50,7 +50,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     std::string fuzzString(reinterpret_cast<const char*>(data), size);
     std::vector<std::string> permissions = { fuzzString };
     ManagedEvent event = GetData<ManagedEvent>();
-    Admin admin;
+    AdminInfo admin;
     EntInfo entInfo;
     entInfo.enterpriseName = fuzzString;
     entInfo.description = fuzzString;
@@ -72,7 +72,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     uint32_t fuzzEvent = GetData<uint32_t>();
     std::vector<uint32_t> events = { fuzzEvent };
     adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
-    adminManager->SetAdminValue(userId, admin.adminInfo_);
+    adminManager->SetAdminValue(userId, admin);
     adminManager->GetAdminByPkgName(packageName, userId);
     adminManager->DeleteAdmin(packageName, userId);
     adminManager->IsSuperAdminExist();
@@ -81,37 +81,28 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->IsByodAdmin(bundleName, userId);
     adminManager->IsSuperOrSubSuperAdmin(bundleName);
     adminManager->GetEnabledAdmin(role, packageNameList, userId);
-    adminManager->GetSubOrSuperOrByodAdminByPkgName(subAdminName, subOrSuperAdmin);
+    adminManager->GetAllowedAcrossAccountSetPolicyAdmin(subAdminName, subOrSuperAdmin);
     adminManager->GetSubSuperAdminsByParentName(parentName, subAdmins);
     adminManager->SaveSubscribeEvents(events, bundleName, userId);
     adminManager->RemoveSubscribeEvents(events, bundleName, userId);
     adminManager->GetSuperAdmin();
 
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    Admin adminItem = admin;
-    Admin adminItem1(abilityInfo, role, entInfo, permissions, true);
-    adminItem1 = admin;
-    Admin adminItem2(bundleName, role, permissions);
-    adminItem1.SetParentAdminName(fuzzString);
-    adminItem1.GetParentAdminName();
-    adminItem2.CheckPermission(fuzzString);
+    AdminInfo adminInfo = {.entInfo_ =entInfo, .permission_ = permissions, .adminType_ = role, .isDebug_ = true};
     std::shared_ptr<Admin> getAdmin = std::make_shared<Admin>(admin);
     std::string policyName(reinterpret_cast<const char*>(data), size);
     adminManager->SetEntInfo(getAdmin, entInfo, userId);
-    adminManager->UpdateAdmin(getAdmin, userId, adminItem.adminInfo_);
-    adminManager->ReplaceSuperAdminByPackageName(parentName, adminItem);
+    adminManager->UpdateAdmin(userId, adminInfo, 0x1FF);
+    adminManager->ReplaceSuperAdminByPackageName(parentName, adminInfo);
     adminManager->GetPoliciesByVirtualAdmin(bundleName, parentName, subAdmins);
     adminManager->GetVirtualAdminsByPolicy(policyName, parentName, packageNameList);
-    adminManager->HasPermissionToHandlePolicy(getAdmin, policyName);
     adminManager->Dump();
     adminManager->ClearAdmins();
     adminManager->InsertAdmins(userId, adminPtrVec);
     adminManager->IsAdminExist();
     adminManager->GetAdmins(adminPtrVec, userId);
     adminManager->GetSubSuperAdmins(userId, adminPtrVec);
-    adminManager->SetAdminValue(0, adminItem1.adminInfo_);
-    adminManager->SetAdminValue(0, adminItem2.adminInfo_);
-    AdminContainer::GetInstance()->UpdateAdmin(0, bundleName, 0x1FF, adminItem2);
+    adminManager->SetAdminValue(0, adminInfo);
+    AdminContainer::GetInstance()->UpdateAdmin(0, bundleName, 0x1FF, adminInfo);
 }
 
 // Fuzzer entry point.

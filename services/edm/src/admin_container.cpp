@@ -14,6 +14,13 @@
  */
 
 #include "admin_container.h"
+
+#include "byod_admin.h"
+#include "device_admin.h"
+#include "sub_super_device_admin.h"
+#include "super_device_admin.h"
+#include "virtual_device_admin.h"
+#include "edm_constants.h"
 #include "edm_log.h"
  
 namespace OHOS {
@@ -45,9 +52,13 @@ void AdminContainer::SetAdminByUserId(int32_t userId, const AdminInfo &adminItem
     std::vector<std::shared_ptr<Admin>> userAdmin;
     GetAdminByUserId(userId, userAdmin);
 
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(adminItem);
-    userAdmin.emplace_back(admin);
-    admins_[userId] = userAdmin;
+    std::shared_ptr<Admin> admin = CreateAdmin(adminItem);
+    if (admin != nullptr) {
+        userAdmin.emplace_back(admin);
+        admins_[userId] = userAdmin;
+    } else {
+        EDMLOGE("SetAdminByUserId::failed to create admin for accountID.");
+    }
 }
 
 bool AdminContainer::DeleteAdmin(const std::string &packageName, int32_t userId)
@@ -78,7 +89,10 @@ bool AdminContainer::GetAdminCopyByUserId(int32_t userId, std::vector<std::share
         return false;
     }
     for (const auto &item : iter->second) {
-        admins.emplace_back(std::make_shared<Admin>(*item));
+        auto admin = CreateAdmin(item->adminInfo_);
+        if (admin != nullptr) {
+            admins.emplace_back(admin);
+        }
     }
     return true;
 }
@@ -91,8 +105,12 @@ void AdminContainer::GetAdminCopyBySubscribeEvent(ManagedEvent event,
         std::vector<std::shared_ptr<Admin>> subAdmin;
         for (const auto &it : adminItem.second) {
             std::vector<ManagedEvent> events = it->adminInfo_.managedEvents_;
-            if (std::find(events.begin(), events.end(), event) != events.end()) {
-                subAdmin.push_back(std::make_shared<Admin>(*it));
+            if (std::find(events.begin(), events.end(), event) == events.end()) {
+                continue;
+            }
+            auto admin = CreateAdmin(it->adminInfo_);
+            if (admin != nullptr) {
+                subAdmin.push_back(admin);
             }
         }
         if (!subAdmin.empty()) {
@@ -130,7 +148,7 @@ bool AdminContainer::IsAdminExist()
 }
 
 void AdminContainer::UpdateAdmin(int32_t userId, const std::string &packageName, uint32_t updateCode,
-    const Admin &adminItem)
+    const AdminInfo &adminInfo)
 {
     WriteLock lock(adminMutex_);
     std::vector<std::shared_ptr<Admin>> userAdmin;
@@ -141,34 +159,34 @@ void AdminContainer::UpdateAdmin(int32_t userId, const std::string &packageName,
     for (const auto &item : userAdmin) {
         if (item->adminInfo_.packageName_ == packageName) {
             if (updateCode & PACKAGE_NAME) {
-                item->adminInfo_.packageName_ = adminItem.adminInfo_.packageName_;
+                item->adminInfo_.packageName_ = adminInfo.packageName_;
             }
             if (updateCode & CLASS_NAME) {
-                item->adminInfo_.className_ = adminItem.adminInfo_.className_;
+                item->adminInfo_.className_ = adminInfo.className_;
             }
             if (updateCode & ENTI_NFO) {
-                item->adminInfo_.entInfo_ = adminItem.adminInfo_.entInfo_;
+                item->adminInfo_.entInfo_ = adminInfo.entInfo_;
             }
             if (updateCode & PERMISSION) {
-                item->adminInfo_.permission_ = adminItem.adminInfo_.permission_;
+                item->adminInfo_.permission_ = adminInfo.permission_;
             }
             if (updateCode & MANAGED_EVENTS) {
-                item->adminInfo_.managedEvents_ = adminItem.adminInfo_.managedEvents_;
+                item->adminInfo_.managedEvents_ = adminInfo.managedEvents_;
             }
             if (updateCode & PARENT_ADMIN_NAME) {
-                item->adminInfo_.parentAdminName_ = adminItem.adminInfo_.parentAdminName_;
+                item->adminInfo_.parentAdminName_ = adminInfo.parentAdminName_;
             }
             if (updateCode & ACCESSIBLE_POLICIES) {
-                item->adminInfo_.accessiblePolicies_ = adminItem.adminInfo_.accessiblePolicies_;
+                item->adminInfo_.accessiblePolicies_ = adminInfo.accessiblePolicies_;
             }
             if (updateCode & ADMIN_TYPE) {
-                item->adminInfo_.adminType_ = adminItem.adminInfo_.adminType_;
+                item->adminInfo_.adminType_ = adminInfo.adminType_;
             }
             if (updateCode & IS_DEBUG) {
-                item->adminInfo_.isDebug_ = adminItem.adminInfo_.isDebug_;
+                item->adminInfo_.isDebug_ = adminInfo.isDebug_;
             }
             if (updateCode & RUNNING_MODE) {
-                item->adminInfo_.runningMode_ = adminItem.adminInfo_.runningMode_;
+                item->adminInfo_.runningMode_ = adminInfo.runningMode_;
             }
         }
     }
@@ -194,10 +212,20 @@ void AdminContainer::UpdateParentAdminName(int32_t userId, const std::string &pa
     }
 }
 
-void AdminContainer::InitAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins)
+void AdminContainer::InitAdmins(std::unordered_map<int32_t, std::vector<AdminInfo>> adminInfos)
 {
     WriteLock lock(adminMutex_);
-    admins_ = admins;
+    for (const auto &entry : adminInfos) {
+        EDMLOGI("AdminContainer::Dump %{public}d.", entry.first);
+        auto &itemList = admins_[entry.first];
+        itemList.clear();
+        for (const auto &adminInfo : entry.second) {
+            auto admin = CreateAdmin(adminInfo);
+            if (admin != nullptr) {
+                itemList.push_back(admin);
+            }
+        }
+    }
 }
 
 void AdminContainer::Dump()
@@ -226,6 +254,49 @@ void AdminContainer::InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Ad
 {
     WriteLock lock(adminMutex_);
     admins_[userId] = admins;
+}
+
+std::shared_ptr<Admin> AdminContainer::CreateAdmin(const AdminInfo &adminInfo)
+{
+    switch (adminInfo.adminType_) {
+        case AdminType::ENT:
+            return std::make_shared<SuperDeviceAdmin>(adminInfo);
+        case AdminType::NORMAL:
+            return std::make_shared<DeviceAdmin>(adminInfo);
+        case AdminType::BYOD:
+            return std::make_shared<ByodAdmin>(adminInfo);
+        case AdminType::VIRTUAL_ADMIN:
+            return std::make_shared<VirtualDeviceAdmin>(adminInfo);
+        case AdminType::SUB_SUPER_ADMIN:
+            return std::make_shared<SubSuperDeviceAdmin>(adminInfo);
+        default:
+            return nullptr;
+    }
+}
+
+bool AdminContainer::IsExistTargetAdmin(bool isDebug)
+{
+    ReadLock lock(adminMutex_);
+    return std::any_of(admins_.begin(), admins_.end(), [&](const auto &entry) {
+        return std::any_of(entry.second.begin(), entry.second.end(), [&](auto item) {
+            return item->adminInfo_.isDebug_ == isDebug;
+        });
+    });
+}
+
+int32_t AdminContainer::GetSuperDeviceAdminAndDeviceAdminCount()
+{
+    ReadLock lock(adminMutex_);
+    int32_t count = 0;
+    if (admins_.find(EdmConstants::DEFAULT_USER_ID) == admins_.end()) {
+        return count;
+    }
+    for (const auto &item : admins_[EdmConstants::DEFAULT_USER_ID]) {
+        if (item->adminInfo_.adminType_ == AdminType::ENT || item->adminInfo_.adminType_ == AdminType::NORMAL) {
+            count++;
+        }
+    }
+    return count;
 }
 } // namespace EDM
 } // namespace OHOS

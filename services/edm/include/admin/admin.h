@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,10 +19,10 @@
 #include <string>
 #include <vector>
 
-#include "ability_info.h"
 #include "admin_type.h"
 #include "edm_errors.h"
 #include "ent_info.h"
+#include "func_code.h"
 #include "managed_event.h"
 #include "running_mode.h"
 #include "parcel_macro.h"
@@ -44,18 +44,17 @@ struct AdminInfo {
 
 class Admin {
 public:
-    Admin() = default;
-    Admin(const AdminInfo& other);
-    Admin& operator=(const AdminInfo& other);
-    Admin(const AppExecFwk::ExtensionAbilityInfo &abilityInfo, AdminType type, const EntInfo &entInfo,
-        const std::vector<std::string> &permissions, bool isDebug);
-    Admin(const std::string &bundleName, AdminType type, const std::vector<std::string> &permissions);
-    void SetParentAdminName(const std::string &parentAdminName);
-    void SetAccessiblePolicies(const std::vector<std::string> &accessiblePolicies);
-    virtual bool CheckPermission(const std::string &permission);
-    virtual AdminType GetAdminType() const;
-    virtual std::string GetParentAdminName() const;
+    Admin(const AdminInfo& adminInfo);
     virtual ~Admin() = default;
+    AdminType GetAdminType() const;
+    std::string GetParentAdminName() const;
+    virtual bool IsSuperAdmin() const;
+    virtual bool IsDisallowedUninstall() const;
+    virtual bool IsEnterpriseAdminKeepAlive() const;
+    virtual bool IsAllowedAcrossAccountSetPolicy() const;
+    virtual bool HasPermissionToCallServiceCode(uint32_t interfaceCode) const;
+    virtual bool HasPermissionToHandlePolicy(const std::string &policyName, FuncOperateType operateType) const;
+    virtual std::string GetDisableSelfPermission() const;
     AdminInfo adminInfo_;
 };
 } // namespace EDM

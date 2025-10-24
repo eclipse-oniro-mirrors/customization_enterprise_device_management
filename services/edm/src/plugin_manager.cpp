@@ -26,7 +26,6 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
-#include "permission_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -192,30 +191,9 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         return false;
     }
     EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
-    return AddPluginInner(plugin);
-}
-
-bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin)
-{
-    if (plugin == nullptr) {
-        return false;
-    }
-    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     std::vector<IPlugin::PolicyPermissionConfig> configs = plugin->GetAllPermission();
     if (configs.empty()) {
         return false;
-    }
-    for (auto &config : configs) {
-        for (auto &typePermission : config.typePermissions) {
-            PermissionManager::GetInstance()->AddPermission(typePermission.second,
-                typePermission.first, plugin->GetCode());
-        }
-        for (auto &tagPermission : config.tagPermissions) {
-            for (auto &typePermission : tagPermission.second) {
-                PermissionManager::GetInstance()->AddPermission(typePermission.second,
-                    typePermission.first, plugin->GetCode());
-            }
-        }
     }
     pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
     pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));

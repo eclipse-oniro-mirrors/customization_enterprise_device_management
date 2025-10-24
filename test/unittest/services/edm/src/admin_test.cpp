@@ -15,7 +15,13 @@
 
 #include <gtest/gtest.h>
 
-#include "admin.h"
+#include "byod_admin.h"
+#include "device_admin.h"
+#include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
+#include "sub_super_device_admin.h"
+#include "super_device_admin.h"
+#include "virtual_device_admin.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -23,57 +29,8 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
-const std::string TEST_PERMISSION_FAIL = "ohos.permission.EDM_TEST_PERMISSION_FAIL";
 const std::string TEST_BUNDLE_NAME = "com.edm.test.demo";
-const std::string TEST_ABILITY_NAME = "com.edm.test.demo.Ability";
 class AdminTest : public testing::Test {};
-/**
- * @tc.name: TestCheckPermissionWithPermissionEmpty
- * @tc.desc: Test AdminManager::CheckPermission.
- * @tc.type: FUNC
- */
-HWTEST_F(AdminTest, TestCheckPermissionWithPermissionEmpty, TestSize.Level1)
-{
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::ENT, entInfo, permissions, true);
-    bool ret = admin->CheckPermission(TEST_PERMISSION);
-    ASSERT_FALSE(ret);
-}
-
-/**
- * @tc.name: TestCheckPermissionWithInvalidPermission
- * @tc.desc: Test AdminManager::CheckPermission.
- * @tc.type: FUNC
- */
-HWTEST_F(AdminTest, TestCheckPermissionWithInvalidPermission, TestSize.Level1)
-{
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    permissions.push_back(TEST_PERMISSION_FAIL);
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::ENT, entInfo, permissions, true);
-    bool ret = admin->CheckPermission(TEST_PERMISSION);
-    ASSERT_FALSE(ret);
-}
-
-/**
- * @tc.name: TestCheckPermission
- * @tc.desc: Test AdminManager::CheckPermission.
- * @tc.type: FUNC
- */
-HWTEST_F(AdminTest, TestCheckPermission, TestSize.Level1)
-{
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    permissions.push_back(TEST_PERMISSION);
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::ENT, entInfo, permissions, true);
-    bool ret = admin->CheckPermission(TEST_PERMISSION);
-    ASSERT_TRUE(ret);
-}
 
 /**
  * @tc.name: TestGetAdminTypeWithSuperAdmin
@@ -82,87 +39,156 @@ HWTEST_F(AdminTest, TestCheckPermission, TestSize.Level1)
  */
 HWTEST_F(AdminTest, TestGetAdminTypeWithSuperAdmin, TestSize.Level1)
 {
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::ENT, entInfo, permissions, true);
-    AdminType adminType = admin->GetAdminType();
-    ASSERT_TRUE(adminType == AdminType::ENT);
+    AdminInfo adminInfo = {.parentAdminName_ = TEST_BUNDLE_NAME, .adminType_ = AdminType::ENT};
+    std::shared_ptr<Admin> admin = std::make_shared<Admin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::ENT);
+    EXPECT_EQ(admin->GetParentAdminName(), TEST_BUNDLE_NAME);
+    EXPECT_EQ(admin->IsSuperAdmin(), true);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), false);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), false);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), false);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
 }
 
 /**
- * @tc.name: TestGetAdminTypeWithNormalAdmin
+ * @tc.name: TestByodAdmin
+ * @tc.desc: Test ByodAdmin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminTest, TestByodAdmin, TestSize.Level1)
+{
+    AdminInfo adminInfo;
+    std::shared_ptr<Admin> admin = std::make_shared<ByodAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::BYOD);
+    EXPECT_TRUE(admin->GetParentAdminName().empty());
+    EXPECT_EQ(admin->IsSuperAdmin(), false);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), true);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), false);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_ADD_OS_ACCOUNT, FuncOperateType::SET), false);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_GET_ADMINPROVISION_INFO);
+}
+
+/**
+ * @tc.name: TestDeviceAdmin
+ * @tc.desc: Test DeviceAdmin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminTest, TestDeviceAdmin, TestSize.Level1)
+{
+    AdminInfo adminInfo;
+    std::shared_ptr<Admin> admin = std::make_shared<DeviceAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::NORMAL);
+    EXPECT_TRUE(admin->GetParentAdminName().empty());
+    EXPECT_EQ(admin->IsSuperAdmin(), false);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), false);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), true);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_DELEGATED_POLICIES), false);
+#ifdef FEATURE_PC_ONLY
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN);
+#else
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_SET_BROWSER_POLICIES, FuncOperateType::GET), true);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_MANAGED_BROWSER_POLICY, FuncOperateType::GET),
+        true);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_SET_BROWSER_POLICIES, FuncOperateType::SET), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_MANAGED_BROWSER_POLICY, FuncOperateType::SET),
+        false);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
+#endif
+}
+
+/**
+ * @tc.name: TestSubSuperDeviceAdmin
+ * @tc.desc: Test SubSuperDeviceAdmin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminTest, TestSubSuperDeviceAdmin, TestSize.Level1)
+{
+    AdminInfo adminInfo = {.parentAdminName_ = TEST_BUNDLE_NAME, .adminType_ = AdminType::ENT};
+    std::shared_ptr<Admin> admin = std::make_shared<SubSuperDeviceAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::SUB_SUPER_ADMIN);
+    EXPECT_EQ(admin->GetParentAdminName(), TEST_BUNDLE_NAME);
+    EXPECT_EQ(admin->IsSuperAdmin(), false);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), false);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), true);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestSuperDeviceAdmin
  * @tc.desc: Test AdminManager::GetAdminType.
  * @tc.type: FUNC
  */
-HWTEST_F(AdminTest, TestGetAdminTypeWithNormalAdmin, TestSize.Level1)
+HWTEST_F(AdminTest, TestSuperDeviceAdmin, TestSize.Level1)
 {
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::NORMAL, entInfo, permissions, true);
-    AdminType adminType = admin->GetAdminType();
-    ASSERT_TRUE(adminType == AdminType::NORMAL);
+    AdminInfo adminInfo;
+    std::shared_ptr<Admin> admin = std::make_shared<SuperDeviceAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::ENT);
+    EXPECT_TRUE(admin->GetParentAdminName().empty());
+    EXPECT_EQ(admin->IsSuperAdmin(), true);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), true);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), true);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::IS_BYOD_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN);
 }
 
 /**
- * @tc.name: TestGetAdminTypeWithUnknownAdmin
- * @tc.desc: Test AdminManager::GetAdminType.
+ * @tc.name: TestVirtualDeviceAdmin
+ * @tc.desc: Test VirtualDeviceAdmin.
  * @tc.type: FUNC
  */
-HWTEST_F(AdminTest, TestGetAdminTypeWithUnknownAdmin, TestSize.Level1)
+HWTEST_F(AdminTest, TestVirtualDeviceAdmin, TestSize.Level1)
 {
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::UNKNOWN, entInfo, permissions, true);
-    AdminType adminType = admin->GetAdminType();
-    ASSERT_TRUE(adminType == AdminType::UNKNOWN);
+    AdminInfo adminInfo = {.parentAdminName_ = TEST_BUNDLE_NAME,
+        .accessiblePolicies_ = {PolicyName::POLICY_DISABLED_BLUETOOTH}, .adminType_ = AdminType::ENT};
+    std::shared_ptr<Admin> admin = std::make_shared<VirtualDeviceAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::VIRTUAL_ADMIN);
+    EXPECT_EQ(admin->GetParentAdminName(), TEST_BUNDLE_NAME);
+    EXPECT_EQ(admin->IsSuperAdmin(), false);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), false);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLE_USB, FuncOperateType::SET), false);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
 }
 
 /**
- * @tc.name: TestGetParentAdminNameWithSuperAdmin
- * @tc.desc: Test AdminManager::GetParentAdminName.
+ * @tc.name: TestVirtualDeviceAdminWithAllowAllPolicy
+ * @tc.desc: Test VirtualDeviceAdmin.
  * @tc.type: FUNC
  */
-HWTEST_F(AdminTest, TestGetParentAdminNameWithSuperAdmin, TestSize.Level1)
+HWTEST_F(AdminTest, TestVirtualDeviceAdminWithAllowAllPolicy, TestSize.Level1)
 {
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::ENT, entInfo, permissions, true);
-    std::string parentAdminName = admin->GetParentAdminName();
-    ASSERT_TRUE(parentAdminName.empty());
-}
-
-/**
- * @tc.name: TestGetParentAdminNameWithNormalAdmin
- * @tc.desc: Test AdminManager::GetParentAdminName.
- * @tc.type: FUNC
- */
-HWTEST_F(AdminTest, TestGetParentAdminNameWithNormalAdmin, TestSize.Level1)
-{
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::NORMAL, entInfo, permissions, true);
-    std::string parentAdminName = admin->GetParentAdminName();
-    ASSERT_TRUE(parentAdminName.empty());
-}
-
-/**
- * @tc.name: TestGetParentAdminNameWithUnknownAdmin
- * @tc.desc: Test AdminManager::GetParentAdminName.
- * @tc.type: FUNC
- */
-HWTEST_F(AdminTest, TestGetParentAdminNameWithUnknownAdmin, TestSize.Level1)
-{
-    AppExecFwk::ExtensionAbilityInfo abilityInfo;
-    EntInfo entInfo;
-    std::vector<std::string> permissions;
-    std::shared_ptr<Admin> admin = std::make_shared<Admin>(abilityInfo, AdminType::UNKNOWN, entInfo, permissions, true);
-    std::string parentAdminName = admin->GetParentAdminName();
-    ASSERT_TRUE(parentAdminName.empty());
+    AdminInfo adminInfo = {.parentAdminName_ = TEST_BUNDLE_NAME,
+        .accessiblePolicies_ = {"allow_all"}, .adminType_ = AdminType::ENT};
+    std::shared_ptr<Admin> admin = std::make_shared<VirtualDeviceAdmin>(adminInfo);
+    EXPECT_EQ(admin->GetAdminType(), AdminType::VIRTUAL_ADMIN);
+    EXPECT_EQ(admin->GetParentAdminName(), TEST_BUNDLE_NAME);
+    EXPECT_EQ(admin->IsSuperAdmin(), false);
+    EXPECT_EQ(admin->IsDisallowedUninstall(), false);
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
+    EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
+    EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLE_USB, FuncOperateType::SET), true);
 }
 } // namespace TEST
 } // namespace EDM

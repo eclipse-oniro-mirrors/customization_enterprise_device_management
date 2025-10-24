@@ -122,6 +122,34 @@ HWTEST_F(PermissionCheckerTest, TestVerifyCallingPermissionFalse, TestSize.Level
     bool ret = permissionChecker_->VerifyCallingPermission(tokenId, "per");
     ASSERT_FALSE(ret);
 }
+
+/**
+ * @tc.name: TestGetAdminGrantedPermission
+ * @tc.desc: Test PermissionChecker GetAdminGrantedPermission func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestGetAdminGrantedPermission, TestSize.Level1)
+{
+    std::vector<std::string> permissions = {EdmPermission::PERMISSION_ENTERPRISE_OPERATE_DEVICE, "test"};
+    std::vector<std::string> permissionList;
+    permissionChecker_->GetAdminGrantedPermission(permissions, permissionList);
+    EXPECT_EQ(permissionList.size(), 1);
+}
+
+/**
+ * @tc.name: TestVCheckIsSystemApp
+ * @tc.desc: Test PermissionChecker CheckIsSystemApp func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestVCheckIsSystemApp, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall)
+        .Times(2)
+        .WillOnce(DoAll(Return(false)))
+        .WillOnce(DoAll(Return(true)));
+    EXPECT_FALSE(permissionChecker_->CheckIsSystemApp());
+    EXPECT_TRUE(permissionChecker_->CheckIsSystemApp());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

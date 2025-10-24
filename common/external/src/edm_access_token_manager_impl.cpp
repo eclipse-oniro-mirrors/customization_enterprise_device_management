@@ -106,5 +106,15 @@ bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::stri
 
     return true;
 }
+
+std::string EdmAccessTokenManagerImpl::GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId)
+{
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
+        EDMLOGE("EdmAccessTokenManagerImpl GetHapTokenInfo failed.");
+        return "";
+    }
+    return hapTokenInfo.bundleName;
+}
 } // namespace EDM
 } // namespace OHOS

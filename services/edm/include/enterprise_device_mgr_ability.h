@@ -129,13 +129,15 @@ private:
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
     ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
         int32_t userId);
-    ErrCode CheckDelegatedPolicies(std::shared_ptr<Admin> admin, const std::vector<std::string> &policies);
+    ErrCode CheckDelegatedPolicies(AdminType adminType, const std::vector<std::string> &policies);
     ErrCode CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
-    ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const Admin &edmAdmin,
-        std::shared_ptr<Admin> adminPtr);
-    ErrCode AddDisallowUninstallApp(const std::string &bundleName, int32_t userId = EdmConstants::DEFAULT_USER_ID);
+    ErrCode HandleKeepPolicy(std::string &adminName, std::string &newAdminName, const AdminInfo &edmAdminInfo,
+        const AdminInfo &oldAdminInfo);
+    ErrCode AddDisallowUninstallApp(const std::string &bundleName);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
+    ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
+    ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
@@ -167,7 +169,9 @@ private:
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
-    bool CheckDisableAdmin(const std::string &bundleName, AdminType adminType, bool isDebug);
+    ErrCode CheckDisableAdmin(std::shared_ptr<Admin> admin, AdminType adminType);
+    bool CheckDelegatedBundle(const std::string &bundleName, int32_t userId);
+    ErrCode DisableVirtualAdmin(const std::string &bundleName, const std::string &parentName);
     void InitAllAdmins();
     void InitAllPolices();
     void RemoveAllDebugAdmin();
@@ -179,6 +183,7 @@ private:
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
+    ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType);
     std::string GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId);
 
     static std::shared_mutex adminLock_;
@@ -187,7 +192,7 @@ private:
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
-    bool hasConnect_ = false;
+    std::unordered_map<std::string, bool> adminConnectMap_;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {

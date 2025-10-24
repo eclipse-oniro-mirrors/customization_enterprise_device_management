@@ -165,5 +165,21 @@ ErrCode EdmBundleManagerImpl::DeleteAppInstallControlRule(AppExecFwk::AppInstall
     }
     return ERR_OK;
 }
+
+bool EdmBundleManagerImpl::SetDisallowedUninstall(const std::string &bundleName, bool state)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::SwitchUninstallState GetBundleMgr failed.");
+        return false;
+    }
+    if (FAILED(proxy->SwitchUninstallState(bundleName, !state, true))) {
+        EDMLOGE("EdmBundleManagerImpl::%{public}s set disallow uninstall %{public}d fail.", bundleName.c_str(), state);
+        return false;
+    }
+    EDMLOGI("EdmBundleManagerImpl::%{public}s set disallow uninstall %{public}d success.", bundleName.c_str(), state);
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

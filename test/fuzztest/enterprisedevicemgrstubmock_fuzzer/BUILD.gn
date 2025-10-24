@@ -26,6 +26,7 @@ config("edm_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "../../../services/edm/include",
+    "../../../services/edm/include/admin",
     "../../../services/edm/include/connection",
     "../../../services/edm/include/database",
     "../../../services/edm/include/query_policy",
@@ -44,7 +45,12 @@ config("edm_config") {
 ohos_static_library("edmservice_fuzz_static") {
   testonly = true
   sources = [
-    "../../../services/edm/src/admin.cpp",
+    "../../../services/edm/src/admin/admin.cpp",
+    "../../../services/edm/src/admin/byod_admin.cpp",
+    "../../../services/edm/src/admin/device_admin.cpp",
+    "../../../services/edm/src/admin/sub_super_device_admin.cpp",
+    "../../../services/edm/src/admin/super_device_admin.cpp",
+    "../../../services/edm/src/admin/virtual_device_admin.cpp",
     "../../../services/edm/src/admin_container.cpp",
     "../../../services/edm/src/admin_manager.cpp",
     "../../../services/edm/src/admin_policies_storage_rdb.cpp",
@@ -64,7 +70,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../services/edm/src/hisysevent_adapter.cpp",
     "../../../services/edm/src/permission_checker.cpp",
-    "../../../services/edm/src/permission_manager.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
     "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",

@@ -68,17 +68,23 @@ public:
 
     bool IsAdminExist();
 
-    void UpdateAdmin(int32_t userId, const std::string &packageName, uint32_t updateCode, const Admin &adminItem);
+    void UpdateAdmin(int32_t userId, const std::string &packageName, uint32_t updateCode, const AdminInfo &adminInfo);
 
     void UpdateParentAdminName(int32_t userId, const std::string &parentAdminName, const std::string &updateName);
 
-    void InitAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> admins);
+    void InitAdmins(std::unordered_map<int32_t, std::vector<AdminInfo>> admins);
 
     void ClearAdmins();
 
     void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
 
     void Dump();
+
+    bool IsExistTargetAdmin(bool isDebug);
+
+    int32_t GetSuperDeviceAdminAndDeviceAdminCount();
+
+    std::shared_ptr<Admin> CreateAdmin(const AdminInfo &adminInfo);
 
 private:
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);

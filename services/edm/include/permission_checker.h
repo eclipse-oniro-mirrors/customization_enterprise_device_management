@@ -18,6 +18,7 @@
 
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "admin.h"
@@ -33,18 +34,16 @@ class PermissionChecker : public std::enable_shared_from_this<PermissionChecker>
 public:
     static std::shared_ptr<PermissionChecker> GetInstance();
 
-    ErrCode CheckCallerPermission(std::shared_ptr<Admin> admin, const std::string &permission, bool isNeedSuperAdmin);
-
-    ErrCode CheckAuthorizeAdminPermission(std::shared_ptr<Admin> admin, const std::string &permission);
+    bool CheckCallerPermission(const std::string &bundleName, const std::string &permission);
 
     ErrCode CheckCallingUid(const std::string &bundleName);
 
     ErrCode CheckSystemCalling(IPlugin::ApiType apiType, const std::string &permissionTag);
 
-    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, AdminType adminType, int32_t userId,
+    ErrCode GetAllPermissionsByAdmin(const std::string &bundleInfoName, int32_t userId,
         std::vector<std::string> &permissionList);
 
-    ErrCode CheckHandlePolicyPermission(FuncOperateType operateType, const std::string &bundleName,
+    ErrCode CheckHandlePolicyPermission(FuncOperateType operateType, std::shared_ptr<Admin> deviceAdmin,
         const std::string &policyName, const std::string &permissionName, int32_t userId);
 
     ErrCode CheckAndUpdatePermission(std::shared_ptr<Admin> admin, Security::AccessToken::AccessTokenID tokenId,
@@ -54,9 +53,11 @@ public:
 
     bool CheckIsDebug();
     bool CheckIsSystemAppOrNative();
+    bool CheckIsSystemApp();
     bool CheckSpecialPolicyCallQuery(uint32_t code);
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
     bool IsAllowDelegatedPolicy(const std::string &policy);
+    std::string GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId);
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();
     virtual ~PermissionChecker() = default;
 
@@ -64,12 +65,15 @@ public:
     int32_t GetCurrentUserId();
 
 private:
-    PermissionChecker() = default;
+    PermissionChecker();
+    void GetAdminGrantedPermission(const std::vector<std::string> &permissions,
+        std::vector<std::string> &reqPermission);
     static std::once_flag flag_;
     static std::shared_ptr<PermissionChecker> instance_;
     static std::vector<uint32_t> supportAdminNullPolicyCode_;
     static std::unordered_set<std::string> allowDelegatedPolicies_;
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
+    std::unordered_set<std::string> permissions_;
 };
 } // namespace EDM
 } // namespace OHOS
