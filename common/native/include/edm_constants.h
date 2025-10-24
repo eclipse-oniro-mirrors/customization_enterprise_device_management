@@ -371,6 +371,7 @@ namespace PolicyName {
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
+    const char* const POLICY_HANG_UP_CALLING = "hang_up_calling";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     // closed-source

@@ -134,5 +134,12 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementNam
     EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success");
     return ERR_OK;
 }
+
+int32_t TelephonyManagerProxy::HangupCalling(MessageParcel &data)
+{
+    EDMLOGD("TelephonyManagerProxy::HangupCalling.");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::HANG_UP_CALLING);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

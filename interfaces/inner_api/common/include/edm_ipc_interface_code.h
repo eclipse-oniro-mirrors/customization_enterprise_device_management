@@ -166,6 +166,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLED_HDC_REMOTE = 1121,
     INSTALL_MARKET_APPS = 1122,
     DISABLE_RUNNING_BINARY_APP = 1123,
+    HANG_UP_CALLING = 1126,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
