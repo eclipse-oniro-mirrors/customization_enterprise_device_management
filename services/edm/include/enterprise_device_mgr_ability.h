@@ -73,6 +73,8 @@ public:
     ErrCode SetBundleInstallPolicies(const std::vector<std::string> &bundles, int32_t userId,
         int32_t policyType) override;
     ErrCode UnloadInstallMarketAppsPlugin() override;
+    ErrCode EnableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
+    ErrCode DisableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -185,6 +187,8 @@ private:
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
     ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType);
     std::string GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId);
+    ErrCode CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin);
+    ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);
 
     static std::shared_mutex adminLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;

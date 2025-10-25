@@ -43,4 +43,6 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 22] void IsByodAdmin([in] ElementName admin, [out] boolean isByod);
     [ipccode 23] void UnloadInstallMarketAppsPlugin();
     [ipccode 24] void ReportAgInstallStatus([in] String bundleName, [in] String mediaBundleName, [in] int status);
+    [ipccode 25] void EnableDeviceAdmin([in] ElementName admin);
+    [ipccode 26] void DisableDeviceAdmin([in] ElementName admin);
 }

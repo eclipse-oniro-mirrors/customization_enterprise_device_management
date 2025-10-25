@@ -80,6 +80,22 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     return mgrService->EnableAdmin(admin, entInfo, type, userId);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::EnableDeviceAdmin(AppExecFwk::ElementName &admin)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::EnableDeviceAdmin");
+#if defined(FEATURE_PC_ONLY)
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->EnableDeviceAdmin(admin);
+#else
+    EDMLOGW("EnterpriseDeviceMgrProxy::EnableDeviceAdmin Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
 ErrCode EnterpriseDeviceMgrProxy::ReplaceSuperAdmin(AppExecFwk::ElementName &oldAdmin,
     AppExecFwk::ElementName &newAdmin, bool keepPolicy)
 {
@@ -107,6 +123,25 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->DisableAdmin(admin, userId);
+}
+
+ErrCode EnterpriseDeviceMgrProxy::DisableDeviceAdmin(AppExecFwk::ElementName &admin)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::DisableDeviceAdmin");
+#if defined(FEATURE_PC_ONLY)
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->DisableDeviceAdmin(admin);
+#else
+    EDMLOGW("EnterpriseDeviceMgrProxy::DisableDeviceAdmin Unsupported Capabilities.");
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 ErrCode EnterpriseDeviceMgrProxy::DisableSuperAdmin(const std::string &bundleName)
