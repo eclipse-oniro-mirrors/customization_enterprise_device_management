@@ -70,6 +70,7 @@ bool EdmApplicationInfo::ReadFromParcel(Parcel &parcel)
     description = Str16ToStr8(parcel.ReadString16());
     label = Str16ToStr8(parcel.ReadString16());
     icon = Str16ToStr8(parcel.ReadString16());
+    iconData = Str16ToStr8(parcel.ReadString16());
     process = Str16ToStr8(parcel.ReadString16());
     codePath = Str16ToStr8(parcel.ReadString16());
     appDistributionType = Str16ToStr8(parcel.ReadString16());
@@ -121,6 +122,7 @@ bool EdmApplicationInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(description));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(label));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(icon));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(iconData));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(process));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(codePath));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(appDistributionType));

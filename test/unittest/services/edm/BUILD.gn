@@ -25,6 +25,7 @@ config("edm_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "../../../../services/edm/include",
+    "../../../../services/edm/include/admin",
     "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
     "../../../../services/edm/include/query_policy",
@@ -39,7 +40,12 @@ config("edm_config") {
 ohos_static_library("edmservice_static") {
   testonly = true
   sources = [
-    "../../../../services/edm/src/admin.cpp",
+    "../../../../services/edm/src/admin/admin.cpp",
+    "../../../../services/edm/src/admin/byod_admin.cpp",
+    "../../../../services/edm/src/admin/device_admin.cpp",
+    "../../../../services/edm/src/admin/sub_super_device_admin.cpp",
+    "../../../../services/edm/src/admin/super_device_admin.cpp",
+    "../../../../services/edm/src/admin/virtual_device_admin.cpp",
     "../../../../services/edm/src/admin_container.cpp",
     "../../../../services/edm/src/admin_manager.cpp",
     "../../../../services/edm/src/admin_policies_storage_rdb.cpp",
@@ -59,7 +65,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../../services/edm/src/hisysevent_adapter.cpp",
     "../../../../services/edm/src/permission_checker.cpp",
-    "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
     "../../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
@@ -74,6 +79,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_unmute_device_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_virtual_service_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
@@ -334,7 +340,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/installed_bundle_info_list_query_test.cpp",
     "./src/iplugin_template_test.cpp",
     "./src/permission_checker_test.cpp",
-    "./src/permission_manager_test.cpp",
     "./src/plugin_manager_test.cpp",
     "./src/plugin_policy_query_test.cpp",
     "./src/policy_manager_test.cpp",

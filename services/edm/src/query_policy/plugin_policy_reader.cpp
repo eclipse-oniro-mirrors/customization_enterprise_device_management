@@ -161,6 +161,7 @@
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallow_unmute_device_query.h"
+#include "disallow_virtual_service_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
 #include "disallowed_uninstall_bundles_query.h"
@@ -707,8 +708,19 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
         default:
             break;
     }
-    return ERR_CANNOT_FIND_QUERY_FAILED;
+    return GetPolicyQueryTenth(obj, code);
 }
 
+ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE:
+            obj = std::make_shared<DisallowVirtualServiceQuery>();
+            return ERR_OK;
+        default:
+            break;
+    }
+    return ERR_CANNOT_FIND_QUERY_FAILED;
+}
 } // namespace EDM
 } // namespace OHOS

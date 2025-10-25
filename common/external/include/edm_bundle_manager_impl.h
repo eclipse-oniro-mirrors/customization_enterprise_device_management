@@ -38,6 +38,7 @@ public:
         AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) override;
     ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
         std::vector<std::string> &data, int32_t userId) override;
+    bool SetDisallowedUninstall(const std::string &bundleName, bool state) override;
 };
 } // namespace EDM
 } // namespace OHOS

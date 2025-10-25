@@ -26,7 +26,6 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
-#include "permission_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -69,7 +68,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY, EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE,
     EdmInterfaceCode::DISABLED_PRINT, EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
     EdmInterfaceCode::DISABLED_APP_CLONE, EdmInterfaceCode::DISABLED_HDC_REMOTE,
-    EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP
+    EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
+    EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -91,7 +91,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
-    EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS
+    EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS, EdmInterfaceCode::HANG_UP_CALLING,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -192,30 +192,9 @@ bool PluginManager::AddPlugin(std::shared_ptr<IPlugin> plugin)
         return false;
     }
     EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
-    return AddPluginInner(plugin);
-}
-
-bool PluginManager::AddPluginInner(std::shared_ptr<IPlugin> plugin)
-{
-    if (plugin == nullptr) {
-        return false;
-    }
-    EDMLOGD("AddPlugin %{public}d", plugin->GetCode());
     std::vector<IPlugin::PolicyPermissionConfig> configs = plugin->GetAllPermission();
     if (configs.empty()) {
         return false;
-    }
-    for (auto &config : configs) {
-        for (auto &typePermission : config.typePermissions) {
-            PermissionManager::GetInstance()->AddPermission(typePermission.second,
-                typePermission.first, plugin->GetCode());
-        }
-        for (auto &tagPermission : config.tagPermissions) {
-            for (auto &typePermission : tagPermission.second) {
-                PermissionManager::GetInstance()->AddPermission(typePermission.second,
-                    typePermission.first, plugin->GetCode());
-            }
-        }
     }
     pluginsCode_.insert(std::make_pair(plugin->GetCode(), plugin));
     pluginsName_.insert(std::make_pair(plugin->GetPolicyName(), plugin));

@@ -34,6 +34,7 @@ napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addIncomingCallPolicyNumbers", AddIncomingCallPolicyNumbers),
         DECLARE_NAPI_FUNCTION("removeIncomingCallPolicyNumbers", RemoveIncomingCallPolicyNumbers),
         DECLARE_NAPI_FUNCTION("getIncomingCallPolicyNumbers", GetIncomingCallPolicyNumbers),
+        DECLARE_NAPI_FUNCTION("hangupCalling", HangupCalling),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -372,6 +373,31 @@ napi_value TelephonyManagerAddon::GetIncomingCallPolicyNumbers(napi_env env, nap
     return jsList;
 #else
     EDMLOGW("TelephonyManagerAddon::GetIncomingCallPolicyNumbers Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value TelephonyManagerAddon::HangupCalling(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_HangupCalling called");
+#if defined(TELEPHONY_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "hangupCalling";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->HangupCalling(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("TelephonyManagerAddon::HangupCalling Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif

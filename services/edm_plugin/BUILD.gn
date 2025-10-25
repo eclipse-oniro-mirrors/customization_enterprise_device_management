@@ -84,6 +84,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/disable_printer_plugin.cpp",
       "./src/disallow_modify_datetime_plugin.cpp",
       "./src/disallow_unmute_device_plugin.cpp",
+      "./src/disallow_virtual_service_plugin.cpp",
       "./src/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/disable_set_device_name_plugin.cpp",
       "./src/disallow_distributed_transmission_plugin.cpp",
@@ -297,6 +298,7 @@ ohos_shared_library("communication_plugin") {
         "./src/set_apn_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
+        "./src/hang_up_calling_plugin.cpp",
       ]
       defines += [
         "CELLULAR_DATA_EDM_ENABLE",

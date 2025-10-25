@@ -70,7 +70,7 @@ EventFwk::CommonEventData getCommonEventData(const uint8_t* data, size_t size)
     return eventData;
 }
 
-void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
+void InitAdminParam(AdminInfo &adminInfo, std::string fuzzString, EntInfo entInfo, ManagedEvent event)
 {
     AdminInfo fuzzAdminInfo;
     fuzzAdminInfo.packageName_ = fuzzString;
@@ -79,7 +79,7 @@ void InitAdminParam(Admin &admin, std::string fuzzString, EntInfo entInfo, Manag
     fuzzAdminInfo.permission_ = { fuzzString };
     fuzzAdminInfo.managedEvents_ = { event };
     fuzzAdminInfo.parentAdminName_ = fuzzString;
-    admin.adminInfo_ = fuzzAdminInfo;
+    adminInfo = fuzzAdminInfo;
 }
 
 // Fuzzer entry point.
@@ -141,7 +141,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     bool isByod = CommonFuzzer::GetU32Data(data) % 2;
     std::vector<std::u16string> args;
     std::vector<std::string> policies;
-    Admin edmAdmin;
+    AdminInfo edmAdmin;
     ManagedEvent event = GetData<ManagedEvent>();
     EntInfo entInfo;
     entInfo.enterpriseName = fuzzString;
@@ -154,17 +154,19 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventKioskMode(eventData, isModeOn);
     enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId, isAdminEnabled);
-    enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName, userId);
+    enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName);
+    enterpriseDeviceMgrAbility->AddDisallowUninstallAppForAccount(bundleName, userId);
     enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
-    enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr);
+    enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
+    enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr->adminInfo_);
     enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
     enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId);
     enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId);
     enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);
     enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName);
     enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
-    enterpriseDeviceMgrAbility->CheckDelegatedPolicies(adminPtr, policies);
+    enterpriseDeviceMgrAbility->CheckDelegatedPolicies(type, policies);
     enterpriseDeviceMgrAbility->CheckRunningMode(code);
     enterpriseDeviceMgrAbility->CheckManagedEvent(code);
     enterpriseDeviceMgrAbility->ConnectAbility(accountId, adminPtr);
@@ -184,12 +186,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     userPolicyMgr.DumpAdminPolicy();
     userPolicyMgr.DumpAdminList();
     userPolicyMgr.DumpCombinedPolicy();
-    PermissionChecker::GetInstance()->CheckCallerPermission(adminPtr, fuzzString, isAdminEnabled);
+    PermissionChecker::GetInstance()->CheckCallerPermission(adminPtr->adminInfo_.packageName_, fuzzString);
     PermissionChecker::GetInstance()->CheckCallingUid(fuzzString);
-    PermissionChecker::GetInstance()->GetAllPermissionsByAdmin(fuzzString, type, userId, policies);
+    PermissionChecker::GetInstance()->GetAllPermissionsByAdmin(fuzzString, userId, policies);
     FuncOperateType fType = GetData<FuncOperateType>();
-    PermissionChecker::GetInstance()->CheckHandlePolicyPermission(fType, bundleName, fuzzString, fuzzString, userId);
-    PermissionChecker::GetInstance()->CheckAndUpdatePermission(adminPtr, 0, fuzzString, userId);
+    PermissionChecker::GetInstance()->CheckHandlePolicyPermission(fType, adminPtr, fuzzString, fuzzString, userId);
     PermissionChecker::GetInstance()->GetCurrentUserId();
     PermissionChecker::GetInstance()->CheckSpecialPolicyCallQuery(userId);
 

@@ -33,6 +33,7 @@ public:
         const std::string &permissionName) = 0;
     virtual bool GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
         Security::AccessToken::AccessTokenID &accessTokenId) = 0;
+    virtual std::string GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

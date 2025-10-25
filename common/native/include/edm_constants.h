@@ -170,6 +170,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_APP_CLONE = "appClone";
         const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
         const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
+        const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -216,6 +217,7 @@ namespace EdmConstants {
 } // namespace EdmConstants
 
 namespace EdmPermission {
+    const char* const PERMISSION_DENIED = "PERMISSION_DENIED";
     // api 9
     const char* const PERMISSION_ENTERPRISE_SET_DATETIME = "ohos.permission.ENTERPRISE_SET_DATETIME";
     const char* const PERMISSION_ENTERPRISE_SUBSCRIBE_MANAGED_EVENT =
@@ -259,6 +261,7 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_DELEGATED_POLICY";
     // api 15
     const char* const PERMISSION_PERSONAL_MANAGE_RESTRICTIONS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
+    const char* const PERMISSION_GET_ADMINPROVISION_INFO = "ohos.permission.START_PROVISIONING_MESSAGE";
     // api 20
     const char* const PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permission.ENTERPRISE_SET_USER_RESTRICTION";
     const char* const PERMISSION_ENTERPRISE_GET_ALL_BUNDLE_INFO = "ohos.permission.ENTERPRISE_GET_ALL_BUNDLE_INFO";
@@ -268,6 +271,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_USER_GRANT_PERMISSION =
         "ohos.permission.ENTERPRISE_MANAGE_USER_GRANT_PERMISSION";
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
+    // api 23
+    const char* const PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN = "ohos.permission.ENTERPRISE_MANAGE_DEVICE_ADMIN";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -298,6 +303,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOW_UNMUTE_DEVICE = "disallow_unmute_device";
+    const char* const POLICY_DISALLOW_VIRTUAL_SERVICE = "disallow_virtual_service";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";
@@ -372,6 +378,7 @@ namespace PolicyName {
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
+    const char* const POLICY_HANG_UP_CALLING = "hang_up_calling";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     const char* const POLICY_MANAGE_FREEZE_EXEMPTED_APPS = "manage_freeze_exempted_apps";
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";

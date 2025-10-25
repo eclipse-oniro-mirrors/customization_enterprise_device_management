@@ -38,7 +38,7 @@ public:
         std::string &retMessage);
     int32_t Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,
         AppExecFwk::InstallParam &installParam, std::string &retMessage);
-    int32_t GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
+    int32_t GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId, uint32_t bundleInfoGetFlag,
         std::vector<EdmBundleInfo> &bundleInfos);
     int32_t AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data, FuncOperateType operateType);
     int32_t GetInstallationAllowedAppDistributionTypes(MessageParcel &data,

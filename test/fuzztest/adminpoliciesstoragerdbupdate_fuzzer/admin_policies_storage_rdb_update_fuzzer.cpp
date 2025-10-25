@@ -30,7 +30,7 @@ namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 64;
 
-void InitAdminParam(Admin &admin, const uint8_t* data, int32_t& pos, size_t& size, int32_t stringSize)
+void InitAdminParam(AdminInfo &adminInfo, const uint8_t* data, int32_t& pos, size_t& size, int32_t stringSize)
 {
     AdminInfo fuzzAdminInfo;
     fuzzAdminInfo.packageName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -42,7 +42,7 @@ void InitAdminParam(Admin &admin, const uint8_t* data, int32_t& pos, size_t& siz
     ManagedEvent event = GetData<ManagedEvent>();
     fuzzAdminInfo.managedEvents_.push_back(event);
     fuzzAdminInfo.parentAdminName_ = CommonFuzzer::GetString(data, pos, stringSize, size);
-    admin.adminInfo_ = fuzzAdminInfo;
+    adminInfo = fuzzAdminInfo;
 }
 
 // Fuzzer entry point.
@@ -61,9 +61,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t stringSize = size / 13;
     std::shared_ptr<AdminPoliciesStorageRdb> adminPoliciesStorageRdb = AdminPoliciesStorageRdb::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
-    Admin admin;
+    AdminInfo admin;
     InitAdminParam(admin, data, pos, size, stringSize);
-    adminPoliciesStorageRdb->UpdateAdmin(userId, admin.adminInfo_);
+    adminPoliciesStorageRdb->UpdateAdmin(userId, admin);
     std::string packageName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string currentParentName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string targetParentName = CommonFuzzer::GetString(data, pos, stringSize, size);

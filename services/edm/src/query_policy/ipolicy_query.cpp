@@ -95,7 +95,7 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
         IPlugin::PermissionType permissionType =
             PermissionChecker::GetInstance()->AdminTypeToPermissionType(deviceAdmin->GetAdminType());
         ErrCode ret = PermissionChecker::GetInstance()->CheckHandlePolicyPermission(FuncOperateType::GET,
-            admin->GetBundleName(), this->GetPolicyName(), this->GetPermission(permissionType, permissionTag), userId);
+            deviceAdmin, this->GetPolicyName(), this->GetPermission(permissionType, permissionTag), userId);
         if (FAILED(ret)) {
             return ret;
         }

@@ -18,6 +18,7 @@ config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
   include_dirs = [
     "include",
+    "include/admin",
     "include/connection",
     "include/database",
     "include/query_policy",
@@ -74,7 +75,12 @@ ohos_shared_library("edmservice") {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
 
     sources += [
-      "./src/admin.cpp",
+      "./src/admin/admin.cpp",
+      "./src/admin/byod_admin.cpp",
+      "./src/admin/device_admin.cpp",
+      "./src/admin/sub_super_device_admin.cpp",
+      "./src/admin/super_device_admin.cpp",
+      "./src/admin/virtual_device_admin.cpp",
       "./src/admin_container.cpp",
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
@@ -93,7 +99,6 @@ ohos_shared_library("edmservice") {
       "./src/enterprise_device_mgr_ability.cpp",
       "./src/hisysevent_adapter.cpp",
       "./src/permission_checker.cpp",
-      "./src/permission_manager.cpp",
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
       "./src/query_policy/disable_app_clone_query.cpp",
@@ -108,6 +113,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_distributed_transmission_query.cpp",
       "./src/query_policy/disallow_modify_datetime_query.cpp",
       "./src/query_policy/disallow_unmute_device_query.cpp",
+      "./src/query_policy/disallow_virtual_service_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
       "./src/query_policy/disallowed_tethering_query.cpp",
       "./src/query_policy/disallowed_uninstall_bundles_query.cpp",

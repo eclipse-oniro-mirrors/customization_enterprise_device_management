@@ -65,6 +65,8 @@ public:
     ErrCode SetAdminRunningMode(AppExecFwk::ElementName &admin, uint32_t runningMode);
     ErrCode SetDelegatedPolicies(std::string &bundleName, std::vector<std::string> &policies, int32_t userId);
     ErrCode SetBundleInstallPolicies(std::vector<std::string> &bundles, int32_t userId, int32_t policyType);
+    ErrCode EnableDeviceAdmin(AppExecFwk::ElementName &admin);
+    ErrCode DisableDeviceAdmin(AppExecFwk::ElementName &admin);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

@@ -88,7 +88,6 @@ private:
     void RemovePlugin(std::shared_ptr<IPlugin> plugin);
     bool GetSoNameByCode(std::uint32_t code, std::string &soName);
     void GetExtraPluginCodeList(std::vector<uint32_t>* targetVec);
-    bool AddPluginInner(std::shared_ptr<IPlugin> plugin);
     void DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlugin>> pluginsCode,
         std::map<std::string, std::shared_ptr<IPlugin>> pluginsName);
     void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);

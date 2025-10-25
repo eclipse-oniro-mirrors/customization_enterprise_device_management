@@ -59,6 +59,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
     "./src/disallow_unmute_device_plugin_test.cpp",
+    "./src/disallow_virtual_service_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
     "./src/kiosk_feature_plugin_test.cpp",
     "./src/managed_browser_policy_plugin_test.cpp",
@@ -323,6 +324,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/telephony_call_policy_plugin_test.cpp",
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/utils/telephony_call_policy_serializer_test.cpp",
+      "./src/hang_up_calling_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -419,7 +421,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../../services/edm/src/database/edm_rdb_open_callback.cpp",
     "../../../../services/edm/src/device_policies_storage_rdb.cpp",
-    "../../../../services/edm/src/permission_manager.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
@@ -443,6 +444,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disallow_distributed_transmission_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_unmute_device_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_virtual_service_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_tethering_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_uninstall_bundles_plugin.cpp",
@@ -758,6 +760,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "../../../../services/edm_plugin/src/telephony_call_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
+      "../../../../services/edm_plugin/src/hang_up_calling_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",

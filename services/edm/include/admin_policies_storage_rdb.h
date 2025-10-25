@@ -37,16 +37,16 @@ public:
     bool UpdateEntInfo(int32_t userId, const std::string &packageName, const EntInfo &entInfo);
     bool UpdateManagedEvents(int32_t userId, const std::string &packageName,
         const std::vector<ManagedEvent> &managedEvents);
-    bool ReplaceAdmin(const std::string packageName, int32_t userId, const Admin &newAdmin);
+    bool ReplaceAdmin(const std::string packageName, int32_t userId, const AdminInfo &newAdminInfo);
     bool UpdateParentName(const std::string packageName, const std::string currentParentName,
         const std::string targetParentName);
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> QueryAllAdmin();
+    std::unordered_map<int32_t, std::vector<AdminInfo>> QueryAllAdmin();
 
 private:
     NativeRdb::ValuesBucket CreateInsertValuesBucket(int32_t userId, const AdminInfo &admin);
     void CreateUpdateValuesBucket(int32_t userId, const AdminInfo &admin, NativeRdb::ValuesBucket &valuesBucket);
-    void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
-    void SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet, std::shared_ptr<Admin> item);
+    void SetAdminItems(std::shared_ptr<NativeRdb::ResultSet> resultSet, AdminInfo &adminInfo);
+    void SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet, AdminInfo &adminInfo);
     void SetAdminStringInfo(const std::string &stringInfo, std::vector<std::string> &info);
     static bool CreateAdminPoliciesTable();
     static std::shared_ptr<AdminPoliciesStorageRdb> instance_;

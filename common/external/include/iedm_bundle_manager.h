@@ -45,6 +45,7 @@ public:
         AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) = 0;
     virtual ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
         std::vector<std::string> &data, int32_t userId) = 0;
+    virtual bool SetDisallowedUninstall(const std::string &bundleName, bool state) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

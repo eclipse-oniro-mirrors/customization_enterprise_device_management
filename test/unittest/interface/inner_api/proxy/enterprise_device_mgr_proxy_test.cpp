@@ -1310,6 +1310,78 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetBundleInstallPoliciesSuc, TestSize
     ErrCode errVal = enterpriseDeviceMgrProxyTest->SetBundleInstallPolicies(bundles, userId, policyType);
     EXPECT_TRUE(errVal == ERR_OK);
 }
+
+#if defined(FEATURE_PC_ONLY)
+/**
+ * @tc.name: TestEnableDeviceAdminSuc
+ * @tc.desc: Test EnableDeviceAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableDeviceAdminSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*object_, EnableDeviceAdmin(_))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestEnableDeviceAdminFail
+ * @tc.desc: Test EnableDeviceAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableDeviceAdminFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*object_, EnableDeviceAdmin(_))
+        .Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableDeviceAdminSuc
+ * @tc.desc: Test DisableDeviceAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableDeviceAdminSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, DisableDeviceAdmin(_))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisableDeviceAdminFail
+ * @tc.desc: Test DisableDeviceAdmin func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableDeviceAdminFail, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EXPECT_CALL(*object_, DisableDeviceAdmin(_))
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
