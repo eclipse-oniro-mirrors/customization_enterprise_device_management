@@ -115,6 +115,7 @@ ohos_unittest("EdmPluginTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "data_share:datashare_consumer",
+    "window_manager:session_manager_lite",
   ]
 
   defines = []
@@ -401,6 +402,7 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "window_manager:session_manager_lite",
   ]
 
   sanitize = {
