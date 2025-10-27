@@ -127,7 +127,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
 {
-    std::vector<ApplicationMsg> userNonStopApps = {{ "com.huawei.hmos.settings", 100, 0 }};
+    std::vector<ApplicationMsg> userNonStopApps = {{ "com.example.hmos.settings", 100, 0 }};
     std::vector<ManageUserNonStopAppInfo> currentData;
     std::vector<ManageUserNonStopAppInfo> mergeData;
     ManageUserNonStopAppsPlugin plugin;

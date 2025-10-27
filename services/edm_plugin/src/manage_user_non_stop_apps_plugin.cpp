@@ -182,9 +182,9 @@ ErrCode ManageUserNonStopAppsPlugin::SetOtherModulePolicy(const std::vector<Mana
         settingData.push_back(appPolicyJsonStr);
     }
     std::string result = std::accumulate(settingData.begin(), settingData.end(), std::string(),
-                                        [](const std::string &a, const std::string &b) {
-                                            return a.empty() ? b : a + "," + b;
-                                        });
+                                            [](const std::string &a, const std::string &b) {
+                                                return a.empty() ? b : a + "," + b;
+                                            });
     result = "[" + result + "]";
     EdmDataAbilityUtils::UpdateSettingsData(SETTINGS_KEY, result);
     ReportLockSession(userNonStopApps, true);
@@ -234,9 +234,9 @@ ErrCode ManageUserNonStopAppsPlugin::RemoveOtherModulePolicy(
         settingData.push_back(appPolicyJsonStr);
     }
     std::string result = std::accumulate(settingData.begin(), settingData.end(), std::string(),
-                                        [](const std::string &a, const std::string &b) {
-                                            return a.empty() ? b : a + "," + b;
-                                        });
+                                            [](const std::string &a, const std::string &b) {
+                                                return a.empty() ? b : a + "," + b;
+                                            });
     result = "[" + result + "]";
     EdmDataAbilityUtils::UpdateSettingsData(SETTINGS_KEY, result);
     ReportLockSession(needRemovePolicy, false);

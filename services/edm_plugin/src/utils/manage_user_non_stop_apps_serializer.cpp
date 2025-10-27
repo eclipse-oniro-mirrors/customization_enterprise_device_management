@@ -67,8 +67,8 @@ std::vector<ManageUserNonStopAppInfo> ManageUserNonStopAppsSerializer::SetNeedRe
     for (const ManageUserNonStopAppInfo &item : data) {
         if (std::find_if(mergeData.begin(), mergeData.end(), [&item](const ManageUserNonStopAppInfo &mergeItem) {
             return mergeItem.GetBundleName() == item.GetBundleName() &&
-                mergeItem.GetAccountId() == item.GetAccountId() &&
-                mergeItem.GetAppIndex() == item.GetAppIndex();
+                    mergeItem.GetAccountId() == item.GetAccountId() &&
+                    mergeItem.GetAppIndex() == item.GetAppIndex();
         }) == mergeData.end()) {
             removeData.push_back(item);
         }
