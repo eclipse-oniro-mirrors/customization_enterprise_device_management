@@ -404,15 +404,11 @@ ohos_shared_library("communication_plugin") {
 
     if (!enterprise_device_management_feature_pc_only) {
       external_deps += [ 
-        "window_manager:session_manager_lite",
         "ability_runtime:ability_manager"
         ]
       sources += [
         "./src/disallowed_mms_plugin.cpp",
         "./src/disallowed_sms_plugin.cpp",
-        "./src/utils/manage_user_non_stop_apps_info.cpp",
-        "./src/manage_user_non_stop_apps_plugin.cpp",
-        "./src/utils/manage_user_non_stop_apps_serializer.cpp",
       ]
     }
   }
@@ -495,6 +491,17 @@ ohos_shared_library("sys_service_plugin") {
         "./src/manage_freeze_exempted_apps_plugin.cpp",
         "./src/utils/manage_freeze_exempted_apps_info.cpp",
         "./src/utils/manage_freeze_exempted_apps_serializer.cpp",
+      ]
+    }
+
+    if (!enterprise_device_management_feature_pc_only) {
+      external_deps += [ 
+        "window_manager:session_manager_lite",
+        ]
+      sources += [
+        "./src/utils/manage_user_non_stop_apps_info.cpp",
+        "./src/manage_user_non_stop_apps_plugin.cpp",
+        "./src/utils/manage_user_non_stop_apps_serializer.cpp",
       ]
     }
 

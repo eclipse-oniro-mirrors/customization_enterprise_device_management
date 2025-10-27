@@ -401,6 +401,7 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "window_manager:session_manager_lite",
   ]
 
   sanitize = {
