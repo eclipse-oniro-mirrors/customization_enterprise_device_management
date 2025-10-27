@@ -56,7 +56,9 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
-        DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
+        DECLARE_NAPI_FUNCTION("addFreezeExemptedApps", AddFreezeExemptedApps),
+        DECLARE_NAPI_FUNCTION("removeFreezeExemptedApps", RemoveFreezeExemptedApps),
+        DECLARE_NAPI_FUNCTION("getFreezeExemptedApps", GetFreezeExemptedApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -195,6 +197,78 @@ napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback
     napi_create_array(env, &napiKeepAliveApps);
     ConvertStringVectorToJS(env, keepAliveApps, napiKeepAliveApps);
     return napiKeepAliveApps;
+}
+
+napi_value ApplicationManagerAddon::AddFreezeExemptedApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddFreezeExemptedApps called");
+    return AddOrRemoveFreezeExemptedApps(env, info, "AddFreezeExemptedApps");
+}
+
+napi_value ApplicationManagerAddon::RemoveFreezeExemptedApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveFreezeExemptedApps called");
+    return AddOrRemoveFreezeExemptedApps(env, info, "RemoveFreezeExemptedApps");
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveFreezeExemptedApps(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveFreezeExemptedApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::vector<ApplicationInstance> freezeExemptedApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseApplicationInstanceArray(env, freezeExemptedApps, argv[ARR_INDEX_ONE]),
+        "Parameter freezeExemptedApps error");
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    std::string retMessage;
+    if (function == "AddFreezeExemptedApps") {
+        ret = applicationManagerProxy->AddFreezeExemptedApps(elementName, freezeExemptedApps, retMessage);
+    } else {
+        ret = applicationManagerProxy->RemoveFreezeExemptedApps(elementName, freezeExemptedApps);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetFreezeExemptedApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetFreezeExemptedApps called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<ApplicationMsg> freezeExemptedApps;
+    int32_t ret = applicationManagerProxy->GetFreezeExemptedApps(elementName, freezeExemptedApps);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiFreezeExemptedApps = nullptr;
+    napi_create_array(env, &napiFreezeExemptedApps);
+    ConvertApplicationInstanceVectorToJS(env, freezeExemptedApps, napiFreezeExemptedApps);
+    return napiFreezeExemptedApps;
 }
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)

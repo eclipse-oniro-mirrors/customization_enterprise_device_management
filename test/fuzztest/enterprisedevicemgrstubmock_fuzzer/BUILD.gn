@@ -145,6 +145,8 @@ ohos_static_library("edmservice_fuzz_static") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_manager",
+    "ability_runtime:ability_manager",
+    "resource_schedule_service:ressched_client",
     "ability_runtime:extension_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
@@ -325,11 +327,14 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
         "../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/manage_freeze_exempted_apps_plugin.cpp",
         "../../../services/edm_plugin/src/utils/bms_utils.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
-        "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp"
+        "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_info.cpp",
+        "../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_serializer.cpp"
       ]
     }
 

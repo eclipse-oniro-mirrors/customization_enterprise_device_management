@@ -32,6 +32,7 @@ public:
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override;
     bool IsBundleInstalled(const std::string &bundleName, int32_t userId, int32_t appIndex = 0) override;
     std::string GetApplicationInfo(const std::string &appName, int userId) override;
+    int32_t GetApplicationUid(const std::string &appName, int userId, int appIndex) override;
     int32_t GetTokenId(const std::string &appName, int userId) override;
     ErrCode AddAppInstallControlRule(std::vector<std::string> &data,
         AppExecFwk::AppInstallControlRuleType controlRuleType, int32_t userId) override;

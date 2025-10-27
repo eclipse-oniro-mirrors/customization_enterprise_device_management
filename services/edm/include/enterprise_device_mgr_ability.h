@@ -138,6 +138,7 @@ private:
         const AdminInfo &oldAdminInfo);
     ErrCode AddDisallowUninstallApp(const std::string &bundleName);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
+    void UpdateFreezeExemptedApps(const std::string &bundleName, int32_t userId, int32_t appIndex);
     ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);

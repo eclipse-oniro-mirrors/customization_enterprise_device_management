@@ -57,6 +57,7 @@ group("fuzztest") {
     "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
     "managekeepaliveappsplugin_fuzzer:ManageKeepAliveAppsPluginFuzzTest",
+    "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
     "adminpoliciesstoragerdbupdate_fuzzer:AdminPoliciesStorageRdbUpdateFuzzTest",
   ]
 

@@ -377,5 +377,67 @@ int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFw
     reply.ReadBool(disallowModify);
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::AddFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+    const std::vector<ApplicationInstance> &freezeExemptedApps, std::string &retMessage)
+{
+    EDMLOGI("ApplicationManagerProxy:AddFreezeExemptedApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret != ERR_OK) {
+        retMessage = reply.ReadString();
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::RemoveFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+    const std::vector<ApplicationInstance> &freezeExemptedApps)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveFreezeExemptedApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+    std::vector<ApplicationMsg> &freezeExemptedApps)
+{
+    EDMLOGI("ApplicationManagerProxy::GetFreezeExemptedApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, data, reply);
+
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetFreezeExemptedApps GetPolicy failed. %{public}d", ret);
+        return ret;
+    }
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

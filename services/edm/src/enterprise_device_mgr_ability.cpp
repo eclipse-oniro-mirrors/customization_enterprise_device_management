@@ -33,7 +33,7 @@
 #include "parameters.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
-
+#include "application_instance.h"
 #include "array_string_serializer.h"
 #include "admin_action.h"
 #include "edm_constants.h"
@@ -284,6 +284,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
         };
+    addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
+        };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -446,6 +450,33 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
 }
 
+void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
+    int32_t userId, int32_t appIndex)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateFreezeExemptedApps");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        std::vector<ApplicationMsg> freezeExemptedApps;
+        ApplicationMsg appMsg = { bundleName, userId, appIndex };
+        freezeExemptedApps.push_back(appMsg);
+        MessageParcel reply;
+        MessageParcel data;
+        std::u16string descriptor = u"ohos.edm.IEnterpriseDeviceMgr";
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        if (!ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps)) {
+            EDMLOGE("UpdateFreezeExemptedApps WriteApplicationInstanceVector fail");
+        }
+        data.WriteBool(true);
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
+}
+
 void EnterpriseDeviceMgrAbility::UpdateClipboardInfo(const std::string &bundleName, int32_t userId)
 {
     EDMLOGI("OnCommonEventPackageRemoved UpdateClipboardInfo");
@@ -500,6 +531,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
     autoLock.unlock();
     UpdateClipboardInfo(bundleName, userId);
+    int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
+        AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    UpdateFreezeExemptedApps(bundleName, userId, appIndex);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
@@ -794,6 +828,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     AddSystemAbilityListener(APP_MGR_SERVICE_ID);
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
+    AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
