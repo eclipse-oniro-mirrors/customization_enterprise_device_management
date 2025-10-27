@@ -439,5 +439,67 @@ int32_t ApplicationManagerProxy::GetFreezeExemptedApps(const AppExecFwk::Element
     ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps);
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::AddUserNonStopApps(const AppExecFwk::ElementName &admin,
+    const std::vector<ApplicationInstance> &UserNonStopApps, std::string &retMessage)
+{
+    EDMLOGI("ApplicationManagerProxy::UserNonStopApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, UserNonStopApps);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret != ERR_OK) {
+        retMessage = reply.ReadString();
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t ApplicationManagerProxy::RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
+    const std::vector<ApplicationInstance> &UserNonStopApps)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveUserNonStopApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, UserNonStopApps);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementName &admin,
+    std::vector<ApplicationMsg> &UserNonStopApps)
+{
+    EDMLOGI("ApplicationManagerProxy::GetUserNonStopApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    proxy->GetPolicy(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, data, reply);
+    
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, UserNonStopApps);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

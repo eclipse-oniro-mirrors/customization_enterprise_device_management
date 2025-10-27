@@ -132,6 +132,7 @@ ohos_shared_library("edmservice") {
       "./src/strategy/replace_execute_strategy.cpp",
       "./src/strategy/single_execute_strategy.cpp",
       "./src/user_policy_manager.cpp",
+      "../../interfaces/inner_api/application_manager/src/application_instance.cpp",
     ]
   }
 
