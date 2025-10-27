@@ -100,20 +100,24 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::vector<ManageUserNonStopAppInfo> needRemovePolicy =
         ManageUserNonStopAppsSerializer::GetInstance()->SetIntersectionPolicyData(userNonStopBundles,
         currentData);
+    std::vector<ManageUserNonStopAppInfo> needResetPolicy =
+        ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needRemovePolicy);
     std::vector<ManageUserNonStopAppInfo> needRemoveMergePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy,
-        userNonStopBundles);
+        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
     plugin.OnHandlePolicy(funcCode, parcel, reply, policyData, userId);
     plugin.OnSetPolicy(userNonStopBundles, currentData, mergeData);
     plugin.OnRemovePolicy(userNonStopBundles, currentData, mergeData);
-    plugin.SetOtherModulePolicy(userNonStopBundles);
-    plugin.RemoveOtherModulePolicy();
+    plugin.SetOtherModulePolicy(needResetPolicy);
+    plugin.RemoveOtherModulePolicy(needResetPolicy, needRemovePolicy);
     plugin.OnGetPolicy(currentPolicyData, parcel, reply, userId);
     plugin.OnAdminRemove(adminName, currentJsonData, mergeJsonData, userId);
     plugin.GetOthersMergePolicyData(adminName, userId, othersMergePolicyData);
     plugin.OnOtherServiceStart(systemAbilityId);
-    plugin.FilterUninstalledBundle(needRemoveMergePolicy);
-    plugin.SerializeApplicationInstanceVectorToJson(userNonStopBundles);
+    plugin.FilterUninstalledBundle(currentData, needRemoveMergePolicy);
+    std::string appPolicyJsonStr;
+    for(const auto &item : needResetPolicy) {
+        plugin.ConvertAppPolicyToJsonStr(item, appPolicyJsonStr);
+    }
     return 0;
 }
 } // namespace EDM
