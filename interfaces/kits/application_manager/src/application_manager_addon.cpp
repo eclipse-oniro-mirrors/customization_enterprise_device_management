@@ -56,6 +56,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
+        DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
         DECLARE_NAPI_FUNCTION("addFreezeExemptedApps", AddFreezeExemptedApps),
         DECLARE_NAPI_FUNCTION("removeFreezeExemptedApps", RemoveFreezeExemptedApps),
         DECLARE_NAPI_FUNCTION("getFreezeExemptedApps", GetFreezeExemptedApps),
