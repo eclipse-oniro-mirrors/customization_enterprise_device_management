@@ -56,6 +56,10 @@ public:
 
     void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override;
 
+    void OnDeviceAdminEnabled(const std::string &bundleName) override;
+
+    void OnDeviceAdminDisabled(const std::string &bundleName) override;
+
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

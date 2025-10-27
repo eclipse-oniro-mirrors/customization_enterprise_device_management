@@ -61,7 +61,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone01, TestSize.Lev
     int32_t resultCode = 0;
     enterpriseAdminConnectionTest =
         std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true);
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true, "");
     EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
@@ -86,7 +86,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone02, TestSize.Lev
     int32_t resultCode = 0;
     enterpriseAdminConnectionTest =
         std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, DEFAULT_USER_ID, true);
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, DEFAULT_USER_ID, true, "");
     EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
@@ -111,7 +111,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDone03, TestSize.Lev
     connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
     int32_t resultCode = 0;
     enterpriseAdminConnectionTest = std::make_shared<EnterpriseAdminConnection>(connectWant,
-        COMMAND_ON_ADMIN_CODE, DEFAULT_USER_ID, true);
+        COMMAND_ON_ADMIN_CODE, DEFAULT_USER_ID, true, "");
     enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
     enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
 
@@ -132,7 +132,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDoneWithoutAdminEnab
     connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
     int32_t resultCode = 0;
     enterpriseAdminConnectionTest = std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true);
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true, "");
     enterpriseAdminConnectionTest->SetIsOnAdminEnabled(false);
     enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
 
@@ -159,7 +159,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityDisconnectDoneWithSuperAdmi
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
     enterpriseAdminConnectionTest = std::make_shared<EnterpriseAdminConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true);
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, DEFAULT_USER_ID, true, "");
     AppExecFwk::ElementName admin;
     admin.SetBundleName(bundleName);
     admin.SetAbilityName(abilityName);
@@ -168,6 +168,58 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityDisconnectDoneWithSuperAdmi
     EXPECT_TRUE(AdminManager::GetInstance()->IsSuperAdmin(bundleName));
 
     AdminManager::GetInstance()->DeleteAdmin(admin.GetBundleName(), DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestOnAbilityConnectDoneWithDeviceAdminEnabled
+ * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDoneWithDeviceAdminEnabled, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    AAFwk::Want connectWant;
+    connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
+    int32_t resultCode = 0;
+    std::string enabledDaBundleName = "com.edm.test.demo1";
+    enterpriseAdminConnectionTest =
+        std::make_shared<EnterpriseAdminConnection>(connectWant,
+        IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED, DEFAULT_USER_ID, true, enabledDaBundleName);
+    EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
+    enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+
+    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED);
+}
+
+/**
+ * @tc.name: TestOnAbilityConnectDoneWithDeviceAdminDisabled
+ * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityConnectDoneWithDeviceAdminDisabled, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    AAFwk::Want connectWant;
+    connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
+    int32_t resultCode = 0;
+    std::string disabledDaBundleName = "com.edm.test.demo1";
+    enterpriseAdminConnectionTest =
+        std::make_shared<EnterpriseAdminConnection>(connectWant,
+        IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED, DEFAULT_USER_ID, true, disabledDaBundleName);
+    EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
+    enterpriseAdminConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+
+    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED);
 }
 } // namespace TEST
 } // namespace EDM

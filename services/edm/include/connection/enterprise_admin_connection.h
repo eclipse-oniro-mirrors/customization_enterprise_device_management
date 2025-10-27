@@ -22,8 +22,11 @@ namespace OHOS {
 namespace EDM {
 class EnterpriseAdminConnection : public IEnterpriseConnection {
 public:
-    EnterpriseAdminConnection(const AAFwk::Want& want, uint32_t code, uint32_t userId, bool isOnAdminEnabled)
-        : IEnterpriseConnection(want, code, userId), isOnAdminEnabled_(isOnAdminEnabled) {};
+    EnterpriseAdminConnection(
+        const AAFwk::Want& want, uint32_t code, uint32_t userId, bool isOnAdminEnabled,
+        const std::string& bundleName)
+        : IEnterpriseConnection(want, code, userId), isOnAdminEnabled_(isOnAdminEnabled),
+        bundleName_(bundleName) {};
 
     void SetIsOnAdminEnabled(bool isOnAdminEnabled);
 
@@ -51,6 +54,8 @@ private:
     int32_t GetCurrentUserId();
 
     bool isOnAdminEnabled_;
+
+    std::string bundleName_;
 };
 } // namespace EDM
 } // namespace OHOS

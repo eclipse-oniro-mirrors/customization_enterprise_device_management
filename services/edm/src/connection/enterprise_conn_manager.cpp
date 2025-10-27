@@ -31,10 +31,10 @@ using namespace OHOS::AAFwk;
 namespace OHOS {
 namespace EDM {
 bool EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId, bool isOnAdminEnabled)
+    uint32_t code, uint32_t userId, bool isOnAdminEnabled, const std::string &bundleName)
 {
     sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId,
-        isOnAdminEnabled));
+        isOnAdminEnabled, bundleName));
     return ConnectAbility(connection);
 }
 

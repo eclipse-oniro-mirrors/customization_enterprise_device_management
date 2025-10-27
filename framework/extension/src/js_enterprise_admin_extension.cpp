@@ -163,6 +163,28 @@ void JsEnterpriseAdminExtension::OnAdminDisabled()
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnDeviceAdminEnabled(const std::string &bundleName)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnDeviceAdminEnabled");
+    auto task = [bundleName, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
+        CallObjectMethod("onDeviceAdminEnabled", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnDeviceAdminDisabled(const std::string &bundleName)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnDeviceAdminDisabled");
+    auto task = [bundleName, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
+        CallObjectMethod("onDeviceAdminDisabled", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
 void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnBundleAdded");

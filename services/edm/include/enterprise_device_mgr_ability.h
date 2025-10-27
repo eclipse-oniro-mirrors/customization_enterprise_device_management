@@ -172,6 +172,7 @@ private:
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
         bool isAdminEnabled);
+    bool OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId, const std::string &enabledBundleName);
     ErrCode CheckDisableAdmin(std::shared_ptr<Admin> admin, AdminType adminType);
     bool CheckDelegatedBundle(const std::string &bundleName, int32_t userId);
     ErrCode DisableVirtualAdmin(const std::string &bundleName, const std::string &parentName);

@@ -67,6 +67,10 @@ private:
     void OnKioskModeExitingInner(MessageParcel& data, MessageParcel& reply);
 
     void OnMarketAppsInstallStatusChangedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnDeviceAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

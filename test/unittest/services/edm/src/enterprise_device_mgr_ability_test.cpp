@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <vector>
 
+#include "admin_container.h"
 #include "byod_admin.h"
 #include "device_admin.h"
 #include "iplugin_template_test.h"
@@ -4649,6 +4650,263 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDelDisallowUninstallAppForAccountSu
     ErrCode ret = edmMgr_->DelDisallowUninstallAppForAccount("com.edm.test", 100);
     ASSERT_EQ(ret, ERR_OK);
 }
+
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: TestEnableDeviceAdminAndDisableDeviceAdminSuccess
+ * @tc.desc: Test EnableDeviceAdmin and DisableDeviceAdmin Success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableDeviceAdminAndDisableDeviceAdminSuccess, TestSize.Level1)
+{
+    // 存入一个SDA
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, adminInfo);
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    ErrCode res = edmMgr_->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(res == ERR_OK);
+
+    bool isEnable;
+    edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID, isEnable);
+    EXPECT_TRUE(isEnable);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    res = edmMgr_->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(res == ERR_OK);
+    edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID, isEnable);
+    EXPECT_TRUE(!isEnable);
+
+    // 清理SDA
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestEnableDeviceAdminSuccessWithExistDeviceAdmin
+ * @tc.desc: Test EnableDeviceAdmin with exist device admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableDeviceAdminSuccessWithExistDeviceAdmin, TestSize.Level1)
+{
+    // 存入一个SDA和DA
+    AdminInfo superAdminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, superAdminInfo);
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::NORMAL};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, normalAdminInfo);
+
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    ErrCode res = edmMgr_->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(res == ERR_OK);
+
+    bool isEnable;
+    edmMgr_->IsAdminEnabled(admin, DEFAULT_USER_ID, isEnable);
+    EXPECT_TRUE(isEnable);
+
+    // 清理SDA和DA
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME_1, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestEnableDeviceAdminWithoutSuperAdmin
+ * @tc.desc: Test EnableDeviceAdmin without super admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableDeviceAdminWithoutSuperAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+
+    ErrCode res = edmMgr_->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestDisalbeDeviceAdminFailWithDeviceAdmin
+ * @tc.desc: Test DisalbeDeviceAdmin without device admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDisalbeDeviceAdminFailWithDeviceAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+
+    ErrCode res = edmMgr_->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckEnableDeviceAdminSuccess
+ * @tc.desc: Test CheckEnableDeviceAdmin Success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckEnableDeviceAdminSuccess, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+
+    ErrCode res = edmMgr_->CheckEnableDeviceAdmin(admin);
+    EXPECT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckEnableDeviceAdminWithoutPermission
+ * @tc.desc: Test CheckEnableDeviceAdmin without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckEnableDeviceAdminWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+
+    ErrCode res = edmMgr_->CheckEnableDeviceAdmin(admin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckEnableDeviceAdminWithoutExtensionAbilityInfo
+ * @tc.desc: Test CheckEnableDeviceAdmin without extension ability info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckEnableDeviceAdminWithoutExtensionAbilityInfo, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME_1);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(false, "");
+
+    ErrCode res = edmMgr_->CheckEnableDeviceAdmin(admin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckDisableDeviceAdminSuccess
+ * @tc.desc: Test CheckDisableDeviceAdmin success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminSuccess, TestSize.Level1)
+{
+    // 存入一个SDA
+    AdminInfo superAdminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, superAdminInfo);
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::NORMAL};
+    std::shared_ptr<Admin> deviceAdmin = std::make_shared<Admin>(normalAdminInfo);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+
+    ErrCode res = edmMgr_->CheckDisableDeviceAdmin(deviceAdmin);
+    EXPECT_TRUE(res == ERR_OK);
+    // 清理SDA
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestCheckDisableDeviceAdminForSuperAdmin
+ * @tc.desc: Test CheckDisableDeviceAdmin for super admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminForSuperAdmin, TestSize.Level1)
+{
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::ENT};
+    std::shared_ptr<Admin> deviceAdmin = std::make_shared<Admin>(normalAdminInfo);
+
+    ErrCode res = edmMgr_->CheckDisableDeviceAdmin(deviceAdmin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckDisableDeviceAdminWithNotExistAdmin
+ * @tc.desc: Test CheckDisableDeviceAdmin with not exist admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminWithNotExistAdmin, TestSize.Level1)
+{
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::NORMAL};
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return("notExistBundle")));
+
+    std::shared_ptr<Admin> deviceAdmin = std::make_shared<Admin>(normalAdminInfo);
+    ErrCode res = edmMgr_->CheckDisableDeviceAdmin(deviceAdmin);
+    EXPECT_TRUE(res != ERR_OK);
+}
+
+/**
+ * @tc.name: TestCheckDisableDeviceAdminWithNormalAdmin
+ * @tc.desc: Test CheckDisableDeviceAdmin with normal admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminWithNormalAdmin, TestSize.Level1)
+{
+    // 存入一个DA
+    AdminInfo invalidAdminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::NORMAL};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, invalidAdminInfo);
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::NORMAL};
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+
+    std::shared_ptr<Admin> deviceAdmin = std::make_shared<Admin>(normalAdminInfo);
+    ErrCode res = edmMgr_->CheckDisableDeviceAdmin(deviceAdmin);
+    EXPECT_TRUE(res != ERR_OK);
+    // 清理DA
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestCheckDisableDeviceAdminWithoutPermission
+ * @tc.desc: Test CheckDisableDeviceAdmin without permiss.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminWithoutPermission, TestSize.Level1)
+{
+    // 存入一个SDA
+    AdminInfo superAdminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, superAdminInfo);
+    AdminInfo normalAdminInfo = {.packageName_ = ADMIN_PACKAGENAME_1, .className_ = ADMIN_PACKAGENAME_ABILITY_1,
+        .adminType_ = AdminType::NORMAL};
+    std::shared_ptr<Admin> deviceAdmin = std::make_shared<Admin>(normalAdminInfo);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillOnce(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+
+    ErrCode res = edmMgr_->CheckDisableDeviceAdmin(deviceAdmin);
+    EXPECT_TRUE(res != ERR_OK);
+    // 清理SDA
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
