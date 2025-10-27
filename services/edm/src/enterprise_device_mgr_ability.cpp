@@ -378,6 +378,31 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
 }
 #endif
 
+void EnterpriseDeviceMgrAbility::UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateUserNonStopInfo");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+        std::vector<ApplicationInstance> userNonStopApps;
+        ApplicationInstance applicationInstance = { bundleName, userId, appIndex};
+        userNonStopApps.push_back(applicationInstance);
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps)) {
+            EDMLOGE("OnCommonEventPackageRemoved WriteApplicationInstanceVector fail");
+        }
+        data.WriteBool(true);
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEventData &data)
 {
     int userIdToAdd = data.GetCode();
@@ -534,6 +559,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
         AppExecFwk::Constants::DEFAULT_APP_INDEX);
     UpdateFreezeExemptedApps(bundleName, userId, appIndex);
+    UpdateUserNonStopInfo(bundleName, userId, appIndex);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)

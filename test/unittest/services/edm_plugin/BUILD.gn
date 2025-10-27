@@ -115,6 +115,7 @@ ohos_unittest("EdmPluginTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "data_share:datashare_consumer",
+    "window_manager:session_manager_lite",
   ]
 
   defines = []
@@ -337,6 +338,9 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_info.cpp",
+      "../../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp"
     ]
   }
 
@@ -398,6 +402,7 @@ ohos_unittest("EdmFingerPrintPluginTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "window_manager:session_manager_lite",
   ]
 
   sanitize = {

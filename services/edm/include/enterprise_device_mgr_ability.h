@@ -148,6 +148,7 @@ private:
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void GetAgCommonEventName();
+    void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
