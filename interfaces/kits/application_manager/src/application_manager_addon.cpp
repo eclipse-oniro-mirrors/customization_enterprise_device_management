@@ -56,9 +56,13 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
+        DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
         DECLARE_NAPI_FUNCTION("addFreezeExemptedApps", AddFreezeExemptedApps),
         DECLARE_NAPI_FUNCTION("removeFreezeExemptedApps", RemoveFreezeExemptedApps),
         DECLARE_NAPI_FUNCTION("getFreezeExemptedApps", GetFreezeExemptedApps),
+        DECLARE_NAPI_FUNCTION("addUserNonStopApps", AddUserNonStopApps),
+        DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
+        DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -269,6 +273,87 @@ napi_value ApplicationManagerAddon::GetFreezeExemptedApps(napi_env env, napi_cal
     napi_create_array(env, &napiFreezeExemptedApps);
     ConvertApplicationInstanceVectorToJS(env, freezeExemptedApps, napiFreezeExemptedApps);
     return napiFreezeExemptedApps;
+}
+
+napi_value ApplicationManagerAddon::AddUserNonStopApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddUserNonStopApps called");
+    return AddOrRemoveUserNonStopApps(env, info, "AddUserNonStopApps");
+}
+
+napi_value ApplicationManagerAddon::RemoveUserNonStopApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveUserNonStopApps called");
+    return AddOrRemoveUserNonStopApps(env, info, "RemoveUserNonStopApps");
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveUserNonStopApps(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveUserNonStopApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::vector<ApplicationInstance> UserNonStopApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseApplicationInstanceArray(env, UserNonStopApps, argv[ARR_INDEX_ONE]),
+        "Parameter UserNonStopApps error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    std::string retMessage;
+    if (function == "AddUserNonStopApps") {
+        ret = applicationManagerProxy->AddUserNonStopApps(elementName, UserNonStopApps, retMessage);
+    } else {
+        ret = applicationManagerProxy->RemoveUserNonStopApps(elementName, UserNonStopApps);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUserNonStopApps called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<ApplicationMsg> UserNonStopApps;
+    int32_t ret = applicationManagerProxy->GetUserNonStopApps(elementName, UserNonStopApps);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiUserNonStopApps = nullptr;
+    napi_create_array(env, &napiUserNonStopApps);
+    ConvertApplicationInstanceVectorToJS(env, UserNonStopApps, napiUserNonStopApps);
+    return napiUserNonStopApps;
 }
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)

@@ -47,6 +47,7 @@ namespace EdmConstants {
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
     constexpr uint32_t FREEZE_EXEMPTED_APPS_MAX_SIZE = 10;
+    constexpr uint32_t USER_NON_STOP_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
 
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
@@ -382,6 +383,7 @@ namespace PolicyName {
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
     const char* const POLICY_MANAGE_FREEZE_EXEMPTED_APPS = "manage_freeze_exempted_apps";
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
+    const char* const POLICY_MANAGE_USER_NON_STOP_APPS = "manage_user_non_stop_apps";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -61,6 +61,7 @@
 #include "is_wifi_active_plugin.h"
 #include "location_policy_plugin.h"
 #include "lock_screen_plugin.h"
+#include "manage_user_non_stop_apps_plugin.h"
 #include "manage_auto_start_apps_plugin.h"
 #include "manage_auto_start_apps_serializer.h"
 #include "manage_keep_alive_apps_plugin.h"
@@ -114,6 +115,8 @@ const bool REGISTER_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN =
 const bool REGISTER_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 #endif
+const bool REGISTER_MANAGE_USER_NON_STOP_APPS_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageUserNonStopAppsPlugin>());
 const bool REGISTER_DISALL_MODIFY_DATE_TIME_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
 const bool REGISTER_DISALLOWED_INSTALL_BUNDLES_PLUGIN =

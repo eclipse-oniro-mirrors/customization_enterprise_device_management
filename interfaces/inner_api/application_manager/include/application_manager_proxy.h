@@ -57,6 +57,12 @@ public:
         const std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
         std::vector<ApplicationMsg> &freezeExemptedApps);
+    int32_t AddUserNonStopApps(const AppExecFwk::ElementName &admin,
+        const std::vector<ApplicationInstance> &UserNonStopApps, std::string &retMessage);
+    int32_t RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
+        const std::vector<ApplicationInstance> &UserNonStopApps);
+    int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin,
+        std::vector<ApplicationMsg> &UserNonStopApps);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

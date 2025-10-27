@@ -69,6 +69,7 @@ group("fuzztest") {
       "setapnplugin_fuzzer:SetApnPluginFuzzTest",
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+      "manageusernonstopappsplugin_fuzzer:ManageUserNonStopAppsPluginFuzzTest",
     ]
   }
 

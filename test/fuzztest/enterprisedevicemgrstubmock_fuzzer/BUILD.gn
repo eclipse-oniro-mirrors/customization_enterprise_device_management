@@ -446,7 +446,12 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     if (!enterprise_device_management_feature_pc_only) {
-      sources += [ "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp" ]
+      sources += [ 
+        "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
+        "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_info.cpp",
+        "../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_serializer.cpp"
+         ]
     }
 
     if (enterprise_device_management_feature_pc_only) {
