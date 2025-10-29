@@ -326,6 +326,71 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetWallPaperSuc, TestSize.Level1)
     int32_t ret = deviceSettingsProxy->SetWallPaper(data, errMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+
+/**
+ * @tc.name: TestSetEyeComforModetSuc
+ * @tc.desc: Test SetEyeComfortMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetEyeComforModetSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string mode = "off";
+    int32_t ret = deviceSettingsProxy->SetEyeComfortMode(admin, mode);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetEyeComfortModeFail
+ * @tc.desc: Test SetEyeComfortMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetEyeComfortModeFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string mode = "off";
+    int32_t ret = deviceSettingsProxy->SetEyeComfortMode(admin, mode);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetEyeComfortModeSuc
+ * @tc.desc: Test GetEyeComfortMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetEyeComfortModeSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    std::string mode;
+    int32_t ret = deviceSettingsProxy->GetEyeComfortMode(admin, mode);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetEyeComfortModeFail
+ * @tc.desc: Test GetEyeComfortMode func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetEyeComfortModeFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string mode;
+    int32_t ret = deviceSettingsProxy->GetEyeComfortMode(admin, mode);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
