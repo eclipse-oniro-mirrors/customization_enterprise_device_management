@@ -444,7 +444,7 @@ void IptablesManager::GetDomainRemoveForwardChainName(Action action,
 bool IptablesManager::HasInit(NetsysNative::IptablesType ipType)
 {
     if (!g_chainInit) {
-        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_ALLOW_INPUT_CHAIN_NAME);
+        auto executer = ExecuterFactory::GetInstance()->GetExecuter(EDM_REJECT_INPUT_CHAIN_NAME);
         if (executer != nullptr && executer->ChainInit(ipType)) {
             g_chainInit = true;
         }
