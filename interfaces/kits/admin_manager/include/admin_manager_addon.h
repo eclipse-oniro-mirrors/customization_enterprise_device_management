@@ -158,6 +158,7 @@ private:
     static int32_t AdminTypeToJsAdminType(int32_t AdminType);
     static bool CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
         int32_t adminType, std::map<std::string, std::string> &parameters);
+    static napi_value AssertStartAdminProvision(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
