@@ -60,6 +60,7 @@ private:
         std::vector<Rosen::AbilityInfoBase> &infoBase);
     ErrCode FilterUninstalledBundle(
         std::vector<ManageUserNonStopAppInfo> &data, std::vector<ManageUserNonStopAppInfo> &UninstalledApp);
+    int32_t GetCurrentUserId();
     uint32_t maxListSize_ = 0;
 };
 } // namespace EDM
