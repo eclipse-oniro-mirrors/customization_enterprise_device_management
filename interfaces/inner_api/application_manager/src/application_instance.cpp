@@ -17,6 +17,8 @@
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "bundle_mgr_interface.h"
+#include "iedm_bundle_manager.h"
+#include "edm_bundle_manager.impl.h"
 
 namespace OHOS {
 namespace EDM {
@@ -115,6 +117,19 @@ bool ApplicationInstanceHandle::ReadApplicationInstanceVector(MessageParcel &dat
         freezeExemptedApps.emplace_back(std::move(instance));
     }
     return true;
+}
+
+std::string ApplicationInstanceHandle::GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId)
+{
+    std::string appIdentifier;
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    AppExecFwk::BundleInfo bundleInfo;
+    bool res = bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    if (!res) {
+        return "";
+    }
+    appIdentifier = bundleInfo.signatureInfo.appIdentifier;
+    return appIdentifier;
 }
 } // namespace EDM
 } // namespace OHOS

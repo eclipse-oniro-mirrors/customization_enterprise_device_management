@@ -283,6 +283,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, WINDOW_MANAGER_SERVICE_ID);
         };
     addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -386,13 +387,13 @@ void EnterpriseDeviceMgrAbility::UpdateUserNonStopInfo(const std::string &bundle
     for (const auto& admin : admins) {
         std::uint32_t funcCode =
             POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-        std::vector<ApplicationInstance> userNonStopApps;
-        ApplicationInstance applicationInstance = { bundleName, userId, appIndex};
-        userNonStopApps.push_back(applicationInstance);
+        std::vector<ApplicationMsg> userNonStopApps;
+        ApplicationMsg applicationMsg = { bundleName, userId, appIndex};
+        userNonStopApps.push_back(ApplicationMsg);
         MessageParcel reply;
         MessageParcel data;
         data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps)) {
+        if (!ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps)) {
             EDMLOGE("OnCommonEventPackageRemoved WriteApplicationInstanceVector fail");
         }
         data.WriteBool(true);
@@ -431,6 +432,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
         }
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
+    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
