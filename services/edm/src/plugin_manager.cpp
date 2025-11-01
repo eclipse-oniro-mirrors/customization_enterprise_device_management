@@ -337,7 +337,9 @@ void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
-            UnloadPlugin(soName);
+            if (UnloadPlugin(soName)) {
+                loadStatePtr->pluginHasInit = false;
+            }
         }
     }
 }
@@ -377,7 +379,7 @@ bool PluginManager::GetSoNameByCode(std::uint32_t code, std::string &soName)
     return false;
 }
 
-void PluginManager::UnloadPlugin(const std::string &soName)
+bool PluginManager::UnloadPlugin(const std::string &soName)
 {
     EDMLOGI("PluginManager::UnloadPlugin soName: %{public}s.", soName.c_str());
     std::vector<uint32_t>* targetVec = nullptr;
@@ -394,13 +396,13 @@ void PluginManager::UnloadPlugin(const std::string &soName)
         targetVec = &extraPluginCodeList;
         GetExtraPluginCodeList(targetVec);
         if (ExtraHasPersistPlugin(*targetVec)) {
-            return;
+            return false;
         }
         extensionPluginMap_.clear();
         executeStrategyMap_.clear();
     }
     if (HasPersistPlugin(*targetVec)) {
-        return;
+        return false;
     }
 
     for (const auto& code : *targetVec) {
@@ -408,12 +410,12 @@ void PluginManager::UnloadPlugin(const std::string &soName)
     }
     if (soLoadStateMap_.find(soName) == soLoadStateMap_.end()) {
         EDMLOGE("PluginManager::UnloadPlugin this so:%{public}s not find", soName.c_str());
-        return;
+        return true;
     }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
     if (loadStatePtr == nullptr || loadStatePtr->pluginHandles == nullptr) {
         EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
-        return;
+        return true;
     }
     int result = dlclose(loadStatePtr->pluginHandles);
     if (result != 0) {
@@ -422,6 +424,7 @@ void PluginManager::UnloadPlugin(const std::string &soName)
         EDMLOGI("PluginManager::UnloadPlugin %{public}s close lib success", soName.c_str());
     }
     soLoadStateMap_.erase(soName);
+    return true;
 }
 
 bool PluginManager::ExtraHasPersistPlugin(std::vector<uint32_t> targetVec)

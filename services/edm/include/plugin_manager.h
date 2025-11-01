@@ -81,7 +81,7 @@ private:
     PluginManager();
     void DlopenPlugin(const std::string &pluginPath, std::shared_ptr<SoLoadState> loadStatePtr);
     void LoadPlugin(const std::string &soName);
-    void UnloadPlugin(const std::string &soName);
+    bool UnloadPlugin(const std::string &soName);
     void LoadExtraPlugin();
     bool IsExtraPlugin(const std::string &soName);
     void UnloadPluginTask(const std::string &soName, std::shared_ptr<SoLoadState> loadStatePtr);
