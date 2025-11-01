@@ -61,6 +61,10 @@ public:
     void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override;
 
     void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override;
+
+    void OnDeviceAdminEnabled(const std::string &bundleName) override;
+
+    void OnDeviceAdminDisabled(const std::string &bundleName) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

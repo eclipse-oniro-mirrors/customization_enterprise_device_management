@@ -40,6 +40,30 @@ void EnterpriseAdminProxy::OnAdminDisabled()
     SendRequest(COMMAND_ON_ADMIN_DISABLED, data);
 }
 
+void EnterpriseAdminProxy::OnDeviceAdminEnabled(const std::string &bundleName)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    EDMLOGI("EnterpriseAdminProxy proxy OnDeviceAdminEnabled");
+    SendRequest(COMMAND_ON_DEVICE_ADMIN_ENABLED, data);
+}
+
+void EnterpriseAdminProxy::OnDeviceAdminDisabled(const std::string &bundleName)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    EDMLOGI("EnterpriseAdminProxy proxy OnDeviceAdminDisabled");
+    SendRequest(COMMAND_ON_DEVICE_ADMIN_DISABLED, data);
+}
+
 void EnterpriseAdminProxy::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     MessageParcel data;

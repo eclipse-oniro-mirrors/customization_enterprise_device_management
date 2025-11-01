@@ -628,6 +628,21 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, c
     return manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
 }
 
+bool EnterpriseDeviceMgrAbility::OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId,
+    const std::string &enabledBundleName)
+{
+    if (adminInfo.className_.empty()) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::OnAdminEnabled ignore bundlename is %{public}s",
+            adminInfo.packageName_.c_str());
+        return false;
+    }
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(adminInfo.packageName_, adminInfo.className_);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    return manager->CreateAdminConnection(
+        connectWant, code, userId, true, enabledBundleName);
+}
+
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
 {
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
@@ -1341,13 +1356,9 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableDeviceAdmin");
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::HapTokenInfo hapTokenInfo;
-    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
-        EDMLOGE("isSuperDeviceAdmin GetHapTokenInfo failed.");
-        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
-    }
+    std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetAdminByPkgName(hapTokenInfo.bundleName,
+    std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetAdminByPkgName(callingBundleName,
         EdmConstants::DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         EDMLOGE("EnableDeviceAdmin: the admin is not a super admin.");
@@ -1394,6 +1405,12 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
         true);
+    // 如果是激活DA需要上报给SDA
+    std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin != nullptr && type == AdminType::NORMAL) {
+        OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED, userId,
+            admin.GetBundleName());
+    }
     EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
     std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
     if (deviceAdmin && deviceAdmin->IsDisallowedUninstall()) {
@@ -1638,6 +1655,11 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
     }
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
         IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin != nullptr && adminType == AdminType::NORMAL) {
+        OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
+            userId, admin->adminInfo_.packageName_);
+    }
     if (admin->IsDisallowedUninstall()) {
         if (admin->IsAllowedAcrossAccountSetPolicy()) {
             DelDisallowUninstallApp(admin->adminInfo_.packageName_);
@@ -1682,12 +1704,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDisableDeviceAdmin(std::shared_ptr<Admi
         return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::HapTokenInfo hapTokenInfo;
-    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
-        EDMLOGE("isSuperDeviceAdmin GetHapTokenInfo failed.");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
-    std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetAdminByPkgName(hapTokenInfo.bundleName,
+    std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
+    std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetAdminByPkgName(callingBundleName,
         EdmConstants::DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         EDMLOGE("DisableDeviceAdmin the admin is not a super admin");

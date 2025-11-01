@@ -79,6 +79,12 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         case COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED:
             OnMarketAppsInstallStatusChangedInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_DEVICE_ADMIN_ENABLED:
+            OnDeviceAdminEnabledInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_DEVICE_ADMIN_DISABLED:
+            OnDeviceAdminDisabledInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -179,6 +185,20 @@ void EnterpriseAdminStub::OnMarketAppsInstallStatusChangedInner(MessageParcel& d
     std::string bundleName = data.ReadString();
     int32_t status = data.ReadInt32();
     OnMarketAppsInstallStatusChanged(bundleName, status);
+}
+
+void EnterpriseAdminStub::OnDeviceAdminEnabledInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnDeviceAdminEnabledInner");
+    std::string bundleName = data.ReadString();
+    OnDeviceAdminEnabled(bundleName);
+}
+
+void EnterpriseAdminStub::OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnDeviceAdminDisabledInner");
+    std::string bundleName = data.ReadString();
+    OnDeviceAdminDisabled(bundleName);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
