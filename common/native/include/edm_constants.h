@@ -95,6 +95,8 @@ namespace EdmConstants {
         const char* const SIM_IMEI = "IMEI";
         constexpr int32_t SIM_SLOT_ID_0 = 0;
         constexpr int32_t SIM_SLOT_ID_1 = 1;
+        constexpr int32_t EYE_COMFORT_ON = 1;
+        constexpr int32_t EYE_COMFORT_OFF = 0;
     } // namespace DeviceInfo
 
     namespace PolicyCode {
@@ -186,6 +188,7 @@ namespace EdmConstants {
         const char* const SCREEN_OFF = "screenOff";
         const char* const POWER_POLICY = "powerPolicy";
         const char* const DATE_TIME = "dateTime";
+        const char* const EYE_COMFORT = "eyeComfort";
     } // namespace DeviceSettings
 
     namespace DeviceControl {
@@ -395,6 +398,7 @@ namespace PolicyName {
     const char* const POLICY_ALLOW_ALL = "allow_all";
     const char* const POLICY_DISABLED_PRINT = "disabled_print";
     const char* const POLICY_DISABLE_RUNNING_BINARY_APP = "disable_running_binary_app";
+    const char* const POLICY_SET_EYE_COMFORT_MODE = "set_eye_comfort_mode";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
