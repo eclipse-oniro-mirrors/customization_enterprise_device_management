@@ -51,7 +51,7 @@ enum ApnGetFlag {
     QUERYINFO
 };
 
-extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;
