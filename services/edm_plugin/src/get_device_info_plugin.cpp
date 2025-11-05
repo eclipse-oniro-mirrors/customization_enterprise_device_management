@@ -180,6 +180,13 @@ bool GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
         EDMLOGD("GetDeviceInfoPlugin::get sim imei failed: %{public}d.", imeiRet);
     }
     cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI, EdmUtils::Utf16ToUtf8(imei).c_str());
+
+    std::u16string number;
+    int32_t numberRet = telephonyService.GetShowNumber(slotId, number);
+    if (FAILED(numberRet)) {
+        EDMLOGD("GetDeviceInfoPlugin::get sim number failed: %{public}d.", numberRet);
+    }
+    cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_NUMBER, EdmUtils::Utf16ToUtf8(number).c_str());
     if (!cJSON_AddItemToArray(simJson, slotJson)) {
         cJSON_Delete(slotJson);
         return false;

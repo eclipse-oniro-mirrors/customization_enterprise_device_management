@@ -93,6 +93,7 @@ namespace EdmConstants {
         const char* const SIM_IMSI = "IMSI";
         const char* const SIM_ICCID = "ICCID";
         const char* const SIM_IMEI = "IMEI";
+        const char* const SIM_NUMBER = "NUMBER";
         constexpr int32_t SIM_SLOT_ID_0 = 0;
         constexpr int32_t SIM_SLOT_ID_1 = 1;
         constexpr int32_t EYE_COMFORT_ON = 1;
