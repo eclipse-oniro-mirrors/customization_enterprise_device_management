@@ -305,8 +305,8 @@ void JsEnterpriseAdminExtension::OnMarketAppsInstallStatusChanged(const std::str
     auto task = [bundleName, status, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
-                              AbilityRuntime::CreateJsValue(env, status) };
-        CallObjectMethod("onMarketAppsInstallStatusChanged", argv, JS_NAPI_ARGC_TWO);
+                              CreateInstallationResultObject(env, bundleName, status) };
+        CallObjectMethod("onMarketAppInstallResult", argv, JS_NAPI_ARGC_TWO);
     };
     handler_->PostTask(task);
 }
@@ -329,6 +329,24 @@ napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, cons
     NAPI_CALL(env, napi_set_named_property(env, nSystemUpdateInfo, "packageType", nPackageType));
 
     return nSystemUpdateInfo;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateInstallationResultObject(napi_env env,
+    const std::string &bundleName, int32_t status)
+{
+    napi_value nInstallationResult = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nInstallationResult));
+
+    std::string message = bundleName + (status == 0 ? " installed successfully." : " installed failed.");
+    napi_value nMessage = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, message.c_str(), NAPI_AUTO_LENGTH, &nMessage));
+    NAPI_CALL(env, napi_set_named_property(env, nInstallationResult, "message", nMessage));
+
+    napi_value nResult = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, status, &nResult));
+    NAPI_CALL(env, napi_set_named_property(env, nInstallationResult, "result", nResult));
+
+    return nInstallationResult;
 }
 
 napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_value* argv, size_t argc)

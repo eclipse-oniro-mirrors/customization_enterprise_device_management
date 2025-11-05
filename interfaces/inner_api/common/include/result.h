@@ -13,27 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_COMMON_MANAGER_INCLUDE_COMMON_MANAGER_ADDON_H
-#define INTERFACES_KITS_COMMON_MANAGER_INCLUDE_COMMON_MANAGER_ADDON_H
-
-#include "napi/native_api.h"
-#include "napi/native_common.h"
-#include "napi/native_node_api.h"
-#include "napi_edm_common.h"
-#include "napi_edm_error.h"
-#include "want.h"
+#ifndef INTERFACES_INNER_API_RESULT_PROXY_H
+#define INTERFACES_INNER_API_RESULT_PROXY_H
 
 namespace OHOS {
 namespace EDM {
-class CommonManagerAddon {
-public:
-    static napi_value Init(napi_env env, napi_value exports);
-
-private:
-    static void CreateManagedPolicyTypeObject(napi_env env, napi_value value);
-    static void CreateResultObject(napi_env env, napi_value value);
+enum class Result {
+    FAIL = -1,
+    SUCCESS = 0
 };
 } // namespace EDM
 } // namespace OHOS
-
-#endif // INTERFACES_KITS_COMMON_MANAGER_INCLUDE_COMMON_MANAGER_ADDON_H
+#endif // INTERFACES_INNER_API_RESULT_PROXY_H
