@@ -27,6 +27,7 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVirtualServicePlugin, bool>> ptr) override;
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

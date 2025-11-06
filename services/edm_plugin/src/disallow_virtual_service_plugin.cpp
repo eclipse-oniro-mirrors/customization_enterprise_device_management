@@ -38,14 +38,23 @@ ErrCode DisallowVirtualServicePlugin::SetOtherModulePolicy(bool data, int32_t us
 {
     if (data) {
         if (!system::SetParameter("persist.edm.disallow_virtual_service", "anco|linux|win")) {
-            EDMLOGE("disallow_virtual_service anco|linux|win failed.");
+            EDMLOGE("set disallow virtual service true failed.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     } else {
         if (!system::SetParameter("persist.edm.disallow_virtual_service", "")) {
-            EDMLOGE("allow_virtual_service.anco|linux|win failed.");
+            EDMLOGE("set disallow virtual service false failed.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
+    }
+    return ERR_OK;
+}
+
+ErrCode DisallowVirtualServicePlugin::RemoveOtherModulePolicy(int32_t userId)
+{
+    if (!system::SetParameter("persist.edm.disallow_virtual_service", "")) {
+        EDMLOGE("set disallow virtual service false failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }
