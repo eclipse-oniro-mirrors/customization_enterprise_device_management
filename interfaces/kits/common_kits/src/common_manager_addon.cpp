@@ -18,6 +18,7 @@
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
 #include "managed_policy.h"
+#include "result.h"
 
 using namespace OHOS::EDM;
 
@@ -26,9 +27,13 @@ napi_value CommonManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nManagedPolicy = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nManagedPolicy));
     CreateManagedPolicyTypeObject(env, nManagedPolicy);
+    napi_value nResult = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nResult));
+    CreateResultObject(env, nResult);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_PROPERTY("ManagedPolicy", nManagedPolicy),
+        DECLARE_NAPI_PROPERTY("Result", nResult),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -48,6 +53,18 @@ void CommonManagerAddon::CreateManagedPolicyTypeObject(napi_env env, napi_value 
     NAPI_CALL_RETURN_VOID(env,
         napi_create_uint32(env, static_cast<uint32_t>(ManagedPolicy::DEFAULT), &nDefault));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+}
+
+void CommonManagerAddon::CreateResultObject(napi_env env, napi_value value)
+{
+    napi_value nSuccess;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(Result::SUCCESS), &nSuccess));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUCCESS", nSuccess));
+    napi_value nFail;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(Result::FAIL), &nFail));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FAIL", nFail));
 }
 
 static napi_module g_commonManagerServiceModule = {

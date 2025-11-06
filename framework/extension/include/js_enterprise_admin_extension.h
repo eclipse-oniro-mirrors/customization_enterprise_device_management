@@ -93,6 +93,8 @@ private:
 
     napi_value CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo);
 
+    napi_value CreateInstallationResultObject(napi_env env, const std::string &bundleName, int32_t status);
+
     AbilityRuntime::JsRuntime& jsRuntime_;
 
     std::unique_ptr<NativeReference> jsObj_{nullptr};
