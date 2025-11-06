@@ -14,12 +14,18 @@
  */
 
 #include "utils.h"
+#include <cctype>
+#include <sstream>
+#include "edm_log.h"
 #include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
 uint64_t Utils::selfTokenId_ = 0;
+uint64_t Utils::mockTokenId_ = 0;
+constexpr int32_t DEFAULT_USER_ID = 100;
+constexpr int32_t API_VERSION = 12;
 const std::string SET_EDM_SERVICE = "persist.edm.edm_enable";
 const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.SET_TIME";
 const std::string EDM_FACTORY_RESET_PERMISSION = "ohos.permission.FACTORY_RESET";
@@ -201,6 +207,96 @@ void Utils::SetBluetoothEnable()
 void Utils::SetBluetoothDisable()
 {
     system::SetParameter(PERSIST_BLUETOOTH_CONTROL, "true");
+}
+
+void Utils::SetHapPermission(const std::string &bundleName, const std::string &permissionName, bool isSystemHap)
+{
+    selfTokenId_ = GetSelfTokenID();
+    // 模拟应用参数
+    Security::AccessToken::HapInfoParams hapInfo = {
+        .userID = DEFAULT_USER_ID,
+        .bundleName = bundleName,
+        .instIndex = 0,
+        .appIDDesc = "mock hap permission test",
+        .apiVersion = API_VERSION,
+        .isSystemApp = isSystemHap
+    };
+    Security::AccessToken::HapPolicyParams hapPolicy = {
+        .apl = Security::AccessToken::APL_NORMAL,
+        .domain = "test.domain.mdm"
+    };
+    Security::AccessToken::PermissionDef permDefResult;
+    if (Security::AccessToken::AccessTokenKit::GetDefPermission(permissionName, permDefResult) ==
+        Security::AccessToken::RET_SUCCESS) {
+        // 授予权限
+        if (!permissionName.empty()) {
+            Security::AccessToken::PermissionStateFull state = {
+                .permissionName = permissionName,
+                .isGeneral = true,
+                .resDeviceID = {"local"},
+                .grantStatus = {Security::AccessToken::PermissionState::PERMISSION_GRANTED},
+                .grantFlags = {1}
+            };
+            hapPolicy.permStateList.emplace_back(state);
+        }
+        if (permDefResult.availableLevel > hapPolicy.apl) {
+            hapPolicy.aclRequestedList.emplace_back(permissionName);
+        }
+    }
+    // 获取模拟hap的tokenID
+    Security::AccessToken::AccessTokenIDEx tokenIdEx =
+        Security::AccessToken::AccessTokenKit::AllocHapToken(hapInfo, hapPolicy);
+    mockTokenId_ = tokenIdEx.tokenIdExStruct.tokenID;
+    SetSelfTokenID(tokenIdEx.tokenIDEx);
+}
+
+void Utils::SetNativePermission(const std::string &process, int32_t uid)
+{
+    selfTokenId_ = GetSelfTokenID();
+    SetSelfTokenID(GetNativeTokenIdFromProcess(process));
+    if (setuid(uid) != 0) {
+        EDMLOGE("SetNativePermission seteuid failed, errno = %{public}s", strerror(errno));
+    }
+}
+
+Security::AccessToken::AccessTokenID Utils::GetNativeTokenIdFromProcess(const std::string &process)
+{
+    std::string dumpInfo;
+    Security::AccessToken::AtmToolsParamInfo info;
+    info.processName = process;
+    Security::AccessToken::AccessTokenKit::DumpTokenInfo(info, dumpInfo);
+    size_t pos = dumpInfo.find("\"tokenID\": ");
+    if (pos == std::string::npos) {
+        return 0;
+    }
+    pos += std::string("\"tokenID\": ").length();
+    std::string numStr;
+    while (pos < dumpInfo.length() && std::isdigit(dumpInfo[pos])) {
+        numStr += dumpInfo[pos];
+        ++pos;
+    }
+    std::istringstream iss(numStr);
+    Security::AccessToken::AccessTokenID tokenID;
+    iss >> tokenID;
+    return tokenID;
+}
+
+void Utils::ResetHapPermission()
+{
+    // 使用完毕后删除模拟的tokenID
+    if (mockTokenId_ != 0) {
+        Security::AccessToken::AccessTokenKit::DeleteToken(mockTokenId_);
+    }
+    // 恢复
+    SetSelfTokenID(selfTokenId_);
+}
+
+void Utils::ResetNativePermission()
+{
+    if (setuid(Utils::ROOT_UID) != 0) {
+        EDMLOGE("ResetNativePermission seteuid failed, errno = %{public}s", strerror(errno));
+    }
+    SetSelfTokenID(selfTokenId_);
 }
 } // namespace TEST
 } // namespace EDM
