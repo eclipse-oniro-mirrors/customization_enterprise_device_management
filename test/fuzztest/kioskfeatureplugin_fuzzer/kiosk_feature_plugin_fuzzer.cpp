@@ -31,7 +31,7 @@ constexpr size_t WITHOUT_USERID = 0;
 constexpr const char *WITHOUT_PERMISSION_TAG = "";
 constexpr int32_t RANGE_DATA = 10;
 
-extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;

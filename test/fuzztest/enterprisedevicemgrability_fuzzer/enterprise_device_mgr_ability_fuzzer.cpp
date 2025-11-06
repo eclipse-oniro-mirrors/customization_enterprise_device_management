@@ -41,7 +41,7 @@ const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
 const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 
-extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;

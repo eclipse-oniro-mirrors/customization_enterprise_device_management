@@ -64,7 +64,7 @@ void CheckPrivateFunction(const uint8_t* data, const size_t size, int32_t &pos)
     plugin.OnOtherServiceStart(userId);
 }
 
-extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;
