@@ -75,6 +75,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_open_file_boost_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_distributed_transmission_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
