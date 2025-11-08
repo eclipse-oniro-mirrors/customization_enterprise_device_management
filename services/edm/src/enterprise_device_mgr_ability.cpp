@@ -1362,7 +1362,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
         EdmConstants::DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         EDMLOGE("EnableDeviceAdmin: the admin is not a super admin.");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (!superAdmin->HasPermissionToCallServiceCode(EdmInterfaceCode::ENABLE_DEVICE_ADMIN)) {
         EDMLOGE("EnableDeviceAdmin the admin has no permission.");
@@ -1698,18 +1698,13 @@ ErrCode EnterpriseDeviceMgrAbility::DisableDeviceAdmin(const AppExecFwk::Element
 
 ErrCode EnterpriseDeviceMgrAbility::CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin)
 {
-    AdminType adminType = deviceAdmin->GetAdminType();
-    if (adminType != AdminType::NORMAL) {
-        EDMLOGE("CheckDisableDeviceAdmin: this admin is not device admin");
-        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
-    }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
     std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetAdminByPkgName(callingBundleName,
         EdmConstants::DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         EDMLOGE("DisableDeviceAdmin the admin is not a super admin");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (!superAdmin->HasPermissionToCallServiceCode(EdmInterfaceCode::DISABLE_DEVICE_ADMIN)) {
         EDMLOGE("DisableDeviceAdmin: the admin has no permission");
@@ -1719,6 +1714,11 @@ ErrCode EnterpriseDeviceMgrAbility::CheckDisableDeviceAdmin(std::shared_ptr<Admi
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
         EDMLOGE("CheckDisableDeviceAdmin: check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    AdminType adminType = deviceAdmin->GetAdminType();
+    if (adminType != AdminType::NORMAL) {
+        EDMLOGE("CheckDisableDeviceAdmin: this admin is not device admin");
+        return EdmReturnErrCode::DISABLE_ADMIN_FAILED;
     }
     return ERR_OK;
 }
