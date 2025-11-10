@@ -4290,6 +4290,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdmins, TestSize.Level1)
     EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
 
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
     edmMgr_->GetAdmins(wants);
     int32_t wantSize = wants.size();
     ASSERT_TRUE(wantSize == 1);
