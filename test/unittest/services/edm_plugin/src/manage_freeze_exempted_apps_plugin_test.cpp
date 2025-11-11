@@ -128,12 +128,12 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
  */
 HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
 {
-    std::string cameraAppIdentifier = "5765880207854258995";
+    std::string settingsAppIdentifier = "5765880207852919475";
     std::string bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(cameraAppIdentifier, bundleName);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
     ASSERT_TRUE(res == ERR_OK);
     std::vector<ApplicationMsg> freezeExemptedApps = {{ bundleName, 100, 0 }};
     std::vector<ManageFreezeExemptedAppInfo> currentData;
