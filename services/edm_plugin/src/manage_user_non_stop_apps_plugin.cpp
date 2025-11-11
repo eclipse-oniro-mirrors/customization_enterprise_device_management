@@ -130,14 +130,6 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> &da
         return EdmReturnErrCode::PARAM_ERROR;
     }
 
-    std::vector<ManageUserNonStopAppInfo> failedApps =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
-        freezeExemptedData);
-    if (!failedApps.empty()) {
-        EDMLOGE("OnRemovePolicy freezeExemptedApps has apps do not belong to current data");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-
     if (!needAddMergeData.empty()) {
         ErrCode ret = SetOtherModulePolicy(afterHandle);
         if (FAILED(ret)) {
@@ -167,6 +159,22 @@ ErrCode ManageUserNonStopAppsPlugin::OnRemovePolicy(std::vector<ApplicationMsg> 
         ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
     std::vector<ManageUserNonStopAppInfo> needResetPolicy =
     ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy, currentData);
+
+    std::vector<ManageUserNonStopAppInfo> tmpData;
+    for (const auto &item : data) {
+        ManageUserNonStopAppInfo appInfo;
+        appInfo.SetBundleName(item.bundleName);
+        appInfo.SetAccountId(item.accountId);
+        appInfo.SetAppIndex(item.appIndex);
+        tmpData.push_back(appInfo);
+    }
+    std::vector<ManageUserNonStopAppInfo> failedApps =
+        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
+        tmpData);
+    if (!failedApps.empty()) {
+        EDMLOGE("OnRemovePolicy userNonStopApps has apps do not belong to current data");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
 
     if (!needRemoveMergePolicy.empty()) {
         ErrCode ret = RemoveOtherModulePolicy(needResetPolicy, needRemoveMergePolicy);
