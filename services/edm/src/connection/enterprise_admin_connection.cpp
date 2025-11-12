@@ -48,6 +48,12 @@ void EnterpriseAdminConnection::OnAbilityConnectDone(
         case IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED:
             proxy_->OnAdminDisabled();
             break;
+        case IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED:
+            proxy_->OnDeviceAdminEnabled(bundleName_);
+            break;
+        case IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED:
+            proxy_->OnDeviceAdminDisabled(bundleName_);
+            break;
         default:
             return;
     }

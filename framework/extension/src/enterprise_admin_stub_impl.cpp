@@ -38,6 +38,26 @@ void EnterpriseAdminStubImpl::OnAdminDisabled()
     }
 }
 
+void EnterpriseAdminStubImpl::OnDeviceAdminEnabled(const std::string &bundleName)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnDeviceAdminEnabled(bundleName);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
+void EnterpriseAdminStubImpl::OnDeviceAdminDisabled(const std::string &bundleName)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnDeviceAdminDisabled(bundleName);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
 void EnterpriseAdminStubImpl::OnBundleAdded(const std::string &bundleName, int32_t accountId)
 {
     EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);

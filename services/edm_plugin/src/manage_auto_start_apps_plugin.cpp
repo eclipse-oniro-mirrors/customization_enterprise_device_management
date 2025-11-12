@@ -165,7 +165,7 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
         }
         if (!hasSetAutoStart) {
             reply.WriteInt32(ERR_OK);
-            reply.WriteBool(true);
+            reply.WriteBool(false);
         }
     } else {
         EDMLOGE("ManageAutoStartAppsPlugin::OnGetPolicy type error");

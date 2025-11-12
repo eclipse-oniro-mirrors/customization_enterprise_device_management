@@ -13,23 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_EYE_COMFORT_MODE_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_EYE_COMFORT_MODE_PLUGIN_H
 
-#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowVirtualServicePlugin : public PluginSingleton<DisallowVirtualServicePlugin, bool>,
-    public BasicBoolPlugin {
+class SetEyeComfortModePlugin : public PluginSingleton<SetEyeComfortModePlugin, std::string> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVirtualServicePlugin, bool>> ptr) override;
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetEyeComfortModePlugin, std::string>> ptr) override;
+
+    ErrCode OnSetPolicy(std::string &data);
+
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_EYE_COMFORT_MODE_PLUGIN_H

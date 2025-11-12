@@ -173,6 +173,7 @@ enum EdmInterfaceCode : uint32_t {
     MANAGE_USER_NON_STOP_APPS = 1125,
     HANG_UP_CALLING = 1126,
     MANAGE_FREEZE_EXEMPTED_APPS = 1127,
+    SET_EYE_COMFORT_MODE = 1128,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

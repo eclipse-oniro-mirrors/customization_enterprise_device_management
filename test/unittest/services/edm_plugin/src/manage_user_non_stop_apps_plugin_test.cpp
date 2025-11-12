@@ -126,7 +126,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
  * @tc.type: FUNC
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
-{   
+{
     std::string settingsAppIdentifier = "5765880207852919475";
     std::string bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);

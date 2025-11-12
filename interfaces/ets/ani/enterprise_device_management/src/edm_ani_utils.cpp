@@ -82,8 +82,8 @@ void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode, std::string errMsg)
         EDMLOGE("new object %{public}s failed", CLASS_NAME_BUSINESSERROR);
         return;
     }
-    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code", errCode)) {
-        EDMLOGE("set property BusinessError.code failed");
+    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code_", errCode)) {
+        EDMLOGE("set property Error.code failed");
         return;
     }
     ani_string messageRef {};
