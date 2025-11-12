@@ -557,6 +557,26 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     return ERR_OK;
 }
 
+int32_t NetworkManagerProxy::SetEthernetConfig(const AppExecFwk::ElementName &admin,
+    std::string iface, const InterfaceConfig &config)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(iface);
+    data.WriteInt32(static_cast<int32_t>(config.ipSetMode));
+    data.WriteString(config.ipAddress);
+    data.WriteString(config.gateway);
+    data.WriteString(config.netMask);
+    data.WriteString(config.dnsServers);
+    
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
 #ifdef NETMANAGER_BASE_EDM_ENABLE
 int32_t NetworkManagerProxy::SetGlobalHttpProxy(MessageParcel &data)
 {

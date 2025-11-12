@@ -49,6 +49,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT,
         "The enterprise management policy has been successfully set, " \
         "but the function has not taken effect in real time."},
+    {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

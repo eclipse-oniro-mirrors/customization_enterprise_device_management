@@ -48,6 +48,7 @@ const std::unordered_map<int32_t, std::string> EdmAniUtils::errMessageMap = {
     {EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED, "the upgrade packages do not exist or analyzing failed, $."},
     {EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED, "Add keep alive applications failed. $."},
     {EdmReturnErrCode::REPLACE_ADMIN_FAILED, "Replace admin failed. $."},
+    {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
 };
 
 std::string EdmAniUtils::FindErrMsg(int32_t errCode)

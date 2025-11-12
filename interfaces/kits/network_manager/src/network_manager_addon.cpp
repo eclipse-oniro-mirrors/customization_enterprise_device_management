@@ -105,6 +105,16 @@ void NetworkManagerAddon::CreateFirewallAddMethodObject(napi_env env, napi_value
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INSERT", nInsert));
 }
 
+void NetworkManagerAddon::CreateIpSetModeObject(napi_env env, napi_value value)
+{
+    napi_value nStatic;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IpSetMode::STATIC), &nStatic));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "STATIC", nStatic));
+    napi_value nDynamic;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IpSetMode::DHCP), &nDynamic));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DHCP", nDynamic));
+}
+
 napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nFirewallAction = nullptr;
@@ -123,7 +133,11 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nFirewallAddMethod));
     CreateFirewallAddMethodObject(env, nFirewallAddMethod);
 
-    napi_property_descriptor property[] = {
+    napi_value nIpSetMode = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nIpSetMode));
+    CreateIpSetModeObject(env, nIpSetMode);
+
+    std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getAllNetworkInterfaces", GetAllNetworkInterfaces),
         DECLARE_NAPI_FUNCTION("getIpAddress", GetIpAddress),
         DECLARE_NAPI_FUNCTION("getMac", GetMac),
@@ -134,10 +148,21 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("Protocol", nFirewallProtocol),
         DECLARE_NAPI_PROPERTY("Direction", nFirewallDirection),
         DECLARE_NAPI_PROPERTY("AddMethod", nFirewallAddMethod),
+        DECLARE_NAPI_PROPERTY("IpSetMode", nIpSetMode),
         DECLARE_NAPI_FUNCTION("addIptablesFilterRule", AddIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("removeIptablesFilterRule", RemoveIptablesFilterRule),
         DECLARE_NAPI_FUNCTION("listIptablesFilterRules", ListIptablesFilterRules),
+    };
+    std::vector<napi_property_descriptor> propertyOne = InitOne();
+    property.insert(property.end(), propertyOne.begin(), propertyOne.end());
 
+    NAPI_CALL(env, napi_define_properties(env, exports, property.size(), property.data()));
+    return exports;
+}
+
+std::vector<napi_property_descriptor> NetworkManagerAddon::InitOne()
+{
+    std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("addFirewallRule", AddFirewallRule),
         DECLARE_NAPI_FUNCTION("removeFirewallRule", RemoveFirewallRule),
         DECLARE_NAPI_FUNCTION("getFirewallRules", GetFirewallRules),
@@ -148,7 +173,6 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
 
         DECLARE_NAPI_FUNCTION("setGlobalProxy", SetGlobalHttpProxy),
         DECLARE_NAPI_FUNCTION("getGlobalProxy", GetGlobalHttpProxy),
-
         DECLARE_NAPI_FUNCTION("getAllNetworkInterfacesSync", GetAllNetworkInterfacesSync),
         DECLARE_NAPI_FUNCTION("getIpAddressSync", GetIpAddressSync),
         DECLARE_NAPI_FUNCTION("getMacSync", GetMacSync),
@@ -165,9 +189,10 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("updateApn", UpdateApn),
         DECLARE_NAPI_FUNCTION("setPreferredApn", SetPreferApn),
         DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
+        DECLARE_NAPI_FUNCTION("setEthernetConfig", SetEthernetConfig),
     };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
-    return exports;
+
+    return property;
 }
 
 napi_value NetworkManagerAddon::GetAllNetworkInterfaces(napi_env env, napi_callback_info info)
@@ -1815,6 +1840,75 @@ napi_value NetworkManagerAddon::QueryApn(napi_env env, napi_callback_info info)
     return nullptr;
 #else
     EDMLOGW("NetworkManagerAddon::SetPreferApn Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+bool NetworkManagerAddon::JsObjToInterfaceConfig(napi_env env, napi_value object, InterfaceConfig &config)
+{
+    int32_t ipSetMode = -1;
+    JsObjectToInt(env, object, "ipSetMode", true, ipSetMode);
+
+    if (ipSetMode < static_cast<int32_t>(IpSetMode::STATIC) || ipSetMode > static_cast<int32_t>(IpSetMode::DHCP)) {
+        return false;
+    }
+    config.ipSetMode = IpSetMode(ipSetMode);
+
+    if (!JsObjectToString(env, object, "ipAddress", config.ipSetMode == IpSetMode::STATIC, config.ipAddress)) {
+        EDMLOGE("error ipAddress value");
+        return false;
+    }
+    if (!JsObjectToString(env, object, "gateway", config.ipSetMode == IpSetMode::STATIC, config.gateway)) {
+        EDMLOGE("error gateway value");
+        return false;
+    }
+    if (!JsObjectToString(env, object, "netMask", config.ipSetMode == IpSetMode::STATIC, config.netMask)) {
+        EDMLOGE("error netMask value");
+        return false;
+    }
+    if (!JsObjectToString(env, object, "dnsServers", config.ipSetMode == IpSetMode::STATIC, config.dnsServers)) {
+        EDMLOGE("error dnsServers value");
+        return false;
+    }
+
+    return true;
+}
+
+napi_value NetworkManagerAddon::SetEthernetConfig(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetEthernetConfig called");
+#if defined(NETMANAGER_BASE_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc == ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasIface = MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasIface, "The second parameter must be string.");
+    bool hasConfig = MatchValueType(env, argv[ARR_INDEX_TWO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasConfig, "The third parameter must be config.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::string iface;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, iface, argv[ARR_INDEX_ONE]) &&
+        !iface.empty(), "iface param error");
+    InterfaceConfig config = {IpSetMode::INVALID, "", "", "", ""};
+    ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToInterfaceConfig(env, argv[ARR_INDEX_TWO], config),
+            "InterfaceConfig param error");
+    
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->SetEthernetConfig(elementName, iface, config);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("NetworkManagerAddon::SetEthernetConfig Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif

@@ -41,6 +41,7 @@ struct AsyncHttpProxyCallbackInfo : AsyncCallbackInfo {
 class NetworkManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
+    static std::vector<napi_property_descriptor> InitOne();
 
 private:
     static napi_value GetAllNetworkInterfaces(napi_env env, napi_callback_info info);
@@ -71,6 +72,7 @@ private:
     static void CreateFirewallProtocolObject(napi_env env, napi_value value);
     static void CreateFirewallDirectionObject(napi_env env, napi_value value);
     static void CreateFirewallAddMethodObject(napi_env env, napi_value value);
+    static void CreateIpSetModeObject(napi_env env, napi_value value);
     static bool JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &addFilter);
     static bool JsObjToRemoveFirewallObject(napi_env env, napi_value object, IPTABLES::RemoveFilter &removeFilter);
     static bool JsObjToFirewallRule(napi_env env, napi_value object, IPTABLES::FirewallRule &rule);
@@ -121,6 +123,8 @@ private:
     static napi_value QueryApnInfoById(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param);
     static napi_value QueryApnIds(napi_env env, const OHOS::AppExecFwk::ElementName &admin, napi_value param);
     static napi_value ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo);
+    static napi_value SetEthernetConfig(napi_env env, napi_callback_info info);
+    static bool JsObjToInterfaceConfig(napi_env env, napi_value object, InterfaceConfig &config);
 };
 } // namespace EDM
 } // namespace OHOS

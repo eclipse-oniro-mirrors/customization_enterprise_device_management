@@ -22,6 +22,16 @@ enum NetworkAddress : int32_t {
     IPADDRESS = 0,
     MAC = 1
 };
+
+enum class IpSetMode { INVALID = -1, STATIC, DHCP };
+
+struct InterfaceConfig {
+    IpSetMode ipSetMode;
+    std::string ipAddress;
+    std::string gateway;
+    std::string netMask;
+    std::string dnsServers;
+};
 } // namespace EDM
 } // namespace OHOS
 
