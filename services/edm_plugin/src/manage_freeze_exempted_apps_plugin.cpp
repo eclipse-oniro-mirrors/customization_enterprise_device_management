@@ -90,6 +90,7 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, M
 ErrCode ManageFreezeExemptedAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> &freezeExemptedApps,
     std::vector<ManageFreezeExemptedAppInfo> &currentData, std::vector<ManageFreezeExemptedAppInfo> &mergeData)
 {
+    EDMLOGI("ManageFreezeExemptedAppsPlugin OnSetPolicy");
     if (freezeExemptedApps.size() > maxListSize_) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -105,6 +106,7 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> 
         ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
     std::vector<ManageFreezeExemptedAppInfo> UninstalledData = FilterUninstalledBundle(addData);
     if (!UninstalledData.empty()) {
+        EDMLOGE("ManageFreezeExemptedAppsPlugin OnSetPolicy has uninstalled app");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     addData = ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(UninstalledData, addData);

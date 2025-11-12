@@ -1311,7 +1311,6 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetBundleInstallPoliciesSuc, TestSize
     EXPECT_TRUE(errVal == ERR_OK);
 }
 
-#if defined(FEATURE_PC_ONLY)
 /**
  * @tc.name: TestEnableDeviceAdminSuc
  * @tc.desc: Test EnableDeviceAdmin func.
@@ -1323,11 +1322,16 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableDeviceAdminSuc, TestSize.Level1
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
+#if defined(FEATURE_PC_ONLY)
     EXPECT_CALL(*object_, EnableDeviceAdmin(_))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
     EXPECT_TRUE(errVal == ERR_OK);
+#else
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
 }
 
 /**
@@ -1341,11 +1345,16 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableDeviceAdminFail, TestSize.Level
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
+#if defined(FEATURE_PC_ONLY)
     EXPECT_CALL(*object_, EnableDeviceAdmin(_))
         .Times(1)
         .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
     EXPECT_TRUE(errVal != ERR_OK);
+#else
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
 }
 
 /**
@@ -1358,11 +1367,16 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableDeviceAdminSuc, TestSize.Level
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
+#if defined(FEATURE_PC_ONLY)
     EXPECT_CALL(*object_, DisableDeviceAdmin(_))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
     EXPECT_TRUE(errVal == ERR_OK);
+#else
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
 }
 
 /**
@@ -1375,13 +1389,17 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableDeviceAdminFail, TestSize.Leve
     AppExecFwk::ElementName admin;
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
+#if defined(FEATURE_PC_ONLY)
     EXPECT_CALL(*object_, DisableDeviceAdmin(_))
         .Times(1)
         .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
     EXPECT_TRUE(errVal != ERR_OK);
-}
+#else
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->DisableDeviceAdmin(admin);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #endif
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

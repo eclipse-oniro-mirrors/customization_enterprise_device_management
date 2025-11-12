@@ -35,7 +35,7 @@ namespace EDM {
 class EnterpriseConnManager : public DelayedSingleton<EnterpriseConnManager> {
 public:
     bool CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        bool isOnAdminEnabled = true);
+        bool isOnAdminEnabled = true, const std::string &bundleName = "");
     bool CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName, int32_t accountId);
     bool CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,

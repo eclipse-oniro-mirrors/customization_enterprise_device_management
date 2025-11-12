@@ -34,7 +34,7 @@ constexpr size_t MIN_SIZE = 24;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr uint32_t MAX_POWER_POLICY_ACTION_ENUM = 5;
 
-extern "C" int LLVMFuzzerInitialize(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;

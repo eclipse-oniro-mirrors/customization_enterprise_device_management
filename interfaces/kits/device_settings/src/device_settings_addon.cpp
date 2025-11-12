@@ -352,6 +352,9 @@ napi_value DeviceSettingsAddon::SetValue(napi_env env, napi_callback_info info)
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringToLong(value, dateTime), "param 'dateTime' error");
         ret = DatetimeManagerProxy::GetDatetimeManagerProxy()->SetDateTime(elementName, dateTime,
             EdmConstants::PERMISSION_TAG_VERSION_12);
+    } else if (item == EdmConstants::DeviceSettings::EYE_COMFORT) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, (value == "on" || value == "off"), "param 'eyeComfort' error");
+        ret = proxy->SetEyeComfortMode(elementName, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -392,6 +395,8 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
         if (SUCCEEDED(ret)) {
             ret = ConvertPowerPolicyToJsStr(env, powerScene, powerPolicy, stringRet);
         }
+    } else if (item == EdmConstants::DeviceSettings::EYE_COMFORT) {
+        ret = proxy->GetEyeComfortMode(elementName, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

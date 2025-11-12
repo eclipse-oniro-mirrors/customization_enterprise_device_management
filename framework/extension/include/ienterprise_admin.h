@@ -94,6 +94,18 @@ public:
      */
     virtual void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) = 0;
 
+    /**
+     * Called back when an application is enabled as a device administrator.
+     * @param bundleName Indicates the name of the enabled admin.
+     */
+    virtual void OnDeviceAdminEnabled(const std::string &bundleName) = 0;
+
+    /**
+     * Called back when a device administrator is disabled.
+     * @param bundleName Indicates the name of the disabled admin.
+     */
+    virtual void OnDeviceAdminDisabled(const std::string &bundleName) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -107,7 +119,9 @@ public:
         COMMAND_ON_ACCOUNT_REMOVED = 10,
         COMMAND_ON_KIOSK_MODE_ENTERING = 11,
         COMMAND_ON_KIOSK_MODE_EXITING = 12,
-        COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13
+        COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13,
+        COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
+        COMMAND_ON_DEVICE_ADMIN_DISABLED = 15
     };
 };
 } // namespace EDM

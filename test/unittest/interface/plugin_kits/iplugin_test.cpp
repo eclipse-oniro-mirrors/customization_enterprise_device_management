@@ -329,6 +329,18 @@ HWTEST_F(IPluginTest, TestSetPluginType, TestSize.Level1)
     iplugin->SetPluginType(type);
     EXPECT_TRUE(type == iplugin->GetPluginType());
 }
+
+/**
+ * @tc.name: TestSetPluginUnloadFlag
+ * @tc.desc: Test SetPluginUnloadFlag func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestSetPluginUnloadFlag, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    iplugin->SetPluginUnloadFlag(true);
+    EXPECT_TRUE(iplugin->GetPluginUnloadFlag());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

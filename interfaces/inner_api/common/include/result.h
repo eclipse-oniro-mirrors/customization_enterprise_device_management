@@ -13,23 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
-
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#ifndef INTERFACES_INNER_API_RESULT_PROXY_H
+#define INTERFACES_INNER_API_RESULT_PROXY_H
 
 namespace OHOS {
 namespace EDM {
-class DisallowVirtualServicePlugin : public PluginSingleton<DisallowVirtualServicePlugin, bool>,
-    public BasicBoolPlugin {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVirtualServicePlugin, bool>> ptr) override;
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
+enum class Result {
+    FAIL = -1,
+    SUCCESS = 0
 };
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
+#endif // INTERFACES_INNER_API_RESULT_PROXY_H

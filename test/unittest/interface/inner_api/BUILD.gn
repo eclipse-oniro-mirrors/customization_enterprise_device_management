@@ -58,6 +58,9 @@ ohos_unittest("EdmInnerApiUnitTest") {
   ]
 
   defines = []
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
   if (os_account_edm_enable && netmanager_base_edm_enable &&
       netmanager_ext_edm_enable) {
     external_deps += [

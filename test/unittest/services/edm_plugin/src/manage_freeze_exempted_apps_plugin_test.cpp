@@ -35,6 +35,7 @@
 #include "edm_sys_manager.h"
 #include "func_code.h"
 #include "utils.h"
+#include "edm_bundle_manager_impl.h"
 
 using namespace testing::ext;
 
@@ -127,7 +128,14 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
  */
 HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
 {
-    std::vector<ApplicationMsg> freezeExemptedApps = {{ "com.kuaishou.hmapp", 100, 0 }};
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationMsg> freezeExemptedApps = {{ bundleName, 100, 0 }};
     std::vector<ManageFreezeExemptedAppInfo> currentData;
     std::vector<ManageFreezeExemptedAppInfo> mergeData;
     ManageFreezeExemptedAppsPlugin plugin;
