@@ -16,6 +16,7 @@
 #include "virtual_device_admin.h"
 
 #include "edm_ipc_interface_code.h"
+#include "permission_checker.h"
 
 namespace OHOS {
 namespace EDM {
@@ -35,7 +36,8 @@ bool VirtualDeviceAdmin::HasPermissionToHandlePolicy(const std::string &policyNa
 {
     auto policies = adminInfo_.accessiblePolicies_;
     auto item = std::find_if(policies.begin(), policies.end(), [&](const std::string &policy) {
-        return policy == POLICY_ALLOW_ALL || policy == policyName;
+        return (policy == POLICY_ALLOW_ALL && PermissionChecker::GetInstance()->IsAllowDelegatedPolicy(policyName)) ||
+            policy == policyName;
     });
     return item != policies.end();
 }
