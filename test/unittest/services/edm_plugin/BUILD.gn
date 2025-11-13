@@ -142,6 +142,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/manage_freeze_exempted_apps_plugin_test.cpp",
+      "./src/manage_user_non_stop_apps_plugin_test.cpp",
       "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
       "./src/utils/manage_auto_start_apps_serializer_test.cpp",
     ]

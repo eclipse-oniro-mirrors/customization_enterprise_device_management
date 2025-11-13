@@ -767,9 +767,11 @@ void ConvertApplicationInstanceVectorToJS(napi_env env,
         napi_value jsObj = nullptr;
         napi_create_object(env, &jsObj);
 
+        std::string appIdentifier =
+            ApplicationInstanceHandle::GetAppIdentifierByBundleName(item.bundleName.c_str(), item.accountId);
         napi_value jsAppIdentifier = nullptr;
-        napi_create_string_utf8(env, item.bundleName.c_str(), NAPI_AUTO_LENGTH, &jsAppIdentifier);
-        napi_set_named_property(env, jsObj, "bundleName", jsAppIdentifier);
+        napi_create_string_utf8(env, appIdentifier.c_str(), NAPI_AUTO_LENGTH, &jsAppIdentifier);
+        napi_set_named_property(env, jsObj, "appIdentifier", jsAppIdentifier);
 
         napi_value jsAccountId = nullptr;
         napi_create_int32(env, item.accountId, &jsAccountId);

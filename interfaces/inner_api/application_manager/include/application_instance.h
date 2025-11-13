@@ -42,6 +42,7 @@ public:
     static bool WriteApplicationInstance(MessageParcel &data, const ApplicationInstance appInstance);
     static bool WriteApplicationMsg(MessageParcel &data, const ApplicationMsg appInstance);
     static bool ReadApplicationInstance(MessageParcel &reply, ApplicationMsg &appInstance);
+    static std::string GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId);
 };
 } // namespace EDM
 } // namespace OHOS
