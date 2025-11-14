@@ -330,6 +330,7 @@ ohos_shared_library("communication_plugin") {
         "./src/firewall_rule_plugin.cpp",
         "./src/global_proxy_plugin.cpp",
         "./src/iptables_rule_plugin.cpp",
+        "./src/set_network_interface_config_plugin.cpp",
         "./src/network/executer/domain_executer.cpp",
         "./src/network/executer/executer_factory.cpp",
         "./src/network/executer/executer_utils.cpp",

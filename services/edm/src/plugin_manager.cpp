@@ -92,6 +92,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
     EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS, EdmInterfaceCode::HANG_UP_CALLING,
+    EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

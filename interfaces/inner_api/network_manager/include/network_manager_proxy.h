@@ -24,6 +24,7 @@
 #include "firewall_rule.h"
 #include "iptables_utils.h"
 #include "apn_password.h"
+#include "network_address.h"
 
 namespace OHOS {
 namespace EDM {
@@ -66,6 +67,8 @@ public:
         std::map<std::string, std::string> &apnInfoMap);
     int32_t QueryApnIds(const AppExecFwk::ElementName &admin,
         const std::map<std::string, std::string> &apnInfoMap, std::vector<std::string> &apnIds);
+    int32_t SetEthernetConfig(const AppExecFwk::ElementName &admin,
+        std::string iface, const InterfaceConfig &config);
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,

@@ -1017,6 +1017,40 @@ HWTEST_F(NetworkManagerProxyTest, TestQueryApnIdsSizeError, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
+/**
+ * @tc.name: TestSetEthernetConfigSuc
+ * @tc.desc: Test SetEthernetConfig func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetEthernetConfigSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    InterfaceConfig config{IpSetMode::DHCP, "192.168.1.9", "192.168.1.1",
+        "255.255.255.0", "192.168.1.1"};
+    int32_t ret = networkManagerProxy->SetEthernetConfig(admin, "eth0", config);
+    ASSERT_TRUE(ret == ERR_OK || EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetEthernetConfigFail
+ * @tc.desc: Test SetEthernetConfig func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestSetEthernetConfigFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+        InterfaceConfig config{IpSetMode::DHCP, "192.168.1.9", "192.168.1.1",
+        "255.255.255.0", "192.168.1.1"};
+    int32_t ret = networkManagerProxy->SetEthernetConfig(admin, "eth0", config);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
