@@ -422,7 +422,6 @@ ohos_unittest("EdmFingerPrintPluginTest") {
 }
 
 ohos_static_library("edm_all_plugin_static") {
-  visibility = [ ":*" ]
   testonly = true
   sources = [
     "../../../../services/edm/src/database/edm_rdb_data_manager.cpp",
