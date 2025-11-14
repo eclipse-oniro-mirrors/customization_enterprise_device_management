@@ -630,7 +630,7 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     ASSERT_TRUE(userAdmin != nullptr);
     ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::NORMAL);
     userAdmins.clear();
-    res = adminMgr_->DeleteAdmin(bundleName, TEST_USER_ID);
+    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     adminInfo.adminType_ = AdminType::BYOD;
