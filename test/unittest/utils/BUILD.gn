@@ -29,12 +29,13 @@ ohos_static_library("edm_unittest_utils") {
 
   sources = [ "./src/utils.cpp" ]
 
-  deps = []
+  deps = ["../../../common/native:edm_commom"]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "hilog:libhilog",
     "init:libbegetutil",
   ]
 

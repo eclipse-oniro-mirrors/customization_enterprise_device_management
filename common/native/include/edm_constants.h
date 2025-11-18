@@ -402,6 +402,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_PRINT = "disabled_print";
     const char* const POLICY_DISABLE_RUNNING_BINARY_APP = "disable_running_binary_app";
     const char* const POLICY_SET_EYE_COMFORT_MODE = "set_eye_comfort_mode";
+    const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

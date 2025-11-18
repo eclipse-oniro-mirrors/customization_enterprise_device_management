@@ -58,6 +58,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t ADD_OS_ACCOUNT_FAILED = 9201003;
     constexpr uint32_t UPGRADE_PACKAGES_ANALYZE_FAILED = 9201004;
     constexpr uint32_t ADD_KEEP_ALIVE_APP_FAILED = 9201005;
+    constexpr uint32_t ETHERNET_CONFIGURATION_FAILED = 9201010;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

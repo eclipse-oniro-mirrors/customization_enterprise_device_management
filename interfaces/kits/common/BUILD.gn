@@ -29,7 +29,10 @@ ohos_shared_library("napi_edm_common") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../inner_api:edmservice_kits" ]
+  deps = [
+    "../../inner_api:edmservice_kits",
+    "../../../common/external:edm_external_adapters"
+  ]
 
   external_deps = [
     "ability_base:want",

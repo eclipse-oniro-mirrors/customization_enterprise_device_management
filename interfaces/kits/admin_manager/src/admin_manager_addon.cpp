@@ -1221,6 +1221,7 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
         NAPI_CALL(env, napi_set_named_property(env, parameters, "adminType", adminTypeToJs));
         NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
         NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));
+        idx++;
     }
     return result;
 }

@@ -68,7 +68,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyAddFailWithNullData,
     ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
 
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -89,7 +89,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyRemoveFailWithNullDa
     ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
 
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -115,23 +115,30 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
     ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps);
 
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
- * @tc.name: TestOnHandlePolicyFailWithConflictData
+ * @tc.name: TestOnHandlePolicySucceedWithConflictData
  * @tc.desc: Test ManageUserNonStopAppsPlugin::OnHandlePolicy when data is conflict.
  * @tc.type: FUNC
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
 {
-    std::vector<ApplicationMsg> userNonStopApps = {{ "com.example.hmos.settings", 100, 0 }};
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationMsg> userNonStopApps = {{ bundleName, 100, 0 }};
     std::vector<ManageUserNonStopAppInfo> currentData;
     std::vector<ManageUserNonStopAppInfo> mergeData;
     ManageUserNonStopAppsPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(userNonStopApps, false, currentData, mergeData);
+    ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
     ASSERT_TRUE(ret == ERR_OK);
 
     ManageUserNonStopAppsPlugin userNonStopPlugin;
@@ -141,7 +148,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictD
     ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps);
 
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     ret = userNonStopPlugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
@@ -151,29 +158,22 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictD
 }
 
 /**
- * @tc.name: TestOnHandlePolicyRemoveFailWithNotExistedData
+ * @tc.name: TestOnHandlePolicyWithNotExistedData
  * @tc.desc: Test ManageUserNonStopAppsPlugin::OnHandlePolicy remove when app is not existed.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyRemoveFailWithNotExistedData, TestSize.Level1)
+HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithNotExistedData, TestSize.Level1)
 {
-    std::vector<ApplicationMsg> userNonStopApps1 = { {"com.existed.app", 100, 0} };
-    std::vector<ApplicationMsg> userNonStopApps2 = { {"com.not.existed", 100, 0} };
-    std::vector<ManageUserNonStopAppInfo> currentData;
-    std::vector<ManageUserNonStopAppInfo> mergeData;
+    std::vector<ApplicationMsg> userNonStopApps1 = { {"com.not.existed", 100, 0} };
     ManageUserNonStopAppsPlugin plugin;
 
     MessageParcel data;
     MessageParcel reply;
-    ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps2);
     HandlePolicyData policyData;
-    std::vector<ManageUserNonStopAppInfo> userNonStopData;
-    std::string userNonStopStr = plugin.SerializeApplicationInstanceVectorToJson(userNonStopApps1);
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(userNonStopStr, userNonStopData);
-    ManageUserNonStopAppsSerializer::GetInstance()->Serialize(userNonStopData, policyData.policyData);
+    ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps1);
 
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     ErrCode res = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }

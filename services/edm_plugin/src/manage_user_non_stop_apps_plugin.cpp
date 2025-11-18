@@ -35,6 +35,7 @@
 #include "edm_bundle_manager_impl.h"
 #include "edm_data_ability_utils.h"
 #include "wm_common.h"
+#include "edm_os_account_manager_impl.h"
 
 namespace OHOS {
 namespace EDM {
@@ -158,6 +159,22 @@ ErrCode ManageUserNonStopAppsPlugin::OnRemovePolicy(std::vector<ApplicationMsg> 
         ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
     std::vector<ManageUserNonStopAppInfo> needResetPolicy =
     ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy, currentData);
+
+    std::vector<ManageUserNonStopAppInfo> tmpData;
+    for (const auto &item : data) {
+        ManageUserNonStopAppInfo appInfo;
+        appInfo.SetBundleName(item.bundleName);
+        appInfo.SetAccountId(item.accountId);
+        appInfo.SetAppIndex(item.appIndex);
+        tmpData.push_back(appInfo);
+    }
+    std::vector<ManageUserNonStopAppInfo> failedApps =
+        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
+        tmpData);
+    if (!failedApps.empty()) {
+        EDMLOGE("OnRemovePolicy userNonStopApps has apps do not belong to current data");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
 
     if (!needRemoveMergePolicy.empty()) {
         ErrCode ret = RemoveOtherModulePolicy(needResetPolicy, needRemoveMergePolicy);
@@ -370,6 +387,11 @@ void ManageUserNonStopAppsPlugin::GetSessionParam(const ManageUserNonStopAppInfo
     int32_t accountId = userNonStopAppInfos.GetAccountId();
     int32_t appIndex = userNonStopAppInfos.GetAppIndex();
     BundleInfo bundleInfo;
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId != accountId) {
+        EDMLOGI("ManageUserNonStopAppsPlugin the user is not current user");
+        return;
+    }
     bundleMgr->GetBundleInfo(bundleName, GET_BUNDLE_DEFAULT, bundleInfo, accountId);
     for (const auto &item : bundleInfo.hapModuleInfos) {
         for (const auto &abilityInfoItem : item.abilityInfos) {
@@ -382,6 +404,18 @@ void ManageUserNonStopAppsPlugin::GetSessionParam(const ManageUserNonStopAppInfo
         }
     }
 }
+int32_t ManageUserNonStopAppsPlugin::GetCurrentUserId()
+{
+        std::vector<int32_t> ids;
+    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
+    if (FAILED(ret) || ids.empty()) {
+        EDMLOGE("ManageUserNonStopAppsPlugin GetCurrentUserId failed");
+        return -1;
+    }
+    EDMLOGD("ManageUserNonStopAppsPlugin GetCurrentUserId");
+    return (ids.at(0));
+}
+
 void ManageUserNonStopAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     EDMLOGI("ManageUserNonStopAppsPlugin OnOtherServiceStart");

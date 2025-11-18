@@ -41,11 +41,17 @@ public:
     static void SetBluetoothEnable();
     static void SetBluetoothDisable();
     static void SetEdmPermissions();
+    static void SetHapPermission(const std::string &bundleName, const std::string &permissionName, bool isSystemHap);
+    static void SetNativePermission(const std::string &process, int32_t uid);
+    static Security::AccessToken::AccessTokenID GetNativeTokenIdFromProcess(const std::string &process);
+    static void ResetHapPermission();
+    static void ResetNativePermission();
     static void SetUid();
     static void ResetUid();
 
 private:
     static uint64_t selfTokenId_;
+    static uint64_t mockTokenId_;
 };
 } // namespace TEST
 } // namespace EDM

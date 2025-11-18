@@ -1,0 +1,85 @@
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("../../../../common/config/common.gni")
+
+module_output_path = "enterprise_device_management/enterprise_device_management"
+
+ohos_unittest("EdmPluginPermissionUnitTest") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "./include",
+    "../edm/include",
+    "../edm/include/mock",
+    "../../external_mock/include",
+  ]
+
+  sources = [
+    "src/hap_call_plugin_get_policy_permission_denied_test.cpp",
+    "src/hap_call_plugin_get_policy_success_test.cpp",
+    "src/hap_call_plugin_set_policy_permission_denied_test.cpp",
+    "src/hap_call_plugin_set_policy_success_test.cpp",
+    "src/native_call_plugin_test.cpp",
+    "src/test_param.cpp"
+  ]
+
+  deps = [
+    "../edm:edmservice_static",
+    "../edm_plugin:edm_all_plugin_static",
+    "../../../../common/external:edm_external_adapters",
+    "../../../../common/native:edm_commom",
+    "../../../../interfaces/inner_api:edmservice_kits",
+    "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../utils:edm_unittest_utils",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
+    "ability_runtime:app_manager",
+    "ability_runtime:extension_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
+    "googletest:gmock_main",
+    "hilog:libhilog",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+  ]
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [
+    # deps file
+    ":EdmPluginPermissionUnitTest",
+  ]
+}

@@ -143,6 +143,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/manage_freeze_exempted_apps_plugin_test.cpp",
+      "./src/manage_user_non_stop_apps_plugin_test.cpp",
       "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
       "./src/utils/manage_auto_start_apps_serializer_test.cpp",
     ]
@@ -211,6 +212,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/network/rule/domain_chain_rule_test.cpp",
       "./src/network/rule/firewall_chain_rule_test.cpp",
       "./src/network_manager_plugin_test.cpp",
+      "./src/set_network_interface_config_plugin_test.cpp"
     ]
   }
 
@@ -422,7 +424,6 @@ ohos_unittest("EdmFingerPrintPluginTest") {
 }
 
 ohos_static_library("edm_all_plugin_static") {
-  visibility = [ ":*" ]
   testonly = true
   sources = [
     "../../../../services/edm/src/database/edm_rdb_data_manager.cpp",
@@ -615,6 +616,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/permission_managed_state_serializer.cpp",
       "../../../../services/edm_plugin/src/set_permission_managed_state_plugin.cpp",
+      "../../../../services/edm_plugin/src/set_network_interface_config_plugin.cpp"
     ]
   }
 

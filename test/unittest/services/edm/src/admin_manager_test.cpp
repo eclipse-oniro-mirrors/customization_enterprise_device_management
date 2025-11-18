@@ -619,7 +619,7 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
     AdminInfo adminInfo = {.packageName_ = bundleName, .className_ = "testDemo", .entInfo_ = entInfo,
         .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
-    res = adminMgr_->SetAdminValue(TEST_USER_ID, adminInfo);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
     ASSERT_TRUE(res == ERR_OK);
 
     std::vector<std::shared_ptr<Admin>> userAdmins;
@@ -630,7 +630,7 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     ASSERT_TRUE(userAdmin != nullptr);
     ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::NORMAL);
     userAdmins.clear();
-    res = adminMgr_->DeleteAdmin(bundleName, TEST_USER_ID);
+    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
 
     adminInfo.adminType_ = AdminType::BYOD;

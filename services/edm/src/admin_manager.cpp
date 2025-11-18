@@ -297,15 +297,34 @@ ErrCode AdminManager::GetAllowedAcrossAccountSetPolicyAdmin(const std::string &s
 
 void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId)
 {
-    std::vector<std::shared_ptr<Admin>> userAdmin;
-    GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
-    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
-        return admin->adminInfo_.adminType_ == AdminType::ENT || admin->adminInfo_.adminType_ == AdminType::BYOD;
-    });
-    GetAdminByUserId(currentUserId, userAdmin);
-    std::copy_if(userAdmin.begin(), userAdmin.end(), std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
-        return admin->adminInfo_.adminType_ == AdminType::NORMAL;
-    });
+    std::vector<std::shared_ptr<Admin>> defaultUserAdmins;
+    std::vector<std::shared_ptr<Admin>> currentUserAdmins;
+    GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, defaultUserAdmins);
+    
+    if (currentUserId == EdmConstants::DEFAULT_USER_ID) {
+        // 如果是默认用户，返回所有 ENT, BYOD 和 NORMAL 类型
+        std::copy_if(defaultUserAdmins.begin(), defaultUserAdmins.end(), std::back_inserter(admins),
+            [&](std::shared_ptr<Admin> admin) {
+            return admin->adminInfo_.adminType_ == AdminType::ENT ||
+                admin->adminInfo_.adminType_ == AdminType::BYOD ||
+                admin->adminInfo_.adminType_ == AdminType::NORMAL;
+        });
+    } else {
+        GetAdminByUserId(currentUserId, currentUserAdmins);
+        
+        // 从默认用户中筛选 ENT 和 NORMAL 类型
+        std::copy_if(defaultUserAdmins.begin(), defaultUserAdmins.end(),
+            std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+            return admin->adminInfo_.adminType_ == AdminType::ENT ||
+                admin->adminInfo_.adminType_ == AdminType::NORMAL;
+        });
+        
+        // 从当前用户中筛选 BYOD 类型
+        std::copy_if(currentUserAdmins.begin(), currentUserAdmins.end(),
+            std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
+            return admin->adminInfo_.adminType_ == AdminType::BYOD;
+        });
+    }
 }
 
 void AdminManager::GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins)

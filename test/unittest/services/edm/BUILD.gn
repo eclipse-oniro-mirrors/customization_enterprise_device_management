@@ -111,7 +111,10 @@ ohos_static_library("edmservice_static") {
     "../../../../common/config:coverage_flags",
   ]
 
-  defines = []
+  defines = [
+    "USERIAM_EDM_ENABLE",
+    "EDM_SUPPORT_ALL_ENABLE"
+  ]
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
@@ -163,6 +166,7 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disable_bluetooth_query.cpp",
       "../../../../services/edm/src/query_policy/disallowed_bluetooth_devices_query.cpp",
     ]
+    defines += ["BLUETOOTH_EDM_ENABLE"]
   }
 
   if (camera_framework_edm_enable) {
@@ -183,6 +187,7 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/allowed_usb_devices_query.cpp",
       "../../../../services/edm/src/query_policy/disable_usb_query.cpp",
     ]
+    defines += ["USB_SERVICE_EDM_ENABLE"]
   }
 
   if (pasteboard_edm_enable) {
