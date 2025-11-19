@@ -620,7 +620,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
     uint32_t code, int32_t userId, bool isAdminEnabled)
 {
-    if (abilityName.empty()) {
+    if (abilityName.empty() || userId < 0) {
         EDMLOGW("EnterpriseDeviceMgrAbility::OnAdminEnabled ignore bundlename is %{public}s", bundleName.c_str());
         return false;
     }
@@ -633,7 +633,7 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, c
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId,
     const std::string &enabledBundleName)
 {
-    if (adminInfo.className_.empty()) {
+    if (adminInfo.className_.empty() || userId < 0) {
         EDMLOGW("EnterpriseDeviceMgrAbility::OnAdminEnabled ignore bundlename is %{public}s",
             adminInfo.packageName_.c_str());
         return false;

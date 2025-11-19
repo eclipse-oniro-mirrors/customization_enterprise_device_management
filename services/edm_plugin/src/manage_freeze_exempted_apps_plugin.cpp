@@ -360,10 +360,14 @@ std::string ManageFreezeExemptedAppsPlugin::SerializeApplicationInstanceVectorTo
     }
 
     char *jsonStr = cJSON_PrintUnformatted(root);
+    if (jsonStr == nullptr) {
+        cJSON_Delete(root);
+        return "";
+    }
+    
     std::string result(jsonStr);
-
     cJSON_Delete(root);
-    free(jsonStr);
+    cJSON_free(jsonStr);
 
     return result;
 }
