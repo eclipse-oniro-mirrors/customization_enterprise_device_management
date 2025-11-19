@@ -182,7 +182,7 @@ bool GetDeviceInfoPlugin::GetSimInfoBySlotId(int32_t slotId, cJSON *simJson)
     cJSON_AddStringToObject(slotJson, EdmConstants::DeviceInfo::SIM_IMEI, EdmUtils::Utf16ToUtf8(imei).c_str());
 
     std::u16string number;
-    int32_t numberRet = telephonyService.GetShowNumber(slotId, number);
+    int32_t numberRet = telephonyService.GetSimTelephoneNumber(slotId, number);
     if (FAILED(numberRet)) {
         EDMLOGD("GetDeviceInfoPlugin::get sim number failed: %{public}d.", numberRet);
     }
