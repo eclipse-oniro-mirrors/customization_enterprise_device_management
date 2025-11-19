@@ -1827,22 +1827,26 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     }
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
-        GetCurrentUserId());
-    if (deviceAdmin == nullptr) {
-        EDMLOGE("HandleDevicePolicy: %{public}s is not activated", admin.GetBundleName().c_str());
-        return EdmReturnErrCode::ADMIN_INACTIVE;
-    }
-    int uid = IPCSkeleton::GetCallingUid();
-    std::string permissionTag = data.ReadString();
-    if (uid != EDM_UID) {
-        std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
-            GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
-        EDMLOGD("HandleDevicePolicy: HandleDevicePolicy GetPermission = %{public}s", setPermission.c_str());
-        ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
-            deviceAdmin, plugin->GetPolicyName(), setPermission, userId);
-        if (FAILED(checkAdminPermission)) {
-            return checkAdminPermission;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
+        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
+            GetCurrentUserId());
+        if (deviceAdmin == nullptr) {
+            EDMLOGE("HandleDevicePolicy: %{public}s is not activated", admin.GetBundleName().c_str());
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+        int uid = IPCSkeleton::GetCallingUid();
+        std::string permissionTag = data.ReadString();
+        if (uid != EDM_UID) {
+            std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
+                GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
+            EDMLOGD("HandleDevicePolicy: HandleDevicePolicy GetPermission = %{public}s", setPermission.c_str());
+            ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
+                deviceAdmin, plugin->GetPolicyName(), setPermission, userId);
+            if (FAILED(checkAdminPermission)) {
+                return checkAdminPermission;
+            }
         }
     }
 #endif

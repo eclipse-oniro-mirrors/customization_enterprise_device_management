@@ -75,6 +75,7 @@ const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.SET_TIME";
 const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string EDM_TEST_ENT_PERMISSION = "ohos.permission.EDM_TEST_ENT_PERMISSION";
 const std::string TEST_POLICY_VALUE = "test_policy_value";
+const std::string PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
 
 void EnterpriseDeviceMgrAbilityTest::initPolicies()
 {
@@ -393,6 +394,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyCheckPermissionFa
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+        .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -460,6 +463,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyVerifyCallingPerm
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -486,6 +491,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicySuc, TestSize.Lev
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -524,6 +531,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -559,7 +568,11 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
-    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    // 新增精确匹配规则，默认不拥有PERMISSION_MANAGE_EDM_POLICY权限；
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillRepeatedly(Return(false));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, Not(StrEq(PERMISSION_MANAGE_EDM_POLICY))))
+            .WillRepeatedly(Return(true));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
     AppExecFwk::ElementName elementName;
@@ -2916,6 +2929,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerCheckPermiss
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
@@ -2954,6 +2969,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerVerifyCallin
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+            .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
@@ -2981,6 +2998,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc, TestSiz
         Return(ERR_OK)));
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME), Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+        .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
@@ -3019,6 +3038,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONErro
     EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
         Return(ERR_OK)));
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+        .WillOnce(Return(false));
 
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, HANDLE_POLICY_BIFUNCTIONPLG_POLICYCODE);
     MessageParcel data;
@@ -4907,6 +4928,32 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckDisableDeviceAdminWithoutPermi
     EXPECT_TRUE(res != ERR_OK);
     // 清理SDA
     AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: HandleDevicePolicyFuncTestWithEdcPermission
+ * @tc.desc: Test EnterpriseDeviceMgrAbility::HandleDevicePolicy function.
+ * @tc.desc: Test permission check success when has edc permission;
+ * @tc.type: FUNC
+ * @tc.require: issueI5PBT1
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTestWithEdcPermission, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+        .WillOnce(Return(true));
+
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("");
+    ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
 }
 #endif
 } // namespace TEST
