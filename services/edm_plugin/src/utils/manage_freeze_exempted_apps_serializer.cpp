@@ -107,15 +107,23 @@ bool ManageFreezeExemptedAppsSerializer::Deserialize(const std::string &policy,
     if (root == nullptr) {
         return false;
     }
+    if (!cJSON_IsArray(root)) {
+        EDMLOGE("JSON root is not array");
+        cJSON_Delete(root);
+        return false;
+    }
     cJSON* mapItem;
     cJSON_ArrayForEach(mapItem, root) {
+        if (!cJSON_IsObject(mapItem)) {
+            EDMLOGE("mapItem is not object");
+            cJSON_Delete(root);
+            return false;
+        }
         cJSON* bundleName = cJSON_GetObjectItem(mapItem, BUNDLE_NAME);
         cJSON* accountId = cJSON_GetObjectItem(mapItem, ACCOUNT_ID);
         cJSON* appIndex = cJSON_GetObjectItem(mapItem, APP_INDEX);
-        if (bundleName == nullptr) {
-            bundleName = mapItem;
-        } else if (!cJSON_IsString(bundleName)) {
-            EDMLOGE("ManageFreezeExemptedAppsSerializer::cJSON_GetObjectItem get error type.");
+        if (!cJSON_IsString(bundleName) || !cJSON_IsNumber(accountId) || !cJSON_IsNumber(appIndex)) {
+            EDMLOGE("ManageFreezeExemptedAppsSerializer::Invalid data.");
             cJSON_Delete(root);
             return false;
         }
