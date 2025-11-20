@@ -64,6 +64,10 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
 {
     EDMLOGI("EnterpriseAdminConnection OnAbilityDisconnectDone");
     int32_t userId = GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGW("EnterpriseAdminConnection::OnAbilityDisconnectDone get userId failed.");
+        return;
+    }
     std::shared_ptr<Admin> admin =
         AdminManager::GetInstance()->GetAdminByPkgName(want_.GetElement().GetBundleName(), userId);
     if (admin && admin->IsEnterpriseAdminKeepAlive()) {

@@ -81,12 +81,12 @@ bool InstalledBundleInfoListQuery::GetBundleInfosData(uint32_t edmBundleFlag,
         EDMLOGE("InstalledBundleInfoListQuery QueryPolicy getBundleMgr failed.");
         return false;
     }
-    int32_t bmsFlags = 0;
+    uint32_t bmsFlags = 0;
     if ((edmBundleFlag & static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO)) != 0) {
-        bmsFlags |= static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
+        bmsFlags |= static_cast<uint32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
     }
     if ((edmBundleFlag & static_cast<uint32_t>(BundleInfoGetFlag::WITH_SIGNATURE_INFO)) != 0) {
-        bmsFlags |= static_cast<int32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
+        bmsFlags |= static_cast<uint32_t>(OHOS::AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
     }
     ErrCode getResult = proxy->GetBundleInfosV9(bmsFlags, bundleInfos, userId);
     if (FAILED(getResult)) {
