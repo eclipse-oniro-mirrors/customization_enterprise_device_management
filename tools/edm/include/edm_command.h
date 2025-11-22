@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,9 @@
 #ifndef EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
 #define EDM_TOOLS_EDM_INCLUDE_EDM_COMMAND_H
 
-#include "shell_command.h"
 #include "enterprise_device_mgr_proxy.h"
+
+#include <map>
 
 namespace OHOS {
 namespace EDM {
@@ -31,41 +32,18 @@ const std::string HELP_MSG = "usage: edm <command> [<options>]\n"
                              "  disable-admin             disable a admin with options\n";
 }  // namespace
 
-const std::string HELP_MSG_ENABLE_ADMIN = "usage: edm enable-admin <options>\n"
-                                    "eg:edm enable-admin -n <bundle-name> -a <ability-name> -t <admin-type>\n"
-                                    "options list:\n"
-                                    "  -h, --help                                  list available commands\n"
-                                    "  -n, --bundle-name <bundle-name>             enable an admin with bundle name\n"
-                                    "  -a, --ability-name <ability-name>           enable an admin with ability name\n"
-                                    "  -t, --admin-type <admin-type>               enable an admin with admin type,"
-                                                                                    "<admin-type>: super, byod.\n";
-
-const std::string HELP_MSG_DISABLE_ADMIN = "usage: edm disable-admin <options>\n"
-                                    "eg:edm disable-admin -n <bundle-name>\n"
-                                    "options list:\n"
-                                    "  -h, --help                                  list available commands\n"
-                                    "  -n, --bundle-name <bundle-name>             disable an admin with bundle name\n";
-
-class EdmCommand : public ShellCommand {
+class EdmCommand  {
 public:
     EdmCommand(int argc, char *argv[]);
-    ~EdmCommand() override  = default;
+
+    std::string ExecCommand();
 
 private:
-    ErrCode CreateCommandMap() override;
-    ErrCode CreateMessageMap() override;
-    ErrCode Init() override;
-    ErrCode RunAsHelpCommand();
-    ErrCode RunAsEnableCommand();
-    ErrCode RunAsDisableAdminCommand();
-    ErrCode ParseEnableAdminCommandOption(std::string &bundleName, std::string &abilityName, AdminType &adminType);
-    ErrCode RunAsEnableCommandMissingOptionArgument();
-    ErrCode RunAsEnableCommandParseOptionArgument(int option, std::string &bundleName,
-        std::string &abilityName, AdminType &adminType);
-    ErrCode ReportMessage(int32_t code, bool isEnable);
-    ErrCode ConvertStringToAdminType(std::string optarg, AdminType &adminType);
+    [[nodiscard]] std::string GetMessageFromCode(int32_t code) const;
 
-    std::shared_ptr<EnterpriseDeviceMgrProxy> enterpriseDeviceMgrProxy_;
+    int argc_;
+    char **argv_;
+    std::map<int32_t, std::string> messageMap_;
 };
 } // namespace EDM
 } // namespace OHOS
