@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,13 +25,25 @@ ohos_unittest("EdmToolsUnitTest") {
 
   include_dirs = [
     "./include",
+    "./mock/include",
     "../../../tools/edm/include",
   ]
 
   sources = [
+    "../../../tools/edm/src/command_factory.cpp",
+    "../../../tools/edm/src/command_parser.cpp",
+    "../../../tools/edm/src/disable_admin_command.cpp",
     "../../../tools/edm/src/edm_command.cpp",
-    "../../../tools/edm/src/shell_command.cpp",
+    "../../../tools/edm/src/enable_admin_command.cpp",
+    "../../../tools/edm/src/icommand.cpp",
+    "../../../tools/edm/src/help_command.cpp",
+    "./mock/src/enterprise_device_mgr_proxy.cpp",
+    "./src/command_factory_test.cpp",
+    "./src/command_parser_test.cpp",
+    "./src/disable_admin_command_test.cpp",
     "./src/edm_command_test.cpp",
+    "./src/enable_admin_command_test.cpp",
+    "./src/help_command_test.cpp",
   ]
 
   configs = [
@@ -45,8 +57,8 @@ ohos_unittest("EdmToolsUnitTest") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "googletest:gmock_main",
     "hilog:libhilog",
-    "ipc:ipc_core",
   ]
 
   sanitize = {
