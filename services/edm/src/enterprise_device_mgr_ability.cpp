@@ -424,11 +424,17 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     }
     EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched");
     std::vector<std::shared_ptr<Admin>> userAdmin;
-    AdminManager::GetInstance()->GetAdminByUserId(GetCurrentUserId(), userAdmin);
+    std::vector<std::shared_ptr<Admin>> currentUserAdmins;
+    if (userIdToSwitch != EdmConstants::DEFAULT_USER_ID) {
+        AdminManager::GetInstance()->GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, userAdmin);
+    }
+    AdminManager::GetInstance()->GetAdminByUserId(userIdToSwitch, currentUserAdmins);
+    userAdmin.insert(userAdmin.end(), std::make_move_iterator(currentUserAdmins.begin()),
+        std::make_move_iterator(currentUserAdmins.end()));
     for (auto &admin : userAdmin) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
             OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
-                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, GetCurrentUserId(), false);
+                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userIdToSwitch, false);
         }
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
