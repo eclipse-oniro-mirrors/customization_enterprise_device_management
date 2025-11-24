@@ -272,5 +272,48 @@ int32_t RestrictionsProxy::GetUserRestricted(const AppExecFwk::ElementName *admi
     reply.ReadBool(result);
     return ERR_OK;
 }
+
+int32_t RestrictionsProxy::SetUserRestrictionForAccount(const AppExecFwk::ElementName &admin, int32_t accountId,
+    bool disallow, int policyCode)
+{
+    EDMLOGD("RestrictionsProxy::SetUserRestrictionForAccount called");
+    MessageParcel data;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, policyCode);
+  
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteBool(disallow);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t RestrictionsProxy::GetUserRestrictedForAccount(const AppExecFwk::ElementName *admin, int32_t accountId,
+    int policyCode, bool &result)
+{
+    EDMLOGD("RestrictionsProxy::GetUserRestrictedForAccount called");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(policyCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

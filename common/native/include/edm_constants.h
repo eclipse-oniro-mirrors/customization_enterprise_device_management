@@ -175,6 +175,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
         const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
+        const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -401,6 +402,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_RUNNING_BINARY_APP = "disable_running_binary_app";
     const char* const POLICY_SET_EYE_COMFORT_MODE = "set_eye_comfort_mode";
     const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
+    const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

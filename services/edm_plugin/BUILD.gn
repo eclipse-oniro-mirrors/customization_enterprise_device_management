@@ -141,6 +141,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/disable_sudo_plugin.cpp",
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
+        "./src/disallow_modify_wallpaper_plugin.cpp",
       ]
       defines += [
         "SUDO_EDM_ENABLE",

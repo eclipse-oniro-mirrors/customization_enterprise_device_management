@@ -80,6 +80,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
@@ -88,6 +90,8 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = 
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER},
 };
 
 std::vector<uint32_t> RestrictionsAddon::multiPermCodes = {
@@ -132,6 +136,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedListForAccount", GetDisallowedListForAccount),
         DECLARE_NAPI_FUNCTION("setUserRestriction", SetUserRestriction),
         DECLARE_NAPI_FUNCTION("getUserRestricted", GetUserRestricted),
+        DECLARE_NAPI_FUNCTION("setUserRestrictionForAccount", SetUserRestrictionForAccount),
+        DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -775,6 +781,105 @@ napi_value RestrictionsAddon::GetUserRestricted(napi_env env, napi_callback_info
 
     bool restricted = false;
     ErrCode ret = proxy->GetUserRestricted(hasAdmin ? &elementName : nullptr, ipcCode, restricted);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, restricted, &result));
+    return result;
+}
+
+napi_value RestrictionsAddon::SetUserRestrictionForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGD("NAPI_SetUserRestrictionForAccont called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter settingsItem error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_boolean),
+        "parameter restricted error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    std::string settingsItem;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
+        "parameter settingsItem parse error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_THREE]),
+        "parameter disallow parse error");
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    ErrCode ret = ERR_OK;
+    auto itemCode = itemCodeMap.find(settingsItem);
+    if (itemCode == itemCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = itemCode->second;
+    ret = proxy->SetUserRestrictionForAccount(elementName, accountId, disallow, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value RestrictionsAddon::GetUserRestrictedForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGD("NAPI_GetUserRestrictedForAccount called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
+        "parameter settingsItem error");
+    std::string settingsItem;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
+        "parameter settingsItem parse error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+    if (hasAdmin) {
+        EDMLOGD("GetUserRestricted: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+            elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    } else {
+        EDMLOGD("GetUserRestricted: elementName is null");
+    }
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    auto itemCode = itemQueryCodeMap.find(settingsItem);
+    if (itemCode == itemQueryCodeMap.end()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        return nullptr;
+    }
+    std::uint32_t ipcCode = itemCode->second;
+    bool restricted = false;
+    ErrCode ret = proxy->GetUserRestrictedForAccount(hasAdmin ? &elementName : nullptr,
+        accountId, ipcCode, restricted);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

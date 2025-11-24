@@ -255,6 +255,7 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_print_query.cpp",
       "./src/query_policy/disable_sudo_query.cpp",
+      "./src/query_policy/disallow_modify_wallpaper_query.cpp",
     ]
     defines += [
       "FEATURE_PC_ONLY",

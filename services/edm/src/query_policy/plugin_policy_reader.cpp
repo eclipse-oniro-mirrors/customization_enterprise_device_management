@@ -130,6 +130,7 @@
 #include "install_local_enterprise_app_enabled_query.h"
 #include "disable_print_query.h"
 #include "disable_hdc_remote_query.h"
+#include "disallow_modify_wallpaper_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -717,6 +718,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE:
             obj = std::make_shared<DisallowVirtualServiceQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowModifyWallpaperQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
