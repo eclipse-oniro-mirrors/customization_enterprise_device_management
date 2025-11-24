@@ -68,6 +68,8 @@ public:
     static napi_value AddUserNonStopApps(napi_env env, napi_callback_info info);
     static napi_value RemoveUserNonStopApps(napi_env env, napi_callback_info info);
     static napi_value GetUserNonStopApps(napi_env env, napi_callback_info info);
+    static napi_value SetAbilityDisabled(napi_env env, napi_callback_info info);
+    static napi_value IsAbilityDisabled(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
