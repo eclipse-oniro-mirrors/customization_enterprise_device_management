@@ -165,6 +165,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_samba_server_query.cpp",
       "./src/query_policy/disable_usb_storage_device_write_query.cpp",
       "./src/query_policy/disallow_export_recovery_key_query.cpp",
+      "./src/query_policy/disallow_open_file_boost_query.cpp",
       "./src/query_policy/disallow_modify_ethernet_ip_query.cpp",
       "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
       "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",
@@ -242,6 +243,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_add_local_account_query.cpp",
       "./src/watermark/watermark_application_observer.cpp",
       "./src/watermark/watermark_observer_manager.cpp",
+      "./src/query_policy/disallow_modify_wallpaper_query.cpp",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
@@ -255,7 +257,6 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/disable_print_query.cpp",
       "./src/query_policy/disable_sudo_query.cpp",
-      "./src/query_policy/disallow_modify_wallpaper_query.cpp",
     ]
     defines += [
       "FEATURE_PC_ONLY",

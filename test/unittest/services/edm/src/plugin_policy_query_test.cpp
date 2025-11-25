@@ -59,6 +59,7 @@
 #include "disable_usb_query.h"
 #include "disallow_add_local_account_query.h"
 #include "disallow_export_recovery_key_query.h"
+#include "disallow_open_file_boost_query.h"
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallow_unmute_device_query.h"
@@ -110,6 +111,10 @@
 
 #ifdef NOTIFICATION_EDM_ENABLE
 #include "disallowed_notification_query.h"
+#endif
+
+#ifdef OS_ACCOUNT_EDM_ENABLE
+#include "disallow_modify_wallpaper_query.h"
 #endif
 
 using namespace testing::ext;
@@ -1747,6 +1752,46 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowExportRecoveryKeyQuery002, TestSize.
 }
 
 /**
+ * @tc.name: TestDisallowOpenFileBoostQuery001
+ * @tc.desc: Test DisallowOpenFileBoostQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowOpenFileBoostQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowOpenFileBoostQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = true;
+    reply.ReadBool(result);
+    ASSERT_TRUE(!result);
+}
+ 
+/**
+ * @tc.name: TestDisallowOpenFileBoostQuery002
+ * @tc.desc: Test DisallowOpenFileBoostQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowOpenFileBoostQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowOpenFileBoostQuery>();
+    std::string policyData("true");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
+}
+
+/**
  * @tc.name: TestDisallowDistributedTransmissionQuery001
  * @tc.desc: Test DisallowDistributedTransmissionQuery::QueryPolicy function.
  * @tc.type: FUNC
@@ -2387,6 +2432,29 @@ HWTEST_F(PluginPolicyQueryTest, DisableRunningBinaryAppQuery002, TestSize.Level1
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_SECURITY);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disable_running_binary_app");
+}
+#endif
+
+#ifdef OS_ACCOUNT_EDM_ENABLE
+/**
+ * @tc.name: TestDisallowModifyWallpaperQuery001
+ * @tc.desc: Test DisallowModifyWallpaperPlugin::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyWallpaperQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisallowModifyWallpaperQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag));
+    ASSERT_EQ(flag, ERR_OK);
+    bool result = false;
+    ASSERT_TRUE(reply.ReadBool(result));
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(result);
 }
 #endif
 } // namespace TEST

@@ -168,6 +168,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
+        const char* const LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST = "openFileBoost";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
         const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
@@ -320,6 +321,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DISALLOWED_EXPORT_RECOVERY_KEY = "disallowed_export_recovery_key";
+    const char* const POLICY_DISALLOWED_OPEN_FILE_BOOST = "disallowed_open_file_boost";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION = "disallowed_distributed_transmission";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";

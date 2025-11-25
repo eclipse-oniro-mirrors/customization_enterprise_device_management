@@ -75,6 +75,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disable_set_biometrics_and_screenLock_query.cpp",
     "../../../../services/edm/src/query_policy/disable_set_device_name_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_export_recovery_key_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_open_file_boost_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_distributed_transmission_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_apn_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
@@ -258,7 +259,9 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/disallow_add_local_account_query.cpp",
       "../../../../services/edm/src/watermark/watermark_application_observer.cpp",
       "../../../../services/edm/src/watermark/watermark_observer_manager.cpp",
+      "../../../../services/edm/src/query_policy/disallow_modify_wallpaper_query.cpp",
     ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {

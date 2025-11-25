@@ -109,6 +109,7 @@ ohos_shared_library("device_core_plugin") {
     if (enterprise_device_management_feature_pc_only) {
       sources += [
       "./src/disallow_export_recovery_key_plugin.cpp",
+      "./src/disallow_open_file_boost_plugin.cpp",
       "./src/disallowed_nearlink_protocols_plugin.cpp",
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",
@@ -129,6 +130,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/disallow_add_local_account_plugin.cpp",
         "./src/disallow_add_os_account_by_user_plugin.cpp",
         "./src/set_watermark_image_plugin.cpp",
+        "./src/disallow_modify_wallpaper_plugin.cpp",
       ]
       defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
     }
@@ -141,7 +143,6 @@ ohos_shared_library("device_core_plugin") {
         "./src/disable_sudo_plugin.cpp",
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
-        "./src/disallow_modify_wallpaper_plugin.cpp",
       ]
       defines += [
         "SUDO_EDM_ENABLE",

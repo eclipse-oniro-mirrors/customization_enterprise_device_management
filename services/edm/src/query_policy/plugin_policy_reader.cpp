@@ -53,6 +53,7 @@
 
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "disallow_add_local_account_query.h"
+#include "disallow_modify_wallpaper_query.h"
 #endif
 
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
@@ -124,13 +125,13 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_export_recovery_key_query.h"
+#include "disallow_open_file_boost_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "disallow_modify_ethernet_ip_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
 #include "disable_print_query.h"
 #include "disable_hdc_remote_query.h"
-#include "disallow_modify_wallpaper_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -718,8 +719,15 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE:
             obj = std::make_shared<DisallowVirtualServiceQuery>();
             return ERR_OK;
-        case EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER:
+        case EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN:
 #ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowOpenFileBoostQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER:
+#ifdef OS_ACCOUNT_EDM_ENABLE
             obj = std::make_shared<DisallowModifyWallpaperQuery>();
             return ERR_OK;
 #else
