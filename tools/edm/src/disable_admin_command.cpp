@@ -80,7 +80,7 @@ ErrCode DisableAdminCommand::ParseArgs()
                 params_.showHelp = true;
                 return ERR_OK;
             case 'n':
-                if (!ValidateUniqueOption('t')) {
+                if (!ValidateUniqueOption('n')) {
                     return ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT;
                 }
                 params_.bundleName = optarg;

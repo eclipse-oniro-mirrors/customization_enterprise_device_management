@@ -28,8 +28,8 @@ const std::string TOOL_NAME = "edm";
 const std::string HELP_MSG = "usage: edm <command> [<options>]\n"
                              "These are common edm commands list:\n"
                              "  help                      list available commands\n"
-                             "  enable-admin              enable a admin with options\n"
-                             "  disable-admin             disable a admin with options\n";
+                             "  enable-admin              enable an admin with options\n"
+                             "  disable-admin             disable an admin with options\n";
 }  // namespace
 
 class EdmCommand  {

@@ -33,8 +33,8 @@ namespace TEST {
 const std::string HELP_USAGE = "usage: edm <command> [<options>]\n"
                              "These are common edm commands list:\n"
                              "  help                      list available commands\n"
-                             "  enable-admin              enable a admin with options\n"
-                             "  disable-admin             disable a admin with options\n";
+                             "  enable-admin              enable an admin with options\n"
+                             "  disable-admin             disable an admin with options\n";
 
 class HelpCommandTest : public testing::Test {
 };
