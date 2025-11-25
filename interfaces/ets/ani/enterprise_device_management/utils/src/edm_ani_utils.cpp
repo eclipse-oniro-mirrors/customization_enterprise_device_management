@@ -101,6 +101,21 @@ void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode, std::string errMsg)
     }
 }
 
+bool EdmAniUtils::AniStringToString(ani_env *env, const ani_string aniStr, std::string &outStr)
+{
+    if (aniStr == nullptr) {
+        outStr.clear();
+        return false;
+    }
+    ani_size size = 0;
+    env->String_GetUTF8Size(aniStr, &size);
+
+    outStr.resize(size);
+    ani_size written;
+    env->String_GetUTF8(aniStr, outStr.data(), size + 1, &written);
+    return true;
+}
+
 std::string EdmAniUtils::AniStrToString(ani_env *env, ani_ref aniStr)
 {
     ani_string str = static_cast<ani_string>(aniStr);
@@ -138,6 +153,18 @@ bool EdmAniUtils::GetStringProperty(ani_env *env,  ani_object aniAdmin, const st
     }
     property = AniStrToString(env, static_cast<ani_string>(ret));
     return true;
+}
+
+bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin, bool &hasAdmin)
+{
+    ani_boolean isNull;
+    env->Reference_IsNull(aniAdmin, &isNull);
+    if (isNull) {
+        hasAdmin = false;
+        return true;
+    }
+    hasAdmin = true;
+    return UnWrapAdmin(env, aniAdmin, admin);
 }
 
 bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin)

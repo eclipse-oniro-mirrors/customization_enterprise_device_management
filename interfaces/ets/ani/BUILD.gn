@@ -15,9 +15,11 @@ import("//build/ohos.gni")
 
 group("ani_edm_package") {
   deps = [
-    "./enterprise_device_management:adminManager_ani",
-    "./enterprise_device_management:adminManager_etc",
-    "./enterprise_device_management:securityManager_ani",
-    "./enterprise_device_management:securityManager_etc",
+    "./enterprise_device_management/admin_manager:adminManager_ani",
+    "./enterprise_device_management/admin_manager:adminManager_etc",
+    "./enterprise_device_management/security_manager:securityManager_ani",
+    "./enterprise_device_management/security_manager:securityManager_etc",
+    "./enterprise_device_management/restrictions:restrictions_ani",
+    "./enterprise_device_management/restrictions:restrictions_etc",
   ]
 }

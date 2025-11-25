@@ -124,6 +124,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "disallow_export_recovery_key_query.h"
+#include "disallow_open_file_boost_query.h"
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "disallow_modify_ethernet_ip_query.h"
@@ -718,6 +719,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE:
             obj = std::make_shared<DisallowVirtualServiceQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<DisallowOpenFileBoostQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         case EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowModifyWallpaperQuery>();

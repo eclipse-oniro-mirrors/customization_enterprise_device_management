@@ -14,72 +14,22 @@
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 
-ohos_shared_library("adminManager_ani") {
-  shlib_type = "ani"
-  include_dirs = [
-    "./include",
-    "../../../../common/native/include",
-    "../../../inner_api/common/include",
-  ]
-  sources = [
-    "./src/adminManager_ani.cpp",
-    "./src/edm_ani_utils.cpp",
-  ]
-
-  deps = [
-    "../../../../common/native:edm_commom",
-    "../../../inner_api:edmservice_kits",
-  ]
-
-  external_deps = [
-    "ability_base:want",
-    "hilog:libhilog",
-    "runtime_core:ani",
-  ]
-
-  sanitize = {
-    boundary_sanitize = true
-    cfi = true
-    cfi_cross_dso = true
-    debug = false
-    integer_overflow = true
-    ubsan = true
-  }
-
-  part_name = "enterprise_device_management"
-  subsystem_name = "customization"
-}
-
-generate_static_abc("adminManager") {
-  base_url = "./ets"
-  files = [ "./ets/@ohos.enterprise.adminManager.ets" ]
-  is_boot_abc = "True"
-  device_dst_file = "system/framework/adminManager.abc"
-}
-
-ohos_prebuilt_etc("adminManager_etc") {
-  source = "$target_out_dir/adminManager.abc"
-  module_install_dir = "framework"
-  part_name = "enterprise_device_management"
-  subsystem_name = "customization"
-  deps = [ ":adminManager" ]
-}
-
 ohos_shared_library("securityManager_ani") {
   shlib_type = "ani"
   include_dirs = [
     "./include",
-    "../../../../common/native/include",
-    "../../../inner_api/security_manager/include",
+    "../utils/include",
+    "../../../../../common/native/include",
+    "../../../../inner_api/security_manager/include",
   ]
   sources = [
-    "./src/edm_ani_utils.cpp",
+    "../utils/src/edm_ani_utils.cpp",
     "./src/securityManager_ani.cpp",
   ]
 
   deps = [
-    "../../../../common/native:edm_commom",
-    "../../../inner_api:edmservice_kits",
+    "../../../../../common/native:edm_commom",
+    "../../../../inner_api:edmservice_kits",
   ]
 
   external_deps = [

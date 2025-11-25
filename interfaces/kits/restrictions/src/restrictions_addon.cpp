@@ -114,6 +114,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_STORAGE_DEVICE_WRITE,
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST, EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
