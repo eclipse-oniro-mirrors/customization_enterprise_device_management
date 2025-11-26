@@ -493,6 +493,7 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
     if (basicPlugin != nullptr) {
         basicPlugin->ResetExtensionPlugin();
     }
+    plugin.reset();
 }
 
 void PluginManager::NotifyUnloadAllPlugin()

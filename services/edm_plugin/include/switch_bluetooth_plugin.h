@@ -24,6 +24,7 @@ class SwitchBluetoothPlugin : public PluginSingleton<SwitchBluetoothPlugin, bool
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBluetoothPlugin, bool>> ptr) override;
     ErrCode OnSetPolicy(bool &isOpen);
+    ~SwitchBluetoothPlugin();
 };
 } // namespace EDM
 } // namespace OHOS
