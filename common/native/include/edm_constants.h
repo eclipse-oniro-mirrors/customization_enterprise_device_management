@@ -279,6 +279,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
     // api 23
     const char* const PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN = "ohos.permission.ENTERPRISE_MANAGE_DEVICE_ADMIN";
+    const char* const PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

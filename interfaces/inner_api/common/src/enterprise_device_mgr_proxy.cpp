@@ -338,7 +338,7 @@ bool EnterpriseDeviceMgrProxy::CheckDataInEdmDisabled(MessageParcel &data)
 int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicy");
-    if (!IsEdmEnabled()) {
+    if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
