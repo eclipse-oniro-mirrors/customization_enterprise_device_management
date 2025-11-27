@@ -89,6 +89,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DESK,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOW_REMOTE_DIAGNOSIS,
     EdmInterfaceCode::DISABLED_HDC_REMOTE,
+    EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

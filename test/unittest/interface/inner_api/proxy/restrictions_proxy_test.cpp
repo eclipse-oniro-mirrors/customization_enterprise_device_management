@@ -621,7 +621,8 @@ HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountSuc, TestSize.Le
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100, true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -637,7 +638,8 @@ HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountSuc_01, TestSize
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100, false, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        false, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -651,7 +653,8 @@ HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountFail, TestSize.L
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100, true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -668,7 +671,8 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountSuc, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
-    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
+    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -683,7 +687,8 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountFail, TestSize.Le
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool restricted = false;
-    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
+    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -696,7 +701,8 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountNullptr, TestSize
 {
     Utils::SetEdmServiceDisable();
     bool result = false;
-    int32_t ret = proxy_->GetUserRestrictedForAccount(nullptr, 100, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, result);
+    int32_t ret = proxy_->GetUserRestrictedForAccount(nullptr, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, result);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST

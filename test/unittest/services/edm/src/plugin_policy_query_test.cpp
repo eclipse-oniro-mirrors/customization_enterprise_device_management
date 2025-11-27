@@ -91,6 +91,7 @@
 #include "usb_read_only_query.h"
 #include "disallowed_sms_query.h"
 #include "disallowed_mms_query.h"
+#include "disallow_modify_wallpaper_query.h"
 #ifndef FEATURE_PC_ONLY
 #include "disallow_power_long_press_query.h"
 #endif
@@ -111,10 +112,6 @@
 
 #ifdef NOTIFICATION_EDM_ENABLE
 #include "disallowed_notification_query.h"
-#endif
-
-#ifdef OS_ACCOUNT_EDM_ENABLE
-#include "disallow_modify_wallpaper_query.h"
 #endif
 
 using namespace testing::ext;

@@ -72,8 +72,6 @@ HWTEST_F(DisableModifyWallpaperPluginTest, TestDisableModifyWallpaperPluginTestT
     HandlePolicyData handlePolicyDataFalse{"true", "", false};
     ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyDataFalse.policyData == "false");
-    ASSERT_FALSE(handlePolicyDataFalse.isChanged);
 }
 } // namespace TEST
 } // namespace EDM

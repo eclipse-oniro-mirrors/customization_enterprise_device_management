@@ -53,7 +53,6 @@
 
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "disallow_add_local_account_query.h"
-#include "disallow_modify_wallpaper_query.h"
 #endif
 
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
@@ -179,6 +178,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_modify_wallpaper_query.h"
 
 namespace OHOS {
 namespace EDM {
