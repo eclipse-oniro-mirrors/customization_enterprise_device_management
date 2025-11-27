@@ -111,6 +111,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOWED_NFC = 24;
         constexpr uint32_t DISALLOW_REMOTE_DESK = 25;
         constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
+        constexpr uint32_t GET_EXT_INFO = 29;
     }
 
     namespace KeepAlive {

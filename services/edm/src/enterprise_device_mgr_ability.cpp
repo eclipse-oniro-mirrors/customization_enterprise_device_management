@@ -88,8 +88,8 @@ const int32_t UPDATE_APPS_STATE_ON_AG_CHANGE = 1;
 const int32_t UPDATE_APPS_STATE_ON_BMS_CHANGE = 2;
 const int32_t INIT_AG_TASK = 3;
 const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
-const int32_t AG_COMMON_EVENT_SIZE = 2;
-const int32_t WITHOUT_ADMIN = 1;
+const int32_t AG_COMMON_EVENT_SIZE = 3;
+const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
@@ -170,31 +170,13 @@ void EnterpriseDeviceMgrAbility::InitAgTask()
     HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
 }
 
-void EnterpriseDeviceMgrAbility::GetAgCommonEventName()
+std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateAGEventSubscriber(
+    EnterpriseDeviceMgrAbility &listener)
 {
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
-    MessageParcel reply;
-    MessageParcel messageData;
-    messageData.WriteString(WITHOUT_PERMISSION_TAG);
-    messageData.WriteInt32(WITHOUT_ADMIN);
-
-    GetDevicePolicyFromPlugin(funcCode, messageData, reply, EdmConstants::DEFAULT_USER_ID);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGE("failed to get ag common event");
-        return;
-    }
-    std::vector<std::string> agCommonEventList = {};
-    if (!reply.ReadStringVector(&agCommonEventList)) {
-        EDMLOGE("failed to read ag common event");
-        return;
-    }
-
+    std::vector<std::string> agCommonEventList = GetAgCommonEventName();
     if (agCommonEventList.size() != AG_COMMON_EVENT_SIZE) {
         EDMLOGE("ag common event size is abnormally");
-        return;
+        return nullptr;
     }
     commonEventFuncMap_[agCommonEventList[0]] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
@@ -204,6 +186,46 @@ void EnterpriseDeviceMgrAbility::GetAgCommonEventName()
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_AG_CHANGE);
         };
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    skill.AddEvent(agCommonEventList[0]);
+    skill.AddEvent(agCommonEventList[1]);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    info.SetPermission(agCommonEventList[AG_PERMISSION_INDEX]);
+    return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
+}
+
+std::vector<std::string> EnterpriseDeviceMgrAbility::GetAgCommonEventName()
+{
+    std::vector<std::string> agCommonEventList = {};
+    std::uint32_t interfaceCode = POLICY_CODE_END + EdmConstants::PolicyCode::GET_EXT_INFO;
+    MessageParcel reply;
+    MessageParcel messageData;
+    int32_t type = 0; // 获取信息类型
+    messageData.WriteInt32(type);
+
+    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(interfaceCode);
+    if (loadRet != ERR_OK) {
+        EDMLOGE("load ext plugin fail");
+        return agCommonEventList;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGE("getExtInfoPlugin nullptr");
+        return agCommonEventList;
+    }
+    std::string policyData;
+    plugin->OnGetPolicy(policyData, messageData, reply, DEFAULT_USER_ID);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("failed to get ag common event");
+        return agCommonEventList;
+    }
+    if (!reply.ReadStringVector(&agCommonEventList)) {
+        EDMLOGE("failed to read ag common event");
+        return agCommonEventList;
+    }
+    return agCommonEventList;
 }
 
 void EnterpriseDeviceMgrAbility::UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event)
@@ -365,7 +387,6 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
     EnterpriseDeviceMgrAbility &listener)
 {
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    GetAgCommonEventName();
     AddCommonEventFuncMap();
     for (auto &item : commonEventFuncMap_) {
         if (item.first == SYSTEM_UPDATE_FOR_POLICY) {
@@ -973,6 +994,12 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
     EventFwk::CommonEventSubscribeInfo info(skill);
     info.SetPermission(PERMISSION_UPDATE_SYSTEM);
     EventFwk::CommonEventManager::SubscribeCommonEvent(std::make_shared<EnterpriseDeviceEventSubscriber>(info, *this));
+
+    auto agEventSubscriber = CreateAGEventSubscriber(*this);
+    if (agEventSubscriber) {
+        EDMLOGI("create agEventSubscriber success");
+        EventFwk::CommonEventManager::SubscribeCommonEvent(agEventSubscriber);
+    }
 #else
     EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
     return;
