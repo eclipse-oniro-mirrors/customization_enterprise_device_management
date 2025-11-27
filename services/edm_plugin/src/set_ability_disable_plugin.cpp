@@ -33,6 +33,11 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<SetAbilityDisablePlugin>());
 
 const std::string SEPARATOR = "/";
+constexpr int32_t BUNDLENAME_INDEX = 0;
+constexpr int32_t APPINDEX_INDEX = 1;
+constexpr int32_t ACCOUNTID_INDEX = 2;
+constexpr int32_t ABILITY_INDEX = 3;
+constexpr int32_t MAX_INDEX = 4;
 
 SetAbilityDisablePlugin::SetAbilityDisablePlugin()
 {
@@ -55,9 +60,9 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         bool isDisable = data.ReadBool();
         ApplicationMsg userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
-        ErrCode ret = SetDisableByBundle(userApp.bundleName, abilityName, isDisable);
+        ErrCode ret = SetDisableByBundle(userApp, abilityName, isDisable);
         if (ret == ERR_OK) {
-            SetPolicyData(policyData, userApp.bundleName, abilityName, isDisable);
+            SetPolicyData(policyData, userApp, abilityName, isDisable);
         }
         return ret;
     } else {
@@ -67,10 +72,11 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
 }
 
 void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
-    const std::string &bundleName, const std::string &abilityName, bool isDisable)
+    const ApplicationMsg &application, const std::string &abilityName, bool isDisable)
 {
     std::vector<std::string> data;
-    std::string name = bundleName + SEPARATOR + abilityName;
+    std::string name = application.bundleName + SEPARATOR + std::to_string(application.appIndex) +
+        SEPARATOR + std::to_string(application.accountId) + SEPARATOR + abilityName;
     data.push_back(name);
     auto serializer = ArrayStringSerializer::GetInstance();
     std::vector<std::string> currentPolicies;
@@ -102,7 +108,8 @@ ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessagePar
     std::string abilityName = data.ReadString();
     ApplicationMsg userApp;
     ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
-    std::string name = userApp.bundleName + SEPARATOR + abilityName;
+    std::string name = userApp.bundleName + SEPARATOR + std::to_string(userApp.appIndex) +
+        SEPARATOR + std::to_string(userApp.accountId) + SEPARATOR + abilityName;
 
     bool isDisable = false;
     std::vector<std::string> currentPolicies;
@@ -116,7 +123,32 @@ ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessagePar
     return ERR_OK;
 }
 
-ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const std::string &bundleName,
+ErrCode SetAbilityDisablePlugin::GetAppInfoByPolicyData(const std::string policyData,
+    ApplicationMsg &application, std::string &abilityName)
+{
+    std::vector<std::string> parts;
+    size_t start = 0;
+    size_t end = policyData.find(SEPARATOR);
+    while (end != policyData.npos) {
+        parts.push_back(policyData.substr(start, end - start));
+        start = end + 1;
+        end = policyData.find(SEPARATOR, start);
+    }
+    parts.push_back(policyData.substr(start));
+
+    if (parts.size() != MAX_INDEX) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    application.bundleName = parts[BUNDLENAME_INDEX];
+    application.appIndex = std::stoi(parts[APPINDEX_INDEX]);
+    application.accountId = std::stoi(parts[ACCOUNTID_INDEX]);
+    abilityName = parts[ABILITY_INDEX];
+
+    return ERR_OK;
+}
+
+ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const ApplicationMsg &application,
     const std::string &abilityName, bool isDisable)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -127,14 +159,15 @@ ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const std::string &bundleNam
     }
     std::vector<OHOS::AppExecFwk::AbilityInfo> abilityInfos;
     AppExecFwk::ElementName element;
-    element.SetBundleName(bundleName);
+    element.SetBundleName(application.bundleName);
     element.SetAbilityName(abilityName);
     OHOS::AppExecFwk::IBundleMgr::Want want;
     want.SetElement(element);
     bool res = proxy->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_DISABLE,
-        DEFAULT_USER_ID, abilityInfos);
-    if (res && !abilityInfos.empty()) {
-        ErrCode ret = proxy->SetAbilityEnabled(abilityInfos[0], isDisable, DEFAULT_USER_ID);
+        application.accountId, abilityInfos);
+    if (res && application.appIndex >= 0 && abilityInfos.size() > static_cast<size_t>(application.appIndex)) {
+        ErrCode ret = proxy->SetCloneAbilityEnabled(abilityInfos[application.appIndex], application.appIndex,
+            isDisable, application.accountId);
         if (FAILED(ret)) {
             EDMLOGE("SetAbilityEnabled failed, ret: %{public}d", ret);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -156,12 +189,11 @@ ErrCode SetAbilityDisablePlugin::OnAdminRemove(const std::string &adminName, con
         EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    for (std::string name : mergePolicies) {
-        size_t index = name.find(SEPARATOR);
-        if (index != name.npos) {
-            std::string bundleName_ = name.substr(0, index);
-            std::string abilityName_ = name.substr(index + 1);
-            SetDisableByBundle(bundleName_, abilityName_, true);
+    for (std::string policy : mergePolicies) {
+        ApplicationMsg application;
+        std::string abilityName;
+        if (GetAppInfoByPolicyData(policy, application, abilityName) == ERR_OK) {
+            SetDisableByBundle(application, abilityName, true);
         } else {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }

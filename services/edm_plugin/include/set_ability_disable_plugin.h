@@ -19,7 +19,7 @@
 #include <message_parcel.h>
 
 #include "iplugin.h"
-#include "iptables_utils.h"
+#include "application_instance.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,8 +36,10 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
     void SetPolicyData(HandlePolicyData &policyData,
-        const std::string &bundleName, const std::string &abilityName, bool isDisable);
-    ErrCode SetDisableByBundle(const std::string &bundleName, const std::string &abilityName, bool isDisable);
+        const ApplicationMsg &application, const std::string &abilityName, bool isDisable);
+    ErrCode SetDisableByBundle(const ApplicationMsg &application, const std::string &abilityName, bool isDisable);
+    ErrCode GetAppInfoByPolicyData(const std::string policyData, ApplicationMsg &application,
+        std::string &abilityName);
 };
 } // namespace EDM
 } // namespace OHOS

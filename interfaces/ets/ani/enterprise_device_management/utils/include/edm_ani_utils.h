@@ -28,7 +28,9 @@ public:
     static void AniThrow(ani_env *env, int32_t errCode, std::string errMsg);
     static std::string AniStrToString(ani_env *env, ani_ref aniStr);
     static ani_string StringToAniStr(ani_env *env, const std::string &str);
+    static bool AniStringToString(ani_env *env, const ani_string aniStr, std::string &outStr);
     static bool UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin);
+    static bool UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin, bool &hasAdmin);
     static bool GetStringProperty(ani_env *env,  ani_object aniAdmin, const std::string &propertyName,
         std::string &property);
     static bool SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value);

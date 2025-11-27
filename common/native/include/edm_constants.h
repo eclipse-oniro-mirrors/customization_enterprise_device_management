@@ -111,6 +111,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOWED_NFC = 24;
         constexpr uint32_t DISALLOW_REMOTE_DESK = 25;
         constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
+        constexpr uint32_t GET_EXT_INFO = 29;
     }
 
     namespace KeepAlive {
@@ -168,6 +169,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VPN = "vpn";
         const char* const LABEL_DISALLOWED_POLICY_PRIVATE_SPACE = "privateSpace";
         const char* const LABEL_DISALLOWED_POLICY_EXPORT_RECOVERY_KEY = "diskRecoveryKey";
+        const char* const LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST = "openFileBoost";
         const char* const LABEL_DISALLOWED_POLICY_PRINT = "print";
         const char* const LABEL_DISALLOWED_POLICY_RANDOM_MAC_ADDRESS = "randomMac";
         const char* const LABEL_DISALLOWED_POLICY_EXTERNAL_STORAGE_CARD = "externalStorageCard";
@@ -278,6 +280,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_SET_WALLPAPER = "ohos.permission.ENTERPRISE_SET_WALLPAPER";
     // api 23
     const char* const PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN = "ohos.permission.ENTERPRISE_MANAGE_DEVICE_ADMIN";
+    const char* const PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -319,6 +322,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
     const char* const POLICY_DISALLOWED_EXPORT_RECOVERY_KEY = "disallowed_export_recovery_key";
+    const char* const POLICY_DISALLOWED_OPEN_FILE_BOOST = "disallowed_open_file_boost";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
     const char* const POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION = "disallowed_distributed_transmission";
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
