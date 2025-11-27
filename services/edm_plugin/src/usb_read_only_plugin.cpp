@@ -41,6 +41,8 @@ UsbReadOnlyPlugin::UsbReadOnlyPlugin()
     policyName_ = PolicyName::POLICY_USB_READ_ONLY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB);
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_MANAGE_EDM_POLICY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }
@@ -199,7 +201,7 @@ ErrCode UsbReadOnlyPlugin::DealReadPolicy(int32_t accessPolicy, const std::strin
     std::string value = system::GetParameter(
         EdmConstants::CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE, "false");
     if (value == "true") {
-        EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: not need execute ReloadUsbDevice");
+        EDMLOGI("UsbReadOnlyPlugin OnHandlePolicy: no need to execute ReloadUsbDevice");
         return ERR_OK;
     }
     ErrCode reloadRet = ReloadUsbDevice();
