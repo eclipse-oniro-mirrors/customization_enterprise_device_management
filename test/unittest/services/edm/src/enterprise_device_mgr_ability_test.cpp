@@ -4424,7 +4424,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithadmin, Test
     initPolicies();
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
     ErrCode ret = edmMgr_->SetDelegatedPolicies(bundleName, policies, userId);
-    ASSERT_TRUE(ret == ERR_EDM_ADD_ADMIN_FAILED);
+    ASSERT_TRUE(ret == EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED);
 }
 
 /**
