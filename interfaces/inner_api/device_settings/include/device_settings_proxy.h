@@ -42,6 +42,7 @@ public:
     int32_t SetWallPaper(MessageParcel &data, std::string &errMsg);
     int32_t SetEyeComfortMode(const AppExecFwk::ElementName &admin, const std::string &value);
     int32_t GetEyeComfortMode(const AppExecFwk::ElementName &admin, std::string &value);
+    int32_t SetDefaultInputMethod(const AppExecFwk::ElementName &admin, const std::string &value);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;
