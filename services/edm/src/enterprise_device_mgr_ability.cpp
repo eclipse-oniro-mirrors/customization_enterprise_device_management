@@ -47,6 +47,7 @@
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
+#include "language_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
 
@@ -2323,6 +2324,17 @@ ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(std::string &bundleName, std::
         bundleName = superAdmin->adminInfo_.packageName_;
         abilityName = superAdmin->adminInfo_.className_;
     }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips(std::string &tips)
+{
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+    if (!GetPermissionChecker()->CheckIsSystemApp()) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    tips = LanguageManager::GetEnterpriseManagedTips();
     return ERR_OK;
 }
 

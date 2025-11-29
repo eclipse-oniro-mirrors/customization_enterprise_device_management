@@ -63,6 +63,11 @@ namespace EdmConstants {
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
 
+    const char* const ENTERPRISE_DEVICE_DEFAULT_TEXT = "EnterpriseDeviceDefaultText";
+    const char* const ENTERPRISE_DEVICE_TEXT = "EnterpriseDeviceText";
+    const char* const ENTERPRISE_MANAGED_TIPS = "enterpriseManagedTips";
+    const char* const MANAGED_TIPS_DISABLED = "persist.edm.show_managed_tips_disabled";
+
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
 

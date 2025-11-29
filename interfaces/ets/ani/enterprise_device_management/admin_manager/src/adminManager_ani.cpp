@@ -132,6 +132,22 @@ ani_object AdminManagerAni::GetSuperAdminSync(ani_env* env)
     }
     return aniWant;
 }
+
+ani_object AdminManagerAni::GetEnterpriseManagedTipsSync(ani_env* env)
+{
+    EDMLOGI("ANI_GetEnterpriseManagedTipsSync called");
+
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::string tips;
+    ErrCode ret = proxy->GetEnterpriseManagedTips(tips);
+    if (ret != ERR_OK) {
+        EdmAniUtils::AniThrow(env, ret);
+        EDMLOGE("GetEnterpriseManagedTips fail errcode:%{public}d", ret);
+        return nullptr;
+    }
+    return EdmAniUtils::StringToAniStr(env, tips);
+}
+
 } // namespace EDM
 } // namespace OHOS
 

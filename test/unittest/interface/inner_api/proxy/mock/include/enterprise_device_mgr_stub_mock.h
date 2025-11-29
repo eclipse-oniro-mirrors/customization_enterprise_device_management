@@ -76,6 +76,7 @@ public:
         (override));
     MOCK_METHOD(int, EnableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
     MOCK_METHOD(int, DisableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
+    MOCK_METHOD(int, GetEnterpriseManagedTips, (std::string &), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
@@ -91,6 +92,7 @@ public:
     int InvokeIsSuperAdminFail(const std::string &bundleName, bool &isSuper);
     int InvokeIsByodAdminFail(const AppExecFwk::ElementName &admin, bool &isByod);
     int InvokeGetSuperAdmin(std::string &bundleName, std::string &abilityName);
+    int InvokeGetEnterpriseManagedTips(std::string &result);
     int InvokeGetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants);
     int InvokeGetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
 

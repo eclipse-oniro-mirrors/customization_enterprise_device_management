@@ -35,6 +35,12 @@ const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
+int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetEnterpriseInfo";
+    result = "mock-lockinfo";
+    return ERR_OK;
+}
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo)
 {

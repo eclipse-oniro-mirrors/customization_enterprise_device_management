@@ -29,6 +29,7 @@ public:
 private:
     static ani_object GetEnterpriseInfoSync(ani_env* env, ani_object admin);
     static ani_object GetSuperAdminSync(ani_env* env);
+    static ani_object GetEnterpriseManagedTipsSync(ani_env* env);
 };
 } // namespace EDM
 } // namespace OHOS
