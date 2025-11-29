@@ -110,6 +110,7 @@ private:
     static napi_value SubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value GetSuperAdmin(napi_env env, napi_callback_info info);
+    static napi_value GetEnterpriseManagedTips(napi_env env, napi_callback_info info);
     static napi_value SetDelegatedPolicies(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info);
     static napi_value GetDelegatedBundleNames(napi_env env, napi_callback_info info);
@@ -143,6 +144,7 @@ private:
     static void CreatePolicyObject(napi_env env, napi_value value);
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
+    static void NativeGetEnterpriseManagedTips(napi_env env, void *data);
     static void NativeGetSuperAdminComplete(napi_env env, napi_status status, void *data);
     static void NativeGetAdmins(napi_env env, void *data);
     static void NativeGetAdminsComplete(napi_env env, napi_status status, void *data);

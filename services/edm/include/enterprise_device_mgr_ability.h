@@ -75,6 +75,7 @@ public:
     ErrCode UnloadInstallMarketAppsPlugin() override;
     ErrCode EnableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
     ErrCode DisableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
+    ErrCode GetEnterpriseManagedTips(std::string &tips) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
