@@ -2384,7 +2384,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &bund
     }
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (adminItem != nullptr) {
-        return ERR_EDM_ADD_ADMIN_FAILED;
+        return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
     }
     if (!CheckDelegatedBundle(bundleName, userId)) {
         return EdmReturnErrCode::AUTHORIZE_PERMISSION_FAILED;
