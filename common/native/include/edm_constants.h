@@ -63,6 +63,11 @@ namespace EdmConstants {
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
 
+    const char* const ENTERPRISE_DEVICE_DEFAULT_TEXT = "EnterpriseDeviceDefaultText";
+    const char* const ENTERPRISE_DEVICE_TEXT = "EnterpriseDeviceText";
+    const char* const ENTERPRISE_MANAGED_TIPS = "enterpriseManagedTips";
+    const char* const MANAGED_TIPS_DISABLED = "persist.edm.show_managed_tips_disabled";
+
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
 
@@ -111,6 +116,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOWED_NFC = 24;
         constexpr uint32_t DISALLOW_REMOTE_DESK = 25;
         constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
+        constexpr uint32_t GET_EXT_INFO = 29;
     }
 
     namespace KeepAlive {
@@ -192,6 +198,7 @@ namespace EdmConstants {
         const char* const POWER_POLICY = "powerPolicy";
         const char* const DATE_TIME = "dateTime";
         const char* const EYE_COMFORT = "eyeComfort";
+        const char* const DEFAULT_INPUT_METHOD = "defaultInputMethod";
     } // namespace DeviceSettings
 
     namespace DeviceControl {
@@ -392,6 +399,7 @@ namespace PolicyName {
     const char* const POLICY_MANAGE_FREEZE_EXEMPTED_APPS = "manage_freeze_exempted_apps";
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     const char* const POLICY_MANAGE_USER_NON_STOP_APPS = "manage_user_non_stop_apps";
+    const char* const POLICY_SET_DEFAULT_INPUT_METHOD = "set_default_input_method";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

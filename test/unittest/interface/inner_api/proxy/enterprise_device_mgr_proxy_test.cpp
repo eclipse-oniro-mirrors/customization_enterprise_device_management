@@ -18,10 +18,12 @@
 #include <string>
 #include <vector>
 
+#include "edm_constants.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "func_code.h"
+#include "parameters.h"
 #include "system_ability_definition.h"
 #include "utils.h"
 
@@ -180,6 +182,37 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseInfoFail, TestSize.Level
     enterpriseDeviceMgrProxyTest->GetEnterpriseInfo(admin, entInfo1);
     EXPECT_TRUE(entInfo1.enterpriseName.size() == 0);
     EXPECT_TRUE(entInfo1.description.size() == 0);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseManagedTips
+ * @tc.desc: Test GetEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseManagedTips, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetEnterpriseManagedTips(_))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips));
+    std::string result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetEnterpriseManagedTips(result);
+    EXPECT_EQ(errVal, ERR_OK);
+    EXPECT_EQ(result, "mock-lockinfo");
+}
+
+/**
+ * @tc.name: TestGetEnterpriseManagedTips
+ * @tc.desc: Test GetEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseManagedTipsDisabled, TestSize.Level1)
+{
+    std::string result;
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "true");
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetEnterpriseManagedTips(result);
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "false");
+    EXPECT_EQ(errVal, ERR_OK);
+    EXPECT_EQ(result, "");
 }
 
 /**

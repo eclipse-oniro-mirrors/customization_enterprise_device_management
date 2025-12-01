@@ -36,6 +36,7 @@ export default namespace adminManager {
 
     native function getEnterpriseInfoSync(admin: Want): EnterpriseInfo;
     native function getSuperAdminSync(): Want;
+    native function getEnterpriseManagedTipsSync(): string;
 
     function getEnterpriseInfo(admin: Want): Promise<EnterpriseInfo> {
         return new Promise<EnterpriseInfo>((resolve, reject) => {
@@ -65,6 +66,18 @@ export default namespace adminManager {
                 return getSuperAdminSync();
             }).then((content: Any) => {
                 resolve(content as Want);
+            }, (err: Error): void => {
+                reject(err as BusinessError);
+            });
+        });
+    }
+
+    function getEnterpriseManaged(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            taskpool.execute((): string => {
+                return getEnterpriseManagedTipsSync();
+            }).then((content: Any) => {
+                resolve(content as string);
             }, (err: Error): void => {
                 reject(err as BusinessError);
             });

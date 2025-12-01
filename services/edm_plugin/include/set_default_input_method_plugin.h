@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H
 
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class SwitchBluetoothPlugin : public PluginSingleton<SwitchBluetoothPlugin, bool> {
+class SetDefaultInputMethodPlugin : public PluginSingleton<SetDefaultInputMethodPlugin, std::string> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBluetoothPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &isOpen);
-    ~SwitchBluetoothPlugin();
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDefaultInputMethodPlugin, std::string>> ptr) override;
+
+    ErrCode OnSetPolicy(std::string &data);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_BLUETOOTH_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H

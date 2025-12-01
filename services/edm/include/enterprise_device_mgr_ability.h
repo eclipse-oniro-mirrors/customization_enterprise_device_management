@@ -75,6 +75,7 @@ public:
     ErrCode UnloadInstallMarketAppsPlugin() override;
     ErrCode EnableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
     ErrCode DisableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
+    ErrCode GetEnterpriseManagedTips(std::string &tips) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -147,11 +148,13 @@ private:
     void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
-    void GetAgCommonEventName();
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
+    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateAGEventSubscriber(
+        EnterpriseDeviceMgrAbility &listener);
+    std::vector<std::string> GetAgCommonEventName();
 #endif
     void OnCommonEventUserAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventUserSwitched(const EventFwk::CommonEventData &data);

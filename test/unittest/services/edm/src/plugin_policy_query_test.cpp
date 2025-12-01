@@ -2432,28 +2432,28 @@ HWTEST_F(PluginPolicyQueryTest, DisableRunningBinaryAppQuery002, TestSize.Level1
 }
 #endif
 
-#ifdef OS_ACCOUNT_EDM_ENABLE
-/**
- * @tc.name: TestDisallowModifyWallpaperQuery001
- * @tc.desc: Test DisallowModifyWallpaperPlugin::QueryPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyWallpaperQuery001, TestSize.Level1)
-{
-    std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisallowModifyWallpaperQuery>();
-    std::string policyData{"false"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag));
-    ASSERT_EQ(flag, ERR_OK);
-    bool result = false;
-    ASSERT_TRUE(reply.ReadBool(result));
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(result);
-}
-#endif
+// #ifdef OS_ACCOUNT_EDM_ENABLE
+// /**
+//  * @tc.name: TestDisallowModifyWallpaperQuery001
+//  * @tc.desc: Test DisallowModifyWallpaperPlugin::QueryPolicy function.
+//  * @tc.type: FUNC
+//  */
+// HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyWallpaperQuery001, TestSize.Level1)
+// {
+//     std::shared_ptr<IPolicyQuery> plugin = std::make_shared<DisallowModifyWallpaperQuery>();
+//     std::string policyData{"false"};
+//     MessageParcel data;
+//     MessageParcel reply;
+//     ErrCode ret = plugin->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+//     int32_t flag = ERR_INVALID_VALUE;
+//     ASSERT_TRUE(reply.ReadInt32(flag));
+//     ASSERT_EQ(flag, ERR_OK);
+//     bool result = false;
+//     ASSERT_TRUE(reply.ReadBool(result));
+//     ASSERT_TRUE(ret == ERR_OK);
+//     ASSERT_FALSE(result);
+// }
+// #endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

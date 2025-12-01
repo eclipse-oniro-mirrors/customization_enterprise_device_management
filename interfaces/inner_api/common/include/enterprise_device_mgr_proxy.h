@@ -55,6 +55,7 @@ public:
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
     ErrCode AuthorizeAdmin(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
+    ErrCode GetEnterpriseManagedTips(std::string &tips);
     ErrCode SetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleName,
         std::vector<std::string> &policies);
     ErrCode GetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleOrPolicyName, uint32_t code,

@@ -385,6 +385,26 @@ ErrCode EnterpriseDeviceMgrProxy::GetSuperAdmin(std::string &bundleName, std::st
     return mgrService->GetSuperAdmin(bundleName, abilityName);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseManagedTips(std::string &tips)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetEnterpriseManagedTips");
+    if (!IsEdmEnabled()) {
+        tips = "";
+        return ERR_OK;
+    }
+    bool disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED, false);
+    if (disableTips) {
+        tips = "";
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->GetEnterpriseManagedTips(tips);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(
     AppExecFwk::ElementName &parentAdmin, std::string &bundleName, std::vector<std::string> &policies)
 {

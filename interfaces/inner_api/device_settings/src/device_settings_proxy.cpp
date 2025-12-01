@@ -243,5 +243,19 @@ int32_t DeviceSettingsProxy::GetEyeComfortMode(const AppExecFwk::ElementName &ad
     value = reply.ReadString();
     return ERR_OK;
 }
+
+int32_t DeviceSettingsProxy::SetDefaultInputMethod(const AppExecFwk::ElementName &admin, const std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::SetDefaultInputMethod");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS
