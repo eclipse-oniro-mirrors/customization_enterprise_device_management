@@ -81,6 +81,7 @@
         "netmanager_ext",
         "hilog",
         "hisysevent",
+        "hitrace",
         "i18n",
         "image_framework",
         "imf",

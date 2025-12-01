@@ -85,6 +85,8 @@ public:
         override;
     ErrCode ReportAgInstallStatus(const std::string &bundleName,
         const std::string &mediaBundleName, int32_t status) override;
+    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
+        const sptr<IRemoteObject> &callerToken) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
@@ -149,6 +151,7 @@ private:
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
+    ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin, const AAFwk::Want &want);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

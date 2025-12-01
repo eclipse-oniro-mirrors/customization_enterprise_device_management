@@ -19,6 +19,8 @@
 #include <string_ex.h>
 #include <thread>
 
+#include "ability_controller.h"
+#include "ability_controller_factory.h"
 #include "application_state_observer.h"
 #include "bundle_info.h"
 #include "clipboard_policy.h"
@@ -2592,5 +2594,54 @@ ErrCode EnterpriseDeviceMgrAbility::SetBundleInstallPolicies(const std::vector<s
     return EdmReturnErrCode::PERMISSION_DENIED;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
+    const sptr<IRemoteObject> &callerToken)
+{
+    int32_t userId = GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::StartAbilityByAdmin Fail, get user id fail.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    auto ret = CheckStartAbility(userId, admin, want);
+    if (FAILED(ret)) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::CheckStartAbility fail ret: %{public}d", ret);
+        return ret;
+    }
+
+    std::shared_ptr<AbilityController> controller = AbilityControllerFactory::CreateAbilityController(want, userId);
+    if (controller == nullptr) {
+        EDMLOGE("Query the ability failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+    return controller->StartAbilityByAdmin(admin, want, callerToken, userId);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
+    const AAFwk::Want &want)
+{
+    // 校验是否激活
+    std::shared_ptr<Admin> existAdmin =
+        AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), currentUserId);
+    if (existAdmin == nullptr) {
+        EDMLOGE("CheckStartAbility Fail, not find admin.");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+
+    // 校验调用方和传入的admin是否一致
+    if (FAILED(PermissionChecker::GetInstance()->CheckCallingUid(existAdmin->adminInfo_.packageName_))) {
+        EDMLOGE("CheckCallingUid Fail.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+
+    // 校验权限
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!PermissionChecker::GetInstance()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_ENTERPRISE_START_ABILITIES)) {
+        EDMLOGE("CheckStartAbility check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

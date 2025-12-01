@@ -683,5 +683,20 @@ ErrCode EnterpriseDeviceMgrProxy::SetBundleInstallPolicies(std::vector<std::stri
     }
     return mgrService->SetBundleInstallPolicies(bundles, userId, policyType);
 }
+
+ErrCode EnterpriseDeviceMgrProxy::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
+    const sptr<IRemoteObject> &callerToken)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::StartAbilityByAdmin");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return mgrService->StartAbilityByAdmin(admin, want, callerToken);
+}
 } // namespace EDM
 } // namespace OHOS

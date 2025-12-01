@@ -16,6 +16,7 @@
 sequenceable Want..OHOS.AAFwk.Want;
 sequenceable ElementName..OHOS.AppExecFwk.ElementName;
 sequenceable EntInfo..OHOS.EDM.EntInfo;
+sequenceable OHOS.IRemoteObject;
 interface_token ohos.edm.IEnterpriseDeviceMgr;
 import AdminType;
 
@@ -46,4 +47,5 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 25] void EnableDeviceAdmin([in] ElementName admin);
     [ipccode 26] void DisableDeviceAdmin([in] ElementName admin);
     [ipccode 27] void GetEnterpriseManagedTips([out] String tips);
+    [ipccode 28] void StartAbilityByAdmin([in] ElementName admin, [in] Want want, [in] IRemoteObject token);
 }

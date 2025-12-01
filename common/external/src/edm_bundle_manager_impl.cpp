@@ -193,5 +193,31 @@ bool EdmBundleManagerImpl::SetDisallowedUninstall(const std::string &bundleName,
     EDMLOGI("EdmBundleManagerImpl::%{public}s set disallow uninstall %{public}d success.", bundleName.c_str(), state);
     return true;
 }
+
+bool EdmBundleManagerImpl::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags,
+    int32_t userId, AppExecFwk::AbilityInfo &abilityInfo)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy && proxy->QueryAbilityInfo(want, flags, userId, abilityInfo)) {
+        EDMLOGI("EdmBundleManagerImpl::QueryAbilityInfo success.");
+        return true;
+    }
+    EDMLOGE("EdmBundleManagerImpl::QueryAbilityInfo GetBundleMgr failed.");
+    return false;
+}
+
+bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want, int32_t flag, int32_t userId,
+    std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy && proxy->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos)) {
+        EDMLOGI("EdmBundleManagerImpl::QueryExtensionAbilityInfos success.");
+        return true;
+    }
+    EDMLOGE("EdmBundleManagerImpl::QueryExtensionAbilityInfos GetBundleMgr failed.");
+    return false;
+}
 } // namespace EDM
 } // namespace OHOS

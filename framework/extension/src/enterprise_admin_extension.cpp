@@ -54,6 +54,11 @@ std::shared_ptr<EnterpriseAdminExtensionContext> EnterpriseAdminExtension::Creat
 {
     std::shared_ptr<EnterpriseAdminExtensionContext> context =
         ExtensionBase<EnterpriseAdminExtensionContext>::CreateAndInitContext(record, application, handler, token);
+    if (record == nullptr) {
+        EDMLOGE("record is null");
+        return context;
+    }
+    context->SetAbilityInfo(record->GetAbilityInfo());
     return context;
 }
 } // namespace EDM

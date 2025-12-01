@@ -20,9 +20,33 @@
 
 #include "enterprise_admin_extension_context.h"
 #include "napi/native_api.h"
+#include "napi_edm_common.h"
+#include "napi_edm_error.h"
+#include "js_runtime_utils.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
+struct AsyncStartAbilityCallbackInfo : AsyncCallbackInfo {
+    AppExecFwk::ElementName admin;
+    AAFwk::Want want;
+    std::weak_ptr<EnterpriseAdminExtensionContext> context;
+};
+
+class JsEnterpriseAdminExtensionContext final {
+public:
+    explicit JsEnterpriseAdminExtensionContext(const std::shared_ptr<EnterpriseAdminExtensionContext>& context)
+        : context_(context) {}
+    ~JsEnterpriseAdminExtensionContext() = default;
+
+    static void Finalizer(napi_env env, void* data, void* hint);
+    static napi_value StartAbilityByAdmin(napi_env env, napi_callback_info info);
+private:
+    static void NativeStartAbilityByAdmin(napi_env env, void* data);
+    napi_value OnStartAbilityByAdmin(napi_env env, AbilityRuntime::NapiCallbackInfo& info);
+    std::weak_ptr<EnterpriseAdminExtensionContext> context_;
+};
+
 napi_value CreateJsEnterpriseAdminExtensionContext(napi_env env,
     std::shared_ptr<EnterpriseAdminExtensionContext> context);
 } // namespace EDM

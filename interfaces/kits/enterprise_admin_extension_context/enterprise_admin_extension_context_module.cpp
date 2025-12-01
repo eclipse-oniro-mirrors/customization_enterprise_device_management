@@ -14,21 +14,22 @@
  */
 
 #include "native_engine/native_engine.h"
+#include "napi/native_api.h"
 
 extern const char _binary_enterprise_admin_extension_context_js_start[];
 extern const char _binary_enterprise_admin_extension_context_js_end[];
 extern const char _binary_enterprise_admin_extension_context_abc_start[];
 extern const char _binary_enterprise_admin_extension_context_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "enterprise/libenterpriseadminextensioncontext_napi.so/enterprise_admin_extension_context.js",
+    .nm_modname = "enterprise.EnterpriseAdminExtensionContext"
+};
+
 extern "C" __attribute__((constructor)) void NAPI_enterprise_EnterpriseAdminExtensionContext_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "enterprise.EnterpriseAdminExtensionContext",
-        .fileName = "enterprise/libenterpriseadminextensioncontext_napi.so/enterprise_admin_extension_context.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default"))) void NAPI_enterprise_EnterpriseAdminExtensionContext_GetJSCode(

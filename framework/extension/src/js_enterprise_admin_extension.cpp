@@ -32,6 +32,46 @@ constexpr size_t JS_NAPI_ARGC_ZERO = 0;
 constexpr size_t JS_NAPI_ARGC_ONE = 1;
 constexpr size_t JS_NAPI_ARGC_TWO = 2;
 
+napi_value AttachEnterpriseAdminExtensionContext(napi_env env, void* value, void*)
+{
+    EDMLOGI("AttachEnterpriseAdminExtensionContext called");
+    if (value == nullptr) {
+        EDMLOGI("null value");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<EnterpriseAdminExtensionContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        EDMLOGI("null ptr");
+        return nullptr;
+    }
+    napi_value object = CreateJsEnterpriseAdminExtensionContext(env, ptr);
+    if (object == nullptr) {
+        EDMLOGE("null object");
+    }
+    auto sysModule = AbilityRuntime::JsRuntime::LoadSystemModuleByEngine(env,
+        "enterprise.EnterpriseAdminExtensionContext", &object, JS_NAPI_ARGC_ONE);
+    if (sysModule == nullptr) {
+        EDMLOGI("null sysModule");
+        return nullptr;
+    }
+    auto contextObj = sysModule->GetNapiValue();
+    napi_coerce_to_native_binding_object(
+        env, contextObj, AbilityRuntime::DetachCallbackFunc, AttachEnterpriseAdminExtensionContext, value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<EnterpriseAdminExtensionContext>(ptr);
+    auto status = napi_wrap(env, contextObj, workContext,
+        [](napi_env, void * data, void *) {
+            EDMLOGI("Finalizer for weak_ptr form extension context is called");
+            delete static_cast<std::weak_ptr<EnterpriseAdminExtensionContext> *>(data);
+        },
+        nullptr, nullptr);
+    if (status != napi_ok) {
+        EDMLOGI("wrap context failed: %{public}d", status);
+        delete workContext;
+        return nullptr;
+    }
+    return contextObj;
+}
+
 JsEnterpriseAdminExtension* JsEnterpriseAdminExtension::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
     return new JsEnterpriseAdminExtension(static_cast<AbilityRuntime::JsRuntime&>(*runtime));
@@ -42,6 +82,7 @@ JsEnterpriseAdminExtension::~JsEnterpriseAdminExtension()
 {
     EDMLOGD("Js enterprise admin extension destructor.");
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }
 
 void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord>& record,
@@ -53,15 +94,16 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
     std::string srcPath;
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
-        EDMLOGI("JsEnterpriseAdminExtension Failed to get srcPath");
+        EDMLOGE("JsEnterpriseAdminExtension Failed to get srcPath");
         return;
     }
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    EDMLOGI("JsEnterpriseAdminExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
+    EDMLOGD("JsEnterpriseAdminExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
 
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo_->hapPath,
         Extension::abilityInfo_->compileMode == AbilityRuntime::CompileMode::ES_MODULE);
@@ -69,43 +111,56 @@ void JsEnterpriseAdminExtension::Init(const std::shared_ptr<AppExecFwk::AbilityL
         EDMLOGI("JsEnterpriseAdminExtension Failed to get jsObj_");
         return;
     }
-    EDMLOGI("JsEnterpriseAdminExtension::Init ConvertNativeValueTo.");
-    JsEnterpriseAdminExtensionContextInit();
+
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!AbilityRuntime::CheckTypeForNapiValue(env, obj, napi_object)) {
+        EDMLOGI("jsObj_ is null");
+        return;
+    }
+
+    BindContext(env, obj);
 }
 
-void JsEnterpriseAdminExtension::JsEnterpriseAdminExtensionContextInit()
+void JsEnterpriseAdminExtension::BindContext(napi_env env, napi_value obj)
 {
-    napi_value obj = jsObj_->GetNapiValue();
-
-    auto env = jsRuntime_.GetNapiEnv();
     auto context = GetContext();
     if (context == nullptr) {
-        EDMLOGI("JsEnterpriseAdminExtension Failed to get context");
+        EDMLOGE("JsEnterpriseAdminExtension Failed to get context");
         return;
     }
-    EDMLOGI("JsEnterpriseAdminExtension::Init CreateJsEnterpriseAdminExtensionContext.");
+    EDMLOGI("JsEnterpriseAdminExtension::BindContext CreateJsEnterpriseAdminExtensionContext.");
     napi_value contextObj = CreateJsEnterpriseAdminExtensionContext(env, context);
-    auto shellContextRef = jsRuntime_.LoadSystemModule("enterprise.EnterpriseAdminExtensionContext",
-        &contextObj, JS_NAPI_ARGC_ONE);
-    if (shellContextRef == nullptr) {
-        EDMLOGE("JsEnterpriseAdminExtensionContextInit LoadSystemModule null");
+    shellContextRef_ = AbilityRuntime::JsRuntime::LoadSystemModuleByEngine(env,
+        "enterprise.EnterpriseAdminExtensionContext", &contextObj, JS_NAPI_ARGC_ONE);
+    if (shellContextRef_ == nullptr) {
+        EDMLOGE("BindContext LoadSystemModule null");
         return;
     }
-    contextObj = shellContextRef->GetNapiValue();
-    EDMLOGI("JsEnterpriseAdminExtension::Init Bind.");
-    context->Bind(jsRuntime_, shellContextRef.release());
-    EDMLOGI("JsEnterpriseAdminExtension::SetProperty.");
+
+    contextObj = shellContextRef_->GetNapiValue();
+    if (!AbilityRuntime::CheckTypeForNapiValue(env, contextObj, napi_object)) {
+        EDMLOGE("get context failed");
+        return;
+    }
+    auto workContext = new (std::nothrow) std::weak_ptr<EnterpriseAdminExtensionContext>(context);
+    napi_coerce_to_native_binding_object(
+        env, contextObj, AbilityRuntime::DetachCallbackFunc,
+        AttachEnterpriseAdminExtensionContext, workContext, nullptr);
+
+    context->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
 
-    EDMLOGI("Set enterprise admin extension context");
-
-    napi_wrap(env, contextObj, new std::weak_ptr<AbilityRuntime::Context>(context),
+    auto status = napi_wrap(env, contextObj, workContext,
         [](napi_env env, void* data, void*) {
             EDMLOGI("Finalizer for weak_ptr service extension context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+            delete static_cast<std::weak_ptr<EnterpriseAdminExtensionContext>*>(data);
         }, nullptr, nullptr);
+    if (status != napi_ok) {
+        EDMLOGE("wrap context fail: %{public}d", status);
+        delete workContext;
+    }
 
-    EDMLOGI("JsEnterpriseAdminExtension::Init end.");
+    EDMLOGI("JsEnterpriseAdminExtension::BindContext end.");
 }
 
 void JsEnterpriseAdminExtension::OnStart(const AAFwk::Want& want)

@@ -14,7 +14,10 @@
 import("//build/ohos.gni")
 
 config("enterprise_admin_config") {
-  include_dirs = [ "../../common/native/include" ]
+  include_dirs = [ 
+    "../../common/native/include",
+    "../../interfaces/kits/common/include"
+  ]
 }
 
 config("enterprise_admin_public_config") {
@@ -40,17 +43,25 @@ ohos_shared_library("enterprise_admin_extension") {
 
   public_configs = [ ":enterprise_admin_public_config" ]
 
+  deps = [ 
+    "../../interfaces/kits/common:napi_edm_common",
+    "../../interfaces/inner_api:edmservice_kits"
+  ]
+
   external_deps = [
+    "ability_runtime:ability_business_error",
     "ability_runtime:ability_context_native",
     "ability_runtime:abilitykit_utils",
     "ability_runtime:app_context",
     "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
@@ -70,7 +81,10 @@ ohos_shared_library("enterprise_admin_extension") {
 }
 
 ohos_shared_library("enterprise_admin_extension_module") {
-  include_dirs = [ "include" ]
+  include_dirs = [ 
+    "include",
+    "../../common/native/include"
+  ]
 
   sources = [ "./src/enterprise_admin_extension_module_loader.cpp" ]
 
