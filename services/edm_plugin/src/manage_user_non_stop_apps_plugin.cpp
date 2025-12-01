@@ -23,8 +23,7 @@
 #include <system_ability_definition.h>
 
 #include "ability_auto_startup_client.h"
-#include "manage_user_non_stop_apps_serializer.h"
-#include "manage_user_non_stop_apps_info.h"
+#include "manage_apps_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
@@ -50,89 +49,81 @@ ManageUserNonStopAppsPlugin::ManageUserNonStopAppsPlugin()
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
-    maxListSize_ = EdmConstants::USER_NON_STOP_APPS_MAX_SIZE;
+    maxListSize_ = EdmConstants::MANAGE_APPS_MAX_SIZE;
 }
 
 ErrCode ManageUserNonStopAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
     HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("ManageUserNonStopAppsPlugin OnHandlePolicy.");
+    EDMLOGI("ManageUserNonStopAppsPlugin OnHandlePolicy");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    std::vector<ApplicationMsg> userNonStopApps;
+    std::vector<ApplicationInstance> userNonStopApps;
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
+    auto serializer = ManageAppsSerializer::GetInstance();
     ApplicationInstanceHandle::ReadApplicationInstanceVector(data, userNonStopApps);
-    std::vector<ManageUserNonStopAppInfo> currentData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
-    std::vector<ManageUserNonStopAppInfo> mergeData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    if (userNonStopApps.empty() || userNonStopApps.size() > maxListSize_) {
+        EDMLOGE("ManageUserNonStopAppsPlugin OnHandlePolicy userNonStopApps is empty or too large");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    serializer->Deserialize(policyData.policyData, currentData);
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
-    ErrCode res = EdmReturnErrCode::PARAM_ERROR;
-    std::string errMessage;
+    ErrCode res;
+    for (ApplicationInstance &appInstance : userNonStopApps) {
+        if (appInstance.bundleName.empty()) {
+            ApplicationInstanceHandle::GetBundleNameByAppId(appInstance);
+        }
+    }
     if (type == FuncOperateType::SET) {
         res = OnSetPolicy(userNonStopApps, currentData, mergeData);
     } else if (type == FuncOperateType::REMOVE) {
         res = OnRemovePolicy(userNonStopApps, currentData, mergeData);
+    } else {
+        res = EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (res != ERR_OK) {
         reply.WriteInt32(res);
-        reply.WriteString(errMessage);
         return res;
     }
     reply.WriteInt32(ERR_OK);
     std::string afterHandle;
     std::string afterMerge;
-    ManageUserNonStopAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
-    ManageUserNonStopAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    serializer->Serialize(currentData, afterHandle);
+    serializer->Serialize(mergeData, afterMerge);
     policyData.isChanged = (policyData.policyData != afterHandle || mergePolicyStr != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
     return ERR_OK;
 }
 
-ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> &data,
-    std::vector<ManageUserNonStopAppInfo> &currentData, std::vector<ManageUserNonStopAppInfo> &mergeData)
+ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance> &userNonStopApps,
+    std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData)
 {
-    if (data.empty()) {
-        EDMLOGW("ManageUserNonStopAppsPlugin OnSetPolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > maxListSize_) {
-        EDMLOGE("ManageUserNonStopAppsPlugin OnSetPolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<ManageUserNonStopAppInfo> tmpData;
-    for (const auto &item : data) {
-        ManageUserNonStopAppInfo appInfo;
-        appInfo.SetBundleName(item.bundleName);
-        appInfo.SetAccountId(item.accountId);
-        appInfo.SetAppIndex(item.appIndex);
-        tmpData.push_back(appInfo);
-    }
-
-    std::vector<ManageUserNonStopAppInfo> addData =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
-    std::vector<ManageUserNonStopAppInfo> unInstalledData;
+    EDMLOGI("ManageUserNonStopAppsPlugin OnSetPolicy");
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> addData = serializer->SetDifferencePolicyData(currentData, userNonStopApps);
+    std::vector<ApplicationInstance> unInstalledData;
     FilterUninstalledBundle(addData, unInstalledData);
     if (!unInstalledData.empty()) {
         EDMLOGE("ManageUserNonStopAppsPlugin OnSetPolicy bundle uninstall.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    addData = ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(unInstalledData, addData);
-    std::vector<ManageUserNonStopAppInfo> needAddMergeData =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, addData);
-    std::vector<ManageUserNonStopAppInfo> afterHandle =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, addData);
-    std::vector<ManageUserNonStopAppInfo> afterMerge =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    addData = serializer->SetDifferencePolicyData(unInstalledData, addData);
+    std::vector<ApplicationInstance> needAddMergeData = serializer->SetDifferencePolicyData(mergeData, addData);
+    std::vector<ApplicationInstance> afterHandle = serializer->SetUnionPolicyData(currentData, addData);
+    std::vector<ApplicationInstance> afterMerge = serializer->SetUnionPolicyData(mergeData, afterHandle);
     if (afterMerge.size() > maxListSize_) {
-        EDMLOGE("ManageUserNonStopAppsPlugin OnSetPolicy merge data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        EDMLOGE("ManageUserNonStopAppsPlugin OnSetPolicy merge userNonStopApps is too large.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     if (!needAddMergeData.empty()) {
         ErrCode ret = SetOtherModulePolicy(afterHandle);
         if (FAILED(ret)) {
+            EDMLOGE("ManageUserNonStopAppsPlugin OnSetPolicy SetOtherModulePolicy fail");
             return ret;
         }
     }
@@ -142,35 +133,19 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> &da
     return ERR_OK;
 }
 
-ErrCode ManageUserNonStopAppsPlugin::OnRemovePolicy(std::vector<ApplicationMsg> &data,
-    std::vector<ManageUserNonStopAppInfo> &currentData, std::vector<ManageUserNonStopAppInfo> &mergeData)
+ErrCode ManageUserNonStopAppsPlugin::OnRemovePolicy(std::vector<ApplicationInstance> &data,
+    std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData)
 {
-    if (data.empty()) {
-        EDMLOGW("BasicArrayStringPlugin OnRemovePolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > maxListSize_) {
-        EDMLOGE("BasicArrayStringPlugin OnRemovePolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<ManageUserNonStopAppInfo> needRemovePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetIntersectionPolicyData(data, currentData);
-    std::vector<ManageUserNonStopAppInfo> needRemoveMergePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
-    std::vector<ManageUserNonStopAppInfo> needResetPolicy =
-    ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy, currentData);
+    EDMLOGI("ManageUserNonStopAppsPlugin OnRemovePolicy");
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> needRemovePolicy;
+    std::vector<ApplicationInstance> needRemoveMergePolicy;
+    std::vector<ApplicationInstance> needResetPolicy;
+    needRemovePolicy = serializer->SetIntersectionPolicyData(data, currentData);
+    needRemoveMergePolicy = serializer->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
+    needResetPolicy = serializer->SetDifferencePolicyData(needRemovePolicy, currentData);
 
-    std::vector<ManageUserNonStopAppInfo> tmpData;
-    for (const auto &item : data) {
-        ManageUserNonStopAppInfo appInfo;
-        appInfo.SetBundleName(item.bundleName);
-        appInfo.SetAccountId(item.accountId);
-        appInfo.SetAppIndex(item.appIndex);
-        tmpData.push_back(appInfo);
-    }
-    std::vector<ManageUserNonStopAppInfo> failedApps =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
-        tmpData);
+    std::vector<ApplicationInstance> failedApps = serializer->SetNeedRemoveMergePolicyData(needRemoveMergePolicy, data);
     if (!failedApps.empty()) {
         EDMLOGE("OnRemovePolicy userNonStopApps has apps do not belong to current data");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
@@ -183,17 +158,17 @@ ErrCode ManageUserNonStopAppsPlugin::OnRemovePolicy(std::vector<ApplicationMsg> 
             return ret;
         }
     }
-    currentData =needResetPolicy;
-    mergeData = ManageUserNonStopAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, mergeData);
+    currentData = needResetPolicy;
+    mergeData = serializer->SetUnionPolicyData(currentData, mergeData);
     return ERR_OK;
 }
 
-ErrCode ManageUserNonStopAppsPlugin::SetOtherModulePolicy(const std::vector<ManageUserNonStopAppInfo> &userNonStopApps)
+ErrCode ManageUserNonStopAppsPlugin::SetOtherModulePolicy(const std::vector<ApplicationInstance> &userNonStopApps)
 {
     EDMLOGI("ManageUserNonStopAppsPlugin SetOtherModulePolicy");
     std::vector<std::string> settingData;
 
-    for (const ManageUserNonStopAppInfo &item : userNonStopApps) {
+    for (const ApplicationInstance &item : userNonStopApps) {
         std::string appPolicyJsonStr;
         ConvertAppPolicyToJsonStr(item, appPolicyJsonStr);
         settingData.push_back(appPolicyJsonStr);
@@ -204,25 +179,29 @@ ErrCode ManageUserNonStopAppsPlugin::SetOtherModulePolicy(const std::vector<Mana
                                             });
     result = "[" + result + "]";
     EdmDataAbilityUtils::UpdateSettingsData(SETTINGS_KEY, result);
-    ReportLockSession(userNonStopApps, true);
+    ErrCode res = ReportLockSession(userNonStopApps, true);
+    if (res != ERR_OK) {
+        EDMLOGE("ManageUserNonStopAppsPlugin SetOtherModulePolicy ReportLockSession fail, res = %{public}d", res);
+        return res;
+    }
     return ERR_OK;
 }
 
-ErrCode ManageUserNonStopAppsPlugin::ConvertAppPolicyToJsonStr(const ManageUserNonStopAppInfo &userNonStopApp,
-    std::string &AppPolicyJsonStr)
+ErrCode ManageUserNonStopAppsPlugin::ConvertAppPolicyToJsonStr(const ApplicationInstance &userNonStopApp,
+    std::string &appPolicyJsonStr)
 {
     cJSON *json = nullptr;
     CJSON_CREATE_OBJECT_AND_CHECK(json, false);
 
-    if (cJSON_AddStringToObject(json, "bundleName", userNonStopApp.GetBundleName().c_str()) == NULL) {
+    if (cJSON_AddStringToObject(json, "bundleName", userNonStopApp.bundleName.c_str()) == NULL) {
         cJSON_Delete(json);
         return false;
     }
-    if (cJSON_AddNumberToObject(json, "appIndex", userNonStopApp.GetAppIndex()) == NULL) {
+    if (cJSON_AddNumberToObject(json, "appIndex", userNonStopApp.appIndex) == NULL) {
         cJSON_Delete(json);
         return false;
     }
-    if (cJSON_AddNumberToObject(json, "uid", userNonStopApp.GetAccountId()) == NULL) {
+    if (cJSON_AddNumberToObject(json, "uid", userNonStopApp.accountId) == NULL) {
         cJSON_Delete(json);
         return false;
     }
@@ -232,20 +211,19 @@ ErrCode ManageUserNonStopAppsPlugin::ConvertAppPolicyToJsonStr(const ManageUserN
         cJSON_Delete(json);
         return false;
     }
-    AppPolicyJsonStr = std::string(jsonStrTemp);
+    appPolicyJsonStr = std::string(jsonStrTemp);
     cJSON_Delete(json);
     cJSON_free(jsonStrTemp);
     return true;
 }
 
-ErrCode ManageUserNonStopAppsPlugin::RemoveOtherModulePolicy(
-    const std::vector<ManageUserNonStopAppInfo> &needResetPolicy,
-    const std::vector<ManageUserNonStopAppInfo> &needRemovePolicy)
+ErrCode ManageUserNonStopAppsPlugin::RemoveOtherModulePolicy(const std::vector<ApplicationInstance> needResetPolicy,
+    const std::vector<ApplicationInstance> needRemovePolicy)
 {
-    EDMLOGI("ManageUserNonStopAppsPlugin RemoveuserNonStopApps");
+    EDMLOGI("ManageUserNonStopAppsPlugin RemoveOtherModulePolicy");
     std::vector<std::string> settingData;
 
-    for (const ManageUserNonStopAppInfo &item : needResetPolicy) {
+    for (const ApplicationInstance &item : needResetPolicy) {
         std::string appPolicyJsonStr;
         ConvertAppPolicyToJsonStr(item, appPolicyJsonStr);
         settingData.push_back(appPolicyJsonStr);
@@ -256,25 +234,22 @@ ErrCode ManageUserNonStopAppsPlugin::RemoveOtherModulePolicy(
                                             });
     result = "[" + result + "]";
     EdmDataAbilityUtils::UpdateSettingsData(SETTINGS_KEY, result);
-    ReportLockSession(needRemovePolicy, false);
+    ErrCode res = ReportLockSession(needRemovePolicy, false);
+    if (res != ERR_OK) {
+        EDMLOGE("ManageUserNonStopAppsPlugin RemoveOtherModulePolicy ReportLockSession fail, res = %{public}d", res);
+        return res;
+    }
     return ERR_OK;
 }
 
 ErrCode ManageUserNonStopAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("ManageUserNonStopAppsPlugin OnGetPolicy.");
-    std::string type = data.ReadString();
-    std::vector<ManageUserNonStopAppInfo> appInfos;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
-    std::vector<ApplicationMsg> policies;
-    for (const ManageUserNonStopAppInfo &item : appInfos) {
-        policies.push_back({item.GetBundleName(),
-            item.GetAccountId(),
-            item.GetAppIndex()});
-    }
+    EDMLOGI("ManageUserNonStopAppsPlugin OnGetPolicy");
+    std::vector<ApplicationInstance> appInfos;
+    ManageAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
     reply.WriteInt32(ERR_OK);
-    if (!ApplicationInstanceHandle::WriteApplicationMsgVector(reply, policies)) {
+    if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(reply, appInfos)) {
         EDMLOGE("ManageUserNonStopAppsPlugin write application instance vector fail.");
     }
     return ERR_OK;
@@ -283,16 +258,16 @@ ErrCode ManageUserNonStopAppsPlugin::OnGetPolicy(std::string &policyData, Messag
 ErrCode ManageUserNonStopAppsPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
     const std::string &mergeJsonData, int32_t userId)
 {
-    EDMLOGI("ManageUserNonStopAppsPlugin OnAdminRemoveDone");
-    
-    std::vector<ManageUserNonStopAppInfo> currentData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(currentJsonData, currentData);
-    std::vector<ManageUserNonStopAppInfo> mergeData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(mergeJsonData, mergeData);
-    std::vector<ManageUserNonStopAppInfo> needRemoveMergePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, currentData);
-    std::vector<ManageUserNonStopAppInfo> needResetMergePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemoveMergePolicy, mergeData);
+    EDMLOGI("ManageUserNonStopAppsPlugin OnAdminRemove");
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
+    serializer->Deserialize(currentJsonData, currentData);
+    serializer->Deserialize(mergeJsonData, mergeData);
+    std::vector<ApplicationInstance> needRemoveMergePolicy;
+    std::vector<ApplicationInstance> needResetMergePolicy;
+    needRemoveMergePolicy = serializer->SetNeedRemoveMergePolicyData(mergeData, currentData);
+    needResetMergePolicy = serializer->SetDifferencePolicyData(needRemoveMergePolicy, mergeData);
 
     return RemoveOtherModulePolicy(needResetMergePolicy, currentData);
 }
@@ -313,10 +288,10 @@ ErrCode ManageUserNonStopAppsPlugin::GetOthersMergePolicyData(const std::string 
     if (adminValues.empty()) {
         return ERR_OK;
     }
-    auto serializer = ManageUserNonStopAppsSerializer::GetInstance();
-    std::vector<std::vector<ManageUserNonStopAppInfo>> data;
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<std::vector<ApplicationInstance>> data;
     for (const auto &item : adminValues) {
-        std::vector<ManageUserNonStopAppInfo> dataItem;
+        std::vector<ApplicationInstance> dataItem;
         if (!item.second.empty()) {
             if (!serializer->Deserialize(item.second, dataItem)) {
                 return ERR_EDM_OPERATE_JSON;
@@ -324,14 +299,14 @@ ErrCode ManageUserNonStopAppsPlugin::GetOthersMergePolicyData(const std::string 
             data.push_back(dataItem);
         }
     }
-    std::vector<ManageUserNonStopAppInfo> result;
+    std::vector<ApplicationInstance> result;
     if (!serializer->MergePolicy(data, result)) {
         return ERR_EDM_OPERATE_JSON;
     }
 
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
-    std::vector<ManageUserNonStopAppInfo> mergePolicyData;
+    std::vector<ApplicationInstance> mergePolicyData;
     if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
         return ERR_EDM_OPERATE_JSON;
     }
@@ -343,49 +318,51 @@ ErrCode ManageUserNonStopAppsPlugin::GetOthersMergePolicyData(const std::string 
     return ERR_OK;
 }
 
-void ManageUserNonStopAppsPlugin::ReportLockSession(const std::vector<ManageUserNonStopAppInfo> &userNonStopAppInfos,
+ErrCode ManageUserNonStopAppsPlugin::ReportLockSession(const std::vector<ApplicationInstance> &userNonStopAppInfos,
     bool isLocked)
 {
     EDMLOGI("ManageUserNonStopAppsPlugin ReportLockSession");
     auto sceneSessionManager = Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
     if (sceneSessionManager == nullptr) {
         EDMLOGE("ManageUserNonStopAppsPlugin get sceneSession manager fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    Rosen::WMError ret;
     for (const auto &item :userNonStopAppInfos) {
         std::vector<Rosen::AbilityInfoBase> abilityInfos;
         GetSessionParam(item, abilityInfos);
         for (const auto &eachAbilityInfo : abilityInfos) {
             ret = sceneSessionManager->LockSessionByAbilityInfo(eachAbilityInfo, isLocked);
             if (ret != Rosen::WMError::WM_OK) {
-                EDMLOGE("ManageUserNonStopAppsPlugin lock session fail");
+                EDMLOGE("ManageUserNonStopAppsPlugin lock session fail, ret = %{public}d", ret);
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
-        }
-    }
-}
-
-ErrCode ManageUserNonStopAppsPlugin::FilterUninstalledBundle(
-    std::vector<ManageUserNonStopAppInfo> &data, std::vector<ManageUserNonStopAppInfo> &UninstalledApp)
-{
-    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    for (const ManageUserNonStopAppInfo &appInfo : data) {
-        std::string bundleName = appInfo.GetBundleName();
-        int32_t accountId = appInfo.GetAccountId();
-        int32_t appIndex = appInfo.GetAppIndex();
-        if (!bundleMgr->IsBundleInstalled(bundleName, accountId, appIndex)) {
-            UninstalledApp.push_back(appInfo);
         }
     }
     return ERR_OK;
 }
 
-void ManageUserNonStopAppsPlugin::GetSessionParam(const ManageUserNonStopAppInfo &userNonStopAppInfos,
+ErrCode ManageUserNonStopAppsPlugin::FilterUninstalledBundle(std::vector<ApplicationInstance> &data,
+    std::vector<ApplicationInstance> &uninstalledApp)
+{
+    EDMLOGI("ManageUserNonStopAppsPlugin FilterUninstalledBundle");
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    for (const ApplicationInstance &appInfo : data) {
+        if (!bundleMgr->IsBundleInstalled(appInfo.bundleName, appInfo.accountId, appInfo.appIndex)) {
+            uninstalledApp.push_back(appInfo);
+        }
+    }
+    return ERR_OK;
+}
+
+void ManageUserNonStopAppsPlugin::GetSessionParam(const ApplicationInstance &userNonStopAppInfos,
     std::vector<Rosen::AbilityInfoBase> &infoBaseList)
 {
+    EDMLOGI("ManageUserNonStopAppsPlugin GetSessionParam");
     auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    std::string bundleName = userNonStopAppInfos.GetBundleName();
-    int32_t accountId = userNonStopAppInfos.GetAccountId();
-    int32_t appIndex = userNonStopAppInfos.GetAppIndex();
+    std::string bundleName = userNonStopAppInfos.bundleName;
+    int32_t accountId = userNonStopAppInfos.accountId;
+    int32_t appIndex = userNonStopAppInfos.appIndex;
     BundleInfo bundleInfo;
     int32_t currentUserId = GetCurrentUserId();
     if (currentUserId != accountId) {
@@ -404,9 +381,10 @@ void ManageUserNonStopAppsPlugin::GetSessionParam(const ManageUserNonStopAppInfo
         }
     }
 }
+
 int32_t ManageUserNonStopAppsPlugin::GetCurrentUserId()
 {
-        std::vector<int32_t> ids;
+    std::vector<int32_t> ids;
     ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
     if (FAILED(ret) || ids.empty()) {
         EDMLOGE("ManageUserNonStopAppsPlugin GetCurrentUserId failed");
@@ -419,12 +397,10 @@ int32_t ManageUserNonStopAppsPlugin::GetCurrentUserId()
 void ManageUserNonStopAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     EDMLOGI("ManageUserNonStopAppsPlugin OnOtherServiceStart");
-    std::vector<ManageUserNonStopAppInfo> result;
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, EdmConstants::DEFAULT_USER_ID);
-    std::vector<ManageUserNonStopAppInfo> mergePolicyData;
-    auto serializer = ManageUserNonStopAppsSerializer::GetInstance();
-    serializer->Deserialize(mergePolicyStr, mergePolicyData);
+    std::vector<ApplicationInstance> mergePolicyData;
+    ManageAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
     ErrCode ret = SetOtherModulePolicy(mergePolicyData);
     if (FAILED(ret)) {
         EDMLOGE("ManageUserNonStopAppsPlugin OnOtherServiceStart fail res: %{public}d", ret);

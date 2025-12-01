@@ -21,14 +21,13 @@
 #define protected public
 #define private public
 #include "manage_user_non_stop_apps_plugin.h"
-#include "manage_user_non_stop_apps_serializer.h"
+#include "manage_apps_serializer.h"
 #undef protected
 #undef private
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
-#include "manage_user_non_stop_apps_info.h"
 #include "message_parcel.h"
 #include "utils.h"
 
@@ -72,17 +71,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     for (int i = 0; i < arraySize; i++) {
         ApplicationInstance instance;
         instance.appIdentifier = CommonFuzzer::GetString(data, pos, stringSize, size);
-        instance.accountId = CommonFuzzer::GetU32Data(data);
-        instance.appIndex = CommonFuzzer::GetU32Data(data);
-        userNonStopApps.emplace_back(std::move(instance));
-    }
-    std::vector<ApplicationMsg> userNonStopBundles;
-    for (int i = 0; i < arraySize; i++) {
-        ApplicationMsg instance;
         instance.bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
         instance.accountId = CommonFuzzer::GetU32Data(data);
         instance.appIndex = CommonFuzzer::GetU32Data(data);
-        userNonStopBundles.emplace_back(std::move(instance));
+        userNonStopApps.emplace_back(std::move(instance));
     }
     ApplicationInstanceHandle::WriteApplicationInstanceVector(parcel, userNonStopApps);
     MessageParcel reply;
@@ -93,20 +85,19 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string currentJsonData = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string mergeJsonData = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string othersMergePolicyData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::vector<ManageUserNonStopAppInfo> currentData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(currentPolicyData, currentData);
-    std::vector<ManageUserNonStopAppInfo> mergeData;
-    ManageUserNonStopAppsSerializer::GetInstance()->Deserialize(mergePolicyData, mergeData);
-    std::vector<ManageUserNonStopAppInfo> needRemovePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetIntersectionPolicyData(userNonStopBundles,
-        currentData);
-    std::vector<ManageUserNonStopAppInfo> needResetPolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needRemovePolicy);
-    std::vector<ManageUserNonStopAppInfo> needRemoveMergePolicy =
-        ManageUserNonStopAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
+    std::vector<ApplicationInstance> currentData;
+    ManageAppsSerializer::GetInstance()->Deserialize(currentPolicyData, currentData);
+    std::vector<ApplicationInstance> mergeData;
+    ManageAppsSerializer::GetInstance()->Deserialize(mergePolicyData, mergeData);
+    std::vector<ApplicationInstance> needRemovePolicy =
+        ManageAppsSerializer::GetInstance()->SetIntersectionPolicyData(userNonStopApps, currentData);
+    std::vector<ApplicationInstance> needResetPolicy =
+        ManageAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, needRemovePolicy);
+    std::vector<ApplicationInstance> needRemoveMergePolicy =
+        ManageAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
     plugin.OnHandlePolicy(funcCode, parcel, reply, policyData, userId);
-    plugin.OnSetPolicy(userNonStopBundles, currentData, mergeData);
-    plugin.OnRemovePolicy(userNonStopBundles, currentData, mergeData);
+    plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
+    plugin.OnRemovePolicy(userNonStopApps, currentData, mergeData);
     plugin.SetOtherModulePolicy(needResetPolicy);
     plugin.RemoveOtherModulePolicy(needResetPolicy, needRemovePolicy);
     plugin.OnGetPolicy(currentPolicyData, parcel, reply, userId);

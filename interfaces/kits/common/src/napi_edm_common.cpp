@@ -269,10 +269,6 @@ bool GetAccountIdFromNAPI(napi_env env, napi_value value, ApplicationInstance &r
         EDMLOGE("GetAccountIdFromNAPI get accountId failed");
         return false;
     }
-    if (std::to_string(result.accountId).empty()) {
-        EDMLOGE("GetAccountIdFromNAPI accountId is empty");
-        return false;
-    }
     return true;
 }
 
@@ -293,10 +289,6 @@ bool GetAppIndexFromNAPI(napi_env env, napi_value value, ApplicationInstance &re
     }
     if (napi_get_value_int32(env, jsAppIndex, &result.appIndex) != napi_ok) {
         EDMLOGE("GetAppIndexFromNAPI get appIndex failed");
-        return false;
-    }
-    if (std::to_string(result.appIndex).empty()) {
-        EDMLOGE("GetAppIndexFromNAPI appIndex is empty");
         return false;
     }
     return true;
@@ -759,18 +751,20 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
 }
 
 void ConvertApplicationInstanceVectorToJS(napi_env env,
-    const std::vector<ApplicationMsg> &applicationInstanceVector, napi_value result)
+    const std::vector<ApplicationInstance> &applicationInstanceVector, napi_value result)
 {
     EDMLOGD("ApplicationInstance vector size: %{public}zu", applicationInstanceVector.size());
     size_t idx = 0;
     for (const auto &item : applicationInstanceVector) {
         napi_value jsObj = nullptr;
-        napi_create_object(env, &jsObj);
+        napi_status status = napi_create_object(env, &jsObj);
+        if (status != napi_ok) {
+            napi_throw_error(env, nullptr, "Failed to create JS object");
+            return;
+        }
 
-        std::string appIdentifier =
-            ApplicationInstanceHandle::GetAppIdentifierByBundleName(item.bundleName.c_str(), item.accountId);
         napi_value jsAppIdentifier = nullptr;
-        napi_create_string_utf8(env, appIdentifier.c_str(), NAPI_AUTO_LENGTH, &jsAppIdentifier);
+        napi_create_string_utf8(env, item.appIdentifier.c_str(), NAPI_AUTO_LENGTH, &jsAppIdentifier);
         napi_set_named_property(env, jsObj, "appIdentifier", jsAppIdentifier);
 
         napi_value jsAccountId = nullptr;

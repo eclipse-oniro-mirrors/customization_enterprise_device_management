@@ -409,13 +409,14 @@ void EnterpriseDeviceMgrAbility::UpdateUserNonStopInfo(const std::string &bundle
     for (const auto& admin : admins) {
         std::uint32_t funcCode =
             POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-        std::vector<ApplicationMsg> userNonStopApps;
-        ApplicationMsg applicationMsg = { bundleName, userId, appIndex};
-        userNonStopApps.push_back(applicationMsg);
+        std::vector<ApplicationInstance> userNonStopApps;
+        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
+        ApplicationInstance applicationInstance = { appIdentifier, bundleName, userId, appIndex };
+        userNonStopApps.push_back(applicationInstance);
         MessageParcel reply;
         MessageParcel data;
         data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationMsgVector(data, userNonStopApps)) {
+        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps)) {
             EDMLOGE("OnCommonEventPackageRemoved WriteApplicationInstanceVector fail");
         }
         data.WriteBool(true);
@@ -514,14 +515,15 @@ void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bun
     for (const auto& admin : admins) {
         std::uint32_t funcCode =
             POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
-        std::vector<ApplicationMsg> freezeExemptedApps;
-        ApplicationMsg appMsg = { bundleName, userId, appIndex };
+        std::vector<ApplicationInstance> freezeExemptedApps;
+        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
+        ApplicationInstance appMsg = { appIdentifier, bundleName, userId, appIndex };
         freezeExemptedApps.push_back(appMsg);
         MessageParcel reply;
         MessageParcel data;
         std::u16string descriptor = u"ohos.edm.IEnterpriseDeviceMgr";
         data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps)) {
+        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps)) {
             EDMLOGE("UpdateFreezeExemptedApps WriteApplicationInstanceVector fail");
         }
         data.WriteBool(true);

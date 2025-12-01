@@ -23,25 +23,34 @@ namespace OHOS {
 namespace EDM {
 struct ApplicationInstance {
     std::string appIdentifier;
-    int32_t accountId;
-    int32_t appIndex;
-};
-
-struct ApplicationMsg {
     std::string bundleName;
     int32_t accountId;
     int32_t appIndex;
+
+    bool operator<(const ApplicationInstance &other) const
+    {
+        if (appIdentifier != other.appIdentifier) {
+            return appIdentifier < other.appIdentifier;
+        }
+        if (bundleName != other.bundleName) {
+            return bundleName < other.bundleName;
+        }
+        if (accountId != other.accountId) {
+            return accountId < other.accountId;
+        }
+        return appIndex < other.appIndex;
+    }
 };
 
 class ApplicationInstanceHandle {
 public:
     static bool WriteApplicationInstanceVector(MessageParcel &data,
         const std::vector<ApplicationInstance> freezeExemptedApps);
-    static bool WriteApplicationMsgVector(MessageParcel &data, const std::vector<ApplicationMsg> freezeExemptedApps);
-    static bool ReadApplicationInstanceVector(MessageParcel &reply, std::vector<ApplicationMsg> &freezeExemptedApps);
+    static bool ReadApplicationInstanceVector(MessageParcel &reply,
+        std::vector<ApplicationInstance> &freezeExemptedApps);
     static bool WriteApplicationInstance(MessageParcel &data, const ApplicationInstance appInstance);
-    static bool WriteApplicationMsg(MessageParcel &data, const ApplicationMsg appInstance);
-    static bool ReadApplicationInstance(MessageParcel &reply, ApplicationMsg &appInstance);
+    static bool ReadApplicationInstance(MessageParcel &reply, ApplicationInstance &appInstance);
+    static bool GetBundleNameByAppId(ApplicationInstance &result);
     static std::string GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId);
 };
 } // namespace EDM

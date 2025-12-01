@@ -357,6 +357,102 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsFail, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestAddFreezeExemptedAppsFail
+ * @tc.desc: Test AddFreezeExemptedApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddFreezeExemptedAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+
+    ErrCode ret = applicationManagerProxy_->AddFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddFreezeExemptedAppsSuc
+ * @tc.desc: Test AddFreezeExemptedApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddFreezeExemptedAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveFreezeExemptedAppsFail
+ * @tc.desc: Test RemoveFreezeExemptedApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveFreezeExemptedAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+
+    ErrCode ret = applicationManagerProxy_->RemoveFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveFreezeExemptedAppsSuc
+ * @tc.desc: Test RemoveFreezeExemptedApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveFreezeExemptedAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->RemoveFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetFreezeExemptedAppsSuc
+ * @tc.desc: Test GetFreezeExemptedApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(freezeExemptedApps.size() == 0);
+}
+
+/**
+ * @tc.name: TestGetFreezeExemptedAppsFail
+ * @tc.desc: Test GetFreezeExemptedApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(admin, freezeExemptedApps);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestAddKeepAliveAppsFail
  * @tc.desc: Test AddKeepAliveApps without enable edm service func.
  * @tc.type: FUNC
