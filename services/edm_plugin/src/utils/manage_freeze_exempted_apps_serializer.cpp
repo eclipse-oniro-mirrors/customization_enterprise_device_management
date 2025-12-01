@@ -144,7 +144,7 @@ bool ManageFreezeExemptedAppsSerializer::Serialize(const std::vector<ManageFreez
         return true;
     }
     cJSON* root = nullptr;
-    CJSON_CREATE_OBJECT_AND_CHECK(root, false);
+    CJSON_CREATE_ARRAY_AND_CHECK(root, false);
     for (auto& mapIt : dataObj) {
         cJSON* policyObject = nullptr;
         CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(policyObject, false, root);

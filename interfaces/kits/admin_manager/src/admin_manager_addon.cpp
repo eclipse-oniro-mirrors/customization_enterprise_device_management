@@ -1150,6 +1150,32 @@ void AdminManager::NativeGetSuperAdminComplete(napi_env env, napi_status status,
     delete asyncCallbackInfo;
 }
 
+napi_value AdminManager::GetEnterpriseManagedTips(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetEnterpriseManagedTips called");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncCallbackInfo> callbackPtr{asyncCallbackInfo};
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "GetEnterpriseManagedTips",
+        NativeGetEnterpriseManagedTips, NativeStringCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void AdminManager::NativeGetEnterpriseManagedTips(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetEnterpriseManagedTips called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    asyncCallbackInfo->ret = proxy->GetEnterpriseManagedTips(asyncCallbackInfo->stringRet);
+}
+
 void AdminManager::NativeGetAdmins(napi_env env, void *data)
 {
     EDMLOGI("NAPI_NativeGetAdmins called");
@@ -1268,6 +1294,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setAdminRunningMode", SetAdminRunningMode),
         DECLARE_NAPI_FUNCTION("enableDeviceAdmin", EnableDeviceAdmin),
         DECLARE_NAPI_FUNCTION("disableDeviceAdmin", DisableDeviceAdmin),
+        DECLARE_NAPI_FUNCTION("getEnterpriseManagedTips", GetEnterpriseManagedTips),
 
         DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),

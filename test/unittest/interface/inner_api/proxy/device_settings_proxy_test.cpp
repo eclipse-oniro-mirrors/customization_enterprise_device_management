@@ -391,6 +391,38 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetEyeComfortModeFail, TestSize.Level1)
     int32_t ret = deviceSettingsProxy->GetEyeComfortMode(admin, mode);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetDefaultInputMethodSuc
+ * @tc.desc: Test SetDefaultInputMethod func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetDefaultInputMethodSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string bundleName = "com.example.inputmethod";
+    int32_t ret = deviceSettingsProxy->SetDefaultInputMethod(admin, bundleName);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDefaultInputMethodFail
+ * @tc.desc: Test SetDefaultInputMethod func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetDefaultInputMethodFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string bundleName = "com.example.inputmethod";
+    int32_t ret = deviceSettingsProxy->SetDefaultInputMethod(admin, bundleName);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

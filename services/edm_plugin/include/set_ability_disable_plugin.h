@@ -40,6 +40,7 @@ private:
     ErrCode SetDisableByBundle(const ApplicationMsg &application, const std::string &abilityName, bool isDisable);
     ErrCode GetAppInfoByPolicyData(const std::string policyData, ApplicationMsg &application,
         std::string &abilityName);
+    void OnRemovePolicy(ApplicationMsg &application, HandlePolicyData &policyData);
 };
 } // namespace EDM
 } // namespace OHOS

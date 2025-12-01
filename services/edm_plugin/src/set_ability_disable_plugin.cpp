@@ -60,13 +60,16 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         bool isDisable = data.ReadBool();
         ApplicationMsg userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
-        ErrCode ret = SetDisableByBundle(userApp, abilityName, isDisable);
+        ErrCode ret = SetDisableByBundle(userApp, abilityName, !isDisable);
         if (ret == ERR_OK) {
             SetPolicyData(policyData, userApp, abilityName, isDisable);
         }
         return ret;
-    } else {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    } else if (type == FuncOperateType::REMOVE) {
+        ApplicationMsg userApp;
+        ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
+        OnRemovePolicy(userApp, policyData);
+        
     }
     return ERR_OK;
 }
@@ -87,7 +90,7 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
     std::string afterMerge;
     std::vector<std::string> policies;
     std::vector<std::string> mergePolicies;
-    if (!isDisable) {
+    if (isDisable) {
         policies = serializer->SetUnionPolicyData(data, currentPolicies);
         mergePolicies = serializer->SetUnionPolicyData(data, currentMergePolicies);
     } else {
@@ -146,6 +149,35 @@ ErrCode SetAbilityDisablePlugin::GetAppInfoByPolicyData(const std::string policy
     abilityName = parts[ABILITY_INDEX];
 
     return ERR_OK;
+}
+
+void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationMsg &application, HandlePolicyData &policyData)
+{
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<std::string> currentPolicies;
+    std::vector<std::string> currentMergePolicies;
+    serializer->Deserialize(policyData.policyData, currentPolicies);
+    serializer->Deserialize(policyData.mergePolicyData, currentMergePolicies);
+    std::string removeItem = application.bundleName + SEPARATOR + std::to_string(application.appIndex) +
+        SEPARATOR + std::to_string(application.accountId);
+    std::vector<std::string> removeVec;
+    for (auto policy : currentPolicies) {
+        if (policy.find(removeItem) != std::string::npos) {
+            removeVec.push_back(policy);
+        }
+    }
+    std::string afterHandle;
+    std::string afterMerge;
+    std::vector<std::string> policies;
+    std::vector<std::string> mergePolicies;
+    policies = serializer->SetDifferencePolicyData(removeVec, currentPolicies);
+    mergePolicies = serializer->SetDifferencePolicyData(removeVec, currentMergePolicies);
+    
+    serializer->Serialize(policies, afterHandle);
+    serializer->Serialize(mergePolicies, afterMerge);
+    policyData.isChanged = true;
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterMerge;
 }
 
 ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const ApplicationMsg &application,

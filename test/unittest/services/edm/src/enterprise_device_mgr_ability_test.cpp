@@ -4674,6 +4674,32 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDelDisallowUninstallAppForAccountSu
     ASSERT_EQ(ret, ERR_OK);
 }
 
+/**
+ * @tc.name: TestGetEnterpriseManagedTipsermissionDenied
+ * @tc.desc: Test GetEnterpriseManagedTips without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseManagedTipsermissionDenied, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillOnce(DoAll(Return(false)));
+    std::string result;
+    ErrCode ret = edmMgr_->GetEnterpriseManagedTips(result);
+    ASSERT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseManagedTipsermissionGranted
+ * @tc.desc: Test GetEnterpriseManagedTips grant permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseManagedTipsermissionGranted, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillOnce(DoAll(Return(true)));
+    std::string result;
+    ErrCode ret = edmMgr_->GetEnterpriseManagedTips(result);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
 #ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestEnableDeviceAdminAndDisableDeviceAdminSuccess

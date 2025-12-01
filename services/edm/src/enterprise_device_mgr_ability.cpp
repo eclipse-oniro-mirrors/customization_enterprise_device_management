@@ -47,6 +47,7 @@
 #include "enterprise_conn_manager.h"
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
+#include "language_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
 
@@ -531,6 +532,29 @@ void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bun
     }
 }
 
+void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleName,
+    int32_t userId, int32_t appIndex)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateAbilityEnabled");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_ABILITY_ENABLED);
+        ApplicationMsg appMsg = { bundleName, userId, appIndex };
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        if (!ApplicationInstanceHandle::WriteApplicationMsg(data, appMsg)) {
+            EDMLOGE("UpdateAbilityEnabled WriteApplicationMsg fail");
+        }
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
+}
+
 void EnterpriseDeviceMgrAbility::UpdateClipboardInfo(const std::string &bundleName, int32_t userId)
 {
     EDMLOGI("OnCommonEventPackageRemoved UpdateClipboardInfo");
@@ -589,6 +613,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         AppExecFwk::Constants::DEFAULT_APP_INDEX);
     UpdateFreezeExemptedApps(bundleName, userId, appIndex);
     UpdateUserNonStopInfo(bundleName, userId, appIndex);
+    UpdateAbilityEnabled(bundleName, userId, appIndex);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
@@ -2323,6 +2348,17 @@ ErrCode EnterpriseDeviceMgrAbility::GetSuperAdmin(std::string &bundleName, std::
         bundleName = superAdmin->adminInfo_.packageName_;
         abilityName = superAdmin->adminInfo_.className_;
     }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips(std::string &tips)
+{
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+    if (!GetPermissionChecker()->CheckIsSystemApp()) {
+        EDMLOGW("EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips check permission failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    tips = LanguageManager::GetEnterpriseManagedTips();
     return ERR_OK;
 }
 

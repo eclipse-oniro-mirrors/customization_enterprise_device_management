@@ -58,8 +58,10 @@ std::string EdmUtils::Utf16ToUtf8(const std::u16string &str16)
 
 void EdmUtils::ClearString(std::string &str)
 {
+#ifndef EDM_FUZZ_TEST
     std::fill(str.begin(), str.end(), '\0');
     str.clear();
+#endif
 }
 
 void EdmUtils::ClearCharArray(char* &str, size_t size)
