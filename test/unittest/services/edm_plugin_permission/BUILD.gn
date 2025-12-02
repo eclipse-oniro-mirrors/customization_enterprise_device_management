@@ -35,12 +35,6 @@ ohos_unittest("EdmPluginPermissionUnitTest") {
     "src/test_param.cpp"
   ]
 
-  defines = []
-  if (enterprise_device_management_feature_pc_only) {
-    sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
-    defines += [ "FEATURE_PC_ONLY" ]
-  }
-
   deps = [
     "../edm:edmservice_static",
     "../edm_plugin:edm_all_plugin_static",
