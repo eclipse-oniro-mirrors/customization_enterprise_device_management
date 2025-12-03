@@ -65,10 +65,7 @@ ErrCode DisableModifyWallpaperPlugin::OnAdminRemove(const std::string &adminName
 {
     EDMLOGD("DisableModifyWallpaperPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
             "mergeData: %{public}d", adminName.c_str(), data, mergeData);
-    if (mergeData) {
-        return ERR_OK;
-    }
-    // admin 移除时，综合策略为读写，且移除的策略为只读，则更新策略为读写
+    // admin 移除时，综合策略为非禁用，且移除的策略为禁用，则更新策略为非禁用
     if (!mergeData && data) {
         ErrCode ret = SetModifyWallpaperPolicy(false, userId);
         EDMLOGD("SetModifyWallpaperPolicy ret: %{public}d", ret);
