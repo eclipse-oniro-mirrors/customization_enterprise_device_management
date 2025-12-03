@@ -69,7 +69,6 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         ApplicationMsg userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         OnRemovePolicy(userApp, policyData);
-        
     }
     return ERR_OK;
 }
