@@ -21,14 +21,13 @@
 #define protected public
 #define private public
 #include "manage_freeze_exempted_apps_plugin.h"
-#include "manage_freeze_exempted_apps_serializer.h"
+#include "manage_apps_serializer.h"
 #undef protected
 #undef private
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
-#include "manage_freeze_exempted_apps_info.h"
 #include "message_parcel.h"
 #include "utils.h"
 
@@ -72,17 +71,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     for (int i = 0; i < arraySize; i++) {
         ApplicationInstance instance;
         instance.appIdentifier = CommonFuzzer::GetString(data, pos, stringSize, size);
-        instance.accountId = CommonFuzzer::GetU32Data(data);
-        instance.appIndex = CommonFuzzer::GetU32Data(data);
-        freezeExemptedApps.emplace_back(std::move(instance));
-    }
-    std::vector<ApplicationMsg> freezeExemptedBundles;
-    for (int i = 0; i < arraySize; i++) {
-        ApplicationMsg instance;
         instance.bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
         instance.accountId = CommonFuzzer::GetU32Data(data);
         instance.appIndex = CommonFuzzer::GetU32Data(data);
-        freezeExemptedBundles.emplace_back(std::move(instance));
+        freezeExemptedApps.emplace_back(std::move(instance));
     }
     ApplicationInstanceHandle::WriteApplicationInstanceVector(parcel, freezeExemptedApps);
     MessageParcel reply;
@@ -93,27 +85,23 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string currentJsonData = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string mergeJsonData = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string othersMergePolicyData = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::vector<ManageFreezeExemptedAppInfo> currentData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(currentPolicyData, currentData);
-    std::vector<ManageFreezeExemptedAppInfo> mergeData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(mergePolicyData, mergeData);
-    std::vector<ManageFreezeExemptedAppInfo> needRemovePolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetIntersectionPolicyData(freezeExemptedBundles,
-        currentData);
-    std::vector<ManageFreezeExemptedAppInfo> needRemoveMergePolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy,
-        freezeExemptedBundles);
+    std::vector<ApplicationInstance> currentData;
+    ManageAppsSerializer::GetInstance()->Deserialize(currentPolicyData, currentData);
+    std::vector<ApplicationInstance> mergeData;
+    ManageAppsSerializer::GetInstance()->Deserialize(mergePolicyData, mergeData);
+    std::vector<ApplicationInstance> needRemovePolicy =
+        ManageAppsSerializer::GetInstance()->SetIntersectionPolicyData(freezeExemptedApps, currentData);
+    std::vector<ApplicationInstance> needRemoveMergePolicy =
+        ManageAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
     plugin.OnHandlePolicy(funcCode, parcel, reply, policyData, userId);
-    plugin.OnSetPolicy(freezeExemptedBundles, currentData, mergeData);
-    plugin.OnRemovePolicy(freezeExemptedBundles, currentData, mergeData);
-    plugin.SetOtherModulePolicy(freezeExemptedBundles);
-    plugin.RemoveOtherModulePolicy();
+    plugin.OnSetPolicy(freezeExemptedApps, currentData, mergeData);
+    plugin.OnRemovePolicy(freezeExemptedApps, currentData, mergeData);
+    plugin.SetOtherModulePolicy(freezeExemptedApps);
     plugin.OnGetPolicy(currentPolicyData, parcel, reply, userId);
     plugin.OnAdminRemove(adminName, currentJsonData, mergeJsonData, userId);
     plugin.GetOthersMergePolicyData(adminName, userId, othersMergePolicyData);
     plugin.OnOtherServiceStart(systemAbilityId);
     plugin.FilterUninstalledBundle(needRemoveMergePolicy);
-    plugin.SerializeApplicationInstanceVectorToJson(freezeExemptedBundles);
     return 0;
 }
 } // namespace EDM

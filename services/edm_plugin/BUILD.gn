@@ -493,11 +493,7 @@ ohos_shared_library("sys_service_plugin") {
         "ability_runtime:ability_manager",
         "resource_schedule_service:ressched_client"
       ]
-      sources += [
-        "./src/manage_freeze_exempted_apps_plugin.cpp",
-        "./src/utils/manage_freeze_exempted_apps_info.cpp",
-        "./src/utils/manage_freeze_exempted_apps_serializer.cpp",
-      ]
+      sources += [ "./src/manage_freeze_exempted_apps_plugin.cpp" ]
     }
 
     if (!enterprise_device_management_feature_pc_only) {
@@ -505,9 +501,8 @@ ohos_shared_library("sys_service_plugin") {
         "window_manager:session_manager_lite",
         ]
       sources += [
-        "./src/utils/manage_user_non_stop_apps_info.cpp",
         "./src/manage_user_non_stop_apps_plugin.cpp",
-        "./src/utils/manage_user_non_stop_apps_serializer.cpp",
+        "./src/utils/manage_apps_serializer.cpp",
       ]
     }
 

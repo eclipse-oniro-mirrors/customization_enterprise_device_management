@@ -143,11 +143,14 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_running_bundles_plugin_test.cpp",
       "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
-      "./src/manage_freeze_exempted_apps_plugin_test.cpp",
       "./src/manage_user_non_stop_apps_plugin_test.cpp",
       "./src/utils/manage_keep_alive_apps_serializer_test.cpp",
       "./src/utils/manage_auto_start_apps_serializer_test.cpp",
     ]
+  }
+
+  if (ability_runtime_edm_enable && !enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/manage_freeze_exempted_apps_plugin_test.cpp" ]
   }
 
   if (screenlock_mgr_edm_enable) {
@@ -343,9 +346,6 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
-      "../../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_serializer.cpp",
-      "../../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_info.cpp",
-      "../../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp"
     ]
   }
 
@@ -634,13 +634,13 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/manage_auto_start_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_keep_alive_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/manage_freeze_exempted_apps_plugin.cpp",
+      "../../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/bms_utils.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
       "../../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
       "../../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
-      "../../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_info.cpp",
-      "../../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/manage_apps_serializer.cpp",
     ]
   }
 

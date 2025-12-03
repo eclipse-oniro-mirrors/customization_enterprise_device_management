@@ -52,14 +52,15 @@ public:
         int32_t userId, bool &disallowModify);
     int32_t IsModifyAutoStartAppsDisallowed(MessageParcel &data, bool &isDisallowModify);
     int32_t AddFreezeExemptedApps(const AppExecFwk::ElementName &admin,
-        const std::vector<ApplicationInstance> &freezeExemptedApps, std::string &retMessage);
+        const std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t RemoveFreezeExemptedApps(const AppExecFwk::ElementName &admin,
         const std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
-        std::vector<ApplicationMsg> &freezeExemptedApps);
+        std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t AddUserNonStopApps(const AppExecFwk::ElementName &admin,
-        const std::vector<ApplicationInstance> &UserNonStopApps, std::string &retMessage);
+        const std::vector<ApplicationInstance> &userNonStopApps);
     int32_t RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
+<<<<<<< HEAD
         const std::vector<ApplicationInstance> &UserNonStopApps);
     int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin,
         std::vector<ApplicationMsg> &UserNonStopApps);
@@ -67,6 +68,10 @@ public:
         const std::string &abilityName, bool isDisabled);
     int32_t IsAbilityDisabled(const AppExecFwk::ElementName &admin, const ApplicationInstance &application,
         const std::string &abilityName, bool &isDisabled);
+=======
+        const std::vector<ApplicationInstance> &userNonStopApps);
+    int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin, std::vector<ApplicationInstance> &userNonStopApps);
+>>>>>>> 1aff857f1f7db986ac9e562c4f29d5fb8f784d76
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

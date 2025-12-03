@@ -379,7 +379,7 @@ int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFw
 }
 
 int32_t ApplicationManagerProxy::AddFreezeExemptedApps(const AppExecFwk::ElementName &admin,
-    const std::vector<ApplicationInstance> &freezeExemptedApps, std::string &retMessage)
+    const std::vector<ApplicationInstance> &freezeExemptedApps)
 {
     EDMLOGI("ApplicationManagerProxy:AddFreezeExemptedApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -394,7 +394,6 @@ int32_t ApplicationManagerProxy::AddFreezeExemptedApps(const AppExecFwk::Element
     ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret != ERR_OK) {
-        retMessage = reply.ReadString();
         return ret;
     }
     return ERR_OK;
@@ -417,7 +416,7 @@ int32_t ApplicationManagerProxy::RemoveFreezeExemptedApps(const AppExecFwk::Elem
 }
 
 int32_t ApplicationManagerProxy::GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
-    std::vector<ApplicationMsg> &freezeExemptedApps)
+    std::vector<ApplicationInstance> &freezeExemptedApps)
 {
     EDMLOGI("ApplicationManagerProxy::GetFreezeExemptedApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -441,9 +440,9 @@ int32_t ApplicationManagerProxy::GetFreezeExemptedApps(const AppExecFwk::Element
 }
 
 int32_t ApplicationManagerProxy::AddUserNonStopApps(const AppExecFwk::ElementName &admin,
-    const std::vector<ApplicationInstance> &UserNonStopApps, std::string &retMessage)
+    const std::vector<ApplicationInstance> &userNonStopApps)
 {
-    EDMLOGI("ApplicationManagerProxy::UserNonStopApps");
+    EDMLOGI("ApplicationManagerProxy::userNonStopApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
@@ -453,17 +452,16 @@ int32_t ApplicationManagerProxy::AddUserNonStopApps(const AppExecFwk::ElementNam
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, UserNonStopApps);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
     if (ret != ERR_OK) {
-        retMessage = reply.ReadString();
         return ret;
     }
     return ERR_OK;
 }
 
 int32_t ApplicationManagerProxy::RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
-    const std::vector<ApplicationInstance> &UserNonStopApps)
+    const std::vector<ApplicationInstance> &userNonStopApps)
 {
     EDMLOGI("ApplicationManagerProxy::RemoveUserNonStopApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -474,12 +472,12 @@ int32_t ApplicationManagerProxy::RemoveUserNonStopApps(const AppExecFwk::Element
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, UserNonStopApps);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementName &admin,
-    std::vector<ApplicationMsg> &UserNonStopApps)
+    std::vector<ApplicationInstance> &userNonStopApps)
 {
     EDMLOGI("ApplicationManagerProxy::GetUserNonStopApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -498,7 +496,7 @@ int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementNam
         EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, UserNonStopApps);
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps);
     return ERR_OK;
 }
 

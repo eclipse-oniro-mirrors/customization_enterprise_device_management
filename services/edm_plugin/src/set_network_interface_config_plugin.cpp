@@ -32,6 +32,7 @@ const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
 
 const char* const IP_PATTERN =
     "((2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)\\.){3}(2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)";
+const char* const DEFAULT_IPV4_ADDR = "0.0.0.0";
 
 SetNetworkInterfaceConfigPlugin::SetNetworkInterfaceConfigPlugin()
 {
@@ -104,6 +105,7 @@ ErrCode SetNetworkInterfaceConfigPlugin::OnHandlePolicy(std::uint32_t funcCode, 
         StaticConfiguration::ExtractNetAddrBySeparator(gateway, cfg->ipStatic_.gatewayList_);
         StaticConfiguration::ExtractNetAddrBySeparator(netMask, cfg->ipStatic_.netMaskList_);
         StaticConfiguration::ExtractNetAddrBySeparator(dnsServers, cfg->ipStatic_.dnsServers_);
+        StaticConfiguration::ExtractNetAddrBySeparator(DEFAULT_IPV4_ADDR, cfg->ipStatic_.routeList_);
 
         int32_t result = DelayedSingleton<EthernetClient>::GetInstance()->SetIfaceConfig(iface, cfg);
         if (result != NETMANAGER_EXT_SUCCESS) {

@@ -16,7 +16,7 @@
 #define protected public
 #define private public
 #include "manage_freeze_exempted_apps_plugin_test.h"
-#include "manage_freeze_exempted_apps_serializer.h"
+#include "manage_apps_serializer.h"
 #include "disallowed_running_bundles_plugin.h"
 #undef private
 #undef protected
@@ -71,8 +71,7 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyAddFailWithNullDa
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -92,8 +91,7 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyRemoveFailWithNul
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -107,18 +105,47 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
     MessageParcel data;
     MessageParcel reply;
     HandlePolicyData policyData;
-    std::vector<ApplicationMsg> freezeExemptedApps = {
-        { "com.example.app1", 100, 0 }, { "com.example.app2", 100, 0 }, { "com.example.app3", 100, 0 },
-        { "com.example.app4", 100, 0 }, { "com.example.app5", 100, 0 }, { "com.example.app6", 100, 0 },
-        { "com.example.app7", 100, 0 }, { "com.example.app8", 100, 0 }, { "com.example.app9", 100, 0 },
-        { "com.example.app10", 100, 0 }, { "com.example.app11", 100, 0 }
+    std::string contactsBundleName, browserBundleName, appgalleryBundleName, thememanagerBundleName, settingsBundleName;
+    std::string mmsBundleName, photosBundleName, cameraBundleName, himovieBundleName, musicBundleName, booksBundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1173750081090759360", thememanagerBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("5765880207852919475", settingsBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("5765880207853068793", mmsBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1207824849184017472", photosBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("5765880207854258995", cameraBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1081898888199154560", himovieBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("976752519134849856", musicBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1062865240531676032", booksBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps = {
+        { "5765880207853624761", contactsBundleName, 100, 0 }, { "1230215522310701824", browserBundleName, 100, 0 },
+        { "1164531384803416384", appgalleryBundleName, 100, 0 }, { "1062865240531676032", booksBundleName, 100, 0 },
+        { "5765880207852919475", settingsBundleName, 100, 0 }, { "5765880207853068793", mmsBundleName, 100, 0 },
+        { "1207824849184017472", photosBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
+        { "1081898888199154560", himovieBundleName, 100, 0 }, { "976752519134849856", musicBundleName, 100, 0 },
+        { "1173750081090759360", thememanagerBundleName, 100, 0 }
     };
-    ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
 
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -135,9 +162,9 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicySucceedWithConfli
     ASSERT_TRUE(proxy != nullptr);
     ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
     ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationMsg> freezeExemptedApps = {{ bundleName, 100, 0 }};
-    std::vector<ManageFreezeExemptedAppInfo> currentData;
-    std::vector<ManageFreezeExemptedAppInfo> mergeData;
+    std::vector<ApplicationInstance> freezeExemptedApps = {{ settingsAppIdentifier, bundleName, 100, 0 }};
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
     ManageFreezeExemptedAppsPlugin plugin;
     ErrCode ret = plugin.OnSetPolicy(freezeExemptedApps, currentData, mergeData);
     ASSERT_TRUE(ret == ERR_OK);
@@ -146,13 +173,12 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicySucceedWithConfli
     MessageParcel data;
     MessageParcel reply;
     HandlePolicyData policyData;
-    ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
 
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
     ret = freezeExemptedPlugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
     mergeData.clear();
     ret = plugin.OnRemovePolicy(freezeExemptedApps, currentData, mergeData);
     ASSERT_TRUE(ret == ERR_OK);
@@ -165,20 +191,24 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicySucceedWithConfli
  */
 HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyRemoveFailWithNotExistedData, TestSize.Level1)
 {
-    std::vector<ApplicationMsg> freezeExemptedApps1 = { {"com.existed.app", 100, 0} };
-    std::vector<ApplicationMsg> freezeExemptedApps2 = { {"com.not.existed", 100, 0} };
-    std::vector<ManageFreezeExemptedAppInfo> currentData;
-    std::vector<ManageFreezeExemptedAppInfo> mergeData;
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps1 = { { settingsAppIdentifier, bundleName, 100, 0 } };
+    std::vector<ApplicationInstance> freezeExemptedApps2 = { { "111", "com.not.existed", 100, 0 } };
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
     ManageFreezeExemptedAppsPlugin plugin;
 
     MessageParcel data;
     MessageParcel reply;
-    ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps2);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps2);
     HandlePolicyData policyData;
-    std::vector<ManageFreezeExemptedAppInfo> freezeExemptedData;
-    std::string freezeExemptedStr = plugin.SerializeApplicationInstanceVectorToJson(freezeExemptedApps1);
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(freezeExemptedStr, freezeExemptedData);
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Serialize(freezeExemptedData, policyData.policyData);
+    ManageAppsSerializer::GetInstance()->Serialize(freezeExemptedApps1, policyData.policyData);
 
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
@@ -187,29 +217,11 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyRemoveFailWithNot
 }
 
 /**
- * @tc.name: TestOnGetPolicyFail
- * @tc.desc: Test ManageFreezeExemptedAppsPlugin::OnGetPolicy.
- * @tc.type: FUNC
- */
-HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnGetPolicyFail, TestSize.Level1)
-{
-    ManageFreezeExemptedAppsPlugin plugin;
-    std::string policyData;
-    MessageParcel data;
-    MessageParcel reply;
-    std::vector<ApplicationMsg> freezeExemptedApps = {{ "com.example.app", 100, 0 }};
-    ApplicationInstanceHandle::WriteApplicationMsgVector(data, freezeExemptedApps);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps);
-    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (freezeExemptedApps.empty()));
-}
-
-/**
  * @tc.name: TestOnGetPolicy
  * @tc.desc: Test ManageFreezeExemptedAppsPlugin::OnGetPolicy.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnGetPolicy, TestSize.Level1)
+HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnGetPolicy1, TestSize.Level1)
 {
     ManageFreezeExemptedAppsPlugin plugin;
     std::string adminName;
@@ -220,11 +232,125 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnGetPolicy, TestSize.Level1)
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
-    data.WriteString("bundleName");
-    std::vector<ApplicationMsg> freezeExemptedApps;
+    std::vector<ApplicationInstance> freezeExemptedApps;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(data, freezeExemptedApps);
-    ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (freezeExemptedApps.empty()));
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps);
+    ASSERT_TRUE(freezeExemptedApps.empty());
+}
+
+/**
+ * @tc.name: TestOnGetPolicy
+ * @tc.desc: Test ManageFreezeExemptedAppsPlugin::OnGetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnGetPolicy2, TestSize.Level1)
+{
+    ManageFreezeExemptedAppsPlugin plugin;
+    HandlePolicyData policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<ApplicationInstance> freezeExemptedApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+    ErrCode ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps1;
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps1);
+    ASSERT_TRUE(freezeExemptedApps1.empty());
+
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps);
+    ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps2;
+    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps2);
+    ASSERT_TRUE(freezeExemptedApps2.size() == 1);
+}
+
+/**
+ * @tc.name: TestOnSetPolicy01
+ * @tc.desc: Test ManageFreezeExemptedAppsPlugin::OnSetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnSetPolicy01, TestSize.Level1)
+{
+    ManageFreezeExemptedAppsPlugin plugin;
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
+
+    ErrCode ret = plugin.OnSetPolicy(freezeExemptedApps, currentData, mergeData);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnSetPolicy02
+ * @tc.desc: Test ManageFreezeExemptedAppsPlugin::OnSetPolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnSetPolicy02, TestSize.Level1)
+{
+    ManageFreezeExemptedAppsPlugin plugin;
+    std::string contactsBundleName, browserBundleName, appgalleryBundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<ApplicationInstance> freezeExemptedApps = { { "5765880207853624761", contactsBundleName, 100, 0 } };
+    std::vector<ApplicationInstance> currentData = { { "1230215522310701824", browserBundleName, 100, 0 } };
+    std::vector<ApplicationInstance> mergeData = { { "1164531384803416384", appgalleryBundleName, 100, 0 } };
+
+    ErrCode ret = plugin.OnSetPolicy(freezeExemptedApps, currentData, mergeData);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetOtherModulePolicy
+ * @tc.desc: Test ManageFreezeExemptedAppsPlugin::SetOtherModulePolicy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestSetOtherModulePolicy, TestSize.Level1)
+{
+    ManageFreezeExemptedAppsPlugin plugin;
+    std::string settingsAppIdentifier = "5765880207852919475";
+    std::string bundleName;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    ASSERT_TRUE(proxy != nullptr);
+    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+    ASSERT_TRUE(res == ERR_OK);
+    std::vector<ApplicationInstance> freezeExemptedApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+    int32_t systemAbilityId = 1901;
+    plugin.OnOtherServiceStart(systemAbilityId);
+    ErrCode ret = plugin.SetOtherModulePolicy(freezeExemptedApps);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

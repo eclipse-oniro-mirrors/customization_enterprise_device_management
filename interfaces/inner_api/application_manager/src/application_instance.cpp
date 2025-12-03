@@ -15,6 +15,7 @@
 
 #include "application_instance.h"
 #include "edm_log.h"
+#include "edm_constants.h"
 #include "edm_sys_manager.h"
 #include "bundle_mgr_interface.h"
 #include "iedm_bundle_manager.h"
@@ -23,22 +24,44 @@
 namespace OHOS {
 namespace EDM {
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
-bool ApplicationInstanceHandle::WriteApplicationInstance(MessageParcel &data, const ApplicationInstance appInstance)
+
+std::string ApplicationInstanceHandle::GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId)
+{
+    std::string appIdentifier;
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    AppExecFwk::BundleInfo bundleInfo;
+    bool res = bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    if (!res) {
+        return "";
+    }
+    appIdentifier = bundleInfo.signatureInfo.appIdentifier;
+    return appIdentifier;
+}
+
+bool ApplicationInstanceHandle::GetBundleNameByAppId(ApplicationInstance &appInstance)
 {
     std::string bundleName;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (proxy == nullptr) {
-        EDMLOGE("ApplicationInstanceHandle WriteApplicationInstance: appControlProxy failed.");
+        EDMLOGE("ApplicationInstanceHandle GetBundleNameByAppId appControlProxy failed.");
         return false;
     }
-
     ErrCode res = proxy->GetBundleNameByAppId(appInstance.appIdentifier, bundleName);
     if (res != ERR_OK) {
-        EDMLOGE("ApplicationInstanceHandle WriteApplicationInstance: GetBundleNameByAppId failed.");
+        EDMLOGE("ApplicationInstanceHandle GetBundleNameByAppId failed.");
         return false;
     }
-    if (!data.WriteString(bundleName)) {
+    appInstance.bundleName = bundleName;
+    return true;
+}
+
+bool ApplicationInstanceHandle::WriteApplicationInstance(MessageParcel &data, const ApplicationInstance appInstance)
+{
+    if (!data.WriteString(appInstance.appIdentifier)) {
+        return false;
+    }
+    if (!data.WriteString(appInstance.bundleName)) {
         return false;
     }
     if (!data.WriteInt32(appInstance.accountId)) {
@@ -65,71 +88,41 @@ bool ApplicationInstanceHandle::WriteApplicationInstanceVector(MessageParcel &da
     return true;
 }
 
-bool ApplicationInstanceHandle::WriteApplicationMsg(MessageParcel &data, const ApplicationMsg appInstance)
+bool ApplicationInstanceHandle::ReadApplicationInstance(MessageParcel &data, ApplicationInstance &appInstance)
 {
-    if (!data.WriteString(appInstance.bundleName)) {
+    if (!data.ReadString(appInstance.appIdentifier)) {
         return false;
     }
-    if (!data.WriteInt32(appInstance.accountId)) {
+    if (!data.ReadString(appInstance.bundleName)) {
         return false;
     }
-    if (!data.WriteInt32(appInstance.appIndex)) {
+    if (!data.ReadInt32(appInstance.accountId)) {
         return false;
     }
-    return true;
-}
-
-bool ApplicationInstanceHandle::WriteApplicationMsgVector(MessageParcel &data,
-    const std::vector<ApplicationMsg> freezeExemptedApps)
-{
-    if (!data.WriteInt32(freezeExemptedApps.size())) {
+    if (!data.ReadInt32(appInstance.appIndex)) {
         return false;
     }
-
-    for (const auto &appInstance : freezeExemptedApps) {
-        if (!WriteApplicationMsg(data, appInstance)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool ApplicationInstanceHandle::ReadApplicationInstance(MessageParcel &data, ApplicationMsg &appInstance)
-{
-    appInstance.bundleName = data.ReadString();
-    appInstance.accountId = data.ReadInt32();
-    appInstance.appIndex = data.ReadInt32();
     return true;
 }
 
 bool ApplicationInstanceHandle::ReadApplicationInstanceVector(MessageParcel &data,
-    std::vector<ApplicationMsg> &freezeExemptedApps)
+    std::vector<ApplicationInstance> &freezeExemptedApps)
 {
     int32_t size = data.ReadInt32();
+    if (size < 0 || size > EdmConstants::MANAGE_APPS_MAX_SIZE) {
+        return false;
+    }
     freezeExemptedApps.clear();
     freezeExemptedApps.reserve(size);
 
     for (int32_t i = 0; i < size; i++) {
-        ApplicationMsg instance;
+        ApplicationInstance instance;
         if (!ReadApplicationInstance(data, instance)) {
             return false;
         }
         freezeExemptedApps.emplace_back(std::move(instance));
     }
     return true;
-}
-
-std::string ApplicationInstanceHandle::GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId)
-{
-    std::string appIdentifier;
-    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    AppExecFwk::BundleInfo bundleInfo;
-    bool res = bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
-    if (!res) {
-        return "";
-    }
-    appIdentifier = bundleInfo.signatureInfo.appIdentifier;
-    return appIdentifier;
 }
 } // namespace EDM
 } // namespace OHOS

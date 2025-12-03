@@ -237,9 +237,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveFreezeExemptedApps(napi_env env, 
         "Parameter freezeExemptedApps error");
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     int32_t ret = 0;
-    std::string retMessage;
     if (function == "AddFreezeExemptedApps") {
-        ret = applicationManagerProxy->AddFreezeExemptedApps(elementName, freezeExemptedApps, retMessage);
+        ret = applicationManagerProxy->AddFreezeExemptedApps(elementName, freezeExemptedApps);
     } else {
         ret = applicationManagerProxy->RemoveFreezeExemptedApps(elementName, freezeExemptedApps);
     }
@@ -265,7 +264,7 @@ napi_value ApplicationManagerAddon::GetFreezeExemptedApps(napi_env env, napi_cal
         "Parameter elementName error");
 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    std::vector<ApplicationMsg> freezeExemptedApps;
+    std::vector<ApplicationInstance> freezeExemptedApps;
     int32_t ret = applicationManagerProxy->GetFreezeExemptedApps(elementName, freezeExemptedApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -304,20 +303,19 @@ napi_value ApplicationManagerAddon::AddOrRemoveUserNonStopApps(napi_env env, nap
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-    std::vector<ApplicationInstance> UserNonStopApps;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseApplicationInstanceArray(env, UserNonStopApps, argv[ARR_INDEX_ONE]),
-        "Parameter UserNonStopApps error");
+    std::vector<ApplicationInstance> userNonStopApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseApplicationInstanceArray(env, userNonStopApps, argv[ARR_INDEX_ONE]),
+        "Parameter userNonStopApps error");
     EDMLOGD(
         "EnableAdmin: elementName.bundlename %{public}s, "
         "elementName.abilityname:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     int32_t ret = 0;
-    std::string retMessage;
     if (function == "AddUserNonStopApps") {
-        ret = applicationManagerProxy->AddUserNonStopApps(elementName, UserNonStopApps, retMessage);
+        ret = applicationManagerProxy->AddUserNonStopApps(elementName, userNonStopApps);
     } else {
-        ret = applicationManagerProxy->RemoveUserNonStopApps(elementName, UserNonStopApps);
+        ret = applicationManagerProxy->RemoveUserNonStopApps(elementName, userNonStopApps);
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -346,15 +344,15 @@ napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callba
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    std::vector<ApplicationMsg> UserNonStopApps;
-    int32_t ret = applicationManagerProxy->GetUserNonStopApps(elementName, UserNonStopApps);
+    std::vector<ApplicationInstance> userNonStopApps;
+    int32_t ret = applicationManagerProxy->GetUserNonStopApps(elementName, userNonStopApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
     napi_value napiUserNonStopApps = nullptr;
     napi_create_array(env, &napiUserNonStopApps);
-    ConvertApplicationInstanceVectorToJS(env, UserNonStopApps, napiUserNonStopApps);
+    ConvertApplicationInstanceVectorToJS(env, userNonStopApps, napiUserNonStopApps);
     return napiUserNonStopApps;
 }
 

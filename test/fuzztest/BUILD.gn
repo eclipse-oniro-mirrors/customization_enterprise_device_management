@@ -57,7 +57,6 @@ group("fuzztest") {
     "disableusermtpclientplugin_fuzzer:DisableUserMtpClientPluginFuzzTest",
     "usercertplugin_fuzzer:UserCertPluginFuzzTest",
     "managekeepaliveappsplugin_fuzzer:ManageKeepAliveAppsPluginFuzzTest",
-    "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
     "adminpoliciesstoragerdbupdate_fuzzer:AdminPoliciesStorageRdbUpdateFuzzTest",
   ]
 
@@ -70,6 +69,7 @@ group("fuzztest") {
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
       "manageusernonstopappsplugin_fuzzer:ManageUserNonStopAppsPluginFuzzTest",
+      "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
     ]
   }
 

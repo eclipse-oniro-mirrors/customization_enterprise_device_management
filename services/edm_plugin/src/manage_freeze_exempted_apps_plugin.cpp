@@ -23,8 +23,7 @@
 #include <system_ability_definition.h>
 #include "edm_bundle_manager_impl.h"
 #include "ability_auto_startup_client.h"
-#include "manage_freeze_exempted_apps_serializer.h"
-#include "manage_freeze_exempted_apps_info.h"
+#include "manage_apps_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
@@ -49,28 +48,40 @@ ManageFreezeExemptedAppsPlugin::ManageFreezeExemptedAppsPlugin()
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
-    maxListSize_ = EdmConstants::FREEZE_EXEMPTED_APPS_MAX_SIZE;
+    maxListSize_ = EdmConstants::MANAGE_APPS_MAX_SIZE;
 }
 
 ErrCode ManageFreezeExemptedAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("ManageFreezeExemptedAppsPlugin OnHandlePolicy.");
+    EDMLOGI("ManageFreezeExemptedAppsPlugin OnHandlePolicy");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
-    std::vector<ApplicationMsg> freezeExemptedApps;
+    std::vector<ApplicationInstance> freezeExemptedApps;
     ApplicationInstanceHandle::ReadApplicationInstanceVector(data, freezeExemptedApps);
-    std::vector<ManageFreezeExemptedAppInfo> currentData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
-    std::vector<ManageFreezeExemptedAppInfo> mergeData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    if (freezeExemptedApps.empty() || freezeExemptedApps.size() > maxListSize_) {
+        EDMLOGE("ManageFreezeExemptedAppsPlugin OnHandlePolicy freezeExemptedApps is empty or too large");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> currentData;
+    std::vector<ApplicationInstance> mergeData;
+    serializer->Deserialize(policyData.policyData, currentData);
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
-    ErrCode res = EdmReturnErrCode::PARAM_ERROR;
+    ErrCode res;
+    for (ApplicationInstance &appInstance : freezeExemptedApps) {
+        if (appInstance.bundleName.empty()) {
+            ApplicationInstanceHandle::GetBundleNameByAppId(appInstance);
+        }
+    }
     if (type == FuncOperateType::SET) {
         res = OnSetPolicy(freezeExemptedApps, currentData, mergeData);
     } else if (type == FuncOperateType::REMOVE) {
         res = OnRemovePolicy(freezeExemptedApps, currentData, mergeData);
+    } else {
+        res = EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (res != ERR_OK) {
         reply.WriteInt32(res);
@@ -79,57 +90,37 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, M
     reply.WriteInt32(ERR_OK);
     std::string afterHandle;
     std::string afterMerge;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Serialize(currentData, afterHandle);
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Serialize(mergeData, afterMerge);
+    serializer->Serialize(currentData, afterHandle);
+    serializer->Serialize(mergeData, afterMerge);
     policyData.isChanged = (policyData.policyData != afterHandle || mergePolicyStr != afterMerge);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
     return ERR_OK;
 }
 
-ErrCode ManageFreezeExemptedAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> &freezeExemptedApps,
-    std::vector<ManageFreezeExemptedAppInfo> &currentData, std::vector<ManageFreezeExemptedAppInfo> &mergeData)
+ErrCode ManageFreezeExemptedAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
+    std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin OnSetPolicy");
-    if (freezeExemptedApps.size() > maxListSize_) {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<ManageFreezeExemptedAppInfo> tmpData;
-    for (const auto &item : freezeExemptedApps) {
-        ManageFreezeExemptedAppInfo appInfo;
-        appInfo.SetBundleName(item.bundleName);
-        appInfo.SetAccountId(item.accountId);
-        appInfo.SetAppIndex(item.appIndex);
-        tmpData.push_back(appInfo);
-    }
-    std::vector<ManageFreezeExemptedAppInfo> addData =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
-    std::vector<ManageFreezeExemptedAppInfo> UninstalledData = FilterUninstalledBundle(addData);
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> addData = serializer->SetDifferencePolicyData(currentData, freezeExemptedApps);
+    std::vector<ApplicationInstance> UninstalledData = FilterUninstalledBundle(addData);
     if (!UninstalledData.empty()) {
-        EDMLOGE("ManageFreezeExemptedAppsPlugin OnSetPolicy has uninstalled app");
+        EDMLOGE("ManageFreezeExemptedAppsPlugin OnSetPolicy have uninstalled app");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    addData = ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(UninstalledData, addData);
-    std::vector<ManageFreezeExemptedAppInfo> needAddMergeData =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, addData);
-    std::vector<ManageFreezeExemptedAppInfo> afterHandle =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, addData);
-    std::vector<ManageFreezeExemptedAppInfo> afterMerge =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
+    addData = serializer->SetDifferencePolicyData(UninstalledData, addData);
+    std::vector<ApplicationInstance> needAddMergeData = serializer->SetDifferencePolicyData(mergeData, addData);
+    std::vector<ApplicationInstance> afterHandle = serializer->SetUnionPolicyData(currentData, addData);
+    std::vector<ApplicationInstance> afterMerge = serializer->SetUnionPolicyData(mergeData, afterHandle);
     if (afterMerge.size() > maxListSize_) {
-        return EdmReturnErrCode::PARAM_ERROR;
+        EDMLOGE("ManageFreezeExemptedAppsPlugin OnSetPolicy merge freezeExemptedApps is too large");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (!afterMerge.empty()) {
-        std::vector<ApplicationMsg> afterMergeApps;
-        for (const ManageFreezeExemptedAppInfo &appInfo : afterMerge) {
-            ApplicationMsg instance;
-            instance.bundleName = appInfo.GetBundleName();
-            instance.accountId = appInfo.GetAccountId();
-            instance.appIndex = appInfo.GetAppIndex();
-            afterMergeApps.push_back(instance);
-        }
-        ErrCode ret = SetOtherModulePolicy(afterMergeApps);
+        ErrCode ret = SetOtherModulePolicy(afterMerge);
         if (FAILED(ret)) {
+            EDMLOGE("ManageFreezeExemptedAppsPlugin OnSetPolicy SetOtherModulePolicy fail");
             return ret;
         }
     }
@@ -138,52 +129,36 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnSetPolicy(std::vector<ApplicationMsg> 
     return ERR_OK;
 }
 
-ErrCode ManageFreezeExemptedAppsPlugin::OnRemovePolicy(std::vector<ApplicationMsg> &freezeExemptedApps,
-    std::vector<ManageFreezeExemptedAppInfo> &currentData, std::vector<ManageFreezeExemptedAppInfo> &mergeData)
+ErrCode ManageFreezeExemptedAppsPlugin::OnRemovePolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
+    std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData)
 {
-    EDMLOGI("ManageFreezeExemptedAppsPlugin::OnRemovePolicy");
-    if (freezeExemptedApps.empty()) {
-        EDMLOGW("ManageFreezeExemptedAppsPlugin OnRemovePolicy freezeExemptedApps is empty.");
-        return ERR_OK;
-    }
-    if (freezeExemptedApps.size() > maxListSize_) {
-        EDMLOGE("ManageFreezeExemptedAppsPlugin OnRemovePolicy input freezeExemptedApps is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<ManageFreezeExemptedAppInfo> needRemovePolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetIntersectionPolicyData(freezeExemptedApps, currentData);
-    std::vector<ApplicationMsg> needRemoveApp;
-    std::vector<ManageFreezeExemptedAppInfo> needRemoveMergePolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData,
-        needRemovePolicy, needRemoveApp);
-    std::vector<ApplicationMsg> needSetApp;
-    std::vector<ManageFreezeExemptedAppInfo> needSetPolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
-        currentData, needSetApp);
-    std::string freezeExemptedStr = SerializeApplicationInstanceVectorToJson(freezeExemptedApps);
-    std::vector<ManageFreezeExemptedAppInfo> freezeExemptedData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(freezeExemptedStr, freezeExemptedData);
-    std::vector<ApplicationMsg> failedApps;
-    std::vector<ManageFreezeExemptedAppInfo> failedData =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(needRemoveMergePolicy,
-        freezeExemptedData, failedApps);
-    if (!failedApps.empty()) {
+    EDMLOGI("ManageFreezeExemptedAppsPlugin OnRemovePolicy");
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> needRemovePolicy;
+    std::vector<ApplicationInstance> needRemoveMergePolicy;
+    std::vector<ApplicationInstance> needSetPolicy;
+    needRemovePolicy = serializer->SetIntersectionPolicyData(freezeExemptedApps, currentData);
+    needRemoveMergePolicy = serializer->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
+    needSetPolicy = serializer->SetNeedRemoveMergePolicyData(needRemoveMergePolicy, currentData);
+    std::vector<ApplicationInstance> failedData;
+    failedData = serializer->SetNeedRemoveMergePolicyData(needRemoveMergePolicy, freezeExemptedApps);
+    if (!failedData.empty()) {
         EDMLOGE("OnRemovePolicy freezeExemptedApps has apps do not belong to current data");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (!needRemoveMergePolicy.empty()) {
-        ErrCode ret = SetOtherModulePolicy(needSetApp);
+        ErrCode ret = SetOtherModulePolicy(needSetPolicy);
         if (FAILED(ret)) {
+            EDMLOGE("ManageFreezeExemptedAppsPlugin OnRemovePolicy SetOtherModulePolicy fail");
             return ret;
         }
     }
-    currentData = ManageFreezeExemptedAppsSerializer::GetInstance()->SetDifferencePolicyData(needRemovePolicy,
-        currentData);
-    mergeData = ManageFreezeExemptedAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, mergeData);
+    currentData = serializer->SetDifferencePolicyData(needRemovePolicy, currentData);
+    mergeData = serializer->SetUnionPolicyData(currentData, mergeData);
     return ERR_OK;
 }
 
-ErrCode ManageFreezeExemptedAppsPlugin::SetOtherModulePolicy(const std::vector<ApplicationMsg> &freezeExemptedApps)
+ErrCode ManageFreezeExemptedAppsPlugin::SetOtherModulePolicy(const std::vector<ApplicationInstance> &freezeExemptedApps)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin SetOtherModulePolicy");
     uint32_t resType = ResourceSchedule::ResType::RES_TYPE_DYNAMICALLY_SET_SUSPEND_EXEMPT;
@@ -202,25 +177,8 @@ ErrCode ManageFreezeExemptedAppsPlugin::SetOtherModulePolicy(const std::vector<A
     std::unordered_map<std::string, std::string> reply;
     int32_t res = ResourceSchedule::ResSchedClient::GetInstance().ReportSyncEvent(resType, value, payload, reply);
     if (res != ERR_OK) {
-        EDMLOGE("ManageFreezeExemptedAppsPlugin ResSchedClient ReportSyncEvent failed, res = %{public}d", res);
-        return res;
-    }
-    return ERR_OK;
-}
-
-ErrCode ManageFreezeExemptedAppsPlugin::RemoveOtherModulePolicy()
-{
-    EDMLOGI("ManageFreezeExemptedAppsPlugin RemoveOtherModulePolicy");
-    uint32_t resType = ResourceSchedule::ResType::RES_TYPE_DYNAMICALLY_SET_SUSPEND_EXEMPT;
-    int64_t value = 0;
-    std::unordered_map<std::string, std::string> payload;
-    payload["sources"] = PAYLOAD_RESOURCE;
-    payload["size"] = "0";
-    std::unordered_map<std::string, std::string> reply;
-    int32_t res = ResourceSchedule::ResSchedClient::GetInstance().ReportSyncEvent(resType, value, payload, reply);
-    if (res != ERR_OK) {
-        EDMLOGE("ManageFreezeExemptedAppsPlugin ResSchedClient ReportSyncEvent failed, res = %{public}d", res);
-        return res;
+        EDMLOGE("ManageFreezeExemptedAppsPlugin SetOtherModulePolicy ReportSyncEvent fail, res = %{public}d", res);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }
@@ -229,19 +187,10 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnGetPolicy(std::string &policyData, Mes
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin OnGetPolicy");
-    std::string type = data.ReadString();
-    std::vector<ManageFreezeExemptedAppInfo> appInfo;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(policyData, appInfo);
-    std::vector<ApplicationMsg> policy;
-    for (const ManageFreezeExemptedAppInfo &item : appInfo) {
-        ApplicationMsg instance;
-        instance.bundleName = item.GetBundleName();
-        instance.accountId = item.GetAccountId();
-        instance.appIndex = item.GetAppIndex();
-        policy.emplace_back(std::move(instance));
-    }
+    std::vector<ApplicationInstance> appInfo;
+    ManageAppsSerializer::GetInstance()->Deserialize(policyData, appInfo);
     reply.WriteInt32(ERR_OK);
-    ApplicationInstanceHandle::WriteApplicationMsgVector(reply, policy);
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(reply, appInfo);
     return ERR_OK;
 }
 
@@ -249,15 +198,9 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnAdminRemove(const std::string &adminNa
     const std::string &mergeJsonData, int32_t userId)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin OnAdminRemove");
-    std::vector<ManageFreezeExemptedAppInfo> currentData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(currentJsonData, currentData);
-    std::vector<ManageFreezeExemptedAppInfo> mergeData;
-    ManageFreezeExemptedAppsSerializer::GetInstance()->Deserialize(mergeJsonData, mergeData);
-    std::vector<ApplicationMsg> freezeExemptedApps;
-    std::vector<ManageFreezeExemptedAppInfo> needRemoveMergePolicy =
-        ManageFreezeExemptedAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, currentData,
-        freezeExemptedApps);
-    return RemoveOtherModulePolicy();
+    std::vector<ApplicationInstance> mergeData;
+    ManageAppsSerializer::GetInstance()->Deserialize(mergeJsonData, mergeData);
+    return SetOtherModulePolicy(mergeData);
 }
 
 ErrCode ManageFreezeExemptedAppsPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
@@ -265,8 +208,8 @@ ErrCode ManageFreezeExemptedAppsPlugin::GetOthersMergePolicyData(const std::stri
 {
     std::unordered_map<std::string, std::string> adminValues;
     IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
-    EDMLOGI("IPolicyManager::GetOthersMergePolicyData %{public}s value size %{public}d", GetPolicyName().c_str(),
-        (uint32_t)adminValues.size());
+    EDMLOGI("ManageFreezeExemptedAppsPlugin GetOthersMergePolicyData %{public}s value size %{public}d",
+        GetPolicyName().c_str(), (uint32_t)adminValues.size());
     if (adminValues.empty()) {
         return ERR_OK;
     }
@@ -274,10 +217,10 @@ ErrCode ManageFreezeExemptedAppsPlugin::GetOthersMergePolicyData(const std::stri
     if (entry != adminValues.end()) {
         adminValues.erase(entry);
     }
-    auto serializer = ManageFreezeExemptedAppsSerializer::GetInstance();
-    std::vector<std::vector<ManageFreezeExemptedAppInfo>> data;
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<std::vector<ApplicationInstance>> data;
     for (const auto &item : adminValues) {
-        std::vector<ManageFreezeExemptedAppInfo> dataItem;
+        std::vector<ApplicationInstance> dataItem;
         if (!item.second.empty()) {
             if (!serializer->Deserialize(item.second, dataItem)) {
                 return ERR_EDM_OPERATE_JSON;
@@ -285,14 +228,14 @@ ErrCode ManageFreezeExemptedAppsPlugin::GetOthersMergePolicyData(const std::stri
             data.push_back(dataItem);
         }
     }
-    std::vector<ManageFreezeExemptedAppInfo> result;
+    std::vector<ApplicationInstance> result;
     if (!serializer->MergePolicy(data, result)) {
         return ERR_EDM_OPERATE_JSON;
     }
 
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
-    std::vector<ManageFreezeExemptedAppInfo> mergePolicyData;
+    std::vector<ApplicationInstance> mergePolicyData;
     if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
         return ERR_EDM_OPERATE_JSON;
     }
@@ -306,70 +249,28 @@ ErrCode ManageFreezeExemptedAppsPlugin::GetOthersMergePolicyData(const std::stri
 
 void ManageFreezeExemptedAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
-    EDMLOGI("ManageFreezeExemptedAppsPlugin::OnOtherServiceStart start");
+    EDMLOGI("ManageFreezeExemptedAppsPlugin OnOtherServiceStart");
     std::string mergePolicyStr;
     IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, EdmConstants::DEFAULT_USER_ID);
-    std::vector<ManageFreezeExemptedAppInfo> mergePolicyData;
-    auto serializer = ManageFreezeExemptedAppsSerializer::GetInstance();
-    serializer->Deserialize(mergePolicyStr, mergePolicyData);
-    std::vector<ApplicationMsg> freezeExemptedApps;
-    for (const ManageFreezeExemptedAppInfo &appInfo : mergePolicyData) {
-        ApplicationMsg instance;
-        instance.bundleName = appInfo.GetBundleName();
-        instance.accountId = appInfo.GetAccountId();
-        instance.appIndex = appInfo.GetAppIndex();
-        freezeExemptedApps.push_back(instance);
-    }
-    ErrCode ret = SetOtherModulePolicy(freezeExemptedApps);
+    std::vector<ApplicationInstance> mergePolicyData;
+    ManageAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
+    ErrCode ret = SetOtherModulePolicy(mergePolicyData);
     if (FAILED(ret)) {
-        EDMLOGE("ManageFreezeExemptedAppsPlugin::OnOtherServiceStart failed ret: %{public}d", ret);
+        EDMLOGE("ManageFreezeExemptedAppsPlugin OnOtherServiceStart fail, ret: %{public}d", ret);
     }
 }
 
-std::vector<ManageFreezeExemptedAppInfo> ManageFreezeExemptedAppsPlugin::FilterUninstalledBundle(
-    std::vector<ManageFreezeExemptedAppInfo> &data)
+std::vector<ApplicationInstance> ManageFreezeExemptedAppsPlugin::FilterUninstalledBundle(
+    std::vector<ApplicationInstance> &data)
 {
     auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    std::vector<ManageFreezeExemptedAppInfo> uninstalledApp;
-    for (const ManageFreezeExemptedAppInfo &appInfo : data) {
-        std::string bundleName = appInfo.GetBundleName();
-        int32_t accountId = appInfo.GetAccountId();
-        int32_t appIndex = appInfo.GetAppIndex();
-        if (!bundleMgr->IsBundleInstalled(bundleName, accountId, appIndex)) {
+    std::vector<ApplicationInstance> uninstalledApp;
+    for (const ApplicationInstance &appInfo : data) {
+        if (!bundleMgr->IsBundleInstalled(appInfo.bundleName, appInfo.accountId, appInfo.appIndex)) {
             uninstalledApp.push_back(appInfo);
         }
     }
     return uninstalledApp;
-}
-
-std::string ManageFreezeExemptedAppsPlugin::SerializeApplicationInstanceVectorToJson(
-    const std::vector<ApplicationMsg> &apps)
-{
-    cJSON *root = cJSON_CreateArray();
-
-    for (const auto &app : apps) {
-        cJSON *appObj = cJSON_CreateObject();
-        cJSON_AddStringToObject(appObj, "bundleName", app.bundleName.c_str());
-        cJSON_AddNumberToObject(appObj, "accountId", app.accountId);
-        cJSON_AddNumberToObject(appObj, "appIndex", app.appIndex);
-        if (!cJSON_AddItemToArray(root, appObj)) {
-            cJSON_Delete(appObj);
-            cJSON_Delete(root);
-            return "";
-        }
-    }
-
-    char *jsonStr = cJSON_PrintUnformatted(root);
-    if (jsonStr == nullptr) {
-        cJSON_Delete(root);
-        return "";
-    }
-    
-    std::string result(jsonStr);
-    cJSON_Delete(root);
-    cJSON_free(jsonStr);
-
-    return result;
 }
 } // namespace EDM
 } // namespace OHOS

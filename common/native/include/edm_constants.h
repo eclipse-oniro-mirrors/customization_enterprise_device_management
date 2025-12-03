@@ -46,8 +46,7 @@ namespace EdmConstants {
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
-    constexpr uint32_t FREEZE_EXEMPTED_APPS_MAX_SIZE = 10;
-    constexpr uint32_t USER_NON_STOP_APPS_MAX_SIZE = 10;
+    constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
 
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
