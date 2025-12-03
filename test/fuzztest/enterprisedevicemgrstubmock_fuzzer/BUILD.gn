@@ -116,6 +116,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/manage_apps_serializer.cpp"
   ]
 
   sources += [
@@ -338,8 +339,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
-        "../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_info.cpp",
-        "../../../services/edm_plugin/src/utils/manage_freeze_exempted_apps_serializer.cpp"
       ]
     }
 
@@ -454,9 +453,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ 
         "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
         "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
-        "../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_info.cpp",
-        "../../../services/edm_plugin/src/utils/manage_user_non_stop_apps_serializer.cpp"
-         ]
+        ]
     }
 
     if (enterprise_device_management_feature_pc_only) {

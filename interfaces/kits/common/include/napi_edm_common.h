@@ -105,7 +105,7 @@ void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 void ConvertApplicationInstanceVectorToJS(napi_env env,
-    const std::vector<ApplicationMsg> &ApplicationInstanceVector, napi_value result);
+    const std::vector<ApplicationInstance> &applicationInstanceVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId);
 bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName);

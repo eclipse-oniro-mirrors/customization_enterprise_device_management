@@ -21,7 +21,6 @@
 #include "message_parcel.h"
 #include "iplugin.h"
 #include "iremote_stub.h"
-#include "manage_freeze_exempted_apps_info.h"
 #include "application_instance.h"
 
 namespace OHOS {
@@ -44,13 +43,12 @@ public:
 
 private:
     ErrCode RemoveOtherModulePolicy();
-    ErrCode OnSetPolicy(std::vector<ApplicationMsg> &freezeExemptedApps,
-        std::vector<ManageFreezeExemptedAppInfo> &currentData, std::vector<ManageFreezeExemptedAppInfo> &mergeData);
-    ErrCode OnRemovePolicy(std::vector<ApplicationMsg> &freezeExemptedApps,
-        std::vector<ManageFreezeExemptedAppInfo> &currentData, std::vector<ManageFreezeExemptedAppInfo> &mergeData);
-    ErrCode SetOtherModulePolicy(const std::vector<ApplicationMsg> &freezeExemptedApps);
-    std::vector<ManageFreezeExemptedAppInfo> FilterUninstalledBundle(std::vector<ManageFreezeExemptedAppInfo> &data);
-    std::string SerializeApplicationInstanceVectorToJson(const std::vector<ApplicationMsg> &apps);
+    ErrCode OnSetPolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
+        std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
+    ErrCode OnRemovePolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
+        std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
+    ErrCode SetOtherModulePolicy(const std::vector<ApplicationInstance> &freezeExemptedApps);
+    std::vector<ApplicationInstance> FilterUninstalledBundle(std::vector<ApplicationInstance> &data);
     uint32_t maxListSize_ = 0;
 };
 } // namespace EDM

@@ -21,7 +21,6 @@
 #include "message_parcel.h"
 #include "iplugin.h"
 #include "iremote_stub.h"
-#include "manage_user_non_stop_apps_info.h"
 #include "application_instance.h"
 #include "session_manager_lite.h"
 
@@ -46,20 +45,18 @@ public:
     void OnOtherServiceStart(int32_t systemAbilityId) override;
 
 private:
-    ErrCode RemoveOtherModulePolicy(const std::vector<ManageUserNonStopAppInfo> &needResetPolicy,
-         const std::vector<ManageUserNonStopAppInfo> &needRemovePolicy);
-    ErrCode OnSetPolicy(std::vector<ApplicationMsg> &data,
-        std::vector<ManageUserNonStopAppInfo> &currentData, std::vector<ManageUserNonStopAppInfo> &mergeData);
-    ErrCode OnRemovePolicy(std::vector<ApplicationMsg> &data,
-        std::vector<ManageUserNonStopAppInfo> &currentData, std::vector<ManageUserNonStopAppInfo> &mergeData);
-    ErrCode SetOtherModulePolicy(const std::vector<ManageUserNonStopAppInfo> &userNonStopApps);
-    ErrCode ConvertAppPolicyToJsonStr(const ManageUserNonStopAppInfo &userNonStopApps,
-        std::string &AppPolicyJsonStr);
-    void ReportLockSession(const std::vector<ManageUserNonStopAppInfo> &userNonStopAppInfo, bool isLocked);
-    void GetSessionParam(const ManageUserNonStopAppInfo &userNonStopAppInfo,
-        std::vector<Rosen::AbilityInfoBase> &infoBase);
-    ErrCode FilterUninstalledBundle(
-        std::vector<ManageUserNonStopAppInfo> &data, std::vector<ManageUserNonStopAppInfo> &UninstalledApp);
+    ErrCode RemoveOtherModulePolicy(const std::vector<ApplicationInstance> needResetPolicy,
+         const std::vector<ApplicationInstance> needRemovePolicy);
+    ErrCode OnSetPolicy(std::vector<ApplicationInstance> &data,
+        std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
+    ErrCode OnRemovePolicy(std::vector<ApplicationInstance> &data,
+        std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
+    ErrCode SetOtherModulePolicy(const std::vector<ApplicationInstance> &userNonStopApps);
+    ErrCode ConvertAppPolicyToJsonStr(const ApplicationInstance &userNonStopApps, std::string &appPolicyJsonStr);
+    ErrCode ReportLockSession(const std::vector<ApplicationInstance> &userNonStopAppInfo, bool isLocked);
+    void GetSessionParam(const ApplicationInstance &userNonStopAppInfo, std::vector<Rosen::AbilityInfoBase> &infoBase);
+    ErrCode FilterUninstalledBundle(std::vector<ApplicationInstance> &data,
+        std::vector<ApplicationInstance> &uninstalledApp);
     int32_t GetCurrentUserId();
     uint32_t maxListSize_ = 0;
 };

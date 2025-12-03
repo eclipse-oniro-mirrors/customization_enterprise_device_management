@@ -27,9 +27,11 @@ const int32_t ILLEGAL_UID = -11;
 const int32_t ILLEGAL_UID2 = 65536;
 const int32_t FLAGS = 1;
 const int32_t USER_ID = 1;
+const int32_t INVALID_UID = -1;
 const std::string EMPTY_BUNDLE_NAME = "";
 const std::string INVALID_BUNDLE_NAME = "testbundlename";
 const std::string BUNDLE_NAME = "com.ohos.launcher";
+const std::string CONTACTS = "com.ohos.contacts";
 class EdmBundleManagerImplTest : public testing::Test {};
 /**
  * @tc.name: TestGetNameForUid01
@@ -104,6 +106,34 @@ HWTEST_F(EdmBundleManagerImplTest, TestGetBundleInfo02, TestSize.Level1)
     bool ret = edmBundleManagerImpl.GetBundleInfo(
         BUNDLE_NAME, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, USER_ID);
     EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestGetApplicationUid01
+ * @tc.desc: Test GetApplicationUid function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetApplicationUid01, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    int32_t appIndex = 0;
+    int32_t uid = edmBundleManagerImpl.GetApplicationUid(EMPTY_BUNDLE_NAME, USER_ID, appIndex);
+    EXPECT_EQ(uid, INVALID_UID);
+    uid = edmBundleManagerImpl.GetApplicationUid(INVALID_BUNDLE_NAME, USER_ID, appIndex);
+    EXPECT_EQ(uid, INVALID_UID);
+}
+
+/**
+ * @tc.name: TestGetApplicationUid02
+ * @tc.desc: Test GetApplicationUid function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetApplicationUid02, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    int32_t appIndex = 0;
+    int32_t uid = edmBundleManagerImpl.GetApplicationUid(CONTACTS, 100, appIndex);
+    ASSERT_FALSE(uid == INVALID_UID);
 }
 } // namespace TEST
 } // namespace EDM
