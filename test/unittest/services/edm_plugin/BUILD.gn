@@ -79,6 +79,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
+    "./src/set_ability_disable_plugin_test.cpp",
   ]
 
   configs = [
