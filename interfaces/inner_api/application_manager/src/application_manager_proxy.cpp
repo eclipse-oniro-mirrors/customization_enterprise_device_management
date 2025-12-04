@@ -542,7 +542,6 @@ int32_t ApplicationManagerProxy::IsAbilityDisabled(const AppExecFwk::ElementName
         return ret;
     }
     reply.ReadBool(isDisabled);
-    EDMLOGI("GetPolicy isDisabled: %{public}d", isDisabled);
     return ERR_OK;
 }
 } // namespace EDM
