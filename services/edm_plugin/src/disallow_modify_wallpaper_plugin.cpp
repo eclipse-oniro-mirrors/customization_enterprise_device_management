@@ -68,7 +68,6 @@ ErrCode DisableModifyWallpaperPlugin::OnAdminRemove(const std::string &adminName
     // admin 移除时，综合策略为非禁用，且移除的策略为禁用，则更新策略为非禁用
     if (!mergeData && data) {
         ErrCode ret = SetModifyWallpaperPolicy(false, userId);
-        EDMLOGD("SetModifyWallpaperPolicy ret: %{public}d", ret);
         if (FAILED(ret)) {
             EDMLOGE("SetModifyWallpaperPolicy failed");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
