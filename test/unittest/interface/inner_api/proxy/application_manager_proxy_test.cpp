@@ -938,7 +938,6 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppDisallowModifyWithUserI
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
-
 /**
  * @tc.name: TestSetAbilityDisabledSuc
  * @tc.desc: Test SetAbilityDisabled func.
@@ -952,7 +951,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestSetAbilityDisabledSuc, TestSize.Level1
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::string abilityName = "EntryAbility";
-    ApplicationInstance application = {"com.example.helloworld", 0, 100};
+    ApplicationInstance application = {"com.example.helloworld", 100, 0};
     int32_t ret = applicationManagerProxy_->SetAbilityDisabled(admin, application, abilityName, true);
     ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
@@ -968,7 +967,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestSetAbilityDisabledFail, TestSize.Level
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string abilityName = "EntryAbility";
-    ApplicationInstance application = {"com.example.helloworld", 0, 100};
+    ApplicationInstance application = {"com.example.helloworld", 100, 0};
     int32_t ret = applicationManagerProxy_->SetAbilityDisabled(admin, application, abilityName, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
@@ -986,7 +985,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledSuc, TestSize.Level1)
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::string abilityName = "EntryAbility";
-    ApplicationInstance application = {"com.example.helloworld", 0, 100};
+    ApplicationInstance application = {"com.example.helloworld", 100, 0};
     bool isDisable = false;
     int32_t ret = applicationManagerProxy_->IsAbilityDisabled(admin, application, abilityName, isDisable);
     ASSERT_TRUE(ret == ERR_OK);
@@ -1003,7 +1002,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledFail, TestSize.Level1
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string abilityName = "EntryAbility";
-    ApplicationInstance application = {"com.example.helloworld", 0, 100};
+    ApplicationInstance application = {"com.example.helloworld", 100, 0};
     bool isDisable = false;
     int32_t ret = applicationManagerProxy_->IsAbilityDisabled(admin, application, abilityName, isDisable);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
