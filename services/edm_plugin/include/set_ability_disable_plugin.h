@@ -36,11 +36,11 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
     void SetPolicyData(HandlePolicyData &policyData,
-        const ApplicationMsg &application, const std::string &abilityName, bool isDisable);
-    ErrCode SetDisableByBundle(const ApplicationMsg &application, const std::string &abilityName, bool isDisable);
-    ErrCode GetAppInfoByPolicyData(const std::string policyData, ApplicationMsg &application,
+        const ApplicationInstance &application, const std::string &abilityName, bool isDisable);
+    ErrCode SetDisableByBundle(const ApplicationInstance &application, const std::string &abilityName, bool isDisable);
+    ErrCode GetAppInfoByPolicyData(const std::string policyData, ApplicationInstance &application,
         std::string &abilityName);
-    void OnRemovePolicy(ApplicationMsg &application, HandlePolicyData &policyData);
+    void OnRemovePolicy(ApplicationInstance &application, HandlePolicyData &policyData);
 };
 } // namespace EDM
 } // namespace OHOS

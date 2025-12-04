@@ -58,7 +58,7 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
     if (type == FuncOperateType::SET) {
         std::string abilityName = data.ReadString();
         bool isDisable = data.ReadBool();
-        ApplicationMsg userApp;
+        ApplicationInstance userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         ErrCode ret = SetDisableByBundle(userApp, abilityName, !isDisable);
         if (ret == ERR_OK) {
@@ -66,7 +66,7 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         }
         return ret;
     } else if (type == FuncOperateType::REMOVE) {
-        ApplicationMsg userApp;
+        ApplicationInstance userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         OnRemovePolicy(userApp, policyData);
         
@@ -75,7 +75,7 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
 }
 
 void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
-    const ApplicationMsg &application, const std::string &abilityName, bool isDisable)
+    const ApplicationInstance &application, const std::string &abilityName, bool isDisable)
 {
     std::vector<std::string> data;
     std::string name = application.bundleName + SEPARATOR + std::to_string(application.appIndex) +
@@ -110,7 +110,7 @@ ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessagePar
 {
     EDMLOGI("SetAbilityDisablePlugin::OnGetPolicy start, policyData: %{public}s", policyData.c_str());
     std::string abilityName = data.ReadString();
-    ApplicationMsg userApp;
+    ApplicationInstance userApp;
     ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
     
     std::string name = userApp.bundleName + SEPARATOR + std::to_string(userApp.appIndex) +
@@ -125,7 +125,7 @@ ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessagePar
 }
 
 ErrCode SetAbilityDisablePlugin::GetAppInfoByPolicyData(const std::string policyData,
-    ApplicationMsg &application, std::string &abilityName)
+    ApplicationInstance &application, std::string &abilityName)
 {
     std::vector<std::string> parts;
     size_t start = 0;
@@ -161,7 +161,7 @@ ErrCode SetAbilityDisablePlugin::GetAppInfoByPolicyData(const std::string policy
     return ERR_OK;
 }
 
-void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationMsg &application, HandlePolicyData &policyData)
+void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationInstance &application, HandlePolicyData &policyData)
 {
     auto serializer = ArrayStringSerializer::GetInstance();
     std::vector<std::string> currentPolicies;
@@ -191,7 +191,7 @@ void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationMsg &application, Handle
     policyData.mergePolicyData = afterMerge;
 }
 
-ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const ApplicationMsg &application,
+ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const ApplicationInstance &application,
     const std::string &abilityName, bool isDisable)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -247,7 +247,7 @@ ErrCode SetAbilityDisablePlugin::OnAdminRemove(const std::string &adminName, con
         }
     }
     for (std::string policy : removeData) {
-        ApplicationMsg application;
+        ApplicationInstance application;
         std::string abilityName;
         if (GetAppInfoByPolicyData(policy, application, abilityName) == ERR_OK) {
             SetDisableByBundle(application, abilityName, true);
