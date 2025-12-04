@@ -184,7 +184,7 @@ void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationInstance &application, H
     
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
-    EDMLOGI("lcl=== SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
+    EDMLOGI("SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;

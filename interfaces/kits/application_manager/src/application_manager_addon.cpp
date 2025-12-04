@@ -1135,7 +1135,7 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     bool isDisabled = false;
     int32_t ret = applicationManagerProxy->IsAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
-    EDMLOGI("lcl=== IsAbilityDisabled isDisabled: %{public}d", isDisabled);
+    EDMLOGI("IsAbilityDisabled isDisabled: %{public}d", isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
