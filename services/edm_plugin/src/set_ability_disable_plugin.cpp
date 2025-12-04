@@ -52,7 +52,7 @@ SetAbilityDisablePlugin::SetAbilityDisablePlugin()
 ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGD("SetAbilityDisablePlugin::OnHandlePolicy start");
+    EDMLOGI("SetAbilityDisablePlugin::OnHandlePolicy start");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     if (type == FuncOperateType::SET) {
@@ -69,6 +69,7 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         ApplicationMsg userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         OnRemovePolicy(userApp, policyData);
+        
     }
     return ERR_OK;
 }
@@ -91,13 +92,14 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
     std::vector<std::string> mergePolicies;
     if (isDisable) {
         policies = serializer->SetUnionPolicyData(data, currentPolicies);
-        mergePolicies = serializer->SetUnionPolicyData(data, currentMergePolicies);
+        mergePolicies = serializer->SetUnionPolicyData(policies, currentMergePolicies);
     } else {
         policies = serializer->SetDifferencePolicyData(data, currentPolicies);
-        mergePolicies = serializer->SetDifferencePolicyData(data, currentMergePolicies);
+        mergePolicies = serializer->SetUnionPolicyData(policies, currentMergePolicies);
     }
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
+    EDMLOGI("lcl=== SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
@@ -106,20 +108,17 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
 ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGD("SetAbilityDisablePlugin::OnGetPolicy start");
+    EDMLOGI("SetAbilityDisablePlugin::OnGetPolicy start, policyData: %{public}s", policyData.c_str());
     std::string abilityName = data.ReadString();
     ApplicationMsg userApp;
     ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
+    
     std::string name = userApp.bundleName + SEPARATOR + std::to_string(userApp.appIndex) +
         SEPARATOR + std::to_string(userApp.accountId) + SEPARATOR + abilityName;
-
-    bool isDisable = false;
     std::vector<std::string> currentPolicies;
     ArrayStringSerializer::GetInstance()->Deserialize(policyData, currentPolicies);
-    if (std::find(currentPolicies.begin(), currentPolicies.end(), name) != currentPolicies.end()) {
-        isDisable = true;
-    }
-        
+    bool isDisable = std::find(currentPolicies.begin(), currentPolicies.end(), name)
+        != currentPolicies.end();
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(isDisable);
     return ERR_OK;
@@ -143,8 +142,20 @@ ErrCode SetAbilityDisablePlugin::GetAppInfoByPolicyData(const std::string policy
     }
 
     application.bundleName = parts[BUNDLENAME_INDEX];
-    application.appIndex = std::stoi(parts[APPINDEX_INDEX]);
-    application.accountId = std::stoi(parts[ACCOUNTID_INDEX]);
+    char* endptr;
+    errno = 0;
+    int64_t result = strtol(parts[APPINDEX_INDEX].c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == parts[APPINDEX_INDEX].c_str() || *endptr != '\0') {
+        EDMLOGE("GetAppInfoByPolicyData strtol error.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    application.appIndex = static_cast<int32_t>(result);
+    result = strtol(parts[ACCOUNTID_INDEX].c_str(), &endptr, EdmConstants::DECIMAL);
+    if (errno == ERANGE || endptr == parts[ACCOUNTID_INDEX].c_str() || *endptr != '\0') {
+        EDMLOGE("GetAppInfoByPolicyData strtol error.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    application.accountId = static_cast<int32_t>(result);
     abilityName = parts[ABILITY_INDEX];
 
     return ERR_OK;
@@ -174,6 +185,7 @@ void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationMsg &application, Handle
     
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
+    EDMLOGI("lcl=== SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
@@ -215,12 +227,26 @@ ErrCode SetAbilityDisablePlugin::OnAdminRemove(const std::string &adminName, con
     const std::string &mergeData, int32_t userId)
 {
     auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<std::string> currentData;
+    if (!serializer->Deserialize(policyData, currentData)) {
+        EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     std::vector<std::string> mergePolicies;
     if (!serializer->Deserialize(mergeData, mergePolicies)) {
         EDMLOGE("OnHandlePolicy Deserialize current policy and merge policy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    for (std::string policy : mergePolicies) {
+
+    std::vector<std::string> removeData;
+    for (const std::string &item : currentData) {
+        if (std::find_if(mergePolicies.begin(), mergePolicies.end(), [&item](const std::string &mergeItem) {
+            return mergeItem == item;
+        }) == mergePolicies.end()) {
+            removeData.push_back(item);
+        }
+    }
+    for (std::string policy : removeData) {
         ApplicationMsg application;
         std::string abilityName;
         if (GetAppInfoByPolicyData(policy, application, abilityName) == ERR_OK) {
