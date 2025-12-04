@@ -1089,14 +1089,6 @@ napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callba
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "Parameter applicationInstance error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_string), "Parameter abilityName error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_boolean), "Parameter isDisabled error.");
 
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
@@ -1130,13 +1122,6 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error.");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "Parameter applicationInstance error.");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_string), "Parameter abilityName error.");
-
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
         env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
@@ -1150,7 +1135,7 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     bool isDisabled = false;
     int32_t ret = applicationManagerProxy->IsAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
-    EDMLOGI("IsAbilityDisabled isDisabled: %{public}d", isDisabled);
+    EDMLOGI("lcl=== IsAbilityDisabled isDisabled: %{public}d", isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
