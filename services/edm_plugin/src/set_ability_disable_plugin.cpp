@@ -69,7 +69,6 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         ApplicationInstance userApp;
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         OnRemovePolicy(userApp, policyData);
-        
     }
     return ERR_OK;
 }
@@ -99,7 +98,7 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
     }
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
-    EDMLOGI("lcl=== SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
+    EDMLOGI("SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
