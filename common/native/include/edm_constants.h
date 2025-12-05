@@ -181,6 +181,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_HDC_REMOTE = "hdcRemote";
         const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
+        const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
     } // namespace Restrictions
 
     namespace SecurityManager {
