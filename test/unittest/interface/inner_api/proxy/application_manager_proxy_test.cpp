@@ -967,7 +967,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestSetAbilityDisabledFail, TestSize.Level
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string abilityName = "EntryAbility";
-    ApplicationInstance application = {"com.example.helloworld","", 0, 100};
+    ApplicationInstance application = {"com.example.helloworld", "", 0, 100};
     int32_t ret = applicationManagerProxy_->SetAbilityDisabled(admin, application, abilityName, true);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
