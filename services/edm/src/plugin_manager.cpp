@@ -70,7 +70,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISABLED_APP_CLONE, EdmInterfaceCode::DISABLED_HDC_REMOTE,
     EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
     EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE, EdmInterfaceCode::SET_EYE_COMFORT_MODE,
-    EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD
+    EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD,
+    EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

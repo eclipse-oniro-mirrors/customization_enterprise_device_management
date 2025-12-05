@@ -608,6 +608,103 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedFail, TestSize.Level1)
     int32_t ret = proxy_->GetUserRestricted(&admin, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, restricted);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetUserRestrictionForAccountSuc
+ * @tc.desc: Test SetUserRestrictionForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUserRestrictionForAccountSuc_01
+ * @tc.desc: Test SetUserRestrictionForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountSuc_01, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        false, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUserRestrictionForAccountFail
+ * @tc.desc: Test SetUserRestrictionForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetUserRestrictionForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = proxy_->SetUserRestrictionForAccount(admin, 100,
+        true, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUserRestrictedForAccountSuc
+ * @tc.desc: Test GetUserRestrictedForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool restricted = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetUserRestrictedForAccountFail
+ * @tc.desc: Test GetUserRestrictedForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool restricted = false;
+    int32_t ret = proxy_->GetUserRestrictedForAccount(&admin, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, restricted);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUserRestrictedForAccountNullptr
+ * @tc.desc: Test GetUserRestrictedForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountNullptr, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    int32_t ret = proxy_->GetUserRestrictedForAccount(nullptr, 100,
+        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

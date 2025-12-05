@@ -178,6 +178,7 @@
 #include "ntp_server_query.h"
 #include "parameters.h"
 #include "snapshot_skip_query.h"
+#include "disallow_modify_wallpaper_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -721,6 +722,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN:
 #ifdef FEATURE_PC_ONLY
             obj = std::make_shared<DisallowOpenFileBoostQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        case EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER:
+#ifdef OS_ACCOUNT_EDM_ENABLE
+            obj = std::make_shared<DisallowModifyWallpaperQuery>();
             return ERR_OK;
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
