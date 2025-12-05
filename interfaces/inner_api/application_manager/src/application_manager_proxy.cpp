@@ -501,7 +501,7 @@ int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementNam
 }
 
 int32_t ApplicationManagerProxy::SetAbilityDisabled(const AppExecFwk::ElementName &admin,
-    ApplicationInstance &application, const std::string &abilityName, bool isDisabled)
+    const ApplicationInstance &application, const std::string &abilityName, bool isDisabled)
 {
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
@@ -512,9 +512,6 @@ int32_t ApplicationManagerProxy::SetAbilityDisabled(const AppExecFwk::ElementNam
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(abilityName);
     data.WriteBool(isDisabled);
-    if (application.bundleName.empty()) {
-        ApplicationInstanceHandle::GetBundleNameByAppId(application);
-    }
     ApplicationInstanceHandle::WriteApplicationInstance(data, application);
 
     std::uint32_t funcCode =
@@ -523,7 +520,7 @@ int32_t ApplicationManagerProxy::SetAbilityDisabled(const AppExecFwk::ElementNam
 }
 
 int32_t ApplicationManagerProxy::IsAbilityDisabled(const AppExecFwk::ElementName &admin,
-    ApplicationInstance &application, const std::string &abilityName, bool &isDisabled)
+    const ApplicationInstance &application, const std::string &abilityName, bool &isDisabled)
 {
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
@@ -534,9 +531,6 @@ int32_t ApplicationManagerProxy::IsAbilityDisabled(const AppExecFwk::ElementName
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(abilityName);
-    if (application.bundleName.empty()) {
-        ApplicationInstanceHandle::GetBundleNameByAppId(application);
-    }
     ApplicationInstanceHandle::WriteApplicationInstance(data, application);
 
     proxy->GetPolicy(EdmInterfaceCode::SET_ABILITY_ENABLED, data, reply);
