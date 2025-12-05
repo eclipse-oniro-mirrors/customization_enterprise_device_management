@@ -61,8 +61,8 @@ bool ApplicationInstanceHandle::WriteApplicationInstance(MessageParcel &data, co
     if (!data.WriteString(appInstance.appIdentifier)) {
         return false;
     }
-    if (!data.WriteString(appInstance.bundleName)) {
-         return false;
+    if (!data.WriteString(appInstance.bundleName)) {	
+        return false;
     }
     if (!data.WriteInt32(appInstance.accountId)) {
         return false;
