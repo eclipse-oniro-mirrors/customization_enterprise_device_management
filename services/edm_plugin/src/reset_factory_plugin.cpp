@@ -34,7 +34,7 @@ void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactory
 ErrCode ResetFactoryPlugin::OnSetPolicy()
 {
     UpdateService::BusinessError businessError;
-    int32_t ret = UpdateService::UpdateServiceKits::GetInstance().FactoryReset(businessError);
+    int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
     if (FAILED(ret)) {
         EDMLOGE("ResetFactoryPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

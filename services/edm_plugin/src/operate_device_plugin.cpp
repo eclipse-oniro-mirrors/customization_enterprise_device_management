@@ -69,7 +69,7 @@ ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParce
     }
     if (param.operate == EdmConstants::DeviceControl::RESET_FACTORY) {
         UpdateService::BusinessError businessError;
-        int32_t ret = UpdateService::UpdateServiceKits::GetInstance().FactoryReset(businessError);
+        int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
         if (FAILED(ret)) {
             EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", ret);
             reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
