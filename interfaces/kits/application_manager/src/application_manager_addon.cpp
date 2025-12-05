@@ -1115,7 +1115,7 @@ napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callba
 napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsAbilityDisabled called");
-    size_t argc = ARGS_SIZE_FOUR;
+    size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = { nullptr };
     napi_value thisArg = nullptr;
     void *data = nullptr;
