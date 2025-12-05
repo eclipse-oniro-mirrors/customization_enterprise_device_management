@@ -51,7 +51,7 @@ public:
     static bool WriteApplicationInstance(MessageParcel &data, const ApplicationInstance appInstance);
     static bool ReadApplicationInstance(MessageParcel &reply, ApplicationInstance &appInstance);
     static bool GetBundleNameByAppId(ApplicationInstance &result);
-    static bool GetBundleNameByAppId(const std::string appIdentifier, std::string &bundleName);
+    static bool GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName);
     static std::string GetAppIdentifierByBundleName(std::string bundleName, int32_t accountId);
 };
 } // namespace EDM
