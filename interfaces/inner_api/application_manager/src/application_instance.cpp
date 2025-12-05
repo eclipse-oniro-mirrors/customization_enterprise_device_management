@@ -41,27 +41,18 @@ std::string ApplicationInstanceHandle::GetAppIdentifierByBundleName(std::string 
 bool ApplicationInstanceHandle::GetBundleNameByAppId(ApplicationInstance &appInstance)
 {
     std::string bundleName;
-    bool result = GetBundleNameByAppId(appInstance.appIdentifier, bundleName);
-    if (!result) {
-        return false;
-    }
-    appInstance.bundleName = bundleName;
-    return true;
-}
-
-bool ApplicationInstanceHandle::GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName)
-{
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (proxy == nullptr) {
         EDMLOGE("ApplicationInstanceHandle GetBundleNameByAppId appControlProxy failed.");
         return false;
     }
-    ErrCode res = proxy->GetBundleNameByAppId(appIdentifier, bundleName);
+    ErrCode res = proxy->GetBundleNameByAppId(appInstance.appIdentifier, bundleName);
     if (res != ERR_OK) {
         EDMLOGE("ApplicationInstanceHandle GetBundleNameByAppId failed.");
         return false;
     }
+    appInstance.bundleName = bundleName;
     return true;
 }
 
@@ -70,19 +61,8 @@ bool ApplicationInstanceHandle::WriteApplicationInstance(MessageParcel &data, co
     if (!data.WriteString(appInstance.appIdentifier)) {
         return false;
     }
-    if (application.bundleName.empty()) {
-        std::string bundleName = "";
-        bool res = GetBundleNameByAppId(appInstance.appIdentifier, bundleName);
-        if (!res) {
-            return false;
-        }
-        if (!data.WriteString(bundleName)) {
-            return false;
-        }
-    } else {
-        if (!data.WriteString(appInstance.bundleName)) {
-            return false;
-        }
+    if (!data.WriteString(appInstance.bundleName)) {
+         return false;
     }
     if (!data.WriteInt32(appInstance.accountId)) {
         return false;
