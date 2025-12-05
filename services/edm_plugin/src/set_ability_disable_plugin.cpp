@@ -52,7 +52,6 @@ SetAbilityDisablePlugin::SetAbilityDisablePlugin()
 ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("SetAbilityDisablePlugin::OnHandlePolicy start");
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
     if (type == FuncOperateType::SET) {
@@ -98,7 +97,6 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
     }
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
-    EDMLOGI("SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
@@ -107,7 +105,6 @@ void SetAbilityDisablePlugin::SetPolicyData(HandlePolicyData &policyData,
 ErrCode SetAbilityDisablePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("SetAbilityDisablePlugin::OnGetPolicy start, policyData: %{public}s", policyData.c_str());
     std::string abilityName = data.ReadString();
     ApplicationInstance userApp;
     ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
@@ -184,7 +181,6 @@ void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationInstance &application, H
     
     serializer->Serialize(policies, afterHandle);
     serializer->Serialize(mergePolicies, afterMerge);
-    EDMLOGI("SetPolicyData, afterHandle: %{public}s, afterMerge: %{public}s", afterHandle.c_str(), afterMerge.c_str());
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;

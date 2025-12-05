@@ -62,9 +62,9 @@ public:
     int32_t RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
         const std::vector<ApplicationInstance> &userNonStopApps);
     int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin, std::vector<ApplicationInstance> &userNonStopApps);
-    int32_t SetAbilityDisabled(const AppExecFwk::ElementName &admin, const ApplicationInstance &application,
+    int32_t SetAbilityDisabled(const AppExecFwk::ElementName &admin, ApplicationInstance &application,
         const std::string &abilityName, bool isDisabled);
-    int32_t IsAbilityDisabled(const AppExecFwk::ElementName &admin, const ApplicationInstance &application,
+    int32_t IsAbilityDisabled(const AppExecFwk::ElementName &admin, ApplicationInstance &application,
         const std::string &abilityName, bool &isDisabled);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
