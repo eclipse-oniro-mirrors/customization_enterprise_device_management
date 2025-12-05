@@ -129,8 +129,8 @@ std::vector<std::tuple<std::string, ErrCode>> GenerateDisableCommandTestData()
         { "edm disable-admin --bundle-name super.bundle", ERR_OK },
         { "edm disable-admin xxx -xxxx -n super.bundle", ERR_EDM_TOOLS_COMMAND_UNKNOWN_OPTION },
         { "edm disable-admin -n super.bundle xxx -xxxx", ERR_EDM_TOOLS_COMMAND_UNKNOWN_OPTION },
-        { "edm enable-admin -n xxx -n xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
-        { "edm enable-admin -n xxx --bundle-name xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
+        { "edm disable-admin -n xxx -n xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
+        { "edm disable-admin -n xxx --bundle-name xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
     };
 }
 

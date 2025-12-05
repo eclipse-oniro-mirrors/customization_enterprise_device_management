@@ -31,6 +31,11 @@ protected:
     {}
 };
 
+/**
+ * @tc.name: ParseHelpCommand
+ * @tc.desc: Test CommandParserTest: create help command.
+ * @tc.type: FUNC
+ */
 HWTEST_F(CommandParserTest, ParseHelpCommand, TestSize.Level1)
 {
     char* argv[] = {
@@ -41,7 +46,12 @@ HWTEST_F(CommandParserTest, ParseHelpCommand, TestSize.Level1)
     EXPECT_EQ(command->GetName(), "help");
 }
 
-HWTEST_F(CommandParserTest, ParseHelpCommandWithErrorParam, TestSize.Level1)
+/**
+ * @tc.name: ParseHelpCommandWithNullParam
+ * @tc.desc: Test CommandParserTest: create help command.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommandParserTest, ParseHelpCommandWithNullParam, TestSize.Level1)
 {
     char* argv[] = {
         const_cast<char*>("edm"),
@@ -51,6 +61,11 @@ HWTEST_F(CommandParserTest, ParseHelpCommandWithErrorParam, TestSize.Level1)
     EXPECT_EQ(command->GetName(), "help");
 }
 
+/**
+ * @tc.name: ParseEnableAdminWithRequiredParams
+ * @tc.desc: Test CommandParserTest: create enable-admin command.
+ * @tc.type: FUNC
+ */
 HWTEST_F(CommandParserTest, ParseEnableAdminWithRequiredParams, TestSize.Level1)
 {
     char* argv[] = { const_cast<char*>("edm"), const_cast<char*>("enable-admin"),
@@ -58,17 +73,27 @@ HWTEST_F(CommandParserTest, ParseEnableAdminWithRequiredParams, TestSize.Level1)
                      const_cast<char*>("-a"),  const_cast<char*>("MainAbility") };
 
     auto command = CommandParser::parse(6, argv);
-    EXPECT_TRUE(command->GetName() == "enable-admin");
+    EXPECT_EQ(command->GetName(), "enable-admin");
 }
 
+/**
+ * @tc.name: ParseDisableAdminWithRequiredParam
+ * @tc.desc: Test CommandParserTest: create disable-admin command.
+ * @tc.type: FUNC
+ */
 HWTEST_F(CommandParserTest, ParseDisableAdminWithRequiredParam, TestSize.Level1)
 {
     char* argv[] = { const_cast<char*>("edm"), const_cast<char*>("disable-admin"), const_cast<char*>("-n"),
                      const_cast<char*>("com.test.app") };
     auto command = CommandParser::parse(4, argv);
-    EXPECT_TRUE(command->GetName() == "disable-admin");
+    EXPECT_EQ(command->GetName(), "disable-admin");
 }
 
+/**
+ * @tc.name: ParseNullCommandWithErrorParam
+ * @tc.desc: Test CommandParserTest: create null command.
+ * @tc.type: FUNC
+ */
 HWTEST_F(CommandParserTest, ParseNullCommandWithErrorParam, TestSize.Level1)
 {
     char* argv[] = {
