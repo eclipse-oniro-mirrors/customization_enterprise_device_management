@@ -149,4 +149,9 @@ declare_args() {
           global_parts_info.notification_distributed_notification_service)) {
     notification_edm_enable = true
   }
+  log_service_plugin_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.hmoshiviewdfx_log_service_plugin)) {
+    log_service_plugin_edm_enable = true
+  }
 }

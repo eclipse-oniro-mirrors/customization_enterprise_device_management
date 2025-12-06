@@ -71,6 +71,16 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
     std::shared_ptr<Admin> admin =
         AdminManager::GetInstance()->GetAdminByPkgName(want_.GetElement().GetBundleName(), userId);
     if (admin && admin->IsEnterpriseAdminKeepAlive()) {
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+        std::string bundleName = admin->adminInfo_.packageName_;
+        std::string path = "/data/service/el1/public/edm/log/" + std::to_string(userId) + "/" + bundleName;
+        if (!std::filesystem::exists(path)) {
+            EDMLOGI("EnterpriseAdminConnection::OnAbilityDisconnectDone create log dir");
+            if (!std::filesystem::create_directories(path)) {
+                EDMLOGE("EnterpriseAdminConnection::OnAbilityDisconnectDone create log dir fail.");
+            }
+        }
+#endif
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
         bool ret = manager->CreateAdminConnection(want_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
         if (!ret) {

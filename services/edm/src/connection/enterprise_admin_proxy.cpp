@@ -203,6 +203,18 @@ void EnterpriseAdminProxy::OnMarketAppsInstallStatusChanged(const std::string &b
     SendRequest(COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED, data);
 }
 
+void EnterpriseAdminProxy::OnLogCollected(bool isSuccess)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteBool(isSuccess);
+    EDMLOGI("EnterpriseAdminProxy proxy OnLogCollected");
+    SendRequest(COMMAND_ON_LOG_COLLECTED, data);
+}
+
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     MessageParcel reply;

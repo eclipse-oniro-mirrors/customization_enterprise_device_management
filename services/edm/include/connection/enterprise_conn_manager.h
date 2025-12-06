@@ -24,6 +24,7 @@
 #include "enterprise_account_connection.h"
 #include "enterprise_admin_connection.h"
 #include "enterprise_bundle_connection.h"
+#include "enterprise_collect_log_connection.h"
 #include "enterprise_kiosk_connection.h"
 #include "enterprise_market_connection.h"
 #include "enterprise_update_connection.h"
@@ -46,6 +47,7 @@ public:
         const std::string &bundleName, int32_t accountId);
     bool CreateMarketConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &bundleName, int32_t status);
+    bool CreateCollectLogConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, bool isSuccess);
 private:
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };

@@ -41,7 +41,10 @@ public:
     int32_t GetInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
     int32_t AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType);
     int32_t GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
-
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    int32_t StartCollectlog(const AppExecFwk::ElementName &admin);
+    int32_t FinishLogCollected(MessageParcel &data);
+#endif
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;

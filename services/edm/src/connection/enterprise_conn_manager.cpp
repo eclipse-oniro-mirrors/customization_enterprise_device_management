@@ -78,6 +78,14 @@ bool EnterpriseConnManager::CreateMarketConnection(const AAFwk::Want &want, uint
     return ConnectAbility(connection);
 }
 
+bool EnterpriseConnManager::CreateCollectLogConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+    bool isSuccess)
+{
+    sptr<IEnterpriseConnection> connection(
+        new (std::nothrow)EnterpriseCollectLogConnection(want, code, userId, isSuccess));
+    return ConnectAbility(connection);
+}
+
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

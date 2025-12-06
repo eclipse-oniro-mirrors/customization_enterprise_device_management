@@ -16,6 +16,7 @@
 #include "enterprise_device_mgr_ability.h"
 
 #include <cstring>
+#include <filesystem>
 #include <string_ex.h>
 #include <thread>
 
@@ -94,6 +95,7 @@ const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
 const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
+const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
@@ -871,6 +873,10 @@ void EnterpriseDeviceMgrAbility::InitAllPolices()
         policyMgr_ = std::make_shared<PolicyManager>();
         IPolicyManager::policyManagerInstance_ = policyMgr_.get();
     }
+    if (!policyNotification_) {
+        policyNotification_ = std::make_shared<ExtraPolicyNotification>();
+        IExtraPolicyNotification::instance_ = policyNotification_.get();
+    }
     std::vector<int32_t> userIds;
     auto devicePolicies = DevicePoliciesStorageRdb::GetInstance();
     if (devicePolicies == nullptr) {
@@ -1440,6 +1446,21 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
 
 void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId)
 {
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
+    int32_t installUserId = userId;
+    int32_t u1 = 1;
+    AAFwk::Want want;
+    want.SetElement(admin);
+    if (GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, u1, abilityInfo)) {
+        if (!abilityInfo.empty()) {
+            EDMLOGI("EnableAdmin: ability in u1");
+            installUserId = u1;
+        }
+    }
+    CreateLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(installUserId) + "/" + admin.GetBundleName());
+#endif
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
@@ -1528,6 +1549,9 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (shouldUnsubscribeAppState) {
         UnsubscribeAppState();
     }
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    DeleteLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userId) + "/" + adminName);
+#endif
     return ERR_OK;
 }
 
@@ -2645,5 +2669,24 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
     }
     return ERR_OK;
 }
+
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed.");
+    if (!std::filesystem::exists(path)) {
+        if (!std::filesystem::create_directories(path)) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed fail.");
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string path)
+{
+    if (std::filesystem::exists(path)) {
+        std::filesystem::remove_all(path);
+    }
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

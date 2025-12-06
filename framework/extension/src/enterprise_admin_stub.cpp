@@ -86,6 +86,18 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
             OnDeviceAdminDisabledInner(data, reply);
             return ERR_NONE;
         default:
+            return CallFuncByCodeFirst(code, data, reply, option);
+    }
+}
+
+int32_t EnterpriseAdminStub::CallFuncByCodeFirst(uint32_t code, MessageParcel& data, MessageParcel& reply,
+    MessageOption &option)
+{
+    switch (code) {
+        case COMMAND_ON_LOG_COLLECTED:
+            OnLogCollectedInner(data, reply);
+            return ERR_NONE;
+        default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
@@ -192,6 +204,13 @@ void EnterpriseAdminStub::OnDeviceAdminEnabledInner(MessageParcel& data, Message
     EDMLOGI("EnterpriseAdminStub::OnDeviceAdminEnabledInner");
     std::string bundleName = data.ReadString();
     OnDeviceAdminEnabled(bundleName);
+}
+
+void EnterpriseAdminStub::OnLogCollectedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnLogCollectedInner");
+    bool isSuccess = data.ReadBool();
+    OnLogCollected(isSuccess);
 }
 
 void EnterpriseAdminStub::OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply)

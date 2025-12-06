@@ -146,6 +146,10 @@ ohos_unittest("EdmInnerApiUnitTest") {
     defines += [ "TELEPHONY_EDM_ENABLE" ]
   }
 
+  if (log_service_plugin_edm_enable) {
+    defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

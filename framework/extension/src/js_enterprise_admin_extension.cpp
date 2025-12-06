@@ -366,6 +366,17 @@ void JsEnterpriseAdminExtension::OnMarketAppsInstallStatusChanged(const std::str
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnLogCollected(bool isSuccess)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnLogCollected");
+    auto task = [isSuccess, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateResultObject(env, isSuccess ? 0 : -1) };
+        CallObjectMethod("onLogCollected", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
 {
     napi_value nSystemUpdateInfo = nullptr;
@@ -402,6 +413,13 @@ napi_value JsEnterpriseAdminExtension::CreateInstallationResultObject(napi_env e
     NAPI_CALL(env, napi_set_named_property(env, nInstallationResult, "result", nResult));
 
     return nInstallationResult;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateResultObject(napi_env env, int32_t success)
+{
+    napi_value nResult = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, success, &nResult));
+    return nResult;
 }
 
 napi_value JsEnterpriseAdminExtension::CallObjectMethod(const char* name, napi_value* argv, size_t argc)

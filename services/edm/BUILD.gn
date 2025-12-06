@@ -97,6 +97,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/enterprise_admin_connection.cpp",
       "./src/connection/enterprise_admin_proxy.cpp",
       "./src/connection/enterprise_bundle_connection.cpp",
+      "./src/connection/enterprise_collect_log_connection.cpp",
       "./src/connection/enterprise_conn_manager.cpp",
       "./src/connection/enterprise_kiosk_connection.cpp",
       "./src/connection/enterprise_market_connection.cpp",
@@ -105,6 +106,7 @@ ohos_shared_library("edmservice") {
       "./src/database/edm_rdb_open_callback.cpp",
       "./src/device_policies_storage_rdb.cpp",
       "./src/enterprise_device_mgr_ability.cpp",
+      "./src/extra_policy_notification.cpp",
       "./src/hisysevent_adapter.cpp",
       "./src/language_manager.cpp",
       "./src/permission_checker.cpp",
@@ -271,6 +273,10 @@ ohos_shared_library("edmservice") {
       "FEATURE_PC_ONLY",
       "SUDO_EDM_ENABLE"
     ]
+  }
+
+  if (log_service_plugin_edm_enable) {
+    defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable) {

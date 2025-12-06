@@ -41,6 +41,10 @@ struct AsyncNotifyUpdatePackagesCallbackInfo : AsyncCallbackInfo {
     UpgradePackageInfo packageInfo;
 };
 
+struct AsyncStartCollectLogCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+};
+
 enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
 class SystemManagerAddon {
@@ -81,6 +85,11 @@ private:
     static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
         FuncOperateType operateType);
     static void CreateProtocolObject(napi_env env, napi_value value);
+    static napi_value StartCollectLog(napi_env env, napi_callback_info info);
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    static void NativeStartCollectLog(napi_env env, void *data);
+#endif
+    static napi_value FinishLogCollected(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -475,6 +475,71 @@ HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc, 
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+/**
+ * @tc.name: TestStartCollectlogFail
+ * @tc.desc: Test StartCollectlog func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestStartCollectlogFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t ret = systemmanagerProxy->StartCollectlog(admin);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestStartCollectlogSuc
+ * @tc.desc: Test StartCollectlog func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestStartCollectlogSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->StartCollectlog(admin);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestFinishLogCollectedFail
+ * @tc.desc: Test FinishLogCollected without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestFinishLogCollectedFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+
+    ErrCode ret = systemmanagerProxy->FinishLogCollected(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestFinishLogCollectedSuc
+ * @tc.desc: Test FinishLogCollected success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestFinishLogCollectedSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = systemmanagerProxy->FinishLogCollected(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

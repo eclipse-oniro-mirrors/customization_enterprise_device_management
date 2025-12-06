@@ -84,6 +84,8 @@ public:
 
     void OnDeviceAdminDisabled(const std::string &bundleName);
 
+    void OnLogCollected(bool isSuccess);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
     
@@ -94,6 +96,8 @@ private:
     napi_value CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo);
 
     napi_value CreateInstallationResultObject(napi_env env, const std::string &bundleName, int32_t status);
+
+    napi_value CreateResultObject(napi_env env, int32_t success);
 
     AbilityRuntime::JsRuntime& jsRuntime_;
 
