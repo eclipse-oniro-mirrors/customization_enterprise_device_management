@@ -99,6 +99,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/power_policy_plugin.cpp",
       "./src/screen_off_time_plugin.cpp",
       "./src/set_default_input_method_plugin.cpp",
+      "./src/set_ability_disable_plugin.cpp",
       "./src/set_eye_comfort_mode_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",

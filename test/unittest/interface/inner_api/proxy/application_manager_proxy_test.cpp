@@ -937,6 +937,76 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppDisallowModifyWithUserI
     ErrCode ret = applicationManagerProxy_->IsModifyAutoStartAppsDisallowed(data, disallowModify);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetAbilityDisabledSuc
+ * @tc.desc: Test SetAbilityDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAbilityDisabledSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string abilityName = "EntryAbility";
+    ApplicationInstance application = {"com.example.helloworld", "", 0, 100};
+    int32_t ret = applicationManagerProxy_->SetAbilityDisabled(admin, application, abilityName, true);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetAbilityDisabledFail
+ * @tc.desc: Test SetAbilityDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestSetAbilityDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string abilityName = "EntryAbility";
+    ApplicationInstance application = {"com.example.helloworld", "", 0, 100};
+    int32_t ret = applicationManagerProxy_->SetAbilityDisabled(admin, application, abilityName, true);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAbilityDisabledSuc
+ * @tc.desc: Test IsAbilityDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    std::string abilityName = "EntryAbility";
+    ApplicationInstance application = {"com.example.helloworld", "", 0, 100};
+    bool isDisable = false;
+    int32_t ret = applicationManagerProxy_->IsAbilityDisabled(admin, application, abilityName, isDisable);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsAbilityDisabledFail
+ * @tc.desc: Test IsAbilityDisabled func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string abilityName = "EntryAbility";
+    ApplicationInstance application = {"com.example.helloworld", "", 0, 100};
+    bool isDisable = false;
+    int32_t ret = applicationManagerProxy_->IsAbilityDisabled(admin, application, abilityName, isDisable);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

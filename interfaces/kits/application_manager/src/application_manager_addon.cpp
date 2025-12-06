@@ -63,6 +63,8 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addUserNonStopApps", AddUserNonStopApps),
         DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
+        DECLARE_NAPI_FUNCTION("setAbilityDisabled", SetAbilityDisabled),
+        DECLARE_NAPI_FUNCTION("isAbilityDisabled", IsAbilityDisabled),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1075,6 +1077,71 @@ napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_ca
     }
 
     return nullptr;
+}
+
+napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetAbilityDisabled called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
+    ApplicationInstance appInstance;
+    ASSERT_AND_THROW_PARAM_ERROR(env, GetAppInstanceFromNAPI(env, argv[ARR_INDEX_ONE], appInstance),
+        "Parameter applicationInstance error");
+    std::string abilityName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseString(env, abilityName, argv[ARR_INDEX_TWO]), "Parameter abilityName parse error.");
+    bool isDisabled = false;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseBool(env, isDisabled, argv[ARR_INDEX_THREE]), "Parameter isDisabled parse error.");
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->SetAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsAbilityDisabled called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
+    ApplicationInstance appInstance;
+    ASSERT_AND_THROW_PARAM_ERROR(env, GetAppInstanceFromNAPI(env, argv[ARR_INDEX_ONE], appInstance),
+        "Parameter applicationInstance error");
+    std::string abilityName;
+    ASSERT_AND_THROW_PARAM_ERROR(
+        env, ParseString(env, abilityName, argv[ARR_INDEX_TWO]), "Parameter abilityName parse error.");
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    bool isDisabled = false;
+    int32_t ret = applicationManagerProxy->IsAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
+    return result;
 }
 
 static napi_module g_applicationManagerModule = {
