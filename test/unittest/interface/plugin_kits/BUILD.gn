@@ -24,6 +24,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
   module_out_path = module_output_path
 
   sources = [
+    "./iextra_policy_notification_test.cpp",
     "./iplugin_test.cpp",
     "./ipolicy_manager_test.cpp",
     "./policy_serializer_test.cpp",

@@ -220,5 +220,27 @@ int32_t SystemManagerProxy::GetDisallowedNearlinkProtocols(MessageParcel &data, 
     return ERR_OK;
 }
 
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+int32_t SystemManagerProxy::StartCollectlog(const AppExecFwk::ElementName &admin)
+{
+    EDMLOGD("SystemManagerProxy::StartCollectlog");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::FinishLogCollected(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::CollectApplicationFaultlog");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

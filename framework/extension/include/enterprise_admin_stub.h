@@ -42,6 +42,8 @@ public:
 private:
     int32_t CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption &option);
 
+    int32_t CallFuncByCodeFirst(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption &option);
+
     void OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
 
     void OnAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
@@ -71,6 +73,8 @@ private:
     void OnDeviceAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
 
     void OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnLogCollectedInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

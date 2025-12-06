@@ -102,6 +102,23 @@ HWTEST_F(EnterpriseConnManagerTest, TestUpdateConnectAbility, TestSize.Level1)
     bool ret = manager->CreateUpdateConnection(connectWant, DEFAULT_USERID, updateInfo);
     EXPECT_TRUE(!ret);
 }
+
+/**
+ * @tc.name: TestCollectLogConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateCollectLogConnection func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseConnManagerTest, TestCollectLogConnectAbility, TestSize.Level1)
+{
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    bool ret = manager->CreateCollectLogConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_LOG_COLLECTED,
+        DEFAULT_USERID, true);
+    EXPECT_TRUE(!ret);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

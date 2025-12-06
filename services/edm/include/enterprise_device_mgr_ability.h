@@ -26,6 +26,7 @@
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
+#include "extra_policy_notification.h"
 #include "hilog/log.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
@@ -198,10 +199,14 @@ private:
     std::string GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId);
     ErrCode CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin);
     ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);
-
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    void CreateLogDirIfNeed(const std::string path);
+    void DeleteLogDirIfNeed(const std::string path);
+#endif
     static std::shared_mutex adminLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
+    std::shared_ptr<ExtraPolicyNotification> policyNotification_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;

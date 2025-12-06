@@ -55,6 +55,8 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedNearLinkProtocols", AddDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("getDisallowedNearLinkProtocols", GetDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
+        DECLARE_NAPI_FUNCTION("startCollectLog", StartCollectLog),
+        DECLARE_NAPI_FUNCTION("finishLogCollected", FinishLogCollected),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -786,6 +788,79 @@ napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env e
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
 #endif
     return nullptr;
+}
+
+napi_value SystemManagerAddon::StartCollectLog(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SystemManagerAddon::StartCollectLog called");
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncStartCollectLogCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncStartCollectLogCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "StartCollectLog::asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "StartCollectLog",
+        NativeStartCollectLog, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("SystemManagerAddon::StartCollectLog Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+void SystemManagerAddon::NativeStartCollectLog(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeStartCollectLog called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncStartCollectLogCallbackInfo *>(data);
+    asyncCallbackInfo->ret =
+        SystemManagerProxy::GetSystemManagerProxy()->StartCollectlog(asyncCallbackInfo->elementName);
+}
+#endif
+
+napi_value SystemManagerAddon::FinishLogCollected(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SystemManagerAddon::FinishLogCollected called");
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "FinishLogCollected";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = SystemManagerProxy::GetSystemManagerProxy()->FinishLogCollected(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+#else
+    EDMLOGW("SystemManagerAddon::FinishLogCollected Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
 void SystemManagerAddon::CreateProtocolObject(napi_env env, napi_value value)

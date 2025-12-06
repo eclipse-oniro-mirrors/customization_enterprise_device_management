@@ -68,6 +68,8 @@ public:
 
     void OnDeviceAdminDisabled(const std::string &bundleName) override {}
 
+    void OnLogCollected(bool isSuccess) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

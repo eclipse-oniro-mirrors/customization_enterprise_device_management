@@ -167,5 +167,15 @@ void EnterpriseAdminStubImpl::OnMarketAppsInstallStatusChanged(const std::string
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
+
+void EnterpriseAdminStubImpl::OnLogCollected(bool isSuccess)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnLogCollected(isSuccess);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
 } // namespace EDM
 } // namespace OHOS

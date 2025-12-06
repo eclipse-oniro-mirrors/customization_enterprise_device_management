@@ -19,6 +19,7 @@
             OHOS::EDM::IPlugin::*;
             OHOS::EDM::IPluginManager::*;
             OHOS::EDM::IPolicyManager::*;
+            OHOS::EDM::IExtraPolicyNotification::*;
             OHOS::EDM::IWatermarkObserverManager::*;
             OHOS::EDM::Array*Serializer::*;
             OHOS::EDM::Basic*Plugin::*;

@@ -142,6 +142,10 @@ ohos_shared_library("edmservice_kits") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (log_service_plugin_edm_enable) {
+    defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

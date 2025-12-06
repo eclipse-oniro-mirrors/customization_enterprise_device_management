@@ -106,6 +106,11 @@ public:
      */
     virtual void OnDeviceAdminDisabled(const std::string &bundleName) = 0;
 
+    /**
+     * Called back when a faultlog is collected.
+     */
+    virtual void OnLogCollected(bool isSuccess) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -121,7 +126,8 @@ public:
         COMMAND_ON_KIOSK_MODE_EXITING = 12,
         COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13,
         COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
-        COMMAND_ON_DEVICE_ADMIN_DISABLED = 15
+        COMMAND_ON_DEVICE_ADMIN_DISABLED = 15,
+        COMMAND_ON_LOG_COLLECTED = 16
     };
 };
 } // namespace EDM
