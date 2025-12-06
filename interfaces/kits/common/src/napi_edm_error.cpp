@@ -50,6 +50,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "The enterprise management policy has been successfully set, " \
         "but the function has not taken effect in real time."},
     {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
+    {EdmReturnErrCode::START_ABILITY_FAILED, "Failed to start the ability. $"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)
@@ -103,6 +104,11 @@ std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode 
         return std::make_pair(returnCode, iter->second);
     }
     return std::make_pair(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, "parameter verification failed.");
+}
+
+bool IsEDMErrCode(ErrCode returnCode)
+{
+    return errMessageMap.find(returnCode) != errMessageMap.end();
 }
 } // namespace EDM
 } // namespace OHOS

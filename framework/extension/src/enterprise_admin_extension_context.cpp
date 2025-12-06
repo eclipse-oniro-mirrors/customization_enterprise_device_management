@@ -15,10 +15,28 @@
 
 #include "enterprise_admin_extension_context.h"
 
+#include "ability_business_error.h"
+#include "edm_log.h"
+#include "enterprise_device_mgr_proxy.h"
+#include "napi_edm_error.h"
+
 namespace OHOS {
 namespace EDM {
-    EnterpriseAdminExtensionContext::EnterpriseAdminExtensionContext() {}
+EnterpriseAdminExtensionContext::EnterpriseAdminExtensionContext() {}
 
-    EnterpriseAdminExtensionContext::~EnterpriseAdminExtensionContext() {}
+EnterpriseAdminExtensionContext::~EnterpriseAdminExtensionContext() {}
+
+ErrCode EnterpriseAdminExtensionContext::StartAbilityByAdmin(const AppExecFwk::ElementName &admin,
+    const AAFwk::Want &want, std::string& errMsg)
+{
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    ErrCode ret = proxy->StartAbilityByAdmin(admin, want, token_);
+    if (ret != ERR_OK && !IsEDMErrCode(ret)) {
+        auto abilityCode = AbilityRuntime::GetJsErrorCodeByNativeError(ret);
+        errMsg = AbilityRuntime::GetErrorMsg(abilityCode);
+        return EdmReturnErrCode::START_ABILITY_FAILED;
+    }
+    return ret;
+}
 }  // namespace EDM
 }  // namespace OHOS

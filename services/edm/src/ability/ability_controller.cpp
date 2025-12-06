@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,20 @@
  * limitations under the License.
  */
 
-let ExtensionContext = requireNapi('application.ExtensionContext');
+#include "ability_controller.h"
 
-class EnterpriseAdminExtensionContext extends ExtensionContext {
-  constructor(obj) {
-    super(obj);
-  }
+#include "admin_manager.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "ipc_skeleton.h"
+#include "permission_checker.h"
 
-  startAbilityByAdmin(admin, want) {
-    return this.__context_impl__.startAbilityByAdmin(admin, want);
-  }
+namespace OHOS {
+namespace EDM {
+ErrCode AbilityController::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
+    const sptr<IRemoteObject> &token, int32_t userId)
+{
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
-
-export default EnterpriseAdminExtensionContext;
+} // namespace EDM
+} // namespace OHOS

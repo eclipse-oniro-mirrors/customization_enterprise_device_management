@@ -68,6 +68,8 @@ public:
     ErrCode SetBundleInstallPolicies(std::vector<std::string> &bundles, int32_t userId, int32_t policyType);
     ErrCode EnableDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode DisableDeviceAdmin(AppExecFwk::ElementName &admin);
+    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
+        const sptr<IRemoteObject> &callerToken);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();

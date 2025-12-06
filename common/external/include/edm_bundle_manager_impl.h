@@ -39,6 +39,10 @@ public:
     ErrCode DeleteAppInstallControlRule(AppExecFwk::AppInstallControlRuleType controlRuleType,
         std::vector<std::string> &data, int32_t userId) override;
     bool SetDisallowedUninstall(const std::string &bundleName, bool state) override;
+    bool QueryAbilityInfo(const AAFwk::Want &want, int32_t flags, int32_t userId,
+        AppExecFwk::AbilityInfo &abilityInfo) override;
+    bool QueryExtensionAbilityInfos(const AAFwk::Want &want, int32_t flag, int32_t userId,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) override;
 };
 } // namespace EDM
 } // namespace OHOS

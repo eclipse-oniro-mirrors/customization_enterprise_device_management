@@ -25,6 +25,8 @@ public:
     EnterpriseAdminExtensionContext();
 
     virtual ~EnterpriseAdminExtensionContext();
+
+    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName& admin, const AAFwk::Want& want, std::string& errMsg);
 };
 }  // namespace EDM
 }  // namespace OHOS

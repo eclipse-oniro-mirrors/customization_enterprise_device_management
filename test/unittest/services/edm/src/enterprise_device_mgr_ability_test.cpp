@@ -247,7 +247,7 @@ void EnterpriseDeviceMgrAbilityTest::QueryExtensionAbilityInfosMock(bool ret, co
         extensionAbilityInfo.name = ADMIN_PACKAGENAME_ABILITY;
         extensionInfos.emplace_back(extensionAbilityInfo);
     }
-    EXPECT_CALL(*bundleMgrMock_, QueryExtensionAbilityInfos)
+    EXPECT_CALL(*bundleMgrMock_, QueryExtensionAbilityInfos(_, _, _, _, _))
         .Times(testing::AtLeast(1))
         .WillRepeatedly(DoAll(SetArgReferee<INDEX_FOUR>(extensionInfos), Return(ret)));
 }

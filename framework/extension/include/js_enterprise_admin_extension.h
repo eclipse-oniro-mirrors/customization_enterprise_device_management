@@ -86,8 +86,8 @@ public:
 
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
-
-    void JsEnterpriseAdminExtensionContextInit();
+    
+    void BindContext(napi_env env, napi_value obj);
 
     void GetSrcPath(std::string& srcPath);
 
@@ -98,6 +98,8 @@ private:
     AbilityRuntime::JsRuntime& jsRuntime_;
 
     std::unique_ptr<NativeReference> jsObj_{nullptr};
+
+    std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
 };
 }  // namespace EDM
 }  // namespace OHOS

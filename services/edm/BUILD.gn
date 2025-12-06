@@ -18,6 +18,7 @@ config("edm_config") {
   cflags = [ "-Wno-error=implicit-fallthrough" ]
   include_dirs = [
     "include",
+    "include/ability",
     "include/admin",
     "include/connection",
     "include/database",
@@ -51,6 +52,7 @@ ohos_shared_library("edmservice") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_connect_callback_stub",
+    "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "ability_runtime:wantagent_innerkits",
@@ -77,6 +79,10 @@ ohos_shared_library("edmservice") {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
 
     sources += [
+      "./src/ability/ability_controller.cpp",
+      "./src/ability/ability_controller_factory.cpp",
+      "./src/ability/app_service_extension_controller.cpp",
+      "./src/ability/ui_ability_controller.cpp",
       "./src/admin/admin.cpp",
       "./src/admin/byod_admin.cpp",
       "./src/admin/device_admin.cpp",

@@ -25,6 +25,7 @@ config("edm_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "../../../../services/edm/include",
+    "../../../../services/edm/include/ability",
     "../../../../services/edm/include/admin",
     "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
@@ -40,6 +41,10 @@ config("edm_config") {
 ohos_static_library("edmservice_static") {
   testonly = true
   sources = [
+    "../../../../services/edm/src/ability/ability_controller.cpp",
+    "../../../../services/edm/src/ability/ability_controller_factory.cpp",
+    "../../../../services/edm/src/ability/app_service_extension_controller.cpp",
+    "../../../../services/edm/src/ability/ui_ability_controller.cpp",
     "../../../../services/edm/src/admin/admin.cpp",
     "../../../../services/edm/src/admin/byod_admin.cpp",
     "../../../../services/edm/src/admin/device_admin.cpp",
@@ -336,6 +341,7 @@ ohos_unittest("EdmServicesUnitTest") {
   ]
 
   sources = [
+    "./src/ability_controller_factory_test.cpp",
     "./src/admin_container_test.cpp",
     "./src/admin_manager_test.cpp",
     "./src/admin_test.cpp",
