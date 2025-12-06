@@ -249,6 +249,7 @@ ohos_shared_library("edmservice") {
     ]
 
     sources += [
+      "./src/query_policy/disable_print_query.cpp",
       "./src/query_policy/disallow_add_local_account_query.cpp",
       "./src/watermark/watermark_application_observer.cpp",
       "./src/watermark/watermark_observer_manager.cpp",
@@ -264,7 +265,6 @@ ohos_shared_library("edmservice") {
     ]
 
     sources += [
-      "./src/query_policy/disable_print_query.cpp",
       "./src/query_policy/disable_sudo_query.cpp",
     ]
     defines += [

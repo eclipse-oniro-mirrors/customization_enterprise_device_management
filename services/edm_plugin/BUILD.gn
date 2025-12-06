@@ -128,6 +128,7 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/add_os_account_plugin.cpp",
         "./src/disable_mtp_client_plugin.cpp",
+        "./src/disable_print_plugin.cpp",
         "./src/disable_user_mtp_client_plugin.cpp",
         "./src/disallow_add_local_account_plugin.cpp",
         "./src/disallow_add_os_account_by_user_plugin.cpp",
@@ -141,7 +142,6 @@ ohos_shared_library("device_core_plugin") {
       external_deps += [ "os_account:domain_account_innerkits" ]
       sources += [
         "./src/set_domain_account_policy_plugin.cpp",
-        "./src/disable_print_plugin.cpp",
         "./src/disable_sudo_plugin.cpp",
         "./src/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
