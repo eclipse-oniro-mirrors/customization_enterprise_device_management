@@ -366,6 +366,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::WATERMARK_IMAGE);
         };
+    addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnDistributedKvDataServiceStart();
+        };
 }
 
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
@@ -898,6 +902,7 @@ void EnterpriseDeviceMgrAbility::RemoveAllDebugAdmin()
             if (item->adminInfo_.isDebug_) {
                 EDMLOGD("remove debug admin %{public}s", item->adminInfo_.packageName_.c_str());
                 RemoveSuperAdminAndAdminPolicy(item->adminInfo_.packageName_);
+                isNeedRemoveSettigsMenu_ = true;
             }
         }
     }
@@ -925,6 +930,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #ifdef MOBILE_DATA_ENABLE
     AddSystemAbilityListener(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
 #endif
+    AddSystemAbilityListener(DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -1015,6 +1021,16 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
     EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
     return;
 #endif
+}
+
+void EnterpriseDeviceMgrAbility::OnDistributedKvDataServiceStart()
+{
+    EDMLOGI("OnDistributedKvDataServiceStart");
+    if (isNeedRemoveSettigsMenu_ && !AdminManager::GetInstance()->IsAdminExist()) {
+        system::SetParameter(PARAM_EDM_ENABLE, "false");
+        NotifyAdminEnabled(false);
+        EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
+    }
 }
 
 void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) {}

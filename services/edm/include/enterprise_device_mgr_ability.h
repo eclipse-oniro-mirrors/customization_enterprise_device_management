@@ -173,6 +173,7 @@ private:
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
+    void OnDistributedKvDataServiceStart();
     void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
     bool CheckRunningMode(uint32_t runningMode);
     void ConnectEnterpriseAbility();
@@ -211,6 +212,7 @@ private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
     sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
     std::unordered_map<std::string, bool> adminConnectMap_;
+    bool isNeedRemoveSettigsMenu_ = false;
 };
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
