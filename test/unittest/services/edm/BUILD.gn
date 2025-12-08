@@ -300,6 +300,7 @@ ohos_static_library("edmservice_static") {
         "../../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
         "../../../../services/edm/src/query_policy/disable_hdc_remote_query.cpp",
         "../../../../services/edm/src/query_policy/disable_running_binary_app_query.cpp",
+        "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -384,11 +385,6 @@ ohos_unittest("EdmServicesUnitTest") {
       "BACKUP_AND_RESTORE_EDM_ENABLE",
       "PRIVATE_SPACE_EDM_ENABLE"
     ]
-  }
-
-  if (enterprise_device_management_feature_pc_only) {
-    sources += [ "../../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp" ]
-    defines += [ "FEATURE_PC_ONLY" ]
   }
 
   if (notification_edm_enable) {
