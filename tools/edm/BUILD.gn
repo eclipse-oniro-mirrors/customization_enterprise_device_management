@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../common/config/common.gni")
 
 config("tools_edm_config") {
   include_dirs = [ "include" ]
@@ -37,6 +38,10 @@ ohos_source_set("tools_edm_source_set") {
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    defines = [ "FEATURE_PC_ONLY" ]
   }
 
   external_deps = [

@@ -39,7 +39,11 @@ const std::string HELP_MSG_ENABLE_ADMIN =
     "  -n, --bundle-name <bundle-name>             enable an admin with bundle name\n"
     "  -a, --ability-name <ability-name>           enable an admin with ability name\n"
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
+#ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#else
+    "<admin-type>: super, byod.\n";
+#endif
 
 const std::string HELP_MSG_DISABLE_ADMIN =
     "usage: edm disable-admin <options>\n"
@@ -451,7 +455,11 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTsuper2Success, TestSize.Level1)
     int argc = sizeof(argv) / sizeof(argv[0]);
     EdmCommand cmd(argc, argv);
     std::string result1 = cmd.ExecCommand();
+#ifdef FEATURE_PC_ONLY
     EXPECT_EQ(result1, "enable-admin success.\n");
+#else
+    EXPECT_EQ(result1, cmd.GetMessageFromCode(ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE) + HELP_MSG_ENABLE_ADMIN);
+#endif
 }
 
 /**
@@ -845,7 +853,9 @@ std::vector<std::tuple<std::string, std::string>> GenerateTestData()
         { "edm -h", HELP_MSG },
         { "edm enable-admin -n xxx -n xxx", "error: option requires only one argument.\n" + HELP_MSG_ENABLE_ADMIN },
         { "edm enable-admin -a xxx -a xxx", "error: option requires only one argument.\n" + HELP_MSG_ENABLE_ADMIN },
+#ifdef FEATURE_PC_ONLY
         { "edm enable-admin -t da -t byod", "error: option requires only one argument.\n" + HELP_MSG_ENABLE_ADMIN },
+#endif
     };
 }
 

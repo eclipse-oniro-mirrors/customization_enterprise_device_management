@@ -38,7 +38,11 @@ const std::string HELP_MSG_ENABLE_ADMIN =
     "  -n, --bundle-name <bundle-name>             enable an admin with bundle name\n"
     "  -a, --ability-name <ability-name>           enable an admin with ability name\n"
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
+#ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#else
+    "<admin-type>: super, byod.\n";
+#endif
 
 class EnableAdminCommandTest : public testing::TestWithParam<std::tuple<std::string, ErrCode>> {};
 
@@ -146,15 +150,17 @@ std::vector<std::tuple<std::string, ErrCode>> GenerateEnableAdminTestData()
         { "edm enable-admin -n byod.bundle -a byod.ability -t byod", ERR_OK },
         { "edm enable-admin --bundle-name byod.bundle -a byod.ability -t byod", ERR_OK },
         { "edm enable-admin -n byod.bundle --ability-name byod.ability -t byod", ERR_OK },
+#ifdef FEATURE_PC_ONLY
         { "edm enable-admin -n da.bundle -a da.ability -t da", ERR_OK },
         { "edm enable-admin --bundle-name da.bundle -a da.ability -t da", ERR_OK },
         { "edm enable-admin -n da.bundle --ability-name da.ability -t da", ERR_OK },
         { "edm enable-admin --ability-name da.ability -n da.bundle -t da", ERR_OK },
         { "edm enable-admin -t da --ability-name da.ability -n da.bundle", ERR_OK },
         { "edm enable-admin -n da.bundle -t da --ability-name da.ability", ERR_OK },
+        { "edm enable-admin -t da -t byod", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
+#endif
         { "edm enable-admin -n xxx -n xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
         { "edm enable-admin -a xxx -a xxx", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
-        { "edm enable-admin -t da -t byod", ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT },
     };
 }
 
