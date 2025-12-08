@@ -50,6 +50,7 @@ public:
         AppExecFwk::AbilityInfo &abilityInfo) = 0;
     virtual bool QueryExtensionAbilityInfos(const AAFwk::Want &want, int32_t flag, int32_t userId,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) = 0;
+    virtual ErrCode IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

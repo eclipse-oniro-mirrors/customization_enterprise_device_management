@@ -152,7 +152,8 @@ private:
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
-    ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin, const AAFwk::Want &want);
+    ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
+        const std::string &bundleName);
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

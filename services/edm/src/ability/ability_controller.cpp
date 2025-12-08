@@ -23,10 +23,15 @@
 
 namespace OHOS {
 namespace EDM {
-ErrCode AbilityController::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-    const sptr<IRemoteObject> &token, int32_t userId)
+ErrCode AbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token,
+    int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+bool AbilityController::VerifyPermission()
+{
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

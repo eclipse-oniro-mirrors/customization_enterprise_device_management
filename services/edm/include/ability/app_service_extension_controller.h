@@ -22,8 +22,7 @@ namespace OHOS {
 namespace EDM {
 class AppServiceExtensionController : public AbilityController {
 public:
-    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-        const sptr<IRemoteObject> &token, int32_t userId) override;
+    ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -2629,7 +2629,7 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    auto ret = CheckStartAbility(userId, admin, want);
+    auto ret = CheckStartAbility(userId, admin, want.GetElement().GetBundleName());
     if (FAILED(ret)) {
         EDMLOGE("EnterpriseDeviceMgrAbility::CheckStartAbility fail ret: %{public}d", ret);
         return ret;
@@ -2637,14 +2637,19 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
 
     std::shared_ptr<AbilityController> controller = AbilityControllerFactory::CreateAbilityController(want, userId);
     if (controller == nullptr) {
-        EDMLOGE("Query the ability failed");
-        return EdmReturnErrCode::COMPONENT_INVALID;
+        EDMLOGE("Query the ability failed.");
+        return EdmReturnErrCode::ABILITY_NOT_EXIST;
     }
-    return controller->StartAbilityByAdmin(admin, want, callerToken, userId);
+
+    if (!controller->VerifyPermission()) {
+        EDMLOGE("StartAbilityByAdmin verify ability permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    return controller->StartAbilityByAdmin(want, callerToken, userId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
-    const AAFwk::Want &want)
+    const std::string &bundleName)
 {
     // 校验是否激活
     std::shared_ptr<Admin> existAdmin =
@@ -2655,14 +2660,21 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
     }
 
     // 校验调用方和传入的admin是否一致
-    if (FAILED(PermissionChecker::GetInstance()->CheckCallingUid(existAdmin->adminInfo_.packageName_))) {
+    if (FAILED(GetPermissionChecker()->CheckCallingUid(existAdmin->adminInfo_.packageName_))) {
         EDMLOGE("CheckCallingUid Fail.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
 
-    // 校验权限
+    // 校验被拉起方是否是系统应用
+    bool isSystemApp = true;
+    if (FAILED(GetBundleMgr()->IsSystemApp(bundleName, currentUserId, isSystemApp)) || isSystemApp) {
+        EDMLOGE("Not support start system app.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+
+    // 校验API权限
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!PermissionChecker::GetInstance()->VerifyCallingPermission(tokenId,
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
         EdmPermission::PERMISSION_ENTERPRISE_START_ABILITIES)) {
         EDMLOGE("CheckStartAbility check permission failed");
         return EdmReturnErrCode::PERMISSION_DENIED;

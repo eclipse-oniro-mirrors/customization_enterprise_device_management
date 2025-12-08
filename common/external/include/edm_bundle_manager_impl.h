@@ -43,6 +43,7 @@ public:
         AppExecFwk::AbilityInfo &abilityInfo) override;
     bool QueryExtensionAbilityInfos(const AAFwk::Want &want, int32_t flag, int32_t userId,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) override;
+    ErrCode IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp) override;
 };
 } // namespace EDM
 } // namespace OHOS

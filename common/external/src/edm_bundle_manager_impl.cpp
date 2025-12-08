@@ -219,5 +219,22 @@ bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want, i
     EDMLOGE("EdmBundleManagerImpl::QueryExtensionAbilityInfos GetBundleMgr failed.");
     return false;
 }
+
+ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp)
+{
+    AppExecFwk::ApplicationInfo appInfo;
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (!proxy->GetApplicationInfo(bundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    isSystemApp = appInfo.isSystemApp;
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
