@@ -33,7 +33,11 @@ const std::string HELP_USAGE_ENABLE_ADMIN =
     "  -n, --bundle-name <bundle-name>             enable an admin with bundle name\n"
     "  -a, --ability-name <ability-name>           enable an admin with ability name\n"
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
+#ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#else
+    "<admin-type>: super, byod.\n";
+#endif
 
 constexpr option ENABLE_ADMIN_LONG_OPTIONS[] = {
     { "help", no_argument, nullptr, 'h' },
@@ -166,7 +170,12 @@ ErrCode EnableAdminCommand::ConvertStringToAdminType(std::string optarg, AdminTy
     } else if (optarg == "byod") {
         adminType = AdminType::BYOD;
     } else if (optarg == "da") {
+#ifdef FEATURE_PC_ONLY
         adminType = AdminType::NORMAL;
+#else
+        adminType = AdminType::UNKNOWN;
+        ret = ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE;
+#endif
     } else {
         adminType = AdminType::UNKNOWN;
         ret = ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE;
