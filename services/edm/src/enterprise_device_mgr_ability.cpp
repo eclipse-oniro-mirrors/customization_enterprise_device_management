@@ -508,6 +508,33 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
         return;
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
+    int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
+        AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    UpdateAbilityEnabled(bundleName, userId, appIndex);
+}
+
+void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleName,
+    int32_t userId, int32_t appIndex)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateAbilityEnabled");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_ABILITY_ENABLED);
+        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
+        ApplicationInstance appMsg = { appIdentifier, bundleName, userId, appIndex };
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        if (!ApplicationInstanceHandle::WriteApplicationInstance(data, appMsg)) {
+            EDMLOGE("UpdateAbilityEnabled WriteApplicationMsg fail");
+        }
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
