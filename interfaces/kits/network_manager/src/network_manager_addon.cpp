@@ -568,7 +568,7 @@ napi_value NetworkManagerAddon::RemoveFirewallRule(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     IPTABLES::FirewallRule rule = {IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID,
-        IPTABLES::Protocol::INVALID, "", "", "", "", "", IPTABLES::Family::IPV4};
+        IPTABLES::Protocol::INVALID, "", "", "", "", "", IPTABLES::Family::IPV4, IPTABLES::LogType::INVALID};
     if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToFirewallRule(env, argv[ARR_INDEX_ONE], rule),
             "firewallRule param error");
@@ -646,7 +646,14 @@ bool NetworkManagerAddon::JsObjToFirewallRule(napi_env env, napi_value object, I
     EDMLOGI("JsObjToFirewallRule family %{public}d", family);
     IPTABLES::Family familyEnum = IPTABLES::Family::IPV4;
     IPTABLES::IptablesUtils::ProcessFirewallFamily(family, familyEnum);
-    rule = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, appUid, familyEnum};
+
+    int32_t logType = -1;
+    JsObjectToInt(env, object, "logType", false, logType);
+    EDMLOGI("JsObjToFirewallRule logType %{public}d", logType);
+    IPTABLES::LogType logTypeEnum = IPTABLES::LogType::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallLogType(logType, logTypeEnum);
+    rule = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr,
+        srcPort, destPort, appUid, familyEnum, logTypeEnum};
     return true;
 }
 
@@ -678,6 +685,8 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
     NAPI_CALL(env, napi_create_string_utf8(env, appUidStr.c_str(), appUidStr.length(), &appUid));
     napi_value family = nullptr;
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_FAMILY_IND>(rule)), &family));
+    napi_value logType = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<FIREWALL_LOGTYPE_IND>(rule)), &logType));
 
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "direction", direction));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
@@ -688,6 +697,9 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "destPort", destPort));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "family", family));
+    if (static_cast<int32_t>(std::get<FIREWALL_LOGTYPE_IND>(rule)) != -1) {
+        NAPI_CALL(env, napi_set_named_property(env, jsRule, "logType", logType));
+    }
     return jsRule;
 }
 
@@ -696,7 +708,7 @@ napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_
     auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID,
-            IPTABLES::Family::IPV4};
+            IPTABLES::Family::IPV4, IPTABLES::LogType::INVALID};
         bool isParseOk = JsObjToDomainFilterRule(env, argv, rule);
         if (!isParseOk) {
             return false;
@@ -743,7 +755,7 @@ napi_value NetworkManagerAddon::RemoveDomainFilterRule(napi_env env, napi_callba
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID,
-        IPTABLES::Family::IPV4};
+        IPTABLES::Family::IPV4, IPTABLES::LogType::INVALID};
     if (argc >= ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, JsObjToDomainFilterRule(env, argv[ARR_INDEX_ONE], rule),
             "DomainFilterRule param error");
@@ -804,7 +816,12 @@ bool NetworkManagerAddon::JsObjToDomainFilterRule(napi_env env, napi_value objec
     JsObjectToInt(env, object, "family", false, family);
     IPTABLES::Family familyEnum = IPTABLES::Family::IPV4;
     IPTABLES::IptablesUtils::ProcessFirewallFamily(family, familyEnum);
-    rule = {actionEnum, appUid, domainName, directionEnum, familyEnum};
+
+    int32_t logType = -1;
+    JsObjectToInt(env, object, "logType", false, logType);
+    IPTABLES::LogType logTypeEnum = IPTABLES::LogType::INVALID;
+    IPTABLES::IptablesUtils::ProcessFirewallLogType(logType, logTypeEnum);
+    rule = {actionEnum, appUid, domainName, directionEnum, familyEnum, logTypeEnum};
     return true;
 }
 
@@ -825,11 +842,16 @@ napi_value NetworkManagerAddon::DomainFilterRuleToJsObj(napi_env env, const IPTA
     NAPI_CALL(env, napi_create_string_utf8(env, domainNameStr.c_str(), domainNameStr.length(), &domainName));
     napi_value family = nullptr;
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_FAMILY_IND>(rule)), &family));
+    napi_value logType = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(std::get<DOMAIN_LOGTYPE_IND>(rule)), &logType));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "action", action));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "appUid", appUid));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "domainName", domainName));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "direction", direction));
     NAPI_CALL(env, napi_set_named_property(env, jsRule, "family", family));
+    if (static_cast<int32_t>(std::get<DOMAIN_LOGTYPE_IND>(rule)) != -1) {
+        NAPI_CALL(env, napi_set_named_property(env, jsRule, "logType", logType));
+    }
     return jsRule;
 }
 

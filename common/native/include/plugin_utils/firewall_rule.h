@@ -34,9 +34,10 @@ const int32_t FIREWALL_SRCPORT_IND = 5;
 const int32_t FIREWALL_DESTPORT_IND = 6;
 const int32_t FIREWALL_APPUID_IND = 7;
 const int32_t FIREWALL_FAMILY_IND = 8;
+const int32_t FIREWALL_LOGTYPE_IND = 9;
 
 using FirewallRule = std::tuple<Direction, Action, Protocol, std::string /*srcAddr*/, std::string /*destAddr*/,
-    std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/, Family>;
+    std::string /*srcPort*/, std::string /*destPort*/, std::string /*appUid*/, Family, LogType>;
 class FirewallRuleParcel {
 public:
     FirewallRuleParcel() = default;

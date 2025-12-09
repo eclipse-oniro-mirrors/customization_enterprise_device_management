@@ -31,8 +31,10 @@ public:
     static bool AniStringToString(ani_env *env, const ani_string aniStr, std::string &outStr);
     static bool UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin);
     static bool UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin, bool &hasAdmin);
-    static bool GetStringProperty(ani_env *env,  ani_object aniAdmin, const std::string &propertyName,
-        std::string &property);
+    static bool GetStringProperty(ani_env *env, ani_object obj, const std::string &propertyName, std::string &property);
+    static bool GetOptionalIntProperty(ani_env *env, ani_object obj, const std::string &name, int32_t &property);
+    static bool GetOptionalInt(ani_env *env, ani_object optionalInt, int32_t &result);
+    static bool GetEnumMember(ani_env *env, ani_object obj, const std::string &propertyName, int32_t &member);
     static bool SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value);
 
 private:

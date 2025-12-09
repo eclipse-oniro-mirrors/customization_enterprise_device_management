@@ -111,7 +111,7 @@ HWTEST_F(FirewallRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestSize.
 
     std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INPUT, IPTABLES::Action::DENY, IPTABLES::Protocol::UDP,
-        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4};
+        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -128,7 +128,7 @@ HWTEST_F(FirewallRulePluginTest, TestOnSetPolicyTestSuccess, TestSize.Level1)
 
     std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INPUT, IPTABLES::Action::DENY, IPTABLES::Protocol::UDP,
-        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4};
+        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -145,7 +145,7 @@ HWTEST_F(FirewallRulePluginTest, TestOnSetPolicyTestFail, TestSize.Level1)
 
     std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INPUT, IPTABLES::Action::DENY, IPTABLES::Protocol::UDP,
-        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4};
+        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
@@ -162,7 +162,7 @@ HWTEST_F(FirewallRulePluginTest, TestOnRemovePolicyTestSuccess, TestSize.Level1)
 
     std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INPUT, IPTABLES::Action::DENY, IPTABLES::Protocol::UDP,
-        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4};
+        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -177,7 +177,7 @@ HWTEST_F(FirewallRulePluginTest, TestOnRemovePolicyTestFail, TestSize.Level1)
 {
     std::shared_ptr<FirewallRulePlugin> plugin = std::make_shared<FirewallRulePlugin>();
     IPTABLES::FirewallRule rule{IPTABLES::Direction::INVALID, IPTABLES::Action::INVALID, IPTABLES::Protocol::UDP,
-        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4};
+        "192.168.2.100", "192.168.2.200", "80", "90", "", Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::FirewallRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
