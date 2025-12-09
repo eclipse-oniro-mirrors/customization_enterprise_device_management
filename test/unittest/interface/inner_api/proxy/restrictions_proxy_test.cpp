@@ -699,7 +699,9 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountFail, TestSize.Le
  */
 HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountNullptr, TestSize.Level1)
 {
-    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+    .Times(1)
+    .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     bool result = false;
     int32_t ret = proxy_->GetUserRestrictedForAccount(nullptr, 100,
         EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, result);

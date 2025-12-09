@@ -66,6 +66,7 @@ ErrCode SetAbilityDisablePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
         return ret;
     } else if (type == FuncOperateType::REMOVE) {
         ApplicationInstance userApp;
+        data.ReadString();
         ApplicationInstanceHandle::ReadApplicationInstance(data, userApp);
         OnRemovePolicy(userApp, policyData);
     }
@@ -168,22 +169,31 @@ void SetAbilityDisablePlugin::OnRemovePolicy(ApplicationInstance &application, H
         SEPARATOR + std::to_string(application.accountId);
     std::vector<std::string> removeVec;
     for (auto policy : currentPolicies) {
-        if (policy.find(removeItem) != std::string::npos) {
+        if (policy.find(removeItem) != std::string::npos &&
+            std::find(currentMergePolicies.begin(), currentMergePolicies.end(),
+            policy) == currentMergePolicies.end()) {
+            std::string abilityName;
+            if (GetAppInfoByPolicyData(policy, application, abilityName) == ERR_OK &&
+                SetDisableByBundle(application, abilityName, false) == ERR_OK) {
+                continue;
+            }
             removeVec.push_back(policy);
         }
     }
-    std::string afterHandle;
-    std::string afterMerge;
-    std::vector<std::string> policies;
-    std::vector<std::string> mergePolicies;
-    policies = serializer->SetDifferencePolicyData(removeVec, currentPolicies);
-    mergePolicies = serializer->SetDifferencePolicyData(removeVec, currentMergePolicies);
-    
-    serializer->Serialize(policies, afterHandle);
-    serializer->Serialize(mergePolicies, afterMerge);
-    policyData.isChanged = true;
-    policyData.policyData = afterHandle;
-    policyData.mergePolicyData = afterMerge;
+    if (!removeVec.empty()) {
+        std::string afterHandle;
+        std::string afterMerge;
+        std::vector<std::string> policies;
+        std::vector<std::string> mergePolicies;
+        policies = serializer->SetDifferencePolicyData(removeVec, currentPolicies);
+        mergePolicies = serializer->SetUnionPolicyData(policies, currentMergePolicies);
+        
+        serializer->Serialize(policies, afterHandle);
+        serializer->Serialize(mergePolicies, afterMerge);
+        policyData.isChanged = true;
+        policyData.policyData = afterHandle;
+        policyData.mergePolicyData = afterMerge;
+    }
 }
 
 ErrCode SetAbilityDisablePlugin::SetDisableByBundle(const ApplicationInstance &application,
