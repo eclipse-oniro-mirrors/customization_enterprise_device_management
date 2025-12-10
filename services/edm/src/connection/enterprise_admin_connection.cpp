@@ -74,10 +74,12 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
         std::string bundleName = admin->adminInfo_.packageName_;
         std::string path = "/data/service/el1/public/edm/log/" + std::to_string(userId) + "/" + bundleName;
-        if (!std::filesystem::exists(path)) {
+        std::error_code ec;
+        if (!std::filesystem::exists(path, ec) && !ec) {
             EDMLOGI("EnterpriseAdminConnection::OnAbilityDisconnectDone create log dir");
-            if (!std::filesystem::create_directories(path)) {
-                EDMLOGE("EnterpriseAdminConnection::OnAbilityDisconnectDone create log dir fail.");
+            if (!std::filesystem::create_directories(path, ec)) {
+                EDMLOGE("EnterpriseAdminConnection create log dir fail. ec = %{public}d, %{public}s",
+                    ec.value(), ec.message().c_str());
             }
         }
 #endif
