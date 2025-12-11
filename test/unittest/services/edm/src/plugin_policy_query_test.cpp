@@ -46,6 +46,7 @@
 #include "disallow_external_storage_card_query.h"
 #include "disable_hdc_query.h"
 #include "disable_microphone_query.h"
+#include "disable_print_query.h"
 #include "disable_printer_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -98,7 +99,6 @@
 #ifdef FEATURE_PC_ONLY
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
-#include "disable_print_query.h"
 #include "disable_hdc_remote_query.h"
 #endif
 
@@ -2166,7 +2166,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableSudoQuery001, TestSize.Level1)
 }
 #endif
 
-#ifdef FEATURE_PC_ONLY
+#ifdef OS_ACCOUNT_EDM_ENABLE
 /**
  * @tc.name: DisablePrintQuery001
  * @tc.desc: Test DisablePrintPluginTest::QueryPolicy function.
