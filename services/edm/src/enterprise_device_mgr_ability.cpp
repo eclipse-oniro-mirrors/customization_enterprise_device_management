@@ -2717,17 +2717,24 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
 void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed.");
-    if (!std::filesystem::exists(path)) {
-        if (!std::filesystem::create_directories(path)) {
-            EDMLOGE("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed fail.");
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec) && !ec) {
+        if (!std::filesystem::create_directories(path, ec)) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed fail. ec = %{public}d, %{public}s",
+                ec.value(), ec.message().c_str());
         }
     }
 }
 
 void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string path)
 {
-    if (std::filesystem::exists(path)) {
-        std::filesystem::remove_all(path);
+    std::error_code ec;
+    if (std::filesystem::exists(path, ec) && !ec) {
+        std::filesystem::remove_all(path, ec);
+        if (ec) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed fail. ec = %{public}d, %{public}s",
+                ec.value(), ec.message().c_str());
+        }
     }
 }
 #endif
