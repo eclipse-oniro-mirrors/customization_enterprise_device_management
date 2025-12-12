@@ -30,14 +30,14 @@ struct KeyEventItem {
     int32_t pressed;
     int32_t keyCode;
     int64_t downTime;
-}
+};
 
 struct KeyEvent {
     int64_t actionTime;
     int32_t keyCode;
     int32_t keyAction;
     std::vector<KeyEventItem> keyItems;
-}
+};
 
 } // namespace EDM
 } // namespace OHOS
