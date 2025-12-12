@@ -131,6 +131,7 @@ ohos_unittest("EdmPluginTest") {
     ]
     sources += [
       "./src/add_os_account_plugin_test.cpp",
+      "./src/disable_print_plugin_test.cpp",
       "./src/disallow_add_local_account_plugin_test.cpp",
       "./src/disallow_add_os_account_by_user_plugin_test.cpp",
       "./src/operate_device_plugin_test.cpp",
@@ -316,7 +317,6 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/set_domain_account_policy_plugin.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
       "./src/set_watermark_plugin_test.cpp",
-      "./src/disable_print_plugin_test.cpp",
       "./src/disable_sudo_plugin_test.cpp",
     ]
   }
