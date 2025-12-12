@@ -75,6 +75,8 @@ private:
     void OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
 
     void OnLogCollectedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnKeyEventInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

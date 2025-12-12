@@ -86,6 +86,14 @@ bool EnterpriseConnManager::CreateCollectLogConnection(const AAFwk::Want &want, 
     return ConnectAbility(connection);
 }
 
+bool EnterpriseConnManager::CreateKeyEventConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
+        const std::string &keyEvent)
+{
+    sptr<IEnterpriseConnection> connection(
+        new (std::nothrow)EnterpriseKeyEventConnection(want, code, userId, keyEvent));
+    return ConnectAbility(connection);
+}
+
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

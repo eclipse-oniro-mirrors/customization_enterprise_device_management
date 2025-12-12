@@ -24,12 +24,14 @@
 #include "enterprise_conn_manager.h"
 #include "ienterprise_admin.h"
 #include "plugin_manager.h"
+#include "ipc_skeleton.h"
+#include "edm_os_account_manager_impl.h"
 
 namespace OHOS {
 namespace EDM {
 ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int32_t userId, const bool isSuccess)
 {
-    UnloadCollectLogPlugin();
+    UnloadPlugin(EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
     if (admin != nullptr) {
         std::string bundleName = admin->adminInfo_.packageName_;
@@ -49,14 +51,49 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     return ERR_OK;
 }
 
-ErrCode ExtraPolicyNotification::UnloadCollectLogPlugin()
+ErrCode EnterpriseDeviceMgrAbility::ReportKeyEvent(const std::string &keyEvent)
+{
+    UnloadPlugin(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    EDMLOGI("EnterpriseMgrAbility::ReportKeyEvent start");
+    std::vector<std::shared_ptr<Admin>> admins;
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        return ERR_OK;
+    }
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        EDMLOGI("ReportKeyEvent packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        bool ret = manager->CreateKeyEventConnection(connectWant,
+            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_KEY_EVENT),
+            currentUserId, keyEvent);
+        if (!ret) {
+            EDMLOGW("EnterpriseDeviceMgrAbility::ReportKeyEvent CreateMarketConnection failed.");
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t EnterpriseAdminConnection::GetCurrentUserId()
+{
+    std::vector<int32_t> ids;
+    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
+    if (FAILED(ret) || ids.empty()) {
+        EDMLOGE("EnterpriseAdminConnection GetCurrentUserId failed");
+        return -1;
+    }
+    EDMLOGD("EnterpriseAdminConnection GetCurrentUserId");
+    return (ids.at(0));
+}
+
+ErrCode ExtraPolicyNotification::UnloadPlugin(uint32_t code)
 {
     EDMLOGI("ExtraPolicyNotification::UnloadCollectLogPlugin");
-    auto plugin = PluginManager::GetInstance()->GetPluginByCode(
-        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(code);
     if (plugin == nullptr) {
-        EDMLOGE("get Plugin fail %{public}d",
-            EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+        EDMLOGE("get Plugin fail %{public}d", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     plugin->SetPluginUnloadFlag(true);

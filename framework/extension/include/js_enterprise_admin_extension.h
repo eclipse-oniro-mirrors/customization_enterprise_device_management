@@ -86,6 +86,8 @@ public:
 
     void OnLogCollected(bool isSuccess);
 
+    void OnKeyEvent(const std::string &event);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
     
@@ -98,6 +100,10 @@ private:
     napi_value CreateInstallationResultObject(napi_env env, const std::string &bundleName, int32_t status);
 
     napi_value CreateResultObject(napi_env env, int32_t success);
+
+    napi_value CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo);
+
+    bool ParseKeyEventInfo(const std::string &event, const OHOS::EDM::KeyEvent &keyEventInfo);
 
     AbilityRuntime::JsRuntime& jsRuntime_;
 

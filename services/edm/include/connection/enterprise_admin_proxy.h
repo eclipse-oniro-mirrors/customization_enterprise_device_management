@@ -61,6 +61,8 @@ public:
     void OnDeviceAdminDisabled(const std::string &bundleName) override;
 
     void OnLogCollected(bool isSuccess) override;
+
+    void OnKeyEvent(const std::string &keyEvent) override;
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

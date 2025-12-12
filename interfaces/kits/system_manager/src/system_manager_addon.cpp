@@ -57,6 +57,9 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("startCollectLog", StartCollectLog),
         DECLARE_NAPI_FUNCTION("finishLogCollected", FinishLogCollected),
+        DECLARE_NAPI_FUNCTION("setKeyEventPolicy", SetKeyEventPolicy),
+        DECLARE_NAPI_FUNCTION("removeKeyEventPolicy", RemoveKeyEventPolicy),
+        DECLARE_NAPI_FUNCTION("getKeyEventPolicy", GetKeyEventPolicy),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -872,6 +875,97 @@ void SystemManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(NearlinkProtocol::DATA_TRANSFER),
     &nDataTransfer));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATA_TRANSFER", nDataTransfer));
+}
+
+napi_value SystemManagerAddon::SetKeyEventPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetKeyEventPolicy called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::vector<KeyCustomization> KeyCustomizations;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseKeyCustomizationArray(env, KeyCustomizations, argv[ARR_INDEX_ONE]),
+        "Parameter KeyEventPolicys error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::string retMessage;
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetKeyEventPolicys(elementName,
+        KeyCustomizations, retMessage);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value SystemManagerAddon::RemoveKeyEventPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveKeyEventPolicy called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::vector<int32_t> Keyevents;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseIntArray(env, Keyevents, argv[ARR_INDEX_ONE]),
+        "Parameter Keyevents error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->RemoveKeyEventPolicys(elementName, Keyevents);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value SystemManagerAddon::GetKeyEventPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUserNonStopApps called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    EDMLOGD(
+        "EnableAdmin: elementName.bundlename %{public}s, "
+        "elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+
+    auto systemManagerProxy = SystemManagerProxy::GetSystemManagerProxy();
+    std::vector<KeyCustomization> KeyCustomizations;
+    int32_t ret = systemManagerProxy->GetKeyEventPolicys(elementName, KeyCustomizations);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value napiKeyCustomizations = nullptr;
+    napi_create_array(env, &napiKeyCustomizations);
+    ConvertKeyCustomizationVectorToJS(env, KeyCustomizations, napiKeyCustomizations);
+    return napiKeyCustomizations;
 }
 
 static napi_module g_systemManagerModule = {

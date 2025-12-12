@@ -27,8 +27,10 @@ namespace EDM {
 class ExtraPolicyNotification final: public IExtraPolicyNotification {
 public:
     ErrCode Notify(const std::string &adminName, const int32_t userId, const bool isSuccess) override;
+    ErrCode ReportKeyEvent(const std::string &keyEvent) override;
 private:
-    ErrCode UnloadCollectLogPlugin();
+    ErrCode UnloadPlugin(uint32_t code);
+    int32_t GetCurrentUserId();
 };
 } // namespace EDM
 } // namespace OHOS

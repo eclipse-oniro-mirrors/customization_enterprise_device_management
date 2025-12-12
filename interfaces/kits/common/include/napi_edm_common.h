@@ -21,6 +21,7 @@
 #include "napi/native_api.h"
 #include "want.h"
 #include "application_instance.h"
+#include "key_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -111,6 +112,15 @@ bool CheckGetPolicyAdminParam(napi_env env, napi_value value, bool &hasAdmin,
     OHOS::AppExecFwk::ElementName &elementName);
 bool ParseStringToInt(const std::string &strValue, int32_t &result);
 bool ParseStringToLong(const std::string &strValue, int64_t &result);
+napi_value ParseKeyCustomizationArray(napi_env env, std::vector<KeyCustomization> &keyCustomizationArray,
+    napi_value args);
+bool GetKeyCustomizationFromNAPI(napi_env env, napi_value value, KeyCustomization &result);
+bool GetKeyeventFromNAPI(napi_env env, napi_value value, KeyCustomization &result,
+    napi_valuetype type, napi_value &jsKeyCode);
+bool GetKeypolicyFromNAPI(napi_env env, napi_value value, KeyCustomization &result,
+    napi_valuetype type, napi_value &jsKeyPolicy);
+void ConvertKeyCustomizationVectorToJS(napi_env env, const std::vector<KeyCustomization> &KeyCustomizationVector,
+    napi_value result);
 } // namespace EDM
 } // namespace OHOS
 
