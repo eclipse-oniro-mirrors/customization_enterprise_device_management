@@ -460,6 +460,12 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
         std::make_move_iterator(currentUserAdmins.end()));
     for (auto &admin : userAdmin) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+            std::string packageName = admin->adminInfo_.packageName_;
+            if (GetBundleMgr()->IsBundleInstalled(packageName, userIdToSwitch)) {
+                CreateLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userIdToSwitch) + "/" + packageName);
+            }
+#endif
             OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
                 IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userIdToSwitch, false);
         }
@@ -494,6 +500,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved: remove sub and super admin policy failed.");
         }
     }
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    DeleteSubUserLogDirIfNeed(userIdToRemove);
+#endif
     ConnectAbilityOnSystemAccountEvent(userIdToRemove, ManagedEvent::USER_REMOVED);
 }
 
@@ -1549,9 +1558,6 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (shouldUnsubscribeAppState) {
         UnsubscribeAppState();
     }
-#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
-    DeleteLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userId) + "/" + adminName);
-#endif
     return ERR_OK;
 }
 
@@ -1731,6 +1737,9 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
             DelDisallowUninstallAppForAccount(admin->adminInfo_.packageName_, userId);
         }
     }
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    DeleteLogDirIfNeed(admin->adminInfo_.packageName_);
+#endif
     EDMLOGD("ReportEdmEventManagerAdmin DisableAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(admin->adminInfo_.packageName_.c_str(),
         static_cast<int32_t>(AdminAction::DISABLE), static_cast<int32_t>(adminType));
@@ -2671,7 +2680,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
 }
 
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
-void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
+void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string &path)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed.");
     std::error_code ec;
@@ -2683,9 +2692,42 @@ void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
     }
 }
 
-void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string path)
+void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string &adminName)
 {
+    EDMLOGI("EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed.");
     std::error_code ec;
+    if (!std::filesystem::exists(EDM_LOG_PATH, ec) || ec) {
+        return;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(EDM_LOG_PATH, ec)) {
+        if (ec) {
+            continue;
+        }
+        if (!std::filesystem::is_directory(entry, ec) || ec) {
+            continue;
+        }
+        std::string targetPath = entry.path().string() + "/" + adminName;
+        if (std::filesystem::exists(targetPath, ec) && !ec) {
+            std::filesystem::remove_all(targetPath, ec);
+            if (ec) {
+                EDMLOGE("EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed fail. ec = %{public}d, %{public}s",
+                    ec.value(), ec.message().c_str());
+            }
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::DeleteSubUserLogDirIfNeed(int32_t userId)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::DeleteSubUserLogDirIfNeed.");
+    if (userId < 0) {
+        return;
+    }
+    std::error_code ec;
+    if (!std::filesystem::exists(EDM_LOG_PATH, ec) || ec) {
+        return;
+    }
+    std::string path = EDM_LOG_PATH + "/" + std::to_string(userId);
     if (std::filesystem::exists(path, ec) && !ec) {
         std::filesystem::remove_all(path, ec);
         if (ec) {

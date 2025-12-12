@@ -20,6 +20,7 @@
 #include "edm_log.h"
 #include "edm_os_account_manager_impl.h"
 #include "enterprise_conn_manager.h"
+#include "external_manager_factory.h"
 
 namespace OHOS {
 namespace EDM {
@@ -73,15 +74,7 @@ void EnterpriseAdminConnection::OnAbilityDisconnectDone(const AppExecFwk::Elemen
     if (admin && admin->IsEnterpriseAdminKeepAlive()) {
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
         std::string bundleName = admin->adminInfo_.packageName_;
-        std::string path = "/data/service/el1/public/edm/log/" + std::to_string(userId) + "/" + bundleName;
-        std::error_code ec;
-        if (!std::filesystem::exists(path, ec) && !ec) {
-            EDMLOGI("EnterpriseAdminConnection::OnAbilityDisconnectDone create log dir");
-            if (!std::filesystem::create_directories(path, ec)) {
-                EDMLOGE("EnterpriseAdminConnection create log dir fail. ec = %{public}d, %{public}s",
-                    ec.value(), ec.message().c_str());
-            }
-        }
+        CreateLogDirIfNeed(bundleName, userId);
 #endif
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
         bool ret = manager->CreateAdminConnection(want_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
@@ -102,5 +95,25 @@ int32_t EnterpriseAdminConnection::GetCurrentUserId()
     EDMLOGD("EnterpriseAdminConnection GetCurrentUserId");
     return (ids.at(0));
 }
+
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+void EnterpriseAdminConnection::CreateLogDirIfNeed(const std::string &bundleName, int32_t userId)
+{
+    EDMLOGD("EnterpriseAdminConnection::CreateLogDirIfNeed");
+    std::shared_ptr<IExternalManagerFactory> factory = std::make_shared<ExternalManagerFactory>();
+    if (!factory->CreateBundleManager()->IsBundleInstalled(bundleName, userId)) {
+        return;
+    }
+    std::string path = "/data/service/el1/public/edm/log/" + std::to_string(userId) + "/" + bundleName;
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec) && !ec) {
+        EDMLOGI("EnterpriseAdminConnection::CreateLogDirIfNeed create log dir");
+        if (!std::filesystem::create_directories(path, ec)) {
+            EDMLOGE("EnterpriseAdminConnection create log dir fail. ec = %{public}d, %{public}s",
+                ec.value(), ec.message().c_str());
+        }
+    }
+}
+#endif
 }  // namespace EDM
 }  // namespace OHOS
