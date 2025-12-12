@@ -31,7 +31,8 @@ namespace OHOS {
 namespace EDM {
 ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int32_t userId, const bool isSuccess)
 {
-    UnloadPlugin(EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+    UnloadPlugin((std::uint32_t)EdmInterfaceCode::POLICY_CODE_END +
+        (std::uint32_t)EdmConstants::PolicyCode::START_COLLECT_LOG);
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
     if (admin != nullptr) {
         std::string bundleName = admin->adminInfo_.packageName_;
@@ -51,9 +52,9 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     return ERR_OK;
 }
 
-ErrCode EnterpriseAdminConnection::ReportKeyEvent(const std::string &keyEvent)
+ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &keyEvent)
 {
-    UnloadPlugin(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    UnloadPlugin((std::uint32_t)EdmInterfaceCode::SET_KEY_CODE_POLICYS);
     EDMLOGI("EnterpriseMgrAbility::ReportKeyEvent start");
     std::vector<std::shared_ptr<Admin>> admins;
     int32_t currentUserId = GetCurrentUserId();
