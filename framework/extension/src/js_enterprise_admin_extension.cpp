@@ -414,23 +414,23 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
         return false;
     }
     keyEventInfo.actionTime = actionTime->valuedouble;
-    keyEventInfo.keyCode = keyCode->valueint;
+    keyEventInfo.keyCodeItem = keyCode->valueint;
     keyEventInfo.keyAction = keyAction->valueint;
 
     cJSON *keyItem;
     cJSON_ArrayForEach(keyItem, keyItems) {
-        cJSON *pressed = cJSON_GetObjectItem(itemJson, "pressed");
-        cJSON *keyCode = cJSON_GetObjectItem(itemJson, "keyCode");
-        cJSON *downTime = cJSON_GetObjectItem(itemJson, "downTime");
+        cJSON *pressed = cJSON_GetObjectItem(keyItem, "pressed");
+        cJSON *keyCode = cJSON_GetObjectItem(keyItem, "keyCode");
+        cJSON *downTime = cJSON_GetObjectItem(keyItem, "downTime");
 
-        if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCode) || !cJSON_IsNumber(downTime)) {
+        if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCodeItem) || !cJSON_IsNumber(downTime)) {
             EDMLOGE("Invalid JSON structure");
             cJSON_Delete(root);
             return false;
         }
         KeyEventItem KeyItemStruct;
         KeyItemStruct.pressed = pressed->valueint;
-        KeyItemStruct.keyCode = keyCode->valueint;
+        KeyItemStruct.keyCode = keyCodeItem->valueint;
         KeyItemStruct.downTime = downTime->valuedouble;
 
         keyEventInfo.keyItems.push_back(KeyItemStruct);
@@ -439,7 +439,7 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
     return true;
 }
 
-napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo);
+napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo)
 {
     napi_value nKeyEventInfo = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nKeyEventInfo));

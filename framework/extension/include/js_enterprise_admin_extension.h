@@ -103,7 +103,7 @@ private:
 
     napi_value CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo);
 
-    bool ParseKeyEventInfo(const std::string &event, const OHOS::EDM::KeyEvent &keyEventInfo);
+    bool ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo);
 
     AbilityRuntime::JsRuntime& jsRuntime_;
 
