@@ -77,7 +77,7 @@ ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &keyEvent)
     return ERR_OK;
 }
 
-int32_t EnterpriseAdminConnection::GetCurrentUserId()
+int32_t ExtraPolicyNotification::GetCurrentUserId()
 {
     std::vector<int32_t> ids;
     ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
