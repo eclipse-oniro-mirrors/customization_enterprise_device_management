@@ -402,10 +402,10 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
         return false;
     }
     
-    cJSON* actionTimeJson = cJSON_GetObjectItem(root, "actionTime");
-    cJSON* keyCodeJson = cJSON_GetObjectItem(root, "keyCode");
-    cJSON* keyActionJson = cJSON_GetObjectItem(root, "keyAction");
-    cJSON* keyItemsJson = cJSON_GetObjectItem(root, "keyItems");
+    cJSON *actionTime = cJSON_GetObjectItem(root, "actionTime");
+    cJSON *keyCode = cJSON_GetObjectItem(root, "keyCode");
+    cJSON *keyAction = cJSON_GetObjectItem(root, "keyAction");
+    cJSON *keyItems = cJSON_GetObjectItem(root, "keyItems");
     
     if (!cJSON_IsNumber(actionTime) || !cJSON_IsNumber(keyCode) || !cJSON_IsNumber(keyAction) ||
         !cJSON_IsArray(keyItems)) {
@@ -419,9 +419,9 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
 
     cJSON *keyItem;
     cJSON_ArrayForEach(keyItem, keyItems) {
-        cJSON* pressedJson = cJSON_GetObjectItem(itemJson, "pressed");
-        cJSON* keyCodeJson = cJSON_GetObjectItem(itemJson, "keyCode");
-        cJSON* downTimeJson = cJSON_GetObjectItem(itemJson, "downTime");
+        cJSON *pressed = cJSON_GetObjectItem(itemJson, "pressed");
+        cJSON *keyCode = cJSON_GetObjectItem(itemJson, "keyCode");
+        cJSON *downTime = cJSON_GetObjectItem(itemJson, "downTime");
 
         if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCode) || !cJSON_IsNumber(downTime)) {
             EDMLOGE("Invalid JSON structure");
