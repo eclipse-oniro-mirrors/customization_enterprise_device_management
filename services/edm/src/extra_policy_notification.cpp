@@ -51,7 +51,7 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::ReportKeyEvent(const std::string &keyEvent)
+ErrCode EnterpriseAdminConnection::ReportKeyEvent(const std::string &keyEvent)
 {
     UnloadPlugin(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
     EDMLOGI("EnterpriseMgrAbility::ReportKeyEvent start");
