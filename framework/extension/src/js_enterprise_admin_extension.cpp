@@ -396,7 +396,7 @@ void JsEnterpriseAdminExtension::OnKeyEvent(const std::string &event)
 bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo)
 {
     EDMLOGI("JsEnterpriseAdminExtension::ParseKeyEventInfo");
-    cJSON* root = cJSON_Parse(jsonStr.c_str());
+    cJSON* root = cJSON_Parse(jsonString.c_str());
     if (root == nullptr) {
         EDMLOGE("Failed to parse JSON string");
         return false;
@@ -414,13 +414,13 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
         return false;
     }
     keyEventInfo.actionTime = actionTime->valuedouble;
-    keyEventInfo.keyCodeItem = keyCode->valueint;
+    keyEventInfo.keyCode = keyCode->valueint;
     keyEventInfo.keyAction = keyAction->valueint;
 
     cJSON *keyItem;
     cJSON_ArrayForEach(keyItem, keyItems) {
         cJSON *pressed = cJSON_GetObjectItem(keyItem, "pressed");
-        cJSON *keyCode = cJSON_GetObjectItem(keyItem, "keyCode");
+        cJSON *keyCodeItem = cJSON_GetObjectItem(keyItem, "keyCode");
         cJSON *downTime = cJSON_GetObjectItem(keyItem, "downTime");
 
         if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCodeItem) || !cJSON_IsNumber(downTime)) {
@@ -463,19 +463,19 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     for (size_t i = 0; i < keyEventInfo.keyItems.size(); ++i) {
         const KeyEventItem &keyItem = keyEventInfo.keyItems[i];
 
-        api_value nKeyItem = nullptr;
+        napi_value nKeyItem = nullptr;
         NAPI_CALL(env, napi_create_object(env, &nKeyItem));
 
         napi_value nPressed = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, KeyItem.pressed, &nPressed));
+        NAPI_CALL(env, napi_create_int32(env, keyItem.pressed, &nPressed));
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "pressed", nPressed));
 
         napi_value nKeyCodeItem = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, KeyItem.keyCode, &nKeyCodeItem));
+        NAPI_CALL(env, napi_create_int32(env, keyItem.keyCode, &nKeyCodeItem));
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "keyCode", nKeyCodeItem));
 
         napi_value nDownTime = nullptr;
-        NAPI_CALL(env, napi_create_int64(env, KeyItem.downTime, &nDownTime));
+        NAPI_CALL(env, napi_create_int64(env, keyItem.downTime, &nDownTime));
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "downTime", nDownTime));
 
         NAPI_CALL(env, napi_set_element(env, nKeyItems, i, nKeyItem));
