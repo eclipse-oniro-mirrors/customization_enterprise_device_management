@@ -74,7 +74,7 @@ void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode, std::string errMsg)
         return;
     }
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":", &ctor)) {
         EDMLOGE("find method BusinessError constructor failed");
         return;
     }
