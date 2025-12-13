@@ -45,6 +45,23 @@ HWTEST_F(IExtraPolicyNotificationTest, TestNotify, TestSize.Level1)
     res = iExtraPolicyNotification->Notify(TEST_ADMIN_NAME, 100, false);
     ASSERT_TRUE(res == ERR_OK);
 }
+
+/**
+ * @tc.name: TestReportKeyEvent
+ * @tc.desc: Test ReportKeyEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExtraPolicyNotificationTest, TestReportKeyEvent, TestSize.Level1)
+{
+    ErrCode res;
+    auto iExtraPolicyNotification = IExtraPolicyNotification::GetInstance();
+    std::string keyEventStr = "{\"actionTime\": 344510, \"keyCode\": 10012, \"keyAction\": 2,
+        \"keyItems\": [{\"pressed\": 1, \"keyCode\": 10012, \"downTime\": 344510}]}";
+    res = iExtraPolicyNotification->ReportKeyEvent(TEST_ADMIN_NAME, 100, keyEventStr);
+    ASSERT_TRUE(res == ERR_OK);
+    res = iExtraPolicyNotification->ReportKeyEvent("", 100, keyEventStr);
+    ASSERT_TRUE(res == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

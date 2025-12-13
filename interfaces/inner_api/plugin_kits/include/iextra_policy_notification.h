@@ -31,7 +31,7 @@ public:
         return ERR_OK;
     }
 
-    virtual ErrCode ReportKeyEvent(const std::string &keyEvent)
+    virtual ErrCode ReportKeyEvent(const std::string &adminName, int32_t userId, const std::string &keyEvent)
     {
         return ERR_OK;
     }

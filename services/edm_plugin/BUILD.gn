@@ -163,12 +163,6 @@ ohos_shared_library("device_core_plugin") {
       ]
     }
 
-    if (!enterprise_device_management_feature_pc_only) {
-      sources += [
-        "./src/set_key_code_plugin.cpp",
-      ]
-    }
-
     if (audio_framework_edm_enable) {
       external_deps += [ "audio_framework:audio_client" ]
       sources += [ "./src/disable_microphone_plugin.cpp" ]
@@ -640,6 +634,12 @@ ohos_shared_library("need_extra_plugin") {
       "./src/set_wall_paper_plugin.cpp",
     ]
   }
+
+  if (!enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/set_key_code_plugin.cpp",
+      ]
+    }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable &&
       update_service_edm_enable) {

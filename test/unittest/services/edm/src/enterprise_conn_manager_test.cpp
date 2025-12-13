@@ -119,6 +119,23 @@ HWTEST_F(EnterpriseConnManagerTest, TestCollectLogConnectAbility, TestSize.Level
         DEFAULT_USERID, true);
     EXPECT_TRUE(!ret);
 }
+
+/**
+ * @tc.name: TestKeyEventConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateKeyEventConnection func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseConnManagerTest, TestKeyEventConnectAbility, TestSize.Level1)
+{
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    bool ret = manager->CreateKeyEventConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_KEY_EVENT,
+        DEFAULT_USERID, true);
+    EXPECT_TRUE(!ret);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

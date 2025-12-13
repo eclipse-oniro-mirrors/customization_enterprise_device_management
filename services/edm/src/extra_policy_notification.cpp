@@ -52,41 +52,29 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     return ERR_OK;
 }
 
-ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &keyEvent)
+ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, const int32_t userId,
+    const std::string &keyEvent)
 {
-    UnloadPlugin((std::uint32_t)EdmInterfaceCode::SET_KEY_CODE_POLICYS);
     EDMLOGI("EnterpriseMgrAbility::ReportKeyEvent start");
-    std::vector<std::shared_ptr<Admin>> admins;
-    int32_t currentUserId = GetCurrentUserId();
-    if (currentUserId < 0) {
-        return ERR_OK;
-    }
-    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
-    for (const auto& admin : admins) {
-        EDMLOGI("ReportKeyEvent packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
+    UnloadPlugin((std::uint32_t)EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
+    if (admin != nullptr) {
+        std::string bundleName = admin->adminInfo_.packageName_;
+        std::string abilityName = admin->adminInfo_.className_;
+        if (abilityName.empty()) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
         AAFwk::Want connectWant;
-        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
+        connectWant.SetElementName(bundleName, abilityName);
         std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
         bool ret = manager->CreateKeyEventConnection(connectWant,
             static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_KEY_EVENT),
-            currentUserId, keyEvent);
+            userId, keyEvent);
         if (!ret) {
-            EDMLOGW("EnterpriseDeviceMgrAbility::ReportKeyEvent CreateMarketConnection failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
     return ERR_OK;
-}
-
-int32_t ExtraPolicyNotification::GetCurrentUserId()
-{
-    std::vector<int32_t> ids;
-    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
-    if (FAILED(ret) || ids.empty()) {
-        EDMLOGE("EnterpriseAdminConnection GetCurrentUserId failed");
-        return -1;
-    }
-    EDMLOGD("EnterpriseAdminConnection GetCurrentUserId");
-    return (ids.at(0));
 }
 
 ErrCode ExtraPolicyNotification::UnloadPlugin(uint32_t code)
