@@ -60,6 +60,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../../services/edm/src/connection/enterprise_bundle_connection.cpp",
     "../../../../services/edm/src/connection/enterprise_collect_log_connection.cpp",
+    "../../../../services/edm/src/connection/enterprise_key_event_connection.cpp",
     "../../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
     "../../../../services/edm/src/connection/enterprise_market_connection.cpp",
