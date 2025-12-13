@@ -85,9 +85,6 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         case COMMAND_ON_DEVICE_ADMIN_DISABLED:
             OnDeviceAdminDisabledInner(data, reply);
             return ERR_NONE;
-        case COMMAND_ON_KEY_EVENT:
-            OnKeyEventInner(data, reply);
-            return ERR_NONE;
         default:
             return CallFuncByCodeFirst(code, data, reply, option);
     }
@@ -99,6 +96,9 @@ int32_t EnterpriseAdminStub::CallFuncByCodeFirst(uint32_t code, MessageParcel& d
     switch (code) {
         case COMMAND_ON_LOG_COLLECTED:
             OnLogCollectedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_KEY_EVENT:
+            OnKeyEventInner(data, reply);
             return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

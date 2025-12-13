@@ -448,7 +448,6 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     NAPI_CALL(env, napi_create_int64(env, keyEventInfo.actionTime, &nActionTime));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "actionTime", nActionTime));
     
-
     napi_value nKeyCode = nullptr;
     NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyCode, &nKeyCode));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
