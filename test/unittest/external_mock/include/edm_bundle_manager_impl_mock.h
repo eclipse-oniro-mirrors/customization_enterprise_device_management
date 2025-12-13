@@ -47,6 +47,7 @@ public:
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos), (override));
     MOCK_METHOD(bool, QueryAbilityInfo, (const AAFwk::Want &want, int32_t flags, int32_t userId,
         AppExecFwk::AbilityInfo &abilityInfo), (override));
+    MOCK_METHOD(ErrCode, IsSystemApp, (const std::string &bundleName, int userId, bool &isSystemApp), (override));
 };
 } // namespace EDM
 } // namespace OHOS

@@ -53,6 +53,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t PARAMETER_VERIFICATION_FAILED = 9200012;
     constexpr uint32_t DISALLOW_NOT_TAKE_EFFECT = 9200013;
     constexpr uint32_t START_ABILITY_FAILED = 9200014;
+    constexpr uint32_t ABILITY_NOT_EXIST = 9200015;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;

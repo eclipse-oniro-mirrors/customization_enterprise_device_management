@@ -52,6 +52,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
     {EdmReturnErrCode::START_ABILITY_FAILED, "Failed to start the ability. $"},
     {EdmReturnErrCode::FAULTLOG_COLLECT_FAILED, "Logs are being collected."},
+    {EdmReturnErrCode::ABILITY_NOT_EXIST, "The ability does not exist."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

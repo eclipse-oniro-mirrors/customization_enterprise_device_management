@@ -25,7 +25,7 @@ namespace OHOS {
 namespace EDM {
 class AbilityControllerFactory {
 public:
-    static std::shared_ptr<AbilityController> CreateAbilityController(const AAFwk::Want& want, int32_t userId);
+    static std::shared_ptr<AbilityController> CreateAbilityController(const AAFwk::Want &want, int32_t userId);
 private:
     static std::shared_ptr<IExternalManagerFactory> factory_;
 };

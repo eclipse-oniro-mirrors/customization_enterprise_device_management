@@ -25,7 +25,7 @@ namespace EDM {
 std::shared_ptr<IExternalManagerFactory> AbilityControllerFactory::factory_ =
     std::make_shared<ExternalManagerFactory>();
 
-std::shared_ptr<AbilityController> AbilityControllerFactory::CreateAbilityController(const AAFwk::Want& want,
+std::shared_ptr<AbilityController> AbilityControllerFactory::CreateAbilityController(const AAFwk::Want &want,
     int32_t userId)
 {
     // 校验want不能为空，避免隐式want
@@ -36,8 +36,9 @@ std::shared_ptr<AbilityController> AbilityControllerFactory::CreateAbilityContro
 
     AppExecFwk::AbilityInfo abilityInfo;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    if (!factory_->CreateBundleManager()->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT,
-        userId, abilityInfo) && (!factory_->CreateBundleManager()->QueryExtensionAbilityInfos(want,
+    if (!factory_->CreateBundleManager()->QueryAbilityInfo(want,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, userId, abilityInfo) &&
+        (!factory_->CreateBundleManager()->QueryExtensionAbilityInfos(want,
         AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT,
         userId, extensionInfos) || extensionInfos.empty())) {
         EDMLOGE("CreateAbility not find the ability.");
@@ -45,7 +46,7 @@ std::shared_ptr<AbilityController> AbilityControllerFactory::CreateAbilityContro
     }
 
     if (abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-        return std::make_shared<UIAbilityController>();
+        return std::make_shared<UIAbilityController>(abilityInfo.permissions);
     }
 
 #ifdef FEATURE_PC_ONLY

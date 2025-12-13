@@ -4982,6 +4982,160 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTestWithEdcPermis
     ASSERT_TRUE(res == ERR_OK);
 }
 #endif
+
+/**
+ * @tc.name: TestCheckStartAbilityWithInvalidAmin
+ * @tc.desc: Test CheckStartAbility with invalid admin
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckStartAbilityWithInvalidAmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    edmMgr_->adminMgr_->ClearAdmins();
+
+    ErrCode ret = edmMgr_->CheckStartAbility(DEFAULT_USER_ID, admin, "");
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestCheckStartAbilityWithInvalidCalling
+ * @tc.desc: Test CheckStartAbility with invalid calling.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckStartAbilityWithInvalidCalling, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT };
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME_1),
+        Return(ERR_OK)));
+    ErrCode ret = edmMgr_->CheckStartAbility(DEFAULT_USER_ID, admin, "");
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestCheckStartAbilityWithoutPermission
+ * @tc.desc: Test CheckStartAbility without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckStartAbilityWithoutPermission, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT };
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    bool isSystemApp = false;
+    EXPECT_CALL(*bundleMgrMock_, IsSystemApp).WillOnce(DoAll(SetArgReferee<2>(isSystemApp), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ErrCode ret = edmMgr_->CheckStartAbility(DEFAULT_USER_ID, admin, "");
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestCheckStartAbilityForSystemApp
+ * @tc.desc: Test CheckStartAbility for system app.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckStartAbilityForSystemApp, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT };
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    bool isSystemApp = true;
+    EXPECT_CALL(*bundleMgrMock_, IsSystemApp).WillOnce(DoAll(SetArgReferee<2>(isSystemApp), Return(ERR_OK)));
+    ErrCode ret = edmMgr_->CheckStartAbility(DEFAULT_USER_ID, admin, "");
+    ASSERT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestCheckStartAbilitySuccess
+ * @tc.desc: Test CheckStartAbility success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckStartAbilitySuccess, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT };
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    bool isSystemApp = false;
+    EXPECT_CALL(*bundleMgrMock_, IsSystemApp).WillOnce(DoAll(SetArgReferee<2>(isSystemApp), Return(ERR_OK)));
+    ErrCode ret = edmMgr_->CheckStartAbility(DEFAULT_USER_ID, admin, "");
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestStartAbilityByAdminWithInvalidAdmin
+ * @tc.desc: Test StartAbilityByAdmin with invalid admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    edmMgr_->adminMgr_->ClearAdmins();
+    AAFwk::Want want;
+    sptr<IRemoteObject> token = nullptr;
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestStartAbilityByAdminWithInvalidWant
+ * @tc.desc: Test StartAbilityByAdmin with invalid want.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidWant, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT };
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    bool isSystemApp = false;
+    EXPECT_CALL(*bundleMgrMock_, IsSystemApp).WillOnce(DoAll(SetArgReferee<2>(isSystemApp), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(true)));
+    
+    AAFwk::Want want;
+    want.SetElementName("", "");
+    sptr<IRemoteObject> token = nullptr;
+
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ASSERT_TRUE(ret != ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

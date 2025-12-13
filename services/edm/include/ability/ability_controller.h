@@ -22,11 +22,15 @@ namespace OHOS {
 namespace EDM {
 class AbilityController {
 public:
-    AbilityController() = default;
+    AbilityController(std::vector<std::string> permissions = {}) : permissions_(std::move(permissions)) {}
+
     virtual ~AbilityController() = default;
 
-    virtual ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-        const sptr<IRemoteObject> &token, int32_t userId);
+    virtual ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId);
+
+    virtual bool VerifyPermission();
+protected:
+    std::vector<std::string> permissions_;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -17,11 +17,13 @@
 
 #include "ability_manager_client.h"
 #include "edm_log.h"
+#include "ipc_skeleton.h"
+#include "permission_checker.h"
 
 namespace OHOS {
 namespace EDM {
-ErrCode UIAbilityController::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-    const sptr<IRemoteObject> &token, int32_t userId)
+ErrCode UIAbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token,
+    int32_t userId)
 {
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token, userId);
     if (FAILED(ret)) {
@@ -29,6 +31,23 @@ ErrCode UIAbilityController::StartAbilityByAdmin(const AppExecFwk::ElementName &
         return ret;
     }
     return ERR_OK;
+}
+
+bool UIAbilityController::VerifyPermission()
+{
+    if (permissions_.empty()) {
+        return true;
+    }
+
+    // 校验UIAbility保护权限
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    for (auto permission : permissions_) {
+        if (!PermissionChecker::GetInstance()->VerifyCallingPermission(tokenId, permission)) {
+            EDMLOGE("VerifyPermission: %{public}s DENIED", permission.c_str());
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

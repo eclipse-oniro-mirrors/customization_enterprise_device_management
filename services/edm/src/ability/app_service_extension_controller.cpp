@@ -20,8 +20,8 @@
 
 namespace OHOS {
 namespace EDM {
-ErrCode AppServiceExtensionController::StartAbilityByAdmin(const AppExecFwk::ElementName &admin,
-    const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId)
+ErrCode AppServiceExtensionController::StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token,
+    int32_t userId)
 {
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(want, token, userId,
         AppExecFwk::ExtensionAbilityType::APP_SERVICE);
