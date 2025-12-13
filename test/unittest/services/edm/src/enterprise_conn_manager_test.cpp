@@ -131,9 +131,11 @@ HWTEST_F(EnterpriseConnManagerTest, TestKeyEventConnectAbility, TestSize.Level1)
     std::string abilityName{"com.edm.test.demo.Ability"};
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
+    std::string keyEventStr = "{\"actionTime\": 344510, \"keyCode\": 10012, \"keyAction\": 2,"
+        "\"keyItems\": [{\"pressed\": 1, \"keyCode\": 10012, \"downTime\": 344510}]}";
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     bool ret = manager->CreateKeyEventConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_KEY_EVENT,
-        DEFAULT_USERID, true);
+        DEFAULT_USERID, keyEventStr);
     EXPECT_TRUE(!ret);
 }
 } // namespace TEST

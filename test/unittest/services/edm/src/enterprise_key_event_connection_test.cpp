@@ -54,9 +54,11 @@ HWTEST_F(EnterpriseKeyEventConnectionTest, TestOnAbilityConnectDone, TestSize.Le
     AAFwk::Want connectWant;
     connectWant.SetElementName(TEST_BUNDLE_NAME, TEST_ABILITY_NAME);
     int32_t resultCode = 0;
+    std::string keyEventStr = "{\"actionTime\": 344510, \"keyCode\": 10012, \"keyAction\": 2,"
+        "\"keyItems\": [{\"pressed\": 1, \"keyCode\": 10012, \"downTime\": 344510}]}";
     enterpriseKeyEventConnection =
         std::make_shared<EnterpriseKeyEventConnection>(connectWant,
-        IEnterpriseAdmin::COMMAND_ON_KEY_EVENT, DEFAULT_USER_ID, true);
+        IEnterpriseAdmin::COMMAND_ON_KEY_EVENT, DEFAULT_USER_ID, keyEventStr);
     EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
